@@ -34,7 +34,7 @@
 #define ZHUANG_ZHI_LING_YUN   20 // 2016年04月15日 壮志凌云
 #define FENG_GU_BA_DAO        21 // 2016年10月17日 风骨霸刀
 #define RI_YUE_LING_KONG      22 // 2017年04月20日 日月凌空
-#define REMAKE                23 // 2017年04月20日 日月凌空
+#define REMAKE                23 // 2017年12月29日 重制版
 #define CHANG_FENG_PO_XIAO    24 // 2018年06月21日 长风破晓
 #define SHI_WAI_PENG_LAI      25 // 2018年12月21日 世外蓬莱
 #define NU_HAI_ZHENG_FENG     26 // 2019年06月20日 怒海争锋

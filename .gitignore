@@ -1,0 +1,12 @@
+# Ignore cmake generated directories and files
+build/*
+JX3DPS.pro.user
+
+# Ignore Visual Studio Code files
+.vscode/*
+
+# Ignore macOS files
+.DS_Store
+
+# Ignore clang-format test file
+clang-format.cpp

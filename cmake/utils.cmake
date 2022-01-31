@@ -27,7 +27,7 @@ function(VERSION)
         RESULT_VARIABLE RET
     )
     if(RET EQUAL "0")
-        string(REGEX MATCH "Your branch is up to date with '.*/(.*)'.[\r|\n]+nothing to commit, working tree clean" _ "${GIT_REPO_STATUS}")
+        string(REGEX MATCH "Your branch is up to date with '(.*/(.*))'.[\r|\n]+nothing to commit, working tree clean" _ "${GIT_REPO_STATUS}")
         if(NOT CMAKE_MATCH_COUNT EQUAL 1)
             set(CUSTOM TRUE)
         else()

@@ -31,14 +31,15 @@ function(VERSION)
         if(NOT CMAKE_MATCH_COUNT EQUAL 2)
             set(CUSTOM TRUE)
         else()
-            set(VERSION_BRANCH ${CMAKE_MATCH_1} PARENT_SCOPE)
+            set(REMOTE_BRANCH ${CMAKE_MATCH_1} PARENT_SCOPE)
+            set(VERSION_BRANCH ${CMAKE_MATCH_2} PARENT_SCOPE)
             set(CUSTOM FALSE)
         endif()
     else()
         set(CUSTOM TRUE)
     endif()
 
-    execute_process(COMMAND ${GIT_EXECUTABLE} log ${VERSION_BRANCH} -1 --format=%cd --date=format:%y%m%d
+    execute_process(COMMAND ${GIT_EXECUTABLE} log ${REMOTE_BRANCH} -1 --format=%cd --date=format:%y%m%d
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE  GIT_REPO_DATE
         OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -46,7 +47,7 @@ function(VERSION)
     )
     set(VERSION_PATCH ${GIT_REPO_DATE})
 
-    execute_process(COMMAND ${GIT_EXECUTABLE} log ${VERSION_BRANCH} -1 --format=%cd --date=format:%H%M
+    execute_process(COMMAND ${GIT_EXECUTABLE} log ${REMOTE_BRANCH} -1 --format=%cd --date=format:%H%M
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE  GIT_REPO_TIME
         OUTPUT_STRIP_TRAILING_WHITESPACE

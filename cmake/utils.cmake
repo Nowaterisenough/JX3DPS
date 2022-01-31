@@ -29,17 +29,17 @@ function(VERSION)
     message("${GIT_REPO_STATUS}")
     set(CUSTOM FALSE)
     if(RET EQUAL "0")
-        string(REGEX MATCH "Your branch is up to date with .*(nothing to commit, working tree clean)" _ "${GIT_REPO_STATUS}")
+        string(REGEX MATCH "Your branch is up to date with '.*/(.*)'.*(nothing to commit, working tree clean)" _ "${GIT_REPO_STATUS}")
         if(NOT CMAKE_MATCH_COUNT EQUAL 1)
             set(CUSTOM TRUE)
         else()
-            execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref @{u}
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-                OUTPUT_VARIABLE  GIT_REPO_BRANCH
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-                RESULT_VARIABLE RET
-            )
-            string(REGEX MATCH ".*/(.*)" _ "${GIT_REPO_BRANCH}")
+            # execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref @{u}
+            #     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            #     OUTPUT_VARIABLE  GIT_REPO_BRANCH
+            #     OUTPUT_STRIP_TRAILING_WHITESPACE
+            #     RESULT_VARIABLE RET
+            # )
+            # string(REGEX MATCH ".*/(.*)" _ "${GIT_REPO_BRANCH}")
             set(VERSION_BRANCH ${CMAKE_MATCH_1} PARENT_SCOPE)
         endif()
     else()

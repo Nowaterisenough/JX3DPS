@@ -10,11 +10,44 @@
 #ifndef ATTR_H
 #define ATTR_H
 
-#include "Core/Global.h"
+#include "Global.h"
+
+#if defined _WIN32 || defined __CYGWIN__
+#    if defined EXPORT_JX3DPS_CORE // CMake add_definitions
+#        ifdef __GNUC__
+#            define JX3DPS_CORE_API __attribute__(dllexport)
+#        else
+#            define JX3DPS_CORE_API __declspec(dllexport)
+#        endif // __GNUC__
+#    else
+#        ifdef __GNUC__
+#            define JX3DPS_CORE_API __attribute__(dllimport)
+#        else
+#            define JX3DPS_CORE_API __declspec(dllimport)
+#        endif // __GNUC__
+#    endif     // COLOR_GRADIENT_SLIDER_API
+#    define JX3DPS_CORE_PRIVATE
+
+#elif defined __GNUC__
+#    if __GNUC__ >= 4
+#        define JX3DPS_CORE_API     __attribute__((visibility("default")))
+#        define JX3DPS_CORE_PRIVATE __attribute__((visibility("hidden")))
+#    else
+#        define JX3DPS_CORE_API
+#        define JX3DPS_CORE_PRIVATE
+#    endif // __GNUC__ >= 4
+
+#elif defined __clang__
+#    define JX3DPS_CORE_API     __attribute__((visibility("default")))
+#    define JX3DPS_CORE_PRIVATE __attribute__((visibility("hidden")))
+
+#else
+#    error "Do not know how to export classes for this platform"
+#endif // defined(_WIN32) || defined(__CYGWIN__)
 
 namespace JX3DPS {
 
-class Attr
+class JX3DPS_CORE_API Attr
 {
 public:
     Attr(Class classType);
@@ -269,7 +302,7 @@ private:
     void UpdateSurplusDamage();
 
     /* 忽视防御 */
-    void UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent);
+    //void UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent);
 
 private:
     /* 心法属性加成 */

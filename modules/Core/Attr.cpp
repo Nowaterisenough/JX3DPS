@@ -1,4 +1,4 @@
-#include "Core/Attr.h"
+#include "Attr.h"
 
 //#include "Core/Target.h"
 
@@ -14,6 +14,8 @@ Attr::Attr(Class classType)
     default: break;
     }
 }
+
+Attr::~Attr() {}
 
 Value_t Attr::GetAgilityBase() const
 {
@@ -877,14 +879,14 @@ BinPct_t Attr::GetShieldIgnoreBinPercent() const
 void Attr::SetShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
 {
     m_shieldIgnoreBinPercent = binPercent;
-    UpdateShieldIgnorePercent(targetsMap, binPercent);
+    //UpdateShieldIgnorePercent(targetsMap, binPercent);
     return;
 }
 
 void Attr::AddShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
 {
     m_shieldIgnoreBinPercent += binPercent;
-    UpdateShieldIgnorePercent(targetsMap, binPercent);
+    //UpdateShieldIgnorePercent(targetsMap, binPercent);
     return;
 }
 
@@ -1038,13 +1040,13 @@ void Attr::UpdateSurplusDamage()
     m_surplusDamage = m_surplus * CONST_SURPLUS_PARAM;
 }
 
-void Attr::UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent)
-{
-    for (auto &targets : targetsMap) {
-        for (auto &target : targets.second) {
-            target->SetShieldIgnoreBinPercent(binPercent);
-        }
-    }
-}
+//void Attr::UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent)
+//{
+//    for (auto &targets : targetsMap) {
+//        for (auto &target : targets.second) {
+//            target->SetShieldIgnoreBinPercent(binPercent);
+//        }
+//    }
+//}
 
 } // namespace JX3DPS

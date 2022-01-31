@@ -11,11 +11,14 @@ AlignConsecutiveDeclarations: true
 AlignEscapedNewlines: Left
 AlignOperands:   true
 AlignTrailingComments: true
-AllowAllArgumentsOnNextLine: true
+AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
+# 允许在单行上使用短枚举
+AllowShortEnumsOnASingleLine: false
+# 仅合并内联函数和空函数
 AllowShortFunctionsOnASingleLine:  Inline
 AllowShortLambdasOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: WithoutElse
@@ -24,13 +27,13 @@ AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: Yes
-BinPackArguments: true
+BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel:  true
   AfterClass:      true
-  AfterControlStatement: false
+  AfterControlStatement: MultiLine
   AfterEnum:       true
   AfterFunction:   true
   AfterNamespace:  false
@@ -38,18 +41,20 @@ BraceWrapping:
   AfterStruct:     true
   AfterUnion:      true
   AfterExternBlock: true
-  BeforeCatch:     true
+  BeforeCatch:     false
   BeforeElse:      false
+  BeforeLambdaBody: false
+  BeforeWhile:    false
   IndentBraces:    false
   SplitEmptyFunction: true
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
 BreakBeforeBinaryOperators: None
 BreakBeforeInheritanceComma: false
-BreakInheritanceList: BeforeColon
+BreakInheritanceList: AfterColon
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
-BreakConstructorInitializers: BeforeColon
+BreakConstructorInitializers: AfterColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
 ColumnLimit:     100
@@ -62,6 +67,7 @@ Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 DisableFormat:   false
 ExperimentalAutoDetectBinPacking: false
+EmptyLineBeforeAccessModifier: Always
 FixNamespaceComments: true
 ForEachMacros:
   - foreach
@@ -77,9 +83,10 @@ IncludeCategories:
     Priority:        1
 IncludeIsMainRegex: '(Test)?$'
 IndentCaseLabels: false
-IndentPPDirectives: BeforeHash
+IndentPPDirectives: AfterHash
 IndentWidth:     4
 IndentWrappedFunctionNames: false
+IndentRequires: false
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: true
@@ -91,6 +98,8 @@ ObjCBinPackProtocolList: Auto
 ObjCBlockIndentWidth: 2
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
+# 构造函数初始化列表格式 clang-format 14
+# PackConstructorInitializers: NextLine
 PenaltyBreakAssignment: 2
 PenaltyBreakBeforeFirstCallParameter: 19
 PenaltyBreakComment: 300
@@ -99,8 +108,13 @@ PenaltyBreakString: 1000
 PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 10
 PenaltyReturnTypeOnItsOwnLine: 60
+# 预处理器缩进 clang-format 14
+# PPIndentWidth: 1
+# 指针 *靠右
 PointerAlignment: Right
 ReflowComments:  true
+# 总是空行分隔定义块，包括类、结构、枚举和函数 clang-format 14
+# SeparateDefinitionBlocks: Always
 SortIncludes:    false
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false

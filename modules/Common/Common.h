@@ -1,5 +1,7 @@
 #include <random>
 
+namespace JX3DPS {
+
 #if _MSVC_LANG >= 201703L || __cplusplus >= 201703L
 template <typename T>
 T Random(T a, T b)
@@ -31,7 +33,7 @@ std::enable_if_t<std::is_floating_point<T>::value, T> Random(T a, T b)
     return u(e, decltype(u)::param_type(a, b));
 }
 
-#else  // _MSVC_LANG >= 201103L || __cplusplus >= 201103L
+#else // _MSVC_LANG >= 201103L || __cplusplus >= 201103L
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value, T>::type Random(T a, T b)
 {
@@ -47,4 +49,7 @@ typename std::enable_if<std::is_floating_point<T>::value, T>::type Random(T a, T
     static std::uniform_real_distribution<T> u;
     return u(e, decltype(u)::param_type(a, b));
 }
+
 #endif // C++ 标准
+
+} // namespace JX3DPS

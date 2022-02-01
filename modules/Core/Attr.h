@@ -1,10 +1,10 @@
 /**
- * Description: Player属性类, 包括主属性、攻击、会心、破防等基本类别及转换关系.
- * Create: 2020-09-08  难为水
- * Update: 2020-11-29  难为水  1. 更新破招属性;
- * Notes: 1. **FromCustom表自定义部分，包括装备，附魔等加成部分;
- *        2. **FromMajor表主属性转化而来的部分;
- *        3. **FromClass表心法额外加成的部分;
+ * @Description : Player属性类, 包括主属性、攻击、会心、破防等基本类别及转换关系
+ * @Author      : NoWats
+ * @Date        : 2022-01-28 21:08:33
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-01 18:22:21
+ * @FilePath    : \JX3DPS\modules\Core\Attr.h
  */
 
 #ifndef ATTR_H
@@ -302,7 +302,7 @@ private:
     void UpdateSurplusDamage();
 
     /* 忽视防御 */
-    //void UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent);
+    // void UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent);
 
 private:
     /* 心法属性加成 */

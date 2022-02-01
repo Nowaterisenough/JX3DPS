@@ -1,7 +1,10 @@
 ﻿/**
- * Description: 全局类型、宏、定义、函数等相关设定.
- * Create: 2020-03-10  难为水
- * Update: 2020-09-11  难为水  调整判定伤害的宏定义.
+ * @Description : 全局类型、宏、定义、函数等相关设定
+ * @Author      : NoWats
+ * @Date        : 2022-01-28 21:19:49
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-01 15:16:20
+ * @FilePath    : \JX3DPS\modules\Core\Global.h
  */
 
 #ifndef GLOBAL_H

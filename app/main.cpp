@@ -1,3 +1,12 @@
+/**
+ * @Description : JX3DPS APP 主函数
+ * @Author      : NoWats
+ * @Date        : 2022-01-26 22:28:25
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-01 15:17:38
+ * @FilePath    : \JX3DPS\app\main.cpp
+ */
+
 #include <iostream>
 #include <random>
 

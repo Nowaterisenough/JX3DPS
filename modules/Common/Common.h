@@ -1,3 +1,12 @@
+/**
+ * @Description : 公共方法
+ * @Author      : NoWats
+ * @Date        : 2022-01-28 23:13:33
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-01 15:16:35
+ * @FilePath    : \JX3DPS\modules\Common\Common.h
+ */
+
 #include <random>
 
 namespace JX3DPS {

@@ -1,9 +1,10 @@
 /**
- * @Description: JX3DPS版本相关设定.
- * @Create: 2020-05-22  难为水
- * @Update: 2020-07-17  难为水  更新 剑网3资料片-同筑山水居.
- *          2020-10-15  难为水  更新 剑网3资料片-奉天证道.
- *          2022-01-26  难为水  更新 宏定义调整
+ * @Description : JX3DPS版本相关设定
+ * @Author      : NoWats
+ * @Date        : 2022-01-26 22:25:28
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-01 15:17:09
+ * @FilePath    : \JX3DPS\modules\Common\Version.h
  */
 
 #ifndef VERSION_H

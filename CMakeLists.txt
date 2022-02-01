@@ -1,36 +1,32 @@
 cmake_minimum_required(VERSION 3.5)
 
-# 时间戳
-string(TIMESTAMP TIMESTAMP_VERSION "%y%m%d.%H%M")
-
-set(JX3_VERSION 29)
-
-# 定义项目名称
-set(PROJECT_NAME JX3DPS)
+include(cmake/utils.cmake)                                                      
+VERSION() 
 
 # 设置项目名称&版本
-project(${PROJECT_NAME})
+project(JX3DPS VERSION ${PROJECT_VERSION})
+message(STATUS "PROJECT_VERSION: ${PROJECT_VERSION}")
+message(STATUS "VERSION_BRANCH: ${VERSION_BRANCH}")
 
-# 定义VERSION & APP_NAME
-add_definitions(-DTIMESTAMP_VERSION=${TIMESTAMP_VERSION})
+add_definitions(-DVERSION_PATCH=${PROJECT_VERSION_PATCH})
+add_definitions(-DVERSION_TWEAK=${PROJECT_VERSION_TWEAK})
+add_definitions(-DVERSION_BRANCH=${VERSION_BRANCH})
 
-set(PROJECT_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/Common)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/Core)
 
-function(include_sub_directories_recursively root_dir)
-    if (IS_DIRECTORY ${root_dir})               # 当前路径是一个目录吗，是的话就加入到包含目录
-        include_directories(${root_dir})
-    endif()
-
-    file(GLOB ALL_SUB RELATIVE ${root_dir} ${root_dir}/*) # 获得当前目录下的所有文件，让如ALL_SUB列表中
-    foreach(sub ${ALL_SUB})
-        if (IS_DIRECTORY ${root_dir}/${sub})
-            include_sub_directories_recursively(${root_dir}/${sub}) # 对子目录递归调用，包含
+# install路径
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    if(NOT CMAKE_TOOLCHAIN_FILE)
+        if(WIN32)
+            set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
+        else()
+            set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation Directory" FORCE)
         endif()
-    endforeach()
-endfunction()
-
-include_sub_directories_recursively(${PROJECT_ROOT_PATH}/include) # 对子目录递归调用，包含
-
+    else()
+        set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
+    endif()
+endif()
 
 # CMake选项 动态库编译
 option(BUILD_SHARED_LIBS "option for build" ON)
@@ -41,8 +37,8 @@ else()
 endif()
 
 # CMake选项 MSVC MD编译
-option(BUILD_MSVC_MD "option for build" ON)
 if(MSVC)
+    option(BUILD_MSVC_MD "option for build" ON)
     set(COMPILER_FLAGS
         CMAKE_C_FLAGS CMAKE_CXX_FLAGS
         CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG
@@ -59,20 +55,18 @@ if(MSVC)
             string(REPLACE "/MD" "/MT" ${COMPILER_FLAG} "${${COMPILER_FLAG}}")
         endforeach()
     endif(BUILD_MSVC_MD)
-else()
 endif(MSVC)
 
-# install路径
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    if(NOT CMAKE_TOOLCHAIN_FILE)
-        if(WIN32)
-            set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
-        else()
-            set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation Directory" FORCE)
-        endif()
-    else()
-        set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
-    endif()
+add_subdirectory(modules)
+
+# CMake选项 app编译
+option(BUILD_APP "option for build" ON)
+if(BUILD_APP)
+    add_subdirectory(app)
 endif()
 
-add_subdirectory(src)
+# CMake选项 UT测试
+option(BUILD_TEST "option for build" OFF)
+if(BUILD_TEST)
+    add_subdirectory(test)
+endif()

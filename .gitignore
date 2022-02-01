@@ -4,7 +4,6 @@ JX3DPS.pro.user
 
 # Ignore Visual Studio Code files
 .vscode/*
-.VSCodeCounter/*
 
 # Ignore macOS files
 .DS_Store

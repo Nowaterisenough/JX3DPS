@@ -1,9 +1,9 @@
-﻿/**
+/**
  * @Description : 全局类型、宏、定义、函数等相关设定
  * @Author      : NoWats
  * @Date        : 2022-01-28 21:19:49
  * @Update      : NoWats
- * @LastTime    : 2022-02-01 18:22:39
+ * @LastTime    : 2022-02-01 21:38:24
  * @FilePath    : \JX3DPS\modules\Core\Global.h
  */
 

@@ -3,13 +3,13 @@
  * @Author      : NoWats
  * @Date        : 2022-01-28 21:08:33
  * @Update      : NoWats
- * @LastTime    : 2022-02-01 15:16:07
+ * @LastTime    : 2022-02-01 18:23:01
  * @FilePath    : \JX3DPS\modules\Core\Attr.cpp
  */
 
 #include "Attr.h"
 
-//#include "Core/Target.h"
+// #include "Core/Target.h"
 
 namespace JX3DPS {
 
@@ -888,14 +888,14 @@ BinPct_t Attr::GetShieldIgnoreBinPercent() const
 void Attr::SetShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
 {
     m_shieldIgnoreBinPercent = binPercent;
-    //UpdateShieldIgnorePercent(targetsMap, binPercent);
+    // UpdateShieldIgnorePercent(targetsMap, binPercent);
     return;
 }
 
 void Attr::AddShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
 {
     m_shieldIgnoreBinPercent += binPercent;
-    //UpdateShieldIgnorePercent(targetsMap, binPercent);
+    // UpdateShieldIgnorePercent(targetsMap, binPercent);
     return;
 }
 
@@ -1049,7 +1049,7 @@ void Attr::UpdateSurplusDamage()
     m_surplusDamage = m_surplus * CONST_SURPLUS_PARAM;
 }
 
-//void Attr::UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent)
+// void Attr::UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent)
 //{
 //    for (auto &targets : targetsMap) {
 //        for (auto &target : targets.second) {

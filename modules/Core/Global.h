@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-01-28 21:19:49
  * @Update      : NoWats
- * @LastTime    : 2022-02-01 15:16:20
+ * @LastTime    : 2022-02-01 18:22:39
  * @FilePath    : \JX3DPS\modules\Core\Global.h
  */
 
@@ -39,11 +39,11 @@
 
 /* 判定伤害 */
 #if JX3_MAJOR_VERSION >= 110
-    #define GET_FINAL_DAMAGE(NormalDamage, TableRes, CriticalStrikePowerPercent) \
+#    define GET_FINAL_DAMAGE(NormalDamage, TableRes, CriticalStrikePowerPercent) \
         (static_cast<long long>((NormalDamage) * (1 + (TableRes)) *              \
                                 ((CriticalStrikePowerPercent)-1.0)))
 #else
-    #define GET_FINAL_DAMAGE(NormalDamage, TableRes, CriticalStrikePowerPercent) \
+#    define GET_FINAL_DAMAGE(NormalDamage, TableRes, CriticalStrikePowerPercent) \
         (static_cast<long long>(((NormalDamage) >> ((TableRes) / 2)) *           \
                                 (1 + ((TableRes)&1) * ((CriticalStrikePowerPercent)-1.0))))
 #endif // JX3_MAJOR_VERSION >= 110
@@ -159,8 +159,8 @@ const Value_t const CONST_ENCHANTS_VALUE_ATTACK[9] = {0, 2, 5, 7, 10, 12, 15, 20
 const Value_t const CONST_ENCHANTS_VALUE_SUB[9] = {0, 5, 11, 17, 22, 28, 34, 45, 58};
 
 /* 强化 - 系数 */
-const double const CONST_STRENGTHEN_LEVEL[9] = {0.0,   0.005, 0.013, 0.024, 0.038,
-                                                0.055, 0.075, 0.098, 0.124};
+const double const CONST_STRENGTHEN_LEVEL[9] =
+    {0.0, 0.005, 0.013, 0.024, 0.038, 0.055, 0.075, 0.098, 0.124};
 
 /* 五彩石 - 主属性 */
 const double CONST_STONE_PRIMARY = 5.175;
@@ -378,9 +378,9 @@ struct DamageParam
 
     DamageParam() : fixedDamage(0), weaponDamageBinPercent(0), attackDamagePercent(0.0) {}
 
-    DamageParam(int fixedDamage, BinPct_t weaponDamageBinPercent, Pct_t attackDamagePercent)
-        : fixedDamage(fixedDamage), weaponDamageBinPercent(weaponDamageBinPercent),
-          attackDamagePercent(attackDamagePercent)
+    DamageParam(int fixedDamage, BinPct_t weaponDamageBinPercent, Pct_t attackDamagePercent) :
+        fixedDamage(fixedDamage), weaponDamageBinPercent(weaponDamageBinPercent),
+        attackDamagePercent(attackDamagePercent)
     {
     }
 };
@@ -400,8 +400,8 @@ struct Param
 
     Param() {}
 
-    Param(int int1st, int int2nd, int int3rd, double double4th, double double5th)
-        : int1st(int1st), int2nd(int2nd), int3rd(int3rd), double4th(double4th), double5th(double5th)
+    Param(int int1st, int int2nd, int int3rd, double double4th, double double5th) :
+        int1st(int1st), int2nd(int2nd), int3rd(int3rd), double4th(double4th), double5th(double5th)
     {
     }
 };
@@ -415,8 +415,8 @@ struct EventFunc
     EventFuncPtr eventFuncPtr;
     Param        param;
 
-    EventFunc(EventFuncPtr eventFuncPtr, const Param &param)
-        : eventFuncPtr(eventFuncPtr), param(param)
+    EventFunc(EventFuncPtr eventFuncPtr, const Param &param) :
+        eventFuncPtr(eventFuncPtr), param(param)
     {
     }
 };
@@ -436,8 +436,8 @@ struct MacroFunc
 
     MacroFunc(MacroFuncPtr macroFuncPtr) : macroFuncPtr(macroFuncPtr) {}
 
-    MacroFunc(MacroFuncPtr macroFuncPtr, const Param &param)
-        : macroFuncPtr(macroFuncPtr), param(param)
+    MacroFunc(MacroFuncPtr macroFuncPtr, const Param &param) :
+        macroFuncPtr(macroFuncPtr), param(param)
     {
     }
 };
@@ -457,14 +457,14 @@ struct Damage
 
     Damage() : fixedDamage(0), weaponDamage(0), attackDamage(0) {}
 
-    Damage(const Damage &damage)
-        : fixedDamage(damage.fixedDamage), weaponDamage(damage.weaponDamage),
-          attackDamage(damage.attackDamage)
+    Damage(const Damage &damage) :
+        fixedDamage(damage.fixedDamage), weaponDamage(damage.weaponDamage),
+        attackDamage(damage.attackDamage)
     {
     }
 
-    Damage(long long fixedDamage, long long weaponDamage, long long attackDamage)
-        : fixedDamage(fixedDamage), weaponDamage(weaponDamage), attackDamage(attackDamage)
+    Damage(long long fixedDamage, long long weaponDamage, long long attackDamage) :
+        fixedDamage(fixedDamage), weaponDamage(weaponDamage), attackDamage(attackDamage)
     {
     }
 

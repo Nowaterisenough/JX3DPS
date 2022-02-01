@@ -68,5 +68,5 @@ endif()
 # CMake选项 UT测试
 option(BUILD_TEST "option for build" OFF)
 if(BUILD_TEST)
-    add_subdirectory(test)
+    add_subdirectory(tests)
 endif()

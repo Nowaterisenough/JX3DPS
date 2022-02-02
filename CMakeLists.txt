@@ -13,7 +13,9 @@ add_definitions(-DVERSION_TWEAK=${PROJECT_VERSION_TWEAK})
 add_definitions(-DVERSION_BRANCH=${VERSION_BRANCH})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/Common)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/Core)
+
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 # install路径
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -58,6 +60,7 @@ if(MSVC)
 endif(MSVC)
 
 add_subdirectory(modules)
+#add_subdirectory(3rd)
 
 # CMake选项 app编译
 option(BUILD_APP "option for build" ON)

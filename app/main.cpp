@@ -3,9 +3,11 @@
  * @Author      : NoWats
  * @Date        : 2022-01-26 22:28:25
  * @Update      : NoWats
- * @LastTime    : 2022-02-01 19:19:51
+ * @LastTime    : 2022-02-02 15:13:25
  * @FilePath    : \JX3DPS\app\main.cpp
  */
+
+#pragma execution_character_set("utf-8")
 
 #include <iostream>
 #include <random>
@@ -68,11 +70,23 @@ private:
     static const int s_frames = 96;
     int              frames   = 0;
 };
-
+#include <regex>
 int main(int argc, char *argv[])
 {
     std::cout << JX3DPS::BRANCH << std::endl;
     std::cout << JX3DPS::VERSION << std::endl;
+
+    std::string str{"tbuff:叠刃>4|tbuff:"};
+    std::regex  reg("(tbuff:叠刃>4|tbuff:)"); //("([a-z_]+):(.+)(>=|<=|~=|<|>|=)([0-9]+)");
+
+    std::smatch mat;
+    if (std::regex_match(str, mat, reg)) {
+        std::cout << mat[0];
+    } else {
+        std::cout << "none" << str;
+    }
+
+    return 0;
 
     wwwj w;
     bhgy b;
@@ -107,13 +121,13 @@ int main(int argc, char *argv[])
         }
     }
     JX3DPS::Attr attr(JX3DPS::Class::TAI_XU_JIAN_YI);
-    std::cout << attr.GetAgilityBase();
+    // std::cout << attr.GetAgilityBase();
     // float sum  = 0.0;
     // int   sumI = 0;
     // for (int i = 0; i < 10000; ++i) {
     //     sum += JX3DPS::Random(0.0, 100.0);
     //     sumI += JX3DPS::Random(0, 1024);
     // }
-    std::cout << sumB << std::endl << sumW << std::endl;
+    // std::cout << sumB << std::endl << sumW << std::endl;
     return 0;
 }

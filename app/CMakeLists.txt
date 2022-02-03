@@ -17,7 +17,6 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     JX3DPSCore
-    pcre2-8
 )
 
 install(TARGETS ${PROJECT_NAME}

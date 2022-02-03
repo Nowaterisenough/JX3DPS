@@ -8,6 +8,9 @@ project(JX3DPS VERSION ${PROJECT_VERSION})
 message(STATUS "PROJECT_VERSION: ${PROJECT_VERSION}")
 message(STATUS "VERSION_BRANCH: ${VERSION_BRANCH}")
 
+set(CMAKE_C_FLAGS_RELEASE "-Wall -O2 -fPIC -fPIE -fno-exceptions -fno-rtti")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -fPIC -fPIE -fno-exceptions -fno-rtti")
+
 add_definitions(-DVERSION_PATCH=${PROJECT_VERSION_PATCH})
 add_definitions(-DVERSION_TWEAK=${PROJECT_VERSION_TWEAK})
 add_definitions(-DVERSION_BRANCH=${VERSION_BRANCH})

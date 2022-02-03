@@ -4,6 +4,6 @@
 # For Developer
 1. git代码仓
 ```git
-git clone --recurse-submodules https://github.com/Nowaterisenough/JX3DPS.git
+git clone --recurse-submodules
 ```
 2. CMake编译

@@ -2,7 +2,7 @@
 #define PLAYER_H
 
 
-#include <map>
+#include <unordered_map>
 #include <list>
 
 #include "Core/Global.h"
@@ -58,10 +58,10 @@ public:
 
 public_var:
     /* 技能 */
-    std::map<Id_t, Skill *> m_skillMap;
+    std::unordered_map<Id_t, Skill *> m_skillHash;
 
     /* Buff */
-    std::map<Id_t, Buff *> m_buffMap;
+    std::unordered_map<Id_t, Buff *> m_buffHash;
 
     /* 公共冷却 */
     Frame_t m_publicCooldown;

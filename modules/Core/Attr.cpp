@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-01-28 21:08:33
  * @Update      : NoWats
- * @LastTime    : 2022-02-01 18:23:01
+ * @LastTime    : 2022-02-03 19:11:46
  * @FilePath    : \JX3DPS\modules\Core\Attr.cpp
  */
 
@@ -885,19 +885,19 @@ BinPct_t Attr::GetShieldIgnoreBinPercent() const
     return m_shieldIgnoreBinPercent;
 }
 
-void Attr::SetShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
-{
-    m_shieldIgnoreBinPercent = binPercent;
-    // UpdateShieldIgnorePercent(targetsMap, binPercent);
-    return;
-}
+// void Attr::SetShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
+// {
+//     m_shieldIgnoreBinPercent = binPercent;
+//     // UpdateShieldIgnorePercent(targetsMap, binPercent);
+//     return;
+// }
 
-void Attr::AddShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
-{
-    m_shieldIgnoreBinPercent += binPercent;
-    // UpdateShieldIgnorePercent(targetsMap, binPercent);
-    return;
-}
+// void Attr::AddShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
+// {
+//     m_shieldIgnoreBinPercent += binPercent;
+//     // UpdateShieldIgnorePercent(targetsMap, binPercent);
+//     return;
+// }
 
 Value_t Attr::GetNoneFromClass() const
 {

@@ -7,6 +7,3 @@ JX3DPS.pro.user
 
 # Ignore macOS files
 .DS_Store
-
-# Ignore clang-format test file
-clang-format.cpp

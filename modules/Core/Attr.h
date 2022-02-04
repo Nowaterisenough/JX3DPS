@@ -3,14 +3,14 @@
  * @Author      : NoWats
  * @Date        : 2022-01-28 21:08:33
  * @Update      : NoWats
- * @LastTime    : 2022-02-01 18:22:21
+ * @LastTime    : 2022-02-03 19:10:20
  * @FilePath    : \JX3DPS\modules\Core\Attr.h
  */
 
 #ifndef ATTR_H
 #define ATTR_H
 
-#include "Global.h"
+#include "Common/ConstVal.h"
 
 #if defined _WIN32 || defined __CYGWIN__
 #    if defined EXPORT_JX3DPS_CORE // CMake add_definitions
@@ -245,8 +245,8 @@ public:
 
     /* 忽视防御 */
     BinPct_t GetShieldIgnoreBinPercent() const;
-    void     SetShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent);
-    void     AddShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent);
+    // void     SetShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent);
+    // void     AddShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent);
 
 private:
     /* 缺省函数 */

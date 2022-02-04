@@ -1,3 +1,11 @@
+/**
+ * @Description : 
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 12:08:10
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-04 12:54:30
+ * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Buff\DieRen.cpp
+ */
 #include "DieRen.h"
 
 #include "Core/Target.h"

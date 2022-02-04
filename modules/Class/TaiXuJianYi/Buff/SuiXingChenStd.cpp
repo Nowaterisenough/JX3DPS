@@ -1,23 +1,14 @@
-﻿#include "SuiXingChenStd.h"
+#include "SuiXingChenStd.h"
 
 #include "Core/Player.h"
+#include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
-namespace JX3DPS {
+int SuiXingChenStd::s_lastFrames = 36 * 16;
+int SuiXingChenStd::s_intervalFrames = 3 * 16;
 
-namespace TaiXuJianYi {
-
-Frame_t SuiXingChenStd::s_lastFrames = 36 * 16;
-Frame_t SuiXingChenStd::s_intervalFrames = 3 * 16;
-
-SuiXingChenStd::SuiXingChenStd(Player &player) :
-    Buff(player)
+SuiXingChenStd::SuiXingChenStd()
 {
     InitBaseParams();
-}
-
-SuiXingChenStd::SuiXingChenStd(const SuiXingChenStd &buff) : Buff(buff)
-{
-
 }
 
 SuiXingChenStd::~SuiXingChenStd()
@@ -25,40 +16,33 @@ SuiXingChenStd::~SuiXingChenStd()
 
 }
 
-SuiXingChenStd *SuiXingChenStd::Clone()
-{
-    return new SuiXingChenStd(*this);
-}
-
-SuiXingChenStd &SuiXingChenStd::operator=(const SuiXingChenStd &buff)
-{
-    Buff::operator=(buff);
-    return *this;
-}
-
-void SuiXingChenStd::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void SuiXingChenStd::Cast(Player &player,
+                          TargetList &targetList,
+                          Stats::ThreadStats &threadStats,
+                          Stats::SIM_MODE &simMode)
 {
     if (m_lastFrames == 0) {
-        m_lastFrames = INVALID_FRAMES_SET;
-        m_intervalFrames = INVALID_FRAMES_SET;
+        m_lastFrames = -1;
+        m_intervalFrames = -1;
         m_effectNum = 0;
-    } else if (!m_player->buffs[BUF_QI_SHENG]->IsExist() && m_player->talents[QI_SHENG]) {
-        m_player->buffs[BUF_QI_SHENG]->Refresh();
-        m_intervalFrames = static_cast<int>(s_intervalFrames * m_player->GetAttr().GetHastePercent());
+    } else if (!player.m_buffMap[BUF_QI_SHENG]->IsExist() &&
+               static_cast<TaiXuJianYi *>(&player)->m_talentQiSheng) {
+        player.m_buffMap[BUF_QI_SHENG]->Refresh(player);
+        m_intervalFrames = static_cast<int>(s_intervalFrames * player.GetHastePercent());
     }
 }
 
-void SuiXingChenStd::Refresh()
+void SuiXingChenStd::Refresh(Player &player)
 {
-    m_lastFrames = static_cast<int>(m_lastFrames * m_player->GetAttr().GetHastePercent());
-    m_intervalFrames = static_cast<int>(s_intervalFrames * m_player->GetAttr().GetHastePercent());
+    m_lastFrames = static_cast<int>(m_lastFrames * player.GetHastePercent());
+    m_intervalFrames = static_cast<int>(s_intervalFrames * player.GetHastePercent());
     m_effectNum = 1;
 }
 
-void SuiXingChenStd::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void SuiXingChenStd::Clean(Player &player, Target &target, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode)
 {
-    m_lastFrames = INVALID_FRAMES_SET;
-    m_intervalFrames = INVALID_FRAMES_SET;
+    m_lastFrames = -1;
+    m_intervalFrames = -1;
     m_effectNum = 0;
 }
 
@@ -66,10 +50,13 @@ void SuiXingChenStd::InitBaseParams()
 {
     m_id = BUF_SUI_XING_CHEN_STD;
     m_name = "气场碎星辰";
-    m_subNames.push_back("");
-    m_levelNames.push_back("");
+    m_subNameVec.push_back("");
+    m_levelNameVec.push_back("");
+    m_3rdCooldown = -1;
+    m_cooldown = -1;
+    m_lastFrames = -1;
+    m_intervalFrames = -1;
+    m_effectNum = 0;
+    m_stackNum = 0;
 }
 
-}
-
-}

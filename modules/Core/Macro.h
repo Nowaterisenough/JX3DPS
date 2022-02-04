@@ -48,49 +48,6 @@
 
 namespace JX3DPS {
 
-struct Param
-{
-    int int1st;
-    int int2nd;
-    int int3rd;
-    double double4th;
-    double double5th;
-
-    Param()
-    {}
-
-    Param(int int1st, int int2nd, int int3rd, double double4th, double double5th) :
-        int1st(int1st), int2nd(int2nd), int3rd(int3rd), double4th(double4th), double5th(double5th)
-    {
-    }
-};
-
-using ConditionFuncPtr = bool(Macro::*)(const Param &param);
-
-struct ConditionFunc
-{
-    ConditionFuncPtr macroFuncPtr;
-    Param param;
-
-    ConditionFunc()
-    {
-    }
-
-    ConditionFunc(ConditionFuncPtr conditionFuncPtr) :
-        conditionFuncPtr(conditionFuncPtr)
-    {
-    }
-
-    ConditionFunc(ConditionFuncPtr conditionFuncPtr, const Param &param) :
-        conditionFuncPtr(conditionFuncPtr), param(param)
-    {
-    }
-};
-
-using Macros = std::list<std::pair<std::list<std::list<ConditionFunc>>, Id_t>>;
-
-using ForceMacros = std::list<std::pair<Frame_t, std::pair<std::list<std::list<ConditionFunc>>, Id_t>>>;
-
 class JX3DPS_CORE_API Macro
 {
 public:
@@ -233,6 +190,7 @@ private:
     Macros m_publicMacros;
     Macros m_otherMacros;
     ForceMacros m_forceMacros;
+    Player *m_player;
 };
 
 } // namespace JX3DPS

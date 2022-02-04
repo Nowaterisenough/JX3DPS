@@ -3,21 +3,11 @@
 #include "Core/Player.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
-namespace JX3DPS {
+int RongJin::s_intervalFrames = 16;
 
-namespace TaiXuJianYi {
-
-Frame_t RongJin::s_intervalFrames = 16;
-
-RongJin::RongJin(Player &player) :
-    Buff(player)
+RongJin::RongJin()
 {
     InitBaseParams();
-}
-
-RongJin::RongJin(const RongJin &buff) : Buff(buff)
-{
-
 }
 
 RongJin::~RongJin()
@@ -25,42 +15,27 @@ RongJin::~RongJin()
 
 }
 
-RongJin *RongJin::Clone()
+void RongJin::Cast(Player &player, TargetList &targetList, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode)
 {
-    return new RongJin(*this);
-}
-
-RongJin &RongJin::operator=(const RongJin &buff)
-{
-    Buff::operator=(buff);
-    return *this;
-}
-
-void RongJin::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
-{
-    static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(1);
+    static_cast<TaiXuJianYi *>(&player)->UpdateQidian(1);
     m_intervalFrames = s_intervalFrames;
 }
 
-void RongJin::Refresh()
+void RongJin::Refresh(Player &player)
 {
 
-}
-
-void RongJin::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
-{
-    m_intervalFrames = INVALID_FRAMES_SET;
 }
 
 void RongJin::InitBaseParams()
 {
     m_id = BUF_CLASS_EFFECT;
     m_name = "融金";
-    m_subNames.push_back("");
-    m_levelNames.push_back("");
-    m_intervalFrames = static_cast<int>(RandBetween(0.0, 1.0) * s_intervalFrames);
-}
-
-}
-
+    m_subNameVec.push_back("");
+    m_levelNameVec.push_back("");
+    m_3rdCooldown = -1;
+    m_cooldown = -1;
+    m_lastFrames = -1;
+    m_intervalFrames = static_cast<int>(Stats::GetRand(0, 1) * s_intervalFrames);
+    m_effectNum = 0;
+    m_stackNum = 0;
 }

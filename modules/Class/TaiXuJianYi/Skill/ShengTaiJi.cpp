@@ -1,28 +1,17 @@
-﻿#include "ShengTaiJi.h"
+#include "ShengTaiJi.h"
 
+#include "Core/Stats.h"
 #include "Core/Buff.h"
 #include "Core/Target.h"
 #include "Core/Player.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
-namespace JX3DPS {
-
-namespace TaiXuJianYi {
-
 int ShengTaiJi::s_cooldown = 24;
 int ShengTaiJi::s_prepareFrames = 16;
 
-ShengTaiJi::ShengTaiJi(Player &player) :
-    Skill(player)
+ShengTaiJi::ShengTaiJi()
 {
     InitBaseParams();
-}
-
-ShengTaiJi::ShengTaiJi(const ShengTaiJi &skill) :
-    Skill(skill),
-    m_skillQidianAdd(skill.m_skillQidianAdd)
-{
-
 }
 
 ShengTaiJi::~ShengTaiJi()
@@ -30,27 +19,16 @@ ShengTaiJi::~ShengTaiJi()
 
 }
 
-ShengTaiJi *ShengTaiJi::Clone()
+void ShengTaiJi::Cast(Player &player, TargetList &targetList, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode)
 {
-    return new ShengTaiJi(*this);
-}
-
-ShengTaiJi &ShengTaiJi::operator=(const ShengTaiJi &skill)
-{
-    Skill::operator=(skill);
-    m_skillQidianAdd = skill.m_skillQidianAdd;
-    return *this;
-}
-
-void ShengTaiJi::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
-{
-    if (castType == CastType::SKILL) {
-        m_prepareFrames = static_cast<int>(s_prepareFrames * m_player->GetAttr().GetHastePercent());
+    if (m_prepareFrames == 0) {
+        m_prepareFrames = -1;
     } else {
-        m_cooldown = static_cast<int>((s_cooldown - m_skillCooldownAdd) * m_player->GetAttr().GetHastePercent());
-        m_prepareFrames = INVALID_FRAMES_SET;
-        UpdatePhysicsStats(*targetsMap[NORMAL].front(), stats, settings, TableRes::ALL, m_subNames[0], 0);
-        SubEffect(targetsMap, stats, settings, TableRes::ALL);
+        Stats::TableResult tableResult;
+        RecordStats(player, *targetList.front(), threadStats, simMode, tableResult);
+        SubEffect(player, targetList, threadStats, simMode, tableResult);
+        m_cooldown = static_cast<int>((s_cooldown - m_skillCooldownAdd) * player.GetHastePercent());
+        m_prepareFrames = static_cast<int>(s_prepareFrames * player.GetHastePercent());
     }
 }
 
@@ -63,26 +41,33 @@ void ShengTaiJi::InitBaseParams()
 {
     m_id = SKI_SHENG_TAI_JI;
     m_name = "生太极";
-    m_subNames.push_back("");
-    m_levelNames.push_back("");
-    m_publicCooldown = &m_player->publicCooldown;
-    m_isPublicCooldown = PUBLIC_SKILL;
+    m_subNameVec.push_back("");
+    m_levelNameVec.push_back("");
+    m_cooldown = 0;
+    m_prepareFrames = -1;
+    m_intervalFrames = -1;
+    m_effectNum = 0;
+    m_energyNum = 0;
+    m_publicCooldown = true;
+    m_skillCooldownAdd = 0;
+    m_skillCriticalStrikePercentAdd = 0;
+    m_skillCriticalStrikePowerPercentAdd = 0;
+    m_skillDamageBinPercentAdd = 0;
+    m_skillHitValuePercentAdd = 0;
 }
 
-void ShengTaiJi::InitDamageParams()
+void ShengTaiJi::RecordStats(Player &player, Target &target, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode, Stats::TableResult tableResult)
 {
-    m_damageParams[m_subNames[0]][0] = DamageParam(0, 0, 0.0);
-}
-
-void ShengTaiJi::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
-{
-    static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(m_skillQidianAdd);
-    m_player->buffs[BUF_SHENG_TAI_JI_STD]->Refresh();
-    if (m_player->talents[CHANG_SHENG]) {
-        m_player->buffs[BUF_CHI_YING]->Refresh();
+    if (simMode == Stats::SIM_MODE::DEFAULT) {
+        threadStats.threadDamageStats[m_id].second[target.GetId()][m_subNameVec[0]][0].
+                second[tableResult].first++;
     }
 }
 
-}
-
+void ShengTaiJi::SubEffect(Player &player, TargetList &targetList, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode, Stats::TableResult tableResult)
+{
+    static_cast<TaiXuJianYi *>(&player)->UpdateQidian(m_skillQidianAdd);
+    if (static_cast<TaiXuJianYi *>(&player)->m_talentChangSheng) {
+        player.m_buffMap[BUF_CHI_YING]->Refresh(player);
+    }
 }

@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-02 16:33:58
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 12:09:59
+ * @LastTime    : 2022-02-04 12:24:46
  * @FilePath    : \JX3DPS\modules\Core\Macro.cpp
  */
 
@@ -15,6 +15,7 @@
 #include <iostream>
 
 #include "Common/ConstVal.h"
+#include "Player.h"
 
 using namespace std;
 
@@ -112,26 +113,274 @@ bool Macro::Parse(const std::string &line)
 
 bool Macro::ParseCondition(const std::string &condition)
 {
-    std::regex  reg("([a-z_]+):(.+)(>=|<=|~=|<|>|=)([0-9]+)");
+    std::regex  reg1("([a-z_]+):(.+)(>=|<=|~=|<|>|=)([0-9]+)");
+    std::regex  reg2("([a-z_]+):(.+)");
+    std::regex  reg3("([a-z_]+)(>=|<=|~=|<|>|=)([0-9]+)");
     std::smatch mat;
-    if (std::regex_search(condition, mat, reg)) {
+    if (regex_search(condition, mat, reg1)) {
         std::string conditionType = mat[1];
         std::string effectName    = mat[2];
         std::string than          = mat[3];
         std::string numStr        = mat[4];
-        std::cout << "conditionType:" << conditionType << std::endl;
-        std::cout << than << std::endl;
-        std::cout << numStr << std::endl;
-        if (conditionType == "tbuff") {
-            Id_t id = BUFF_ID_HASH.at(effectName);
-            // std::cout << id;
+        if (conditionType == "buff") {
+            Id_t id                = GetBuffId(effectName);
+            macroFunc.param.int1st = id;
+            int num                = stoi(numStr);
+            macroFunc.param.int2nd = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::BuffStackNumLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::BuffStackNumLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::BuffStackNumEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::BuffStackNumNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::BuffStackNumGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::BuffStackNumGt;
+            }
+        } else if (conditionType == "tbuff") {
+            Id_t id                = GetBuffId(effectName);
+            macroFunc.param.int1st = id;
+            int num                = stoi(numStr);
+            macroFunc.param.int2nd = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::TBuffStackNumLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::TBuffStackNumLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::TBuffStackNumEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::TBuffStackNumNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::TBuffStackNumGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::TBuffStackNumGt;
+            }
         } else if (conditionType == "bufftime") {
-            Id_t id = BUFF_ID_HASH.at(effectName);
-            // std::cout << id;
+            Id_t id                = GetBuffId(effectName);
+            macroFunc.param.int1st = id;
+            double time            = stod(numStr);
+            macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::BuffTimeLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::BuffTimeLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::BuffTimeEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::BuffTimeNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::BuffTimeGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::BuffTimeGt;
+            }
+        } else if (conditionType == "tbufftime") {
+            Id_t id                = GetBuffId(effectName);
+            macroFunc.param.int1st = id;
+            double time            = stod(numStr);
+            macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::TBuffTimeLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::TBuffTimeLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::TBuffTimeEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::TBuffTimeNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::TBuffTimeGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::TBuffTimeGt;
+            }
+        } else if (conditionType == "cd") {
+            Id_t id                = GetSkillId(effectName);
+            macroFunc.param.int1st = id;
+            double time            = stod(numStr);
+            macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::SkillCooldownLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::SkillCooldownLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::SkillCooldownEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::SkillCooldownNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::SkillCooldownGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::SkillCooldownGt;
+            }
+        } else if (conditionType == "skill_energy") {
+            Id_t id                = GetSkillId(effectName);
+            macroFunc.param.int1st = id;
+            int num                = stoi(numStr);
+            macroFunc.param.int2nd = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::SkillEnergyLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::SkillEnergyLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::SkillEnergyEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::SkillEnergyNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::SkillEnergyGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::SkillEnergyGt;
+            }
         }
-        return true;
+    } else if (regex_search(condition, mat, reg2)) {
+        std::string conditionType = mat[1];
+        std::string effectName    = mat[2];
+        Id_t        id            = GetSkillId(effectName);
+        macroFunc.param.int1st    = id;
+        if (conditionType == "buff") {
+            macroFunc.macroFuncPtr = &Macro::BuffExist;
+        } else if (conditionType == "nobuff") {
+            macroFunc.macroFuncPtr = &Macro::NoBuffExist;
+        } else if (conditionType == "tbuff") {
+            macroFunc.macroFuncPtr = &Macro::TBuffExist;
+        } else if (conditionType == "tnobuff") {
+            macroFunc.macroFuncPtr = &Macro::TNoBuffExist;
+        } else if (conditionType == "last_skill") {
+            macroFunc.macroFuncPtr = &Macro::LastSkill;
+        }
+    } else if (regex_search(condition, mat, reg3)) {
+        std::string conditionType = mat[1];
+        std::string than          = mat[2];
+        std::string numStr        = mat[3];
+        if (conditionType == "tlife") {
+            double percent            = stod(numStr);
+            macroFunc.param.double4th = percent;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::TLifeLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::TLifeLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::TLifeEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::TLifeNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::TLifeGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::TLifeGt;
+            }
+        } else if (conditionType == "mana") {
+            double percent            = stod(numStr);
+            macroFunc.param.double4th = percent;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::ManaLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::ManaLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::ManaEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::ManaNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::ManaGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::ManaGt;
+            }
+        } else if (conditionType == "nearby_enemy") {
+            int num                = stoi(numStr);
+            macroFunc.param.int1st = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::ManaLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::ManaLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::ManaEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::ManaNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::ManaGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::ManaGt;
+            }
+        } else if (conditionType == "qidian") {
+            int num                = stoi(numStr);
+            macroFunc.param.int1st = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::ManaLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::ManaLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::ManaEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::ManaNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::ManaGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::ManaGt;
+            }
+        } else if (conditionType == "rage") {
+            int num                = stoi(numStr);
+            macroFunc.param.int1st = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::ManaLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::ManaLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::ManaEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::ManaNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::ManaGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::ManaGt;
+            }
+        } else if (conditionType == "energy") {
+            int num                = stoi(numStr);
+            macroFunc.param.int1st = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::ManaLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::ManaLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::ManaEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::ManaNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::ManaGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::ManaGt;
+            }
+        } else if (conditionType == "sun") {
+            int num                = stoi(numStr);
+            macroFunc.param.int1st = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::ManaLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::ManaLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::ManaEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::ManaNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::ManaGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::ManaGt;
+            }
+        } else if (conditionType == "moon") {
+            int num                = stoi(numStr);
+            macroFunc.param.int1st = num;
+            if (than == "<") {
+                macroFunc.macroFuncPtr = &Macro::ManaLt;
+            } else if (than == "<=") {
+                macroFunc.macroFuncPtr = &Macro::ManaLe;
+            } else if (than == "=") {
+                macroFunc.macroFuncPtr = &Macro::ManaEq;
+            } else if (than == "~=") {
+                macroFunc.macroFuncPtr = &Macro::ManaNe;
+            } else if (than == ">=") {
+                macroFunc.macroFuncPtr = &Macro::ManaGe;
+            } else if (than == ">") {
+                macroFunc.macroFuncPtr = &Macro::ManaGt;
+            }
+        }
     }
-    return false;
 }
 
 bool Macro::IsReady(const Param &param)

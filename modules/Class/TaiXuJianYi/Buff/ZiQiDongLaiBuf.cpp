@@ -3,23 +3,13 @@
 #include "Core/Player.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
-namespace JX3DPS {
-
-namespace TaiXuJianYi {
-
-Frame_t ZiQiDongLaiBuf::s_lastFrames = 6 * 16;
-Frame_t ZiQiDongLaiBuf::s_intervalFrames = 3 * 8;
+int ZiQiDongLaiBuf::s_lastFrames = 6 * 16;
+int ZiQiDongLaiBuf::s_intervalFrames = 3 * 8;
 int ZiQiDongLaiBuf::s_maxEffectNum = 4;
 
-ZiQiDongLaiBuf::ZiQiDongLaiBuf(Player &player) :
-    Buff(player)
+ZiQiDongLaiBuf::ZiQiDongLaiBuf()
 {
     InitBaseParams();
-}
-
-ZiQiDongLaiBuf::ZiQiDongLaiBuf(const ZiQiDongLaiBuf &buff) : Buff(buff)
-{
-
 }
 
 ZiQiDongLaiBuf::~ZiQiDongLaiBuf()
@@ -27,56 +17,40 @@ ZiQiDongLaiBuf::~ZiQiDongLaiBuf()
 
 }
 
-ZiQiDongLaiBuf *ZiQiDongLaiBuf::Clone()
+void ZiQiDongLaiBuf::Cast(Player &player, TargetList &targetList, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode)
 {
-    return new ZiQiDongLaiBuf(*this);
-}
-
-ZiQiDongLaiBuf &ZiQiDongLaiBuf::operator=(const ZiQiDongLaiBuf &buff)
-{
-    Buff::operator=(buff);
-    return *this;
-}
-
-void ZiQiDongLaiBuf::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
-{
-    static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(2);
+    static_cast<TaiXuJianYi *>(&player)->UpdateQidian(2);
     m_intervalFrames = s_intervalFrames;
     m_effectNum--;
     if (m_effectNum == 0) {
-        m_player->GetAttr().AddPhysicsAttackBaseBinPercent(-256);
-        m_player->GetAttr().AddPhysicsCriticalStrikePercent(-0.25);
-        m_player->GetAttr().AddPhysicsCriticalStrikePowerPercent(-0.25);
-        m_lastFrames = INVALID_FRAMES_SET;
-        m_intervalFrames = INVALID_FRAMES_SET;
+        player.AddPhysicsAttackBaseBinPercent(-256);
+        player.AddPhysicsCriticalStrikePercent(-0.25);
+        player.AddPhysicsCriticalStrikePowerPercent(-0.25);
+        m_lastFrames = -1;
+        m_intervalFrames = -1;
     }
 }
 
-void ZiQiDongLaiBuf::Refresh()
+void ZiQiDongLaiBuf::Refresh(Player &player)
 {
-    m_player->GetAttr().AddPhysicsAttackBaseBinPercent(256);
-    m_player->GetAttr().AddPhysicsCriticalStrikePercent(0.25);
-    m_player->GetAttr().AddPhysicsCriticalStrikePowerPercent(0.25);
-    m_lastFrames = static_cast<int>(m_lastFrames * m_player->GetAttr().GetHastePercent());
-    m_intervalFrames = static_cast<int>(s_intervalFrames * m_player->GetAttr().GetHastePercent());
+    player.AddPhysicsAttackBaseBinPercent(256);
+    player.AddPhysicsCriticalStrikePercent(0.25);
+    player.AddPhysicsCriticalStrikePowerPercent(0.25);
+    m_lastFrames = static_cast<int>(m_lastFrames * player.GetHastePercent());
+    m_intervalFrames = static_cast<int>(s_intervalFrames * player.GetHastePercent());
     m_effectNum = s_maxEffectNum;
-}
-
-void ZiQiDongLaiBuf::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
-{
-    m_lastFrames = INVALID_FRAMES_SET;
-    m_intervalFrames = INVALID_FRAMES_SET;
-    m_effectNum = 0;
 }
 
 void ZiQiDongLaiBuf::InitBaseParams()
 {
     m_id = BUF_ZI_QI_DONG_LAI;
     m_name = "紫气东来";
-    m_subNames.push_back("");
-    m_levelNames.push_back("");
-}
-
-}
-
+    m_subNameVec.push_back("");
+    m_levelNameVec.push_back("");
+    m_3rdCooldown = -1;
+    m_cooldown = -1;
+    m_lastFrames = -1;
+    m_intervalFrames = -1;
+    m_effectNum = 0;
+    m_stackNum = 0;
 }

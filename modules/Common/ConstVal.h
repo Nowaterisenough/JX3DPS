@@ -26,20 +26,6 @@ namespace JX3DPS {
 /* 帧数变量无效值 */
 #define INVALID_FRAMES_SET (JX3DPS::CONST_MAX_FRAMES)
 
-/* 取最大最小整数 */
-#define GET_MAX_INT(x, y) ((1 & (~(((x) - (y)) >> 31))) * (x) - (~(((y) - (x)) >> 31)) * (y))
-#define GET_MIN_INT(x, y) ((1 & (~(((y) - (x)) >> 31))) * (x) - (~(((x) - (y)) >> 31)) * (y))
-
-/* skill调息结合充能判定 - 1st为正整数时, 返回0, 否则返回2nd */
-#define IF_1ST_POS_TO_0_ELSE_2ND(x, y) ((((x)-1) >> 31) & (y))
-
-/* 1st为0时, 返回0, 否则返回2nd */
-#define IF_1ST_0_TO_0_ELSE_2ND(x, y) (~(((x)-1) >> 31) & (y))
-
-/* 1st为0时, 返回2nd, 否则返回3rd */
-#define IF_1ST_0_TO_2ND_ELSE_3RD(a, b, c) \
-    ((1 & (~(-((a)-1) >> 31))) * (c) - (~(((a)-1) >> 31)) * (b))
-
 /* 判定伤害 */
 #if JX3_MAJOR_VERSION >= 110
 #    define GET_FINAL_DAMAGE(NormalDamage, TableRes, CriticalStrikePowerPercent) \
@@ -138,6 +124,9 @@ constexpr double CONST_SPUNK_TO_OVERCOME_BASE     = 0.3;
 constexpr double CONST_AGILITY_TO_ATTACK_TAI_XU_JIAN_YI          = 1.45;
 constexpr double CONST_AGILITY_TO_CRITICAL_STRIKE_TAI_XU_JIAN_YI = 0.58;
 
+/* 每秒帧数 */
+constexpr Frame_t FRAMES_PER_SECOND = 16;
+
 /* 公共冷却 */
 constexpr Frame_t CONST_COMMON_PUBLIC_COOLDOWN = 24;
 
@@ -219,6 +208,50 @@ enum Class
     XIANG_ZHI          = 11,
 };
 
+struct Param
+{
+    int int1st;
+    int int2nd;
+    int int3rd;
+    double double4th;
+    double double5th;
+
+    Param()
+    {}
+
+    Param(int int1st, int int2nd, int int3rd, double double4th, double double5th) :
+        int1st(int1st), int2nd(int2nd), int3rd(int3rd), double4th(double4th), double5th(double5th)
+    {
+    }
+};
+
+using ConditionFuncPtr = bool(Macro::*)(const Param &param);
+
+struct ConditionFunc
+{
+    ConditionFuncPtr macroFuncPtr;
+    Param param;
+
+    ConditionFunc()
+    {
+    }
+
+    ConditionFunc(ConditionFuncPtr conditionFuncPtr) :
+        conditionFuncPtr(conditionFuncPtr)
+    {
+    }
+
+    ConditionFunc(ConditionFuncPtr conditionFuncPtr, const Param &param) :
+        conditionFuncPtr(conditionFuncPtr), param(param)
+    {
+    }
+};
+
+using Macros = std::list<std::pair<std::list<std::list<ConditionFunc>>, Id_t>>;
+
+using ForceMacros = std::list<std::pair<Frame_t, std::pair<std::list<std::list<ConditionFunc>>, Id_t>>>;
+
+
 /* Buff - 太虚剑意 */
 constexpr Id_t BUF_ZI_QI_DONG_LAI     = 2101;
 constexpr Id_t BUF_XUAN_MEN           = 2102;
@@ -270,8 +303,6 @@ constexpr Id_t TAL_SUI_WU         = 2417;
 constexpr Id_t TAL_QI_SHENG       = 2418;
 constexpr Id_t TAL_WU_YU          = 2419;
 constexpr Id_t TAL_XUAN_MEN       = 2420;
-
-
 
 } // namespace JX3DPS
 

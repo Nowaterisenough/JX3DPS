@@ -1,23 +1,12 @@
 #include "SuiXingChenBuf.h"
 
-#include "Core/Player.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
-namespace JX3DPS {
+int SuiXingChenBuf::s_lastFrames = 4 * 16;
 
-namespace TaiXuJianYi {
-
-Frame_t SuiXingChenBuf::s_lastFrames = 4 * 16;
-
-SuiXingChenBuf::SuiXingChenBuf(Player &player) :
-    Buff(player)
+SuiXingChenBuf::SuiXingChenBuf()
 {
     InitBaseParams();
-}
-
-SuiXingChenBuf::SuiXingChenBuf(const SuiXingChenBuf &buff) : Buff(buff)
-{
-
 }
 
 SuiXingChenBuf::~SuiXingChenBuf()
@@ -25,57 +14,41 @@ SuiXingChenBuf::~SuiXingChenBuf()
 
 }
 
-SuiXingChenBuf *SuiXingChenBuf::Clone()
+void SuiXingChenBuf::Cast(Player &player, TargetList &targetList, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode)
 {
-    return new SuiXingChenBuf(*this);
-}
-
-SuiXingChenBuf &SuiXingChenBuf::operator=(const SuiXingChenBuf &buff)
-{
-    Buff::operator=(buff);
-    return *this;
-}
-
-void SuiXingChenBuf::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
-{
-    m_lastFrames = INVALID_FRAMES_SET;
+    m_lastFrames = -1;
     m_effectNum = 0;
-    if (m_player->talents[WU_YU]) {
-        m_player->GetAttr().AddPhysicsCriticalStrikePercent(-0.1);
-        m_player->GetAttr().AddPhysicsCriticalStrikePowerPercent(-0.2);
+    if (static_cast<TaiXuJianYi *>(&player)->m_talentWuYu) {
+        player.AddPhysicsCriticalStrikePercent(-0.1);
+        player.AddPhysicsCriticalStrikePowerPercent(-0.2);
     } else {
-        m_player->GetAttr().AddPhysicsCriticalStrikePercent(-0.05);
-        m_player->GetAttr().AddPhysicsCriticalStrikePowerPercent(-0.1);
+        player.AddPhysicsCriticalStrikePercent(-0.05);
+        player.AddPhysicsCriticalStrikePowerPercent(-0.1);
     }
 }
 
-void SuiXingChenBuf::Refresh()
+void SuiXingChenBuf::Refresh(Player &player)
 {
-    if (m_player->talents[WU_YU]) {
-        m_player->GetAttr().AddPhysicsCriticalStrikePercent(0.1 * (1 ^ m_effectNum));
-        m_player->GetAttr().AddPhysicsCriticalStrikePowerPercent(0.2 * (1 ^ m_effectNum));
+    if (static_cast<TaiXuJianYi *>(&player)->m_talentWuYu) {
+        player.AddPhysicsCriticalStrikePercent(0.1 * (1 ^ m_effectNum));
+        player.AddPhysicsCriticalStrikePowerPercent(0.2 * (1 ^ m_effectNum));
     } else {
-        m_player->GetAttr().AddPhysicsCriticalStrikePercent(0.05 * (1 ^ m_effectNum));
-        m_player->GetAttr().AddPhysicsCriticalStrikePowerPercent(0.1 * (1 ^ m_effectNum));
+        player.AddPhysicsCriticalStrikePercent(0.05 * (1 ^ m_effectNum));
+        player.AddPhysicsCriticalStrikePowerPercent(0.1 * (1 ^ m_effectNum));
     }
     m_lastFrames = s_lastFrames;
     m_effectNum = 1;
-}
-
-void SuiXingChenBuf::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
-{
-    m_lastFrames = INVALID_FRAMES_SET;
-    m_effectNum = 0;
 }
 
 void SuiXingChenBuf::InitBaseParams()
 {
     m_id = BUF_SUI_XING_CHEN;
     m_name = "碎星辰buff";
-    m_subNames.push_back("");
-    m_levelNames.push_back("");
-}
-
-}
-
+    m_subNameVec.push_back("");
+    m_levelNameVec.push_back("");
+    m_3rdCooldown = -1;
+    m_cooldown = -1;
+    m_lastFrames = -1;
+    m_intervalFrames = -1;
+    m_effectNum = 0;
 }

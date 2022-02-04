@@ -3,27 +3,23 @@
 
 #include "Core/Buff.h"
 
-namespace JX3DPS {
-
-namespace TaiXuJianYi {
-
 class RongJin : public Buff
 {
 public:
-    RongJin(Player &player);
-    RongJin(const RongJin &buff);
+    RongJin();
     ~RongJin();
-    RongJin *Clone();
-    RongJin& operator=(const RongJin &buff);
 
     /* 执行 */
-    void Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings);
+    void Cast(Player &player,
+              TargetList &targetList,
+              Stats::ThreadStats &threadStats,
+              Stats::SIM_MODE &simMode);
 
     /* 添加或刷新 */
-    void Refresh();
+    void Refresh(Player &player);
 
     /* 结算 */
-    void Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param);
+    // void Clean(Player &player, Target &target, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode);
 
 private:
     /* 初始化基本信息 */
@@ -31,6 +27,18 @@ private:
 
     /* 初始化伤害系数 */
     // void InitDamageParams();
+
+    /* 判定 */
+    // Stats::TableResult GetRollResult(Player &player, Target &target);
+
+    /* 伤害计算 */
+    // Stats::DamageStats GetDamage(Player &player, Target &target, Stats::TableResult tableResult);
+
+    /* 技能统计 */
+    // void RecordStats(Player &player, Target &target, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode, Stats::TableResult tableResult);
+
+    /* 附加效果 */
+    // void SubEffect(Player &player, TargetList &targetList, Stats::ThreadStats threadStats, Stats::SIM_MODE simMode, Stats::TableResult tableResult);
 
 private_var:
     /* 第三方冷却 */
@@ -43,7 +51,7 @@ private_var:
     // static int s_lastFrames;
 
     /* 作用间隔 */
-    static Frame_t s_intervalFrames;
+    static int s_intervalFrames;
 
     /* 最大作用次数 */
     // static int s_maxEffectNum;
@@ -51,10 +59,16 @@ private_var:
     /* 最大可叠加层数 */
     // static int s_maxStackNum;
 
+    /* 伤害参数 */
+    // Stats::DamageParam m_damageParam;
+    // std::vector<Stats::DamageParam> m_damageParamVec;
+    // std::map<std::string, std::vector<Stats::DamageParam>> m_damageParamVecMap;
+
+    /* 快照属性 */
+    // SnapshotAttribute m_snapshotAttribute;
+
+    /* 目标 */
+    // Target *m_target;
 };
-
-}
-
-}
 
 #endif // RONGJIN_H

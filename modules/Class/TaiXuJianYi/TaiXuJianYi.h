@@ -1,3 +1,12 @@
+/**
+ * @Description : 
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 12:08:10
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-04 13:16:44
+ * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\TaiXuJianYi.h
+ */
+
 #ifndef TAIXUJIANYI_H
 #define TAIXUJIANYI_H
 
@@ -9,7 +18,7 @@ namespace JX3DPS {
 namespace TaiXuJianYi {
 
 SkillMap InitSkillTaiXuJianYi();
-BuffMap InitBuffTaiXuJianYi();
+BuffMap  InitBuffTaiXuJianYi();
 
 class TaiXuJianYi : public Player
 {
@@ -32,11 +41,10 @@ private:
 
     int m_qidian;
     int m_qidianBefore;
-
 };
 
-}
+} // namespace TaiXuJianYi
 
-}
+} // namespace JX3DPS
 
 #endif // TAIXUJIANYI_H

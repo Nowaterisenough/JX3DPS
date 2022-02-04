@@ -187,10 +187,10 @@ private:
 
     bool LastSkill(const Param &param);
 
-    Macros m_publicMacros;
-    Macros m_otherMacros;
+    Macros      m_publicMacros;
+    Macros      m_otherMacros;
     ForceMacros m_forceMacros;
-    Player *m_player;
+    Player     *m_player;
 };
 
 } // namespace JX3DPS

@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-03 16:31:46
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 01:24:09
+ * @LastTime    : 2022-02-04 15:35:17
  * @FilePath    : \JX3DPS\modules\Common\ConstVal.h
  */
 
@@ -210,14 +210,13 @@ enum Class
 
 struct Param
 {
-    int int1st;
-    int int2nd;
-    int int3rd;
+    int    int1st;
+    int    int2nd;
+    int    int3rd;
     double double4th;
     double double5th;
 
-    Param()
-    {}
+    Param() {}
 
     Param(int int1st, int int2nd, int int3rd, double double4th, double double5th) :
         int1st(int1st), int2nd(int2nd), int3rd(int3rd), double4th(double4th), double5th(double5th)
@@ -225,21 +224,16 @@ struct Param
     }
 };
 
-using ConditionFuncPtr = bool(Macro::*)(const Param &param);
+using ConditionFuncPtr = bool (Macro::*)(const Param &param);
 
 struct ConditionFunc
 {
     ConditionFuncPtr macroFuncPtr;
-    Param param;
+    Param            param;
 
-    ConditionFunc()
-    {
-    }
+    ConditionFunc() {}
 
-    ConditionFunc(ConditionFuncPtr conditionFuncPtr) :
-        conditionFuncPtr(conditionFuncPtr)
-    {
-    }
+    ConditionFunc(ConditionFuncPtr conditionFuncPtr) : conditionFuncPtr(conditionFuncPtr) {}
 
     ConditionFunc(ConditionFuncPtr conditionFuncPtr, const Param &param) :
         conditionFuncPtr(conditionFuncPtr), param(param)
@@ -249,8 +243,63 @@ struct ConditionFunc
 
 using Macros = std::list<std::pair<std::list<std::list<ConditionFunc>>, Id_t>>;
 
-using ForceMacros = std::list<std::pair<Frame_t, std::pair<std::list<std::list<ConditionFunc>>, Id_t>>>;
+using ForceMacros =
+    std::list<std::pair<Frame_t, std::pair<std::list<std::list<ConditionFunc>>, Id_t>>>;
 
+/* 伤害系数 */
+struct DamageParam
+{
+    int      fixedDamage;            // 固定伤害
+    BinPct_t weaponDamageBinPercent; // 武器伤害百分比, 1024为100%
+    Pct_t    attackDamagePercent;    // 基础攻击百分比
+
+    DamageParam() {}
+
+    DamageParam(int fixedDamage, BinPct_t weaponDamageBinPercent, Pct_t attackDamagePercent) :
+        fixedDamage(fixedDamage), weaponDamageBinPercent(weaponDamageBinPercent),
+        attackDamagePercent(attackDamagePercent)
+    {
+    }
+};
+
+/* 伤害统计 */
+struct DamageStats
+{
+    long long fixedDamage;  // 基础伤害统计
+    long long weaponDamage; // 武器伤害统计
+    long long attackDamage; // 攻击伤害统计
+
+    DamageStats() {}
+
+    DamageStats(const DamageStats &damageStats) :
+        fixedDamage(damageStats.fixedDamage), weaponDamage(damageStats.weaponDamage),
+        attackDamage(damageStats.attackDamage)
+    {
+    }
+
+    DamageStats(long long fixedDamage, long long weaponDamage, long long attackDamage) :
+        fixedDamage(fixedDamage), weaponDamage(weaponDamage), attackDamage(attackDamage)
+    {
+    }
+
+    long long SumDamage()
+    {
+        return fixedDamage + weaponDamage + attackDamage;
+    }
+
+    DamageStats &operator+=(const DamageStats &damageStats)
+    {
+        (*this).fixedDamage += damageStats.fixedDamage;
+        (*this).weaponDamage += damageStats.weaponDamage;
+        (*this).attackDamage += damageStats.attackDamage;
+        return *this;
+    }
+};
+
+using TableStats = std::unordered_map<TableRes, std::pair<int, DamageStats>>;
+using LevelStats = std::unordered_map<int, TableStats>;
+using SubStats = std::unordered_map<std::string, LevelStats>;
+using Stats = std::unordered_map<Id_t, SubStats>;
 
 /* Buff - 太虚剑意 */
 constexpr Id_t BUF_ZI_QI_DONG_LAI     = 2101;

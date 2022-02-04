@@ -1,3 +1,12 @@
+/**
+ * @Description :
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 12:08:10
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-04 13:29:19
+ * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Skill\WuWoWuJian.h
+ */
+
 #ifndef WUWOWUJIAN_H
 #define WUWOWUJIAN_H
 
@@ -14,12 +23,11 @@ public:
     ~WuWoWuJian();
 
     /* 执行 */
-    void Cast(Player &player,
-              TargetList &targetList,
+    void Cast(Player             &player,
+              TargetList         &targetList,
               Stats::ThreadStats &threadStats,
-              Stats::SIM_MODE &simMode);
+              Stats::SIM_MODE    &simMode);
 
-public_customize_func:
     /* 气点加成 */
     void UpdateSkillQidian(int num);
 
@@ -37,20 +45,19 @@ private:
     Stats::DamageStats GetDamage(Player &player, Target &target, Stats::TableResult tableResult);
 
     /* 伤害统计 */
-    void RecordStats(Player &player,
-                     Target &target,
+    void RecordStats(Player             &player,
+                     Target             &target,
                      Stats::ThreadStats &threadStats,
-                     Stats::SIM_MODE &simMode,
-                     Stats::TableResult tableResult);
+                     Stats::SIM_MODE    &simMode,
+                     Stats::TableResult  tableResult);
 
     /* 附加效果 */
-    void SubEffect(Player &player,
-                   TargetList &targetList,
+    void SubEffect(Player             &player,
+                   TargetList         &targetList,
                    Stats::ThreadStats &threadStats,
-                   Stats::SIM_MODE &simMode,
-                   Stats::TableResult tableResult);
+                   Stats::SIM_MODE    &simMode,
+                   Stats::TableResult  tableResult);
 
-private_customize_func:
     /* 判定 - 白虹 */
     Stats::TableResult GetRollResultBaiHong(Player &player, Target &target);
 
@@ -58,20 +65,19 @@ private_customize_func:
     Stats::DamageStats GetDamageBaiHong(Player &player, Target &target, Stats::TableResult tableResult);
 
     /* 伤害统计 - 白虹 */
-    void RecordStatsBaiHong(Player &player,
-                      Target &target,
-                      Stats::ThreadStats &threadStats,
-                      Stats::SIM_MODE &simMode,
-                      Stats::TableResult tableResult);
+    void RecordStatsBaiHong(Player             &player,
+                            Target             &target,
+                            Stats::ThreadStats &threadStats,
+                            Stats::SIM_MODE    &simMode,
+                            Stats::TableResult  tableResult);
 
     /* 附加效果 - 白虹 */
-    void SubEffectBaiHong(Player &player,
-                   Target &target,
-                   Stats::ThreadStats &threadStats,
-                   Stats::SIM_MODE &simMode,
-                   Stats::TableResult tableResult);
+    void SubEffectBaiHong(Player             &player,
+                          Target             &target,
+                          Stats::ThreadStats &threadStats,
+                          Stats::SIM_MODE    &simMode,
+                          Stats::TableResult  tableResult);
 
-private_var:
     /* CD */
     static int s_cooldown;
 
@@ -92,7 +98,6 @@ private_var:
     std::vector<Stats::DamageParam> m_damageParamVec;
     // std::map<std::string, std::vector<Stats::DamageParam>> m_damageParamVecMap;
 
-private_customize_var:
     /* 气点加成 */
     int m_skillQidianAdd;
 

@@ -1,9 +1,17 @@
+/**
+ * @Description : 
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 12:07:37
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-04 13:14:19
+ * @FilePath    : \JX3DPS\modules\Core\Player.cpp
+ */
+
 #include "Player.h"
 
 namespace JX3DPS {
 
-Player::Player(Class classType) :
-    m_classType(classType)
+Player::Player(Class classType) : m_classType(classType)
 {
     m_attr = new class Attr(classType);
 }
@@ -91,4 +99,4 @@ bool Player::GetGearSetAttack()
     return m_gearSetAttack;
 }
 
-}
+} // namespace JX3DPS

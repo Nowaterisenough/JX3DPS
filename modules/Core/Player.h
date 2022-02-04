@@ -1,6 +1,14 @@
+/**
+ * @Description :
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 12:07:37
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-04 13:15:56
+ * @FilePath    : \JX3DPS\modules\Core\Player.h
+ */
+
 #ifndef PLAYER_H
 #define PLAYER_H
-
 
 #include <unordered_map>
 #include <list>
@@ -47,18 +55,19 @@ public:
 
     /* 橙武效果 */
     virtual bool SetGearSetCW(bool gearSetCW = false) = 0;
-    bool GetGearSetCW();
+    bool         GetGearSetCW();
 
     /* 门派套装技能效果 */
     virtual bool SetGearSetClass(bool gearSetClass = false) = 0;
 
     /* 门派套装攻击效果 */
     virtual bool SetGearSetAttack(bool gearSetAttack = false) = 0;
-    bool GetGearSetAttack();
+    bool         GetGearSetAttack();
 
-public_var:
-    /* 技能 */
-    std::unordered_map<Id_t, Skill *> m_skillHash;
+    public_var :
+        /* 技能 */
+        std::unordered_map<Id_t, Skill *>
+            m_skillHash;
 
     /* Buff */
     std::unordered_map<Id_t, Buff *> m_buffHash;
@@ -66,9 +75,9 @@ public_var:
     /* 公共冷却 */
     Frame_t m_publicCooldown;
 
-protected_var:
-    /* 心法 */
-    Class m_classType;
+    protected_var :
+        /* 心法 */
+        Class m_classType;
 
     /* 读条 */
     bool m_isCast;
@@ -92,6 +101,6 @@ protected_var:
     bool m_gearSetAttack;
 };
 
-}
+} // namespace JX3DPS
 
 #endif // PLAYER_H

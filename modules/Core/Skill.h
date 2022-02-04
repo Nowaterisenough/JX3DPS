@@ -1,12 +1,21 @@
+/**
+ * @Description :
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 12:07:17
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-04 13:37:47
+ * @FilePath    : \JX3DPS\modules\Core\Skill.h
+ */
+
 #ifndef SKILL_H
 #define SKILL_H
-
 
 #include <map>
 #include <list>
 #include <vector>
 
 #include "Core/Global.h"
+#include "Common/ConstVal.h"
 
 namespace JX3DPS {
 
@@ -22,14 +31,11 @@ public:
     virtual ~Skill();
 
     /* 执行 */
-    virtual void Cast(TargetList &targetList,
-                      Stats &stats,
-                      SIM_MODE &mode) = 0;
+    virtual void Cast(TargetList &targetList, Stats &stats, SIM_MODE &mode) = 0;
 
     /* 中断技能 */
-    virtual void Interrupt(TargetList &targetList,
-                           Stats &stats,
-                           SIM_MODE &mode) = 0;
+    virtual void Interrupt(TargetList &targetList, Stats &stats, SIM_MODE &mode) = 0;
+
     /* 公共调息就绪 */
     bool IsReady();
 
@@ -86,46 +92,39 @@ public:
 
 protected:
     /* 判定 */
-    TableRes Roll(Pct_t playerHitValuePercent,
-                  Pct_t playerCriticalStrikePercent,
-                  Pct_t playerStrainPercent,
-                  Pct_t targetMissPercent,
-                  Pct_t targetSightPercent,
+    TableRes Roll(Pct_t    playerHitValuePercent,
+                  Pct_t    playerCriticalStrikePercent,
+                  Pct_t    playerStrainPercent,
+                  Pct_t    targetMissPercent,
+                  Pct_t    targetSightPercent,
                   RollType rollType = RollType::COMMON);
 
     TableRes GetRollResult(Target &target);
 
     /* 外功伤害 */
-    DamageStats GetPhysicsDamage(Target &target,
-                                 TableRes tableRes,
-                                 std::string &subName,
-                                 int level);
+    DamageStats GetPhysicsDamage(Target &target, TableRes tableRes, std::string &subName, int level);
 
     /* 外功统计 */
-    void UpdatePhysicsStats(Target &target,
-                            Stats &stats,
-                            SIM_MODE mode,
-                            TableRes tableRes,
+    void UpdatePhysicsStats(Target      &target,
+                            Stats       &stats,
+                            SIM_MODE     mode,
+                            TableRes     tableRes,
                             std::string &subName,
-                            int level);
+                            int          level);
     /* 内功伤害 */
-    DamageStats GetMagicDamage(Target &target,
-                               TableRes tableRes,
-                               std::string &subName,
-                               int level);
+    DamageStats GetMagicDamage(Target &target, TableRes tableRes, std::string &subName, int level);
 
     /* 内功统计 */
-    void UpdateMagicStats(Target &target,
-                          Stats &stats,
-                          SIM_MODE mode,
-                          TableRes tableRes,
+    void UpdateMagicStats(Target      &target,
+                          Stats       &stats,
+                          SIM_MODE     mode,
+                          TableRes     tableRes,
                           std::string &subName,
-                          int level);
+                          int          level);
 
     /* 重置公共冷却 */
     void ResetPublicCooldown();
 
-protected_var:
     /* 角色 */
     Player *m_player;
 
@@ -135,8 +134,8 @@ protected_var:
 
     /* 公共冷却 */
     static Frame_t s_publicCooldown;
-    Frame_t *m_publicCooldown;
-    int m_isPublicCooldown;
+    Frame_t       *m_publicCooldown;
+    int            m_isPublicCooldown;
 
     /* ID */
     Id_t m_id;
@@ -182,8 +181,11 @@ protected_var:
 
     /* 伤害参数 */
     std::map<std::string, std::vector<DamageParam>> m_damageParam;
+
+    /* 伤害统计 */
+    Stats m_stats;
 };
 
-}
+} // namespace JX3DPS
 
 #endif // SKILL_H

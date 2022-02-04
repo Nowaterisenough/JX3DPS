@@ -1,3 +1,12 @@
+/**
+ * @Description : 
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 12:07:17
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-04 13:15:27
+ * @FilePath    : \JX3DPS\modules\Core\Buff.h
+ */
+
 #ifndef BUFF_H
 #define BUFF_H
 
@@ -68,49 +77,43 @@ public:
 
 protected:
     /* 判定 */
-    TableRes Roll(Pct_t playerHitValuePercent,
-                  Pct_t playerCriticalStrikePercent,
-                  Pct_t playerStrainPercent,
-                  Pct_t targetMissPercent,
-                  Pct_t targetSightPercent,
+    TableRes Roll(Pct_t    playerHitValuePercent,
+                  Pct_t    playerCriticalStrikePercent,
+                  Pct_t    playerStrainPercent,
+                  Pct_t    targetMissPercent,
+                  Pct_t    targetSightPercent,
                   RollType rollType = RollType::COMMON);
 
     TableRes GetRollResult(Attr &attr, Target &target);
 
     /* 外功伤害 */
-    DamageStats GetPhysicsDamage(Attr &attr,
-                                 Target &target,
-                                 TableRes tableRes,
-                                 std::string &subName,
-                                 int level);
+    DamageStats
+    GetPhysicsDamage(Attr &attr, Target &target, TableRes tableRes, std::string &subName, int level);
 
     /* 外功统计 */
-    void UpdatePhysicsStats(Attr &attr,
-                            Target &target,
-                            Stats &stats,
-                            SIM_MODE mode,
-                            TableRes tableRes,
+    void UpdatePhysicsStats(Attr        &attr,
+                            Target      &target,
+                            Stats       &stats,
+                            SIM_MODE     mode,
+                            TableRes     tableRes,
                             std::string &subName,
-                            int level);
+                            int          level);
     /* 内功伤害 */
-    DamageStats GetMagicDamage(Attr &attr,
-                               Target &target,
-                               TableRes tableRes,
-                               std::string &subName,
-                               int level);
+    DamageStats
+    GetMagicDamage(Attr &attr, Target &target, TableRes tableRes, std::string &subName, int level);
 
     /* 内功统计 */
-    void UpdateMagicStats(Attr &attr,
-                          Target &target,
-                          Stats &stats,
-                          SIM_MODE mode,
-                          TableRes tableRes,
+    void UpdateMagicStats(Attr        &attr,
+                          Target      &target,
+                          Stats       &stats,
+                          SIM_MODE     mode,
+                          TableRes     tableRes,
                           std::string &subName,
-                          int level);
+                          int          level);
 
-protected_var:
-    /* 角色 */
-    Player *m_player;
+    protected_var :
+        /* 角色 */
+        Player *m_player;
 
     /* 角色 */
     Target *m_target;
@@ -152,6 +155,6 @@ protected_var:
     Attr *m_snapAttr;
 };
 
-}
+} // namespace JX3DPS
 
 #endif // BUFF_H

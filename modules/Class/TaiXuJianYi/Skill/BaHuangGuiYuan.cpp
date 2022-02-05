@@ -79,7 +79,7 @@ void BaHuangGuiYuan::InitBaseParams()
     m_levelNames.push_back("30%-20%");
     m_levelNames.push_back("20%-10%");
     m_levelNames.push_back("10%-0%");
-    m_publicCooldown = &m_player->publicCooldown;
+    m_publicCooldown = &m_player->m_publicCooldown;
     m_isPublicCooldown = PUBLIC_SKILL;
     m_skillQidianAdd = 0;
 }

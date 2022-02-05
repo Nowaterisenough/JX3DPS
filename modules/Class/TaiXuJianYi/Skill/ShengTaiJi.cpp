@@ -65,7 +65,7 @@ void ShengTaiJi::InitBaseParams()
     m_name = "生太极";
     m_subNames.push_back("");
     m_levelNames.push_back("");
-    m_publicCooldown = &m_player->publicCooldown;
+    m_publicCooldown = &m_player->m_publicCooldown;
     m_isPublicCooldown = PUBLIC_SKILL;
 }
 

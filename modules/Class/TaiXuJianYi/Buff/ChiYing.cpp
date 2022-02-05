@@ -60,8 +60,8 @@ void ChiYing::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, in
         for (auto it : targetsMap[NORMAL]) {
             if (m_stackCount > 0) {
                 m_stackCount--;
-                TableRes tableRes = GetPhysicsRollResult(m_player->Attr(), *it);
-                UpdatePhysicsStats(m_player->Attr(), *it, stats, settings, tableRes, m_subNames[0], 0);
+                TableRes tableRes = GetPhysicsRollResult(m_player->Attr());
+                UpdatePhysicsStats(m_player->Attr(), *it, tableRes, m_subNames[0], 0, stats);
             }
         }
         m_lastFrames = IF_1ST_0_TO_2ND_ELSE_3RD(m_stackCount, INVALID_FRAMES_SET, m_lastFrames);
@@ -75,7 +75,7 @@ void ChiYing::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, in
 
 void ChiYing::Clean(Target &target, Stats &stats, Settings &settings, int param)
 {
-    TableRes tableRes = GetPhysicsRollResult(m_player->Attr(), target);
+    TableRes tableRes = GetPhysicsRollResult(m_player->Attr());
     UpdatePhysicsStats(m_player->Attr(), target, tableRes, m_subNames[0], 0, stats);
     m_stackCount--;
     m_lastFrames = IF_1ST_0_TO_2ND_ELSE_3RD(m_stackCount, INVALID_FRAMES_SET, m_lastFrames);

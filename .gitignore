@@ -7,3 +7,6 @@ JX3DPS.pro.user
 
 # Ignore macOS files
 .DS_Store
+
+# Ignore Local history files
+.history/*

@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-03 16:31:46
  * @Update      : NoWats
- * @LastTime    : 2022-02-05 01:51:33
+ * @LastTime    : 2022-02-05 15:49:36
  * @FilePath    : \JX3DPS\modules\Common\ConstVal.h
  */
 
@@ -308,7 +308,7 @@ using Enchants = std::unordered_map<EquipType, bool>;
 /* 技能列表 */
 class Skill;
 class Player;
-using Skills = std::unordered_map<Id_t, Skill *>;
+using SkillHash = std::unordered_map<Id_t, Skill *>;
 
 enum CastType
 {
@@ -330,7 +330,7 @@ class Buff;
 class Target;
 using Targets    = std::list<Target *>;
 using TargetsMap = std::unordered_map<TargetStatus, Targets>;
-using Buffs      = std::unordered_map<Id_t, Buff *>;
+using BuffHash      = std::unordered_map<Id_t, Buff *>;
 
 /* 设置 */
 class Attr;

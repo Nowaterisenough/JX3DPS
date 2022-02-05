@@ -55,7 +55,7 @@ void SanChaiJianFa::InitBaseParams()
     m_name = "三柴剑法";
     m_subNames.push_back("");
     m_levelNames.push_back("");
-    m_publicCooldown = &m_player->publicCooldown;
+    m_publicCooldown = &m_player->m_publicCooldown;
 }
 
 void SanChaiJianFa::InitDamageParams()

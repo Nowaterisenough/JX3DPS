@@ -1,3 +1,11 @@
+/**
+ * @Description : 
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 19:47:00
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-05 15:11:06
+ * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Buff\DieRen.h
+ */
 #ifndef DIEREN_H
 #define DIEREN_H
 
@@ -17,13 +25,13 @@ public:
     DieRen& operator=(const DieRen &buff);
 
     /* 执行 */
-    void Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings);
+    void Cast(TargetsMap &targetsMap, Stats &stats);
 
     /* 添加或刷新 */
     void Refresh();
 
     /* 结算 */
-    void Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param);
+    void Clean(TargetsMap &targetsMap, Stats &stats, int param);
 
 private:
     /* 初始化基本信息 */

@@ -74,7 +74,7 @@ void WuWoWuJian::InitBaseParams()
     m_levelNames.push_back("8气点");
     m_levelNames.push_back("9气点");
     m_levelNames.push_back("10气点");
-    m_publicCooldown = &m_player->publicCooldown;
+    m_publicCooldown = &m_player->m_publicCooldown;
     m_isPublicCooldown = PUBLIC_SKILL;
     m_skillQidianAdd = 0;
     m_qidian = 0;

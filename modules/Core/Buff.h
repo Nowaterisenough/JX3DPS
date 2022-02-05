@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-04 19:47:00
  * @Update      : NoWats
- * @LastTime    : 2022-02-05 15:06:58
+ * @LastTime    : 2022-02-05 15:55:03
  * @FilePath    : \JX3DPS\modules\Core\Buff.h
  */
 
@@ -156,6 +156,7 @@ protected:
      * @param 3_tableRes 判定结果, 包括: 命中; 会心.
      * @param 4_subName 词缀.
      * @param 5_level 强度.
+     * @param 6_stats 统计
      */
     void UpdatePhysicsStats(const Attr        &attr,
                             const Target      &target,

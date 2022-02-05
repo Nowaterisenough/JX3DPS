@@ -1,9 +1,9 @@
 /**
- * @Description : 
+ * @Description :
  * @Author      : NoWats
  * @Date        : 2022-02-04 19:47:00
  * @Update      : NoWats
- * @LastTime    : 2022-02-05 14:56:22
+ * @LastTime    : 2022-02-05 15:51:28
  * @FilePath    : \JX3DPS\modules\Core\Skill.cpp
  */
 #include "Skill.h"
@@ -148,7 +148,7 @@ Skill &Skill::operator=(const Skill &skill)
 void Skill::SetPlayer(Player &player)
 {
     m_player         = &player;
-    m_publicCooldown = &player.publicCooldown;
+    m_publicCooldown = &player.m_publicCooldown;
 }
 
 void Skill::Interrupt(TargetsMap &targetsMap, Stats &stats) {}
@@ -253,8 +253,7 @@ TableRes Skill::Roll(const Pct_t playerCriticalStrikePercent) const
 
 TableRes Skill::GetPhysicsRollResult() const
 {
-    return Roll(m_player->Attr().GetPhysicsCriticalStrikePercent() +
-                m_skillCriticalStrikePercentAdd);
+    return Roll(m_player->Attr().GetPhysicsCriticalStrikePercent() + m_skillCriticalStrikePercentAdd);
 }
 
 Damage Skill::GetPhysicsDamage(const Target      &target,

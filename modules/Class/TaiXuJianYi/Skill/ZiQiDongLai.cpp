@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-04 19:47:00
  * @Update      : NoWats
- * @LastTime    : 2022-02-05 14:49:26
+ * @LastTime    : 2022-02-05 15:48:43
  * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Skill\ZiQiDongLai.cpp
  */
 #include "ZiQiDongLai.h"
@@ -52,7 +52,7 @@ void ZiQiDongLai::InitBaseParams()
     m_name = "紫气东来";
     m_subNames.push_back("");
     m_levelNames.push_back("");
-    m_publicCooldown = &m_player->publicCooldown;
+    m_publicCooldown = &m_player->m_publicCooldown;
 }
 
 void ZiQiDongLai::InitDamageParams()

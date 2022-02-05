@@ -44,9 +44,9 @@ void ZiQiDongLaiBuf::Cast(TargetsMap &targetsMap, Stats &stats)
     m_intervalFrames = s_intervalFrames;
     m_effectCount--;
     if (m_effectCount == 0) {
-        m_player->Attr().AddPhysicsAttackBaseBinPercent(-256);
-        m_player->Attr().AddPhysicsCriticalStrikePercent(-0.25);
-        m_player->Attr().AddPhysicsCriticalStrikePowerPercent(-0.25);
+        m_player->attr->AddPhysicsAttackBaseBinPercent(-256);
+        m_player->attr->AddPhysicsCriticalStrikePercent(-0.25);
+        m_player->attr->AddPhysicsCriticalStrikePowerPercent(-0.25);
         m_lastFrames = INVALID_FRAMES_SET;
         m_intervalFrames = INVALID_FRAMES_SET;
     }
@@ -54,15 +54,15 @@ void ZiQiDongLaiBuf::Cast(TargetsMap &targetsMap, Stats &stats)
 
 void ZiQiDongLaiBuf::Refresh()
 {
-    m_player->Attr().AddPhysicsAttackBaseBinPercent(256);
-    m_player->Attr().AddPhysicsCriticalStrikePercent(0.25);
-    m_player->Attr().AddPhysicsCriticalStrikePowerPercent(0.25);
-    m_lastFrames = static_cast<int>(m_lastFrames * m_player->Attr().GetHastePercent());
-    m_intervalFrames = static_cast<int>(s_intervalFrames * m_player->Attr().GetHastePercent());
+    m_player->attr->AddPhysicsAttackBaseBinPercent(256);
+    m_player->attr->AddPhysicsCriticalStrikePercent(0.25);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercent(0.25);
+    m_lastFrames = static_cast<int>(m_lastFrames * m_player->attr->GetHastePercent());
+    m_intervalFrames = static_cast<int>(s_intervalFrames * m_player->attr->GetHastePercent());
     m_effectCount = s_maxEffectNum;
 }
 
-void ZiQiDongLaiBuf::Clean(TargetsMap &targetsMap, Stats &stats, int param)
+void ZiQiDongLaiBuf::Clean(TargetsMap &targetsMap, Stats &stats, CastType castType = EFFECT)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_intervalFrames = INVALID_FRAMES_SET;

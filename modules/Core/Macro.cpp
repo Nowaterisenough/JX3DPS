@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-02 16:33:58
  * @Update      : NoWats
- * @LastTime    : 2022-02-05 00:03:04
+ * @LastTime    : 2022-02-05 17:14:21
  * @FilePath    : \JX3DPS\modules\Core\Macro.cpp
  */
 
@@ -17,22 +17,22 @@
 
 #include "Common/ConstVal.h"
 #include "Player.h"
+#include "Target.h"
+#include "Skill.h"
+#include "Buff.h"
+
+#include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
 using namespace std;
 
 namespace JX3DPS {
 
-template <Id_t, typename ...Args>
-struct Condition {
-    std::tuple<Id_t, Args...> params;
-};
-
 const std::unordered_map<std::string, Id_t> &BUFF_ID_HASH{
     {"紫气东来", BUF_ZI_QI_DONG_LAI},
     {"玄门", BUF_XUAN_MEN},
-    {"碎星辰", BUF_SUI_XING_CHEN},
-    {"生太极", BUF_SHENG_TAI_JI},
-    {"吞日月", BUF_TUN_RI_YUE},
+    {"碎星辰", BUF_SUI_XING_CHEN_STD},
+    {"生太极", BUF_SHENG_TAI_JI_STD},
+    {"吞日月", BUF_TUN_RI_YUE_STD},
     {"云中剑-碎", BUF_YUN_ZHONG_JIAN_C},
     {"云中剑-生", BUF_YUN_ZHONG_JIAN_J},
     {"云中剑-吞", BUF_YUN_ZHONG_JIAN_Y},
@@ -41,7 +41,7 @@ const std::unordered_map<std::string, Id_t> &BUFF_ID_HASH{
     {"风逝", BUF_FENG_SHI},
     {"碎星辰buff", BUF_SUI_XING_CHEN_BUFF},
     {"叠刃", BUF_DIE_REN},
-    {"人剑合一", BUF_REN_JIAN_HE_YI},
+    {"人剑合一buff", BUF_REN_JIAN_HE_YI_BUFF},
 };
 
 const std::unordered_map<std::string, Id_t> &SKILL_ID_HASH{
@@ -109,7 +109,8 @@ bool Macro::Parse(const std::string &line)
             }
             andConditionStrList.emplace_back(orConditionStr);
             for (const auto &singleCondition : andConditionStrList) {
-                ParseCondition(singleCondition);
+                MacroFunc macroFunc;
+                ParseCondition(singleCondition, macroFunc);
             }
         }
         return true;
@@ -117,7 +118,7 @@ bool Macro::Parse(const std::string &line)
     return false;
 }
 
-bool Macro::ParseCondition(const std::string &condition)
+bool Macro::ParseCondition(const std::string &condition, MacroFunc &macroFunc)
 {
     std::regex  reg1("([a-z_]+):(.+)(>=|<=|~=|<|>|=)([0-9]+)");
     std::regex  reg2("([a-z_]+):(.+)");
@@ -147,7 +148,7 @@ bool Macro::ParseCondition(const std::string &condition)
                 macroFunc.macroFuncPtr = &Macro::BuffStackNumGt;
             }
         } else if (conditionType == "tbuff") {
-            Id_t id                = GetBuffId(effectName);
+            Id_t id                = BUFF_ID_HASH.at(effectName);
             macroFunc.param.int1st = id;
             int num                = stoi(numStr);
             macroFunc.param.int2nd = num;
@@ -165,7 +166,7 @@ bool Macro::ParseCondition(const std::string &condition)
                 macroFunc.macroFuncPtr = &Macro::TBuffStackNumGt;
             }
         } else if (conditionType == "bufftime") {
-            Id_t id                = GetBuffId(effectName);
+            Id_t id                = BUFF_ID_HASH.at(effectName);
             macroFunc.param.int1st = id;
             double time            = stod(numStr);
             macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
@@ -183,7 +184,7 @@ bool Macro::ParseCondition(const std::string &condition)
                 macroFunc.macroFuncPtr = &Macro::BuffTimeGt;
             }
         } else if (conditionType == "tbufftime") {
-            Id_t id                = GetBuffId(effectName);
+            Id_t id                = BUFF_ID_HASH.at(effectName);
             macroFunc.param.int1st = id;
             double time            = stod(numStr);
             macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
@@ -201,7 +202,7 @@ bool Macro::ParseCondition(const std::string &condition)
                 macroFunc.macroFuncPtr = &Macro::TBuffTimeGt;
             }
         } else if (conditionType == "cd") {
-            Id_t id                = GetSkillId(effectName);
+            Id_t id                = SKILL_ID_HASH.at(effectName);
             macroFunc.param.int1st = id;
             double time            = stod(numStr);
             macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
@@ -219,7 +220,7 @@ bool Macro::ParseCondition(const std::string &condition)
                 macroFunc.macroFuncPtr = &Macro::SkillCooldownGt;
             }
         } else if (conditionType == "skill_energy") {
-            Id_t id                = GetSkillId(effectName);
+            Id_t id                = SKILL_ID_HASH.at(effectName);
             macroFunc.param.int1st = id;
             int num                = stoi(numStr);
             macroFunc.param.int2nd = num;
@@ -240,7 +241,7 @@ bool Macro::ParseCondition(const std::string &condition)
     } else if (regex_search(condition, mat, reg2)) {
         std::string conditionType = mat[1];
         std::string effectName    = mat[2];
-        Id_t        id            = GetSkillId(effectName);
+        Id_t        id            = SKILL_ID_HASH.at(effectName);
         macroFunc.param.int1st    = id;
         if (conditionType == "buff") {
             macroFunc.macroFuncPtr = &Macro::BuffExist;
@@ -389,9 +390,9 @@ bool Macro::ParseCondition(const std::string &condition)
     }
 }
 
-bool Macro::IsReady(const Param &param, Player &player)
+bool Macro::IsReady(const Param &param)
 {
-    return !player.Skill().at(param.int1st)->GetEnableTime();
+    return !m_player->skills[param.int1st]->GetEnableTime();
 }
 
 bool Macro::IsNotCast(const Param &param)
@@ -444,7 +445,7 @@ bool Macro::TBuffStackNumLe(const Param &param)
     return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetStackCount() <= param.int2nd;
 }
 
-bool Macro::TBuffStackNumEq(const Param &param)
+bool Macro::TBuffStackNumEq( const Param &param)
 {
     return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetStackCount() == param.int2nd;
 }

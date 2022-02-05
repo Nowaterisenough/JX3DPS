@@ -140,13 +140,13 @@ constexpr Pct_t CONST_PLAYER_HIT_VALUE_PERCENT_BASE = 0.9;
 constexpr Pct_t CONST_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE = 1.75;
 
 /* 熔嵌 - 主属性 */
-const Value_t constexpr CONST_ENCHANTS_VALUE_PRIMARY[9] = {0, 1, 3, 5, 7, 9, 10, 14, 18};
+Value_t constexpr CONST_ENCHANTS_VALUE_PRIMARY[9] = {0, 1, 3, 5, 7, 9, 10, 14, 18};
 
 /* 熔嵌 - 攻击 */
-const Value_t constexpr CONST_ENCHANTS_VALUE_ATTACK[9] = {0, 2, 5, 7, 10, 12, 15, 20, 26};
+Value_t constexpr CONST_ENCHANTS_VALUE_ATTACK[9] = {0, 2, 5, 7, 10, 12, 15, 20, 26};
 
 /* 熔嵌 - 副属性 */
-const Value_t constexpr CONST_ENCHANTS_VALUE_SUB[9] = {0, 5, 11, 17, 22, 28, 34, 45, 58};
+Value_t constexpr CONST_ENCHANTS_VALUE_SUB[9] = {0, 5, 11, 17, 22, 28, 34, 45, 58};
 
 /* 强化 - 系数 */
 const double constexpr CONST_STRENGTHEN_LEVEL[9] =
@@ -246,10 +246,10 @@ enum AttrType
 };
 
 /* 模拟模式 */
-using SIM_MODE = AttrType;
+using SimMode = AttrType;
 
 /* 阵眼 */
-using TEAM_CORE = AttrType;
+using TeamCore = AttrType;
 
 /* 收益信息 */
 struct BonusSet
@@ -330,14 +330,14 @@ class Buff;
 class Target;
 using Targets    = std::list<Target *>;
 using TargetsMap = std::unordered_map<TargetStatus, Targets>;
-using BuffHash      = std::unordered_map<Id_t, Buff *>;
+using BuffHash   = std::unordered_map<Id_t, Buff *>;
 
 /* 设置 */
 class Attr;
 struct Settings
 {
     Class                  classType; // 心法
-    SIM_MODE               simMode;   // 模拟模式
+    SimMode                simMode;   // 模拟模式
     int                    simTimes;  // 模拟次数
     int                    minPing;   // 延迟最小
     int                    maxPing;   // 延迟最大
@@ -350,8 +350,8 @@ struct Settings
     Enchants               enchants;
     Talents                talents;
     Secrets                secrets;
-    TEAM_CORE              teamCore;
-    Buffs                  buffSets;
+    TeamCore               teamCore;
+    BuffHash               buffSets;
     std::list<std::string> macroStrList;
     std::list<std::string> eventStrList;
 
@@ -527,20 +527,20 @@ struct TotalStats
 };
 
 /* Buff - 太虚剑意 */
-constexpr Id_t BUF_ZI_QI_DONG_LAI     = 2101;
-constexpr Id_t BUF_XUAN_MEN           = 2102;
-constexpr Id_t BUF_SUI_XING_CHEN      = 2103;
-constexpr Id_t BUF_SHENG_TAI_JI       = 2104;
-constexpr Id_t BUF_TUN_RI_YUE         = 2105;
-constexpr Id_t BUF_YUN_ZHONG_JIAN_C   = 2106;
-constexpr Id_t BUF_YUN_ZHONG_JIAN_J   = 2107;
-constexpr Id_t BUF_YUN_ZHONG_JIAN_Y   = 2108;
-constexpr Id_t BUF_CHI_YING           = 2109;
-constexpr Id_t BUF_QI_SHENG           = 2110;
-constexpr Id_t BUF_FENG_SHI           = 2111;
-constexpr Id_t BUF_SUI_XING_CHEN_BUFF = 2112;
-constexpr Id_t BUF_DIE_REN            = 2113;
-constexpr Id_t BUF_REN_JIAN_HE_YI     = 2114;
+constexpr Id_t BUF_ZI_QI_DONG_LAI      = 2101;
+constexpr Id_t BUF_XUAN_MEN            = 2102;
+constexpr Id_t BUF_SUI_XING_CHEN_STD   = 2103;
+constexpr Id_t BUF_SHENG_TAI_JI_STD    = 2104;
+constexpr Id_t BUF_TUN_RI_YUE_STD      = 2105;
+constexpr Id_t BUF_YUN_ZHONG_JIAN_C    = 2106;
+constexpr Id_t BUF_YUN_ZHONG_JIAN_J    = 2107;
+constexpr Id_t BUF_YUN_ZHONG_JIAN_Y    = 2108;
+constexpr Id_t BUF_CHI_YING            = 2109;
+constexpr Id_t BUF_QI_SHENG            = 2110;
+constexpr Id_t BUF_FENG_SHI            = 2111;
+constexpr Id_t BUF_SUI_XING_CHEN_BUFF  = 2112;
+constexpr Id_t BUF_DIE_REN             = 2113;
+constexpr Id_t BUF_REN_JIAN_HE_YI_BUFF = 2114;
 
 /* 技能 - 太虚剑意 */
 constexpr Id_t SKI_WU_WO_WU_JIAN     = 2201;

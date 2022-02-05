@@ -36,7 +36,7 @@ TaiXuJianYiTeamPoint &TaiXuJianYiTeamPoint::operator=(const TaiXuJianYiTeamPoint
     return *this;
 }
 
-void TaiXuJianYiTeamPoint::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void TaiXuJianYiTeamPoint::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     if (m_cooldown == 0) {
         m_cooldown = static_cast<int>(Random(1.0, 1.2) * s_cooldown);
@@ -49,7 +49,7 @@ void TaiXuJianYiTeamPoint::Refresh()
 
 }
 
-void TaiXuJianYiTeamPoint::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void TaiXuJianYiTeamPoint::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_cooldown = INVALID_FRAMES_SET;
 }

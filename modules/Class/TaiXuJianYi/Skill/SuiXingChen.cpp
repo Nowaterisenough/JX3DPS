@@ -42,7 +42,7 @@ SuiXingChen &SuiXingChen::operator=(const SuiXingChen &skill)
     return *this;
 }
 
-void SuiXingChen::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+void SuiXingChen::Cast(TargetsMap &targetsMap, Stats &stats, CastType castType)
 {
     if (castType == CastType::SKILL) {
         m_prepareFrames = static_cast<int>(s_prepareFrames * m_player->Attr().GetHastePercent());
@@ -74,7 +74,7 @@ void SuiXingChen::InitDamageParams()
     m_damageParams[m_subNames[0]][0] = DamageParam(0, 0, 0.0);
 }
 
-void SuiXingChen::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
+void SuiXingChen::SubEffect(TargetsMap &targetsMap, Stats &stats, TableRes tableRes)
 {
     static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(m_skillQidianAdd);
     m_player->buffs[BUF_SUI_XING_CHEN_STD]->Refresh();

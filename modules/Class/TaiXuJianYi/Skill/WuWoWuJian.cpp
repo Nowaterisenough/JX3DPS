@@ -45,7 +45,7 @@ WuWoWuJian &WuWoWuJian::operator=(const WuWoWuJian &skill)
     return *this;
 }
 
-void WuWoWuJian::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+void WuWoWuJian::Cast(TargetsMap &targetsMap, Stats &stats, CastType castType)
 {
     m_qidian = static_cast<TaiXuJianYi *>(m_player)->GetQidian();
     TableRes tableRes = GetPhysicsRollResult(*targetsMap[NORMAL].front());
@@ -139,7 +139,7 @@ Damage WuWoWuJian::GetPhysicsDamageBaiHong(Target &target, TableRes tableRes, st
                                         (m_player->Attr().GetPhysicsCriticalStrikePowerPercent())));
 }
 
-void WuWoWuJian::UpdatePhysicsStatsBaiHong(Target &target, Stats &stats, Settings &settings, TableRes tableRes, std::string &subName, int level)
+void WuWoWuJian::UpdatePhysicsStatsBaiHong(Target &target, Stats &stats, TableRes tableRes, std::string &subName, int level)
 {
     Damage damage;
     switch (static_cast<int>(settings.mode)) {
@@ -196,7 +196,7 @@ void WuWoWuJian::UpdatePhysicsStatsBaiHong(Target &target, Stats &stats, Setting
     }
 }
 
-void WuWoWuJian::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
+void WuWoWuJian::SubEffect(TargetsMap &targetsMap, Stats &stats, TableRes tableRes)
 {
     static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(-10);
     if (Random(0.0, 1.0) < 0.25 && m_player->talents[KUN_WU] && m_qidian == 10) {
@@ -238,7 +238,7 @@ void WuWoWuJian::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &setti
     }
 }
 
-void WuWoWuJian::SubEffectBaiHong(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
+void WuWoWuJian::SubEffectBaiHong(TargetsMap &targetsMap, Stats &stats, TableRes tableRes)
 {
     if (m_player->talents[SHEN_MAI] == TableRes::DOUBLE) {
         static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(2);

@@ -36,7 +36,7 @@ SuiXingChenBuf &SuiXingChenBuf::operator=(const SuiXingChenBuf &buff)
     return *this;
 }
 
-void SuiXingChenBuf::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void SuiXingChenBuf::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_effectCount = 0;
@@ -62,7 +62,7 @@ void SuiXingChenBuf::Refresh()
     m_effectCount = 1;
 }
 
-void SuiXingChenBuf::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void SuiXingChenBuf::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_effectCount = 0;

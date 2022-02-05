@@ -39,7 +39,7 @@ SanChaiJianFa &SanChaiJianFa::operator=(const SanChaiJianFa &skill)
     return *this;
 }
 
-void SanChaiJianFa::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+void SanChaiJianFa::Cast(TargetsMap &targetsMap, Stats &stats, CastType castType)
 {
     if (!m_player->IsCast()) {
         TableRes tableRes = GetPhysicsRollResult(*targetsMap[NORMAL].front());
@@ -63,7 +63,7 @@ void SanChaiJianFa::InitDamageParams()
     m_damageParams[m_subNames[0]][0] = DamageParam(0, 1229, 0.12);
 }
 
-void SanChaiJianFa::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
+void SanChaiJianFa::SubEffect(TargetsMap &targetsMap, Stats &stats, TableRes tableRes)
 {
     if (m_player->talents[SHEN_MAI] && tableRes == TableRes::DOUBLE) {
         static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(2);

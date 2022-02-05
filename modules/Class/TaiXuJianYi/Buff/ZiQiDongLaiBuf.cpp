@@ -38,7 +38,7 @@ ZiQiDongLaiBuf &ZiQiDongLaiBuf::operator=(const ZiQiDongLaiBuf &buff)
     return *this;
 }
 
-void ZiQiDongLaiBuf::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void ZiQiDongLaiBuf::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(2);
     m_intervalFrames = s_intervalFrames;
@@ -62,7 +62,7 @@ void ZiQiDongLaiBuf::Refresh()
     m_effectCount = s_maxEffectNum;
 }
 
-void ZiQiDongLaiBuf::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void ZiQiDongLaiBuf::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_intervalFrames = INVALID_FRAMES_SET;

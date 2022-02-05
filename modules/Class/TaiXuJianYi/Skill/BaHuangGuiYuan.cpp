@@ -43,7 +43,7 @@ BaHuangGuiYuan &BaHuangGuiYuan::operator=(const BaHuangGuiYuan &skill)
     return *this;
 }
 
-void BaHuangGuiYuan::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+void BaHuangGuiYuan::Cast(TargetsMap &targetsMap, Stats &stats, CastType castType)
 {
     TableRes tableRes = GetPhysicsRollResult(*targetsMap[NORMAL].front());
     UpdatePhysicsStats(*targetsMap[NORMAL].front(), stats, settings, tableRes, m_subNames[0], 9 - static_cast<int>(targetsMap[NORMAL].front()->GetLifePercent() * 10));
@@ -120,7 +120,7 @@ void BaHuangGuiYuan::InitDamageParams()
     m_damageParams[m_subNames[2]].push_back(DamageParam((690 + 760) / 8, 512, 2.3200 / 4));
 }
 
-void BaHuangGuiYuan::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
+void BaHuangGuiYuan::SubEffect(TargetsMap &targetsMap, Stats &stats, TableRes tableRes)
 {
     if (tableRes != TableRes::MISS) {
         TableRes tableRes2 = GetPhysicsRollResult(*targetsMap[NORMAL].front(), RollType::SUB);

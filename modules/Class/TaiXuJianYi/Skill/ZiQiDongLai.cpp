@@ -39,7 +39,7 @@ ZiQiDongLai &ZiQiDongLai::operator=(const ZiQiDongLai &skill)
     return *this;
 }
 
-void ZiQiDongLai::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+void ZiQiDongLai::Cast(TargetsMap &targetsMap, Stats &stats, CastType castType)
 {
     UpdatePhysicsStats(*targetsMap[NORMAL].front(), stats, settings, TableRes::ALL, m_subNames[0], 0);
     SubEffect(targetsMap, stats, settings, TableRes::ALL);
@@ -60,7 +60,7 @@ void ZiQiDongLai::InitDamageParams()
     m_damageParams[m_subNames[0]][0] = DamageParam(0, 0, 0.0);
 }
 
-void ZiQiDongLai::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
+void ZiQiDongLai::SubEffect(TargetsMap &targetsMap, Stats &stats, TableRes tableRes)
 {
     static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(10);
     m_player->buffs[BUF_ZI_QI_DONG_LAI]->Refresh();

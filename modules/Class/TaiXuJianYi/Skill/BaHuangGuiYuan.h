@@ -17,7 +17,7 @@ public:
     BaHuangGuiYuan& operator=(const BaHuangGuiYuan &skill);
 
     /* 执行 */
-    void Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType);
+    void Cast(TargetsMap &targetsMap, Stats &stats, CastType castType);
 
     /* 减CD */
     void UpdateCooldown(Frame_t frames);
@@ -33,7 +33,7 @@ private:
     void InitDamageParams();
 
     /* 加成效果 */
-    void SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes);
+    void SubEffect(TargetsMap &targetsMap, Stats &stats, TableRes tableRes);
 
 
     /* CD */

@@ -36,7 +36,7 @@ TunRiYueStd &TunRiYueStd::operator=(const TunRiYueStd &buff)
     return *this;
 }
 
-void TunRiYueStd::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void TunRiYueStd::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_effectCount = 0;
@@ -48,7 +48,7 @@ void TunRiYueStd::Refresh()
     m_effectCount = 1;
 }
 
-void TunRiYueStd::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void TunRiYueStd::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_effectCount = 0;

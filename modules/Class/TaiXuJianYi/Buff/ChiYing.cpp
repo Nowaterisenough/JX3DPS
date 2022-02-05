@@ -39,7 +39,7 @@ ChiYing &ChiYing::operator=(const ChiYing &buff)
     return *this;
 }
 
-void ChiYing::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void ChiYing::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_stackCount = 0;
@@ -54,7 +54,7 @@ void ChiYing::Refresh()
     m_stackCount = GET_MIN_INT(s_maxStackNum, m_stackCount);
 }
 
-void ChiYing::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void ChiYing::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     if (param != FORCE) {
         for (auto it : targetsMap[NORMAL]) {
@@ -73,7 +73,7 @@ void ChiYing::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, in
     }
 }
 
-void ChiYing::Clean(Target &target, Stats &stats, Settings &settings, int param)
+void ChiYing::Clean(Target &target, Stats &stats, int param)
 {
     TableRes tableRes = GetPhysicsRollResult(m_player->Attr());
     UpdatePhysicsStats(m_player->Attr(), target, tableRes, m_subNames[0], 0, stats);

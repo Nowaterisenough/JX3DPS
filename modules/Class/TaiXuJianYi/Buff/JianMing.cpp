@@ -35,7 +35,7 @@ JianMing &JianMing::operator=(const JianMing &buff)
     return *this;
 }
 
-void JianMing::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void JianMing::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     m_player->Attr().AddPhysicsAttackBaseBinPercent(-102);
     m_lastFrames = INVALID_FRAMES_SET;
@@ -49,7 +49,7 @@ void JianMing::Refresh()
     m_effectCount = 1;
 }
 
-void JianMing::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void JianMing::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_player->Attr().AddPhysicsAttackBaseBinPercent(-102);
     m_lastFrames = INVALID_FRAMES_SET;

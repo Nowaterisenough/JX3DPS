@@ -46,7 +46,7 @@ RenJianHeYi &RenJianHeYi::operator=(const RenJianHeYi &skill)
     return *this;
 }
 
-void RenJianHeYi::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+void RenJianHeYi::Cast(TargetsMap &targetsMap, Stats &stats, CastType castType)
 {
     for (auto it : targetsMap[NORMAL]) {
         TableRes tableRes = GetPhysicsRollResult(*it);
@@ -96,7 +96,7 @@ void RenJianHeYi::InitDamageParams()
     m_damageParams[m_subNames[0]][0] = DamageParam(63, 0, 0.1);
 }
 
-void RenJianHeYi::SubEffect(Target &target, Stats &stats, Settings &settings, TableRes tableRes)
+void RenJianHeYi::SubEffect(Target &target, Stats &stats, TableRes tableRes)
 {
     if (m_player->talents[SHEN_MAI] && tableRes == TableRes::DOUBLE) {
         static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(2);

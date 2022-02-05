@@ -36,7 +36,7 @@ ShengTaiJiStd &ShengTaiJiStd::operator=(const ShengTaiJiStd &buff)
     return *this;
 }
 
-void ShengTaiJiStd::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void ShengTaiJiStd::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     if (m_lastFrames == 0) {
         m_lastFrames = INVALID_FRAMES_SET;
@@ -55,7 +55,7 @@ void ShengTaiJiStd::Refresh()
     m_effectCount = 1;
 }
 
-void ShengTaiJiStd::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void ShengTaiJiStd::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_intervalFrames = INVALID_FRAMES_SET;

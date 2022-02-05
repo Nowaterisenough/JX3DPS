@@ -50,7 +50,7 @@ void FengShi::Refresh()
     m_effectCount = 1;
 }
 
-void FengShi::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void FengShi::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_player->skills[SKI_WU_WO_WU_JIAN]->UpdateSkillDamageBinPercent(-306);
     m_lastFrames = INVALID_FRAMES_SET;

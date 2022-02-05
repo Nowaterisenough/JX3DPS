@@ -36,7 +36,7 @@ RongJin &RongJin::operator=(const RongJin &buff)
     return *this;
 }
 
-void RongJin::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void RongJin::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(1);
     m_intervalFrames = s_intervalFrames;
@@ -47,7 +47,7 @@ void RongJin::Refresh()
 
 }
 
-void RongJin::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void RongJin::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_intervalFrames = INVALID_FRAMES_SET;
 }

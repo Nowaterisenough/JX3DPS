@@ -39,7 +39,7 @@ YunZhongJianY &YunZhongJianY::operator=(const YunZhongJianY &buff)
     return *this;
 }
 
-void YunZhongJianY::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void YunZhongJianY::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     for (auto it : targetsMap[NORMAL]) {
         TableRes tableRes = GetPhysicsRollResult(m_player->Attr(), *it);
@@ -59,7 +59,7 @@ void YunZhongJianY::Refresh()
     m_effectCount = s_maxEffectNum;
 }
 
-void YunZhongJianY::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void YunZhongJianY::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_effectCount = 0;
     m_lastFrames = INVALID_FRAMES_SET;
@@ -82,7 +82,7 @@ void YunZhongJianY::InitDamageParams()
     m_damageParams[m_subNames[0]][0].attackDamagePercent = 0.48125;
 }
 
-void YunZhongJianY::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void YunZhongJianY::SubEffect(TargetsMap &targetsMap, Stats &stats)
 {
     if (m_player->GetGearSetAttack() && Random(0.0, 1.0) < 0.1) {
         m_player->buffs[BUF_CLASS_ATTACK]->Refresh();

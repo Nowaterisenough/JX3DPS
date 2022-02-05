@@ -40,7 +40,7 @@ RenJianHeYiTBuf &RenJianHeYiTBuf::operator=(const RenJianHeYiTBuf &buff)
     return *this;
 }
 
-void RenJianHeYiTBuf::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void RenJianHeYiTBuf::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     TableRes tableRes = GetPhysicsRollResult(*m_snapAttr, *m_target, RollType::DOT);
     UpdatePhysicsStats(*m_snapAttr, *m_target, stats, settings, tableRes, m_subNames[0], 0);
@@ -58,7 +58,7 @@ void RenJianHeYiTBuf::Refresh()
     m_effectCount = s_maxEffectNum;
 }
 
-void RenJianHeYiTBuf::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void RenJianHeYiTBuf::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_intervalFrames = INVALID_FRAMES_SET;

@@ -34,7 +34,7 @@ TaiXuJianYiCW &TaiXuJianYiCW::operator=(const TaiXuJianYiCW &buff)
     return *this;
 }
 
-void TaiXuJianYiCW::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void TaiXuJianYiCW::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     m_cooldown = IF_1ST_0_TO_2ND_ELSE_3RD(m_cooldown, INVALID_FRAMES_SET, m_cooldown);
     m_lastFrames = IF_1ST_0_TO_2ND_ELSE_3RD(m_lastFrames, INVALID_FRAMES_SET, m_lastFrames);
@@ -50,7 +50,7 @@ void TaiXuJianYiCW::Refresh()
     }
 }
 
-void TaiXuJianYiCW::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void TaiXuJianYiCW::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_effectCount = 0;

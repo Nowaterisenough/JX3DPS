@@ -36,7 +36,7 @@ XuanMen &XuanMen::operator=(const XuanMen &buff)
     return *this;
 }
 
-void XuanMen::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void XuanMen::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     m_player->Attr().AddPhysicsCriticalStrikePercent(-m_stackCount * 0.03);
     m_player->Attr().AddPhysicsOvercomeBaseBinPercent(-m_stackCount * 204);
@@ -57,7 +57,7 @@ void XuanMen::Refresh()
     m_player->Attr().AddPhysicsOvercomeBaseBinPercent(m_stackCount * 204);
 }
 
-void XuanMen::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void XuanMen::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_player->Attr().AddPhysicsCriticalStrikePercent(-m_stackCount * 0.03);
     m_player->Attr().AddPhysicsOvercomeBaseBinPercent(-m_stackCount * 204);

@@ -17,13 +17,13 @@ public:
     RongJin& operator=(const RongJin &buff);
 
     /* 执行 */
-    void Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings);
+    void Cast(TargetsMap &targetsMap, Stats &stats);
 
     /* 添加或刷新 */
     void Refresh();
 
     /* 结算 */
-    void Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param);
+    void Clean(TargetsMap &targetsMap, Stats &stats, int param);
 
 private:
     /* 初始化基本信息 */

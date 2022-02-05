@@ -35,7 +35,7 @@ QiSheng &QiSheng::operator=(const QiSheng &buff)
     return *this;
 }
 
-void QiSheng::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void QiSheng::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     m_player->Attr().AddPhysicsAttackBaseBinPercent(-102);
     m_lastFrames = INVALID_FRAMES_SET;
@@ -49,7 +49,7 @@ void QiSheng::Refresh()
     m_effectCount = 1;
 }
 
-void QiSheng::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void QiSheng::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_player->Attr().AddPhysicsAttackBaseBinPercent(-102);
     m_lastFrames = INVALID_FRAMES_SET;

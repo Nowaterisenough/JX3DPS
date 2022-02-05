@@ -42,7 +42,7 @@ SanHuanTaoYue &SanHuanTaoYue::operator=(const SanHuanTaoYue &skill)
     return *this;
 }
 
-void SanHuanTaoYue::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+void SanHuanTaoYue::Cast(TargetsMap &targetsMap, Stats &stats, CastType castType)
 {
     TableRes tableRes = GetPhysicsRollResult(*targetsMap[NORMAL].front());
     UpdatePhysicsStats(*targetsMap[NORMAL].front(), stats, settings, tableRes, m_subNames[0], 0);
@@ -71,7 +71,7 @@ void SanHuanTaoYue::InitDamageParams()
     m_damageParams[m_subNames[0]][0] = DamageParam((123 + 136) / 2, 1024, 0.95);
 }
 
-void SanHuanTaoYue::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
+void SanHuanTaoYue::SubEffect(TargetsMap &targetsMap, Stats &stats, TableRes tableRes)
 {
     if (tableRes != TableRes::MISS) {
         static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(m_skillQidianAdd);

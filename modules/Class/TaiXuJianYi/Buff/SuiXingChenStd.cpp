@@ -1,4 +1,12 @@
-﻿#include "SuiXingChenStd.h"
+﻿/**
+ * @Description : 
+ * @Author      : NoWats
+ * @Date        : 2022-02-05 16:32:22
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-05 16:32:52
+ * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Buff\SuiXingChenStd.cpp
+ */
+#include "SuiXingChenStd.h"
 
 #include "Core/Player.h"
 
@@ -36,7 +44,7 @@ SuiXingChenStd &SuiXingChenStd::operator=(const SuiXingChenStd &buff)
     return *this;
 }
 
-void SuiXingChenStd::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+void SuiXingChenStd::Cast(TargetsMap &targetsMap, Stats &stats)
 {
     if (m_lastFrames == 0) {
         m_lastFrames = INVALID_FRAMES_SET;
@@ -55,7 +63,7 @@ void SuiXingChenStd::Refresh()
     m_effectCount = 1;
 }
 
-void SuiXingChenStd::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+void SuiXingChenStd::Clean(TargetsMap &targetsMap, Stats &stats, int param)
 {
     m_lastFrames = INVALID_FRAMES_SET;
     m_intervalFrames = INVALID_FRAMES_SET;

@@ -25,7 +25,7 @@ public:
     ZiQiDongLai &operator=(const ZiQiDongLai &skill);
 
     /* 执行 */
-    void Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType) override;
+    void Cast(TargetsMap &targetsMap, Stats &stats, CastType castType) override;
 
 private:
     /* 初始化基本信息 */
@@ -35,7 +35,7 @@ private:
     void InitDamageParams();
 
     /* 加成效果 */
-    void SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes);
+    void SubEffect(TargetsMap &targetsMap, Stats &stats, TableRes tableRes);
 
     /* CD */
     static Frame_t s_cooldown;

@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-03 16:31:46
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 15:35:17
+ * @LastTime    : 2022-02-05 01:51:33
  * @FilePath    : \JX3DPS\modules\Common\ConstVal.h
  */
 
@@ -164,6 +164,21 @@ constexpr double CONST_STONE_SUB = 23.125;
 /* 五彩石 - 武器伤害 */
 constexpr double CONST_STONE_WEAPON_ATTACK = 15.525;
 
+/*----------------------- ID -----------------------*/
+
+/* 通用 - Buff */
+constexpr Id_t BUF_CLASS_EFFECT     = 101;
+constexpr Id_t BUF_CLASS_TEAM_POINT = 102;
+constexpr Id_t BUF_CLASS_CW         = 103;
+constexpr Id_t BUF_CLASS_ATTACK     = 104;
+
+/* 通用 - 3rd buff */
+constexpr Id_t BUF_3RD_SUI_XING_CHEN    = 201;
+constexpr Id_t BUF_3RD_MEI_HUA_SAN_NONG = 202;
+
+/* 通用 - 3rd debuff */
+constexpr Id_t TBUF_MIE_SHI = 501;
+
 /*----------------------- 定义 -----------------------*/
 
 /* 圆桌判定结果 */
@@ -205,9 +220,167 @@ enum Class
     MO_WEN             = 5,
     YI_JIN_JING        = 7,
     FEN_YING_SHENG_JUE = 9,
-    XIANG_ZHI          = 11,
+
+    XIANG_ZHI = 11,
 };
 
+/* 奇穴表 */
+using Talents = std::unordered_map<Id_t, bool>;
+
+/* 秘籍表 */
+using Secrets = std::unordered_map<Id_t, std::list<bool>>;
+
+/* 属性类型 */
+enum AttrType
+{
+    DEFALUT_TYPE,
+    PRIMARY,               // 主属性
+    ATTACK_BASE,           // 基础攻击
+    CRITICAL_STRIKE,       // 会心
+    CRITICAL_STRIKE_POWER, // 会心效果
+    OVERCOME_BASE,         // 基础破防
+    HASTE,                 // 加速
+    STRAIN,                // 无双
+    SURPLUS,               // 破招
+    WEAPON_ATTACK,         // 武器伤害
+};
+
+/* 模拟模式 */
+using SIM_MODE = AttrType;
+
+/* 阵眼 */
+using TEAM_CORE = AttrType;
+
+/* 收益信息 */
+struct BonusSet
+{
+    bool    set;
+    Value_t value;
+
+    BonusSet() : set(false), value(0) {}
+};
+
+/* 属性收益表 */
+using BonusSets = std::unordered_map<AttrType, BonusSet *>;
+
+/* 武器类型 */
+enum WeaponType
+{
+    CW,
+    LITTLE_CW,
+    THUNDER_WEAPON,
+    WATER_WEAPON,
+    EXCL_WEAPON,
+    NORMAL_WEAPON,
+};
+
+/* 套装效果类型 */
+enum GearSetType
+{
+    GEAR_SET_ATTACK,
+    GEAR_SET_CLASS,
+    WAIST_EFFECT,
+};
+
+/* 套装效果表 */
+using GearSets = std::unordered_map<GearSetType, bool>;
+
+/* 装备类型 */
+enum EquipType
+{
+    DEFAULT_EQUIP_TYPE, // 默认
+    HELMS,              // 帽子
+    ARMOR,              // 上衣
+    WRISTS,             // 护腕
+    BELTS,              // 腰带
+    BOOTS,              // 鞋子
+    LEGS,               // 下装
+    AMULETS,            // 项链
+    WAIST,              // 腰坠
+    RINGS,              // 戒指
+    SUB_WEAPON,         // 副武器
+    PRIMARY_WEAPON,     // 武器
+};
+
+/* 附魔表 */
+using Enchants = std::unordered_map<EquipType, bool>;
+
+/* 技能列表 */
+class Skill;
+class Player;
+using Skills = std::unordered_map<Id_t, Skill *>;
+
+enum CastType
+{
+    SKILL,
+    EFFECT,
+    FORCE,
+};
+
+/* 目标状态 */
+enum TargetStatus
+{
+    NORMAL,
+    DETACHED,
+    DEAD,
+};
+
+/* Buff列表 */
+class Buff;
+class Target;
+using Targets    = std::list<Target *>;
+using TargetsMap = std::unordered_map<TargetStatus, Targets>;
+using Buffs      = std::unordered_map<Id_t, Buff *>;
+
+/* 设置 */
+class Attr;
+struct Settings
+{
+    Class                  classType; // 心法
+    SIM_MODE               simMode;   // 模拟模式
+    int                    simTimes;  // 模拟次数
+    int                    minPing;   // 延迟最小
+    int                    maxPing;   // 延迟最大
+    Frame_t                time;      // 时间
+    Attr                  *attr;      // 属性
+    Attr                  *attrFinal;
+    BonusSets              bonusSets;
+    WeaponType             weaponType;
+    GearSets               gearSets;
+    Enchants               enchants;
+    Talents                talents;
+    Secrets                secrets;
+    TEAM_CORE              teamCore;
+    Buffs                  buffSets;
+    std::list<std::string> macroStrList;
+    std::list<std::string> eventStrList;
+
+    Settings(Class classType);
+};
+
+extern Settings g_settings;
+
+/* 伤害系数 */
+struct DamageParam
+{
+    int      fixedDamage;            // 固定伤害
+    BinPct_t weaponDamageBinPercent; // 武器伤害系数, 1024为100%
+    Pct_t    attackDamagePercent;    // 攻击系数
+
+    DamageParam() : fixedDamage(0), weaponDamageBinPercent(0), attackDamagePercent(0.0) {}
+
+    DamageParam(int fixedDamage, BinPct_t weaponDamageBinPercent, Pct_t attackDamagePercent) :
+        fixedDamage(fixedDamage), weaponDamageBinPercent(weaponDamageBinPercent),
+        attackDamagePercent(attackDamagePercent)
+    {
+    }
+};
+
+using DamageParams = std::unordered_map<std::string, std::vector<DamageParam>>;
+
+/*--------------------- 函数指针 ---------------------*/
+
+/* 函数指针参数 */
 struct Param
 {
     int    int1st;
@@ -224,134 +397,183 @@ struct Param
     }
 };
 
-using ConditionFuncPtr = bool (Macro::*)(const Param &param);
+class Event;
 
-struct ConditionFunc
+using EventFuncPtr = void (Event::*)(const Param &param);
+
+struct EventFunc
 {
-    ConditionFuncPtr macroFuncPtr;
-    Param            param;
+    EventFuncPtr eventFuncPtr;
+    Param        param;
 
-    ConditionFunc() {}
-
-    ConditionFunc(ConditionFuncPtr conditionFuncPtr) : conditionFuncPtr(conditionFuncPtr) {}
-
-    ConditionFunc(ConditionFuncPtr conditionFuncPtr, const Param &param) :
-        conditionFuncPtr(conditionFuncPtr), param(param)
+    EventFunc(EventFuncPtr eventFuncPtr, const Param &param) :
+        eventFuncPtr(eventFuncPtr), param(param)
     {
     }
 };
 
-using Macros = std::list<std::pair<std::list<std::list<ConditionFunc>>, Id_t>>;
+using Events = std::list<std::pair<Frame_t, EventFunc>>;
 
-using ForceMacros =
-    std::list<std::pair<Frame_t, std::pair<std::list<std::list<ConditionFunc>>, Id_t>>>;
+class Macro;
 
-/* 伤害系数 */
-struct DamageParam
+using MacroFuncPtr = bool (Macro::*)(const Param &param);
+
+struct MacroFunc
 {
-    int      fixedDamage;            // 固定伤害
-    BinPct_t weaponDamageBinPercent; // 武器伤害百分比, 1024为100%
-    Pct_t    attackDamagePercent;    // 基础攻击百分比
+    MacroFuncPtr macroFuncPtr;
+    Param        param;
 
-    DamageParam() {}
+    MacroFunc() {}
 
-    DamageParam(int fixedDamage, BinPct_t weaponDamageBinPercent, Pct_t attackDamagePercent) :
-        fixedDamage(fixedDamage), weaponDamageBinPercent(weaponDamageBinPercent),
-        attackDamagePercent(attackDamagePercent)
+    MacroFunc(MacroFuncPtr macroFuncPtr) : macroFuncPtr(macroFuncPtr) {}
+
+    MacroFunc(MacroFuncPtr macroFuncPtr, const Param &param) :
+        macroFuncPtr(macroFuncPtr), param(param)
     {
     }
 };
+
+using Macros = std::list<std::pair<std::list<std::list<MacroFunc>>, Id_t>>;
+
+using ForceMacros = std::list<std::pair<Frame_t, std::pair<std::list<std::list<MacroFunc>>, Id_t>>>;
+
+/*----------------------- 统计 -----------------------*/
 
 /* 伤害统计 */
-struct DamageStats
+struct Damage
 {
-    long long fixedDamage;  // 基础伤害统计
+    long long fixedDamage;  // 固定伤害统计
     long long weaponDamage; // 武器伤害统计
     long long attackDamage; // 攻击伤害统计
 
-    DamageStats() {}
+    Damage() : fixedDamage(0), weaponDamage(0), attackDamage(0) {}
 
-    DamageStats(const DamageStats &damageStats) :
-        fixedDamage(damageStats.fixedDamage), weaponDamage(damageStats.weaponDamage),
-        attackDamage(damageStats.attackDamage)
+    Damage(const Damage &damage) :
+        fixedDamage(damage.fixedDamage), weaponDamage(damage.weaponDamage),
+        attackDamage(damage.attackDamage)
     {
     }
 
-    DamageStats(long long fixedDamage, long long weaponDamage, long long attackDamage) :
+    Damage(const long long fixedDamage, const long long weaponDamage, const long long attackDamage) :
         fixedDamage(fixedDamage), weaponDamage(weaponDamage), attackDamage(attackDamage)
     {
     }
 
-    long long SumDamage()
+    long long SumDamage() const
     {
+        // Damage(1, 2, 3);
         return fixedDamage + weaponDamage + attackDamage;
     }
 
-    DamageStats &operator+=(const DamageStats &damageStats)
+    Damage &operator+=(const Damage &damage)
     {
-        (*this).fixedDamage += damageStats.fixedDamage;
-        (*this).weaponDamage += damageStats.weaponDamage;
-        (*this).attackDamage += damageStats.attackDamage;
+        this->fixedDamage += damage.fixedDamage;
+        this->weaponDamage += damage.weaponDamage;
+        this->attackDamage += damage.attackDamage;
         return *this;
     }
 };
 
-using TableStats = std::unordered_map<TableRes, std::pair<int, DamageStats>>;
+/* [判定] - <数目, 伤害> */
+using TableStats = std::unordered_map<TableRes, std::pair<int, Damage>>;
+
+/* [强度] - <[判定] - <数目, 伤害>> */
 using LevelStats = std::unordered_map<int, TableStats>;
+
+/* [词缀] - <[强度] - <[判定] - <数目, 伤害>>> */
 using SubStats = std::unordered_map<std::string, LevelStats>;
-using Stats = std::unordered_map<Id_t, SubStats>;
+
+/* [效果] - <[词缀] - <[强度] - <[判定] - <数目, 伤害>>>> */
+using EffectStats = std::unordered_map<Id_t, SubStats>;
+
+/* [目标] - <[效果] - <[词缀] - <[强度] - <[判定] - <数目, 伤害>>>>> */
+using DamageStats = std::unordered_map<Id_t, EffectStats>;
+
+/* 收益统计 */
+using BonusStats = std::unordered_map<AttrType, long long>;
+
+/* 统计 */
+struct Stats
+{
+    DamageStats damageStats;
+    BonusStats  bonusStats;
+
+    Stats(Player &player, TargetsMap targetsMap);
+
+    TableStats  InitTableStats();
+    EffectStats InitEffectStats(Player &player, TargetsMap targetsMap);
+    void        AddDamageStats(Id_t id, Player &player, TargetsMap targetsMap);
+};
+
+/* 特征值 */
+struct CharStats
+{
+    int minDamage;
+    int maxDamage;
+
+    CharStats() : minDamage(CONST_MAX_FRAMES), maxDamage(0) {}
+};
+
+/* 统计汇总 */
+struct TotalStats
+{
+    DamageStats damageStats;
+    BonusStats  bonusStats;
+    CharStats   charStats;
+
+    TotalStats();
+
+    TotalStats &operator+=(Stats &stats);
+};
 
 /* Buff - 太虚剑意 */
 constexpr Id_t BUF_ZI_QI_DONG_LAI     = 2101;
 constexpr Id_t BUF_XUAN_MEN           = 2102;
 constexpr Id_t BUF_SUI_XING_CHEN      = 2103;
-constexpr Id_t BUF_SUI_XING_CHEN_STD  = 2104;
-constexpr Id_t BUF_SUI_XING_CHEN_STD2 = 2105;
-constexpr Id_t BUF_SHENG_TAI_JI_STD   = 2106;
-constexpr Id_t BUF_TUN_RI_YUE_STD     = 2107;
-constexpr Id_t BUF_YUN_ZHONG_JIAN_C   = 2108;
-constexpr Id_t BUF_YUN_ZHONG_JIAN_J   = 2109;
-constexpr Id_t BUF_YUN_ZHONG_JIAN_Y   = 2110;
-constexpr Id_t BUF_CHI_YING           = 2111;
-constexpr Id_t BUF_QI_SHENG           = 2112;
-constexpr Id_t BUF_FENG_SHI           = 2113;
-
-/* TBuff - 太虚剑意 */
-constexpr Id_t TBUF_DIE_REN        = 2201;
-constexpr Id_t TBUF_REN_JIAN_HE_YI = 2202;
+constexpr Id_t BUF_SHENG_TAI_JI       = 2104;
+constexpr Id_t BUF_TUN_RI_YUE         = 2105;
+constexpr Id_t BUF_YUN_ZHONG_JIAN_C   = 2106;
+constexpr Id_t BUF_YUN_ZHONG_JIAN_J   = 2107;
+constexpr Id_t BUF_YUN_ZHONG_JIAN_Y   = 2108;
+constexpr Id_t BUF_CHI_YING           = 2109;
+constexpr Id_t BUF_QI_SHENG           = 2110;
+constexpr Id_t BUF_FENG_SHI           = 2111;
+constexpr Id_t BUF_SUI_XING_CHEN_BUFF = 2112;
+constexpr Id_t BUF_DIE_REN            = 2113;
+constexpr Id_t BUF_REN_JIAN_HE_YI     = 2114;
 
 /* 技能 - 太虚剑意 */
-constexpr Id_t SKI_WU_WO_WU_JIAN     = 2301;
-constexpr Id_t SKI_BA_HUANG_GUI_YUAN = 2302;
-constexpr Id_t SKI_SAN_HUAN_TAO_YUE  = 2303;
-constexpr Id_t SKI_REN_JIAN_HE_YI    = 2304;
-constexpr Id_t SKI_SUI_XING_CHEN     = 2305;
-constexpr Id_t SKI_SHENG_TAI_JI      = 2306;
-constexpr Id_t SKI_TUN_RI_YUE        = 2307;
-constexpr Id_t SKI_ZI_QI_DONG_LAI    = 2308;
-constexpr Id_t SKI_SAN_CHAI_JIAN_FA  = 2309;
+constexpr Id_t SKI_WU_WO_WU_JIAN     = 2201;
+constexpr Id_t SKI_BA_HUANG_GUI_YUAN = 2202;
+constexpr Id_t SKI_SAN_HUAN_TAO_YUE  = 2203;
+constexpr Id_t SKI_REN_JIAN_HE_YI    = 2204;
+constexpr Id_t SKI_SUI_XING_CHEN     = 2205;
+constexpr Id_t SKI_SHENG_TAI_JI      = 2206;
+constexpr Id_t SKI_TUN_RI_YUE        = 2207;
+constexpr Id_t SKI_ZI_QI_DONG_LAI    = 2208;
+constexpr Id_t SKI_SAN_CHAI_JIAN_FA  = 2209;
 
 /* 奇穴 - 太虚剑意 */
-constexpr Id_t TAL_CUO_RUI        = 2401;
-constexpr Id_t TAL_XIN_GU         = 2402;
-constexpr Id_t TAL_TONG_GEN       = 2403;
-constexpr Id_t TAL_SHEN_MAI       = 2404;
-constexpr Id_t TAL_KUN_WU         = 2405;
-constexpr Id_t TAL_BAI_HONG       = 2406;
-constexpr Id_t TAL_HUA_SAN_QING   = 2407;
-constexpr Id_t TAL_YUN_ZHONG_JIAN = 2408;
-constexpr Id_t TAL_WU_YI          = 2409;
-constexpr Id_t TAL_FENG_SHI       = 2410;
-constexpr Id_t TAL_KUANG_GE       = 2411;
-constexpr Id_t TAL_DIE_REN        = 2412;
-constexpr Id_t TAL_QIE_YU         = 2413;
-constexpr Id_t TAL_CHANG_SHENG    = 2414;
-constexpr Id_t TAL_FU_YIN         = 2415;
-constexpr Id_t TAL_HE_GUANG       = 2416;
-constexpr Id_t TAL_SUI_WU         = 2417;
-constexpr Id_t TAL_QI_SHENG       = 2418;
-constexpr Id_t TAL_WU_YU          = 2419;
-constexpr Id_t TAL_XUAN_MEN       = 2420;
+constexpr Id_t TAL_CUO_RUI        = 2301;
+constexpr Id_t TAL_XIN_GU         = 2302;
+constexpr Id_t TAL_TONG_GEN       = 2303;
+constexpr Id_t TAL_SHEN_MAI       = 2304;
+constexpr Id_t TAL_KUN_WU         = 2305;
+constexpr Id_t TAL_BAI_HONG       = 2306;
+constexpr Id_t TAL_HUA_SAN_QING   = 2307;
+constexpr Id_t TAL_YUN_ZHONG_JIAN = 2308;
+constexpr Id_t TAL_WU_YI          = 2309;
+constexpr Id_t TAL_FENG_SHI       = 2310;
+constexpr Id_t TAL_KUANG_GE       = 2311;
+constexpr Id_t TAL_DIE_REN        = 2312;
+constexpr Id_t TAL_QIE_YU         = 2313;
+constexpr Id_t TAL_CHANG_SHENG    = 2314;
+constexpr Id_t TAL_FU_YIN         = 2315;
+constexpr Id_t TAL_HE_GUANG       = 2316;
+constexpr Id_t TAL_SUI_WU         = 2317;
+constexpr Id_t TAL_QI_SHENG       = 2318;
+constexpr Id_t TAL_WU_YU          = 2319;
+constexpr Id_t TAL_XUAN_MEN       = 2320;
 
 } // namespace JX3DPS
 

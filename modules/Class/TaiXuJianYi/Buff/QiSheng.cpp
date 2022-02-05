@@ -2,11 +2,21 @@
 
 #include "Core/Player.h"
 
-int QiSheng::s_lastFrames = 3 * 16;
+namespace JX3DPS {
 
-QiSheng::QiSheng()
+namespace TaiXuJianYi {
+
+Frame_t QiSheng::s_lastFrames = 3 * 16;
+
+QiSheng::QiSheng(Player &player) :
+    Buff(player)
 {
     InitBaseParams();
+}
+
+QiSheng::QiSheng(const QiSheng &buff) : Buff(buff)
+{
+
 }
 
 QiSheng::~QiSheng()
@@ -14,33 +24,48 @@ QiSheng::~QiSheng()
 
 }
 
-void QiSheng::Cast(Player &player,
-                   TargetList &targetList,
-                   Stats::ThreadStats &threadStats,
-                   Stats::SIM_MODE &simMode)
+QiSheng *QiSheng::Clone()
 {
-    player.AddPhysicsAttackBaseBinPercent(-102);
-    m_lastFrames = -1;
-    m_effectNum = 0;
+    return new QiSheng(*this);
 }
 
-void QiSheng::Refresh(Player &player)
+QiSheng &QiSheng::operator=(const QiSheng &buff)
 {
-    player.AddPhysicsAttackBaseBinPercent(102);
-    m_lastFrames = static_cast<int>(m_lastFrames * player.GetHastePercent());
-    m_effectNum = 1;
+    Buff::operator=(buff);
+    return *this;
+}
+
+void QiSheng::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
+{
+    m_player->Attr().AddPhysicsAttackBaseBinPercent(-102);
+    m_lastFrames = INVALID_FRAMES_SET;
+    m_effectCount = 0;
+}
+
+void QiSheng::Refresh()
+{
+    m_player->Attr().AddPhysicsAttackBaseBinPercent(102);
+    m_lastFrames = static_cast<int>(m_lastFrames * m_player->Attr().GetHastePercent());
+    m_effectCount = 1;
+}
+
+void QiSheng::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+{
+    m_player->Attr().AddPhysicsAttackBaseBinPercent(-102);
+    m_lastFrames = INVALID_FRAMES_SET;
+    m_effectCount = 0;
 }
 
 void QiSheng::InitBaseParams()
 {
     m_id = BUF_QI_SHENG;
     m_name = "期声";
-    m_subNameVec.push_back("");
-    m_levelNameVec.push_back("");
-    m_3rdCooldown = -1;
-    m_cooldown = -1;
-    m_lastFrames = -1;
-    m_intervalFrames = -1;
-    m_effectNum = 0;
-    m_stackNum = 0;
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+    m_isDamage = false;
+}
+
+
+}
+
 }

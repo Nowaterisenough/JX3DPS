@@ -1,12 +1,3 @@
-/**
- * @Description : 
- * @Author      : NoWats
- * @Date        : 2022-02-04 12:07:17
- * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:15:02
- * @FilePath    : \JX3DPS\modules\Core\Event.cpp
- */
-
 #include "Event.h"
 
 #include <sstream>
@@ -25,7 +16,10 @@ Event::Event(const std::list<std::string> &lines)
     }
 }
 
-Event::~Event() {}
+Event::~Event()
+{
+
+}
 
 void Event::Cast()
 {
@@ -52,10 +46,10 @@ Frame_t Event::GetNextTime()
 
 int Event::ParseEvent(const std::string &line)
 {
-    int         minutes     = stoi(line.substr(1, 2));
-    int         seconds     = stoi(line.substr(4, 5));
-    Frame_t     time        = (minutes * 60 + seconds) * 16;
-    std::string instTpye    = line.substr(9, 11);
+    int minutes = stoi(line.substr(1, 2));
+    int seconds = stoi(line.substr(4, 5));
+    Frame_t time = (minutes * 60 + seconds) * 16;
+    std::string instTpye = line.substr(9, 11);
     std::string instruction = line.substr(8);
     if (instTpye == "add") {
         ParseAddTarget(time, instruction);
@@ -88,34 +82,33 @@ int Event::ParseEvent(const std::string &line)
 void Event::ParseAddTarget(Frame_t frames, const std::string &line)
 {
     std::stringstream buf(line);
-    int               id     = 0;
-    int               level  = 0;
-    int               shield = 0;
-    std::string       unuse;
+    int id = 0;
+    int level = 0;
+    int shield = 0;
+    std::string unuse;
     buf >> unuse >> id >> level >> shield;
-    Param        param(id, level, shield, 0.0, 0.0);
+    Param param(id, level, shield, 0.0, 0.0);
     EventFuncPtr eventFuncPtr = &Event::AddTarget;
-    EventFunc    func(eventFuncPtr, param);
+    EventFunc func(eventFuncPtr, param);
     events.push_back(std::pair<Frame_t, EventFunc>(frames, func));
 }
 
 void Event::AddTarget(const Param &param)
 {
-    (*m_targetsMap)[NORMAL].push_back(
-        new Target(*m_player, param.int1st, param.int2nd, param.int3rd, m_settings->classType));
+    (*m_targetsMap)[NORMAL].push_back(new Target(*m_player, param.int1st, param.int2nd, param.int3rd, m_settings->classType));
     m_stats->AddDamageStats(param.int1st, *m_player, *m_targetsMap);
 }
 
 void Event::ParseChangeTarget(Frame_t frames, const std::string &line)
 {
     std::stringstream buf(line);
-    Id_t              id = 0;
-    std::string       unuse;
+    Id_t id = 0;
+    std::string unuse;
     buf >> unuse >> id;
     Param param;
-    param.int1st              = id;
+    param.int1st = id;
     EventFuncPtr eventFuncPtr = &Event::ChangeTarget;
-    EventFunc    func(eventFuncPtr, param);
+    EventFunc func(eventFuncPtr, param);
     events.push_back(std::pair<Frame_t, EventFunc>(frames, func));
 }
 
@@ -134,13 +127,13 @@ void Event::ChangeTarget(const Param &param)
 void Event::ParseDeleteTarget(Frame_t frames, const std::string &line)
 {
     std::stringstream buf(line);
-    Id_t              id = 0;
-    std::string       unuse;
+    Id_t id = 0;
+    std::string unuse;
     buf >> unuse >> id;
     Param param;
-    param.int1st              = id;
+    param.int1st = id;
     EventFuncPtr eventFuncPtr = &Event::DeleteTarget;
-    EventFunc    func(eventFuncPtr, param);
+    EventFunc func(eventFuncPtr, param);
     events.push_back(std::pair<Frame_t, EventFunc>(frames, func));
 }
 
@@ -159,13 +152,13 @@ void Event::DeleteTarget(const Param &param)
 void Event::ParseDetachTarget(Frame_t frames, const std::string &line)
 {
     std::stringstream buf(line);
-    Id_t              id = 0;
-    std::string       unuse;
+    Id_t id = 0;
+    std::string unuse;
     buf >> unuse >> id;
     Param param;
-    param.int1st              = id;
-    EventFuncPtr eventFuncPtr = &Event::DetachTarget;
-    EventFunc    func(eventFuncPtr, param);
+    param.int1st = id;
+    EventFuncPtr  eventFuncPtr = &Event::DetachTarget;
+    EventFunc func(eventFuncPtr, param);
     events.push_back(std::pair<Frame_t, EventFunc>(frames, func));
 }
 
@@ -184,13 +177,13 @@ void Event::DetachTarget(const Param &param)
 void Event::ParseRecoveryTarget(Frame_t frames, const std::string &line)
 {
     std::stringstream buf(line);
-    Id_t              id = 0;
-    std::string       unuse;
+    Id_t id = 0;
+    std::string unuse;
     buf >> unuse >> id;
     Param param;
-    param.int1st              = id;
+    param.int1st = id;
     EventFuncPtr eventFuncPtr = &Event::RecoveryTarget;
-    EventFunc    func(eventFuncPtr, param);
+    EventFunc func(eventFuncPtr, param);
     events.push_back(std::pair<Frame_t, EventFunc>(frames, func));
 }
 
@@ -208,9 +201,9 @@ void Event::RecoveryTarget(const Param &param)
 
 void Event::ParseStop(Frame_t frames, const std::string &line)
 {
-    Param        param;
+    Param param;
     EventFuncPtr eventFuncPtr = &Event::DetachTarget;
-    EventFunc    func(eventFuncPtr, param);
+    EventFunc func(eventFuncPtr, param);
     events.push_back(std::pair<Frame_t, EventFunc>(frames, func));
 }
 
@@ -221,9 +214,9 @@ void Event::Stop(const Param &param)
 
 void Event::ParseContinue(Frame_t frames, const std::string &line)
 {
-    Param        param;
+    Param param;
     EventFuncPtr eventFuncPtr = &Event::DetachTarget;
-    EventFunc    func(eventFuncPtr, param);
+    EventFunc func(eventFuncPtr, param);
     events.push_back(std::pair<Frame_t, EventFunc>(frames, func));
 }
 
@@ -245,24 +238,24 @@ void Event::ParseCast(Frame_t frames, const std::string &line)
 void Event::ParseRefreshBuff(Frame_t frames, const std::string &line)
 {
     std::stringstream buf(line);
-    std::string       buffName;
-    std::string       unuse;
-    std::string       role;
-    Id_t              id = 0;
-    Param             param;
-    EventFuncPtr      eventFuncPtr;
-    Id_t              buffId = 0;
+    std::string buffName;
+    std::string unuse;
+    std::string role;
+    Id_t id = 0;
+    Param param;
+    EventFuncPtr eventFuncPtr;
+    Id_t buffId = 0;
     buf >> unuse >> role;
     if (role == "Player") {
         buf >> buffName;
         eventFuncPtr = &Event::RefreshBuff;
-        buffId       = GetBuffId(buffName);
+        buffId = GetBuffId(buffName);
         param.int1st = buffId;
     } else {
         buf >> id >> buffName;
         eventFuncPtr = &Event::RefreshTBuff;
         param.int1st = id;
-        buffId       = GetBuffId(buffName);
+        buffId = GetBuffId(buffName);
         param.int2nd = buffId;
     }
     EventFunc func(eventFuncPtr, param);
@@ -291,24 +284,24 @@ void Event::RefreshTBuff(const Param &param)
 void Event::ParseCleanBuff(Frame_t frames, const std::string &line)
 {
     std::stringstream buf(line);
-    std::string       buffName;
-    std::string       unuse;
-    std::string       role;
-    Id_t              id = 0;
-    Param             param;
-    EventFuncPtr      eventFuncPtr;
-    Id_t              buffId = 0;
+    std::string buffName;
+    std::string unuse;
+    std::string role;
+    Id_t id = 0;
+    Param param;
+    EventFuncPtr eventFuncPtr;
+    Id_t buffId = 0;
     buf >> unuse >> role;
     if (role == "Player") {
         buf >> buffName;
         eventFuncPtr = &Event::CleanBuff;
-        buffId       = GetBuffId(buffName);
+        buffId = GetBuffId(buffName);
         param.int1st = buffId;
     } else {
         buf >> id >> buffName;
         eventFuncPtr = &Event::CleanTBuff;
         param.int1st = id;
-        buffId       = GetBuffId(buffName);
+        buffId = GetBuffId(buffName);
         param.int2nd = buffId;
     }
     EventFunc func(eventFuncPtr, param);
@@ -337,15 +330,15 @@ void Event::CleanTBuff(const Param &param)
 void Event::ParseSet(Frame_t frames, const std::string &line)
 {
     std::stringstream buf(line);
-    Id_t              id      = 0;
-    Pct_t             percent = 0.0;
-    std::string       unuse;
+    Id_t id = 0;
+    Pct_t percent = 0.0;
+    std::string unuse;
     buf >> unuse >> id >> unuse >> percent;
     Param param;
-    param.int1st              = id;
-    param.double4th           = percent;
+    param.int1st = id;
+    param.double4th = percent;
     EventFuncPtr eventFuncPtr = &Event::Set;
-    EventFunc    func(eventFuncPtr, param);
+    EventFunc func(eventFuncPtr, param);
     events.push_back(std::pair<Frame_t, EventFunc>(frames, func));
 }
 
@@ -363,4 +356,4 @@ void Event::Set(const Param &param)
     }
 }
 
-} // namespace JX3DPS
+}

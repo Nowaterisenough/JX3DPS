@@ -1,12 +1,3 @@
-/**
- * @Description :
- * @Author      : NoWats
- * @Date        : 2022-02-04 12:08:10
- * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:29:19
- * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Skill\WuWoWuJian.h
- */
-
 #ifndef WUWOWUJIAN_H
 #define WUWOWUJIAN_H
 
@@ -19,14 +10,14 @@ namespace TaiXuJianYi {
 class WuWoWuJian : public Skill
 {
 public:
-    WuWoWuJian();
+    WuWoWuJian(Player &player);
+    WuWoWuJian(const WuWoWuJian &skill);
     ~WuWoWuJian();
+    WuWoWuJian *Clone();
+    WuWoWuJian& operator=(const WuWoWuJian &skill);
 
     /* 执行 */
-    void Cast(Player             &player,
-              TargetList         &targetList,
-              Stats::ThreadStats &threadStats,
-              Stats::SIM_MODE    &simMode);
+    void Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType);
 
     /* 气点加成 */
     void UpdateSkillQidian(int num);
@@ -38,48 +29,32 @@ private:
     /* 初始化伤害系数 */
     void InitDamageParams();
 
-    /* 判定 */
-    Stats::TableResult GetRollResult(Player &player, Target &target);
+    /* 外功判定 */
+    TableRes GetPhysicsRollResultBaiHong(Target &target, RollType rollType = RollType::COMMON);
 
-    /* 伤害计算 */
-    Stats::DamageStats GetDamage(Player &player, Target &target, Stats::TableResult tableResult);
+    /* 外功伤害 */
+    Damage GetPhysicsDamageBaiHong(Target &target,
+                                        TableRes tableRes,
+                                        std::string &subName,
+                                        int level);
 
-    /* 伤害统计 */
-    void RecordStats(Player             &player,
-                     Target             &target,
-                     Stats::ThreadStats &threadStats,
-                     Stats::SIM_MODE    &simMode,
-                     Stats::TableResult  tableResult);
+    /* 外功统计 */
+    void UpdatePhysicsStatsBaiHong(Target &target,
+                                   Stats &stats,
+                                   Settings &settings,
+                                   TableRes tableRes,
+                                   std::string &subName,
+                                   int level);
 
-    /* 附加效果 */
-    void SubEffect(Player             &player,
-                   TargetList         &targetList,
-                   Stats::ThreadStats &threadStats,
-                   Stats::SIM_MODE    &simMode,
-                   Stats::TableResult  tableResult);
+    /* 加成效果 */
+    void SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes);
 
-    /* 判定 - 白虹 */
-    Stats::TableResult GetRollResultBaiHong(Player &player, Target &target);
+    /* 加成效果 */
+    void SubEffectBaiHong(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes);
 
-    /* 伤害计算 - 白虹 */
-    Stats::DamageStats GetDamageBaiHong(Player &player, Target &target, Stats::TableResult tableResult);
-
-    /* 伤害统计 - 白虹 */
-    void RecordStatsBaiHong(Player             &player,
-                            Target             &target,
-                            Stats::ThreadStats &threadStats,
-                            Stats::SIM_MODE    &simMode,
-                            Stats::TableResult  tableResult);
-
-    /* 附加效果 - 白虹 */
-    void SubEffectBaiHong(Player             &player,
-                          Target             &target,
-                          Stats::ThreadStats &threadStats,
-                          Stats::SIM_MODE    &simMode,
-                          Stats::TableResult  tableResult);
 
     /* CD */
-    static int s_cooldown;
+    static Frame_t s_cooldown;
 
     /* 吟唱时间 */
     // static int s_prepareFrames;
@@ -93,16 +68,15 @@ private:
     /* 最大充能数 */
     // static int s_maxEnergyNum;
 
-    /* 伤害参数 */
-    // Stats::DamageParam m_damageParam;
-    std::vector<Stats::DamageParam> m_damageParamVec;
-    // std::map<std::string, std::vector<Stats::DamageParam>> m_damageParamVecMap;
-
     /* 气点加成 */
     int m_skillQidianAdd;
 
     /* 气点 */
     int m_qidian;
 };
+
+}
+
+}
 
 #endif // WUWOWUJIAN_H

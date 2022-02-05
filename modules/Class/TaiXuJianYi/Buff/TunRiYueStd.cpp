@@ -1,13 +1,23 @@
-#include "TunRiYueStd.h"
+﻿#include "TunRiYueStd.h"
 
 #include "Core/Player.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
-int TunRiYueStd::s_lastFrames = 36 * 16;
+namespace JX3DPS {
 
-TunRiYueStd::TunRiYueStd()
+namespace TaiXuJianYi {
+
+Frame_t TunRiYueStd::s_lastFrames = 36 * 16;
+
+TunRiYueStd::TunRiYueStd(Player &player) :
+    Buff(player)
 {
     InitBaseParams();
+}
+
+TunRiYueStd::TunRiYueStd(const TunRiYueStd &buff) : Buff(buff)
+{
+
 }
 
 TunRiYueStd::~TunRiYueStd()
@@ -15,37 +25,44 @@ TunRiYueStd::~TunRiYueStd()
 
 }
 
-void TunRiYueStd::Cast(Player &player,
-                          TargetList &targetList,
-                          Stats::ThreadStats &threadStats,
-                          Stats::SIM_MODE &simMode)
+TunRiYueStd *TunRiYueStd::Clone()
 {
-    m_lastFrames = -1;
-    m_effectNum = 0;
+    return new TunRiYueStd(*this);
 }
 
-void TunRiYueStd::Refresh(Player &player)
+TunRiYueStd &TunRiYueStd::operator=(const TunRiYueStd &buff)
 {
-    m_lastFrames = static_cast<int>(m_lastFrames * player.GetHastePercent());
-    m_effectNum = 1;
+    Buff::operator=(buff);
+    return *this;
 }
 
-void TunRiYueStd::Clean(Player &player, Target &target, Stats::ThreadStats &threadStats, Stats::SIM_MODE &simMode)
+void TunRiYueStd::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings)
 {
-    m_lastFrames = -1;
-    m_effectNum = 0;
+    m_lastFrames = INVALID_FRAMES_SET;
+    m_effectCount = 0;
+}
+
+void TunRiYueStd::Refresh()
+{
+    m_lastFrames = static_cast<int>(m_lastFrames * m_player->Attr().GetHastePercent());
+    m_effectCount = 1;
+}
+
+void TunRiYueStd::Clean(TargetsMap &targetsMap, Stats &stats, Settings &settings, int param)
+{
+    m_lastFrames = INVALID_FRAMES_SET;
+    m_effectCount = 0;
 }
 
 void TunRiYueStd::InitBaseParams()
 {
     m_id = BUF_TUN_RI_YUE_STD;
     m_name = "气场吞日月";
-    m_subNameVec.push_back("");
-    m_levelNameVec.push_back("");
-    m_3rdCooldown = -1;
-    m_cooldown = -1;
-    m_lastFrames = -1;
-    m_intervalFrames = -1;
-    m_effectNum = 0;
-    m_stackNum = 0;
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+}
+
+}
+
 }

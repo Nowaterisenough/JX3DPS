@@ -1,12 +1,11 @@
 /**
  * @Description :
  * @Author      : NoWats
- * @Date        : 2022-02-04 12:08:10
+ * @Date        : 2022-02-04 19:47:00
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:27:31
+ * @LastTime    : 2022-02-05 14:52:36
  * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Skill\ZiQiDongLai.h
  */
-
 #ifndef ZIQIDONGLAI_H
 #define ZIQIDONGLAI_H
 
@@ -19,44 +18,27 @@ namespace TaiXuJianYi {
 class ZiQiDongLai : public Skill
 {
 public:
-    ZiQiDongLai();
+    ZiQiDongLai(Player &player);
+    ZiQiDongLai(const ZiQiDongLai &skill);
     ~ZiQiDongLai();
+    ZiQiDongLai *Clone();
+    ZiQiDongLai &operator=(const ZiQiDongLai &skill);
 
     /* 执行 */
-    void Cast(Player             &player,
-              TargetList         &targetList,
-              Stats::ThreadStats &threadStats,
-              Stats::SIM_MODE    &simMode);
+    void Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType) override;
 
 private:
     /* 初始化基本信息 */
     void InitBaseParams();
 
     /* 初始化伤害系数 */
-    // void InitDamageParams();
+    void InitDamageParams();
 
-    /* 判定 */
-    // Stats::TableResult GetRollResult(Player &player, Target &target);
-
-    /* 伤害计算 */
-    // Stats::DamageStats GetDamage(Player &player, Target &target, Stats::TableResult tableResult);
-
-    /* 伤害统计 */
-    void RecordStats(Player             &player,
-                     Target             &target,
-                     Stats::ThreadStats &threadStats,
-                     Stats::SIM_MODE    &simMode,
-                     Stats::TableResult  tableResult);
-
-    /* 附加效果 */
-    void SubEffect(Player             &player,
-                   TargetList         &targetList,
-                   Stats::ThreadStats &threadStats,
-                   Stats::SIM_MODE    &simMode,
-                   Stats::TableResult  tableResult);
+    /* 加成效果 */
+    void SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes);
 
     /* CD */
-    static int s_cooldown;
+    static Frame_t s_cooldown;
 
     /* 吟唱时间 */
     // static int s_prepareFrames;
@@ -69,11 +51,10 @@ private:
 
     /* 最大充能数 */
     // static int s_maxEnergyNum;
-
-    /* 伤害参数 */
-    // Stats::DamageParam m_damageParam;
-    // std::vector<Stats::DamageParam> m_damageParamVec;
-    // std::map<std::string, std::vector<Stats::DamageParam>> m_damageParamVecMap;
 };
+
+} // namespace TaiXuJianYi
+
+} // namespace JX3DPS
 
 #endif // ZIQIDONGLAI_H

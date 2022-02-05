@@ -1,19 +1,10 @@
-/**
- * @Description : Player属性类, 包括主属性、攻击、会心、破防等基本类别及转换关系
- * @Author      : NoWats
- * @Date        : 2022-01-28 21:08:33
- * @Update      : NoWats
- * @LastTime    : 2022-02-03 19:11:46
- * @FilePath    : \JX3DPS\modules\Core\Attr.cpp
- */
-
 #include "Attr.h"
 
-// #include "Core/Target.h"
+#include "Core/Target.h"
 
 namespace JX3DPS {
 
-Attr::Attr(Class classType)
+Attr::Attr(const Class classType)
 {
     switch (classType) {
     case TAI_XU_JIAN_YI:
@@ -24,20 +15,18 @@ Attr::Attr(Class classType)
     }
 }
 
-Attr::~Attr() {}
-
 Value_t Attr::GetAgilityBase() const
 {
     return m_agilityBase;
 }
 
-void Attr::SetAgilityBase(Value_t value)
+void Attr::SetAgilityBase(const Value_t value)
 {
     m_agilityBase = value;
     UpdateAgility();
 }
 
-void Attr::AddAgilityBase(Value_t value)
+void Attr::AddAgilityBase(const Value_t value)
 {
     m_agilityBase += value;
     UpdateAgility();
@@ -48,13 +37,13 @@ BinPct_t Attr::GetAgilityBaseBinPercent() const
     return m_agilityBaseBinPercent;
 }
 
-void Attr::SetAgilityBaseBinPercent(BinPct_t binPercent)
+void Attr::SetAgilityBaseBinPercent(const BinPct_t binPercent)
 {
     m_agilityBaseBinPercent = binPercent;
     UpdateAgility();
 }
 
-void Attr::AddAgilityBaseBinPercent(BinPct_t binPercent)
+void Attr::AddAgilityBaseBinPercent(const BinPct_t binPercent)
 {
     m_agilityBaseBinPercent += binPercent;
     UpdateAgility();
@@ -70,13 +59,13 @@ Value_t Attr::GetStrengthBase() const
     return m_strengthBase;
 }
 
-void Attr::SetStrengthBase(Value_t value)
+void Attr::SetStrengthBase(const Value_t value)
 {
     m_strengthBase = value;
     UpdateStrength();
 }
 
-void Attr::AddStrengthBase(Value_t value)
+void Attr::AddStrengthBase(const Value_t value)
 {
     m_strengthBase += value;
     UpdateStrength();
@@ -87,13 +76,13 @@ BinPct_t Attr::GetStrengthBaseBinPercent() const
     return m_strengthBaseBinPercent;
 }
 
-void Attr::SetStrengthBaseBinPercent(BinPct_t binPercent)
+void Attr::SetStrengthBaseBinPercent(const BinPct_t binPercent)
 {
     m_strengthBaseBinPercent = binPercent;
     UpdateStrength();
 }
 
-void Attr::AddStrengthBaseBinPercent(BinPct_t binPercent)
+void Attr::AddStrengthBaseBinPercent(const BinPct_t binPercent)
 {
     m_strengthBaseBinPercent += binPercent;
     UpdateStrength();
@@ -109,13 +98,13 @@ Value_t Attr::GetSpiritBase() const
     return m_spiritBase;
 }
 
-void Attr::SetSpiritBase(Value_t value)
+void Attr::SetSpiritBase(const Value_t value)
 {
     m_spiritBase = value;
     UpdateSpirit();
 }
 
-void Attr::AddSpiritBase(Value_t value)
+void Attr::AddSpiritBase(const Value_t value)
 {
     m_spiritBase += value;
     UpdateSpirit();
@@ -126,13 +115,13 @@ BinPct_t Attr::GetSpiritBaseBinPercent() const
     return m_spiritBaseBinPercent;
 }
 
-void Attr::SetSpiritBaseBinPercent(BinPct_t binPercent)
+void Attr::SetSpiritBaseBinPercent(const BinPct_t binPercent)
 {
     m_spiritBaseBinPercent = binPercent;
     UpdateSpirit();
 }
 
-void Attr::AddSpiritBaseBinPercent(BinPct_t binPercent)
+void Attr::AddSpiritBaseBinPercent(const BinPct_t binPercent)
 {
     m_spiritBaseBinPercent += binPercent;
     UpdateSpirit();
@@ -148,13 +137,13 @@ Value_t Attr::GetSpunkBase() const
     return m_spunkBase;
 }
 
-void Attr::SetSpunkBase(Value_t value)
+void Attr::SetSpunkBase(const Value_t value)
 {
     m_spunkBase = value;
     UpdateSpunk();
 }
 
-void Attr::AddSpunkBase(Value_t value)
+void Attr::AddSpunkBase(const Value_t value)
 {
     m_spunkBase += value;
     UpdateSpunk();
@@ -165,13 +154,13 @@ BinPct_t Attr::GetSpunkBaseBinPercent() const
     return m_spunkBaseBinPercent;
 }
 
-void Attr::SetSpunkBaseBinPercent(BinPct_t binPercent)
+void Attr::SetSpunkBaseBinPercent(const BinPct_t binPercent)
 {
     m_spunkBaseBinPercent = binPercent;
     UpdateSpunk();
 }
 
-void Attr::AddSpunkBaseBinPercent(BinPct_t binPercent)
+void Attr::AddSpunkBaseBinPercent(const BinPct_t binPercent)
 {
     m_spunkBaseBinPercent += binPercent;
     UpdateSpunk();
@@ -187,17 +176,17 @@ Value_t Attr::GetWeaponAttack() const
     return m_weaponAttack;
 }
 
-void Attr::SetWeaponAttack(Value_t lower, Value_t upper)
+void Attr::SetWeaponAttack(const Value_t lower, const Value_t upper)
 {
     m_weaponAttack = (lower + upper) / 2;
 }
 
-void Attr::AddWeaponAttack(Value_t value)
+void Attr::AddWeaponAttack(const Value_t value)
 {
     m_weaponAttack += value;
 }
 
-void Attr::AddWeaponAttack(Value_t lower, Value_t upper)
+void Attr::AddWeaponAttack(const Value_t lower, const Value_t upper)
 {
     m_weaponAttack += (lower + upper) / 2;
 }
@@ -207,12 +196,12 @@ Value_t Attr::GetPhysicsAttackBaseFromCustom() const
     return m_physicsAttackBaseFromCustom;
 }
 
-void Attr::SetPhysicsAttackBaseFromCustom(Value_t value)
+void Attr::SetPhysicsAttackBaseFromCustom(const Value_t value)
 {
     m_physicsAttackBaseFromCustom = value;
     UpdatePhysicsAttack();
 }
-void Attr::AddPhysicsAttackBaseFromCustom(Value_t value)
+void Attr::AddPhysicsAttackBaseFromCustom(const Value_t value)
 {
     m_physicsAttackBaseFromCustom += value;
     UpdatePhysicsAttack();
@@ -228,12 +217,12 @@ Value_t Attr::GetPhysicsAttackBase() const
     return GetPhysicsAttackBaseFromCustom() + GetPhysicsAttackBaseFromMajor();
 }
 
-void Attr::SetPhysicsAttackBase(Value_t value)
+void Attr::SetPhysicsAttackBase(const Value_t value)
 {
     SetPhysicsAttackBaseFromCustom(value - GetPhysicsAttackBaseFromMajor());
 }
 
-void Attr::AddPhysicsAttackBase(Value_t value)
+void Attr::AddPhysicsAttackBase(const Value_t value)
 {
     AddPhysicsAttackBaseFromCustom(value);
 }
@@ -243,13 +232,13 @@ BinPct_t Attr::GetPhysicsAttackBaseBinPercent() const
     return m_physicsAttackBaseBinPercent;
 }
 
-void Attr::SetPhysicsAttackBaseBinPercent(BinPct_t binPercent)
+void Attr::SetPhysicsAttackBaseBinPercent(const BinPct_t binPercent)
 {
     m_physicsAttackBaseBinPercent = binPercent;
     UpdatePhysicsAttack();
 }
 
-void Attr::AddPhysicsAttackBaseBinPercent(BinPct_t binPercent)
+void Attr::AddPhysicsAttackBaseBinPercent(const BinPct_t binPercent)
 {
     m_physicsAttackBaseBinPercent += binPercent;
     UpdatePhysicsAttack();
@@ -280,12 +269,12 @@ Value_t Attr::GetMagicAttackBaseFromCustom() const
     return m_magicAttackBaseFromCustom;
 }
 
-void Attr::SetMagicAttackBaseFromCustom(Value_t value)
+void Attr::SetMagicAttackBaseFromCustom(const Value_t value)
 {
     m_magicAttackBaseFromCustom = value;
     UpdateMagicAttack();
 }
-void Attr::AddMagicAttackBaseFromCustom(Value_t value)
+void Attr::AddMagicAttackBaseFromCustom(const Value_t value)
 {
     m_magicAttackBaseFromCustom += value;
     UpdateMagicAttack();
@@ -301,12 +290,12 @@ Value_t Attr::GetMagicAttackBase() const
     return GetMagicAttackBaseFromCustom() + GetMagicAttackBaseFromMajor();
 }
 
-void Attr::SetMagicAttackBase(Value_t value)
+void Attr::SetMagicAttackBase(const Value_t value)
 {
     SetMagicAttackBaseFromCustom(value - GetMagicAttackBaseFromMajor());
 }
 
-void Attr::AddMagicAttackBase(Value_t value)
+void Attr::AddMagicAttackBase(const Value_t value)
 {
     AddMagicAttackBaseFromCustom(value);
 }
@@ -316,13 +305,13 @@ BinPct_t Attr::GetMagicAttackBaseBinPercent() const
     return m_magicAttackBaseBinPercent;
 }
 
-void Attr::SetMagicAttackBaseBinPercent(BinPct_t binPercent)
+void Attr::SetMagicAttackBaseBinPercent(const BinPct_t binPercent)
 {
     m_magicAttackBaseBinPercent = binPercent;
     UpdateMagicAttack();
 }
 
-void Attr::AddMagicAttackBaseBinPercent(BinPct_t binPercent)
+void Attr::AddMagicAttackBaseBinPercent(const BinPct_t binPercent)
 {
     m_magicAttackBaseBinPercent += binPercent;
     UpdateMagicAttack();
@@ -353,13 +342,13 @@ Value_t Attr::GetPhysicsCriticalStrikeFromCustom() const
     return m_physicsCriticalStrikeFromCustom;
 }
 
-void Attr::SetPhysicsCriticalStrikeFromCustom(Value_t value)
+void Attr::SetPhysicsCriticalStrikeFromCustom(const Value_t value)
 {
     m_physicsCriticalStrikeFromCustom = value;
     UpdatePhysicsCriticalStrikePercent();
 }
 
-void Attr::AddPhysicsCriticalStrikeFromCustom(Value_t value)
+void Attr::AddPhysicsCriticalStrikeFromCustom(const Value_t value)
 {
     m_physicsCriticalStrikeFromCustom += value;
     UpdatePhysicsCriticalStrikePercent();
@@ -380,12 +369,12 @@ Value_t Attr::GetPhysicsCriticalStrike() const
     return m_physicsCriticalStrike;
 }
 
-void Attr::SetPhysicsCriticalStrike(Value_t value)
+void Attr::SetPhysicsCriticalStrike(const Value_t value)
 {
     SetPhysicsCriticalStrikeFromCustom(value - GetPhysicsCriticalStrikeMinimum());
 }
 
-void Attr::AddPhysicsCriticalStrike(Value_t value)
+void Attr::AddPhysicsCriticalStrike(const Value_t value)
 {
     AddPhysicsCriticalStrikeFromCustom(value);
 }
@@ -422,13 +411,13 @@ Value_t Attr::GetMagicCriticalStrikeFromCustom() const
     return m_magicCriticalStrikeFromCustom;
 }
 
-void Attr::SetMagicCriticalStrikeFromCustom(Value_t value)
+void Attr::SetMagicCriticalStrikeFromCustom(const Value_t value)
 {
     m_magicCriticalStrikeFromCustom = value;
     UpdateMagicCriticalStrikePercent();
 }
 
-void Attr::AddMagicCriticalStrikeFromCustom(Value_t value)
+void Attr::AddMagicCriticalStrikeFromCustom(const Value_t value)
 {
     m_magicCriticalStrikeFromCustom += value;
     UpdateMagicCriticalStrikePercent();
@@ -449,12 +438,12 @@ Value_t Attr::GetMagicCriticalStrike() const
     return m_magicCriticalStrike;
 }
 
-void Attr::SetMagicCriticalStrike(Value_t value)
+void Attr::SetMagicCriticalStrike(const Value_t value)
 {
     SetMagicCriticalStrikeFromCustom(value - GetMagicCriticalStrikeMinimum());
 }
 
-void Attr::AddMagicCriticalStrike(Value_t value)
+void Attr::AddMagicCriticalStrike(const Value_t value)
 {
     AddMagicCriticalStrikeFromCustom(value);
 }
@@ -491,13 +480,13 @@ Value_t Attr::GetPhysicsCriticalStrikePower() const
     return m_physicsCriticalStrikePower;
 }
 
-void Attr::SetPhysicsCriticalStrikePower(Value_t value)
+void Attr::SetPhysicsCriticalStrikePower(const Value_t value)
 {
     m_physicsCriticalStrikePower = value;
     UpdatePhysicsCriticalStrikePowerPercent();
 }
 
-void Attr::AddPhysicsCriticalStrikePower(Value_t value)
+void Attr::AddPhysicsCriticalStrikePower(const Value_t value)
 {
     m_physicsCriticalStrikePower += value;
     UpdatePhysicsCriticalStrikePowerPercent();
@@ -530,13 +519,13 @@ Value_t Attr::GetMagicCriticalStrikePower() const
     return m_magicCriticalStrikePower;
 }
 
-void Attr::SetMagicCriticalStrikePower(Value_t value)
+void Attr::SetMagicCriticalStrikePower(const Value_t value)
 {
     m_magicCriticalStrikePower = value;
     UpdateMagicCriticalStrikePowerPercent();
 }
 
-void Attr::AddMagicCriticalStrikePower(Value_t value)
+void Attr::AddMagicCriticalStrikePower(const Value_t value)
 {
     m_magicCriticalStrikePower += value;
     UpdateMagicCriticalStrikePowerPercent();
@@ -569,13 +558,13 @@ Value_t Attr::GetPhysicsOvercomeBaseFromCustom() const
     return m_physicsOvercomeBaseFromCustom;
 }
 
-void Attr::SetPhysicsOvercomeBaseFromCustom(Value_t value)
+void Attr::SetPhysicsOvercomeBaseFromCustom(const Value_t value)
 {
     m_physicsOvercomeBaseFromCustom = value;
     UpdatePhysicsOvercomePercent();
 }
 
-void Attr::AddPhysicsOvercomeBaseFromCustom(Value_t value)
+void Attr::AddPhysicsOvercomeBaseFromCustom(const Value_t value)
 {
     m_physicsOvercomeBaseFromCustom += value;
     UpdatePhysicsOvercomePercent();
@@ -591,12 +580,12 @@ Value_t Attr::GetPhysicsOvercomeBase() const
     return GetPhysicsOvercomeBaseFromCustom() + GetPhysicsOvercomeBaseFromMajor();
 }
 
-void Attr::SetPhysicsOvercomeBase(Value_t value)
+void Attr::SetPhysicsOvercomeBase(const Value_t value)
 {
     SetPhysicsOvercomeBaseFromCustom(value - GetPhysicsOvercomeBaseFromMajor());
 }
 
-void Attr::AddPhysicsOvercomeBase(Value_t value)
+void Attr::AddPhysicsOvercomeBase(const Value_t value)
 {
     AddPhysicsOvercomeBaseFromCustom(value);
 }
@@ -606,13 +595,13 @@ BinPct_t Attr::GetPhysicsOvercomeBaseBinPercent() const
     return m_physicsOvercomeBaseBinPercent;
 }
 
-void Attr::SetPhysicsOvercomeBaseBinPercent(BinPct_t binPercent)
+void Attr::SetPhysicsOvercomeBaseBinPercent(const BinPct_t binPercent)
 {
     m_physicsOvercomeBaseBinPercent = binPercent;
     UpdatePhysicsOvercomePercent();
 }
 
-void Attr::AddPhysicsOvercomeBaseBinPercent(BinPct_t binPercent)
+void Attr::AddPhysicsOvercomeBaseBinPercent(const BinPct_t binPercent)
 {
     m_physicsOvercomeBaseBinPercent += binPercent;
     UpdatePhysicsOvercomePercent();
@@ -648,13 +637,13 @@ Value_t Attr::GetMagicOvercomeBaseFromCustom() const
     return m_magicOvercomeBaseFromCustom;
 }
 
-void Attr::SetMagicOvercomeBaseFromCustom(Value_t value)
+void Attr::SetMagicOvercomeBaseFromCustom(const Value_t value)
 {
     m_magicOvercomeBaseFromCustom = value;
     UpdateMagicOvercomePercent();
 }
 
-void Attr::AddMagicOvercomeBaseFromCustom(Value_t value)
+void Attr::AddMagicOvercomeBaseFromCustom(const Value_t value)
 {
     m_magicOvercomeBaseFromCustom += value;
     UpdateMagicOvercomePercent();
@@ -670,12 +659,12 @@ Value_t Attr::GetMagicOvercomeBase() const
     return GetMagicOvercomeBaseFromCustom() + GetMagicOvercomeBaseFromMajor();
 }
 
-void Attr::SetMagicOvercomeBase(Value_t value)
+void Attr::SetMagicOvercomeBase(const Value_t value)
 {
     SetMagicOvercomeBaseFromCustom(value - GetMagicOvercomeBaseFromMajor());
 }
 
-void Attr::AddMagicOvercomeBase(Value_t value)
+void Attr::AddMagicOvercomeBase(const Value_t value)
 {
     AddMagicOvercomeBaseFromCustom(value);
 }
@@ -685,13 +674,13 @@ BinPct_t Attr::GetMagicOvercomeBaseBinPercent() const
     return m_magicOvercomeBaseBinPercent;
 }
 
-void Attr::SetMagicOvercomeBaseBinPercent(BinPct_t binPercent)
+void Attr::SetMagicOvercomeBaseBinPercent(const BinPct_t binPercent)
 {
     m_magicOvercomeBaseBinPercent = binPercent;
     UpdateMagicOvercomePercent();
 }
 
-void Attr::AddMagicOvercomeBaseBinPercent(BinPct_t binPercent)
+void Attr::AddMagicOvercomeBaseBinPercent(const BinPct_t binPercent)
 {
     m_magicOvercomeBaseBinPercent += binPercent;
     UpdateMagicOvercomePercent();
@@ -727,14 +716,14 @@ Value_t Attr::GetHaste() const
     return m_haste;
 }
 
-void Attr::SetHaste(Value_t value)
+void Attr::SetHaste(const Value_t value)
 {
     m_haste = value;
     UpdateHastePercent();
     return;
 }
 
-void Attr::AddHaste(Value_t value)
+void Attr::AddHaste(const Value_t value)
 {
     m_haste += value;
     UpdateHastePercent();
@@ -746,14 +735,14 @@ BinPct_t Attr::GetHasteBinPercent() const
     return m_hasteBinPercent;
 }
 
-void Attr::SetHasteBinPercent(BinPct_t binPercent)
+void Attr::SetHasteBinPercent(const BinPct_t binPercent)
 {
     m_hasteBinPercent = binPercent;
     UpdateHastePercent();
     return;
 }
 
-void Attr::AddHasteBinPercent(BinPct_t binPercent)
+void Attr::AddHasteBinPercent(const BinPct_t binPercent)
 {
     m_hasteBinPercent += binPercent;
     UpdateHastePercent();
@@ -775,14 +764,14 @@ Value_t Attr::GetStrain() const
     return m_strain;
 }
 
-void Attr::SetStrain(Value_t value)
+void Attr::SetStrain(const Value_t value)
 {
     m_strain = value;
     UpdateStrainPercent();
     return;
 }
 
-void Attr::AddStrain(Value_t value)
+void Attr::AddStrain(const Value_t value)
 {
     m_strain += value;
     UpdateStrainPercent();
@@ -806,13 +795,13 @@ Value_t Attr::GetSurplusBaseFromCustom() const
     return m_surplusBaseFromCustom;
 }
 
-void Attr::SetSurplusBaseFromCustom(Value_t value)
+void Attr::SetSurplusBaseFromCustom(const Value_t value)
 {
     m_surplusBaseFromCustom = value;
     UpdateSurplusDamage();
 }
 
-void Attr::AddSurplusBaseFromCustom(Value_t value)
+void Attr::AddSurplusBaseFromCustom(const Value_t value)
 {
     m_surplusBaseFromCustom += value;
     UpdateSurplusDamage();
@@ -828,12 +817,12 @@ Value_t Attr::GetSurplusBase() const
     return GetSurplusBaseFromCustom() + GetSurplusBaseFromMajor();
 }
 
-void Attr::SetSurplusBase(Value_t value)
+void Attr::SetSurplusBase(const Value_t value)
 {
     SetSurplusBaseFromCustom(value - GetSurplusBaseFromMajor());
 }
 
-void Attr::AddSurplusBase(Value_t value)
+void Attr::AddSurplusBase(const Value_t value)
 {
     AddSurplusBaseFromCustom(value);
 }
@@ -843,13 +832,13 @@ BinPct_t Attr::GetSurplusBaseBinPercent() const
     return m_surplusBaseBinPercent;
 }
 
-void Attr::SetSurplusBaseBinPercent(BinPct_t binPercent)
+void Attr::SetSurplusBaseBinPercent(const BinPct_t binPercent)
 {
     m_surplusBaseBinPercent = binPercent;
     UpdateSurplusDamage();
 }
 
-void Attr::AddSurplusBaseBinPercent(BinPct_t binPercent)
+void Attr::AddSurplusBaseBinPercent(const BinPct_t binPercent)
 {
     m_surplusBaseBinPercent += binPercent;
     UpdateSurplusDamage();
@@ -885,19 +874,19 @@ BinPct_t Attr::GetShieldIgnoreBinPercent() const
     return m_shieldIgnoreBinPercent;
 }
 
-// void Attr::SetShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
-// {
-//     m_shieldIgnoreBinPercent = binPercent;
-//     // UpdateShieldIgnorePercent(targetsMap, binPercent);
-//     return;
-// }
+void Attr::SetShieldIgnoreBinPercent(TargetsMap &targetsMap, const BinPct_t binPercent)
+{
+    m_shieldIgnoreBinPercent = binPercent;
+    UpdateShieldIgnorePercent(targetsMap, binPercent);
+    return;
+}
 
-// void Attr::AddShieldIgnoreBinPercent(TargetsMap &targetsMap, BinPct_t binPercent)
-// {
-//     m_shieldIgnoreBinPercent += binPercent;
-//     // UpdateShieldIgnorePercent(targetsMap, binPercent);
-//     return;
-// }
+void Attr::AddShieldIgnoreBinPercent(TargetsMap &targetsMap, const BinPct_t binPercent)
+{
+    m_shieldIgnoreBinPercent += binPercent;
+    UpdateShieldIgnorePercent(targetsMap, binPercent);
+    return;
+}
 
 Value_t Attr::GetNoneFromClass() const
 {
@@ -1049,13 +1038,13 @@ void Attr::UpdateSurplusDamage()
     m_surplusDamage = m_surplus * CONST_SURPLUS_PARAM;
 }
 
-// void Attr::UpdateShieldIgnorePercent(TargetsMap &targetsMap, BinPct_t binPercent)
-//{
-//    for (auto &targets : targetsMap) {
-//        for (auto &target : targets.second) {
-//            target->SetShieldIgnoreBinPercent(binPercent);
-//        }
-//    }
-//}
+void Attr::UpdateShieldIgnorePercent(TargetsMap &targetsMap, const BinPct_t binPercent)
+{
+    for (auto targets : targetsMap) {
+        for (auto target : targets.second) {
+            target->SetShieldIgnoreBinPercent(binPercent);
+        }
+    }
+}
 
 } // namespace JX3DPS

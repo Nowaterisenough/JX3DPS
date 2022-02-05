@@ -1,68 +1,86 @@
 /**
- * @Description : 
+ * @Description : 目标类
  * @Author      : NoWats
- * @Date        : 2022-02-04 12:07:17
+ * @Date        : 2022-02-04 19:47:00
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:16:23
+ * @LastTime    : 2022-02-05 11:36:11
  * @FilePath    : \JX3DPS\modules\Core\Target.h
  */
 
 #ifndef TARGET_H
 #define TARGET_H
 
-#include <map>
-#include <list>
-
-#include "Core/Global.h"
+#include "Common/ConstVal.h"
 
 namespace JX3DPS {
-
-class Buff;
 
 class Target
 {
 public:
-    Target(Id_t id, int level, Value_t shield, Pct_t missPercent, Pct_t sightPercent, Class classType);
+    Target(Player &player, const Id_t id, const int level, const Value_t shield, const Class classType);
     ~Target();
 
-    /* 基础信息 */
-    Id_t  GetId();
-    int   GetLevel();
-    Pct_t GetMissPercent();
-    Pct_t GetSightPercent();
+    Target(const Target &target);
+    Target &operator=(const Target &target);
+
+    /**
+     * @brief 设置角色函数
+     * @param player 角色.
+     */
+    void SetPlayer(Player &player);
+
+    /* 获取下次作用时间 */
+    Frame_t GetNextTime() const;
+
+    /**
+     * @brief 更新下次作用时间
+     * @param frames 更新帧数
+     */
+    void UpdateTime(const Frame_t frames);
+
+    /* ID */
+    Id_t GetId() const;
+
+    /* 等级 */
+    int GetLevel() const;
 
     /* 生命值 */
-    BinPct_t SetLifeBinPercent(BinPct_t binPercent);
-    BinPct_t GetLifeBinPercent();
-    Pct_t    GetLifePercent();
+    Pct_t GetLifePercent() const;
+    void  SetLifePercent(const Pct_t percent);
+    void  AddLifePercent(const Pct_t percent);
 
     /* 忽视防御 */
-    BinPct_t SetShieldIgnoreBinPercent(BinPct_t binPercent);
+    BinPct_t GetShieldIgnoreBinPercent() const;
+    void     SetShieldIgnoreBinPercent(const BinPct_t binPercent);
 
     /* 外防 */
-    Value_t  AddPhysicsShield(Value_t value);
-    BinPct_t AddPhysicsShieldBinPercent(BinPct_t binPercent);
-    Pct_t    GetPhysicsResistPercent();
+    Value_t  GetPhysicsShield() const;
+    void     SetPhysicsShield(const Value_t value);
+    void     AddPhysicsShield(const Value_t value);
+    BinPct_t GetPhysicsShieldBinPercent() const;
+    void     SetPhysicsShieldBinPercent(const BinPct_t binPercent);
+    void     AddPhysicsShieldBinPercent(const BinPct_t binPercent);
+    Pct_t    GetPhysicsResistPercent() const;
 
     /* 内防 */
-    Value_t  AddMagicShield(Value_t value);
-    BinPct_t AddMagicShieldBinPercent(BinPct_t binPercent);
-    Pct_t    GetMagicResistPercent();
+    Value_t  GetMagicShield() const;
+    void     SetMagicShield(const Value_t value);
+    void     AddMagicShield(const Value_t value);
+    BinPct_t GetMagicShieldBinPercent() const;
+    void     SetMagicShieldBinPercent(const BinPct_t binPercent);
+    void     AddMagicShieldBinPercent(const BinPct_t binPercent);
+    Pct_t    GetMagicResistPercent() const;
 
     /* 易伤 */
-    BinPct_t AddDamageBinPercent(BinPct_t binPercent);
-    Pct_t    GetDamagePercentAdd();
+    BinPct_t GetDamageAddBinPercent() const;
+    void     SetDamageAddBinPercent(const BinPct_t binPercent);
+    void     AddDamageAddBinPercent(const BinPct_t binPercent);
+    Pct_t    GetDamageAddPercent() const;
 
     /* Buff */
-    std::map<Id_t, Buff *> m_buffMap;
+    Buffs buffs;
 
 private:
-    /* 初始化心法TBuff */
-    void InitClassTBuff(Class classType);
-
-    /* 生命值 */
-    void UpdateLife();
-
     /* 外功免伤 */
     void UpdatePhysicsResistPercent();
 
@@ -70,34 +88,33 @@ private:
     void UpdateMagicResistPercent();
 
     /* 易伤 */
-    void UpdateDamagePercentAdd();
+    void UpdateDamageAddPercent();
 
-    /* 基础信息 */
-    Id_t  m_id;
-    int   m_level;
-    Pct_t m_missPercent;
-    Pct_t m_sightPercent;
+    /* ID */
+    Id_t m_id = 0;
+
+    /* 等级 */
+    int m_level = 0;
 
     /* 生命值 */
-    BinPct_t m_lifeBinPercent;
-    Pct_t    m_lifePercent;
+    Pct_t m_lifePercent = 0.0;
 
     /* 忽视防御 */
-    BinPct_t m_shieldIgnoreBinPercent;
+    BinPct_t m_shieldIgnoreBinPercent = 0;
 
     /* 外防 */
-    Value_t  m_physicsShield;
-    BinPct_t m_physicsShieldBinPercent;
-    Pct_t    m_physicsResistPercent;
+    Value_t  m_physicsShield           = 0;
+    BinPct_t m_physicsShieldBinPercent = 0;
+    Pct_t    m_physicsResistPercent    = 0.0;
 
     /* 内防 */
-    Value_t  m_magicShield;
-    BinPct_t m_magicShieldBinPercent;
-    Pct_t    m_magicResistPercent;
+    Value_t  m_magicShield           = 0;
+    BinPct_t m_magicShieldBinPercent = 0;
+    Pct_t    m_magicResistPercent    = 0.0;
 
     /* 易伤 */
-    BinPct_t m_damageBinPercent;
-    Pct_t    m_damagePercentAdd;
+    BinPct_t m_damageAddBinPercent = 0;
+    Pct_t    m_damageAddPercent    = 0.0;
 };
 
 } // namespace JX3DPS

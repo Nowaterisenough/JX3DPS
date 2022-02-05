@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-02 16:33:58
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 12:24:46
+ * @LastTime    : 2022-02-05 00:03:04
  * @FilePath    : \JX3DPS\modules\Core\Macro.cpp
  */
 
@@ -13,6 +13,7 @@
 
 #include <regex>
 #include <iostream>
+#include <tuple>
 
 #include "Common/ConstVal.h"
 #include "Player.h"
@@ -21,43 +22,48 @@ using namespace std;
 
 namespace JX3DPS {
 
+template <Id_t, typename ...Args>
+struct Condition {
+    std::tuple<Id_t, Args...> params;
+};
+
 const std::unordered_map<std::string, Id_t> &BUFF_ID_HASH{
     {"紫气东来", BUF_ZI_QI_DONG_LAI},
     {"玄门", BUF_XUAN_MEN},
-    {"碎星辰", 2103},
-    {"生太极", 2104},
-    {"吞日月", 2105},
-    {"云中剑-碎", 2106},
-    {"云中剑-生", 2107},
-    {"云中剑-吞", 2108},
-    {"持盈", 2109},
-    {"期声", 2110},
-    {"风逝", 2111},
-    {"碎星辰buff", 2112},
-    {"叠刃", 2201},
-    {"人剑合一", 2202},
+    {"碎星辰", BUF_SUI_XING_CHEN},
+    {"生太极", BUF_SHENG_TAI_JI},
+    {"吞日月", BUF_TUN_RI_YUE},
+    {"云中剑-碎", BUF_YUN_ZHONG_JIAN_C},
+    {"云中剑-生", BUF_YUN_ZHONG_JIAN_J},
+    {"云中剑-吞", BUF_YUN_ZHONG_JIAN_Y},
+    {"持盈", BUF_CHI_YING},
+    {"期声", BUF_QI_SHENG},
+    {"风逝", BUF_FENG_SHI},
+    {"碎星辰buff", BUF_SUI_XING_CHEN_BUFF},
+    {"叠刃", BUF_DIE_REN},
+    {"人剑合一", BUF_REN_JIAN_HE_YI},
 };
 
 const std::unordered_map<std::string, Id_t> &SKILL_ID_HASH{
-    {"无我无剑", 2301},
-    {"八荒归元", 2302},
-    {"三环套月", 2303},
-    {"人剑合一", 2304},
-    {"碎星辰", 2305},
-    {"生太极", 2306},
-    {"吞日月", 2307},
-    {"紫气东来", 2308},
-    {"三柴剑法", 2309},
+    {"无我无剑", SKI_WU_WO_WU_JIAN},
+    {"八荒归元", SKI_BA_HUANG_GUI_YUAN},
+    {"三环套月", SKI_SAN_HUAN_TAO_YUE},
+    {"人剑合一", SKI_REN_JIAN_HE_YI},
+    {"碎星辰", SKI_SUI_XING_CHEN},
+    {"生太极", SKI_SHENG_TAI_JI},
+    {"吞日月", SKI_TUN_RI_YUE},
+    {"紫气东来", SKI_ZI_QI_DONG_LAI},
+    {"三柴剑法", SKI_SAN_CHAI_JIAN_FA},
 };
 
 const std::unordered_map<std::string, Id_t> &TALENT_ID_HASH{
-    {"挫锐", 2301},
-    {"心固", 2302},
-    {"同根", 2303},
-    {"深埋", 2304},
-    {"昆吾", 2305},
-    {"白虹", 2306},
-    {"化三清", 2307},
+    {"挫锐", TAL_CUO_RUI},
+    {"心固", TAL_XIN_GU},
+    {"同根", TAL_TONG_GEN},
+    {"深埋", TAL_SHEN_MAI},
+    {"昆吾", TAL_KUN_WU},
+    {"白虹", TAL_BAI_HONG},
+    {"化三清", TAL_HUA_SAN_QING},
 };
 
 Macro::Macro() {}
@@ -123,7 +129,7 @@ bool Macro::ParseCondition(const std::string &condition)
         std::string than          = mat[3];
         std::string numStr        = mat[4];
         if (conditionType == "buff") {
-            Id_t id                = GetBuffId(effectName);
+            Id_t id                = BUFF_ID_HASH.at(effectName);
             macroFunc.param.int1st = id;
             int num                = stoi(numStr);
             macroFunc.param.int2nd = num;
@@ -383,9 +389,9 @@ bool Macro::ParseCondition(const std::string &condition)
     }
 }
 
-bool Macro::IsReady(const Param &param)
+bool Macro::IsReady(const Param &param, Player &player)
 {
-    return !m_player->skills[param.int1st]->GetEnableTime();
+    return !player.Skill().at(param.int1st)->GetEnableTime();
 }
 
 bool Macro::IsNotCast(const Param &param)

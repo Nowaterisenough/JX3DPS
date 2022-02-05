@@ -1,9 +1,9 @@
 /**
- * @Description : 
+ * @Description :
  * @Author      : NoWats
  * @Date        : 2022-02-04 12:07:37
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:14:19
+ * @LastTime    : 2022-02-04 21:35:14
  * @FilePath    : \JX3DPS\modules\Core\Player.cpp
  */
 
@@ -30,56 +30,52 @@ Class Player::GetClass()
 void Player::UpdateTime(Frame_t frames)
 {
 #ifndef OPTIMIZE_SET
-    m_publicCooldown -= frames;
-    if (m_publicCooldown < 0) {
-        m_publicCooldown = 0;
+    publicCooldown -= frames;
+    if (publicCooldown < 0) {
+        publicCooldown = 0;
     }
 #else
-    m_publicCooldown -= frames;
-    m_publicCooldown = MINUS_TO_0_ELSE_1(m_publicCooldown) * m_publicCooldown;
+    publicCooldown -= frames;
+    publicCooldown = MINUS_TO_0_ELSE_1(publicCooldown) * publicCooldown;
 #endif
 }
 
-bool Player::SetCast(bool isCast)
+void Player::SetCast(bool isCast)
 {
     m_isCast = isCast;
-    return m_isCast;
 }
 
-bool Player::IsCast()
+bool Player::IsCast() const
 {
     return m_isCast;
 }
 
-bool Player::SetReCast(bool isReCast)
+void Player::SetReCast(bool isReCast)
 {
     m_isReCast = isReCast;
-    return m_isReCast;
 }
 
-bool Player::IsReCast()
+bool Player::IsReCast() const
 {
     return m_isReCast;
 }
 
-Id_t Player::SetLastSkill(Id_t skillId)
+void Player::SetLastSkill(Id_t skillId)
 {
     m_lastSkill = skillId;
-    return m_lastSkill;
 }
 
-Id_t Player::GetLastSkill()
+Id_t Player::GetLastSkill() const
 {
     return m_lastSkill;
 }
 
-bool Player::SetStop(bool stop)
+void Player::SetStop(bool stop)
 {
     m_stop = stop;
-    return m_stop;
 }
 
-bool Player::GetStop()
+bool Player::GetStop() const
 {
     return m_stop;
 }
@@ -89,12 +85,22 @@ Attr &Player::Attr()
     return *m_attr;
 }
 
-bool Player::GetGearSetCW()
+SkillHash &Player::Skill()
+{
+    return m_skillHash;
+}
+
+BuffHash &Player::Buff()
+{
+    return m_buffHash;
+}
+
+bool Player::GetGearSetCW() const
 {
     return m_gearSetCW;
 }
 
-bool Player::GetGearSetAttack()
+bool Player::GetGearSetAttack() const
 {
     return m_gearSetAttack;
 }

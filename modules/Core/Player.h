@@ -1,9 +1,9 @@
 /**
- * @Description :
+ * @Description : 角色，包括技能、buff、状态等
  * @Author      : NoWats
  * @Date        : 2022-02-04 12:07:37
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:15:56
+ * @LastTime    : 2022-02-04 20:46:15
  * @FilePath    : \JX3DPS\modules\Core\Player.h
  */
 
@@ -13,14 +13,13 @@
 #include <unordered_map>
 #include <list>
 
-#include "Core/Global.h"
-#include "Core/Attr.h"
+#include "Common/ConstVal.h"
 
 namespace JX3DPS {
 
+class Attr;
 class Skill;
 class Buff;
-class Macro;
 
 class Player
 {
@@ -35,49 +34,44 @@ public:
     void UpdateTime(Frame_t frames);
 
     /* 读条状态 */
-    bool SetCast(bool isCast);
-    bool IsCast();
+    void SetCast(bool isCast);
+    bool IsCast() const;
 
     /* 倒读条状态 */
-    bool SetReCast(bool isReCast);
-    bool IsReCast();
+    void SetReCast(bool isReCast);
+    bool IsReCast() const;
 
     /* 历史技能 */
-    Id_t SetLastSkill(Id_t skillId);
-    Id_t GetLastSkill();
+    void SetLastSkill(Id_t skillId);
+    Id_t GetLastSkill() const;
 
     /* 停手 */
-    bool SetStop(bool stop);
-    bool GetStop();
+    void SetStop(bool stop);
+    bool GetStop() const;
 
     /* 属性 */
     Attr &Attr();
 
-    /* 橙武效果 */
-    virtual bool SetGearSetCW(bool gearSetCW = false) = 0;
-    bool         GetGearSetCW();
-
-    /* 门派套装技能效果 */
-    virtual bool SetGearSetClass(bool gearSetClass = false) = 0;
-
-    /* 门派套装攻击效果 */
-    virtual bool SetGearSetAttack(bool gearSetAttack = false) = 0;
-    bool         GetGearSetAttack();
-
-    public_var :
-        /* 技能 */
-        std::unordered_map<Id_t, Skill *>
-            m_skillHash;
+    /* 技能 */
+    SkillHash &Skill();
 
     /* Buff */
-    std::unordered_map<Id_t, Buff *> m_buffHash;
+    BuffHash &Buff();
 
-    /* 公共冷却 */
-    Frame_t m_publicCooldown;
+    /* 橙武效果 */
+    virtual void SetGearSetCW(bool gearSetCW = false) = 0;
+    bool         GetGearSetCW() const;
 
-    protected_var :
-        /* 心法 */
-        Class m_classType;
+    /* 门派套装技能效果 */
+    virtual void SetGearSetClass(bool gearSetClass = false) = 0;
+
+    /* 门派套装攻击效果 */
+    virtual void SetGearSetAttack(bool gearSetAttack = false) = 0;
+    bool         GetGearSetAttack() const;
+
+protected:
+    /* 心法 */
+    Class m_classType;
 
     /* 读条 */
     bool m_isCast;
@@ -99,6 +93,15 @@ public:
 
     /* 门派套装攻击效果 */
     bool m_gearSetAttack;
+
+    /* 技能 */
+    SkillHash m_skillHash;
+
+    /* Buff */
+    BuffHash m_buffHash;
+
+    /* 公共冷却 */
+    Frame_t m_publicCooldown;
 };
 
 } // namespace JX3DPS

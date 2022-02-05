@@ -1,16 +1,16 @@
 /**
- * @Description : 
+ * @Description :
  * @Author      : NoWats
- * @Date        : 2022-02-04 12:07:17
+ * @Date        : 2022-02-04 19:47:00
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:15:08
+ * @LastTime    : 2022-02-05 14:47:05
  * @FilePath    : \JX3DPS\modules\Core\Event.h
  */
 
 #ifndef EVENT_H
 #define EVENT_H
 
-#include "Core/Global.h"
+#include "Common/ConstVal.h"
 
 namespace JX3DPS {
 
@@ -24,7 +24,7 @@ public:
     void    UpdateTime(const Frame_t frames);
     Frame_t GetNextTime();
 
-    public_var : Events events;
+    Events events;
 
 private:
     int ParseEvent(const std::string &line);
@@ -89,11 +89,11 @@ private:
     void ParseSet(Frame_t frames, const std::string &line);
     void Set(const Param &param);
 
-    private_var : Player *m_player     = nullptr;
-    TargetsMap           *m_targetsMap = nullptr;
-    Stats                *m_stats      = nullptr;
-    Settings             *m_settings   = nullptr;
-    Macro                *m_macro      = nullptr;
+    Player     *m_player     = nullptr;
+    TargetsMap *m_targetsMap = nullptr;
+    Stats      *m_stats      = nullptr;
+    Settings   *m_settings   = nullptr;
+    Macro      *m_macro      = nullptr;
 };
 
 } // namespace JX3DPS

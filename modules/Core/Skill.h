@@ -1,189 +1,465 @@
 /**
- * @Description :
+ * @Description : Skill基类
  * @Author      : NoWats
- * @Date        : 2022-02-04 12:07:17
+ * @Date        : 2022-02-04 19:47:00
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:37:47
+ * @LastTime    : 2022-02-05 11:35:53
  * @FilePath    : \JX3DPS\modules\Core\Skill.h
  */
 
 #ifndef SKILL_H
 #define SKILL_H
 
-#include <map>
-#include <list>
-#include <vector>
-
-#include "Core/Global.h"
 #include "Common/ConstVal.h"
 
 namespace JX3DPS {
 
-class Player;
-class Target;
-
-using TargetList = std::list<Target *>;
-
 class Skill
 {
 public:
-    Skill(Player *player);
+    Skill();
     virtual ~Skill();
 
-    /* 执行 */
-    virtual void Cast(TargetList &targetList, Stats &stats, SIM_MODE &mode) = 0;
+    Skill(const Skill &skill);
+    Skill &operator=(const Skill &skill);
 
-    /* 中断技能 */
-    virtual void Interrupt(TargetList &targetList, Stats &stats, SIM_MODE &mode) = 0;
+    /* 虚复制构造函数 */
+    virtual Skill *Clone() = 0;
 
-    /* 公共调息就绪 */
-    bool IsReady();
+    /**
+     * @brief Skill执行函数
+     * @param 1_targetsMap 目标全体.
+     * @param 2_stats 统计.
+     * @param 3_castType 执行类型, 包括预读条、效果、结算、强制.
+     */
+    virtual void Cast(TargetsMap &targetsMap, Stats &stats, CastType castType = EFFECT) = 0;
 
-    /* 下次执行时间 */
-    Frame_t GetNextTime();
+    /**
+     * @brief Skill中断函数
+     * @param 1_targetsMap 目标全体.
+     * @param 2_stats 统计.
+     */
+    virtual void Interrupt(TargetsMap &targetsMap, Stats &stats);
+
+    /**
+     * @brief 设置所属角色函数
+     * @param player 角色.
+     */
+    inline void SetPlayer(Player &player);
+
+    /* 获取下次作用时间 */
+    inline Frame_t GetNextTime() const;
+
+    /**
+     * @brief 获取可执行时间, 主要考虑充能技能
+     */
+    inline Frame_t GetEnableTime() const;
 
     /* 刷新时间 */
-    void UpdateTime(Frame_t frames);
+    inline void UpdateTime(Frame_t frames);
 
     /* ID */
-    Id_t GetId();
+    inline Id_t GetId() const;
 
     /* 名称 */
-    const std::string &GetName();
+    inline const std::string &GetName() const;
 
     /* 后缀字段 */
-    const std::string &GetSubName(int subNum);
+    inline const std::string &GetSubName(const int subIndex) const;
 
     /* 强度字段 */
-    const std::string &GetLevelName(int levelNum);
+    inline const std::string &GetLevelName(const int levelIndex) const;
 
     /* 词缀数 */
-    int GetSubNum();
+    inline int GetSubCount() const;
 
     /* 强度层数 */
-    int GetLevelNum();
+    inline int GetLevelCount() const;
 
     /* 充能数 */
-    int GetEnergyNum();
+    inline int GetEnergyCount() const;
 
     /* 冷却时间 */
-    Frame_t GetCooldown();
+    inline Frame_t GetCooldown() const;
 
     /* 公共冷却技能 */
-    bool IsPublicSkill();
+    inline bool IsPublicSkill() const;
 
     /* 冷却加成 */
-    void UpdateSkillCooldown(Frame_t frames);
+    inline void UpdateSkillCooldown(const Frame_t frames);
 
     /* 会心加成 */
-    void UpdateSkillCriticalStrikePercent(Pct_t percent);
+    inline void UpdateSkillCriticalStrikePercent(const Pct_t percent);
 
     /* 会心效果加成 */
-    void UpdateSkillCriticalStrikePowerPercent(Pct_t percent);
+    inline void UpdateSkillCriticalStrikePowerPercent(const Pct_t percent);
 
     /* 伤害加成 */
-    void UpdateSkillDamageBinPercent(BinPct_t binPercent);
-
-    /* 命中加成 */
-    void UpdateSkillHitValuePercent(Pct_t percent);
+    inline void UpdateSkillDamageBinPercent(const BinPct_t binPercent);
 
     /* 设置延迟 */
-    static void SetPing(int minPing, int maxPing);
+    inline static void SetDelay(const int delayMin, const int delayMax);
 
 protected:
     /* 判定 */
-    TableRes Roll(Pct_t    playerHitValuePercent,
-                  Pct_t    playerCriticalStrikePercent,
-                  Pct_t    playerStrainPercent,
-                  Pct_t    targetMissPercent,
-                  Pct_t    targetSightPercent,
-                  RollType rollType = RollType::COMMON);
+    inline TableRes Roll(const Pct_t playerCriticalStrikePercent) const;
 
-    TableRes GetRollResult(Target &target);
+    /* 外功判定 */
+    TableRes GetPhysicsRollResult() const;
 
     /* 外功伤害 */
-    DamageStats GetPhysicsDamage(Target &target, TableRes tableRes, std::string &subName, int level);
+    inline Damage GetPhysicsDamage(const Target      &target,
+                                   const TableRes     tableRes,
+                                   const std::string &subName,
+                                   const int          level) const;
 
     /* 外功统计 */
-    void UpdatePhysicsStats(Target      &target,
-                            Stats       &stats,
-                            SIM_MODE     mode,
-                            TableRes     tableRes,
-                            std::string &subName,
-                            int          level);
+    void UpdatePhysicsStats(const Target      &target,
+                            const TableRes     tableRes,
+                            const std::string &subName,
+                            const int          level,
+                            Stats             &stats) const;
+
+    /* 内功判定 */
+    TableRes GetMagicRollResult() const;
+
     /* 内功伤害 */
-    DamageStats GetMagicDamage(Target &target, TableRes tableRes, std::string &subName, int level);
+    inline Damage GetMagicDamage(const Target      &target,
+                                 const TableRes     tableRes,
+                                 const std::string &subName,
+                                 const int          level) const;
 
     /* 内功统计 */
-    void UpdateMagicStats(Target      &target,
-                          Stats       &stats,
-                          SIM_MODE     mode,
-                          TableRes     tableRes,
-                          std::string &subName,
-                          int          level);
+    void UpdateMagicStats(const Target      &target,
+                          const TableRes     tableRes,
+                          const std::string &subName,
+                          const int          level,
+                          Stats             &stats) const;
 
     /* 重置公共冷却 */
     void ResetPublicCooldown();
 
+    /**
+     * @brief 详细统计空函数: 计算循环属性如会心、加速的收益时通过函数指针调用, 不进行详细统计和收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_damage 伤害.
+     * @param 6_stats 统计.
+     */
+    inline void StatsNoneDetail(const Target      &target,
+                                const TableRes     tableRes,
+                                const std::string &subName,
+                                const int          level,
+                                const Damage      &damage,
+                                Stats             &stats) const;
+
+    /**
+     * @brief 详细统计函数: 计算默认属性时通过函数指针调用, 进行详细统计和收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_damage 伤害.
+     * @param 6_stats 统计.
+     */
+    void StatsDetail(const Target      &target,
+                     const TableRes     tableRes,
+                     const std::string &subName,
+                     const int          level,
+                     const Damage      &damage,
+                     Stats             &stats) const;
+
+    /**
+     * @brief 收益统计空函数: 不计算某属性收益时通过函数指针调用, 不进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    inline void StatsNoneBonus(const Target      &target,
+                               const TableRes     tableRes,
+                               const std::string &subName,
+                               const int          level,
+                               Stats             &stats) const;
+
+    /**
+     * @brief 武器伤害外功收益统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsPhysicsWeaponAttackBonus(const Target      &target,
+                                       const TableRes     tableRes,
+                                       const std::string &subName,
+                                       const int          level,
+                                       Stats             &stats) const;
+
+    /**
+     * @brief 武器伤害内功收益统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsMagicWeaponAttackBonus(const Target      &target,
+                                     const TableRes     tableRes,
+                                     const std::string &subName,
+                                     const int          level,
+                                     Stats             &stats) const;
+
+    /**
+     * @brief 外功基础攻击收益统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsPhysicsAttackBaseBonus(const Target      &target,
+                                     const TableRes     tableRes,
+                                     const std::string &subName,
+                                     const int          level,
+                                     Stats             &stats) const;
+
+    /**
+     * @brief 内功基础攻击收益统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsMagicAttackBaseBonus(const Target      &target,
+                                   const TableRes     tableRes,
+                                   const std::string &subName,
+                                   const int          level,
+                                   Stats             &stats) const;
+
+    /**
+     * @brief 外功会心效果收益统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsPhysicsCriticalStrikePowerBonus(const Target      &target,
+                                              const TableRes     tableRes,
+                                              const std::string &subName,
+                                              const int          level,
+                                              Stats             &stats) const;
+
+    /**
+     * @brief 内功会心效果收益统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsMagicCriticalStrikePowerBonus(const Target      &target,
+                                            const TableRes     tableRes,
+                                            const std::string &subName,
+                                            const int          level,
+                                            Stats             &stats) const;
+
+    /**
+     * @brief 外功基础破防收益统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsPhysicsOvercomeBaseBonus(const Target      &target,
+                                       const TableRes     tableRes,
+                                       const std::string &subName,
+                                       const int          level,
+                                       Stats             &stats) const;
+
+    /**
+     * @brief 内功基础破防收益统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsMagicOvercomeBaseBonus(const Target      &target,
+                                     const TableRes     tableRes,
+                                     const std::string &subName,
+                                     const int          level,
+                                     Stats             &stats) const;
+
+    /**
+     * @brief 无双收益外功统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsPhysicsStrainBonus(const Target      &target,
+                                 const TableRes     tableRes,
+                                 const std::string &subName,
+                                 const int          level,
+                                 Stats             &stats) const;
+
+    /**
+     * @brief 无双收益内功统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsMagicStrainBonus(const Target      &target,
+                               const TableRes     tableRes,
+                               const std::string &subName,
+                               const int          level,
+                               Stats             &stats) const;
+
+    /**
+     * @brief 破招收益外功统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsPhysicsSurplusBonus(const Target      &target,
+                                  const TableRes     tableRes,
+                                  const std::string &subName,
+                                  const int          level,
+                                  Stats             &stats) const;
+
+    /**
+     * @brief 破招收益内功统计函数: 通过函数指针调用进行该属性的收益计算统计.
+     * @param 1_target 目标.
+     * @param 2_tableRes 判定结果, 包括: 命中; 会心.
+     * @param 3_subName 词缀.
+     * @param 4_level 强度.
+     * @param 5_stats 统计.
+     */
+    void StatsMagicSurplusBonus(const Target      &target,
+                                const TableRes     tableRes,
+                                const std::string &subName,
+                                const int          level,
+                                Stats             &stats) const;
+
+protected:
     /* 角色 */
-    Player *m_player;
+    Player *m_player = nullptr;
 
     /* ping范围 */
-    static int s_minPing;
-    static int s_maxPing;
+    static int s_delayMin;
+    static int s_delayMax;
+
+    /* ID */
+    Id_t m_id = 0;
+
+    /* 名称 */
+    std::string m_name = nullptr;
+
+    /* 词缀字段 */
+    std::vector<std::string> m_subNames;
+
+    /* 强度字段 */
+    std::vector<std::string> m_levelNames;
 
     /* 公共冷却 */
     static Frame_t s_publicCooldown;
-    Frame_t       *m_publicCooldown;
-    int            m_isPublicCooldown;
-
-    /* ID */
-    Id_t m_id;
-
-    /* 名称 */
-    std::string m_name;
-
-    /* 词缀字段 */
-    std::vector<std::string> m_subNameVec;
-
-    /* 强度字段 */
-    std::vector<std::string> m_levelNameVec;
+    Frame_t       *m_publicCooldown   = nullptr;
+    Frame_t        m_isPublicCooldown = NOT_PUBLIC_SKILL;
 
     /* 技能CD */
-    Frame_t m_cooldown;
+    Frame_t m_cooldown = 0;
 
     /* 吟唱时间 */
-    Frame_t m_prepareFrames;
+    Frame_t m_prepareFrames = INVALID_FRAMES_SET;
 
     /* 作用间隔 */
-    Frame_t m_intervalFrames;
+    Frame_t m_intervalFrames = INVALID_FRAMES_SET;
 
     /* 作用次数 */
-    int m_effectNum;
+    int m_effectCount = 0;
 
     /* 充能数 */
-    int m_energyNum;
+    int m_energyCount = 0;
 
     /* 冷却加成 */
-    Frame_t m_skillCooldownAdd;
+    Frame_t m_skillCooldownAdd = 0;
 
     /* 技能会心加成 */
-    Pct_t m_skillCriticalStrikePercentAdd;
+    Pct_t m_skillCriticalStrikePercentAdd = 0;
 
     /* 技能会心效果加成 */
-    Pct_t m_skillCriticalStrikePowerPercentAdd;
+    Pct_t m_skillCriticalStrikePowerPercentAdd = 0;
 
     /* 技能伤害加成 */
-    Pct_t m_skillDamageBinPercentAdd;
+    Pct_t m_skillDamageBinPercentAdd = 0;
 
     /* 技能命中加成 */
-    Pct_t m_skillHitValuePercentAdd;
+    Pct_t m_skillHitValuePercentAdd = 0;
 
     /* 伤害参数 */
-    std::map<std::string, std::vector<DamageParam>> m_damageParam;
+    DamageParams m_damageParams;
 
-    /* 伤害统计 */
-    Stats m_stats;
+    /* 详细统计 */
+    void (Skill::*m_statsDetail)(const Target &,
+                                 const TableRes,
+                                 const std::string &,
+                                 const int,
+                                 const Damage &,
+                                 Stats &) const = &Skill::StatsNoneDetail;
+
+    /* 收益统计 - 武器伤害 */
+    void (Skill::*m_statsWeaponAttackBonus)(const Target &,
+                                            const TableRes,
+                                            const std::string &,
+                                            const int,
+                                            Stats &) const = &Skill::StatsNoneBonus;
+
+    /* 收益统计 - 基础攻击 */
+    void (Skill::*m_statsAttackBaseBonus)(const Target &,
+                                          const TableRes,
+                                          const std::string &,
+                                          const int,
+                                          Stats &) const = &Skill::StatsNoneBonus;
+
+    /* 收益统计 - 会心效果 */
+    void (Skill::*m_statsCriticalStrikePowerBonus)(const Target &,
+                                                   const TableRes,
+                                                   const std::string &,
+                                                   const int,
+                                                   Stats &) const = &Skill::StatsNoneBonus;
+
+    /* 收益统计 - 基础破防 */
+    void (Skill::*m_statsOvercomeBaseBonus)(const Target &,
+                                            const TableRes,
+                                            const std::string &,
+                                            const int,
+                                            Stats &) const = &Skill::StatsNoneBonus;
+
+    /* 收益统计 - 无双 */
+    void (Skill::*m_statsStrainBonus)(const Target &,
+                                      const TableRes,
+                                      const std::string &,
+                                      const int,
+                                      Stats &) const = &Skill::StatsNoneBonus;
+
+    /* 收益统计 - 破招 */
+    void (Skill::*m_statsSurplusBonus)(const Target &,
+                                       const TableRes,
+                                       const std::string &,
+                                       const int,
+                                       Stats &) const = &Skill::StatsNoneBonus;
 };
 
 } // namespace JX3DPS

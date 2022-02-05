@@ -3,17 +3,24 @@
 
 #include "Core/Skill.h"
 
+namespace JX3DPS {
+
+namespace TaiXuJianYi {
+
 class SanChaiJianFa : public Skill
 {
 public:
-    SanChaiJianFa();
+    SanChaiJianFa(Player &player);
+    SanChaiJianFa(const SanChaiJianFa &skill);
     ~SanChaiJianFa();
+    SanChaiJianFa *Clone();
+    SanChaiJianFa& operator=(const SanChaiJianFa &skill);
 
     /* 执行 */
-    void Cast(Player &player,
-              TargetList &targetList,
-              Stats::ThreadStats &threadStats,
-              Stats::SIM_MODE &simMode);
+    void Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType);
+
+    /* 气点加成 */
+    void UpdateSkillQidian(int num);
 
 private:
     /* 初始化基本信息 */
@@ -22,29 +29,12 @@ private:
     /* 初始化伤害系数 */
     void InitDamageParams();
 
-    /* 判定 */
-    Stats::TableResult GetRollResult(Player &player, Target &target);
+    /* 加成效果 */
+    void SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes);
 
-    /* 伤害计算 */
-    Stats::DamageStats GetDamage(Player &player, Target &target, Stats::TableResult tableResult);
 
-    /* 伤害统计 */
-    void RecordStats(Player &player,
-                     Target &target,
-                     Stats::ThreadStats &threadStats,
-                     Stats::SIM_MODE &simMode,
-                     Stats::TableResult tableResult);
-
-    /* 附加效果 */
-    void SubEffect(Player &player,
-                   TargetList &targetList,
-                   Stats::ThreadStats &threadStats,
-                   Stats::SIM_MODE &simMode,
-                   Stats::TableResult tableResult);
-
-private_var:
     /* CD */
-    static int s_cooldown;
+    static Frame_t s_cooldown;
 
     /* 吟唱时间 */
     // static int s_prepareFrames;
@@ -58,9 +48,10 @@ private_var:
     /* 最大充能数 */
     // static int s_maxEnergyNum;
 
-    /* 伤害参数 */
-    Stats::DamageParam m_damageParam;
-    // std::vector<Stats::DamageParam> m_damageParamVec;
-    // std::map<std::string, std::vector<Stats::DamageParam>> m_damageParamVecMap;
 };
+
+}
+
+}
+
 #endif // SANCHAIJIANFA_H

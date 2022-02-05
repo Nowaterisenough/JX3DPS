@@ -1,43 +1,57 @@
-/**
- * @Description : 
- * @Author      : NoWats
- * @Date        : 2022-02-04 12:08:10
- * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:26:30
- * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Skill\TunRiYue.cpp
- */
+﻿#include "TunRiYue.h"
 
-#include "TunRiYue.h"
-
-#include "Core/Stats.h"
 #include "Core/Buff.h"
 #include "Core/Target.h"
 #include "Core/Player.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
-int TunRiYue::s_cooldown      = 24;
+namespace JX3DPS {
+
+namespace TaiXuJianYi {
+
+int TunRiYue::s_cooldown = 24;
 int TunRiYue::s_prepareFrames = 16;
 
-TunRiYue::TunRiYue()
+TunRiYue::TunRiYue(Player &player) :
+    Skill(player)
 {
     InitBaseParams();
+    InitDamageParams();
 }
 
-TunRiYue::~TunRiYue() {}
-
-void TunRiYue::Cast(Player             &player,
-                    TargetList         &targetList,
-                    Stats::ThreadStats &threadStats,
-                    Stats::SIM_MODE    &simMode)
+TunRiYue::TunRiYue(const TunRiYue &skill) :
+    Skill(skill),
+    m_skillQidianAdd(skill.m_skillQidianAdd)
 {
-    if (m_prepareFrames == 0) {
-        m_prepareFrames = -1;
+
+}
+
+TunRiYue::~TunRiYue()
+{
+
+}
+
+TunRiYue *TunRiYue::Clone()
+{
+    return new TunRiYue(*this);
+}
+
+TunRiYue &TunRiYue::operator=(const TunRiYue &skill)
+{
+    Skill::operator=(skill);
+    m_skillQidianAdd = skill.m_skillQidianAdd;
+    return *this;
+}
+
+void TunRiYue::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+{
+    if (castType == CastType::SKILL) {
+        m_prepareFrames = static_cast<int>(s_prepareFrames * m_player->Attr().GetHastePercent());
     } else {
-        Stats::TableResult tableResult;
-        RecordStats(player, *targetList.front(), threadStats, simMode, tableResult);
-        SubEffect(player, targetList, threadStats, simMode, tableResult);
-        m_cooldown = static_cast<int>((s_cooldown - m_skillCooldownAdd) * player.GetHastePercent());
-        m_prepareFrames = static_cast<int>(s_prepareFrames * player.GetHastePercent());
+        m_cooldown = static_cast<int>((s_cooldown - m_skillCooldownAdd) * m_player->Attr().GetHastePercent());
+        m_prepareFrames = INVALID_FRAMES_SET;
+        UpdatePhysicsStats(*targetsMap[NORMAL].front(), stats, settings, TableRes::ALL, m_subNames[0], 0);
+        SubEffect(targetsMap, stats, settings, TableRes::ALL);
     }
 }
 
@@ -48,45 +62,28 @@ void TunRiYue::UpdateSkillQidian(int num)
 
 void TunRiYue::InitBaseParams()
 {
-    m_id   = SKI_TUN_RI_YUE;
+    m_id = SKI_TUN_RI_YUE;
     m_name = "吞日月";
-    m_subNameVec.push_back("");
-    m_levelNameVec.push_back("");
-    m_cooldown                           = 0;
-    m_prepareFrames                      = -1;
-    m_intervalFrames                     = -1;
-    m_effectNum                          = 0;
-    m_energyNum                          = 0;
-    m_publicCooldown                     = true;
-    m_skillCooldownAdd                   = 0;
-    m_skillCriticalStrikePercentAdd      = 0;
-    m_skillCriticalStrikePowerPercentAdd = 0;
-    m_skillDamageBinPercentAdd           = 0;
-    m_skillHitValuePercentAdd            = 0;
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+    m_publicCooldown = &m_player->publicCooldown;
+    m_isPublicCooldown = PUBLIC_SKILL;
 }
 
-void TunRiYue::RecordStats(Player             &player,
-                           Target             &target,
-                           Stats::ThreadStats &threadStats,
-                           Stats::SIM_MODE    &simMode,
-                           Stats::TableResult  tableResult)
+void TunRiYue::InitDamageParams()
 {
-    if (simMode == Stats::SIM_MODE::DEFAULT) {
-        threadStats.threadDamageStats[m_id]
-            .second[target.GetId()][m_subNameVec[0]][0]
-            .second[tableResult]
-            .first++;
+    m_damageParams[m_subNames[0]][0] = DamageParam(0, 0, 0.0);
+}
+
+void TunRiYue::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
+{
+    static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(m_skillQidianAdd);
+    m_player->buffs[BUF_TUN_RI_YUE_STD]->Refresh();
+    if (m_player->talents[CHANG_SHENG]) {
+        m_player->buffs[BUF_CHI_YING]->Refresh();
     }
 }
 
-void TunRiYue::SubEffect(Player             &player,
-                         TargetList         &targetList,
-                         Stats::ThreadStats &threadStats,
-                         Stats::SIM_MODE    &simMode,
-                         Stats::TableResult  tableResult)
-{
-    static_cast<TaiXuJianYi *>(&player)->UpdateQidian(m_skillQidianAdd);
-    if (static_cast<TaiXuJianYi *>(&player)->m_talentChangSheng) {
-        player.m_buffMap[BUF_CHI_YING]->Refresh(player);
-    }
+}
+
 }

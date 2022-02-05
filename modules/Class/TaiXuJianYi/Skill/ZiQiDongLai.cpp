@@ -1,36 +1,48 @@
 /**
- * @Description :
+ * @Description : 
  * @Author      : NoWats
- * @Date        : 2022-02-04 12:08:10
+ * @Date        : 2022-02-04 19:47:00
  * @Update      : NoWats
- * @LastTime    : 2022-02-04 13:25:59
+ * @LastTime    : 2022-02-05 14:49:26
  * @FilePath    : \JX3DPS\modules\Class\TaiXuJianYi\Skill\ZiQiDongLai.cpp
  */
-
 #include "ZiQiDongLai.h"
 
-#include "Core/Stats.h"
 #include "Core/Buff.h"
 #include "Core/Target.h"
 #include "Core/Player.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
+namespace JX3DPS {
+
+namespace TaiXuJianYi {
+
 int ZiQiDongLai::s_cooldown = 100 * 16;
 
-ZiQiDongLai::ZiQiDongLai()
+ZiQiDongLai::ZiQiDongLai(Player &player) : Skill(player)
 {
     InitBaseParams();
 }
 
+ZiQiDongLai::ZiQiDongLai(const ZiQiDongLai &skill) : Skill(skill) {}
+
 ZiQiDongLai::~ZiQiDongLai() {}
 
-void ZiQiDongLai::Cast(Player             &player,
-                       TargetList         &targetList,
-                       Stats::ThreadStats &threadStats,
-                       Stats::SIM_MODE    &simMode)
+ZiQiDongLai *ZiQiDongLai::Clone()
 {
-    RecordStats(player, *targetList.front(), threadStats, simMode, Stats::TableResult::ALL);
-    SubEffect(player, targetList, threadStats, simMode, Stats::TableResult::ALL);
+    return new ZiQiDongLai(*this);
+}
+
+ZiQiDongLai &ZiQiDongLai::operator=(const ZiQiDongLai &skill)
+{
+    Skill::operator=(skill);
+    return *this;
+}
+
+void ZiQiDongLai::Cast(TargetsMap &targetsMap, Stats &stats, Settings &settings, CastType castType)
+{
+    UpdatePhysicsStats(*targetsMap[NORMAL].front(), stats, settings, TableRes::ALL, m_subNames[0], 0);
+    SubEffect(targetsMap, stats, settings, TableRes::ALL);
     m_cooldown = s_cooldown;
 }
 
@@ -38,41 +50,22 @@ void ZiQiDongLai::InitBaseParams()
 {
     m_id   = SKI_ZI_QI_DONG_LAI;
     m_name = "紫气东来";
-    m_subNameVec.push_back("");
-    m_levelNameVec.push_back("");
-    m_cooldown                           = 0;
-    m_prepareFrames                      = -1;
-    m_intervalFrames                     = -1;
-    m_effectNum                          = 0;
-    m_energyNum                          = 0;
-    m_publicCooldown                     = false;
-    m_skillCooldownAdd                   = 0;
-    m_skillCriticalStrikePercentAdd      = 0;
-    m_skillCriticalStrikePowerPercentAdd = 0;
-    m_skillDamageBinPercentAdd           = 0;
-    m_skillHitValuePercentAdd            = 0;
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+    m_publicCooldown = &m_player->publicCooldown;
 }
 
-void ZiQiDongLai::RecordStats(Player             &player,
-                              Target             &target,
-                              Stats::ThreadStats &threadStats,
-                              Stats::SIM_MODE    &simMode,
-                              Stats::TableResult  tableResult)
+void ZiQiDongLai::InitDamageParams()
 {
-    if (simMode == Stats::SIM_MODE::DEFAULT) {
-        threadStats.threadDamageStats[m_id]
-            .second[target.GetId()][m_subNameVec[0]][0]
-            .second[tableResult]
-            .first++;
-    }
+    m_damageParams[m_subNames[0]][0] = DamageParam(0, 0, 0.0);
 }
 
-void ZiQiDongLai::SubEffect(Player             &player,
-                            TargetList         &targetList,
-                            Stats::ThreadStats &threadStats,
-                            Stats::SIM_MODE    &simMode,
-                            Stats::TableResult  tableResult)
+void ZiQiDongLai::SubEffect(TargetsMap &targetsMap, Stats &stats, Settings &settings, TableRes tableRes)
 {
-    static_cast<TaiXuJianYi *>(&player)->UpdateQidian(10);
-    player.m_buffMap[BUF_ZI_QI_DONG_LAI]->Refresh(player);
+    static_cast<TaiXuJianYi *>(m_player)->UpdateQidian(10);
+    m_player->buffs[BUF_ZI_QI_DONG_LAI]->Refresh();
 }
+
+} // namespace TaiXuJianYi
+
+} // namespace JX3DPS

@@ -13,8 +13,8 @@ public:
     virtual QSize minimumSizeHint() const override;
     virtual QSize sizeHint() const override;
 
-    void SetSize(const int size);
-    void SetType(const int type);
+    void SetSize(int size);
+    void SetType(int type);
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
@@ -36,7 +36,7 @@ class SlotComboBox : public QComboBox
 public:
     SlotComboBox(QWidget *parent = nullptr);
 
-    void SetType(const int type);
+    void SetType(int type);
 
 private:
     SlotComboBoxWidget *m_slotComboBoxWidget = new SlotComboBoxWidget(this);

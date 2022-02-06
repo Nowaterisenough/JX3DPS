@@ -18,12 +18,12 @@ QSize SlotComboBoxWidget::sizeHint() const
     return QSize(m_size, m_size);
 }
 
-void SlotComboBoxWidget::SetSize(const int size)
+void SlotComboBoxWidget::SetSize(int size)
 {
     m_size = size;
 }
 
-void SlotComboBoxWidget::SetType(const int type)
+void SlotComboBoxWidget::SetType(int type)
 {
     switch (type) {
     case 0:
@@ -66,7 +66,7 @@ SlotComboBox::SlotComboBox(QWidget *parent) : QComboBox(parent)
     m_slotComboBoxWidget->setGeometry(1, 1, 30, 30);
 }
 
-void SlotComboBox::SetType(const int type)
+void SlotComboBox::SetType(int type)
 {
     m_slotComboBoxWidget->SetType(type);
 }

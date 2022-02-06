@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-03 16:31:46
  * @Update      : NoWats
- * @LastTime    : 2022-02-05 15:49:36
+ * @LastTime    : 2022-02-06 15:14:15
  * @FilePath    : \JX3DPS\modules\Common\ConstVal.h
  */
 
@@ -12,30 +12,28 @@
 
 #pragma execution_character_set("utf-8")
 
-#include <thread>
 #include <unordered_map>
 
 #include "Version.h"
 
 namespace JX3DPS {
 
-#define JX3_MAJOR_VERSION 110
+#define JX3DPS_MAJOR_VERSION 110
 
 /*------------------ 优化 - 条件跳转 ------------------*/
 
 /* 帧数变量无效值 */
-#define INVALID_FRAMES_SET (JX3DPS::CONST_MAX_FRAMES)
+#define INVALID_FRAMES_SET (JX3DPS::JX3DPS_MAX_FRAMES)
 
 /* 判定伤害 */
-#if JX3_MAJOR_VERSION >= 110
-#    define GET_FINAL_DAMAGE(NormalDamage, TableRes, CriticalStrikePowerPercent) \
-        (static_cast<long long>((NormalDamage) * (1 + (TableRes)) *              \
-                                ((CriticalStrikePowerPercent)-1.0)))
+#if JX3DPS_MAJOR_VERSION >= 110
+#    define GET_FINAL_DAMAGE(NormalDamage, Table, CriticalStrikePowerPercent) \
+        (static_cast<long long>((NormalDamage) * (1 + (Table)) * ((CriticalStrikePowerPercent)-1.0)))
 #else
-#    define GET_FINAL_DAMAGE(NormalDamage, TableRes, CriticalStrikePowerPercent) \
-        (static_cast<long long>(((NormalDamage) >> ((TableRes) / 2)) *           \
-                                (1 + ((TableRes)&1) * ((CriticalStrikePowerPercent)-1.0))))
-#endif // JX3_MAJOR_VERSION >= 110
+#    define GET_FINAL_DAMAGE(NormalDamage, Table, CriticalStrikePowerPercent) \
+        (static_cast<long long>(((NormalDamage) >> ((Table) / 2)) *           \
+                                (1 + ((Table)&1) * ((CriticalStrikePowerPercent)-1.0))))
+#endif // JX3DPS_MAJOR_VERSION >= 110
 
 /* 修正判定百分比 - */
 #define BETWEEN(min, num, max) ((min) > (num) ? (min) : ((max) < (num) ? (max) : (num)))
@@ -49,185 +47,146 @@ using Id_t = unsigned int;
 using Frame_t = int;
 
 /* 1024百分数 */
-using BinPct_t = int;
+using BinPCT_t = int;
 
 /* 百分数 */
-using Pct_t = float;
+using PCT_t = float;
 
 /* 数值 */
 using Value_t = int;
 
-/*----------------------- 常量 -----------------------*/
+/*----------------------- JX3DPS常量 -----------------------*/
 
-/* 最大线程数 */
-const int MAX_THREAD = std::thread::hardware_concurrency();
+#if JX3DPS_MAJOR_VERSION == 110
+constexpr int    JX3DPS_LEVEL_PARAM                 = 205;   // 等级系数
+constexpr int    JX3DPS_LEVEL_CONST                 = 18800; // 等级常数
+constexpr double JX3DPS_CRITICAL_STRIKE_PARAM       = 9.530;
+constexpr double JX3DPS_CRITICAL_STRIKE_POWER_PARAM = 3.335;
+constexpr double JX3DPS_HIT_VALUE_PARAM             = 6.931;
+constexpr double JX3DPS_INSIGHT_PARAM               = 9.189;
+constexpr double JX3DPS_OVERCOME_PARAM              = 9.530;
+constexpr double JX3DPS_HASTE_RATE                  = 11.695;
+constexpr double JX3DPS_PHYSICS_SHIELD_PARAM        = 5.091;
+constexpr double JX3DPS_MAGIC_SHIELD_PARAM          = 5.091;
+constexpr double JX3DPS_SURPLUS_PARAM               = 2.557;
+#elif JX3DPS_MAJOR_VERSION == 100
+constexpr int    JX3DPS_LEVEL_PARAM                 = 185;
+constexpr int    JX3DPS_LEVEL_CONST                 = 16800;
+constexpr double JX3DPS_CRITICAL_STRIKE_PARAM       = 9.026;
+constexpr double JX3DPS_CRITICAL_STRIKE_POWER_PARAM = 3.159;
+constexpr double JX3DPS_HIT_VALUE_PARAM             = 8.205;
+constexpr double JX3DPS_INSIGHT_PARAM               = 5.128;
+constexpr double JX3DPS_OVERCOME_PARAM              = 9.026;
+constexpr double JX3DPS_HASTE_RATE                  = 11.077;
+constexpr double JX3DPS_PHYSICS_SHIELD_PARAM        = 4.084;
+constexpr double JX3DPS_MAGIC_SHIELD_PARAM          = 4.084;
+#endif // JX3DPS_MAJOR_VERSION
 
-/* 帧数最大值 */
-constexpr int CONST_MAX_FRAMES = INT_MAX;
+constexpr double JX3DPS_CRITICAL_STRIKE_PER_AGILITY            = 0.64; // 主属性转换系数
+constexpr double JX3DPS_ATTACK_BASE_PER_STRENGTH               = 0.15;
+constexpr double JX3DPS_OVERCOME_BASE_PER_STRENGTH             = 0.3;
+constexpr double JX3DPS_CRITICAL_STRIKE_PER_SPIRIT             = 0.64;
+constexpr double JX3DPS_ATTACK_BASE_PER_SPUNK                  = 0.18;
+constexpr double JX3DPS_OVERCOME_BASE_PER_SPUNK                = 0.3;
+constexpr double JX3DPS_ATTACK_PER_AGILITY_FROM_TAI_XU_JIAN_YI = 1.45;
+constexpr double JX3DPS_CRITICAL_STRIKE_PER_AGILITY_FROM_TAI_XU_JIAN_YI = 0.58;
 
-/* 技能公共冷却 */
-constexpr int PUBLIC_SKILL     = 0;
-constexpr int NOT_PUBLIC_SKILL = INT_MAX;
+constexpr PCT_t JX3DPS_PLAYER_HIT_VALUE_PERCENT_BASE             = 0.9;  // 角色基础命中
+constexpr PCT_t JX3DPS_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE = 1.75; // 角色基础会心效果
 
-/*----------------------- 游戏常数 -----------------------*/
+constexpr BinPCT_t JX3DPS_BIN_PCT           = 1024; // 百分数基数100%
+constexpr PCT_t    JX3DPS_PCT               = 1.0;  // 百分数基数100%
+constexpr Frame_t  JX3DPS_FRAMES_PER_SECOND = 16;   // 每秒帧数
+constexpr Frame_t  JX3DPS_PUBLIC_COOLDOWN   = 24;   // 公共冷却
 
-/* 百分数基数100% */
-constexpr BinPct_t CONST_BIN_PCT = 1024;
-constexpr Pct_t    CONST_PCT     = 1.0;
+Value_t constexpr JX3DPS_ENCHANTS_VALUE_PRIMARY[9] = {0, 1, 3, 5, 7, 9, 10, 14, 18}; // 熔嵌 - 主属性
+Value_t constexpr JX3DPS_ENCHANTS_VALUE_ATTACK[9] = {0, 2, 5, 7, 10, 12, 15, 20, 26}; // 熔嵌 - 攻击
+Value_t constexpr JX3DPS_ENCHANTS_VALUE_SUB[9] = {0, 5, 11, 17, 22, 28, 34, 45, 58}; // 熔嵌 - 副属性
+double constexpr JX3DPS_STRENGTHEN_LEVEL_PARAM[9] =
+    {0.0, 0.005, 0.013, 0.024, 0.038, 0.055, 0.075, 0.098, 0.124}; // 强化 - 系数
+constexpr double JX3DPS_STONE_PRIMARY       = 5.175;               // 五彩石 - 主属性
+constexpr double JX3DPS_STONE_ATTACK        = 10.35;               // 五彩石 - 攻击
+constexpr double JX3DPS_STONE_SUB           = 23.125;              // 五彩石 - 副属性
+constexpr double JX3DPS_STONE_WEAPON_ATTACK = 15.525;              // 五彩石 - 武器伤害
 
-/* 角色等级 */
-constexpr int CONST_PLAYER_LEVEL = JX3_MAJOR_VERSION;
-
-#if JX3_MAJOR_VERSION == 110
-/* 等级系数 */
-constexpr int CONST_LEVEL_PARAM = 205;
-
-/* 等级常数 */
-constexpr int CONST_LEVEL = 18800;
-
-/* 全局系数 */
-constexpr double CONST_CRITICAL_STRIKE_PARAM       = 9.530;
-constexpr double CONST_CRITICAL_STRIKE_POWER_PARAM = 3.335;
-constexpr double CONST_HIT_VALUE_PARAM             = 6.931;
-constexpr double CONST_INSIGHT_PARAM               = 9.189;
-constexpr double CONST_OVERCOME_PARAM              = 9.530;
-constexpr double CONST_HASTE_RATE                  = 11.695;
-constexpr double CONST_PHYSICS_SHIELD_PARAM        = 5.091;
-constexpr double CONST_MAGIC_SHIELD_PARAM          = 5.091;
-constexpr double CONST_SURPLUS_PARAM               = 2.557;
-#elif JX3_MAJOR_VERSION == 100
-/* 等级系数 */
-constexpr int CONST_LEVEL_PARAM = 185;
-
-/* 等级常数 */
-constexpr int CONST_LEVEL = 16800;
-
-/* 全局系数 */
-constexpr double CONST_CRITICAL_STRIKE_PARAM       = 9.026;
-constexpr double CONST_CRITICAL_STRIKE_POWER_PARAM = 3.159;
-constexpr double CONST_HIT_VALUE_PARAM             = 8.205;
-constexpr double CONST_INSIGHT_PARAM               = 5.128;
-constexpr double CONST_OVERCOME_PARAM              = 9.026;
-constexpr double CONST_HASTE_RATE                  = 11.077;
-constexpr double CONST_PHYSICS_SHIELD_PARAM        = 4.084;
-constexpr double CONST_MAGIC_SHIELD_PARAM          = 4.084;
-#endif // JX3_MAJOR_VERSION
-
-/* 主属性转换系数 */
-constexpr double CONST_AGILITY_TO_CRITICAL_STRIKE = 0.64;
-constexpr double CONST_STRENGTH_TO_ATTACK_BASE    = 0.15;
-constexpr double CONST_STRENGTH_TO_OVERCOME_BASE  = 0.3;
-constexpr double CONST_SPIRIT_TO_CRITICAL_STRIKE  = 0.64;
-constexpr double CONST_SPUNK_TO_ATTACK_BASE       = 0.18;
-constexpr double CONST_SPUNK_TO_OVERCOME_BASE     = 0.3;
-
-constexpr double CONST_AGILITY_TO_ATTACK_TAI_XU_JIAN_YI          = 1.45;
-constexpr double CONST_AGILITY_TO_CRITICAL_STRIKE_TAI_XU_JIAN_YI = 0.58;
-
-/* 每秒帧数 */
-constexpr Frame_t FRAMES_PER_SECOND = 16;
-
-/* 公共冷却 */
-constexpr Frame_t CONST_COMMON_PUBLIC_COOLDOWN = 24;
-
-/* 延迟常数: (PING / DELAY_CONST) 即 延迟帧数 */
-constexpr int CONST_DELAY = 35;
-
-/* 角色基础命中 */
-constexpr Pct_t CONST_PLAYER_HIT_VALUE_PERCENT_BASE = 0.9;
-
-/* 角色基础会心效果 */
-constexpr Pct_t CONST_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE = 1.75;
-
-/* 熔嵌 - 主属性 */
-Value_t constexpr CONST_ENCHANTS_VALUE_PRIMARY[9] = {0, 1, 3, 5, 7, 9, 10, 14, 18};
-
-/* 熔嵌 - 攻击 */
-Value_t constexpr CONST_ENCHANTS_VALUE_ATTACK[9] = {0, 2, 5, 7, 10, 12, 15, 20, 26};
-
-/* 熔嵌 - 副属性 */
-Value_t constexpr CONST_ENCHANTS_VALUE_SUB[9] = {0, 5, 11, 17, 22, 28, 34, 45, 58};
-
-/* 强化 - 系数 */
-const double constexpr CONST_STRENGTHEN_LEVEL[9] =
-    {0.0, 0.005, 0.013, 0.024, 0.038, 0.055, 0.075, 0.098, 0.124};
-
-/* 五彩石 - 主属性 */
-constexpr double CONST_STONE_PRIMARY = 5.175;
-
-/* 五彩石 - 攻击 */
-constexpr double CONST_STONE_ATTACK = 10.35;
-
-/* 五彩石 - 副属性 */
-constexpr double CONST_STONE_SUB = 23.125;
-
-/* 五彩石 - 武器伤害 */
-constexpr double CONST_STONE_WEAPON_ATTACK = 15.525;
-
-/*----------------------- ID -----------------------*/
-
-/* 通用 - Buff */
-constexpr Id_t BUF_CLASS_EFFECT     = 101;
-constexpr Id_t BUF_CLASS_TEAM_POINT = 102;
-constexpr Id_t BUF_CLASS_CW         = 103;
-constexpr Id_t BUF_CLASS_ATTACK     = 104;
-
-/* 通用 - 3rd buff */
-constexpr Id_t BUF_3RD_SUI_XING_CHEN    = 201;
-constexpr Id_t BUF_3RD_MEI_HUA_SAN_NONG = 202;
-
-/* 通用 - 3rd debuff */
-constexpr Id_t TBUF_MIE_SHI = 501;
+constexpr Frame_t JX3DPS_MAX_FRAMES       = INT_MAX; // 帧数最大值
+constexpr int     JX3DPS_PUBLIC_SKILL     = 0;       // 公共冷却技能: true
+constexpr int     JX3DPS_NOT_PUBLIC_SKILL = INT_MAX; // 公共冷却技能: false
+constexpr int     JX3DPS_PLAYER_LEVEL     = JX3DPS_MAJOR_VERSION;
+constexpr int     JX3DPS_DELAY_CONST      = 35; // 延迟常数: PING / JX3DPS_DELAY_CONST
 
 /*----------------------- 定义 -----------------------*/
 
-/* 圆桌判定结果 */
-enum TableRes
+#if _MSVC_LANG >= 201703L || __cplusplus >= 201703L
+union Param
 {
-    ALL    = 3, // 全部
-    HIT    = 0, // 命中
-    DOUBLE = 1, // 会心
-#if JX3_MAJOR_VERSION >= 110
+    int   paramInt = 0;
+    float paramFloat;
+
+    Param(int i)
+    {
+        paramInt = i;
+    }
+
+    Param(Id_t i)
+    {
+        paramInt = i;
+    }
+
+    Param(float i)
+    {
+        paramFloat = i;
+    }
+
+    Param(double i)
+    {
+        paramFloat = i;
+    }
+};
+using Params = std::vector<Param>;
+
 #else
-    SIGHT = 4,  // 识破
-    MISS  = 62, // 偏离
-#endif // JX3_MAJOR_VERSION >= 110
-};
+#    include <variant>
 
-/* 圆桌判定类型 */
-enum RollType
+using Params = std::vector<std::variant>;
+#endif // _MSVC_LANG >= 201703L || __cplusplus >= 201703L
+
+class Macro;
+using ConditionFunc = bool (Macro::*)(const Params &);
+
+struct Condition
 {
-    COMMON, // 通用判定
-    DOT,    // DOT判定
-    SUB,    // 附加多段判定
+    ConditionFunc func;
+    Params        params;
+
+    Condition() {}
+    Condition(ConditionFunc func, const Params &params) : func(func), params(params) {}
 };
 
-/* 心法(奇数外功, 偶数内功) */
-enum Class
+using Macros = std::list<std::pair<std::list<std::list<Condition>>, Id_t>>;
+
+enum CastType {
+    SKILL,
+    EFFECT,
+    FORCE,
+};
+
+/* 目标状态 */
+enum TargetStatus
 {
-    NONE_CLASS         = 0,
-    TAI_XU_JIAN_YI     = 2,
-    ZI_XIA_GONG        = 3,
-    WEN_SHUI_JUE       = 4,
-    AO_XUE_ZHAN_YI     = 6,
-    FEN_SHAN_JING      = 8,
-    XIAO_CHEN_JUE      = 10,
-    LING_HAI_JUE       = 12,
-    JING_YU_JUE        = 14,
-    BEI_AO_JUE         = 16,
-    YIN_LONG_JUE       = 18,
-    BING_XIN_JUE       = 1,
-    MO_WEN             = 5,
-    YI_JIN_JING        = 7,
-    FEN_YING_SHENG_JUE = 9,
-
-    XIANG_ZHI = 11,
+    NORMAL,
+    DETACHED,
+    DEAD,
 };
+class Player;
+class Target;
+using Targets = std::unordered_map<TargetStatus, std::list<Target *>>;
 
-/* 奇穴表 */
+class Skill;
+class Buff;
+using Skills  = std::unordered_map<Id_t, Skill *>;
+using Buffs   = std::unordered_map<Id_t, Buff *>;
 using Talents = std::unordered_map<Id_t, bool>;
-
-/* 秘籍表 */
 using Secrets = std::unordered_map<Id_t, std::list<bool>>;
 
 /* 属性类型 */
@@ -245,12 +204,6 @@ enum AttrType
     WEAPON_ATTACK,         // 武器伤害
 };
 
-/* 模拟模式 */
-using SimMode = AttrType;
-
-/* 阵眼 */
-using TeamCore = AttrType;
-
 /* 收益信息 */
 struct BonusSet
 {
@@ -263,80 +216,12 @@ struct BonusSet
 /* 属性收益表 */
 using BonusSets = std::unordered_map<AttrType, BonusSet *>;
 
-/* 武器类型 */
-enum WeaponType
-{
-    CW,
-    LITTLE_CW,
-    THUNDER_WEAPON,
-    WATER_WEAPON,
-    EXCL_WEAPON,
-    NORMAL_WEAPON,
-};
+/* 模拟模式 */
+using SimMode = AttrType;
 
-/* 套装效果类型 */
-enum GearSetType
-{
-    GEAR_SET_ATTACK,
-    GEAR_SET_CLASS,
-    WAIST_EFFECT,
-};
-
-/* 套装效果表 */
-using GearSets = std::unordered_map<GearSetType, bool>;
-
-/* 装备类型 */
-enum EquipType
-{
-    DEFAULT_EQUIP_TYPE, // 默认
-    HELMS,              // 帽子
-    ARMOR,              // 上衣
-    WRISTS,             // 护腕
-    BELTS,              // 腰带
-    BOOTS,              // 鞋子
-    LEGS,               // 下装
-    AMULETS,            // 项链
-    WAIST,              // 腰坠
-    RINGS,              // 戒指
-    SUB_WEAPON,         // 副武器
-    PRIMARY_WEAPON,     // 武器
-};
-
-/* 附魔表 */
-using Enchants = std::unordered_map<EquipType, bool>;
-
-/* 技能列表 */
-class Skill;
-class Player;
-using SkillHash = std::unordered_map<Id_t, Skill *>;
-
-enum CastType
-{
-    SKILL,
-    EFFECT,
-    FORCE,
-};
-
-/* 目标状态 */
-enum TargetStatus
-{
-    NORMAL,
-    DETACHED,
-    DEAD,
-};
-
-/* Buff列表 */
-class Buff;
-class Target;
-using Targets    = std::list<Target *>;
-using TargetsMap = std::unordered_map<TargetStatus, Targets>;
-using BuffHash   = std::unordered_map<Id_t, Buff *>;
-
-/* 设置 */
-class Attr;
 struct Settings
 {
-    Class                  classType; // 心法
+    JX3Class               classType; // 心法
     SimMode                simMode;   // 模拟模式
     int                    simTimes;  // 模拟次数
     int                    minPing;   // 延迟最小
@@ -345,31 +230,54 @@ struct Settings
     Attr                  *attr;      // 属性
     Attr                  *attrFinal;
     BonusSets              bonusSets;
-    WeaponType             weaponType;
-    GearSets               gearSets;
-    Enchants               enchants;
     Talents                talents;
     Secrets                secrets;
-    TeamCore               teamCore;
-    BuffHash               buffSets;
+    Buffs                  buffSets;
     std::list<std::string> macroStrList;
     std::list<std::string> eventStrList;
 
-    Settings(Class classType);
+    Settings(JX3Class classType);
 };
 
 extern Settings g_settings;
+
+/* 圆桌判定结果 */
+enum Table
+{
+    ALL    = 3, // 全部
+    HIT    = 0, // 命中
+    DOUBLE = 1, // 会心
+#if JX3DPS_MAJOR_VERSION < 110
+    SIGHT = 4,  // 识破
+    MISS  = 62, // 偏离
+#endif          // JX3DPS_MAJOR_VERSION < 110
+};
+
+/* 圆桌判定类型 */
+enum RollType
+{
+    COMMON, // 通用判定
+    DOT,    // DOT判定
+    SUB,    // 附加多段判定
+};
+
+/* 心法(偶数外功, 奇数内功) */
+enum JX3Class
+{
+    TAI_XU_JIAN_YI = 2,
+    ZI_XIA_GONG    = 3,
+};
 
 /* 伤害系数 */
 struct DamageParam
 {
     int      fixedDamage;            // 固定伤害
-    BinPct_t weaponDamageBinPercent; // 武器伤害系数, 1024为100%
-    Pct_t    attackDamagePercent;    // 攻击系数
+    BinPCT_t weaponDamageBinPercent; // 武器伤害系数, 1024为100%
+    PCT_t    attackDamagePercent;    // 攻击系数
 
     DamageParam() : fixedDamage(0), weaponDamageBinPercent(0), attackDamagePercent(0.0) {}
 
-    DamageParam(int fixedDamage, BinPct_t weaponDamageBinPercent, Pct_t attackDamagePercent) :
+    DamageParam(int fixedDamage, BinPCT_t weaponDamageBinPercent, PCT_t attackDamagePercent) :
         fixedDamage(fixedDamage), weaponDamageBinPercent(weaponDamageBinPercent),
         attackDamagePercent(attackDamagePercent)
     {
@@ -377,65 +285,6 @@ struct DamageParam
 };
 
 using DamageParams = std::unordered_map<std::string, std::vector<DamageParam>>;
-
-/*--------------------- 函数指针 ---------------------*/
-
-/* 函数指针参数 */
-struct Param
-{
-    int    int1st;
-    int    int2nd;
-    int    int3rd;
-    double double4th;
-    double double5th;
-
-    Param() {}
-
-    Param(int int1st, int int2nd, int int3rd, double double4th, double double5th) :
-        int1st(int1st), int2nd(int2nd), int3rd(int3rd), double4th(double4th), double5th(double5th)
-    {
-    }
-};
-
-class Event;
-
-using EventFuncPtr = void (Event::*)(const Param &param);
-
-struct EventFunc
-{
-    EventFuncPtr eventFuncPtr;
-    Param        param;
-
-    EventFunc(EventFuncPtr eventFuncPtr, const Param &param) :
-        eventFuncPtr(eventFuncPtr), param(param)
-    {
-    }
-};
-
-using Events = std::list<std::pair<Frame_t, EventFunc>>;
-
-class Macro;
-
-using MacroFuncPtr = bool (Macro::*)(const Param &param);
-
-struct MacroFunc
-{
-    MacroFuncPtr macroFuncPtr;
-    Param        param;
-
-    MacroFunc() {}
-
-    MacroFunc(MacroFuncPtr macroFuncPtr) : macroFuncPtr(macroFuncPtr) {}
-
-    MacroFunc(MacroFuncPtr macroFuncPtr, const Param &param) :
-        macroFuncPtr(macroFuncPtr), param(param)
-    {
-    }
-};
-
-using Macros = std::list<std::pair<std::list<std::list<MacroFunc>>, Id_t>>;
-
-using ForceMacros = std::list<std::pair<Frame_t, std::pair<std::list<std::list<MacroFunc>>, Id_t>>>;
 
 /*----------------------- 统计 -----------------------*/
 
@@ -448,21 +297,23 @@ struct Damage
 
     Damage() : fixedDamage(0), weaponDamage(0), attackDamage(0) {}
 
+    Damage(long long fixedDamage, long long weaponDamage, long long attackDamage) :
+        fixedDamage(fixedDamage), weaponDamage(weaponDamage), attackDamage(attackDamage)
+    {
+    }
+
     Damage(const Damage &damage) :
         fixedDamage(damage.fixedDamage), weaponDamage(damage.weaponDamage),
         attackDamage(damage.attackDamage)
     {
     }
 
-    Damage(const long long fixedDamage, const long long weaponDamage, const long long attackDamage) :
-        fixedDamage(fixedDamage), weaponDamage(weaponDamage), attackDamage(attackDamage)
+    Damage &operator=(const Damage &damage)
     {
-    }
-
-    long long SumDamage() const
-    {
-        // Damage(1, 2, 3);
-        return fixedDamage + weaponDamage + attackDamage;
+        this->fixedDamage  = damage.fixedDamage;
+        this->weaponDamage = damage.weaponDamage;
+        this->attackDamage = damage.attackDamage;
+        return *this;
     }
 
     Damage &operator+=(const Damage &damage)
@@ -472,10 +323,15 @@ struct Damage
         this->attackDamage += damage.attackDamage;
         return *this;
     }
+
+    long long Sum() const
+    {
+        return fixedDamage + weaponDamage + attackDamage;
+    }
 };
 
 /* [判定] - <数目, 伤害> */
-using TableStats = std::unordered_map<TableRes, std::pair<int, Damage>>;
+using TableStats = std::unordered_map<Table, std::pair<int, Damage>>;
 
 /* [强度] - <[判定] - <数目, 伤害>> */
 using LevelStats = std::unordered_map<int, TableStats>;
@@ -496,35 +352,29 @@ using BonusStats = std::unordered_map<AttrType, long long>;
 struct Stats
 {
     DamageStats damageStats;
-    BonusStats  bonusStats;
+    BonusStats bonusStats;
 
-    Stats(Player &player, TargetsMap targetsMap);
+    Stats(Player &player, Targets targets);
 
-    TableStats  InitTableStats();
-    EffectStats InitEffectStats(Player &player, TargetsMap targetsMap);
-    void        AddDamageStats(Id_t id, Player &player, TargetsMap targetsMap);
+    TableStats InitTableStats();
+    EffectStats InitEffectStats(Player &player, Targets targets);
+    void AddDamageStats(Id_t id, Player &player, Targets targets);
 };
 
-/* 特征值 */
-struct CharStats
-{
-    int minDamage;
-    int maxDamage;
+/*----------------------- ID -----------------------*/
 
-    CharStats() : minDamage(CONST_MAX_FRAMES), maxDamage(0) {}
-};
+/* 通用 - Buff */
+constexpr Id_t BUF_CLASS_EFFECT     = 101;
+constexpr Id_t BUF_CLASS_TEAM_POINT = 102;
+constexpr Id_t BUF_CLASS_CW         = 103;
+constexpr Id_t BUF_CLASS_ATTACK     = 104;
 
-/* 统计汇总 */
-struct TotalStats
-{
-    DamageStats damageStats;
-    BonusStats  bonusStats;
-    CharStats   charStats;
+/* 通用 - 3rd buff */
+constexpr Id_t BUF_3RD_SUI_XING_CHEN    = 201;
+constexpr Id_t BUF_3RD_MEI_HUA_SAN_NONG = 202;
 
-    TotalStats();
-
-    TotalStats &operator+=(Stats &stats);
-};
+/* 通用 - 3rd debuff */
+constexpr Id_t TBUF_MIE_SHI = 501;
 
 /* Buff - 太虚剑意 */
 constexpr Id_t BUF_ZI_QI_DONG_LAI      = 2101;

@@ -1,4 +1,12 @@
-﻿#include "CustomLineEdit.h"
+﻿/**
+ * @Description : 
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 19:47:00
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-06 15:05:30
+ * @FilePath    : \JX3DPS\app\CustomLineEdit.cpp
+ */
+#include "CustomLineEdit.h"
 
 #include <QPainter>
 #include <QPropertyAnimation>
@@ -199,7 +207,7 @@ QColor CustomLineEdit::GetColor(const double rate)
     }
 }
 
-int CustomLineEdit::GetWidth(const double rate, const int width)
+int CustomLineEdit::GetWidth(const double rate, int width)
 {
     update();
     return static_cast<int>(width * rate);

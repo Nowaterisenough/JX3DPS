@@ -74,7 +74,7 @@ public:
     void SetImgPath(const QString &imgPath);
     void SetColor(bool isColor);
     void SetOpacity(const double opacity);
-    void SetSize(const int size);
+    void SetSize(int size);
     void SetDefault(bool b);
 
     virtual QSize minimumSizeHint() const override;
@@ -96,7 +96,7 @@ class ComboBoxSlotItemWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ComboBoxSlotItemWidget(const int index, QListWidgetItem *item = nullptr, QWidget *parent = nullptr);
+    explicit ComboBoxSlotItemWidget(int index, QListWidgetItem *item = nullptr, QWidget *parent = nullptr);
 
     //void SetAttrType(const JX3DPS::AttrType type);
 

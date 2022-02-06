@@ -37,7 +37,7 @@ private:
     void   SetOpacity(double opacity);
 
     QColor GetColor(const double rate);
-    int    GetWidth(const double rate, const int width);
+    int    GetWidth(const double rate, int width);
 
     static double s_valueMax;
     static double s_valueMin;

@@ -1,4 +1,12 @@
-﻿#include "MarqueeLabel.h"
+﻿/**
+ * @Description : 
+ * @Author      : NoWats
+ * @Date        : 2022-02-04 19:47:00
+ * @Update      : NoWats
+ * @LastTime    : 2022-02-06 15:05:31
+ * @FilePath    : \JX3DPS\app\MarqueeLabel.cpp
+ */
+#include "MarqueeLabel.h"
 
 #include <QTimerEvent>
 #include <QPainter>
@@ -75,9 +83,9 @@ void MarqueeLabel::timerEvent(QTimerEvent *event)
 void MarqueeLabel::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    const int textWidth = painter.fontMetrics().horizontalAdvance(text());
-    const int textHeight = painter.fontMetrics().height();
-    const int textY = (height() + textHeight) / 2 - painter.fontMetrics().descent();
+    int textWidth = painter.fontMetrics().horizontalAdvance(text());
+    int textHeight = painter.fontMetrics().height();
+    int textY = (height() + textHeight) / 2 - painter.fontMetrics().descent();
     if (!m_timer.isActive()) {
         m_offset = this->width();
     } else if (m_textWidth != textWidth && textWidth > 0) {
@@ -93,8 +101,8 @@ void MarqueeLabel::paintEvent(QPaintEvent *event)
 
 void MarqueeLabel::resizeEvent(QResizeEvent *event)
 {
-    const int oldWidth = event->oldSize().width();
-    const int newWidth = event->size().width();
+    int oldWidth = event->oldSize().width();
+    int newWidth = event->size().width();
     if (newWidth > 10) {
         m_labelWidth = newWidth;
         // 新宽度更小, 则重置偏移

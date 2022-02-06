@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-02 16:33:58
  * @Update      : NoWats
- * @LastTime    : 2022-02-05 17:14:21
+ * @LastTime    : 2022-02-06 13:43:51
  * @FilePath    : \JX3DPS\modules\Core\Macro.cpp
  */
 
@@ -12,16 +12,10 @@
 #include "Macro.h"
 
 #include <regex>
-#include <iostream>
-#include <tuple>
 
 #include "Common/ConstVal.h"
 #include "Player.h"
 #include "Target.h"
-#include "Skill.h"
-#include "Buff.h"
-
-#include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
 using namespace std;
 
@@ -101,823 +95,960 @@ bool Macro::Parse(const std::string &line)
         }
         orConditionStrList.emplace_back(condition);
 
+        std::list<std::list<Condition>> conditions;
         for (auto &orConditionStr : orConditionStrList) {
             std::list<std::string> andConditionStrList;
             while (orConditionStr.find("&") != std::string::npos) {
                 andConditionStrList.emplace_back(orConditionStr.substr(0, orConditionStr.find("&")));
                 orConditionStr = orConditionStr.substr(orConditionStr.find("&") + 1);
             }
+
+            std::list<Condition> conditionsAnd;
+            if (castMode == "/cast") {
+                conditionsAnd.emplace_back(Condition(&Macro::IsNotReCast, Params()));
+            } else if (castMode == "/fcast") {
+                conditionsAnd.emplace_back(Condition(&Macro::IsNotCast, Params()));
+            }
             andConditionStrList.emplace_back(orConditionStr);
             for (const auto &singleCondition : andConditionStrList) {
-                MacroFunc macroFunc;
-                ParseCondition(singleCondition, macroFunc);
+                Condition con;
+                ParseCondition(singleCondition, con);
+                conditionsAnd.emplace_back(con);
             }
+            conditions.emplace_back(conditionsAnd);
+        }
+        std::pair<std::list<std::list<Condition>>, Id_t> macro{conditions, skillId};
+
+        if (m_player->skills[skillId].IsPublicSkill()) {
+            m_publicMacros.emplace_back(macro);
+        } else {
+            m_otherMacros.emplace_back(macro);
         }
         return true;
     }
     return false;
 }
 
-bool Macro::ParseCondition(const std::string &condition, MacroFunc &macroFunc)
+bool Macro::ParseCondition(const std::string &str, Condition &condition)
 {
     std::regex  reg1("([a-z_]+):(.+)(>=|<=|~=|<|>|=)([0-9]+)");
     std::regex  reg2("([a-z_]+):(.+)");
     std::regex  reg3("([a-z_]+)(>=|<=|~=|<|>|=)([0-9]+)");
     std::smatch mat;
-    if (regex_search(condition, mat, reg1)) {
+    if (regex_search(str, mat, reg1)) {
         std::string conditionType = mat[1];
         std::string effectName    = mat[2];
         std::string than          = mat[3];
         std::string numStr        = mat[4];
         if (conditionType == "buff") {
-            Id_t id                = BUFF_ID_HASH.at(effectName);
-            macroFunc.param.int1st = id;
-            int num                = stoi(numStr);
-            macroFunc.param.int2nd = num;
+            Id_t id = BUFF_ID_HASH.at(effectName);
+            condition.params.push_back(id);
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::BuffStackNumLt;
+                condition.func = &Macro::BuffStackCountLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::BuffStackNumLe;
+                condition.func = &Macro::BuffStackCountLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::BuffStackNumEq;
+                condition.func = &Macro::BuffStackCountEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::BuffStackNumNe;
+                condition.func = &Macro::BuffStackCountNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::BuffStackNumGe;
+                condition.func = &Macro::BuffStackCountGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::BuffStackNumGt;
+                condition.func = &Macro::BuffStackCountGt;
             }
         } else if (conditionType == "tbuff") {
-            Id_t id                = BUFF_ID_HASH.at(effectName);
-            macroFunc.param.int1st = id;
-            int num                = stoi(numStr);
-            macroFunc.param.int2nd = num;
+            Id_t id = BUFF_ID_HASH.at(effectName);
+            condition.params.push_back(id);
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::TBuffStackNumLt;
+                condition.func = &Macro::TBuffStackCountLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::TBuffStackNumLe;
+                condition.func = &Macro::TBuffStackCountLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::TBuffStackNumEq;
+                condition.func = &Macro::TBuffStackCountEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::TBuffStackNumNe;
+                condition.func = &Macro::TBuffStackCountNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::TBuffStackNumGe;
+                condition.func = &Macro::TBuffStackCountGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::TBuffStackNumGt;
+                condition.func = &Macro::TBuffStackCountGt;
             }
         } else if (conditionType == "bufftime") {
-            Id_t id                = BUFF_ID_HASH.at(effectName);
-            macroFunc.param.int1st = id;
-            double time            = stod(numStr);
-            macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
+            Id_t id = BUFF_ID_HASH.at(effectName);
+            condition.params.push_back(id);
+            double time = stod(numStr);
+            condition.params.push_back(static_cast<int>(time * JX3DPS_FRAMES_PER_SECOND));
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::BuffTimeLt;
+                condition.func = &Macro::BuffTimeLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::BuffTimeLe;
+                condition.func = &Macro::BuffTimeLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::BuffTimeEq;
+                condition.func = &Macro::BuffTimeEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::BuffTimeNe;
+                condition.func = &Macro::BuffTimeNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::BuffTimeGe;
+                condition.func = &Macro::BuffTimeGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::BuffTimeGt;
+                condition.func = &Macro::BuffTimeGt;
             }
         } else if (conditionType == "tbufftime") {
-            Id_t id                = BUFF_ID_HASH.at(effectName);
-            macroFunc.param.int1st = id;
-            double time            = stod(numStr);
-            macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
+            Id_t id = BUFF_ID_HASH.at(effectName);
+            condition.params.push_back(id);
+            double time = stod(numStr);
+            condition.params.push_back(static_cast<int>(time * JX3DPS_FRAMES_PER_SECOND));
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::TBuffTimeLt;
+                condition.func = &Macro::TBuffTimeLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::TBuffTimeLe;
+                condition.func = &Macro::TBuffTimeLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::TBuffTimeEq;
+                condition.func = &Macro::TBuffTimeEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::TBuffTimeNe;
+                condition.func = &Macro::TBuffTimeNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::TBuffTimeGe;
+                condition.func = &Macro::TBuffTimeGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::TBuffTimeGt;
+                condition.func = &Macro::TBuffTimeGt;
             }
         } else if (conditionType == "cd") {
-            Id_t id                = SKILL_ID_HASH.at(effectName);
-            macroFunc.param.int1st = id;
-            double time            = stod(numStr);
-            macroFunc.param.int2nd = static_cast<int>(time * FRAMES_PER_SECOND);
+            Id_t id = SKILL_ID_HASH.at(effectName);
+            condition.params.push_back(id);
+            double time = stod(numStr);
+            condition.params.push_back(static_cast<int>(time * JX3DPS_FRAMES_PER_SECOND));
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::SkillCooldownLt;
+                condition.func = &Macro::SkillCooldownLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::SkillCooldownLe;
+                condition.func = &Macro::SkillCooldownLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::SkillCooldownEq;
+                condition.func = &Macro::SkillCooldownEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::SkillCooldownNe;
+                condition.func = &Macro::SkillCooldownNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::SkillCooldownGe;
+                condition.func = &Macro::SkillCooldownGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::SkillCooldownGt;
+                condition.func = &Macro::SkillCooldownGt;
             }
         } else if (conditionType == "skill_energy") {
-            Id_t id                = SKILL_ID_HASH.at(effectName);
-            macroFunc.param.int1st = id;
-            int num                = stoi(numStr);
-            macroFunc.param.int2nd = num;
+            Id_t id = SKILL_ID_HASH.at(effectName);
+            condition.params.push_back(id);
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::SkillEnergyLt;
+                condition.func = &Macro::SkillEnergyLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::SkillEnergyLe;
+                condition.func = &Macro::SkillEnergyLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::SkillEnergyEq;
+                condition.func = &Macro::SkillEnergyEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::SkillEnergyNe;
+                condition.func = &Macro::SkillEnergyNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::SkillEnergyGe;
+                condition.func = &Macro::SkillEnergyGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::SkillEnergyGt;
+                condition.func = &Macro::SkillEnergyGt;
             }
         }
-    } else if (regex_search(condition, mat, reg2)) {
+    } else if (regex_search(str, mat, reg2)) {
         std::string conditionType = mat[1];
         std::string effectName    = mat[2];
         Id_t        id            = SKILL_ID_HASH.at(effectName);
-        macroFunc.param.int1st    = id;
+        condition.params.push_back(id);
         if (conditionType == "buff") {
-            macroFunc.macroFuncPtr = &Macro::BuffExist;
+            condition.func = &Macro::BuffExist;
         } else if (conditionType == "nobuff") {
-            macroFunc.macroFuncPtr = &Macro::NoBuffExist;
+            condition.func = &Macro::NoBuffExist;
         } else if (conditionType == "tbuff") {
-            macroFunc.macroFuncPtr = &Macro::TBuffExist;
+            condition.func = &Macro::TBuffExist;
         } else if (conditionType == "tnobuff") {
-            macroFunc.macroFuncPtr = &Macro::TNoBuffExist;
+            condition.func = &Macro::TNoBuffExist;
         } else if (conditionType == "last_skill") {
-            macroFunc.macroFuncPtr = &Macro::LastSkill;
+            condition.func = &Macro::LastSkill;
         }
-    } else if (regex_search(condition, mat, reg3)) {
+    } else if (regex_search(str, mat, reg3)) {
         std::string conditionType = mat[1];
         std::string than          = mat[2];
         std::string numStr        = mat[3];
         if (conditionType == "tlife") {
-            double percent            = stod(numStr);
-            macroFunc.param.double4th = percent;
+            double percent = stod(numStr);
+            condition.params.push_back(percent);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::TLifeLt;
+                condition.func = &Macro::TLifeLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::TLifeLe;
+                condition.func = &Macro::TLifeLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::TLifeEq;
+                condition.func = &Macro::TLifeEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::TLifeNe;
+                condition.func = &Macro::TLifeNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::TLifeGe;
+                condition.func = &Macro::TLifeGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::TLifeGt;
+                condition.func = &Macro::TLifeGt;
             }
         } else if (conditionType == "mana") {
-            double percent            = stod(numStr);
-            macroFunc.param.double4th = percent;
+            double percent = stod(numStr);
+            condition.params.push_back(percent);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::ManaLt;
+                condition.func = &Macro::ManaLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::ManaLe;
+                condition.func = &Macro::ManaLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::ManaEq;
+                condition.func = &Macro::ManaEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::ManaNe;
+                condition.func = &Macro::ManaNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::ManaGe;
+                condition.func = &Macro::ManaGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::ManaGt;
+                condition.func = &Macro::ManaGt;
             }
         } else if (conditionType == "nearby_enemy") {
-            int num                = stoi(numStr);
-            macroFunc.param.int1st = num;
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::ManaLt;
+                condition.func = &Macro::ManaLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::ManaLe;
+                condition.func = &Macro::ManaLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::ManaEq;
+                condition.func = &Macro::ManaEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::ManaNe;
+                condition.func = &Macro::ManaNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::ManaGe;
+                condition.func = &Macro::ManaGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::ManaGt;
+                condition.func = &Macro::ManaGt;
             }
         } else if (conditionType == "qidian") {
-            int num                = stoi(numStr);
-            macroFunc.param.int1st = num;
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::ManaLt;
+                condition.func = &Macro::ManaLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::ManaLe;
+                condition.func = &Macro::ManaLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::ManaEq;
+                condition.func = &Macro::ManaEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::ManaNe;
+                condition.func = &Macro::ManaNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::ManaGe;
+                condition.func = &Macro::ManaGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::ManaGt;
+                condition.func = &Macro::ManaGt;
             }
         } else if (conditionType == "rage") {
-            int num                = stoi(numStr);
-            macroFunc.param.int1st = num;
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::ManaLt;
+                condition.func = &Macro::ManaLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::ManaLe;
+                condition.func = &Macro::ManaLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::ManaEq;
+                condition.func = &Macro::ManaEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::ManaNe;
+                condition.func = &Macro::ManaNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::ManaGe;
+                condition.func = &Macro::ManaGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::ManaGt;
+                condition.func = &Macro::ManaGt;
             }
         } else if (conditionType == "energy") {
-            int num                = stoi(numStr);
-            macroFunc.param.int1st = num;
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::ManaLt;
+                condition.func = &Macro::ManaLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::ManaLe;
+                condition.func = &Macro::ManaLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::ManaEq;
+                condition.func = &Macro::ManaEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::ManaNe;
+                condition.func = &Macro::ManaNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::ManaGe;
+                condition.func = &Macro::ManaGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::ManaGt;
+                condition.func = &Macro::ManaGt;
             }
         } else if (conditionType == "sun") {
-            int num                = stoi(numStr);
-            macroFunc.param.int1st = num;
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::ManaLt;
+                condition.func = &Macro::ManaLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::ManaLe;
+                condition.func = &Macro::ManaLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::ManaEq;
+                condition.func = &Macro::ManaEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::ManaNe;
+                condition.func = &Macro::ManaNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::ManaGe;
+                condition.func = &Macro::ManaGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::ManaGt;
+                condition.func = &Macro::ManaGt;
             }
         } else if (conditionType == "moon") {
-            int num                = stoi(numStr);
-            macroFunc.param.int1st = num;
+            int num = stoi(numStr);
+            condition.params.push_back(num);
             if (than == "<") {
-                macroFunc.macroFuncPtr = &Macro::ManaLt;
+                condition.func = &Macro::ManaLt;
             } else if (than == "<=") {
-                macroFunc.macroFuncPtr = &Macro::ManaLe;
+                condition.func = &Macro::ManaLe;
             } else if (than == "=") {
-                macroFunc.macroFuncPtr = &Macro::ManaEq;
+                condition.func = &Macro::ManaEq;
             } else if (than == "~=") {
-                macroFunc.macroFuncPtr = &Macro::ManaNe;
+                condition.func = &Macro::ManaNe;
             } else if (than == ">=") {
-                macroFunc.macroFuncPtr = &Macro::ManaGe;
+                condition.func = &Macro::ManaGe;
             } else if (than == ">") {
-                macroFunc.macroFuncPtr = &Macro::ManaGt;
+                condition.func = &Macro::ManaGt;
             }
         }
     }
 }
 
-bool Macro::IsReady(const Param &param)
+bool Macro::IsReady(const Params &params)
 {
-    return !m_player->skills[param.int1st]->GetEnableTime();
+    Id_t skillId = params.at(0).paramInt;
+    return !m_player->skills[skillId]->GetEnableTime();
 }
 
-bool Macro::IsNotCast(const Param &param)
+bool Macro::IsNotCast(const Params &params)
 {
     return !m_player->IsCast();
 }
 
-bool Macro::IsNotReCast(const Param &param)
+bool Macro::IsNotReCast(const Params &params)
 {
     return !m_player->IsReCast();
 }
 
-bool Macro::BuffStackNumLt(const Param &param)
+bool Macro::BuffStackCountLt(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetStackCount() < param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetStackCount() < stackCount;
 }
 
-bool Macro::BuffStackNumLe(const Param &param)
+bool Macro::BuffStackCountLe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetStackCount() <= param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetStackCount() <= stackCount;
 }
 
-bool Macro::BuffStackNumEq(const Param &param)
+bool Macro::BuffStackCountEq(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetStackCount() == param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetStackCount() == stackCount;
 }
 
-bool Macro::BuffStackNumNe(const Param &param)
+bool Macro::BuffStackCountNe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetStackCount() != param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetStackCount() != stackCount;
 }
 
-bool Macro::BuffStackNumGe(const Param &param)
+bool Macro::BuffStackCountGe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetStackCount() >= param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetStackCount() >= stackCount;
 }
 
-bool Macro::BuffStackNumGt(const Param &param)
+bool Macro::BuffStackCountGt(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetStackCount() > param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetStackCount() > stackCount;
 }
 
-bool Macro::TBuffStackNumLt(const Param &param)
+bool Macro::TBuffStackCountLt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetStackCount() < param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetStackCount() < stackCount;
 }
 
-bool Macro::TBuffStackNumLe(const Param &param)
+bool Macro::TBuffStackCountLe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetStackCount() <= param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetStackCount() <= stackCount;
 }
 
-bool Macro::TBuffStackNumEq( const Param &param)
+bool Macro::TBuffStackCountEq(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetStackCount() == param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetStackCount() == stackCount;
 }
 
-bool Macro::TBuffStackNumNe(const Param &param)
+bool Macro::TBuffStackCountNe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetStackCount() != param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetStackCount() != stackCount;
 }
 
-bool Macro::TBuffStackNumGe(const Param &param)
+bool Macro::TBuffStackCountGe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetStackCount() >= param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetStackCount() >= stackCount;
 }
 
-bool Macro::TBuffStackNumGt(const Param &param)
+bool Macro::TBuffStackCountGt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetStackCount() > param.int2nd;
+    Id_t buffId     = params.at(0).paramInt;
+    int  stackCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetStackCount() > stackCount;
 }
 
-bool Macro::BuffEffectNumLt(const Param &param)
+bool Macro::BuffEffectCountLt(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetEffectCount() < param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetEffectCount() < effectCount;
 }
 
-bool Macro::BuffEffectNumLe(const Param &param)
+bool Macro::BuffEffectCountLe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetEffectCount() <= param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetEffectCount() <= effectCount;
 }
 
-bool Macro::BuffEffectNumEq(const Param &param)
+bool Macro::BuffEffectCountEq(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetEffectCount() == param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetEffectCount() == effectCount;
 }
 
-bool Macro::BuffEffectNumNe(const Param &param)
+bool Macro::BuffEffectCountNe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetEffectCount() != param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetEffectCount() != effectCount;
 }
 
-bool Macro::BuffEffectNumGe(const Param &param)
+bool Macro::BuffEffectCountGe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetEffectCount() >= param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetEffectCount() >= effectCount;
 }
 
-bool Macro::BuffEffectNumGt(const Param &param)
+bool Macro::BuffEffectCountGt(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetEffectCount() > param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetEffectCount() > effectCount;
 }
 
-bool Macro::TBuffEffectNumLt(const Param &param)
+bool Macro::TBuffEffectCountLt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetEffectCount() < param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetEffectCount() < effectCount;
 }
 
-bool Macro::TBuffEffectNumLe(const Param &param)
+bool Macro::TBuffEffectCountLe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetEffectCount() <= param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetEffectCount() <= effectCount;
 }
 
-bool Macro::TBuffEffectNumEq(const Param &param)
+bool Macro::TBuffEffectCountEq(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetEffectCount() == param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetEffectCount() == effectCount;
 }
 
-bool Macro::TBuffEffectNumNe(const Param &param)
+bool Macro::TBuffEffectCountNe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetEffectCount() != param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetEffectCount() != effectCount;
 }
 
-bool Macro::TBuffEffectNumGe(const Param &param)
+bool Macro::TBuffEffectCountGe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetEffectCount() >= param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetEffectCount() >= effectCount;
 }
 
-bool Macro::TBuffEffectNumGt(const Param &param)
+bool Macro::TBuffEffectCountGt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetEffectCount() > param.int2nd;
+    Id_t buffId      = params.at(0).paramInt;
+    int  effectCount = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetEffectCount() > effectCount;
 }
 
-bool Macro::BuffTimeLt(const Param &param)
+bool Macro::BuffTimeLt(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetRestTime() < param.int2nd;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetRestTime() < frames;
 }
 
-bool Macro::BuffTimeLe(const Param &param)
+bool Macro::BuffTimeLe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetRestTime() <= param.int2nd;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetRestTime() <= frames;
 }
 
-bool Macro::BuffTimeEq(const Param &param)
+bool Macro::BuffTimeEq(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetRestTime() == param.int2nd;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetRestTime() == frames;
 }
 
-bool Macro::BuffTimeNe(const Param &param)
+bool Macro::BuffTimeNe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetRestTime() != param.int2nd;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetRestTime() != frames;
 }
 
-bool Macro::BuffTimeGe(const Param &param)
+bool Macro::BuffTimeGe(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetRestTime() >= param.int2nd;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetRestTime() >= frames;
 }
 
-bool Macro::BuffTimeGt(const Param &param)
+bool Macro::BuffTimeGt(const Params &params)
 {
-    return m_player->buffs[param.int1st]->GetRestTime() > param.int2nd;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_player->buffs[buffId]->GetRestTime() > frames;
 }
 
-bool Macro::TBuffTimeLt(const Param &param)
+bool Macro::TBuffTimeLt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetRestTime() < param.int1st;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetRestTime() < frames;
 }
 
-bool Macro::TBuffTimeLe(const Param &param)
+bool Macro::TBuffTimeLe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetRestTime() <= param.int1st;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetRestTime() <= frames;
 }
 
-bool Macro::TBuffTimeEq(const Param &param)
+bool Macro::TBuffTimeEq(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetRestTime() == param.int1st;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetRestTime() == frames;
 }
 
-bool Macro::TBuffTimeNe(const Param &param)
+bool Macro::TBuffTimeNe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetRestTime() != param.int1st;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetRestTime() != frames;
 }
 
-bool Macro::TBuffTimeGe(const Param &param)
+bool Macro::TBuffTimeGe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetRestTime() >= param.int1st;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetRestTime() >= frames;
 }
 
-bool Macro::TBuffTimeGt(const Param &param)
+bool Macro::TBuffTimeGt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->GetRestTime() > param.int1st;
+    Id_t    buffId = params.at(0).paramInt;
+    Frame_t frames = params.at(1).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->GetRestTime() > frames;
 }
 
-bool Macro::SkillCooldownLt(const Param &param)
+bool Macro::SkillCooldownLt(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetCooldown() < param.int2nd;
+    Id_t    skillId = params.at(0).paramInt;
+    Frame_t frames  = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetCooldown() < frames;
 }
 
-bool Macro::SkillCooldownLe(const Param &param)
+bool Macro::SkillCooldownLe(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetCooldown() <= param.int2nd;
+    Id_t    skillId = params.at(0).paramInt;
+    Frame_t frames  = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetCooldown() <= frames;
 }
 
-bool Macro::SkillCooldownEq(const Param &param)
+bool Macro::SkillCooldownEq(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetCooldown() == param.int2nd;
+    Id_t    skillId = params.at(0).paramInt;
+    Frame_t frames  = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetCooldown() == frames;
 }
 
-bool Macro::SkillCooldownNe(const Param &param)
+bool Macro::SkillCooldownNe(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetCooldown() != param.int2nd;
+    Id_t    skillId = params.at(0).paramInt;
+    Frame_t frames  = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetCooldown() != frames;
 }
 
-bool Macro::SkillCooldownGe(const Param &param)
+bool Macro::SkillCooldownGe(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetCooldown() >= param.int2nd;
+    Id_t    skillId = params.at(0).paramInt;
+    Frame_t frames  = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetCooldown() >= frames;
 }
 
-bool Macro::SkillCooldownGt(const Param &param)
+bool Macro::SkillCooldownGt(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetCooldown() > param.int2nd;
+    Id_t    skillId = params.at(0).paramInt;
+    Frame_t frames  = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetCooldown() > frames;
 }
 
-bool Macro::SkillEnergyLt(const Param &param)
+bool Macro::SkillEnergyLt(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetEnergyCount() < param.int2nd;
+    Id_t skillId     = params.at(0).paramInt;
+    int  energyCount = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetEnergyCount() < energyCount;
 }
 
-bool Macro::SkillEnergyLe(const Param &param)
+bool Macro::SkillEnergyLe(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetEnergyCount() <= param.int2nd;
+    Id_t skillId     = params.at(0).paramInt;
+    int  energyCount = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetEnergyCount() <= energyCount;
 }
 
-bool Macro::SkillEnergyEq(const Param &param)
+bool Macro::SkillEnergyEq(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetEnergyCount() == param.int2nd;
+    Id_t skillId     = params.at(0).paramInt;
+    int  energyCount = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetEnergyCount() == energyCount;
 }
 
-bool Macro::SkillEnergyNe(const Param &param)
+bool Macro::SkillEnergyNe(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetEnergyCount() != param.int2nd;
+    Id_t skillId     = params.at(0).paramInt;
+    int  energyCount = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetEnergyCount() != energyCount;
 }
 
-bool Macro::SkillEnergyGe(const Param &param)
+bool Macro::SkillEnergyGe(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetEnergyCount() >= param.int2nd;
+    Id_t skillId     = params.at(0).paramInt;
+    int  energyCount = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetEnergyCount() >= energyCount;
 }
 
-bool Macro::SkillEnergyGt(const Param &param)
+bool Macro::SkillEnergyGt(const Params &params)
 {
-    return m_player->skills[param.int1st]->GetEnergyCount() > param.int2nd;
+    Id_t skillId     = params.at(0).paramInt;
+    int  energyCount = params.at(1).paramInt;
+    return m_player->skills[skillId]->GetEnergyCount() > energyCount;
 }
 
-bool Macro::TLifeLt(const Param &param)
+bool Macro::TLifeLt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->GetLifePercent() < param.int1st;
+    float lifePercent = params.at(0).paramFloat;
+    return m_targets->at(NORMAL).front()->GetLifePercent() < lifePercent;
 }
 
-bool Macro::TLifeLe(const Param &param)
+bool Macro::TLifeLe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->GetLifePercent() <= param.int1st;
+    float lifePercent = params.at(0).paramFloat;
+    return m_targets->at(NORMAL).front()->GetLifePercent() <= lifePercent;
 }
 
-bool Macro::TLifeEq(const Param &param)
+bool Macro::TLifeEq(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->GetLifePercent() == param.int1st;
+    float lifePercent = params.at(0).paramFloat;
+    return m_targets->at(NORMAL).front()->GetLifePercent() == lifePercent;
 }
 
-bool Macro::TLifeNe(const Param &param)
+bool Macro::TLifeNe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->GetLifePercent() != param.int1st;
+    float lifePercent = params.at(0).paramFloat;
+    return m_targets->at(NORMAL).front()->GetLifePercent() != lifePercent;
 }
 
-bool Macro::TLifeGe(const Param &param)
+bool Macro::TLifeGe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->GetLifePercent() >= param.int1st;
+    float lifePercent = params.at(0).paramFloat;
+    return m_targets->at(NORMAL).front()->GetLifePercent() >= lifePercent;
 }
 
-bool Macro::TLifeGt(const Param &param)
+bool Macro::TLifeGt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->GetLifePercent() > param.int1st;
+    float lifePercent = params.at(0).paramFloat;
+    return m_targets->at(NORMAL).front()->GetLifePercent() > lifePercent;
 }
 
-bool Macro::ManaLt(const Param &param)
+bool Macro::ManaLt(const Params &params)
 {
     return true;
 }
 
-bool Macro::ManaLe(const Param &param)
+bool Macro::ManaLe(const Params &params)
 {
     return true;
 }
 
-bool Macro::ManaEq(const Param &param)
+bool Macro::ManaEq(const Params &params)
 {
     return true;
 }
 
-bool Macro::ManaNe(const Param &param)
+bool Macro::ManaNe(const Params &params)
 {
     return true;
 }
 
-bool Macro::ManaGe(const Param &param)
+bool Macro::ManaGe(const Params &params)
 {
     return true;
 }
 
-bool Macro::ManaGt(const Param &param)
+bool Macro::ManaGt(const Params &params)
 {
     return true;
 }
 
-bool Macro::NearbyEnemyLt(const Param &param)
+bool Macro::NearbyEnemyLt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].size() < static_cast<unsigned>(param.int1st);
+    int count = params.at(0).paramInt;
+    return m_targets->at(NORMAL).size() < static_cast<unsigned>(count);
 }
 
-bool Macro::NearbyEnemyLe(const Param &param)
+bool Macro::NearbyEnemyLe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].size() <= static_cast<unsigned>(param.int1st);
+    int count = params.at(0).paramInt;
+    return m_targets->at(NORMAL).size() <= static_cast<unsigned>(count);
 }
 
-bool Macro::NearbyEnemyEq(const Param &param)
+bool Macro::NearbyEnemyEq(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].size() == static_cast<unsigned>(param.int1st);
+    int count = params.at(0).paramInt;
+    return m_targets->at(NORMAL).size() == static_cast<unsigned>(count);
 }
 
-bool Macro::NearbyEnemyNe(const Param &param)
+bool Macro::NearbyEnemyNe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].size() != static_cast<unsigned>(param.int1st);
+    int count = params.at(0).paramInt;
+    return m_targets->at(NORMAL).size() != static_cast<unsigned>(count);
 }
 
-bool Macro::NearbyEnemyGe(const Param &param)
+bool Macro::NearbyEnemyGe(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].size() >= static_cast<unsigned>(param.int1st);
+    int count = params.at(0).paramInt;
+    return m_targets->at(NORMAL).size() >= static_cast<unsigned>(count);
 }
 
-bool Macro::NearbyEnemyGt(const Param &param)
+bool Macro::NearbyEnemyGt(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].size() > static_cast<unsigned>(param.int1st);
+    int count = params.at(0).paramInt;
+    return m_targets->at(NORMAL).size() > static_cast<unsigned>(count);
 }
 
-bool Macro::QidianLt(const Param &param)
+bool Macro::QidianLt(const Params &params)
 {
-    return static_cast<TaiXuJianYi::TaiXuJianYi *>(m_player)->GetQidian() < param.int1st;
+    int count = params.at(0).paramInt;
+    return m_player->GetQidian() < count;
 }
 
-bool Macro::QidianLe(const Param &param)
+bool Macro::QidianLe(const Params &params)
 {
-    return static_cast<TaiXuJianYi::TaiXuJianYi *>(m_player)->GetQidian() <= param.int1st;
+    int count = params.at(0).paramInt;
+    return m_player->GetQidian() <= count;
 }
 
-bool Macro::QidianEq(const Param &param)
+bool Macro::QidianEq(const Params &params)
 {
-    return static_cast<TaiXuJianYi::TaiXuJianYi *>(m_player)->GetQidian() == param.int1st;
+    int count = params.at(0).paramInt;
+    return m_player->GetQidian() == count;
 }
 
-bool Macro::QidianNe(const Param &param)
+bool Macro::QidianNe(const Params &params)
 {
-    return static_cast<TaiXuJianYi::TaiXuJianYi *>(m_player)->GetQidian() != param.int1st;
+    int count = params.at(0).paramInt;
+    return m_player->GetQidian() != count;
 }
 
-bool Macro::QidianGe(const Param &param)
+bool Macro::QidianGe(const Params &params)
 {
-    return static_cast<TaiXuJianYi::TaiXuJianYi *>(m_player)->GetQidian() >= param.int1st;
+    int count = params.at(0).paramInt;
+    return m_player->GetQidian() >= count;
 }
 
-bool Macro::QidianGt(const Param &param)
+bool Macro::QidianGt(const Params &params)
 {
-    return static_cast<TaiXuJianYi::TaiXuJianYi *>(m_player)->GetQidian() > param.int1st;
+    int count = params.at(0).paramInt;
+    return m_player->GetQidian() > count;
 }
 
-bool Macro::RageLt(const Param &param)
+bool Macro::RageLt(const Params &params)
 {
     return true;
 }
 
-bool Macro::RageLe(const Param &param)
+bool Macro::RageLe(const Params &params)
 {
     return true;
 }
 
-bool Macro::RageEq(const Param &param)
+bool Macro::RageEq(const Params &params)
 {
     return true;
 }
 
-bool Macro::RageNe(const Param &param)
+bool Macro::RageNe(const Params &params)
 {
     return true;
 }
 
-bool Macro::RageGe(const Param &param)
+bool Macro::RageGe(const Params &params)
 {
     return true;
 }
 
-bool Macro::RageGt(const Param &param)
+bool Macro::RageGt(const Params &params)
 {
     return true;
 }
 
-bool Macro::EnergyLt(const Param &param)
+bool Macro::EnergyLt(const Params &params)
 {
     return true;
 }
 
-bool Macro::EnergyLe(const Param &param)
+bool Macro::EnergyLe(const Params &params)
 {
     return true;
 }
 
-bool Macro::EnergyEq(const Param &param)
+bool Macro::EnergyEq(const Params &params)
 {
     return true;
 }
 
-bool Macro::EnergyNe(const Param &param)
+bool Macro::EnergyNe(const Params &params)
 {
     return true;
 }
 
-bool Macro::EnergyGe(const Param &param)
+bool Macro::EnergyGe(const Params &params)
 {
     return true;
 }
 
-bool Macro::EnergyGt(const Param &param)
+bool Macro::EnergyGt(const Params &params)
 {
     return true;
 }
 
-bool Macro::SunLt(const Param &param)
+bool Macro::SunLt(const Params &params)
 {
     return true;
 }
 
-bool Macro::SunLe(const Param &param)
+bool Macro::SunLe(const Params &params)
 {
     return true;
 }
 
-bool Macro::SunEq(const Param &param)
+bool Macro::SunEq(const Params &params)
 {
     return true;
 }
 
-bool Macro::SunNe(const Param &param)
+bool Macro::SunNe(const Params &params)
 {
     return true;
 }
 
-bool Macro::SunGe(const Param &param)
+bool Macro::SunGe(const Params &params)
 {
     return true;
 }
 
-bool Macro::SunGt(const Param &param)
+bool Macro::SunGt(const Params &params)
 {
     return true;
 }
 
-bool Macro::MoonLt(const Param &param)
+bool Macro::MoonLt(const Params &params)
 {
     return true;
 }
 
-bool Macro::MoonLe(const Param &param)
+bool Macro::MoonLe(const Params &params)
 {
     return true;
 }
 
-bool Macro::MoonEq(const Param &param)
+bool Macro::MoonEq(const Params &params)
 {
     return true;
 }
 
-bool Macro::MoonNe(const Param &param)
+bool Macro::MoonNe(const Params &params)
 {
     return true;
 }
 
-bool Macro::MoonGe(const Param &param)
+bool Macro::MoonGe(const Params &params)
 {
     return true;
 }
 
-bool Macro::MoonGt(const Param &param)
+bool Macro::MoonGt(const Params &params)
 {
     return true;
 }
 
-bool Macro::SunPower(const Param &param)
+bool Macro::SunPower(const Params &params)
 {
     return true;
 }
 
-bool Macro::MoonPower(const Param &param)
+bool Macro::MoonPower(const Params &params)
 {
     return true;
 }
 
-bool Macro::BuffExist(const Param &param)
+bool Macro::BuffExist(const Params &params)
 {
-    return m_player->buffs[param.int1st]->IsExist();
+    Id_t buffId = params.at(0).paramInt;
+    return m_player->buffs[buffId]->IsExist();
 }
 
-bool Macro::NoBuffExist(const Param &param)
+bool Macro::NoBuffExist(const Params &params)
 {
-    return !m_player->buffs[param.int1st]->IsExist();
+    Id_t buffId = params.at(0).paramInt;
+    return !m_player->buffs[buffId]->IsExist();
 }
 
-bool Macro::TBuffExist(const Param &param)
+bool Macro::TBuffExist(const Params &params)
 {
-    return (*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->IsExist();
+    Id_t buffId = params.at(0).paramInt;
+    return m_targets->at(NORMAL).front()->buffs[buffId]->IsExist();
 }
 
-bool Macro::TNoBuffExist(const Param &param)
+bool Macro::TNoBuffExist(const Params &params)
 {
-    return !(*m_targetsMap)[NORMAL].front()->buffs[param.int1st]->IsExist();
+    Id_t buffId = params.at(0).paramInt;
+    return !m_targets->at(NORMAL).front()->buffs[buffId]->IsExist();
 }
 
-bool Macro::LastSkill(const Param &param)
+bool Macro::LastSkill(const Params &params)
 {
-    return m_player->GetLastSkill() == static_cast<Id_t>(param.int1st);
+    Id_t skillId = params.at(0).paramInt;
+    return m_player->GetLastSkill() == skillId;
 }
 
 } // namespace JX3DPS

@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-02 16:30:03
  * @Update      : NoWats
- * @LastTime    : 2022-02-05 17:10:23
+ * @LastTime    : 2022-02-06 13:12:10
  * @FilePath    : \JX3DPS\modules\Core\Macro.h
  */
 
@@ -12,6 +12,8 @@
 
 #include <string>
 #include <list>
+
+#include "Common/ConstVal.h"
 
 #if defined _WIN32 || defined __CYGWIN__
 #    if defined EXPORT_JX3DPS_CORE // CMake add_definitions
@@ -48,6 +50,8 @@
 
 namespace JX3DPS {
 
+class Player;
+
 class JX3DPS_CORE_API Macro
 {
 public:
@@ -59,139 +63,138 @@ public:
     bool Parse(const std::string &line);
 
 private:
-    bool ParseCondition(const std::string &condition, MacroFunc &macroFunc);
+    bool ParseCondition(const std::string &str, Condition &condition);
 
-    bool IsReady(const Param &param);
-    bool IsNotCast(const Param &param);
-    bool IsNotReCast(const Param &param);
+    bool IsReady(const Params &params);
+    bool IsNotCast(const Params &params);
+    bool IsNotReCast(const Params &params);
 
-    bool BuffStackNumLt(const Param &param);
-    bool BuffStackNumLe(const Param &param);
-    bool BuffStackNumEq(const Param &param);
-    bool BuffStackNumNe(const Param &param);
-    bool BuffStackNumGe(const Param &param);
-    bool BuffStackNumGt(const Param &param);
+    bool BuffStackCountLt(const Params &params);
+    bool BuffStackCountLe(const Params &params);
+    bool BuffStackCountEq(const Params &params);
+    bool BuffStackCountNe(const Params &params);
+    bool BuffStackCountGe(const Params &params);
+    bool BuffStackCountGt(const Params &params);
 
-    bool TBuffStackNumLt(const Param &param);
-    bool TBuffStackNumLe(const Param &param);
-    bool TBuffStackNumEq(const Param &param);
-    bool TBuffStackNumNe(const Param &param);
-    bool TBuffStackNumGe(const Param &param);
-    bool TBuffStackNumGt(const Param &param);
+    bool TBuffStackCountLt(const Params &params);
+    bool TBuffStackCountLe(const Params &params);
+    bool TBuffStackCountEq(const Params &params);
+    bool TBuffStackCountNe(const Params &params);
+    bool TBuffStackCountGe(const Params &params);
+    bool TBuffStackCountGt(const Params &params);
 
-    bool BuffEffectNumLt(const Param &param);
-    bool BuffEffectNumLe(const Param &param);
-    bool BuffEffectNumEq(const Param &param);
-    bool BuffEffectNumNe(const Param &param);
-    bool BuffEffectNumGe(const Param &param);
-    bool BuffEffectNumGt(const Param &param);
+    bool BuffEffectCountLt(const Params &params);
+    bool BuffEffectCountLe(const Params &params);
+    bool BuffEffectCountEq(const Params &params);
+    bool BuffEffectCountNe(const Params &params);
+    bool BuffEffectCountGe(const Params &params);
+    bool BuffEffectCountGt(const Params &params);
 
-    bool TBuffEffectNumLt(const Param &param);
-    bool TBuffEffectNumLe(const Param &param);
-    bool TBuffEffectNumEq(const Param &param);
-    bool TBuffEffectNumNe(const Param &param);
-    bool TBuffEffectNumGe(const Param &param);
-    bool TBuffEffectNumGt(const Param &param);
+    bool TBuffEffectCountLt(const Params &params);
+    bool TBuffEffectCountLe(const Params &params);
+    bool TBuffEffectCountEq(const Params &params);
+    bool TBuffEffectCountNe(const Params &params);
+    bool TBuffEffectCountGe(const Params &params);
+    bool TBuffEffectCountGt(const Params &params);
 
-    bool BuffTimeLt(const Param &param);
-    bool BuffTimeLe(const Param &param);
-    bool BuffTimeEq(const Param &param);
-    bool BuffTimeNe(const Param &param);
-    bool BuffTimeGe(const Param &param);
-    bool BuffTimeGt(const Param &param);
+    bool BuffTimeLt(const Params &params);
+    bool BuffTimeLe(const Params &params);
+    bool BuffTimeEq(const Params &params);
+    bool BuffTimeNe(const Params &params);
+    bool BuffTimeGe(const Params &params);
+    bool BuffTimeGt(const Params &params);
 
-    bool TBuffTimeLt(const Param &param);
-    bool TBuffTimeLe(const Param &param);
-    bool TBuffTimeEq(const Param &param);
-    bool TBuffTimeNe(const Param &param);
-    bool TBuffTimeGe(const Param &param);
-    bool TBuffTimeGt(const Param &param);
+    bool TBuffTimeLt(const Params &params);
+    bool TBuffTimeLe(const Params &params);
+    bool TBuffTimeEq(const Params &params);
+    bool TBuffTimeNe(const Params &params);
+    bool TBuffTimeGe(const Params &params);
+    bool TBuffTimeGt(const Params &params);
 
-    bool SkillCooldownLt(const Param &param);
-    bool SkillCooldownLe(const Param &param);
-    bool SkillCooldownEq(const Param &param);
-    bool SkillCooldownNe(const Param &param);
-    bool SkillCooldownGe(const Param &param);
-    bool SkillCooldownGt(const Param &param);
+    bool SkillCooldownLt(const Params &params);
+    bool SkillCooldownLe(const Params &params);
+    bool SkillCooldownEq(const Params &params);
+    bool SkillCooldownNe(const Params &params);
+    bool SkillCooldownGe(const Params &params);
+    bool SkillCooldownGt(const Params &params);
 
-    bool SkillEnergyLt(const Param &param);
-    bool SkillEnergyLe(const Param &param);
-    bool SkillEnergyEq(const Param &param);
-    bool SkillEnergyNe(const Param &param);
-    bool SkillEnergyGe(const Param &param);
-    bool SkillEnergyGt(const Param &param);
+    bool SkillEnergyLt(const Params &params);
+    bool SkillEnergyLe(const Params &params);
+    bool SkillEnergyEq(const Params &params);
+    bool SkillEnergyNe(const Params &params);
+    bool SkillEnergyGe(const Params &params);
+    bool SkillEnergyGt(const Params &params);
 
-    bool TLifeLt(const Param &param);
-    bool TLifeLe(const Param &param);
-    bool TLifeEq(const Param &param);
-    bool TLifeNe(const Param &param);
-    bool TLifeGe(const Param &param);
-    bool TLifeGt(const Param &param);
+    bool TLifeLt(const Params &params);
+    bool TLifeLe(const Params &params);
+    bool TLifeEq(const Params &params);
+    bool TLifeNe(const Params &params);
+    bool TLifeGe(const Params &params);
+    bool TLifeGt(const Params &params);
 
-    bool ManaLt(const Param &param);
-    bool ManaLe(const Param &param);
-    bool ManaEq(const Param &param);
-    bool ManaNe(const Param &param);
-    bool ManaGe(const Param &param);
-    bool ManaGt(const Param &param);
+    bool ManaLt(const Params &params);
+    bool ManaLe(const Params &params);
+    bool ManaEq(const Params &params);
+    bool ManaNe(const Params &params);
+    bool ManaGe(const Params &params);
+    bool ManaGt(const Params &params);
 
-    bool NearbyEnemyLt(const Param &param);
-    bool NearbyEnemyLe(const Param &param);
-    bool NearbyEnemyEq(const Param &param);
-    bool NearbyEnemyNe(const Param &param);
-    bool NearbyEnemyGe(const Param &param);
-    bool NearbyEnemyGt(const Param &param);
+    bool NearbyEnemyLt(const Params &params);
+    bool NearbyEnemyLe(const Params &params);
+    bool NearbyEnemyEq(const Params &params);
+    bool NearbyEnemyNe(const Params &params);
+    bool NearbyEnemyGe(const Params &params);
+    bool NearbyEnemyGt(const Params &params);
 
-    bool QidianLt(const Param &param);
-    bool QidianLe(const Param &param);
-    bool QidianEq(const Param &param);
-    bool QidianNe(const Param &param);
-    bool QidianGe(const Param &param);
-    bool QidianGt(const Param &param);
+    bool QidianLt(const Params &params);
+    bool QidianLe(const Params &params);
+    bool QidianEq(const Params &params);
+    bool QidianNe(const Params &params);
+    bool QidianGe(const Params &params);
+    bool QidianGt(const Params &params);
 
-    bool RageLt(const Param &param);
-    bool RageLe(const Param &param);
-    bool RageEq(const Param &param);
-    bool RageNe(const Param &param);
-    bool RageGe(const Param &param);
-    bool RageGt(const Param &param);
+    bool RageLt(const Params &params);
+    bool RageLe(const Params &params);
+    bool RageEq(const Params &params);
+    bool RageNe(const Params &params);
+    bool RageGe(const Params &params);
+    bool RageGt(const Params &params);
 
-    bool EnergyLt(const Param &param);
-    bool EnergyLe(const Param &param);
-    bool EnergyEq(const Param &param);
-    bool EnergyNe(const Param &param);
-    bool EnergyGe(const Param &param);
-    bool EnergyGt(const Param &param);
+    bool EnergyLt(const Params &params);
+    bool EnergyLe(const Params &params);
+    bool EnergyEq(const Params &params);
+    bool EnergyNe(const Params &params);
+    bool EnergyGe(const Params &params);
+    bool EnergyGt(const Params &params);
 
-    bool SunLt(const Param &param);
-    bool SunLe(const Param &param);
-    bool SunEq(const Param &param);
-    bool SunNe(const Param &param);
-    bool SunGe(const Param &param);
-    bool SunGt(const Param &param);
+    bool SunLt(const Params &params);
+    bool SunLe(const Params &params);
+    bool SunEq(const Params &params);
+    bool SunNe(const Params &params);
+    bool SunGe(const Params &params);
+    bool SunGt(const Params &params);
 
-    bool MoonLt(const Param &param);
-    bool MoonLe(const Param &param);
-    bool MoonEq(const Param &param);
-    bool MoonNe(const Param &param);
-    bool MoonGe(const Param &param);
-    bool MoonGt(const Param &param);
+    bool MoonLt(const Params &params);
+    bool MoonLe(const Params &params);
+    bool MoonEq(const Params &params);
+    bool MoonNe(const Params &params);
+    bool MoonGe(const Params &params);
+    bool MoonGt(const Params &params);
 
-    bool SunPower(const Param &param);
-    bool MoonPower(const Param &param);
+    bool SunPower(const Params &params);
+    bool MoonPower(const Params &params);
 
-    bool BuffExist(const Param &param);
-    bool NoBuffExist(const Param &param);
-    bool TBuffExist(const Param &param);
-    bool TNoBuffExist(const Param &param);
+    bool BuffExist(const Params &params);
+    bool NoBuffExist(const Params &params);
+    bool TBuffExist(const Params &params);
+    bool TNoBuffExist(const Params &params);
 
-    bool LastSkill(const Param &param);
+    bool LastSkill(const Params &params);
 
-    Macros      m_publicMacros;
-    Macros      m_otherMacros;
-    ForceMacros m_forceMacros;
-    Player     *m_player;
-    TargetsMap *m_targetsMap;
+    Macros   m_publicMacros;
+    Macros   m_otherMacros;
+    Player  *m_player;
+    Targets *m_targets;
 };
 
 } // namespace JX3DPS

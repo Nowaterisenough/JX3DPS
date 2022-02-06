@@ -1,5 +1,5 @@
 function(VERSION)
-    file(READ "${CMAKE_CURRENT_LIST_DIR}/modules/Common/Version.h" FILE_TEXT)
+    file(READ "${CMAKE_CURRENT_LIST_DIR}/modules/JX3DPS/Common/Version.h" FILE_TEXT)
 
     string(REGEX MATCH "VERSION_MAJOR[ ]+([0-9]+)" _ "${FILE_TEXT}")
     if(NOT CMAKE_MATCH_COUNT EQUAL 1)

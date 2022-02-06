@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 include(cmake/utils.cmake)                                                      
-VERSION() 
+VERSION()
 
 # 设置项目名称&版本
 project(JX3DPS VERSION ${PROJECT_VERSION})

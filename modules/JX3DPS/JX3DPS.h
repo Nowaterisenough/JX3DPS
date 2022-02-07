@@ -53,6 +53,7 @@ namespace Simulator {
 
 JX3DPS_API void        Init();
 JX3DPS_API const char *Version();
+JX3DPS_API const char *Branch();
 
 } // namespace Simulator
 

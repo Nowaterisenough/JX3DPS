@@ -18,7 +18,7 @@ Widget::Widget(QWidget *parent)
 {
     this->setWindowTitle("JX3DPS");
     QPushButton *btn = new QPushButton(JX3DPS::Simulator::Version(), this);
-
+    QPushButton *btn2 = new QPushButton(JX3DPS::Simulator::Branch(), this);
 }
 
 Widget::~Widget()

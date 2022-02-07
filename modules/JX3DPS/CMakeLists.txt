@@ -33,10 +33,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 install(TARGETS ${PROJECT_NAME}
     EXPORT ${PROJECT_NAME}Targets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    PUBLIC_HEADER DESTINATION include
+    LIBRARY DESTINATION ${PROJECT_NAME}/lib
+    ARCHIVE DESTINATION ${PROJECT_NAME}/lib
+    RUNTIME DESTINATION ${PROJECT_NAME}/bin
+    PUBLIC_HEADER DESTINATION ${PROJECT_NAME}/include
 )
 
 include(CMakePackageConfigHelpers)
@@ -48,18 +48,25 @@ write_basic_package_version_file(
 
 install(EXPORT ${PROJECT_NAME}Targets
     FILE ${PROJECT_NAME}Targets.cmake
-    NAMESPACE JX3DPS::
-    DESTINATION "lib/cmake/${PROJECT_NAME}"
+    #NAMESPACE JX3DPS::
+    DESTINATION "${PROJECT_NAME}/lib/cmake/${PROJECT_NAME}"
 )
 
 configure_package_config_file(
     ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in       # <input>
     ${PROJECT_NAME}Config.cmake                     # <output>
-    INSTALL_DESTINATION "lib/cmake/${PROJECT_NAME}"
+    INSTALL_DESTINATION "${PROJECT_NAME}/lib/cmake/${PROJECT_NAME}"
 )
+
+if(NOT BUILD_SHARED_LIBS)
+    file(APPEND
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake 
+        "add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)\n"
+    )
+endif(NOT BUILD_SHARED_LIBS)
 
 install(FILES 
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-    DESTINATION "lib/cmake/${PROJECT_NAME}"
+    DESTINATION "${PROJECT_NAME}/lib/cmake/${PROJECT_NAME}"
 )

@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-06 20:22:22
  * @Update      : NoWats
- * @LastTime    : 2022-02-07 00:01:23
+ * @LastTime    : 2022-02-07 23:54:03
  * @FilePath    : \JX3DPS\modules\JX3DPS\JX3DPS.h
  */
 
@@ -21,7 +21,11 @@
 #        ifdef __GNUC__
 #            define JX3DPS_API __attribute__(dllimport)
 #        else
-#            define JX3DPS_API __declspec(dllimport)
+#            ifndef IMPORT_STATIC_JX3DPS_LIB
+#                define JX3DPS_API __declspec(dllimport)
+#            else
+#                define JX3DPS_API
+#            endif
 #        endif // __GNUC__
 #    endif     // EXPORT_JX3DPS
 #    define JX3DPS_PRIVATE
@@ -47,9 +51,10 @@ namespace JX3DPS {
 
 namespace Simulator {
 
-JX3DPS_API void Init();
+JX3DPS_API void        Init();
+JX3DPS_API const char *Version();
 
-}
+} // namespace Simulator
 
 } // namespace JX3DPS
 

@@ -3,16 +3,18 @@
  * @Author      : NoWats
  * @Date        : 2022-01-26 22:28:25
  * @Update      : NoWats
- * @LastTime    : 2022-02-07 00:11:30
+ * @LastTime    : 2022-02-07 00:18:30
  * @FilePath    : \JX3DPS\app\JX3DPS Application\main.cpp
  */
 
-#include <iostream>
+#include <QApplication>
 
-#include "JX3DPS/JX3DPS.h"
+#include "Widget.h"
 
 int main(int argc, char *argv[])
 {
-    JX3DPS::Simulator::Init();
-    return 0;
+    QApplication a(argc, argv);
+    Widget w;
+    w.show();
+    return a.exec();
 }

@@ -17,9 +17,6 @@ add_definitions(-DVERSION_BRANCH=${VERSION_BRANCH})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules)
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-
 # install路径
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     if(NOT CMAKE_TOOLCHAIN_FILE)
@@ -33,10 +30,13 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     endif()
 endif()
 
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+
 # CMake选项 动态库编译
 option(BUILD_SHARED_LIBS "option for build" ON)
 if(BUILD_SHARED_LIBS)
     set(BUILD_LIBS_TYPE SHARED)
+    set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 else()
     set(BUILD_LIBS_TYPE STATIC)
 endif()
@@ -76,3 +76,4 @@ option(BUILD_TEST "option for build" OFF)
 if(BUILD_TEST)
     add_subdirectory(tests)
 endif()
+

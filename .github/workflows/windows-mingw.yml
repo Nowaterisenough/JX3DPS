@@ -56,7 +56,7 @@ jobs:
         shell: cmd
         run: |
           cmake -S . -B ./build -G "MinGW Makefiles"
-          mingw32-make
+          cmake --build ./build --target install --config Release
       - name: package
         id: package      
         env:

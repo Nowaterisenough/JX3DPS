@@ -2,18 +2,22 @@ name: Windows MinGW
 on: 
   push:
     paths:
-      - '*.pro'
-      - 'src/**'
       - '.github/workflows/windows-mingw.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
   pull_request:
     paths:
-      - '*.pro'
-      - 'src/**'
-      - '.github/workflows/windows-mingw.yml' 
+      - '.github/workflows/windows-mingw.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
 jobs:
   build:
     name: Build
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       matrix:
         include:

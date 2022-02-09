@@ -2,14 +2,18 @@ name: MacOS
 on: 
   push:
     paths:
-      - '*.pro'
-      - 'src/**'
       - '.github/workflows/macos.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
   pull_request:
     paths:
-      - '*.pro'
-      - 'src/**'
-      - '.github/workflows/macos.yml' 
+      - '.github/workflows/macos.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
 jobs:
   build:
     name: Build
@@ -17,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-11.0]
-        qt_ver: [5.15.2,6.2.2]
+        qt_ver: [6.2.2]
         qt_arch: [clang_64]
     env:
       targetName: JX3DPS

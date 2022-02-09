@@ -4,9 +4,17 @@ on:
   push:
     paths:
       - '.github/workflows/ubuntu.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
   pull_request:
     paths:
       - '.github/workflows/ubuntu.yml' 
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
 jobs:
   build:
     name: Build
@@ -14,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04]
-        qt_ver: [5.15.2,6.2.2]
+        qt_ver: [6.2.2]
         qt_arch: [gcc_64]
         exclude: 
           # Qt6.2.2 need GLIBC_2.28, ubuntu 18.04 have not.

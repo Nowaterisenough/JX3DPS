@@ -46,7 +46,7 @@ jobs:
       - name: build macos
         run: |
           cmake -S . -B ./build
-          cmake --build ./build --target install --config Release
+          cmake --build ./build --config Release
       # 打包
       - name: package
         run: |

@@ -27,8 +27,8 @@ function Main() {
 
     New-Item -ItemType Directory $archiveName
     # 拷贝exe
-    Copy-Item build\install\bin\JX3DPS Application\$targetName $archiveName\
-    Copy-Item build\install\bin\JX3DPS\JX3DPS.dll $archiveName\
+    Copy-Item build\bin\$targetName $archiveName\
+    Copy-Item build\bin\JX3DPS.dll $archiveName\
     # 拷贝依赖
     windeployqt --qmldir . --plugindir $archiveName\plugins --no-translations --compiler-runtime $archiveName\$targetName
     # 删除不必要的文件

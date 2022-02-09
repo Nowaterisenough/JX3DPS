@@ -35,4 +35,4 @@ jobs:
       - name: build ubuntu
         run: |
           cmake -S . -B ./build
-          cmake --build ./build --target install --config Release
+          cmake --build ./build --config Release

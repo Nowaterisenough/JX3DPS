@@ -62,7 +62,7 @@ if(BUILD_SHARED_LIBS AND WIN32)
         COMMAND ${DEPLOYQT_EXECUTABLE}
                 --verbose 1
                 --no-svg
-                --no-angle
+                # --no-angle
                 --no-opengl
                 --no-opengl-sw
                 --no-compiler-runtime

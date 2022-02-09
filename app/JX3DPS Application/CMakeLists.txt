@@ -69,7 +69,7 @@ if(BUILD_SHARED_LIBS AND WIN32)
                 --no-compiler-runtime
                 --no-system-d3d-compiler
                 "$<TARGET_FILE:${PROJECT_NAME}>"
-            --$<LOWER_CASE:$<CONFIG>> --qmldir ${CMAKE_SOURCE_DIR}
+            # --$<LOWER_CASE:$<CONFIG>> --qmldir ${CMAKE_SOURCE_DIR}
     )
 elseif(NOT BUILD_SHARED_LIBS)
     add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)

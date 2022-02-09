@@ -64,7 +64,7 @@ jobs:
       - name: package
         id: package
         env:
-          archiveName: ${{ env:projectName }}-win64
+          archiveName: ${env:projectName}-win64
           msvcArch: ${{ matrix.msvc_arch }}
         shell: pwsh
         run: |

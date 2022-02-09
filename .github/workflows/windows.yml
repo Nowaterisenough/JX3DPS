@@ -64,7 +64,7 @@ jobs:
       - name: package
         id: package
         env:
-          archiveName: ${{ projectName }}
+          archiveName: ${{ matrix.qt_ver }}
           msvcArch: ${{ matrix.msvc_arch }}
         shell: pwsh
         run: |

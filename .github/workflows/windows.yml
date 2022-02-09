@@ -4,9 +4,17 @@ on:
   push:
     paths:
       - '.github/workflows/windows.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
   pull_request:
     paths:
       - '.github/workflows/windows.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
 jobs:
   build:
     name: Build

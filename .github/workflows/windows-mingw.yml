@@ -55,8 +55,8 @@ jobs:
         id: build
         shell: cmd
         run: |
-          cmake -S . -B ./build
-          cmake --build ./build --target install --config Release
+          cmake -S . -B ./build -G "MinGW Makefiles"
+          mingw32-make
       - name: package
         id: package      
         env:

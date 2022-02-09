@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-06 20:22:22
  * @Update      : NoWats
- * @LastTime    : 2022-02-07 23:54:03
+ * @LastTime    : 2022-02-08 21:29:36
  * @FilePath    : \JX3DPS\modules\JX3DPS\JX3DPS.h
  */
 
@@ -49,11 +49,24 @@
 
 namespace JX3DPS {
 
+/**
+ * @brief 名称
+ */
+JX3DPS_API const char *Name();
+
+/**
+ * @brief 版本号
+ */
+JX3DPS_API const char *Version();
+
+/**
+ * @brief 分支来源
+ */
+JX3DPS_API const char *Branch();
+
 namespace Simulator {
 
-JX3DPS_API void        Init();
-JX3DPS_API const char *Version();
-JX3DPS_API const char *Branch();
+JX3DPS_API void Init();
 
 } // namespace Simulator
 

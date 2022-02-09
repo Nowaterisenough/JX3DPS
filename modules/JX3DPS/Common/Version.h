@@ -59,6 +59,8 @@ namespace JX3DPS {
 const char *const VERSION =
     STR(VERSION_MAJOR) "." STR(VERSION_MINOR) "." STR(VERSION_PATCH) "." STR(VERSION_TWEAK);
 const char *const BRANCH = STR(VERSION_BRANCH);
+const char *const NAME = STR(PROJECT_NAME);
+
 
 } // namespace JX3DPS
 

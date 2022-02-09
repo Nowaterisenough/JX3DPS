@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-06 20:22:30
  * @Update      : NoWats
- * @LastTime    : 2022-02-08 00:32:54
+ * @LastTime    : 2022-02-08 23:52:35
  * @FilePath    : \JX3DPS\modules\JX3DPS\JX3DPS.cpp
  */
 
@@ -29,6 +29,11 @@ public:
         // std::cout << "SimulatorImpl::Init() succeed." << std::endl;
     }
 
+    const char *Name() const
+    {
+        return JX3DPS::NAME;
+    }
+
     const char *Version() const
     {
         return JX3DPS::VERSION;
@@ -42,17 +47,15 @@ public:
 private:
     SimulatorImpl()
     {
-        std::cout << "JX3DPS" << std::endl;
+        std::cout << JX3DPS::NAME << std::endl;
         std::cout << "VERSION: " << JX3DPS::VERSION << std::endl;
         std::cout << "BRANCH: " << JX3DPS::BRANCH << std::endl;
     }
 };
 
-namespace Simulator {
-
-void Init()
+const char *Name()
 {
-    SimulatorImpl::Instance()->Init();
+    return SimulatorImpl::Instance()->Name();
 }
 
 const char *Version()
@@ -63,6 +66,13 @@ const char *Version()
 const char *Branch()
 {
     return SimulatorImpl::Instance()->Branch();
+}
+
+namespace Simulator {
+
+void Init()
+{
+    SimulatorImpl::Instance()->Init();
 }
 
 } // namespace Simulator

@@ -7,6 +7,7 @@ on:
       - 'app/*'
       - 'module/*'
       - 'cmake/*'
+      - 'CMakeLists.txt'
   pull_request:
     paths:
       - '.github/workflows/windows-mingw.yml'
@@ -14,6 +15,7 @@ on:
       - 'app/*'
       - 'module/*'
       - 'cmake/*'
+      - 'CMakeLists.txt'
 jobs:
   build:
     name: Build

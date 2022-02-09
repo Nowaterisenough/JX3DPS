@@ -4,9 +4,19 @@ on:
   push:
     paths:
       - '.github/workflows/windows.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
+      - 'CMakeLists.txt'
   pull_request:
     paths:
       - '.github/workflows/windows.yml'
+      - '3rd/*'
+      - 'app/*'
+      - 'module/*'
+      - 'cmake/*'
+      - 'CMakeLists.txt'
 jobs:
   build:
     name: Build
@@ -27,8 +37,7 @@ jobs:
           #   qt_arch: win64_msvc2019_64
           #   msvc_arch: x64
           #   qt_arch_install: msvc2019_64
-    env:  
-      projectName: JX3DPS
+    env:
       targetName: JX3DPS.exe
     # 步骤
     steps:

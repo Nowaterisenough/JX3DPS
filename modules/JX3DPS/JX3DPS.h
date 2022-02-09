@@ -3,7 +3,7 @@
  * @Author      : NoWats
  * @Date        : 2022-02-06 20:22:22
  * @Update      : NoWats
- * @LastTime    : 2022-02-08 21:29:36
+ * @LastTime    : 2022-02-10 02:24:33
  * @FilePath    : \JX3DPS\modules\JX3DPS\JX3DPS.h
  */
 
@@ -13,13 +13,13 @@
 #if defined _WIN32 || defined __CYGWIN__
 #    if defined EXPORT_JX3DPS // CMake add_definitions
 #        ifdef __GNUC__
-#            define JX3DPS_API __attribute__(dllexport)
+#            define JX3DPS_API __attribute__ ((dllexport))
 #        else
 #            define JX3DPS_API __declspec(dllexport)
 #        endif // __GNUC__
 #    else
 #        ifdef __GNUC__
-#            define JX3DPS_API __attribute__(dllimport)
+#            define JX3DPS_API __attribute__ ((dllimport))
 #        else
 #            ifndef IMPORT_STATIC_JX3DPS_LIB
 #                define JX3DPS_API __declspec(dllimport)

@@ -39,13 +39,23 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     JX3DPS
 )
 
+if(NOT __APPLE__)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        OUTPUT_NAME JX3DPS
+    )
+endif()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_NAME JX3DPS
+    MACOSX_BUNDLE_GUI_IDENTIFIER "my.example.com"
+    MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
+    MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
 
 install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION ${PROJECT_NAME}/bin
+    BUNDLE DESTINATION ${PROJECT_NAME}/bin
 )
 
 if(BUILD_SHARED_LIBS AND WIN32)
@@ -58,13 +68,13 @@ if(BUILD_SHARED_LIBS AND WIN32)
         COMMAND ${DEPLOYQT_EXECUTABLE}
                 --verbose 1
                 --no-svg
-                --no-angle
+                # --no-angle
                 --no-opengl
                 --no-opengl-sw
                 --no-compiler-runtime
                 --no-system-d3d-compiler
                 "$<TARGET_FILE:${PROJECT_NAME}>"
-            --$<LOWER_CASE:$<CONFIG>> --qmldir ${CMAKE_SOURCE_DIR}
+            # --$<LOWER_CASE:$<CONFIG>> --qmldir ${CMAKE_SOURCE_DIR}
     )
 elseif(NOT BUILD_SHARED_LIBS)
     add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)

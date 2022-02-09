@@ -3,13 +3,9 @@ on:
   # push代码时触发workflow
   push:
     paths:
-      - '*.pro'
-      - 'src/**'
       - '.github/workflows/windows.yml'
   pull_request:
     paths:
-      - '*.pro'
-      - 'src/**'
       - '.github/workflows/windows.yml'
 jobs:
   build:
@@ -70,7 +66,7 @@ jobs:
           msvcArch: ${{ matrix.msvc_arch }}
         shell: pwsh
         run: |
-          & scripts\windows-publish.ps1 ${env:archiveName} ${env:targetName}
+          & .github\scripts\windows-publish.ps1 ${env:archiveName} ${env:targetName}
           # 记录packageName给后续step
            $name = ${env:archiveName}
            echo "::set-output name=packageName::$name"

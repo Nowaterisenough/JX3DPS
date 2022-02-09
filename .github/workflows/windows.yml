@@ -23,10 +23,10 @@ jobs:
             msvc_arch: x64
             qt_arch_install: msvc2019_64
           # 6.2.2
-          - qt_ver: 6.2.2
-            qt_arch: win64_msvc2019_64
-            msvc_arch: x64
-            qt_arch_install: msvc2019_64
+          # - qt_ver: 6.2.2
+          #   qt_arch: win64_msvc2019_64
+          #   msvc_arch: x64
+          #   qt_arch_install: msvc2019_64
     env:  
       projectName: JX3DPS
       targetName: JX3DPS.exe
@@ -64,7 +64,7 @@ jobs:
       - name: package
         id: package
         env:
-          archiveName: ${{ env:projectName }}-win64
+          archiveName: ${{ matrix.qt_ver }}
           msvcArch: ${{ matrix.msvc_arch }}
         shell: pwsh
         run: |

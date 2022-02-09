@@ -48,7 +48,7 @@ install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION ${PROJECT_NAME}/bin
 )
 
-if(BUILD_SHARED_LIBS && WIN32)
+if(BUILD_SHARED_LIBS AND WIN32)
     get_target_property(_qmake_executable Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
     get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
     find_program(DEPLOYQT_EXECUTABLE NAMES windeployqt macdeployqt HINTS "${_qt_bin_dir}")

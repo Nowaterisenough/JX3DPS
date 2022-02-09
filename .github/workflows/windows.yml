@@ -27,7 +27,8 @@ jobs:
             qt_arch: win64_msvc2019_64
             msvc_arch: x64
             qt_arch_install: msvc2019_64
-    env:
+    env:  
+      projectName: JX3DPS
       targetName: JX3DPS.exe
     # 步骤
     steps:
@@ -63,7 +64,7 @@ jobs:
       - name: package
         id: package
         env:
-          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
+          archiveName: ${{ env:projectName }}-win64
           msvcArch: ${{ matrix.msvc_arch }}
         shell: pwsh
         run: |

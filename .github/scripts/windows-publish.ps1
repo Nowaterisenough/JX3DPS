@@ -27,19 +27,18 @@ function Main() {
 
     New-Item -ItemType Directory $archiveName
     # 拷贝exe
-    Copy-Item build\bin\Release\$targetName $archiveName\
-    Copy-Item build\bin\Release\JX3DPS.dll $archiveName\
+    Copy-Item build\bin\Release\* $archiveName\
     # 拷贝依赖
     windeployqt --qmldir . --plugindir $archiveName\plugins --no-translations --compiler-runtime $archiveName\$targetName
     # 删除不必要的文件
     $excludeList = @("*.qmlc", "*.ilk", "*.exp", "*.lib", "*.pdb")
     Remove-Item -Path $archiveName -Include $excludeList -Recurse -Force
     # 拷贝vcRedist dll
-    $redistDll="{0}{1}\*.CRT\*.dll" -f $env:vcToolsRedistDir.Trim(),$env:msvcArch
-    Copy-Item $redistDll $archiveName\
+    # $redistDll="{0}{1}\*.CRT\*.dll" -f $env:vcToolsRedistDir.Trim(),$env:msvcArch
+    # Copy-Item $redistDll $archiveName\
     # 拷贝WinSDK dll
-    $sdkDll="{0}Redist\{1}ucrt\DLLs\{2}\*.dll" -f $env:winSdkDir.Trim(),$env:winSdkVer.Trim(),$env:msvcArch
-    Copy-Item $sdkDll $archiveName\
+    # $sdkDll="{0}Redist\{1}ucrt\DLLs\{2}\*.dll" -f $env:winSdkDir.Trim(),$env:winSdkVer.Trim(),$env:msvcArch
+    # Copy-Item $sdkDll $archiveName\
     # 打包zip
     Compress-Archive -Path $archiveName $archiveName'.zip'
 }

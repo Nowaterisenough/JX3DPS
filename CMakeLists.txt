@@ -1,24 +1,19 @@
 cmake_minimum_required(VERSION 3.5)
 
 include(cmake/utils.cmake)                                                      
-VERSION() 
+VERSION()
 
 # 设置项目名称&版本
 project(JX3DPS VERSION ${PROJECT_VERSION})
 message(STATUS "PROJECT_VERSION: ${PROJECT_VERSION}")
 message(STATUS "VERSION_BRANCH: ${VERSION_BRANCH}")
 
-#set(CMAKE_C_FLAGS_RELEASE "-Wall -O2 -fPIC -fPIE -fno-exceptions -fno-rtti")
-#set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -fPIC -fPIE -fno-exceptions -fno-rtti")
-
 add_definitions(-DVERSION_PATCH=${PROJECT_VERSION_PATCH})
 add_definitions(-DVERSION_TWEAK=${PROJECT_VERSION_TWEAK})
 add_definitions(-DVERSION_BRANCH=${VERSION_BRANCH})
+add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules)
-
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 # install路径
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -33,10 +28,13 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     endif()
 endif()
 
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+
 # CMake选项 动态库编译
 option(BUILD_SHARED_LIBS "option for build" ON)
 if(BUILD_SHARED_LIBS)
     set(BUILD_LIBS_TYPE SHARED)
+    set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 else()
     set(BUILD_LIBS_TYPE STATIC)
 endif()
@@ -55,11 +53,18 @@ if(MSVC)
         foreach(COMPILER_FLAG ${COMPILER_FLAGS})
             string(REPLACE "/MT" "/MD" ${COMPILER_FLAG} "${${COMPILER_FLAG}}")
         endforeach()
+        set(CMAKE_C_FLAGS_RELEASE "-Wall /MD /GR- /Ob2 -O2")
+        set(CMAKE_CXX_FLAGS_RELEASE "-Wall /MD /GR- /Ob2 -O2")
     else()
         foreach(COMPILER_FLAG ${COMPILER_FLAGS})
             string(REPLACE "/MD" "/MT" ${COMPILER_FLAG} "${${COMPILER_FLAG}}")
         endforeach()
+        set(CMAKE_C_FLAGS_RELEASE "-Wall /MT /GR- /Ob2 -O2")
+        set(CMAKE_CXX_FLAGS_RELEASE "-Wall /MT /GR- /Ob2 -O2")
     endif(BUILD_MSVC_MD)
+else()
+    set(CMAKE_C_FLAGS_RELEASE "-Wall -O2 -fPIC -fPIE -fno-exceptions -fno-rtti")
+    set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -fPIC -fPIE -fno-exceptions -fno-rtti")
 endif(MSVC)
 
 add_subdirectory(modules)
@@ -76,3 +81,4 @@ option(BUILD_TEST "option for build" OFF)
 if(BUILD_TEST)
     add_subdirectory(tests)
 endif()
+

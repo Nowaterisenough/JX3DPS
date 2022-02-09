@@ -48,7 +48,7 @@ install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION ${PROJECT_NAME}/bin
 )
 
-if(BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS && WIN32)
     get_target_property(_qmake_executable Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
     get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
     find_program(DEPLOYQT_EXECUTABLE NAMES windeployqt macdeployqt HINTS "${_qt_bin_dir}")
@@ -66,6 +66,6 @@ if(BUILD_SHARED_LIBS)
                 "$<TARGET_FILE:${PROJECT_NAME}>"
             --$<LOWER_CASE:$<CONFIG>> --qmldir ${CMAKE_SOURCE_DIR}
     )
-else()
+elif(NOT BUILD_SHARED_LIBS)
     add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)
-endif(BUILD_SHARED_LIBS)
+endif()

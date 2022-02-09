@@ -58,7 +58,6 @@ jobs:
       - name: where is qmake & where is mingw32-make
         shell: pwsh
         run: |
-          Get-Command -Name 'qmake' | Format-List
           Get-Command -Name 'mingw32-make' | Format-List
       - name: mingw-build
         id: build

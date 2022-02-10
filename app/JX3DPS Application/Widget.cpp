@@ -23,7 +23,7 @@ constexpr int JX3DPS_UI_HEIGHT = 31;
 Widget::Widget(QWidget *parent) : QWidget(parent)
 {
     qApp->setFont(QFont("NoWatsFont", 9.5));
-    //qApp->setFont(QFont("微软雅黑", 9.5));
+    // qApp->setFont(QFont("微软雅黑", 9.5));
     this->setWindowTitle(JX3DPS::Name());
 
     QGridLayout *layout    = new QGridLayout(this);

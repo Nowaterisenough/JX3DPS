@@ -5,17 +5,19 @@ on:
     paths:
       - '.github/workflows/windows.yml'
       - '3rd/*'
-      - 'app/*'
-      - 'module/*'
+      - 'apps/*'
+      - 'modules/*'
       - 'cmake/*'
+      - 'resources/*'
       - 'CMakeLists.txt'
   pull_request:
     paths:
       - '.github/workflows/windows.yml'
       - '3rd/*'
-      - 'app/*'
-      - 'module/*'
+      - 'apps/*'
+      - 'modules/*'
       - 'cmake/*'
+      - 'resources/*'
       - 'CMakeLists.txt'
 jobs:
   build:
@@ -27,18 +29,13 @@ jobs:
       # 矩阵配置
       matrix:
         include:
-          # 5.15.2 参考 https://mirrors.cloud.tencent.com/qt/online/qtsdkrepository/windows_x86/desktop/qt5_5152/
-          - qt_ver: 5.15.2
+          # 6.2.2 参考 https://mirrors.cloud.tencent.com/qt/online/qtsdkrepository/windows_x86/desktop/
+          - qt_ver: 6.5.1
             qt_arch: win64_msvc2019_64
             msvc_arch: x64
             qt_arch_install: msvc2019_64
-          # 6.2.2
-          # - qt_ver: 6.2.2
-          #   qt_arch: win64_msvc2019_64
-          #   msvc_arch: x64
-          #   qt_arch_install: msvc2019_64
     env:
-      targetName: JX3DPS.exe
+      targetName: JX3DPSSimulator.exe
     # 步骤
     steps:
       # 安装Qt
@@ -57,6 +54,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
       # msvc编译
       - name: msvc-build
         id: build
@@ -73,7 +74,7 @@ jobs:
       - name: package
         id: package
         env:
-          archiveName: JX3DPS-win64
+          archiveName: JX3DPSSimulator-win64
           msvcArch: ${{ matrix.msvc_arch }}
         shell: pwsh
         run: |

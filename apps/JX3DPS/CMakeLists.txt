@@ -66,11 +66,9 @@ endif()
 get_target_property(QT_TYPE Qt${QT_VERSION_MAJOR}::Widgets TYPE)
 
 if(QT_TYPE STREQUAL "STATIC_LIBRARY")
-    message(STATUS "QT_TYPE: STATIC_LIBRARY")
     set_property(TARGET ${PROJECT_NAME} PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 else()
-    message(STATUS "QT_TYPE: SHARED_LIBRARY")
     set_property(TARGET ${PROJECT_NAME} PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()

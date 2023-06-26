@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 
-include(cmake/utils.cmake)                                                      
+include(cmake/Version.cmake)
 VERSION()
 
 # 设置项目名称&版本
@@ -15,6 +15,9 @@ add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # install路径
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     if(NOT CMAKE_TOOLCHAIN_FILE)
@@ -28,57 +31,56 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     endif()
 endif()
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # CMake选项 动态库编译
 option(BUILD_SHARED_LIBS "option for build" ON)
+
 if(BUILD_SHARED_LIBS)
     set(BUILD_LIBS_TYPE SHARED)
-    set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 else()
     set(BUILD_LIBS_TYPE STATIC)
 endif()
 
+# if(POLICY CMP0091)
+# cmake_policy(SET CMP0091 NEW)
+# endif(POLICY CMP0091)
+
 # CMake选项 MSVC MD编译
 if(MSVC)
     option(BUILD_MSVC_MD "option for build" ON)
-    set(COMPILER_FLAGS
-        CMAKE_C_FLAGS CMAKE_CXX_FLAGS
-        CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_MINSIZEREL
-        CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_RELWITHDEBINFO
-    )
+
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /permissive /utf-8")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive /utf-8")
+
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /GR- /GS- /GL /Ot /Oi /Ob2")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GR- /GS- /GL /Ot /Oi /Ob2 /Zc:__cplusplus")
+
     if(BUILD_MSVC_MD)
-        foreach(COMPILER_FLAG ${COMPILER_FLAGS})
-            string(REPLACE "/MT" "/MD" ${COMPILER_FLAG} "${${COMPILER_FLAG}}")
-        endforeach()
-        set(CMAKE_C_FLAGS_RELEASE "-Wall /MD /EHr /GS- /GR- /GL /Ot /Oi /Ob2 -O2")
-        set(CMAKE_CXX_FLAGS_RELEASE "-Wall /MD /EHr /GS- /GR- /GL /Ot /Oi /Ob2 -O2 /Zc:__cplusplus")
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
     else()
-        foreach(COMPILER_FLAG ${COMPILER_FLAGS})
-            string(REPLACE "/MD" "/MT" ${COMPILER_FLAG} "${${COMPILER_FLAG}}")
-        endforeach()
-        set(CMAKE_C_FLAGS_RELEASE "-Wall /MT /EHr /GS- /GR- /GL /Ot /Oi /Ob2 -O2")
-        set(CMAKE_CXX_FLAGS_RELEASE "-Wall /MT /EHr /GS- /GR- /GL /Ot /Oi /Ob2 -O2 /Zc:__cplusplus")
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     endif(BUILD_MSVC_MD)
 else()
-    set(CMAKE_C_FLAGS_RELEASE "-Wall -O2 -fPIC -fPIE -fno-exceptions -fno-rtti")
-    set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -fPIC -fPIE -fno-exceptions -fno-rtti")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -fPIC -fPIE -fno-exceptions -fno-rtti")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -fPIC -fPIE -fno-exceptions -fno-rtti")
 endif(MSVC)
 
+add_subdirectory(3rd)
 add_subdirectory(modules)
-#add_subdirectory(3rd)
 
 # CMake选项 app编译
 option(BUILD_APP "option for build" ON)
+
 if(BUILD_APP)
-    add_subdirectory(app)
+    add_subdirectory(apps)
 endif()
 
 # CMake选项 UT测试
-option(BUILD_TEST "option for build" OFF)
-if(BUILD_TEST)
+option(BUILD_TESTS "option for build" OFF)
+
+if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
-

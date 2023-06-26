@@ -1,1 +1,1 @@
-add_subdirectory(JX3DPS)
+add_subdirectory(ThreadPool)

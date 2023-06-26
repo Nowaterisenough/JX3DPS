@@ -1,9 +1,9 @@
 # Ignore cmake generated directories and files
 build/*
-JX3DPS.pro.user
 
 # Ignore Visual Studio Code files
 .vscode/*
+!.vscode/settings.json
 
 # Ignore macOS files
 .DS_Store

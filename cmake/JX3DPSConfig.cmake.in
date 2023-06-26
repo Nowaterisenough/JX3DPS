@@ -1,8 +1,0 @@
-@PACKAGE_INIT@
-include(CMakeFindDependencyMacro)
-
-include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
-
-#find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
-
-check_required_components("@PROJECT_NAME@")

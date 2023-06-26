@@ -5,17 +5,19 @@ on:
     paths:
       - '.github/workflows/windows.yml'
       - '3rd/*'
-      - 'app/*'
-      - 'module/*'
+      - 'apps/*'
+      - 'modules/*'
       - 'cmake/*'
+      - 'resources/*'
       - 'CMakeLists.txt'
   pull_request:
     paths:
       - '.github/workflows/windows.yml'
       - '3rd/*'
-      - 'app/*'
-      - 'module/*'
+      - 'apps/*'
+      - 'modules/*'
       - 'cmake/*'
+      - 'resources/*'
       - 'CMakeLists.txt'
 jobs:
   build:

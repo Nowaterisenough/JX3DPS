@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 22:17:40
+ * Last Modified: 2023-06-28 12:48:59
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -124,6 +124,21 @@ void JX3DPS::TaiXuJianYi::Player::Init()
                       std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::YunZhongJianSuiXingChen>(this, nullptr)));
         buffs.emplace(JX3DPS::Buff::YUN_ZHONG_JIAN_TUN_RI_YUE,
                       std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::YunZhongJianTunRiYue>(this, nullptr)));
+    }
+
+    if (enchantShoes) {
+        buffs.emplace(JX3DPS::Buff::ENCHANT_SHOES,
+                      std::move(std::make_unique<JX3DPS::Buff3rd::EnchantShoesPhysics>(this, nullptr)));
+    }
+
+    if (enchantWrist) {
+        buffs.emplace(JX3DPS::Buff::ENCHANT_WRIST,
+                      std::move(std::make_unique<JX3DPS::Buff3rd::EnchantWristPhysics>(this, nullptr)));
+    }
+
+    if (enchantBelt) {
+        buffs.emplace(JX3DPS::Buff::ENCHANT_BELT,
+                      std::move(std::make_unique<JX3DPS::Buff3rd::EnchantBelt>(this, nullptr)));
     }
 }
 
@@ -336,6 +351,23 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
         static_cast<Buff::ChiYing *>(m_player->buffs[JX3DPS::Buff::CHI_YING].get())->TriggerDamage();
     }
 
+    // 大附魔 腕
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
+
+    // 大附魔 鞋
+    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+            ->TriggerDamage();
+    }
+
     // 叠刃
     if (m_player->talents.at(Talent::DIE_REN) && rollResult == RollResult::DOUBLE) {
         m_player->buffs[JX3DPS::Buff::DIE_REN]->Add(m_player->targetId, 2);
@@ -445,16 +477,16 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
     m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 9) * 1.1 * 1.1 * 1.05, 0.0);
     m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05, 0.0);
 
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
 
     m_cooldownFixed = 16 * 12;
 
@@ -511,6 +543,23 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
     // 深埋 会心
     if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
         m_player->AddQidian(2);
+    }
+
+    // 大附魔 腕
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
+
+    // 大附魔 鞋
+    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+            ->TriggerDamage();
     }
 
     rollResult = GetPhysicsRollResult();
@@ -653,6 +702,23 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
         m_player->AddQidian(2);
     }
 
+    // 大附魔 腕
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
+
+    // 大附魔 鞋
+    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+            ->TriggerDamage();
+    }
+
     damage = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
     Record(m_player->targetId, rollResult, damage, 0, 0);
 
@@ -756,6 +822,23 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
         // 深埋 会心
         if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
             m_player->AddQidian(2);
+        }
+
+        // 大附魔 腕
+        if (m_player->enchantWrist) [[likely]] {
+            static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                ->TriggerDamage();
+        }
+
+        // 大附魔 腰
+        if (m_player->enchantBelt) [[likely]] {
+            static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+        }
+
+        // 大附魔 鞋
+        if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+            static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                ->TriggerDamage();
         }
 
         // 虚极
@@ -866,6 +949,26 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
                 m_player->AddQidian(2);
             }
 
+            // 大附魔 腕
+            if (m_player->enchantWrist) [[likely]] {
+                static_cast<Buff3rd::EnchantWristPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                    ->TriggerDamage();
+            }
+
+            // 大附魔 腰
+            if (m_player->enchantBelt) [[likely]] {
+                static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())
+                    ->TriggerAdd();
+            }
+
+            // 大附魔 鞋
+            if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+                static_cast<Buff3rd::EnchantShoesPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                    ->TriggerDamage();
+            }
+
             // 橙武特效1 八荒归元无调息 持续伤害
             if (m_player->weaponCW && m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_CW_1]->GetTimeLeft() > 0)
             {
@@ -946,6 +1049,23 @@ void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
     // 深埋 会心
     if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
         m_player->AddQidian(2);
+    }
+
+    // 大附魔 腕
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
+
+    // 大附魔 鞋
+    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+            ->TriggerDamage();
     }
 
     // 橙武特效1 八荒归元无调息 持续伤害
@@ -1240,6 +1360,23 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffect(int sub)
         // 深埋 会心
         if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
             m_player->AddQidian(2);
+        }
+
+        // 大附魔 腕
+        if (m_player->enchantWrist) [[likely]] {
+            static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                ->TriggerDamage();
+        }
+
+        // 大附魔 腰
+        if (m_player->enchantBelt) [[likely]] {
+            static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+        }
+
+        // 大附魔 鞋
+        if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+            static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                ->TriggerDamage();
         }
 
         // 橙武特效1 八荒归元无调息 持续伤害
@@ -2414,8 +2551,8 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianSuiXingChen::SubEffect()
             if (count == 4) {
                 break;
             }
-            //RollResult rollResult = GetPhysicsRollResult(target.first);
-            //Damage     damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+            // RollResult rollResult = GetPhysicsRollResult(target.first);
+            // Damage     damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
             Record(target.first, RollResult::HIT, Damage(), 0, 0);
         }
     }
@@ -2475,8 +2612,8 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianTunRiYue::SubEffect()
             if (count == 4) {
                 break;
             }
-            //RollResult rollResult = GetPhysicsRollResult(target.first);
-            //Damage     damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+            // RollResult rollResult = GetPhysicsRollResult(target.first);
+            // Damage     damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
             Record(target.first, RollResult::HIT, Damage(), 0, 0);
         }
     }

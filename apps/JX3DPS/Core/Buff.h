@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 21:19:27
+ * Last Modified: 2023-06-28 12:31:57
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -101,11 +101,11 @@ public:
     static constexpr Id_t CLASS_SET_BUFF = 118;
 
     // 大附魔buff
-    static constexpr Id_t ENCHENT_SHOES  = 119;
-    static constexpr Id_t ENCHENT_JACKET = 120;
-    static constexpr Id_t ENCHENT_HAT    = 121;
-    static constexpr Id_t ENCHENT_BELT   = 122;
-    static constexpr Id_t ENCHENT_WRIST  = 123;
+    static constexpr Id_t ENCHANT_SHOES  = 119;
+    static constexpr Id_t ENCHANT_JACKET = 120;
+    static constexpr Id_t ENCHANT_HAT    = 121;
+    static constexpr Id_t ENCHANT_BELT   = 122;
+    static constexpr Id_t ENCHANT_WRIST  = 123;
 
     // 阵眼buff
     static constexpr Id_t CORE_TAI_XU_JIAN_YI = 130;
@@ -172,11 +172,11 @@ public:
         { WEAPON_EFFECT_WATER,          "武器·水特效"        },
         { PENDANT_OVERCOME,             "腰坠·破防"           },
         { CLASS_SET_BUFF,               "套装·心法"           },
-        { ENCHENT_SHOES,                "大附魔·鞋"           },
-        { ENCHENT_JACKET,               "大附魔·衣"           },
-        { ENCHENT_HAT,                  "大附魔·头"           },
-        { ENCHENT_BELT,                 "大附魔·腰"           },
-        { ENCHENT_WRIST,                "大附魔·腕"           },
+        { ENCHANT_SHOES,                "大附魔·鞋"           },
+        { ENCHANT_JACKET,               "大附魔·衣"           },
+        { ENCHANT_HAT,                  "大附魔·头"           },
+        { ENCHANT_BELT,                 "大附魔·腰"           },
+        { ENCHANT_WRIST,                "大附魔·腕"           },
         { CORE_TAI_XU_JIAN_YI,          "阵眼·北斗七星阵"  },
         { THIRD_SUI_XING_CHEN,          "3rd·碎星辰"           },
         { THIRD_ZHUANG_ZHOU_MENG,       "3rd·庄周梦"           },
@@ -229,19 +229,24 @@ public:
     RollResult GetMagicRollResult(Id_t targetId) const;
 
     Damage CalcPhysicsDamage(Id_t       targetId,
-                             RollResult tableType,
+                             RollResult rollResult,
                              int        sub         = 0,
                              int        level       = 0,
                              int        effectCount = 1,
                              int        type        = JX3_NORMAL_SKILL_DAMAGE_PARAM) const;
 
-    Damage CalcMagicDamage(Id_t targetId, RollResult tableType, int sub = 0, int level = 0, int effectCount = 1, int type = JX3_NORMAL_SKILL_DAMAGE_PARAM) const;
+    Damage CalcMagicDamage(Id_t       targetId,
+                           RollResult rollResult,
+                           int        sub         = 0,
+                           int        level       = 0,
+                           int        effectCount = 1,
+                           int        type        = JX3_NORMAL_SKILL_DAMAGE_PARAM) const;
 
-    void Record(Id_t          targetId  = 1,
-                RollResult    tableType = RollResult::HIT,
-                const Damage &damage    = Damage(),
-                int           sub       = 0,
-                int           level     = 0);
+    void Record(Id_t          targetId   = 1,
+                RollResult    rollResult = RollResult::HIT,
+                const Damage &damage     = Damage(),
+                int           sub        = 0,
+                int           level      = 0);
 
     DamageStats &GetDamageStats();
 
@@ -257,7 +262,7 @@ protected:
     /* 名称 */
     std::string m_name = "";
 
-    float m_range = 0;
+    float m_range = JX3DPS_UNLIMITED_RANGE;
 
     bool m_tbuff = false;
 
@@ -293,17 +298,37 @@ protected:
     DamageStats m_damageStats;
 };
 
-namespace Third {
+namespace Buff3rd {
 
-class EnchantShoes : public Buff
+class EnchantShoesPhysics : public Buff
 {
-    BUFF_DEFAULT_FUNCTION(EnchantShoes)
+    BUFF_DEFAULT_FUNCTION(EnchantShoesPhysics)
 
 public:
-    int m;
+    void TriggerDamage();
+    void SubEffect();
 };
 
-} // namespace Third
+class EnchantWristPhysics : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(EnchantWristPhysics)
+
+public:
+    void TriggerDamage();
+    void SubEffect();
+};
+
+class EnchantBelt: public Buff
+{
+    BUFF_DEFAULT_FUNCTION(EnchantBelt)
+
+public:
+    void TriggerAdd();
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+} // namespace Buff3rd
 
 } // namespace JX3DPS
 

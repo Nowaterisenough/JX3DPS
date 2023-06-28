@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 16:19:33
+ * Last Modified: 2023-06-28 12:43:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -238,3 +238,158 @@ const std::string &Buff::GetName() const
 }
 
 } // namespace JX3DPS
+
+JX3DPS::Buff3rd::EnchantShoesPhysics::EnchantShoesPhysics(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::ENCHANT_SHOES;
+    m_name = "大附魔·鞋";
+
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100, 0.0);
+
+    m_intervalFixed = 16 * 10;
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::Trigger()
+{
+    // 内置CD时间结束
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::TriggerDamage()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 10) {
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+        SubEffect();
+    }
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::SubEffect()
+{
+    RollResult rollResult = GetPhysicsRollResult(m_player->targetId);
+    Damage     damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
+    Record(m_player->targetId, rollResult, damage, 0, 0);
+}
+
+JX3DPS::Buff3rd::EnchantWristPhysics::EnchantWristPhysics(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::ENCHANT_WRIST;
+    m_name = "大附魔·腕";
+
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100, 0.0);
+
+    m_intervalFixed = 16 * 10;
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::Trigger()
+{
+    // 内置CD时间结束
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::TriggerDamage()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 10) {
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+        SubEffect();
+    }
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::SubEffect()
+{
+    RollResult rollResult = GetPhysicsRollResult(m_player->targetId);
+    Damage     damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
+    Record(m_player->targetId, rollResult, damage, 0, 0);
+}
+
+JX3DPS::Buff3rd::EnchantBelt::EnchantBelt(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::ENCHANT_BELT;
+    m_name = "大附魔·腰";
+
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+
+    m_intervalFixed = 16 * 30;
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::Trigger()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].duration == 0) { // buff时间结束
+        m_targetSnapshots[JX3DPS_PLAYER].duration = JX3DPS_INVALID_FRAMES_SET;
+        SubEffectClear();
+    } else { // 内置CD时间结束
+        m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+    }
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+    SubEffectAdd();
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::TriggerAdd()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 20)
+    {
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+        SubEffectAdd();
+    }
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::SubEffectAdd()
+{
+    // TODO
+}

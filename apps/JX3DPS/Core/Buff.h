@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 12:31:57
+ * Last Modified: 2023-06-28 15:21:15
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -298,6 +298,27 @@ protected:
     DamageStats m_damageStats;
 };
 
+struct HasBuff3rd
+{
+    bool hanRuLei                = false;
+    bool xiuQi                   = false;
+    bool jiaoSu                  = false;
+    bool zhenFen                 = false;
+    bool hanXiaoQianJun          = false;
+    bool zuoXuanYouXuan          = false;
+    bool sheShenHongFa           = false;
+    bool chaoShengYan            = false;
+    bool shengYuMingXinChao      = false;
+    bool haoLingSanJun           = false;
+    bool meiHuaSanNong           = false;
+    bool piaoHuang               = false;
+    bool peiWu                   = false;
+    bool qiuSu                   = false;
+    bool jieHuo                  = false;
+    bool liDiChengFo             = false;
+    bool fengLeiYAOqinJianEffect = false;
+};
+
 namespace Buff3rd {
 
 class EnchantShoesPhysics : public Buff
@@ -318,9 +339,19 @@ public:
     void SubEffect();
 };
 
-class EnchantBelt: public Buff
+class EnchantBelt : public Buff
 {
     BUFF_DEFAULT_FUNCTION(EnchantBelt)
+
+public:
+    void TriggerAdd();
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class JiaoSu : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JiaoSu)
 
 public:
     void TriggerAdd();

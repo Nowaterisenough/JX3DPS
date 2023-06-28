@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 02:55:34
+ * Last Modified: 2023-06-28 17:04:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -17,6 +17,7 @@
 #define JX3DPS_PLAYER_H_
 
 #include "Attr.h"
+#include "Buff.h"
 
 namespace JX3DPS {
 
@@ -90,6 +91,9 @@ public:
     bool enchantBelt   = false;
     bool enchantJacket = false;
     bool enchantHat    = false;
+
+    HasBuff3rd hasBuff3rd;
+    
 };
 
 } // namespace JX3DPS

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 12:48:59
+ * Last Modified: 2023-06-28 13:54:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,6 +30,12 @@ JX3DPS::TaiXuJianYi::Player::~Player() { }
 
 void JX3DPS::TaiXuJianYi::Player::Init()
 {
+    for (Id_t i = Talent::BEGIN; i < Talent::END; i++) {
+        if (talents.find(i) == talents.end()) {
+            talents[i] = false;
+        }
+    }
+
     skills.emplace(JX3DPS::Skill::WU_WO_WU_JIAN,
                    std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::WuWoWuJian>(this, nullptr)));
     skills.emplace(JX3DPS::Skill::BA_HUANG_GUI_YUAN,
@@ -139,6 +145,23 @@ void JX3DPS::TaiXuJianYi::Player::Init()
     if (enchantBelt) {
         buffs.emplace(JX3DPS::Buff::ENCHANT_BELT,
                       std::move(std::make_unique<JX3DPS::Buff3rd::EnchantBelt>(this, nullptr)));
+    }
+
+    if (enchantJacket) {
+        attr->AddPhysicsAttackBase(450);
+    }
+
+    if (enchantHat) {
+        attr->AddPhysicsOvercomeBase(999);
+    }
+
+    if (hasBuff3rd.hanRuLei) {
+        attr->AddPhysicsAttackBaseBinPercent(51);
+    }
+
+    if (hasBuff3rd.xiuQi) {
+        attr->AddAgilityBase(244);
+        attr->AddStrengthBase(244);
     }
 }
 

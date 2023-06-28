@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 12:51:51
+ * Last Modified: 2023-06-28 16:14:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -366,7 +366,9 @@ void JX3DPS::Buff3rd::EnchantBelt::Trigger()
 
 void JX3DPS::Buff3rd::EnchantBelt::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
-    m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+    if (m_targetSnapshots.empty()) {
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+    }
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
     } else [[unlikely]] {
@@ -399,4 +401,56 @@ void JX3DPS::Buff3rd::EnchantBelt::SubEffectAdd()
 void JX3DPS::Buff3rd::EnchantBelt::SubEffectClear()
 {
     // TODO
+}
+
+JX3DPS::Buff3rd::JiaoSu::JiaoSu(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::ENCHANT_BELT;
+    m_name = "皎素";
+
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+
+    m_intervalFixed = 16 * 30;
+    m_durationFixed = 16 * 5;
+}
+
+void JX3DPS::Buff3rd::JiaoSu::Trigger()
+{
+    m_targetSnapshots[JX3DPS_PLAYER].duration = JX3DPS_INVALID_FRAMES_SET;
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::JiaoSu::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.empty()) {
+        SubEffectAdd();
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::JiaoSu::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::JiaoSu::SubEffectAdd()
+{
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(0.05);
+}
+
+void JX3DPS::Buff3rd::JiaoSu::SubEffectClear()
+{
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-0.05);
 }

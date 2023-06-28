@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 12:43:54
+ * Last Modified: 2023-06-28 12:51:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -274,7 +274,8 @@ void JX3DPS::Buff3rd::EnchantShoesPhysics::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::Buff3rd::EnchantShoesPhysics::TriggerDamage()
 {
-    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 10) {
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 10)
+    {
         m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
         SubEffect();
     }
@@ -322,7 +323,8 @@ void JX3DPS::Buff3rd::EnchantWristPhysics::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::Buff3rd::EnchantWristPhysics::TriggerDamage()
 {
-    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 10) {
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 10)
+    {
         m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
         SubEffect();
     }
@@ -390,6 +392,11 @@ void JX3DPS::Buff3rd::EnchantBelt::TriggerAdd()
 }
 
 void JX3DPS::Buff3rd::EnchantBelt::SubEffectAdd()
+{
+    // TODO
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::SubEffectClear()
 {
     // TODO
 }

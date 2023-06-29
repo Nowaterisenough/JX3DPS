@@ -38,7 +38,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground, true);
-    this->setFixedSize(610, 680);
+    this->setFixedSize(610, 700);
 
     QGridLayout *layout = new QGridLayout(this);
 
@@ -532,14 +532,55 @@ void Widget::InitWidgetAttrGain(QWidget *parent)
     gLayout->addWidget(lineEditAttrGainWeaponAttack2, 9, 1, 1, 1);
 }
 
+void ParseJson2Talents(const nlohmann::json &json, const std::string &className, std::vector<std::vector<TalentInfo>> &talents)
+{
+    for (auto &item : json["class"]) {
+        if (item["name"].get<std::string>() == className) {
+            for (int i = 1; i <= 12; ++i) {
+                std::vector<TalentInfo> talentInfos;
+                for (auto &talentInfo : item["talents"][std::to_string(i)]) {
+                    TalentInfo info;
+                    info.id     = talentInfo["id"].get<int>();
+                    info.iconId = talentInfo["icon"].get<int>();
+                    info.name   = talentInfo["name"].get<std::string>();
+                    info.type   = talentInfo["type"].get<std::string>();
+                    info.desc   = talentInfo["desc"].get<std::string>();
+                    talentInfos.push_back(info);
+                }
+                talents.push_back(talentInfos);
+            }
+            break;
+        }
+    }
+}
+
+#include <fstream>
+
 void Widget::InitWidgetTalent(QWidget *parent)
 {
+    QGridLayout *gLayout = new QGridLayout(parent);
+    gLayout->setContentsMargins(10, 10, 10, 4);
 
-    // for (int i = 0; i < 12; ++i) {
-    //     ComboBoxTalent *talent = new ComboBoxTalent(parent);
-    //     talent->setFixedSize(52, 62);
-    //     gLayout->addWidget(talent, i / 6, i % 6, 1, 1);
-    // }
+    nlohmann::json json;
+    std::ifstream  ifs("C:\\Users\\NoWat\\Project\\JX3DPS2\\config.json");
+    ifs >> json;
+    ifs.close();
+
+    std::vector<std::vector<TalentInfo>> talents;
+
+    ParseJson2Talents(json, "太虚剑意", talents);
+
+    for (int i = 0; i < 12; ++i) {
+        TalentWidget *talent = new TalentWidget(parent);
+
+        int index = 0;
+        for (auto &talentInfo : talents[i]) {
+            talent->AddItem(talents[i][index]);
+            index++;
+        }
+
+        gLayout->addWidget(talent, i / 6, i % 6, 1, 1);
+    }
 }
 
 void Widget::InitWidgetSecret(QWidget *parent)

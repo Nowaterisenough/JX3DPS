@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 19:39:40
+ * Last Modified: 2023-06-29 20:55:15
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -27,7 +27,7 @@
 #include "Core/JX3Params.h"
 
 #include "Button.h"
-#include "Color.h"
+#include "ThemeColors.h"
 #include "Network.h"
 
 const int ROWS = 2;
@@ -56,11 +56,11 @@ ComboBoxClass::ComboBoxClass(QWidget *parent) : QComboBox(parent)
 
     view->setFocusPolicy(Qt::NoFocus);
     view->setStyleSheet(
-        "QTableView{background-color: rgb(43, 46, 50);"
+        "QTableView{background-color: rgb(COLOR_BACKGROUND_HIGHLIGHT);"
         "border: none;"
-        "color: rgb(255, 255, 255);"
+        "color: rgb(COLOR_FOCUS);"
         "selection-background-color: rgb(56, 60, 67);"
-        "selection-color: rgb(255, 255, 255);"
+        "selection-color: rgb(COLOR_FOCUS);"
         "}"
         "QTableView::item{"
         "border: none;"
@@ -96,7 +96,7 @@ void ComboBoxClass::paintEvent(QPaintEvent *event)
 
     // 画一个框
     painter.setPen(QPen(QColor(56, 60, 67)));
-    painter.setBrush(QBrush(QColor(43, 46, 50)));
+    painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
     painter.drawRect(this->rect());
 
     // 画一个图形
@@ -133,15 +133,15 @@ void ItemDelegateClass::paint(QPainter *painter, const QStyleOptionViewItem &opt
     QStyleOptionViewItem viewOption(option);
 
     QStyledItemDelegate::paint(painter, option, index);
-    painter->fillRect(option.rect, QBrush(QColor(43, 46, 50)));
+    painter->fillRect(option.rect, QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
     if (option.state & QStyle::State_Selected) {
         // 自定义选中背景色
-        painter->fillRect(option.rect, QBrush(QColor(23, 29, 37)));
+        painter->fillRect(option.rect, QBrush(QColor(COLOR_BACKGROUND_BASE)));
     }
 
     QFont font("微软雅黑", 10.5);
     painter->setFont(font);
-    painter->setPen(QColor(208, 211, 212));
+    painter->setPen(QColor(COLOR_HIGHLIGHT));
     painter->drawText(option.rect,
                       Qt::AlignHCenter | Qt::AlignVCenter,
                       JX3DPS::CLASS.at(index.row() * ROWS + index.column()).c_str());
@@ -237,7 +237,7 @@ void ComboBoxTalent::paintEvent(QPaintEvent *event)
 
     // 画一个框
     painter.setPen(QPen(QColor(56, 60, 67)));
-    painter.setBrush(QBrush(QColor(43, 46, 50)));
+    painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
     painter.drawRect(this->rect());
 
     // 画一个图形
@@ -364,8 +364,8 @@ void ItemWidgetTalent::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
-    painter.setPen(QPen((m_isHovered || m_selected) ? QColor(23, 29, 37) : QColor(43, 46, 50)));
-    painter.setBrush(QBrush((m_isHovered || m_selected) ? QColor(23, 29, 37) : QColor(43, 46, 50)));
+    painter.setPen(QPen((m_isHovered || m_selected) ? QColor(COLOR_BACKGROUND_BASE) : QColor(COLOR_BACKGROUND_HIGHLIGHT)));
+    painter.setBrush(QBrush((m_isHovered || m_selected) ? QColor(COLOR_BACKGROUND_BASE) : QColor(COLOR_BACKGROUND_HIGHLIGHT)));
     painter.drawRect(this->rect());
 
     double opacity = (m_isHovered || m_selected) ? 0.8 : 0.6;
@@ -373,7 +373,7 @@ void ItemWidgetTalent::paintEvent(QPaintEvent *event)
     // 画一个框
     int border = 3;
     painter.setPen(QPen(Qt::black));
-    painter.setBrush(QBrush(QColor(43, 46, 50)));
+    painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
     painter.drawRect(border, border, this->height() - border * 2, this->height() - border * 2);
 
     border = 4;
@@ -384,7 +384,7 @@ void ItemWidgetTalent::paintEvent(QPaintEvent *event)
     }
 
     painter.setFont(QFont("微软雅黑", 11));
-    painter.setPen(QPen((m_isHovered || m_selected) ? QColor(255, 255, 255) : QColor(139, 146, 154)));
+    painter.setPen(QPen((m_isHovered || m_selected) ? QColor(COLOR_FOCUS) : QColor(COLOR_INACTIVE)));
     painter.drawText(this->height(), 0, this->width() - this->height(), this->height(), Qt::AlignCenter, m_name);
     painter.drawText(this->height(), 0, this->width() - this->height(), this->height(), Qt::AlignCenter, m_name);
 

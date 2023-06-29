@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-18 17:57:42
+ * Last Modified: 2023-06-29 20:33:39
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,6 +18,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
 #include <QPropertyAnimation>
+
+#include "ThemeColors.h"
 
 TabWidget::TabWidget(QWidget *parent) : QWidget(parent)
 {
@@ -77,7 +79,7 @@ TabButton::TabButton(QWidget *parent) : QPushButton(parent)
 
     connect(this, QOverload<bool>::of(&QPushButton::toggled), [this](bool checked) {
         if (checked) {
-            m_color = QColor(26, 159, 255);
+            m_color = QColor(COLOR_ACTIVE);
 
             QPropertyAnimation *animation = new QPropertyAnimation(this, "line");
             animation->setDuration(120);
@@ -86,7 +88,7 @@ TabButton::TabButton(QWidget *parent) : QPushButton(parent)
             animation->setEasingCurve(QEasingCurve::OutQuart);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         } else {
-            m_color = QColor(208, 211, 212);
+            m_color = QColor(COLOR_HIGHLIGHT);
             m_line  = 0;
         }
         update();
@@ -139,8 +141,8 @@ void TabButton::paintEvent(QPaintEvent *event)
                      this->text());
 
     if (this->isChecked()) {
-        painter.setPen(QPen(QColor(26, 159, 255), 2.5));
-        painter.setBrush(QBrush(QColor(26, 159, 255)));
+        painter.setPen(QPen(QColor(COLOR_ACTIVE), 2.5));
+        painter.setBrush(QBrush(QColor(COLOR_ACTIVE)));
         // 画条文字下的横线
         painter.drawLine(this->rect().bottomLeft().x() + (this->rect().width() - m_line) / 2,
                          this->rect().bottomLeft().y(),
@@ -162,7 +164,7 @@ void TabButton::enterEvent(QEnterEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(150);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(255, 255, 255));
+    animation->setEndValue(QColor(COLOR_FOCUS));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     this->setCursor(Qt::PointingHandCursor);
@@ -176,7 +178,7 @@ void TabButton::leaveEvent(QEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(200);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(208, 211, 212));
+    animation->setEndValue(QColor(COLOR_HIGHLIGHT));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -199,7 +201,7 @@ void TWidget::paintEvent(QPaintEvent *event)
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
     painter.setPen(QPen(QColor(56, 60, 67), 1));
-    painter.setBrush(QBrush(QColor(13, 19, 27)));
+    painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_PRIMARY)));
 
     painter.drawRect(this->rect());
 }
@@ -213,7 +215,7 @@ VTabButton::VTabButton(QWidget *parent) : QPushButton(parent)
 
     connect(this, QOverload<bool>::of(&QPushButton::toggled), [this](bool checked) {
         if (checked) {
-            m_color = QColor(26, 159, 255);
+            m_color = QColor(COLOR_ACTIVE);
 
             QPropertyAnimation *animation = new QPropertyAnimation(this, "line");
             animation->setDuration(120);
@@ -222,7 +224,7 @@ VTabButton::VTabButton(QWidget *parent) : QPushButton(parent)
             animation->setEasingCurve(QEasingCurve::OutQuart);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         } else {
-            m_color = QColor(208, 211, 212);
+            m_color = QColor(COLOR_HIGHLIGHT);
             m_line  = 0;
         }
         update();
@@ -277,8 +279,8 @@ void VTabButton::paintEvent(QPaintEvent *event)
                      this->text());
 
     if (this->isChecked()) {
-        painter.setPen(QPen(QColor(26, 159, 255), 1.5));
-        painter.setBrush(QBrush(QColor(26, 159, 255)));
+        painter.setPen(QPen(QColor(COLOR_ACTIVE), 1.5));
+        painter.setBrush(QBrush(QColor(COLOR_ACTIVE)));
         // 画条文字下的横线
         painter.drawLine(this->rect().topRight().x(),
                          this->rect().topRight().y() + (this->rect().height() - m_line) / 2,
@@ -301,7 +303,7 @@ void VTabButton::enterEvent(QEnterEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(150);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(255, 255, 255));
+    animation->setEndValue(QColor(COLOR_FOCUS));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     this->setCursor(Qt::PointingHandCursor);
@@ -315,7 +317,7 @@ void VTabButton::leaveEvent(QEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(200);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(208, 211, 212));
+    animation->setEndValue(QColor(COLOR_HIGHLIGHT));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -391,7 +393,7 @@ VerticalTabButton::VerticalTabButton(QWidget *parent) : QPushButton(parent)
 
     connect(this, QOverload<bool>::of(&QPushButton::toggled), [this](bool checked) {
         if (checked) {
-            m_color = QColor(26, 159, 255);
+            m_color = QColor(COLOR_ACTIVE);
 
             QPropertyAnimation *animation = new QPropertyAnimation(this, "line");
             animation->setDuration(120);
@@ -402,7 +404,7 @@ VerticalTabButton::VerticalTabButton(QWidget *parent) : QPushButton(parent)
             animation->setEasingCurve(QEasingCurve::OutQuart);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         } else {
-            m_color = QColor(208, 211, 212);
+            m_color = QColor(COLOR_HIGHLIGHT);
             m_line  = 0;
         }
         update();
@@ -475,7 +477,7 @@ void VerticalTabButton::enterEvent(QEnterEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(150);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(255, 255, 255));
+    animation->setEndValue(QColor(COLOR_FOCUS));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     this->setCursor(Qt::PointingHandCursor);
@@ -489,7 +491,7 @@ void VerticalTabButton::leaveEvent(QEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(200);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(208, 211, 212));
+    animation->setEndValue(QColor(COLOR_HIGHLIGHT));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -565,10 +567,7 @@ void VerticalTabWidget::paintEvent(QPaintEvent *event)
             tLastWidget->setGeometry(tLastWidget->x(), 0, width - m_dx, this->height());
         }
         if (m_dx > space) {
-            tCurrentWidget->setGeometry(m_tabs[m_currentIndex].first->x() + buttonWidth + space,
-                                        0,
-                                        m_dx - space,
-                                        this->height());
+            tCurrentWidget->setGeometry(m_tabs[m_currentIndex].first->x() + buttonWidth + space, 0, m_dx - space, this->height());
             m_tabs[m_currentIndex].second->show();
         }
     } else if (m_currentIndex < m_lastIndex) {
@@ -584,17 +583,14 @@ void VerticalTabWidget::paintEvent(QPaintEvent *event)
         TWidget *tCurrentWidget = m_tabs[m_currentIndex].second;
         int      width          = this->width() - m_tabs.size() * (buttonWidth + space);
         if (width - m_dx >= 0) {
-            tLastWidget->setGeometry(m_tabs[m_lastIndex].first->x() + buttonWidth + space,
-                                     0,
-                                     width - m_dx,
-                                     this->height());
+            tLastWidget->setGeometry(m_tabs[m_lastIndex].first->x() + buttonWidth + space, 0, width - m_dx, this->height());
         }
         if (m_dx > space) {
-            tCurrentWidget->setGeometry(m_tabs[m_currentIndex].first->x() +
-                                            m_tabs[m_currentIndex].first->width() + space,
-                                        0,
-                                        m_dx - space,
-                                        this->height());
+            tCurrentWidget->setGeometry(
+                m_tabs[m_currentIndex].first->x() + m_tabs[m_currentIndex].first->width() + space,
+                0,
+                m_dx - space,
+                this->height());
             m_tabs[m_currentIndex].second->show();
         }
     }

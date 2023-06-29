@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-18 09:51:42
+ * Last Modified: 2023-06-29 20:55:15
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,6 +18,8 @@
 #include <QDebug>
 #include <QEvent>
 #include <QPainter>
+
+#include "ThemeColors.h"
 
 GroupBox::GroupBox(const QString &name, QWidget *parent) : QGroupBox(name, parent)
 {
@@ -32,25 +34,23 @@ void GroupBox::paintEvent(QPaintEvent *event)
 
     painter.setFont(QFont(painter.font().family(), 11));
     // 画一个方框
-    painter.setPen(QPen(QColor(43, 46, 50), 1));
+    painter.setPen(QPen(QColor(COLOR_BACKGROUND_HIGHLIGHT), 1));
     painter.setBrush(Qt::NoBrush);
 
-    painter.drawLines(QVector<QLineF>()
-                      << QLineF(10, painter.fontMetrics().height() / 2, 0, painter.fontMetrics().height() / 2)
-                      << QLineF(0, painter.fontMetrics().height() / 2, 0, this->height() - 1)
-                      << QLineF(0, this->height() - 1, this->width() - 1, this->height() - 1)
-                      << QLineF(this->width() - 1,
-                                this->height() - 1,
-                                this->width() - 1,
-                                painter.fontMetrics().height() / 2)
-                      << QLineF(this->width() - 1,
-                                painter.fontMetrics().height() / 2,
-                                10 + painter.fontMetrics().horizontalAdvance(this->title()) + 10,
-                                painter.fontMetrics().height() / 2));
+    painter.drawLines(
+        QVector<QLineF>()
+        << QLineF(10, painter.fontMetrics().height() / 2, 0, painter.fontMetrics().height() / 2)
+        << QLineF(0, painter.fontMetrics().height() / 2, 0, this->height() - 1)
+        << QLineF(0, this->height() - 1, this->width() - 1, this->height() - 1)
+        << QLineF(this->width() - 1, this->height() - 1, this->width() - 1, painter.fontMetrics().height() / 2)
+        << QLineF(this->width() - 1,
+                  painter.fontMetrics().height() / 2,
+                  10 + painter.fontMetrics().horizontalAdvance(this->title()) + 10,
+                  painter.fontMetrics().height() / 2));
 
-    painter.setPen(QPen(QColor(208, 211, 212)));
+    painter.setPen(QPen(QColor(COLOR_HIGHLIGHT)));
     painter.setBrush(Qt::NoBrush);
-    
+
     painter.drawText(10,
                      0,
                      painter.fontMetrics().horizontalAdvance(this->title()) + 10,

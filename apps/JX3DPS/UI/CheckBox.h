@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-18 00:27:05
+ * Last Modified: 2023-06-29 20:55:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,6 +18,8 @@
 
 #include <QCheckBox>
 #include <QColor>
+
+#include "ThemeColors.h"
 
 class CheckBox : public QCheckBox
 {
@@ -33,7 +35,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event) override;
 
 private:
-    QColor m_color = QColor(43, 46, 50);
+    QColor m_color = QColor(COLOR_BACKGROUND_HIGHLIGHT);
 
 };
 

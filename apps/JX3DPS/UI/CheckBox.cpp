@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-18 00:28:20
+ * Last Modified: 2023-06-29 20:55:15
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -19,6 +19,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QIntValidator>
 #include <QPainter>
+
+#include "ThemeColors.h"
 
 CheckBox::CheckBox(QWidget *parent) : QCheckBox(parent)
 {
@@ -43,8 +45,8 @@ void CheckBox::paintEvent(QPaintEvent *event)
 
     if (this->isChecked()) {
         // 画个对号
-        painter.setPen(QPen(QColor(26, 159, 255), 2.5));
-        // painter.setBrush(QColor(26, 159, 255));
+        painter.setPen(QPen(QColor(COLOR_ACTIVE), 2.5));
+        // painter.setBrush(QColor(COLOR_ACTIVE));
         int width = this->width() - 12;
 
         painter.drawLines(QVector<QLineF>()
@@ -65,7 +67,7 @@ void CheckBox::enterEvent(QEnterEvent *event)
 
 void CheckBox::leaveEvent(QEvent *event)
 {
-    m_color = QColor(43, 46, 50);
+    m_color = QColor(COLOR_BACKGROUND_HIGHLIGHT);
     update();
 }
 
@@ -73,5 +75,5 @@ void CheckBox::mousePressEvent(QMouseEvent *event)
 {
     this->setChecked(!this->isChecked());
     update();
-   // QCheckBox::mousePressEvent(event);
+    // QCheckBox::mousePressEvent(event);
 }

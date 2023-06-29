@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-18 18:18:25
+ * Last Modified: 2023-06-29 20:37:10
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -49,7 +49,7 @@ void TextButton::enterEvent(QEnterEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(150);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(255, 255, 255));
+    animation->setEndValue(QColor(COLOR_FOCUS));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     this->setCursor(Qt::PointingHandCursor);
@@ -60,12 +60,10 @@ void TextButton::leaveEvent(QEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(200);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(139, 146, 154));
+    animation->setEndValue(QColor(COLOR_INACTIVE));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
-
-
 
 GreenButton::GreenButton(QWidget *parent) : QPushButton(parent)
 {
@@ -120,7 +118,7 @@ void GreenButton::enterEvent(QEnterEvent *event)
     QPropertyAnimation *animation2 = new QPropertyAnimation(this, "textColor");
     animation2->setDuration(150);
     animation2->setStartValue(m_textColor);
-    animation2->setEndValue(QColor(255, 255, 255));
+    animation2->setEndValue(QColor(COLOR_FOCUS));
     animation2->setEasingCurve(QEasingCurve::InOutQuad);
 
     animation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -219,7 +217,7 @@ void CloseButton::enterEvent(QEnterEvent *event)
     QPropertyAnimation *animation2 = new QPropertyAnimation(this, "textColor");
     animation2->setDuration(150);
     animation2->setStartValue(m_textColor);
-    animation2->setEndValue(QColor(255, 255, 255));
+    animation2->setEndValue(QColor(COLOR_FOCUS));
     animation2->setEasingCurve(QEasingCurve::InOutQuad);
 
     animation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -231,13 +229,13 @@ void CloseButton::leaveEvent(QEvent *event)
     QPropertyAnimation *animation = new QPropertyAnimation(this, "color");
     animation->setDuration(200);
     animation->setStartValue(m_color);
-    animation->setEndValue(QColor(23, 29, 37));
+    animation->setEndValue(QColor(COLOR_BACKGROUND_BASE));
     animation->setEasingCurve(QEasingCurve::InOutQuad);
 
     QPropertyAnimation *animation2 = new QPropertyAnimation(this, "textColor");
     animation2->setDuration(150);
     animation2->setStartValue(m_textColor);
-    animation2->setEndValue(QColor(139, 146, 154));
+    animation2->setEndValue(QColor(COLOR_INACTIVE));
     animation2->setEasingCurve(QEasingCurve::InOutQuad);
 
     animation->start(QAbstractAnimation::DeleteWhenStopped);

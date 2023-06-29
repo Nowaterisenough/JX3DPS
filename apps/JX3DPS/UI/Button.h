@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-18 18:18:29
+ * Last Modified: 2023-06-29 20:37:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,6 +18,8 @@
 
 #include <QColor>
 #include <QPushButton>
+
+#include "ThemeColors.h"
 
 class TextButton : public QPushButton
 {
@@ -36,10 +38,8 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    QColor m_color = QColor(139, 146, 154);
+    QColor m_color = QColor(COLOR_INACTIVE);
 };
-
-
 
 class GreenButton : public QPushButton
 {
@@ -62,7 +62,7 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    QColor m_color = QColor(54, 190, 62);
+    QColor m_color     = QColor(54, 190, 62);
     QColor m_textColor = QColor(193, 255, 203);
 };
 
@@ -71,7 +71,7 @@ class CloseButton : public QPushButton
     Q_OBJECT
     Q_PROPERTY(QColor color READ GetColor WRITE SetColor)
     Q_PROPERTY(QColor textColor READ GetTextColor WRITE SetTextColor)
-    
+
 public:
     CloseButton(QWidget *parent = nullptr);
 
@@ -87,8 +87,8 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    QColor m_color = QColor(23, 29, 37);
-    QColor m_textColor = QColor(139, 146, 154);
+    QColor m_color     = QColor(COLOR_BACKGROUND_BASE);
+    QColor m_textColor = QColor(COLOR_INACTIVE);
 };
 
 #endif // BUTTON_H

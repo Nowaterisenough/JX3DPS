@@ -264,7 +264,7 @@ void Widget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setPen(QColor(64, 64, 64));
-    painter.setBrush(QColor(23, 29, 37));
+    painter.setBrush(QColor(COLOR_BACKGROUND_BASE));
     painter.drawRoundedRect(this->rect(), 10, 10);
 }
 
@@ -583,16 +583,39 @@ void Widget::InitWidgetTalent(QWidget *parent)
     }
 }
 
+void ParseJson2Secrets(const nlohmann::json                                      &json,
+                       const std::string                                         &className,
+                       std::unordered_map<std::string, std::vector<std::string>> &secrets)
+{
+    for (auto &item : json["class"]) {
+        if (item["name"].get<std::string>() == className) {
+            for (auto &secretInfo : item["secrets"].items()) {
+                std::string key = secretInfo.key();
+                for (auto &secret : secretInfo.value()) {
+                    secrets[key].push_back(secret["desc"].get<std::string>());
+                }
+            }
+            break;
+        }
+    }
+}
+
 void Widget::InitWidgetSecret(QWidget *parent)
 {
 
     QGridLayout       *gLayout   = new QGridLayout(parent);
     VerticalTabWidget *tabWidget = new VerticalTabWidget(parent);
-    tabWidget->AddTab("无我无剑");
-    tabWidget->AddTab("八荒归元");
-    tabWidget->AddTab("三环套月");
-    tabWidget->AddTab("人剑合一");
-    tabWidget->AddTab("生太极");
+
+    nlohmann::json json;
+    std::ifstream  ifs("C:\\Users\\NoWat\\Project\\JX3DPS2\\config.json");
+    ifs >> json;
+    ifs.close();
+    std::unordered_map<std::string, std::vector<std::string>> secrets;
+    ParseJson2Secrets(json, "太虚剑意", secrets);
+    for (auto &secret : secrets) {
+        tabWidget->AddTab(QString::fromStdString(secret.first));
+    }
+
     gLayout->addWidget(tabWidget, 0, 0, 1, 1);
 }
 

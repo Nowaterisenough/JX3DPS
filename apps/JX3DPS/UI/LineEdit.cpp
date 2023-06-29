@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-17 06:57:31
+ * Last Modified: 2023-06-29 20:59:13
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -20,6 +20,8 @@
 #include <QIntValidator>
 #include <QPainter>
 
+#include "ThemeColors.h"
+
 LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent)
 {
     this->setAttribute(Qt::WA_TranslucentBackground);
@@ -30,24 +32,30 @@ LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent)
     shadowEffect->setOffset(0, 0);         // 设置阴影的偏移量
     this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
 
-    this->setStyleSheet("QLineEdit{"
-                        "background-color: rgb(43, 46, 50);"
-                        "border: none;"
-                        "color: rgb(255, 255, 255);"
-                        "selection-background-color: rgb(56, 60, 67);"
-                        "selection-color: rgb(255, 255, 255);"
-                        "font-size: 10pt;"
-                        "}"
-                        "QLineEdit::hover{"
-                        "background-color: rgb(35, 38, 46);"
-                        "}"
-                        "QLineEdit::focus{"
-                        "background-color: rgb(35, 38, 46);"
-                        "}"
-                        "QLineEdit::disabled{"
-                        "background-color: rgb(43, 46, 50);"
-                        "color: rgb(208, 211, 212);"
-                        "}");
+    this->setStyleSheet(
+        QString("QLineEdit{"
+                "background-color: rgb(%1);"
+                "border: none;"
+                "color: rgb(%2);"
+                "selection-background-color: rgb(56, 60, 67);"
+                "selection-color: rgb(%3);"
+                "font-size: 10pt;"
+                "}"
+                "QLineEdit::hover{"
+                "background-color: rgb(35, 38, 46);"
+                "}"
+                "QLineEdit::focus{"
+                "background-color: rgb(35, 38, 46);"
+                "}"
+                "QLineEdit::disabled{"
+                "background-color: rgb(%4);"
+                "color: rgb(%5);"
+                "}")
+            .arg(TO_STR(COLOR_BACKGROUND_HIGHLIGHT))
+            .arg(TO_STR(COLOR_FOCUS))
+            .arg(TO_STR(COLOR_FOCUS))
+            .arg(TO_STR(COLOR_BACKGROUND_HIGHLIGHT))
+            .arg(TO_STR(COLOR_HIGHLIGHT)));
 
     this->setValidator(new QIntValidator(1, 9999999, this));
 }

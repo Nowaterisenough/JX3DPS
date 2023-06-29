@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-18 17:35:23
+ * Last Modified: 2023-06-29 20:34:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -53,7 +53,7 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    QColor m_color = QColor(208, 211, 212);
+    QColor m_color = QColor(COLOR_HIGHLIGHT);
     int    m_line  = 0;
 };
 
@@ -97,7 +97,7 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    QColor m_color = QColor(208, 211, 212);
+    QColor m_color = QColor(COLOR_HIGHLIGHT);
     int    m_line  = 0;
 };
 
@@ -139,7 +139,7 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    QColor m_color = QColor(208, 211, 212);
+    QColor m_color = QColor(COLOR_HIGHLIGHT);
     int    m_line  = 0;
 };
 

@@ -9,6 +9,8 @@
 
 #include "Widget.h"
 
+#include <fstream>
+
 #include <QEvent>
 #include <QGraphicsDropShadowEffect>
 #include <QGridLayout>
@@ -84,8 +86,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     InitWidgetAttr(tabWidgetAttrAndEchant->Widget(0));
     tabWidgetAttrAndEchant->AddTab("配装");
     InitWidgetEchant(tabWidgetAttrAndEchant->Widget(1));
-    CheckBox *checkBoxSecret = new CheckBox(widget);
-    checkBoxSecret->setGeometry(95, 127, 22, 22);
+    CheckBox *checkBox = new CheckBox(widget);
+    checkBox->setGeometry(100, 126, 22, 22);
 
     TabWidget *tabWidgetAttrGain = new TabWidget(widget);
     tabWidgetAttrGain->AddTab("收益");
@@ -257,6 +259,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
             });
         });
     });
+
+    InitClass("太虚剑意");
 }
 
 void Widget::paintEvent(QPaintEvent *event)
@@ -266,6 +270,91 @@ void Widget::paintEvent(QPaintEvent *event)
     painter.setPen(QColor(64, 64, 64));
     painter.setBrush(QColor(COLOR_BACKGROUND_BASE));
     painter.drawRoundedRect(this->rect(), 10, 10);
+}
+
+bool LoadConfig(const std::string &path, nlohmann::json &json)
+{
+    std::ifstream ifs(path);
+    if (!ifs.is_open()) {
+        return false;
+    }
+
+    ifs >> json;
+    ifs.close();
+    return true;
+}
+
+void ParseJson2Talents(const nlohmann::json &json, const std::string &className, std::vector<std::vector<TalentInfo>> &talents)
+{
+    for (auto &item : json["class"]) {
+        if (item["name"].get<std::string>() == className) {
+            for (int i = 1; i <= 12; ++i) {
+                std::vector<TalentInfo> talentInfos;
+                for (auto &talentInfo : item["talents"][std::to_string(i)]) {
+                    TalentInfo info;
+                    info.id     = talentInfo["id"].get<int>();
+                    info.iconId = talentInfo["icon"].get<int>();
+                    info.name   = talentInfo["name"].get<std::string>();
+                    info.type   = talentInfo["type"].get<std::string>();
+                    info.desc   = talentInfo["desc"].get<std::string>();
+                    talentInfos.push_back(info);
+                }
+                talents.push_back(talentInfos);
+            }
+            break;
+        }
+    }
+}
+
+void ParseJson2Secrets(const nlohmann::json                                      &json,
+                       const std::string                                         &className,
+                       std::unordered_map<std::string, std::vector<std::string>> &secrets)
+{
+    for (auto &item : json["class"]) {
+        if (item["name"].get<std::string>() == className) {
+            for (auto &secretInfo : item["secrets"].items()) {
+                std::string key = secretInfo.key();
+                for (auto &secret : secretInfo.value()) {
+                    secrets[key].push_back(secret["desc"].get<std::string>());
+                }
+            }
+            break;
+        }
+    }
+}
+
+bool Widget::InitClass(const std::string &className)
+{
+    nlohmann::json json;
+    if (!LoadConfig("C:\\Users\\NoWat\\Project\\JX3DPS2\\config.json", json)) {
+        return false;
+    }
+
+    std::vector<std::vector<TalentInfo>> talents;
+    ParseJson2Talents(json, className, talents);
+
+    for (int i = 0; i < 12; ++i) {
+        for (auto &talentInfo : talents[i]) {
+            m_talentWidgets[i]->AddItem(talentInfo);
+        }
+    }
+
+    std::unordered_map<std::string, std::vector<std::string>> secrets;
+    ParseJson2Secrets(json, className, secrets);
+
+    int index = 0;
+    for (auto &secret : secrets) {
+        static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->AddTab(QString::fromStdString(secret.first));
+        QGridLayout *gLayoutSecret =
+            new QGridLayout(static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->Widget(index));
+        index++;
+        for (int i = 0; i < secret.second.size(); ++i) {
+            CheckBox *checkBox = new CheckBox();
+            checkBox->setFixedHeight(22);
+            checkBox->setText(QString::fromStdString(secret.second[i]));
+            gLayoutSecret->addWidget(checkBox, i / 2, i % 2, 1, 1);
+        }
+    }
 }
 
 void Widget::InitWidgetSetting(QWidget *parent)
@@ -532,91 +621,52 @@ void Widget::InitWidgetAttrGain(QWidget *parent)
     gLayout->addWidget(lineEditAttrGainWeaponAttack2, 9, 1, 1, 1);
 }
 
-void ParseJson2Talents(const nlohmann::json &json, const std::string &className, std::vector<std::vector<TalentInfo>> &talents)
-{
-    for (auto &item : json["class"]) {
-        if (item["name"].get<std::string>() == className) {
-            for (int i = 1; i <= 12; ++i) {
-                std::vector<TalentInfo> talentInfos;
-                for (auto &talentInfo : item["talents"][std::to_string(i)]) {
-                    TalentInfo info;
-                    info.id     = talentInfo["id"].get<int>();
-                    info.iconId = talentInfo["icon"].get<int>();
-                    info.name   = talentInfo["name"].get<std::string>();
-                    info.type   = talentInfo["type"].get<std::string>();
-                    info.desc   = talentInfo["desc"].get<std::string>();
-                    talentInfos.push_back(info);
-                }
-                talents.push_back(talentInfos);
-            }
-            break;
-        }
-    }
-}
-
-#include <fstream>
-
 void Widget::InitWidgetTalent(QWidget *parent)
 {
     QGridLayout *gLayout = new QGridLayout(parent);
     gLayout->setContentsMargins(10, 10, 10, 4);
 
-    nlohmann::json json;
-    std::ifstream  ifs("C:\\Users\\NoWat\\Project\\JX3DPS2\\config.json");
-    ifs >> json;
-    ifs.close();
-
-    std::vector<std::vector<TalentInfo>> talents;
-
-    ParseJson2Talents(json, "太虚剑意", talents);
-
     for (int i = 0; i < 12; ++i) {
         TalentWidget *talent = new TalentWidget(parent);
-
-        int index = 0;
-        for (auto &talentInfo : talents[i]) {
-            talent->AddItem(talents[i][index]);
-            index++;
-        }
-
+        m_talentWidgets.push_back(talent);
         gLayout->addWidget(talent, i / 6, i % 6, 1, 1);
-    }
-}
-
-void ParseJson2Secrets(const nlohmann::json                                      &json,
-                       const std::string                                         &className,
-                       std::unordered_map<std::string, std::vector<std::string>> &secrets)
-{
-    for (auto &item : json["class"]) {
-        if (item["name"].get<std::string>() == className) {
-            for (auto &secretInfo : item["secrets"].items()) {
-                std::string key = secretInfo.key();
-                for (auto &secret : secretInfo.value()) {
-                    secrets[key].push_back(secret["desc"].get<std::string>());
-                }
-            }
-            break;
-        }
     }
 }
 
 void Widget::InitWidgetSecret(QWidget *parent)
 {
 
-    QGridLayout       *gLayout   = new QGridLayout(parent);
-    VerticalTabWidget *tabWidget = new VerticalTabWidget(parent);
+    QGridLayout *gLayout = new QGridLayout(parent);
+    m_tabWidgetSecrets   = new VerticalTabWidget(parent);
 
-    nlohmann::json json;
-    std::ifstream  ifs("C:\\Users\\NoWat\\Project\\JX3DPS2\\config.json");
-    ifs >> json;
-    ifs.close();
-    std::unordered_map<std::string, std::vector<std::string>> secrets;
-    ParseJson2Secrets(json, "太虚剑意", secrets);
-    for (auto &secret : secrets) {
-        tabWidget->AddTab(QString::fromStdString(secret.first));
-    }
+    // nlohmann::json json;
+    // std::ifstream  ifs("C:\\Users\\NoWat\\Project\\JX3DPS2\\config.json");
+    // ifs >> json;
+    // ifs.close();
+    // std::unordered_map<std::string, std::vector<std::string>> secrets;
+    // ParseJson2Secrets(json, "太虚剑意", secrets);
+    // for (auto &secret : secrets) {
+    //     tabWidget->AddTab(QString::fromStdString(secret.first));
+    //     QGridLayout *gLayoutSecret = new QGridLayout(tabWidget->Widget(0));
+    //     CheckBox    *checkBox1     = new CheckBox();
+    //     CheckBox    *checkBox2     = new CheckBox();
+    //     CheckBox    *checkBox3     = new CheckBox();
+    //     CheckBox    *checkBox4     = new CheckBox();
+    //     CheckBox    *checkBox5     = new CheckBox();
+    //     checkBox1->setFixedSize(100, 22);
+    //     checkBox2->setFixedSize(100, 22);
+    //     checkBox3->setFixedSize(100, 22);
+    //     checkBox4->setFixedSize(100, 22);
+    //     checkBox5->setFixedSize(100, 22);
 
-    gLayout->addWidget(tabWidget, 0, 0, 1, 1);
+    // gLayoutSecret->addWidget(checkBox1, 0, 0, 1, 1);
+    // gLayoutSecret->addWidget(checkBox2, 0, 1, 1, 1);
+    // gLayoutSecret->addWidget(checkBox3, 1, 0, 1, 1);
+    // gLayoutSecret->addWidget(checkBox4, 3, 0, 1, 1);
+    // gLayoutSecret->addWidget(checkBox5, 4, 0, 1, 1);
+    // }
+
+    gLayout->addWidget(m_tabWidgetSecrets, 0, 0, 1, 1);
 }
 
 void Widget::InitWidgetSkill(QWidget *parent)

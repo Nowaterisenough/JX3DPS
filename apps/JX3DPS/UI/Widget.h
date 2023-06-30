@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-25 18:32:29
+ * Last Modified: 2023-06-30 13:17:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -56,6 +56,7 @@
 #include <QWidget>
 
 class FramelessWidget;
+class TalentWidget;
 
 class JX3DPSUI_API Widget : public QWidget
 {
@@ -70,6 +71,8 @@ protected:
 private:
     FramelessWidget *m_frameless = nullptr;
 
+    bool InitClass(const std::string &className);
+
     void InitWidgetSetting(QWidget *parent = nullptr);
     void InitWidgetOut(QWidget *parent = nullptr);
     void InitWidgetAttr(QWidget *parent = nullptr);
@@ -81,10 +84,13 @@ private:
     void InitWidgetSkillHelp(QWidget *parent = nullptr);
     void InitWidgetEvent(QWidget *parent = nullptr);
 
-    QWidget *m_plainTextEditSkill = nullptr;
-    QWidget *m_plainTextEditEvent = nullptr;
+    QWidget *m_plainTextEditSkill    = nullptr;
+    QWidget *m_plainTextEditEvent    = nullptr;
     QWidget *m_lineEditSimulateCount = nullptr;
-    QWidget *m_lineEditDPS = nullptr;
+    QWidget *m_lineEditDPS           = nullptr;
+    QWidget *m_tabWidgetSecrets      = nullptr;
+
+    std::vector<TalentWidget *> m_talentWidgets;
 };
 
 #endif // WIDGET_H

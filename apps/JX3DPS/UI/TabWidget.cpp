@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 20:33:39
+ * Last Modified: 2023-06-29 23:04:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -531,7 +531,7 @@ void VerticalTabWidget::AddTab(const QString &text)
 
 TWidget *VerticalTabWidget::Widget(int index)
 {
-    return nullptr;
+    return m_tabs[index].second;
 }
 
 void VerticalTabWidget::resizeEvent(QResizeEvent *event)

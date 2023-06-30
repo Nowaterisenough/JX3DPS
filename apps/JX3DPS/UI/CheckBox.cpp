@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 20:55:15
+ * Last Modified: 2023-06-30 13:36:09
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -41,22 +41,32 @@ void CheckBox::paintEvent(QPaintEvent *event)
     painter.setPen(QPen(QColor(56, 60, 67), 1));
     painter.setBrush(m_color);
 
-    painter.drawRect(6, 6, this->width() - 12, this->width() - 12);
+    painter.drawRect(3, 7, this->height() - 12, this->height() - 12);
 
     if (this->isChecked()) {
         // 画个对号
         painter.setPen(QPen(QColor(COLOR_ACTIVE), 2.5));
-        // painter.setBrush(QColor(COLOR_ACTIVE));
-        int width = this->width() - 12;
+        int width = this->height() - 12;
 
         painter.drawLines(QVector<QLineF>()
-                          << QLineF(6 + 1, 6 + width / 2, 6 + width / 2 - 1, 6 + width - 2)
-                          << QLineF(6 + width / 2 - 1, 6 + width - 2, 6 + width, 6 + width / 2 - 3));
-
-        // painter.drawLines(QVector<QLineF>()
-        //                   << QLineF(6, 6 + width / 2, 6 + width / 2 - 1, 6 + width - 1)
-        //                   << QLineF(6 + width / 2 - 1, 6 + width - 1, 6 + width, 6 + width / 2 - 4));
+                          << QLineF(3 + 1, 7 + width / 2, 3 + width / 2 - 1, 7 + width - 2)
+                          << QLineF(3 + width / 2 - 1, 7 + width - 2, 3 + width, 7 + width / 2 - 3));
     }
+
+    painter.setPen(QPen(QColor(COLOR_INACTIVE), 1));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawText(3 + this->height() - 12 + 6,
+                     0,
+                     this->width() - (3 + this->height() - 12 + 6),
+                     this->height(),
+                     Qt::AlignLeft | Qt::AlignVCenter,
+                     this->text());
+    painter.drawText(3 + this->height() - 12 + 6,
+                     0,
+                     this->width() - (3 + this->height() - 12 + 6),
+                     this->height(),
+                     Qt::AlignLeft | Qt::AlignVCenter,
+                     this->text());
 }
 
 void CheckBox::enterEvent(QEnterEvent *event)

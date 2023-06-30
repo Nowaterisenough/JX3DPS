@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 20:55:15
+ * Last Modified: 2023-07-01 02:00:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -27,8 +27,8 @@
 #include "Core/JX3Params.h"
 
 #include "Button.h"
-#include "ThemeColors.h"
 #include "Network.h"
+#include "ThemeColors.h"
 
 const int ROWS = 2;
 
@@ -56,21 +56,24 @@ ComboBoxClass::ComboBoxClass(QWidget *parent) : QComboBox(parent)
 
     view->setFocusPolicy(Qt::NoFocus);
     view->setStyleSheet(
-        "QTableView{background-color: rgb(COLOR_BACKGROUND_HIGHLIGHT);"
-        "border: none;"
-        "color: rgb(COLOR_FOCUS);"
-        "selection-background-color: rgb(56, 60, 67);"
-        "selection-color: rgb(COLOR_FOCUS);"
-        "}"
-        "QTableView::item{"
-        "border: none;"
-        "}"
-        "QTableView::item:selected{"
-        "background-color: rgb(56, 60, 67);"
-        "}"
-        "QTableView::item:hover{"
-        "background-color: rgb(56, 60, 67);"
-        "}");
+        QString("QTableView{background-color: rgb(%1);"
+                "border: none;"
+                "color: rgb(%2);"
+                "selection-background-color: rgb(56, 60, 67);"
+                "selection-color: rgb(%3);"
+                "}"
+                "QTableView::item{"
+                "border: none;"
+                "}"
+                "QTableView::item:selected{"
+                "background-color: rgb(56, 60, 67);"
+                "}"
+                "QTableView::item:hover{"
+                "background-color: rgb(56, 60, 67);"
+                "}")
+            .arg(TO_STR(COLOR_BACKGROUND_HIGHLIGHT))
+            .arg(TO_STR(COLOR_FOCUS))
+            .arg(TO_STR(COLOR_FOCUS)));
 
     this->setModelColumn(3);
     this->setModel(model);
@@ -195,7 +198,6 @@ ComboBoxTalent::ComboBoxTalent(QWidget *parent)
     this->setView(listWidgetTalent);
 
     connect(listWidgetTalent, &ListWidgetTalent::itemClicked, this, [=](QListWidgetItem *item) {
-        qDebug() << "itemClicked";
         this->hidePopup();
     });
     connect(listWidgetTalent, &QListWidget::currentItemChanged, this, [=](QListWidgetItem *current, QListWidgetItem *previous) {
@@ -331,6 +333,11 @@ ItemWidgetTalent::ItemWidgetTalent(const TalentInfo &talentInfo, QWidget *parent
     }
 
     m_desc = QString::fromStdString(talentInfo.desc);
+    this->setToolTip(QString::fromStdString(talentInfo.desc));
+
+    // 设置样式表
+    this->setStyleSheet(
+        "QToolTip { color: white; background-color: rgb(23, 29, 37); border: none; }");
 }
 
 ItemWidgetTalent::~ItemWidgetTalent() { }

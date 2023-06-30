@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-30 13:17:22
+ * Last Modified: 2023-07-01 01:07:34
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -55,8 +55,11 @@
 
 #include <QWidget>
 
+#include "Core/Attr.h"
+
 class FramelessWidget;
 class TalentWidget;
+class ProgressBar;
 
 class JX3DPSUI_API Widget : public QWidget
 {
@@ -91,6 +94,10 @@ private:
     QWidget *m_tabWidgetSecrets      = nullptr;
 
     std::vector<TalentWidget *> m_talentWidgets;
+
+    JX3DPS::Attr m_attr;
+
+    ProgressBar *m_progressBar = nullptr;
 };
 
 #endif // WIDGET_H

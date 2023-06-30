@@ -12,9 +12,11 @@
 #include <fstream>
 
 #include <QEvent>
+#include <QEventLoop>
 #include <QGraphicsDropShadowEffect>
 #include <QGridLayout>
 #include <QPainter>
+#include <QTimer>
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -30,6 +32,7 @@
 #include "GroupBox.h"
 #include "LineEdit.h"
 #include "PlainTextEdit.h"
+#include "ProgressBar.h"
 #include "Splitter.h"
 #include "TabWidget.h"
 
@@ -70,10 +73,10 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     layout->addWidget(closeButton, 0, 4, 1, 1);
     layout->addWidget(widget, 1, 0, 1, 5);
 
-    GreenButton *greenButton = new GreenButton(widget);
-    greenButton->setText("开始模拟");
-    greenButton->setFont(QFont("Microsoft YaHei", 14));
-    greenButton->setFixedSize(134, 44);
+    Button *button = new Button(widget);
+    button->setText("开始模拟");
+    button->setFont(QFont("Microsoft YaHei", 14));
+    button->setFixedSize(134, 44);
 
     GroupBox *groupBoxSetting = new GroupBox("设置", widget);
     InitWidgetSetting(groupBoxSetting);
@@ -133,7 +136,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     gLayout->setContentsMargins(12, 5, 12, 12);
     gLayout->setSpacing(10);
     gLayout->addWidget(groupBoxSetting, 0, 0, 2, 1);
-    gLayout->addWidget(greenButton, 0, 1, 1, 1);
+    gLayout->addWidget(button, 0, 1, 1, 1);
     gLayout->addWidget(groupBoxOut, 1, 1, 1, 1);
     gLayout->addWidget(tabWidgetAttrAndEchant, 2, 0, 2, 1);
     gLayout->addWidget(tabWidgetAttrGain, 2, 1, 1, 1);
@@ -142,7 +145,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
     gLayout->addItem(verticalSpacer3, 3, 0, 1, 1);
 
-    connect(greenButton, &GreenButton::clicked, this, [=]() {
+    connect(button, &Button::clicked, this, [=]() {
         nlohmann::json json;
 
         nlohmann::json jsonObj;
@@ -261,6 +264,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     });
 
     InitClass("太虚剑意");
+
+    m_progressBar = new ProgressBar(nullptr);
 }
 
 void Widget::paintEvent(QPaintEvent *event)
@@ -306,16 +311,20 @@ void ParseJson2Talents(const nlohmann::json &json, const std::string &className,
     }
 }
 
-void ParseJson2Secrets(const nlohmann::json                                      &json,
-                       const std::string                                         &className,
-                       std::unordered_map<std::string, std::vector<std::string>> &secrets)
+void ParseJson2Secrets(const nlohmann::json                                     &json,
+                       const std::string                                        &className,
+                       std::unordered_map<std::string, std::vector<SecretInfo>> &secrets)
 {
     for (auto &item : json["class"]) {
         if (item["name"].get<std::string>() == className) {
             for (auto &secretInfo : item["secrets"].items()) {
                 std::string key = secretInfo.key();
                 for (auto &secret : secretInfo.value()) {
-                    secrets[key].push_back(secret["desc"].get<std::string>());
+                    SecretInfo info;
+                    info.iconId = secret["icon"].get<int>();
+                    info.desc   = secret["desc"].get<std::string>();
+                    info.name   = secret["name"].get<std::string>();
+                    secrets[key].push_back(info);
                 }
             }
             break;
@@ -339,7 +348,7 @@ bool Widget::InitClass(const std::string &className)
         }
     }
 
-    std::unordered_map<std::string, std::vector<std::string>> secrets;
+    std::unordered_map<std::string, std::vector<SecretInfo>> secrets;
     ParseJson2Secrets(json, className, secrets);
 
     int index = 0;
@@ -347,13 +356,14 @@ bool Widget::InitClass(const std::string &className)
         static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->AddTab(QString::fromStdString(secret.first));
         QGridLayout *gLayoutSecret =
             new QGridLayout(static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->Widget(index));
-        index++;
+
         for (int i = 0; i < secret.second.size(); ++i) {
-            CheckBox *checkBox = new CheckBox();
-            checkBox->setFixedHeight(22);
-            checkBox->setText(QString::fromStdString(secret.second[i]));
-            gLayoutSecret->addWidget(checkBox, i / 2, i % 2, 1, 1);
+            SecretCheckBox *checkBox =
+                new SecretCheckBox(secret.second[i],
+                                   static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->Widget(index));
+            gLayoutSecret->addWidget(checkBox, i / 3, i % 3, 1, 1);
         }
+        index++;
     }
 }
 
@@ -541,6 +551,18 @@ void Widget::InitWidgetAttr(QWidget *parent)
     GroupBox *groupBoxAttrSetEffect = new GroupBox("装备效果", parent);
 
     gLayout->addWidget(groupBoxAttrSetEffect, 11, 0, 1, 3);
+
+    Button *buttonImportJX3Box = new Button(parent);
+    buttonImportJX3Box->setFont(QFont("Microsoft YaHei", 11));
+    buttonImportJX3Box->setFixedHeight(35);
+    buttonImportJX3Box->setText("导入魔盒属性");
+    buttonImportJX3Box->SetButtonColor(QColor(COLOR_BUTTON_BLUE_NORMAL), QColor(COLOR_BUTTON_BLUE_HOVER));
+
+    gLayout->addWidget(buttonImportJX3Box, 12, 0, 1, 3);
+
+    connect(buttonImportJX3Box, &Button::clicked, this, [=] {
+
+    });
 }
 
 void Widget::InitWidgetEchant(QWidget *parent) { }

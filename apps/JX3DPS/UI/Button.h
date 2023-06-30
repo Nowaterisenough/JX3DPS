@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 20:37:06
+ * Last Modified: 2023-06-30 19:07:48
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -41,14 +41,14 @@ private:
     QColor m_color = QColor(COLOR_INACTIVE);
 };
 
-class GreenButton : public QPushButton
+class Button : public QPushButton
 {
     Q_OBJECT
     Q_PROPERTY(QColor color READ GetColor WRITE SetColor)
     Q_PROPERTY(QColor textColor READ GetTextColor WRITE SetTextColor)
 
 public:
-    GreenButton(QWidget *parent = nullptr);
+    Button(QWidget *parent = nullptr);
 
     QColor GetColor() const;
     void   SetColor(QColor color);
@@ -56,14 +56,18 @@ public:
     QColor GetTextColor() const;
     void   SetTextColor(QColor color);
 
+    void SetButtonColor(const QColor &hover, const QColor &normal);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
 
 private:
-    QColor m_color     = QColor(54, 190, 62);
     QColor m_textColor = QColor(193, 255, 203);
+    QColor m_hoverColor = QColor(COLOR_BUTTON_GREEN_HOVER);
+    QColor m_normalColor = QColor(COLOR_BUTTON_GREEN_NORMAL);
+    QColor m_color     = m_normalColor;
 };
 
 class CloseButton : public QPushButton

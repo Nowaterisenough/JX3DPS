@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 19:00:24
+ * Last Modified: 2023-07-01 02:44:34
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -63,7 +63,13 @@ DamageStats Simulate(Player &p, ExprEvents &exprEvents, ExprSkills &exprSkills)
     return damageStats;
 }
 
-Error_t SimulatePool(ExprEvents &exprEvents, ExprSkills &exprSkills, Player &player, int simIterations, DamageStats &damageStats)
+Error_t SimulatePool(ExprEvents  &exprEvents,
+                     ExprSkills  &exprSkills,
+                     Player      &player,
+                     int          simIterations,
+                     DamageStats &damageStats,
+                     void        *obj,
+                     void (*memberFunction)(void *, double))
 {
     std::list<std::future<DamageStats>> results;
     for (int i = 0; i < simIterations; i++) {
@@ -72,13 +78,18 @@ Error_t SimulatePool(ExprEvents &exprEvents, ExprSkills &exprSkills, Player &pla
         results.emplace_back(std::move(res));
     }
 
+    int step = simIterations / 100;
+    if (step == 0) {
+        step = 1;
+    }
     for (int i = 0; i < simIterations; i++) {
-        if (i % 1000 == 0) {
-            spdlog::debug("Simulating... {}/{}", i, simIterations);
+        if (i % step == 0) {
+            memberFunction(obj, (double)i / simIterations);
         }
         damageStats += results.front().get();
         results.pop_front();
     }
+    memberFunction(obj, 1.0);
 
     return JX3DPS::JX3DPS_SUCCESS;
 }
@@ -162,7 +173,7 @@ Error_t InitParams(const nlohmann::json    &json,
 
 } // namespace JX3DPS
 
-int JX3DPSSimulate(const char *const in, char *out)
+int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*memberFunction)(void *, double))
 {
 
     spdlog::info("{}  Version: {}", JX3DPS::NAME, JX3DPS::VERSION);
@@ -191,7 +202,7 @@ int JX3DPSSimulate(const char *const in, char *out)
 
     JX3DPS::DamageStats damageStats;
 
-    err = SimulatePool(exprEvents, exprSkills, *player.get(), simIterations, damageStats);
+    err = SimulatePool(exprEvents, exprSkills, *player.get(), simIterations, damageStats, obj, memberFunction);
 
     if (err != JX3DPS::JX3DPS_SUCCESS) {
         return err;

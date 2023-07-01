@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 01:07:34
+ * Last Modified: 2023-07-01 02:40:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -67,6 +67,8 @@ class JX3DPSUI_API Widget : public QWidget
 
 public:
     explicit Widget(QWidget *parent = 0);
+
+    void SetProgress(double value);
 
 protected:
     void paintEvent(QPaintEvent *event);

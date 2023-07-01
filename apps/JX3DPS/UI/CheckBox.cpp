@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 01:55:06
+ * Last Modified: 2023-07-01 22:05:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -124,7 +124,7 @@ void SecretImage::paintEvent(QPaintEvent *event)
         painter.setPen(QPen(QColor(0, 0, 0)));
         painter.setBrush(QBrush(QColor(0, 0, 0)));
         painter.drawRect(2, 2, this->width() - 4, this->height() - 4);
-        int         border = 3;
+        int         border = 2;
         QIcon       icon(m_pixmap->copy(3, 3, 42, 42));
         QIcon::Mode mode = (m_checked || m_hovered) ? QIcon::Normal : QIcon::Disabled;
         painter.drawPixmap(border,

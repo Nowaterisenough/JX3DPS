@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:40:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 01:48:26
+ * Last Modified: 2023-07-01 02:41:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -28,9 +28,7 @@ public:
     ProgressBar(QWidget *parent = nullptr);
 
     double GetProgress() const;
-    
-public slots:
-    void SetProgress(double progress);
+    void   SetProgress(double progress);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

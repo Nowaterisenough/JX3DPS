@@ -252,7 +252,11 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
         ThreadPool::Instance()->Enqueue([=]() {
             char *result = new char[1024];
-            JX3DPSSimulate(json.dump().c_str(), result);
+
+            JX3DPSSimulate(json.dump().c_str(), result, this, [](void *obj, double arg) {
+                Widget *ptr = static_cast<Widget *>(obj);
+                ptr->SetProgress(arg);
+            });
             std::string str = result;
             delete[] result;
             nlohmann::json res = nlohmann::json::parse(str);
@@ -266,6 +270,14 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     InitClass("太虚剑意");
 
     m_progressBar = new ProgressBar(nullptr);
+}
+
+void Widget::SetProgress(double value)
+{
+    QMetaObject::invokeMethod(this, [=, this] {
+        m_progressBar->show();
+        m_progressBar->SetProgress(value);
+    });
 }
 
 void Widget::paintEvent(QPaintEvent *event)

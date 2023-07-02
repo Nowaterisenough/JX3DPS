@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 18:16:35
+ * Last Modified: 2023-07-03 03:23:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -212,7 +212,6 @@ Damage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub, i
 
 Damage Skill::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub, int level) const
 {
-
     PctFloat_t surplusDamagePercent =
         (1 + m_player->attr->GetMagicOvercomePercent()) *       // 破防加成
         (1 + (*m_targets)[targetId]->GetDamageAddPercent()) *   // 易伤加成

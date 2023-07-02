@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 20:57:36
+ * Last Modified: 2023-07-02 18:49:48
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -57,4 +57,5 @@ PlainTextEdit::PlainTextEdit(QWidget *parent) : QPlainTextEdit(parent)
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setWordWrapMode(QTextOption::NoWrap);
+    installEventFilter(this);
 }

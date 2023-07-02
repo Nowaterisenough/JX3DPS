@@ -28,8 +28,10 @@
 #include "Button.h"
 #include "CheckBox.h"
 #include "ComboBox.h"
+#include "DataBars.h"
 #include "FramelessWidget.h"
 #include "GroupBox.h"
+#include "ImportWidget.h"
 #include "LineEdit.h"
 #include "PlainTextEdit.h"
 #include "ProgressBar.h"
@@ -77,6 +79,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     button->setText("开始模拟");
     button->setFont(QFont("Microsoft YaHei", 14));
     button->setFixedSize(134, 44);
+    button->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
 
     GroupBox *groupBoxSetting = new GroupBox("设置", widget);
     InitWidgetSetting(groupBoxSetting);
@@ -250,12 +253,15 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
         json["secrets"] = nlohmann::json::parse(str2);
 
+        m_progressBar = new ProgressBar(nullptr);
+        m_progressBar->setAttribute(Qt::WA_DeleteOnClose);
+        m_progressBar->show();
+
         ThreadPool::Instance()->Enqueue([=]() {
             char *result = new char[1024];
 
             JX3DPSSimulate(json.dump().c_str(), result, this, [](void *obj, double arg) {
-                Widget *ptr = static_cast<Widget *>(obj);
-                ptr->SetProgress(arg);
+                static_cast<Widget *>(obj)->SetProgress(arg);
             });
             std::string str = result;
             delete[] result;
@@ -268,16 +274,11 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     });
 
     InitClass("太虚剑意");
-
-    m_progressBar = new ProgressBar(nullptr);
 }
 
 void Widget::SetProgress(double value)
 {
-    QMetaObject::invokeMethod(this, [=, this] {
-        m_progressBar->show();
-        m_progressBar->SetProgress(value);
-    });
+    QMetaObject::invokeMethod(this, [=, this] { m_progressBar->SetProgress(value); });
 }
 
 void Widget::paintEvent(QPaintEvent *event)
@@ -568,12 +569,13 @@ void Widget::InitWidgetAttr(QWidget *parent)
     buttonImportJX3Box->setFont(QFont("Microsoft YaHei", 11));
     buttonImportJX3Box->setFixedHeight(35);
     buttonImportJX3Box->setText("导入魔盒属性");
-    buttonImportJX3Box->SetButtonColor(QColor(COLOR_BUTTON_BLUE_NORMAL), QColor(COLOR_BUTTON_BLUE_HOVER));
 
     gLayout->addWidget(buttonImportJX3Box, 12, 0, 1, 3);
 
     connect(buttonImportJX3Box, &Button::clicked, this, [=] {
-
+        ImportWidget *importWidget = new ImportWidget();
+        importWidget->show();
+        importWidget->setAttribute(Qt::WA_DeleteOnClose);
     });
 }
 
@@ -584,53 +586,60 @@ void Widget::InitWidgetAttrGain(QWidget *parent)
 
     LineEdit *lineEditAttrGainAgilityOrSpirit = new LineEdit(parent);
     lineEditAttrGainAgilityOrSpirit->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainAgilityOrSpirit2 = new LineEdit(parent);
-    lineEditAttrGainAgilityOrSpirit2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainAgilityOrSpirit2 = new DataBars(parent);
+    lineEditAttrGainAgilityOrSpirit2->setFixedSize(54, 21);
 
     LineEdit *lineEditAttrGainStrengthOrSpunk = new LineEdit(parent);
     lineEditAttrGainStrengthOrSpunk->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainStrengthOrSpunk2 = new LineEdit(parent);
-    lineEditAttrGainStrengthOrSpunk2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainStrengthOrSpunk2 = new DataBars(parent);
+    lineEditAttrGainStrengthOrSpunk2->setFixedSize(54, 21);
+    lineEditAttrGainStrengthOrSpunk2->SetValue(0.05);
 
     LineEdit *lineEditAttrGainAttack = new LineEdit(parent);
     lineEditAttrGainAttack->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainAttack2 = new LineEdit(parent);
-    lineEditAttrGainAttack2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainAttack2 = new DataBars(parent);
+    lineEditAttrGainAttack2->setFixedSize(54, 21);
+    lineEditAttrGainAttack2->SetValue(0.25);
 
     LineEdit *lineEditAttrGainCritical = new LineEdit(parent);
     lineEditAttrGainCritical->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainCritical2 = new LineEdit(parent);
-    lineEditAttrGainCritical2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainCritical2 = new DataBars(parent);
+    lineEditAttrGainCritical2->setFixedSize(54, 21);
+    lineEditAttrGainCritical2->SetValue(0.15);
 
     LineEdit *lineEditAttrGainCriticalPower = new LineEdit(parent);
     lineEditAttrGainCriticalPower->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainCriticalPower2 = new LineEdit(parent);
-    lineEditAttrGainCriticalPower2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainCriticalPower2 = new DataBars(parent);
+    lineEditAttrGainCriticalPower2->setFixedSize(54, 21);
+    lineEditAttrGainCriticalPower2->SetValue(0.5);
 
     LineEdit *lineEditAttrGainHaste = new LineEdit(parent);
     lineEditAttrGainHaste->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainHaste2 = new LineEdit(parent);
-    lineEditAttrGainHaste2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainHaste2 = new DataBars(parent);
+    lineEditAttrGainHaste2->setFixedSize(54, 21);
+    lineEditAttrGainHaste2->SetValue(0.45);
 
     LineEdit *lineEditAttrGainOvercome = new LineEdit(parent);
     lineEditAttrGainOvercome->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainOvercome2 = new LineEdit(parent);
-    lineEditAttrGainOvercome2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainOvercome2 = new DataBars(parent);
+    lineEditAttrGainOvercome2->setFixedSize(54, 21);
+    lineEditAttrGainOvercome2->SetValue(0.6);
 
     LineEdit *lineEditAttrGainStrain = new LineEdit(parent);
     lineEditAttrGainStrain->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainStrain2 = new LineEdit(parent);
-    lineEditAttrGainStrain2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainStrain2 = new DataBars(parent);
+    lineEditAttrGainStrain2->setFixedSize(54, 21);
+    lineEditAttrGainStrain2->SetValue(0.55);
 
     LineEdit *lineEditAttrGainSurplus = new LineEdit(parent);
     lineEditAttrGainSurplus->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainSurplus2 = new LineEdit(parent);
-    lineEditAttrGainSurplus2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainSurplus2 = new DataBars(parent);
+    lineEditAttrGainSurplus2->setFixedSize(54, 21);
 
     LineEdit *lineEditAttrGainWeaponAttack = new LineEdit(parent);
     lineEditAttrGainWeaponAttack->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainWeaponAttack2 = new LineEdit(parent);
-    lineEditAttrGainWeaponAttack2->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainWeaponAttack2 = new DataBars(parent);
+    lineEditAttrGainWeaponAttack2->setFixedSize(54, 21);
 
     QGridLayout *gLayout = new QGridLayout(parent);
     gLayout->addWidget(lineEditAttrGainAgilityOrSpirit, 0, 0, 1, 1);

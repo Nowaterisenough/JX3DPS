@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 15:41:10
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 19:10:26
+ * Last Modified: 2023-07-03 00:59:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -446,13 +446,12 @@ JX3DPS::Error_t Parse2Cast(const std::string &str, JX3DPS::ExprSkill &exprSkill)
 
     std::list<JX3DPS::ExprIf> exprIfList;
 
-    // 添加是否在范围内判断
-    exprIfList.emplace_back(
-        std::bind(&JX3DPS::Macro::IsTargetWithinRange, std::placeholders::_1, std::placeholders::_2, GetSkillId(skillName)));
-
     // 添加冷却判断
     exprIfList.emplace_back(
         std::bind(&JX3DPS::Macro::IsCooldown, std::placeholders::_1, std::placeholders::_2, GetSkillId(skillName)));
+    // 添加是否在范围内判断
+    exprIfList.emplace_back(
+        std::bind(&JX3DPS::Macro::IsTargetWithinRange, std::placeholders::_1, std::placeholders::_2, GetSkillId(skillName)));
 
     // 添加是否在读条判断
     if (cast == std::string(JX3DPS_MACRO_TYPE_CAST)) {

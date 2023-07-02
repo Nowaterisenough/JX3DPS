@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 01:48:36
+ * Last Modified: 2023-07-02 20:41:20
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -37,7 +37,6 @@ void ProgressBar::SetProgress(double progress)
 {
     if (progress == 1.0) {
         this->close();
-        m_progress = 0.0;
     } else {
         m_progress = progress;
         this->update();

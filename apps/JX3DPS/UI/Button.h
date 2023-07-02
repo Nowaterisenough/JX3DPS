@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-30 19:07:48
+ * Last Modified: 2023-07-02 19:20:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -65,8 +65,8 @@ protected:
 
 private:
     QColor m_textColor = QColor(193, 255, 203);
-    QColor m_hoverColor = QColor(COLOR_BUTTON_GREEN_HOVER);
-    QColor m_normalColor = QColor(COLOR_BUTTON_GREEN_NORMAL);
+    QColor m_hoverColor = QColor(COLOR_BUTTON_BLUE_HOVER);
+    QColor m_normalColor = QColor(COLOR_BUTTON_BLUE_NORMAL);
     QColor m_color     = m_normalColor;
 };
 

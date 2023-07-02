@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 17:04:50
+ * Last Modified: 2023-07-03 03:08:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -94,6 +94,8 @@ public:
 
     HasBuff3rd hasBuff3rd;
     
+
+    PctInt_t damageAdd = 0;
 };
 
 } // namespace JX3DPS

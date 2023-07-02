@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 02:56:56
+ * Last Modified: 2023-07-03 03:22:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -151,13 +151,13 @@ protected:
     int m_targetCountFixed = 0;
 
     /* 技能会心加成 */
-    PctFloat_t m_skillCriticalStrikePercentAdd = 0;
+    PctInt_t m_skillCriticalStrikePercentAdd = 0;
 
     /* 技能会心效果加成 */
-    PctFloat_t m_skillCriticalStrikePowerPercentAdd = 0;
+    PctInt_t m_skillCriticalStrikePowerPercentAdd = 0;
 
     /* 技能伤害加成 */
-    PctFloat_t m_skillDamageBinPercentAdd = 0;
+    PctInt_t m_skillDamageBinPercentAdd = 0;
 
     /* 技能气点加成 */
     int m_skillQidianAdd = 0;

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-20 12:37:35
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-25 13:14:53
+ * Last Modified: 2023-07-03 04:53:33
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -68,7 +68,13 @@
                                 (1 + (static_cast<int>((RollResult)) & 1) * ((CriticalStrikePowerPercent)-1.0))))
 #endif // JX3_LEVEL_VERSION >= 110
 
-/* 修正判定百分比 - */
-#define BETWEEN(min, num, max) ((min) > (num) ? (min) : ((max) < (num) ? (max) : (num)))
+#define JX3DPS_DAMAGE_ADD_PERCENT_SKILL
+#define JX3DPS_DAMAGE_ADD_PERCENT_SHIELD
+#define JX3DPS_DAMAGE_ADD_PERCENT_OVERCOME
+#define JX3DPS_DAMAGE_ADD_PERCENT_CRITICAL
+#define JX3DPS_DAMAGE_ADD_PERCENT_LEVEL
+#define JX3DPS_DAMAGE_ADD_PERCENT_STRAIN
+#define JX3DPS_DAMAGE_ADD_PERCENT_CLASS
+#define JX3DPS_DAMAGE_ADD_PERCENT_VULNERABILITY
 
 #endif // JX3DPS_OPTIMIZATION_H_

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 15:41:10
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 00:59:01
+ * Last Modified: 2023-07-03 05:03:31
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -776,7 +776,7 @@ bool JX3DPS::Macro::AddTarget(Player *player, Targets *targets, Id_t targetId, i
     std::unique_ptr<Target> target = std::make_unique<Target>();
     target->SetId(targetId);
     target->SetLevel(level);
-    target->SetShieldIgnoreBinPercent(player->attr->GetShieldIgnoreBinPercent());
+    target->SetShieldIgnorePercentInt(player->attr->GetShieldIgnorePercentInt());
     target->SetPhysicsShield(shield);
     target->SetMagicShield(shield);
     target->SetDistance(distance);

@@ -584,84 +584,65 @@ void Widget::InitWidgetEchant(QWidget *parent) { }
 void Widget::InitWidgetAttrGain(QWidget *parent)
 {
 
-    LineEdit *lineEditAttrGainAgilityOrSpirit = new LineEdit(parent);
-    lineEditAttrGainAgilityOrSpirit->setFixedSize(48, 21);
-    DataBars *lineEditAttrGainAgilityOrSpirit2 = new DataBars(parent);
-    lineEditAttrGainAgilityOrSpirit2->setFixedSize(54, 21);
 
-    LineEdit *lineEditAttrGainStrengthOrSpunk = new LineEdit(parent);
-    lineEditAttrGainStrengthOrSpunk->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainAgilityOrSpirit2 = new DataBars(parent);
+    lineEditAttrGainAgilityOrSpirit2->setFixedSize(110, 21);
+
+
     DataBars *lineEditAttrGainStrengthOrSpunk2 = new DataBars(parent);
-    lineEditAttrGainStrengthOrSpunk2->setFixedSize(54, 21);
+    lineEditAttrGainStrengthOrSpunk2->setFixedSize(110, 21);
     lineEditAttrGainStrengthOrSpunk2->SetValue(0.05);
 
-    LineEdit *lineEditAttrGainAttack = new LineEdit(parent);
-    lineEditAttrGainAttack->setFixedSize(48, 21);
+
     DataBars *lineEditAttrGainAttack2 = new DataBars(parent);
-    lineEditAttrGainAttack2->setFixedSize(54, 21);
+    lineEditAttrGainAttack2->setFixedSize(110, 21);
     lineEditAttrGainAttack2->SetValue(0.25);
 
-    LineEdit *lineEditAttrGainCritical = new LineEdit(parent);
-    lineEditAttrGainCritical->setFixedSize(48, 21);
+
     DataBars *lineEditAttrGainCritical2 = new DataBars(parent);
-    lineEditAttrGainCritical2->setFixedSize(54, 21);
+    lineEditAttrGainCritical2->setFixedSize(110, 21);
     lineEditAttrGainCritical2->SetValue(0.15);
 
-    LineEdit *lineEditAttrGainCriticalPower = new LineEdit(parent);
-    lineEditAttrGainCriticalPower->setFixedSize(48, 21);
+
     DataBars *lineEditAttrGainCriticalPower2 = new DataBars(parent);
-    lineEditAttrGainCriticalPower2->setFixedSize(54, 21);
+    lineEditAttrGainCriticalPower2->setFixedSize(110, 21);
     lineEditAttrGainCriticalPower2->SetValue(0.5);
 
-    LineEdit *lineEditAttrGainHaste = new LineEdit(parent);
-    lineEditAttrGainHaste->setFixedSize(48, 21);
+
     DataBars *lineEditAttrGainHaste2 = new DataBars(parent);
-    lineEditAttrGainHaste2->setFixedSize(54, 21);
+    lineEditAttrGainHaste2->setFixedSize(110, 21);
     lineEditAttrGainHaste2->SetValue(0.45);
 
-    LineEdit *lineEditAttrGainOvercome = new LineEdit(parent);
-    lineEditAttrGainOvercome->setFixedSize(48, 21);
+
     DataBars *lineEditAttrGainOvercome2 = new DataBars(parent);
-    lineEditAttrGainOvercome2->setFixedSize(54, 21);
+    lineEditAttrGainOvercome2->setFixedSize(110, 21);
     lineEditAttrGainOvercome2->SetValue(0.6);
 
-    LineEdit *lineEditAttrGainStrain = new LineEdit(parent);
-    lineEditAttrGainStrain->setFixedSize(48, 21);
+
     DataBars *lineEditAttrGainStrain2 = new DataBars(parent);
-    lineEditAttrGainStrain2->setFixedSize(54, 21);
+    lineEditAttrGainStrain2->setFixedSize(110, 21);
     lineEditAttrGainStrain2->SetValue(0.55);
 
-    LineEdit *lineEditAttrGainSurplus = new LineEdit(parent);
-    lineEditAttrGainSurplus->setFixedSize(48, 21);
-    DataBars *lineEditAttrGainSurplus2 = new DataBars(parent);
-    lineEditAttrGainSurplus2->setFixedSize(54, 21);
 
-    LineEdit *lineEditAttrGainWeaponAttack = new LineEdit(parent);
-    lineEditAttrGainWeaponAttack->setFixedSize(48, 21);
+    DataBars *lineEditAttrGainSurplus2 = new DataBars(parent);
+    lineEditAttrGainSurplus2->setFixedSize(110, 21);
+
+
     DataBars *lineEditAttrGainWeaponAttack2 = new DataBars(parent);
-    lineEditAttrGainWeaponAttack2->setFixedSize(54, 21);
+    lineEditAttrGainWeaponAttack2->setFixedSize(110, 21);
 
     QGridLayout *gLayout = new QGridLayout(parent);
-    gLayout->addWidget(lineEditAttrGainAgilityOrSpirit, 0, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainAgilityOrSpirit2, 0, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainStrengthOrSpunk, 1, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainStrengthOrSpunk2, 1, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainAttack, 2, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainAttack2, 2, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainCritical, 3, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainCritical2, 3, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainCriticalPower, 4, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainCriticalPower2, 4, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainHaste, 5, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainHaste2, 5, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainOvercome, 6, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainOvercome2, 6, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainStrain, 7, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainStrain2, 7, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainSurplus, 8, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainSurplus2, 8, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainWeaponAttack, 9, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainWeaponAttack2, 9, 1, 1, 1);
+
+    gLayout->addWidget(lineEditAttrGainAgilityOrSpirit2, 0, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainStrengthOrSpunk2, 1, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainAttack2, 2, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainCritical2, 3, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainCriticalPower2, 4, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainHaste2, 5, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainOvercome2, 6, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainStrain2, 7, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainSurplus2, 8, 0, 1, 1);
+    gLayout->addWidget(lineEditAttrGainWeaponAttack2, 9, 0, 1, 1);
 }
 
 void Widget::InitWidgetTalent(QWidget *parent)

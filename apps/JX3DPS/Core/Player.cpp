@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 21:21:04
+ * Last Modified: 2023-07-03 05:20:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -59,6 +59,8 @@ JX3DPS::Player::Player(const Player &other)
 
     end  = other.end;
     stop = other.stop;
+
+    damageAddPercentInt  = other.damageAddPercentInt;
 
     for (auto &buff : other.buffs) {
         std::unique_ptr<Buff> ptr(buff.second->Clone());
@@ -118,6 +120,8 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
 
     end  = other.end;
     stop = other.stop;
+
+    damageAddPercentInt  = other.damageAddPercentInt;
 
     for (auto &buff : other.buffs) {
         std::unique_ptr<Buff> ptr(buff.second->Clone());

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 02:00:55
+ * Last Modified: 2023-07-03 21:28:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -232,6 +232,29 @@ QString ComboBoxTalent::GetName() const
     return m_name;
 }
 
+#include <QDebug>
+
+void ComboBoxTalent::SetTalent(const QString &name)
+{   
+    QListWidgetItem  *currentItem = static_cast<ListWidgetTalent *>(this->view())->item(currentIndex());
+    static_cast<ItemWidgetTalent *>(static_cast<ListWidgetTalent *>(this->view())->itemWidget(currentItem));
+    currentItem->setSelected(false);
+    for (int i = 0; i < this->count(); i++) {
+        QListWidgetItem  *indexItem = static_cast<ListWidgetTalent *>(this->view())->item(i);
+        ItemWidgetTalent *itemWidget =
+            static_cast<ItemWidgetTalent *>(static_cast<ListWidgetTalent *>(this->view())->itemWidget(indexItem));
+        if (itemWidget->GetName() == name) {
+            itemWidget->SetSelected(true);
+            m_pixmap = itemWidget->GetIcon();
+            m_name   = itemWidget->GetName();
+            int index = static_cast<ListWidgetTalent *>(this->view())->indexFromItem(indexItem).row();
+            this->setCurrentIndex(i);
+            update();
+            break;
+        }
+    }
+}
+
 void ComboBoxTalent::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
@@ -427,7 +450,7 @@ TalentWidget::TalentWidget(QWidget *parent) : QWidget(parent)
 
     QVBoxLayout *vLayout = new QVBoxLayout(this);
 
-    TextButton *m_button = new TextButton(this);
+    m_button = new TextButton(this);
 
     vLayout->setContentsMargins(0, 0, 0, 0);
     m_button->setFixedSize(50, 18);
@@ -450,4 +473,10 @@ TalentWidget::TalentWidget(QWidget *parent) : QWidget(parent)
 void TalentWidget::AddItem(const TalentInfo &talentInfo)
 {
     m_comboBox->AddItem(talentInfo);
+}
+
+void TalentWidget::SetTalent(const QString &name)
+{
+    m_comboBox->SetTalent(name);
+    m_button->setText(name);
 }

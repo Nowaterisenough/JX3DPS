@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 02:40:22
+ * Last Modified: 2023-07-03 18:10:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -55,6 +55,8 @@
 
 #include <QWidget>
 
+#include <nlohmann/json.hpp>
+
 #include "Core/Attr.h"
 
 class FramelessWidget;
@@ -100,6 +102,8 @@ private:
     JX3DPS::Attr m_attr;
 
     ProgressBar *m_progressBar = nullptr;
+
+    nlohmann::json m_json;
 };
 
 #endif // WIDGET_H

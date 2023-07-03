@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 19:34:06
+ * Last Modified: 2023-07-03 20:18:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -135,6 +135,8 @@ public:
     void    AddItem(const TalentInfo &talentInfo);
     QString GetName() const;
 
+    void SetTalent(const QString &name);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void showPopup() override;
@@ -158,6 +160,8 @@ public:
     TalentWidget(QWidget *parent = nullptr);
 
     void AddItem(const TalentInfo &talentInfo);
+
+    void SetTalent(const QString &name);
 
 private:
     ComboBoxTalent *m_comboBox = nullptr;

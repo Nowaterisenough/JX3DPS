@@ -5,7 +5,7 @@
  * Created Date: 2023-07-02 17:46:07
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-02 18:29:14
+ * Last Modified: 2023-07-03 17:32:21
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,6 +18,8 @@
 
 #include <QDialog>
 
+#include <nlohmann/json.hpp>
+
 #include "FramelessWidget.h"
 
 class ImportWidget : public QDialog
@@ -27,9 +29,12 @@ class ImportWidget : public QDialog
 public:
     ImportWidget(QWidget *parent = nullptr);
 
+signals:
+    void Signal_Import(const nlohmann::json &json);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
-    
+
 private:
     FramelessWidget *m_frameless = nullptr;
 };

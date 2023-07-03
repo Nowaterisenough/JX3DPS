@@ -294,7 +294,8 @@
         "qvboxlayout": "cpp",
         "qhoverevent": "cpp",
         "qgroupbox": "cpp",
-        "qtimer": "cpp"
+        "qtimer": "cpp",
+        "qstylepainter": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

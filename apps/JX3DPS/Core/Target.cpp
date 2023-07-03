@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-22 14:36:23
+ * Last Modified: 2023-07-03 04:54:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -82,14 +82,14 @@ void JX3DPS::Target::AddManaPercent(const PctFloat_t percent)
     m_manaPercent += percent;
 }
 
-JX3DPS::PctInt_t JX3DPS::Target::GetShieldIgnoreBinPercent() const
+JX3DPS::PctInt_t JX3DPS::Target::GetShieldIgnorePercentInt() const
 {
-    return m_shieldIgnoreBinPercent;
+    return m_shieldIgnorePercentInt;
 }
 
-void JX3DPS::Target::SetShieldIgnoreBinPercent(const PctInt_t binPercent)
+void JX3DPS::Target::SetShieldIgnorePercentInt(const PctInt_t PercentInt)
 {
-    m_shieldIgnoreBinPercent = binPercent;
+    m_shieldIgnorePercentInt = PercentInt;
     UpdatePhysicsResistPercent();
     UpdateMagicResistPercent();
 }
@@ -111,20 +111,20 @@ void JX3DPS::Target::AddPhysicsShield(const Value_t value)
     UpdatePhysicsResistPercent();
 }
 
-JX3DPS::PctInt_t JX3DPS::Target::GetPhysicsShieldBinPercent() const
+JX3DPS::PctInt_t JX3DPS::Target::GetPhysicsShieldPercentInt() const
 {
-    return m_physicsShieldBinPercent;
+    return m_physicsShieldPercentInt;
 }
 
-void JX3DPS::Target::SetPhysicsShieldBinPercent(const PctInt_t binPercent)
+void JX3DPS::Target::SetPhysicsShieldPercentInt(const PctInt_t PercentInt)
 {
-    m_physicsShieldBinPercent = binPercent;
+    m_physicsShieldPercentInt = PercentInt;
     UpdatePhysicsResistPercent();
 }
 
-void JX3DPS::Target::AddPhysicsShieldBinPercent(const PctInt_t binPercent)
+void JX3DPS::Target::AddPhysicsShieldPercentInt(const PctInt_t PercentInt)
 {
-    m_physicsShieldBinPercent += binPercent;
+    m_physicsShieldPercentInt += PercentInt;
     UpdatePhysicsResistPercent();
 }
 
@@ -150,20 +150,20 @@ void JX3DPS::Target::AddMagicShield(const Value_t value)
     UpdateMagicResistPercent();
 }
 
-JX3DPS::PctInt_t JX3DPS::Target::GetMagicShieldBinPercent() const
+JX3DPS::PctInt_t JX3DPS::Target::GetMagicShieldPercentInt() const
 {
-    return m_magicShieldBinPercent;
+    return m_magicShieldPercentInt;
 }
 
-void JX3DPS::Target::SetMagicShieldBinPercent(const PctInt_t binPercent)
+void JX3DPS::Target::SetMagicShieldPercentInt(const PctInt_t PercentInt)
 {
-    m_magicShieldBinPercent = binPercent;
+    m_magicShieldPercentInt = PercentInt;
     UpdateMagicResistPercent();
 }
 
-void JX3DPS::Target::AddMagicShieldBinPercent(const PctInt_t binPercent)
+void JX3DPS::Target::AddMagicShieldPercentInt(const PctInt_t PercentInt)
 {
-    m_magicShieldBinPercent += binPercent;
+    m_magicShieldPercentInt += PercentInt;
     UpdateMagicResistPercent();
 }
 
@@ -172,20 +172,20 @@ JX3DPS::PctFloat_t JX3DPS::Target::GetMagicResistPercent() const
     return m_magicResistPercent;
 }
 
-JX3DPS::PctInt_t JX3DPS::Target::GetDamageAddBinPercent() const
+JX3DPS::PctInt_t JX3DPS::Target::GetDamageAddPercentInt() const
 {
-    return m_damageAddBinPercent;
+    return m_damageAddPercentInt;
 }
 
-void JX3DPS::Target::SetDamageAddBinPercent(const PctInt_t binPercent)
+void JX3DPS::Target::SetDamageAddPercentInt(const PctInt_t PercentInt)
 {
-    m_damageAddBinPercent = binPercent;
+    m_damageAddPercentInt = PercentInt;
     UpdateDamageAddPercent();
 }
 
-void JX3DPS::Target::AddDamageAddBinPercent(const PctInt_t binPercent)
+void JX3DPS::Target::AddDamageAddPercentInt(const PctInt_t PercentInt)
 {
-    m_damageAddBinPercent += binPercent;
+    m_damageAddPercentInt += PercentInt;
     UpdateDamageAddPercent();
 }
 
@@ -198,8 +198,8 @@ void JX3DPS::Target::UpdatePhysicsResistPercent()
 {
     Value_t physicsShield =
         static_cast<int>(m_physicsShield *
-                         (static_cast<PctFloat_t>(JX3_BIN_PCT + m_physicsShieldBinPercent) / JX3_BIN_PCT) *
-                         (static_cast<PctFloat_t>(JX3_BIN_PCT - m_shieldIgnoreBinPercent) / JX3_BIN_PCT));
+                         (static_cast<PctFloat_t>(JX3_PCT_INT_BASE + m_physicsShieldPercentInt) / JX3_PCT_INT_BASE) *
+                         (static_cast<PctFloat_t>(JX3_PCT_INT_BASE - m_shieldIgnorePercentInt) / JX3_PCT_INT_BASE));
     m_physicsResistPercent =
         physicsShield /
         (physicsShield + JX3_PHYSICS_SHIELD_PARAM * (JX3_LEVEL_PARAM * m_level - JX3_LEVEL_CONST));
@@ -210,8 +210,8 @@ void JX3DPS::Target::UpdateMagicResistPercent()
 {
     Value_t magicShield =
         static_cast<int>(m_magicShield *
-                         (static_cast<PctFloat_t>(JX3_BIN_PCT + m_magicShieldBinPercent) / JX3_BIN_PCT) *
-                         (static_cast<PctFloat_t>(JX3_BIN_PCT - m_shieldIgnoreBinPercent) / JX3_BIN_PCT));
+                         (static_cast<PctFloat_t>(JX3_PCT_INT_BASE + m_magicShieldPercentInt) / JX3_PCT_INT_BASE) *
+                         (static_cast<PctFloat_t>(JX3_PCT_INT_BASE - m_shieldIgnorePercentInt) / JX3_PCT_INT_BASE));
     m_magicResistPercent =
         magicShield / (magicShield + JX3_MAGIC_SHIELD_PARAM * (JX3_LEVEL_PARAM * m_level - JX3_LEVEL_CONST));
     m_magicResistPercent = m_magicResistPercent < 0.75 ? m_magicResistPercent : 0.75;
@@ -219,5 +219,5 @@ void JX3DPS::Target::UpdateMagicResistPercent()
 
 void JX3DPS::Target::UpdateDamageAddPercent()
 {
-    m_damageAddPercent = static_cast<PctFloat_t>(m_damageAddBinPercent) / JX3_BIN_PCT;
+    m_damageAddPercent = static_cast<PctFloat_t>(m_damageAddPercentInt) / JX3_PCT_INT_BASE;
 }

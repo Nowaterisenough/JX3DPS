@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 20:33:19
+ * Last Modified: 2023-07-03 03:51:49
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -17,6 +17,7 @@
 #define JX3DPS_PLAYER_H_
 
 #include "Attr.h"
+#include "Buff.h"
 
 namespace JX3DPS {
 
@@ -61,8 +62,8 @@ public:
     Frame_t        globalCooldownFixed = 24; // 当前冷却
     static Frame_t s_globalCooldown;         // 公共冷却
 
-    Id_t targetId      = 0;                  // 目标ID
-    
+    Id_t targetId = 0;                       // 目标ID
+
     Id_t lastCastSkill = 0;                  // 上次施放技能ID
 
     bool isCast   = false;                   // 是否正在蓄力
@@ -81,9 +82,20 @@ public:
     int delayMin = 30;
     int delayMax = 65;
 
-    bool weaponCW = false;
-    bool classSetBuff = false;
+    bool weaponCW      = false;
+    bool classSetBuff  = false;
     bool classSetSkill = false;
+
+    bool enchantShoes  = false;
+    bool enchantWrist  = false;
+    bool enchantBelt   = false;
+    bool enchantJacket = false;
+    bool enchantHat    = false;
+
+    HasBuff3rd hasBuff3rd;
+    
+
+    PctInt_t damageAddPercentInt = 0;
 };
 
 } // namespace JX3DPS

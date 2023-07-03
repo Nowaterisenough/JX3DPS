@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-23 14:57:15
+ * Last Modified: 2023-07-04 06:30:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -33,31 +33,33 @@ Attr::~Attr() { }
 Attr::Attr(const Attr &other)
 {
     this->m_agilityBase           = other.m_agilityBase;
-    this->m_agilityBaseBinPercent = other.m_agilityBaseBinPercent;
+    this->m_agilityBasePercentInt = other.m_agilityBasePercentInt;
     this->m_agility               = other.m_agility;
 
     this->m_strengthBase           = other.m_strengthBase;
-    this->m_strengthBaseBinPercent = other.m_strengthBaseBinPercent;
+    this->m_strengthBasePercentInt = other.m_strengthBasePercentInt;
     this->m_strength               = other.m_strength;
 
     this->m_spiritBase           = other.m_spiritBase;
-    this->m_spiritBaseBinPercent = other.m_spiritBaseBinPercent;
+    this->m_spiritBasePercentInt = other.m_spiritBasePercentInt;
     this->m_spirit               = other.m_spirit;
 
     this->m_spunkBase           = other.m_spunkBase;
-    this->m_spunkBaseBinPercent = other.m_spunkBaseBinPercent;
+    this->m_spunkBasePercentInt = other.m_spunkBasePercentInt;
     this->m_spunk               = other.m_spunk;
 
-    this->m_weaponAttack = other.m_weaponAttack;
+    this->m_weaponAttack      = other.m_weaponAttack;
+    this->m_weaponAttackLower = other.m_weaponAttackLower;
+    this->m_weaponAttackUpper = other.m_weaponAttackUpper;
 
     this->m_physicsAttackBaseFromCustom = other.m_physicsAttackBaseFromCustom;
-    this->m_physicsAttackBaseBinPercent = other.m_physicsAttackBaseBinPercent;
+    this->m_physicsAttackBasePercentInt = other.m_physicsAttackBasePercentInt;
     this->m_physicsAttackFromMain       = other.m_physicsAttackFromMain;
     this->m_physicsAttackFromBase       = other.m_physicsAttackFromBase;
     this->m_physicsAttack               = other.m_physicsAttack;
 
     this->m_magicAttackBaseFromCustom = other.m_magicAttackBaseFromCustom;
-    this->m_magicAttackBaseBinPercent = other.m_magicAttackBaseBinPercent;
+    this->m_magicAttackBasePercentInt = other.m_magicAttackBasePercentInt;
     this->m_magicAttackFromMain       = other.m_magicAttackFromMain;
     this->m_magicAttackFromBase       = other.m_magicAttackFromBase;
     this->m_magicAttack               = other.m_magicAttack;
@@ -81,17 +83,17 @@ Attr::Attr(const Attr &other)
     this->m_magicCriticalStrikePowerPercent = other.m_magicCriticalStrikePowerPercent;
 
     this->m_physicsOvercomeBaseFromCustom = other.m_physicsOvercomeBaseFromCustom;
-    this->m_physicsOvercomeBaseBinPercent = other.m_physicsOvercomeBaseBinPercent;
+    this->m_physicsOvercomeBasePercentInt = other.m_physicsOvercomeBasePercentInt;
     this->m_physicsOvercome               = other.m_physicsOvercome;
     this->m_physicsOvercomePercent        = other.m_physicsOvercomePercent;
 
     this->m_magicOvercomeBaseFromCustom = other.m_magicOvercomeBaseFromCustom;
-    this->m_magicOvercomeBaseBinPercent = other.m_magicOvercomeBaseBinPercent;
+    this->m_magicOvercomeBasePercentInt = other.m_magicOvercomeBasePercentInt;
     this->m_magicOvercome               = other.m_magicOvercome;
     this->m_magicOvercomePercent        = other.m_magicOvercomePercent;
 
     this->m_haste               = other.m_haste;
-    this->m_hasteBinPercent     = other.m_hasteBinPercent;
+    this->m_hastePercentInt     = other.m_hastePercentInt;
     this->m_hastePercent        = other.m_hastePercent;
     this->m_hastePercentVisible = other.m_hastePercentVisible;
 
@@ -100,41 +102,43 @@ Attr::Attr(const Attr &other)
     this->m_strainPercent           = other.m_strainPercent;
 
     this->m_surplusBaseFromCustom = other.m_surplusBaseFromCustom;
-    this->m_surplusBaseBinPercent = other.m_surplusBaseBinPercent;
+    this->m_surplusBasePercentInt = other.m_surplusBasePercentInt;
     this->m_surplus               = other.m_surplus;
     this->m_surplusDamage         = other.m_surplusDamage;
 
-    this->m_shieldIgnoreBinPercent = other.m_shieldIgnoreBinPercent;
+    this->m_shieldIgnorePercentInt = other.m_shieldIgnorePercentInt;
 }
 
 Attr &Attr::operator=(const Attr &other)
 {
     this->m_agilityBase           = other.m_agilityBase;
-    this->m_agilityBaseBinPercent = other.m_agilityBaseBinPercent;
+    this->m_agilityBasePercentInt = other.m_agilityBasePercentInt;
     this->m_agility               = other.m_agility;
 
     this->m_strengthBase           = other.m_strengthBase;
-    this->m_strengthBaseBinPercent = other.m_strengthBaseBinPercent;
+    this->m_strengthBasePercentInt = other.m_strengthBasePercentInt;
     this->m_strength               = other.m_strength;
 
     this->m_spiritBase           = other.m_spiritBase;
-    this->m_spiritBaseBinPercent = other.m_spiritBaseBinPercent;
+    this->m_spiritBasePercentInt = other.m_spiritBasePercentInt;
     this->m_spirit               = other.m_spirit;
 
     this->m_spunkBase           = other.m_spunkBase;
-    this->m_spunkBaseBinPercent = other.m_spunkBaseBinPercent;
+    this->m_spunkBasePercentInt = other.m_spunkBasePercentInt;
     this->m_spunk               = other.m_spunk;
 
-    this->m_weaponAttack = other.m_weaponAttack;
+    this->m_weaponAttack      = other.m_weaponAttack;
+    this->m_weaponAttackLower = other.m_weaponAttackLower;
+    this->m_weaponAttackUpper = other.m_weaponAttackUpper;
 
     this->m_physicsAttackBaseFromCustom = other.m_physicsAttackBaseFromCustom;
-    this->m_physicsAttackBaseBinPercent = other.m_physicsAttackBaseBinPercent;
+    this->m_physicsAttackBasePercentInt = other.m_physicsAttackBasePercentInt;
     this->m_physicsAttackFromMain       = other.m_physicsAttackFromMain;
     this->m_physicsAttackFromBase       = other.m_physicsAttackFromBase;
     this->m_physicsAttack               = other.m_physicsAttack;
 
     this->m_magicAttackBaseFromCustom = other.m_magicAttackBaseFromCustom;
-    this->m_magicAttackBaseBinPercent = other.m_magicAttackBaseBinPercent;
+    this->m_magicAttackBasePercentInt = other.m_magicAttackBasePercentInt;
     this->m_magicAttackFromMain       = other.m_magicAttackFromMain;
     this->m_magicAttackFromBase       = other.m_magicAttackFromBase;
     this->m_magicAttack               = other.m_magicAttack;
@@ -158,17 +162,17 @@ Attr &Attr::operator=(const Attr &other)
     this->m_magicCriticalStrikePowerPercent = other.m_magicCriticalStrikePowerPercent;
 
     this->m_physicsOvercomeBaseFromCustom = other.m_physicsOvercomeBaseFromCustom;
-    this->m_physicsOvercomeBaseBinPercent = other.m_physicsOvercomeBaseBinPercent;
+    this->m_physicsOvercomeBasePercentInt = other.m_physicsOvercomeBasePercentInt;
     this->m_physicsOvercome               = other.m_physicsOvercome;
     this->m_physicsOvercomePercent        = other.m_physicsOvercomePercent;
 
     this->m_magicOvercomeBaseFromCustom = other.m_magicOvercomeBaseFromCustom;
-    this->m_magicOvercomeBaseBinPercent = other.m_magicOvercomeBaseBinPercent;
+    this->m_magicOvercomeBasePercentInt = other.m_magicOvercomeBasePercentInt;
     this->m_magicOvercome               = other.m_magicOvercome;
     this->m_magicOvercomePercent        = other.m_magicOvercomePercent;
 
     this->m_haste               = other.m_haste;
-    this->m_hasteBinPercent     = other.m_hasteBinPercent;
+    this->m_hastePercentInt     = other.m_hastePercentInt;
     this->m_hastePercent        = other.m_hastePercent;
     this->m_hastePercentVisible = other.m_hastePercentVisible;
 
@@ -177,11 +181,11 @@ Attr &Attr::operator=(const Attr &other)
     this->m_strainPercent           = other.m_strainPercent;
 
     this->m_surplusBaseFromCustom = other.m_surplusBaseFromCustom;
-    this->m_surplusBaseBinPercent = other.m_surplusBaseBinPercent;
+    this->m_surplusBasePercentInt = other.m_surplusBasePercentInt;
     this->m_surplus               = other.m_surplus;
     this->m_surplusDamage         = other.m_surplusDamage;
 
-    this->m_shieldIgnoreBinPercent = other.m_shieldIgnoreBinPercent;
+    this->m_shieldIgnorePercentInt = other.m_shieldIgnorePercentInt;
 
     return *this;
 }
@@ -191,32 +195,32 @@ Value_t Attr::GetAgilityBase() const
     return m_agilityBase;
 }
 
-void Attr::SetAgilityBase(const Value_t value)
+void Attr::SetAgilityBase(Value_t value)
 {
     m_agilityBase = value;
     UpdateAgility();
 }
 
-void Attr::AddAgilityBase(const Value_t value)
+void Attr::AddAgilityBase(Value_t value)
 {
     m_agilityBase += value;
     UpdateAgility();
 }
 
-PctInt_t Attr::GetAgilityBaseBinPercent() const
+PctInt_t Attr::GetAgilityBasePercentInt() const
 {
-    return m_agilityBaseBinPercent;
+    return m_agilityBasePercentInt;
 }
 
-void Attr::SetAgilityBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetAgilityBasePercentInt(PctInt_t PercentInt)
 {
-    m_agilityBaseBinPercent = binPercent;
+    m_agilityBasePercentInt = PercentInt;
     UpdateAgility();
 }
 
-void Attr::AddAgilityBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddAgilityBasePercentInt(PctInt_t PercentInt)
 {
-    m_agilityBaseBinPercent += binPercent;
+    m_agilityBasePercentInt += PercentInt;
     UpdateAgility();
 }
 
@@ -230,32 +234,32 @@ Value_t Attr::GetStrengthBase() const
     return m_strengthBase;
 }
 
-void Attr::SetStrengthBase(const Value_t value)
+void Attr::SetStrengthBase(Value_t value)
 {
     m_strengthBase = value;
     UpdateStrength();
 }
 
-void Attr::AddStrengthBase(const Value_t value)
+void Attr::AddStrengthBase(Value_t value)
 {
     m_strengthBase += value;
     UpdateStrength();
 }
 
-PctInt_t Attr::GetStrengthBaseBinPercent() const
+PctInt_t Attr::GetStrengthBasePercentInt() const
 {
-    return m_strengthBaseBinPercent;
+    return m_strengthBasePercentInt;
 }
 
-void Attr::SetStrengthBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetStrengthBasePercentInt(PctInt_t PercentInt)
 {
-    m_strengthBaseBinPercent = binPercent;
+    m_strengthBasePercentInt = PercentInt;
     UpdateStrength();
 }
 
-void Attr::AddStrengthBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddStrengthBasePercentInt(PctInt_t PercentInt)
 {
-    m_strengthBaseBinPercent += binPercent;
+    m_strengthBasePercentInt += PercentInt;
     UpdateStrength();
 }
 
@@ -269,32 +273,32 @@ Value_t Attr::GetSpiritBase() const
     return m_spiritBase;
 }
 
-void Attr::SetSpiritBase(const Value_t value)
+void Attr::SetSpiritBase(Value_t value)
 {
     m_spiritBase = value;
     UpdateSpirit();
 }
 
-void Attr::AddSpiritBase(const Value_t value)
+void Attr::AddSpiritBase(Value_t value)
 {
     m_spiritBase += value;
     UpdateSpirit();
 }
 
-PctInt_t Attr::GetSpiritBaseBinPercent() const
+PctInt_t Attr::GetSpiritBasePercentInt() const
 {
-    return m_spiritBaseBinPercent;
+    return m_spiritBasePercentInt;
 }
 
-void Attr::SetSpiritBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetSpiritBasePercentInt(PctInt_t PercentInt)
 {
-    m_spiritBaseBinPercent = binPercent;
+    m_spiritBasePercentInt = PercentInt;
     UpdateSpirit();
 }
 
-void Attr::AddSpiritBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddSpiritBasePercentInt(PctInt_t PercentInt)
 {
-    m_spiritBaseBinPercent += binPercent;
+    m_spiritBasePercentInt += PercentInt;
     UpdateSpirit();
 }
 
@@ -308,32 +312,32 @@ Value_t Attr::GetSpunkBase() const
     return m_spunkBase;
 }
 
-void Attr::SetSpunkBase(const Value_t value)
+void Attr::SetSpunkBase(Value_t value)
 {
     m_spunkBase = value;
     UpdateSpunk();
 }
 
-void Attr::AddSpunkBase(const Value_t value)
+void Attr::AddSpunkBase(Value_t value)
 {
     m_spunkBase += value;
     UpdateSpunk();
 }
 
-PctInt_t Attr::GetSpunkBaseBinPercent() const
+PctInt_t Attr::GetSpunkBasePercentInt() const
 {
-    return m_spunkBaseBinPercent;
+    return m_spunkBasePercentInt;
 }
 
-void Attr::SetSpunkBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetSpunkBasePercentInt(PctInt_t PercentInt)
 {
-    m_spunkBaseBinPercent = binPercent;
+    m_spunkBasePercentInt = PercentInt;
     UpdateSpunk();
 }
 
-void Attr::AddSpunkBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddSpunkBasePercentInt(PctInt_t PercentInt)
 {
-    m_spunkBaseBinPercent += binPercent;
+    m_spunkBasePercentInt += PercentInt;
     UpdateSpunk();
 }
 
@@ -347,19 +351,31 @@ Value_t Attr::GetWeaponAttack() const
     return m_weaponAttack;
 }
 
-void Attr::SetWeaponAttack(const Value_t lower, const Value_t upper)
+void Attr::SetWeaponAttack(Value_t lower, Value_t upper)
 {
-    m_weaponAttack = (lower + upper) / 2;
+    m_weaponAttackLower = lower;
+    m_weaponAttackUpper = upper;
+    m_weaponAttack      = (lower + upper) / 2;
 }
 
-void Attr::AddWeaponAttack(const Value_t value)
+void Attr::AddWeaponAttack(Value_t value)
 {
     m_weaponAttack += value;
 }
 
-void Attr::AddWeaponAttack(const Value_t lower, const Value_t upper)
+void Attr::AddWeaponAttack(Value_t lower, Value_t upper)
 {
     m_weaponAttack += (lower + upper) / 2;
+}
+
+Value_t Attr::GetWeaponAttackLower() const
+{
+    return m_weaponAttackLower;
+}
+
+Value_t Attr::GetWeaponAttackUpper() const
+{
+    return m_weaponAttackUpper;
 }
 
 Value_t Attr::GetPhysicsAttackBaseFromCustom() const
@@ -367,13 +383,13 @@ Value_t Attr::GetPhysicsAttackBaseFromCustom() const
     return m_physicsAttackBaseFromCustom;
 }
 
-void Attr::SetPhysicsAttackBaseFromCustom(const Value_t value)
+void Attr::SetPhysicsAttackBaseFromCustom(Value_t value)
 {
     m_physicsAttackBaseFromCustom = value;
     UpdatePhysicsAttack();
 }
 
-void Attr::AddPhysicsAttackBaseFromCustom(const Value_t value)
+void Attr::AddPhysicsAttackBaseFromCustom(Value_t value)
 {
     m_physicsAttackBaseFromCustom += value;
     UpdatePhysicsAttack();
@@ -389,30 +405,30 @@ Value_t Attr::GetPhysicsAttackBase() const
     return GetPhysicsAttackBaseFromCustom() + GetPhysicsAttackBaseFromMajor();
 }
 
-void Attr::SetPhysicsAttackBase(const Value_t value)
+void Attr::SetPhysicsAttackBase(Value_t value)
 {
     SetPhysicsAttackBaseFromCustom(value - GetPhysicsAttackBaseFromMajor());
 }
 
-void Attr::AddPhysicsAttackBase(const Value_t value)
+void Attr::AddPhysicsAttackBase(Value_t value)
 {
     AddPhysicsAttackBaseFromCustom(value);
 }
 
-PctInt_t Attr::GetPhysicsAttackBaseBinPercent() const
+PctInt_t Attr::GetPhysicsAttackBasePercentInt() const
 {
-    return m_physicsAttackBaseBinPercent;
+    return m_physicsAttackBasePercentInt;
 }
 
-void Attr::SetPhysicsAttackBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetPhysicsAttackBasePercentInt(PctInt_t PercentInt)
 {
-    m_physicsAttackBaseBinPercent = binPercent;
+    m_physicsAttackBasePercentInt = PercentInt;
     UpdatePhysicsAttack();
 }
 
-void Attr::AddPhysicsAttackBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddPhysicsAttackBasePercentInt(PctInt_t PercentInt)
 {
-    m_physicsAttackBaseBinPercent += binPercent;
+    m_physicsAttackBasePercentInt += PercentInt;
     UpdatePhysicsAttack();
 }
 
@@ -446,13 +462,13 @@ Value_t Attr::GetMagicAttackBaseFromCustom() const
     return m_magicAttackBaseFromCustom;
 }
 
-void Attr::SetMagicAttackBaseFromCustom(const Value_t value)
+void Attr::SetMagicAttackBaseFromCustom(Value_t value)
 {
     m_magicAttackBaseFromCustom = value;
     UpdateMagicAttack();
 }
 
-void Attr::AddMagicAttackBaseFromCustom(const Value_t value)
+void Attr::AddMagicAttackBaseFromCustom(Value_t value)
 {
     m_magicAttackBaseFromCustom += value;
     UpdateMagicAttack();
@@ -468,30 +484,30 @@ Value_t Attr::GetMagicAttackBase() const
     return GetMagicAttackBaseFromCustom() + GetMagicAttackBaseFromMajor();
 }
 
-void Attr::SetMagicAttackBase(const Value_t value)
+void Attr::SetMagicAttackBase(Value_t value)
 {
     SetMagicAttackBaseFromCustom(value - GetMagicAttackBaseFromMajor());
 }
 
-void Attr::AddMagicAttackBase(const Value_t value)
+void Attr::AddMagicAttackBase(Value_t value)
 {
     AddMagicAttackBaseFromCustom(value);
 }
 
-PctInt_t Attr::GetMagicAttackBaseBinPercent() const
+PctInt_t Attr::GetMagicAttackBasePercentInt() const
 {
-    return m_magicAttackBaseBinPercent;
+    return m_magicAttackBasePercentInt;
 }
 
-void Attr::SetMagicAttackBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetMagicAttackBasePercentInt(PctInt_t PercentInt)
 {
-    m_magicAttackBaseBinPercent = binPercent;
+    m_magicAttackBasePercentInt = PercentInt;
     UpdateMagicAttack();
 }
 
-void Attr::AddMagicAttackBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddMagicAttackBasePercentInt(PctInt_t PercentInt)
 {
-    m_magicAttackBaseBinPercent += binPercent;
+    m_magicAttackBasePercentInt += PercentInt;
     UpdateMagicAttack();
 }
 
@@ -525,13 +541,13 @@ Value_t Attr::GetPhysicsCriticalStrikeFromCustom() const
     return m_physicsCriticalStrikeFromCustom;
 }
 
-void Attr::SetPhysicsCriticalStrikeFromCustom(const Value_t value)
+void Attr::SetPhysicsCriticalStrikeFromCustom(Value_t value)
 {
     m_physicsCriticalStrikeFromCustom = value;
     UpdatePhysicsCriticalStrikePercent();
 }
 
-void Attr::AddPhysicsCriticalStrikeFromCustom(const Value_t value)
+void Attr::AddPhysicsCriticalStrikeFromCustom(Value_t value)
 {
     m_physicsCriticalStrikeFromCustom += value;
     UpdatePhysicsCriticalStrikePercent();
@@ -552,12 +568,12 @@ Value_t Attr::GetPhysicsCriticalStrike() const
     return m_physicsCriticalStrike;
 }
 
-void Attr::SetPhysicsCriticalStrike(const Value_t value)
+void Attr::SetPhysicsCriticalStrike(Value_t value)
 {
     SetPhysicsCriticalStrikeFromCustom(value - GetPhysicsCriticalStrikeMinimum());
 }
 
-void Attr::AddPhysicsCriticalStrike(const Value_t value)
+void Attr::AddPhysicsCriticalStrike(Value_t value)
 {
     AddPhysicsCriticalStrikeFromCustom(value);
 }
@@ -567,13 +583,13 @@ PctFloat_t Attr::GetPhysicsCriticalStrikePercentFromCustom() const
     return m_physicsCriticalStrikePercentFromCustom;
 }
 
-void Attr::SetPhysicsCriticalStrikePercentFromCustom(const PctFloat_t percent)
+void Attr::SetPhysicsCriticalStrikePercentFromCustom(PctFloat_t percent)
 {
     m_physicsCriticalStrikePercentFromCustom = percent;
     UpdatePhysicsCriticalStrikePercent();
 }
 
-void Attr::AddPhysicsCriticalStrikePercentFromCustom(const PctFloat_t percent)
+void Attr::AddPhysicsCriticalStrikePercentFromCustom(PctFloat_t percent)
 {
     m_physicsCriticalStrikePercentFromCustom += percent;
     UpdatePhysicsCriticalStrikePercent();
@@ -586,7 +602,21 @@ PctFloat_t Attr::GetPhysicsCriticalStrikePercent() const
 
 Value_t Attr::GetPhysicsCriticalStrikeMinimum() const
 {
-    return GetPhysicsCriticalStrikeFromCustom() + GetPhysicsCriticalStrikeFromClass();
+    return GetPhysicsCriticalStrikeFromMajor() + GetPhysicsCriticalStrikeFromClass();
+}
+
+void Attr::SetBoxPhysicsCriticalStrikePercent(PctFloat_t percent)
+{
+    m_physicsCriticalStrikeFromCustom =
+        1 + percent * (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) -
+        GetPhysicsCriticalStrikeFromClass() - GetPhysicsCriticalStrikeFromMajor();
+    UpdatePhysicsCriticalStrikePercent();
+    if (GetPhysicsCriticalStrikePercent() != percent) {
+        m_physicsCriticalStrikeFromCustom =
+            percent * (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) -
+            GetPhysicsCriticalStrikeFromClass() - GetPhysicsCriticalStrikeFromMajor();
+        UpdatePhysicsCriticalStrikePercent();
+    }
 }
 
 Value_t Attr::GetMagicCriticalStrikeFromCustom() const
@@ -594,13 +624,13 @@ Value_t Attr::GetMagicCriticalStrikeFromCustom() const
     return m_magicCriticalStrikeFromCustom;
 }
 
-void Attr::SetMagicCriticalStrikeFromCustom(const Value_t value)
+void Attr::SetMagicCriticalStrikeFromCustom(Value_t value)
 {
     m_magicCriticalStrikeFromCustom = value;
     UpdateMagicCriticalStrikePercent();
 }
 
-void Attr::AddMagicCriticalStrikeFromCustom(const Value_t value)
+void Attr::AddMagicCriticalStrikeFromCustom(Value_t value)
 {
     m_magicCriticalStrikeFromCustom += value;
     UpdateMagicCriticalStrikePercent();
@@ -621,12 +651,12 @@ Value_t Attr::GetMagicCriticalStrike() const
     return m_magicCriticalStrike;
 }
 
-void Attr::SetMagicCriticalStrike(const Value_t value)
+void Attr::SetMagicCriticalStrike(Value_t value)
 {
     SetMagicCriticalStrikeFromCustom(value - GetMagicCriticalStrikeMinimum());
 }
 
-void Attr::AddMagicCriticalStrike(const Value_t value)
+void Attr::AddMagicCriticalStrike(Value_t value)
 {
     AddMagicCriticalStrikeFromCustom(value);
 }
@@ -636,13 +666,13 @@ PctFloat_t Attr::GetMagicCriticalStrikePercentFromCustom() const
     return m_magicCriticalStrikePercentFromCustom;
 }
 
-void Attr::SetMagicCriticalStrikePercentFromCustom(const PctFloat_t percent)
+void Attr::SetMagicCriticalStrikePercentFromCustom(PctFloat_t percent)
 {
     m_magicCriticalStrikePercentFromCustom = percent;
     UpdateMagicCriticalStrikePercent();
 }
 
-void Attr::AddMagicCriticalStrikePercentFromCustom(const PctFloat_t percent)
+void Attr::AddMagicCriticalStrikePercentFromCustom(PctFloat_t percent)
 {
     m_magicCriticalStrikePercentFromCustom += percent;
     UpdateMagicCriticalStrikePercent();
@@ -655,7 +685,21 @@ PctFloat_t Attr::GetMagicCriticalStrikePercent() const
 
 Value_t Attr::GetMagicCriticalStrikeMinimum() const
 {
-    return GetMagicCriticalStrikeFromCustom() + GetMagicCriticalStrikeFromClass();
+    return GetMagicCriticalStrikeFromMajor() + GetMagicCriticalStrikeFromClass();
+}
+
+void Attr::SetBoxMagicCriticalStrikePercent(PctFloat_t percent)
+{
+    m_magicCriticalStrikeFromCustom =
+        1 + percent * (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) -
+        GetMagicCriticalStrikeFromClass() - GetMagicCriticalStrikeFromMajor();
+    UpdateMagicCriticalStrikePercent();
+    if (GetMagicCriticalStrikePercent() != percent) {
+        m_magicCriticalStrikeFromCustom =
+            percent * (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) -
+            GetMagicCriticalStrikeFromClass() - GetMagicCriticalStrikeFromMajor();
+        UpdateMagicCriticalStrikePercent();
+    }
 }
 
 Value_t Attr::GetPhysicsCriticalStrikePower() const
@@ -663,13 +707,13 @@ Value_t Attr::GetPhysicsCriticalStrikePower() const
     return m_physicsCriticalStrikePower;
 }
 
-void Attr::SetPhysicsCriticalStrikePower(const Value_t value)
+void Attr::SetPhysicsCriticalStrikePower(Value_t value)
 {
     m_physicsCriticalStrikePower = value;
     UpdatePhysicsCriticalStrikePowerPercent();
 }
 
-void Attr::AddPhysicsCriticalStrikePower(const Value_t value)
+void Attr::AddPhysicsCriticalStrikePower(Value_t value)
 {
     m_physicsCriticalStrikePower += value;
     UpdatePhysicsCriticalStrikePowerPercent();
@@ -680,13 +724,13 @@ PctFloat_t Attr::GetPhysicsCriticalStrikePowerPercentFromCustom() const
     return m_physicsCriticalStrikePowerPercentFromCustom;
 }
 
-void Attr::SetPhysicsCriticalStrikePowerPercentFromCustom(const PctFloat_t percent)
+void Attr::SetPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
 {
     m_physicsCriticalStrikePowerPercentFromCustom = percent;
     UpdatePhysicsCriticalStrikePowerPercent();
 }
 
-void Attr::AddPhysicsCriticalStrikePowerPercentFromCustom(const PctFloat_t percent)
+void Attr::AddPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
 {
     m_physicsCriticalStrikePowerPercentFromCustom += percent;
     UpdatePhysicsCriticalStrikePowerPercent();
@@ -697,18 +741,32 @@ PctFloat_t Attr::GetPhysicsCriticalStrikePowerPercent() const
     return m_physicsCriticalStrikePowerPercent;
 }
 
+void Attr::SetBoxPhysicsCriticalStrikePowerPercent(PctFloat_t percent)
+{
+    m_physicsCriticalStrikePower =
+        1 + (percent - JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE) *
+                (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+    UpdatePhysicsCriticalStrikePowerPercent();
+    if (GetPhysicsCriticalStrikePowerPercent() != percent) {
+        m_physicsCriticalStrikePower =
+            (percent - JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE) *
+            (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+        UpdatePhysicsCriticalStrikePowerPercent();
+    }
+}
+
 Value_t Attr::GetMagicCriticalStrikePower() const
 {
     return m_magicCriticalStrikePower;
 }
 
-void Attr::SetMagicCriticalStrikePower(const Value_t value)
+void Attr::SetMagicCriticalStrikePower(Value_t value)
 {
     m_magicCriticalStrikePower = value;
     UpdateMagicCriticalStrikePowerPercent();
 }
 
-void Attr::AddMagicCriticalStrikePower(const Value_t value)
+void Attr::AddMagicCriticalStrikePower(Value_t value)
 {
     m_magicCriticalStrikePower += value;
     UpdateMagicCriticalStrikePowerPercent();
@@ -719,13 +777,13 @@ PctFloat_t Attr::GetMagicCriticalStrikePowerPercentFromCustom() const
     return m_magicCriticalStrikePowerPercentFromCustom;
 }
 
-void Attr::SetMagicCriticalStrikePowerPercentFromCustom(const PctFloat_t percent)
+void Attr::SetMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
 {
     m_magicCriticalStrikePowerPercentFromCustom = percent;
     UpdateMagicCriticalStrikePowerPercent();
 }
 
-void Attr::AddMagicCriticalStrikePowerPercentFromCustom(const PctFloat_t percent)
+void Attr::AddMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
 {
     m_magicCriticalStrikePowerPercentFromCustom += percent;
     UpdateMagicCriticalStrikePowerPercent();
@@ -736,18 +794,32 @@ PctFloat_t Attr::GetMagicCriticalStrikePowerPercent() const
     return m_magicCriticalStrikePowerPercent;
 }
 
+void Attr::SetBoxMagicCriticalStrikePowerPercent(PctFloat_t percent)
+{
+    m_magicCriticalStrikePower =
+        1 + (percent - JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE) *
+                (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+    UpdateMagicCriticalStrikePowerPercent();
+    if (GetMagicCriticalStrikePowerPercent() != percent) {
+        m_magicCriticalStrikePower =
+            (percent - JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE) *
+            (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+        UpdateMagicCriticalStrikePowerPercent();
+    }
+}
+
 Value_t Attr::GetPhysicsOvercomeBaseFromCustom() const
 {
     return m_physicsOvercomeBaseFromCustom;
 }
 
-void Attr::SetPhysicsOvercomeBaseFromCustom(const Value_t value)
+void Attr::SetPhysicsOvercomeBaseFromCustom(Value_t value)
 {
     m_physicsOvercomeBaseFromCustom = value;
     UpdatePhysicsOvercomePercent();
 }
 
-void Attr::AddPhysicsOvercomeBaseFromCustom(const Value_t value)
+void Attr::AddPhysicsOvercomeBaseFromCustom(Value_t value)
 {
     m_physicsOvercomeBaseFromCustom += value;
     UpdatePhysicsOvercomePercent();
@@ -763,30 +835,30 @@ Value_t Attr::GetPhysicsOvercomeBase() const
     return GetPhysicsOvercomeBaseFromCustom() + GetPhysicsOvercomeBaseFromMajor();
 }
 
-void Attr::SetPhysicsOvercomeBase(const Value_t value)
+void Attr::SetPhysicsOvercomeBase(Value_t value)
 {
     SetPhysicsOvercomeBaseFromCustom(value - GetPhysicsOvercomeBaseFromMajor());
 }
 
-void Attr::AddPhysicsOvercomeBase(const Value_t value)
+void Attr::AddPhysicsOvercomeBase(Value_t value)
 {
     AddPhysicsOvercomeBaseFromCustom(value);
 }
 
-PctInt_t Attr::GetPhysicsOvercomeBaseBinPercent() const
+PctInt_t Attr::GetPhysicsOvercomeBasePercentInt() const
 {
-    return m_physicsOvercomeBaseBinPercent;
+    return m_physicsOvercomeBasePercentInt;
 }
 
-void Attr::SetPhysicsOvercomeBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetPhysicsOvercomeBasePercentInt(PctInt_t PercentInt)
 {
-    m_physicsOvercomeBaseBinPercent = binPercent;
+    m_physicsOvercomeBasePercentInt = PercentInt;
     UpdatePhysicsOvercomePercent();
 }
 
-void Attr::AddPhysicsOvercomeBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddPhysicsOvercomeBasePercentInt(PctInt_t PercentInt)
 {
-    m_physicsOvercomeBaseBinPercent += binPercent;
+    m_physicsOvercomeBasePercentInt += PercentInt;
     UpdatePhysicsOvercomePercent();
 }
 
@@ -820,13 +892,13 @@ Value_t Attr::GetMagicOvercomeBaseFromCustom() const
     return m_magicOvercomeBaseFromCustom;
 }
 
-void Attr::SetMagicOvercomeBaseFromCustom(const Value_t value)
+void Attr::SetMagicOvercomeBaseFromCustom(Value_t value)
 {
     m_magicOvercomeBaseFromCustom = value;
     UpdateMagicOvercomePercent();
 }
 
-void Attr::AddMagicOvercomeBaseFromCustom(const Value_t value)
+void Attr::AddMagicOvercomeBaseFromCustom(Value_t value)
 {
     m_magicOvercomeBaseFromCustom += value;
     UpdateMagicOvercomePercent();
@@ -842,30 +914,30 @@ Value_t Attr::GetMagicOvercomeBase() const
     return GetMagicOvercomeBaseFromCustom() + GetMagicOvercomeBaseFromMajor();
 }
 
-void Attr::SetMagicOvercomeBase(const Value_t value)
+void Attr::SetMagicOvercomeBase(Value_t value)
 {
     SetMagicOvercomeBaseFromCustom(value - GetMagicOvercomeBaseFromMajor());
 }
 
-void Attr::AddMagicOvercomeBase(const Value_t value)
+void Attr::AddMagicOvercomeBase(Value_t value)
 {
     AddMagicOvercomeBaseFromCustom(value);
 }
 
-PctInt_t Attr::GetMagicOvercomeBaseBinPercent() const
+PctInt_t Attr::GetMagicOvercomeBasePercentInt() const
 {
-    return m_magicOvercomeBaseBinPercent;
+    return m_magicOvercomeBasePercentInt;
 }
 
-void Attr::SetMagicOvercomeBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetMagicOvercomeBasePercentInt(PctInt_t PercentInt)
 {
-    m_magicOvercomeBaseBinPercent = binPercent;
+    m_magicOvercomeBasePercentInt = PercentInt;
     UpdateMagicOvercomePercent();
 }
 
-void Attr::AddMagicOvercomeBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddMagicOvercomeBasePercentInt(PctInt_t PercentInt)
 {
-    m_magicOvercomeBaseBinPercent += binPercent;
+    m_magicOvercomeBasePercentInt += PercentInt;
     UpdateMagicOvercomePercent();
 }
 
@@ -899,35 +971,35 @@ Value_t Attr::GetHaste() const
     return m_haste;
 }
 
-void Attr::SetHaste(const Value_t value)
+void Attr::SetHaste(Value_t value)
 {
     m_haste = value;
     UpdateHastePercent();
     return;
 }
 
-void Attr::AddHaste(const Value_t value)
+void Attr::AddHaste(Value_t value)
 {
     m_haste += value;
     UpdateHastePercent();
     return;
 }
 
-PctInt_t Attr::GetHasteBinPercent() const
+PctInt_t Attr::GetHastePercentInt() const
 {
-    return m_hasteBinPercent;
+    return m_hastePercentInt;
 }
 
-void Attr::SetHasteBinPercent(const PctInt_t binPercent)
+void Attr::SetHastePercentInt(PctInt_t PercentInt)
 {
-    m_hasteBinPercent = binPercent;
+    m_hastePercentInt = PercentInt;
     UpdateHastePercent();
     return;
 }
 
-void Attr::AddHasteBinPercent(const PctInt_t binPercent)
+void Attr::AddHastePercentInt(PctInt_t PercentInt)
 {
-    m_hasteBinPercent += binPercent;
+    m_hastePercentInt += PercentInt;
     UpdateHastePercent();
     return;
 }
@@ -947,14 +1019,14 @@ Value_t Attr::GetStrain() const
     return m_strain;
 }
 
-void Attr::SetStrain(const Value_t value)
+void Attr::SetStrain(Value_t value)
 {
     m_strain = value;
     UpdateStrainPercent();
     return;
 }
 
-void Attr::AddStrain(const Value_t value)
+void Attr::AddStrain(Value_t value)
 {
     m_strain += value;
     UpdateStrainPercent();
@@ -966,7 +1038,7 @@ PctFloat_t Attr::GetStrainPercent() const
     return m_strainPercent;
 }
 
-void Attr::AddStrainPercent(const PctFloat_t percent)
+void Attr::AddStrainPercent(PctFloat_t percent)
 {
     m_strainPercentFromCustom += percent;
     UpdateStrainPercent();
@@ -978,13 +1050,13 @@ Value_t Attr::GetSurplusBaseFromCustom() const
     return m_surplusBaseFromCustom;
 }
 
-void Attr::SetSurplusBaseFromCustom(const Value_t value)
+void Attr::SetSurplusBaseFromCustom(Value_t value)
 {
     m_surplusBaseFromCustom = value;
     UpdateSurplusDamage();
 }
 
-void Attr::AddSurplusBaseFromCustom(const Value_t value)
+void Attr::AddSurplusBaseFromCustom(Value_t value)
 {
     m_surplusBaseFromCustom += value;
     UpdateSurplusDamage();
@@ -1000,30 +1072,30 @@ Value_t Attr::GetSurplusBase() const
     return GetSurplusBaseFromCustom() + GetSurplusBaseFromMajor();
 }
 
-void Attr::SetSurplusBase(const Value_t value)
+void Attr::SetSurplusBase(Value_t value)
 {
     SetSurplusBaseFromCustom(value - GetSurplusBaseFromMajor());
 }
 
-void Attr::AddSurplusBase(const Value_t value)
+void Attr::AddSurplusBase(Value_t value)
 {
     AddSurplusBaseFromCustom(value);
 }
 
-PctInt_t Attr::GetSurplusBaseBinPercent() const
+PctInt_t Attr::GetSurplusBasePercentInt() const
 {
-    return m_surplusBaseBinPercent;
+    return m_surplusBasePercentInt;
 }
 
-void Attr::SetSurplusBaseBinPercent(const PctInt_t binPercent)
+void Attr::SetSurplusBasePercentInt(PctInt_t PercentInt)
 {
-    m_surplusBaseBinPercent = binPercent;
+    m_surplusBasePercentInt = PercentInt;
     UpdateSurplusDamage();
 }
 
-void Attr::AddSurplusBaseBinPercent(const PctInt_t binPercent)
+void Attr::AddSurplusBasePercentInt(PctInt_t PercentInt)
 {
-    m_surplusBaseBinPercent += binPercent;
+    m_surplusBasePercentInt += PercentInt;
     UpdateSurplusDamage();
 }
 
@@ -1052,22 +1124,22 @@ Value_t Attr::GetSurplusDamage() const
     return m_surplusDamage;
 }
 
-PctInt_t Attr::GetShieldIgnoreBinPercent() const
+PctInt_t Attr::GetShieldIgnorePercentInt() const
 {
-    return m_shieldIgnoreBinPercent;
+    return m_shieldIgnorePercentInt;
 }
 
-void Attr::SetShieldIgnoreBinPercent(Targets *targets, const PctInt_t binPercent)
+void Attr::SetShieldIgnorePercentInt(Targets *targets, PctInt_t PercentInt)
 {
-    m_shieldIgnoreBinPercent = binPercent;
-    UpdateShieldIgnorePercent(targets, m_shieldIgnoreBinPercent);
+    m_shieldIgnorePercentInt = PercentInt;
+    UpdateShieldIgnorePercent(targets, m_shieldIgnorePercentInt);
     return;
 }
 
-void Attr::AddShieldIgnoreBinPercent(Targets *targets, const PctInt_t binPercent)
+void Attr::AddShieldIgnorePercentInt(Targets *targets, PctInt_t PercentInt)
 {
-    m_shieldIgnoreBinPercent += binPercent;
-    UpdateShieldIgnorePercent(targets, m_shieldIgnoreBinPercent);
+    m_shieldIgnorePercentInt += PercentInt;
+    UpdateShieldIgnorePercent(targets, m_shieldIgnorePercentInt);
     return;
 }
 
@@ -1088,7 +1160,7 @@ Value_t Attr::GetPhysicsCriticalStrikeFromClassTaiXuJianYi() const
 
 void Attr::UpdateAgility()
 {
-    m_agility = m_agilityBase * (JX3_BIN_PCT + m_agilityBaseBinPercent) / JX3_BIN_PCT;
+    m_agility = m_agilityBase * (JX3_PCT_INT_BASE + m_agilityBasePercentInt) / JX3_PCT_INT_BASE;
     UpdatePhysicsAttack();
     UpdatePhysicsCriticalStrikePercent();
     UpdatePhysicsOvercomePercent();
@@ -1096,7 +1168,7 @@ void Attr::UpdateAgility()
 
 void Attr::UpdateStrength()
 {
-    m_strength = m_strengthBase * (JX3_BIN_PCT + m_strengthBaseBinPercent) / JX3_BIN_PCT;
+    m_strength = m_strengthBase * (JX3_PCT_INT_BASE + m_strengthBasePercentInt) / JX3_PCT_INT_BASE;
     UpdatePhysicsAttack();
     UpdatePhysicsCriticalStrikePercent();
     UpdatePhysicsOvercomePercent();
@@ -1104,7 +1176,7 @@ void Attr::UpdateStrength()
 
 void Attr::UpdateSpirit()
 {
-    m_spirit = m_spiritBase * (JX3_BIN_PCT + m_spiritBaseBinPercent) / JX3_BIN_PCT;
+    m_spirit = m_spiritBase * (JX3_PCT_INT_BASE + m_spiritBasePercentInt) / JX3_PCT_INT_BASE;
     UpdateMagicAttack();
     UpdateMagicCriticalStrikePercent();
     UpdateMagicOvercomePercent();
@@ -1112,7 +1184,7 @@ void Attr::UpdateSpirit()
 
 void Attr::UpdateSpunk()
 {
-    m_spunk = m_spunkBase * (JX3_BIN_PCT + m_spunkBaseBinPercent) / JX3_BIN_PCT;
+    m_spunk = m_spunkBase * (JX3_PCT_INT_BASE + m_spunkBasePercentInt) / JX3_PCT_INT_BASE;
     UpdateMagicAttack();
     UpdateMagicCriticalStrikePercent();
     UpdateMagicOvercomePercent();
@@ -1121,16 +1193,16 @@ void Attr::UpdateSpunk()
 void Attr::UpdatePhysicsAttack()
 {
     m_physicsAttackFromBase =
-        (GetPhysicsAttackBaseFromMajor() + GetPhysicsAttackBaseFromCustom()) * // 基础攻击
-        (JX3_BIN_PCT + GetPhysicsAttackBaseBinPercent()) / JX3_BIN_PCT;        // 基础攻击加成
-    m_physicsAttackFromMain = (this->*m_physicsAttackFromClass)();             // 面板攻击加成
+        (GetPhysicsAttackBaseFromMajor() + GetPhysicsAttackBaseFromCustom()) *    // 基础攻击
+        (JX3_PCT_INT_BASE + GetPhysicsAttackBasePercentInt()) / JX3_PCT_INT_BASE; // 基础攻击加成
+    m_physicsAttackFromMain = (this->*m_physicsAttackFromClass)(); // 面板攻击加成
     m_physicsAttack         = m_physicsAttackFromBase + m_physicsAttackFromMain;
 }
 
 void Attr::UpdateMagicAttack()
 {
     m_magicAttackFromBase = (GetMagicAttackBaseFromMajor() + GetMagicAttackBaseFromCustom()) * // 基础攻击
-                            (JX3_BIN_PCT + GetMagicAttackBaseBinPercent()) / JX3_BIN_PCT; // 基础攻击加成
+                            (JX3_PCT_INT_BASE + GetMagicAttackBasePercentInt()) / JX3_PCT_INT_BASE; // 基础攻击加成
     m_magicAttackFromMain = (this->*m_magicAttackFromClass)(); // 面板攻击加成
     m_magicAttack         = m_magicAttackFromBase + m_magicAttackFromMain;
 }
@@ -1175,20 +1247,21 @@ void Attr::UpdatePhysicsOvercomePercent()
 {
     m_physicsOvercome =
         (GetPhysicsOvercomeBaseFromMajor() + GetPhysicsOvercomeBaseFromCustom()) * // 基础破防
-            (JX3_BIN_PCT + GetPhysicsOvercomeBaseBinPercent()) / JX3_BIN_PCT + // 基础破防加成
-        GetPhysicsOvercomeFromClass();                                         // 面板破防加成
+            (JX3_PCT_INT_BASE + GetPhysicsOvercomeBasePercentInt()) / JX3_PCT_INT_BASE + // 基础破防加成
+        GetPhysicsOvercomeFromClass(); // 面板破防加成
     m_physicsOvercomePercent =
-        GetPhysicsOvercome() /                                                 // 面板破防
+        GetPhysicsOvercome() /         // 面板破防
         (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)); // 破防系数
 }
 
 void Attr::UpdateMagicOvercomePercent()
 {
-    m_magicOvercome = (GetMagicOvercomeBaseFromMajor() + GetMagicOvercomeBaseFromCustom()) * // 基础破防
-                          (JX3_BIN_PCT + GetMagicOvercomeBaseBinPercent()) / JX3_BIN_PCT + // 基础破防加成
-                      GetMagicOvercomeFromClass(); // 面板破防加成
+    m_magicOvercome =
+        (GetMagicOvercomeBaseFromMajor() + GetMagicOvercomeBaseFromCustom()) * // 基础破防
+            (JX3_PCT_INT_BASE + GetMagicOvercomeBasePercentInt()) / JX3_PCT_INT_BASE + // 基础破防加成
+        GetMagicOvercomeFromClass(); // 面板破防加成
     m_magicOvercomePercent =
-        GetMagicOvercome() /                       // 面板破防
+        GetMagicOvercome() /         // 面板破防
         (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)); // 破防系数
 }
 
@@ -1197,8 +1270,8 @@ void Attr::UpdateHastePercent()
     m_hastePercentVisible =
         m_haste / (JX3_HASTE_RATE * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
     m_hastePercent =
-        static_cast<double>(JX3_BIN_PCT) /
-        (static_cast<int>(m_hastePercentVisible * JX3_BIN_PCT) + m_hasteBinPercent + JX3_BIN_PCT);
+        static_cast<double>(JX3_PCT_INT_BASE) /
+        (static_cast<int>(m_hastePercentVisible * JX3_PCT_INT_BASE) + m_hastePercentInt + JX3_PCT_INT_BASE);
 }
 
 void Attr::UpdateStrainPercent()
@@ -1210,16 +1283,16 @@ void Attr::UpdateStrainPercent()
 void Attr::UpdateSurplusDamage()
 {
     m_surplus = (GetSurplusBaseFromMajor() + GetSurplusBaseFromCustom()) *
-                    (JX3_BIN_PCT + GetSurplusBaseBinPercent()) / JX3_BIN_PCT +
+                    (JX3_PCT_INT_BASE + GetSurplusBasePercentInt()) / JX3_PCT_INT_BASE +
                 GetSurplusFromClass();
     m_surplusDamage = m_surplus * JX3_SURPLUS_PARAM;
 }
 
-void Attr::UpdateShieldIgnorePercent(Targets *targets, const PctInt_t binPercent)
+void Attr::UpdateShieldIgnorePercent(Targets *targets, PctInt_t PercentInt)
 {
     for (auto &target : *targets) {
 
-        target.second->SetShieldIgnoreBinPercent(binPercent);
+        target.second->SetShieldIgnorePercentInt(PercentInt);
     }
 }
 

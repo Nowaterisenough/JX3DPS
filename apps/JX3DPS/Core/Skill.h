@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 18:16:14
+ * Last Modified: 2023-07-03 05:49:13
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -86,15 +86,15 @@ public:
     RollResult GetPhysicsRollResult() const;
     RollResult GetMagicRollResult() const;
 
-    Damage CalcPhysicsDamage(Id_t targetId, RollResult tableType, int sub = 0, int level = 0) const;
+    Damage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
 
-    Damage CalcMagicDamage(Id_t targetId, RollResult tableType, int sub = 0, int level = 0) const;
+    Damage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
 
-    void Record(Id_t          targetId  = 1,
-                RollResult    tableType = RollResult::HIT,
-                const Damage &damage    = Damage(),
-                int           sub       = 0,
-                int           level     = 0);
+    void Record(Id_t          targetId   = 1,
+                RollResult    rollResult = RollResult::HIT,
+                const Damage &damage     = Damage(),
+                int           sub        = 0,
+                int           level      = 0);
 
     void SetPlayer(Player *player);
     void SetTargets(Targets *targets);
@@ -122,7 +122,7 @@ protected:
     std::string m_name = "";
 
     /* 施法距离 */
-    float m_range = 0;
+    float m_range = JX3DPS_UNLIMITED_RANGE;
 
     /* 词缀字段 */
     std::vector<std::string> m_subNames;
@@ -151,13 +151,13 @@ protected:
     int m_targetCountFixed = 0;
 
     /* 技能会心加成 */
-    PctFloat_t m_skillCriticalStrikePercentAdd = 0;
+    PctFloat_t m_skillCriticalStrikeAddPercent = 0.0;
 
     /* 技能会心效果加成 */
-    PctFloat_t m_skillCriticalStrikePowerPercentAdd = 0;
+    PctFloat_t m_skillCriticalStrikePowerAddPercent = 0.0;
 
     /* 技能伤害加成 */
-    PctFloat_t m_skillDamageBinPercentAdd = 0;
+    PctInt_t m_skillDamageAddPercentInt = 0;
 
     /* 技能气点加成 */
     int m_skillQidianAdd = 0;

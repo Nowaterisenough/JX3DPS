@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-20 00:01:52
+ * Last Modified: 2023-07-03 03:46:25
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -48,31 +48,31 @@ public:
     void       AddManaPercent(const PctFloat_t percent);
 
     /* 忽视防御 */
-    PctInt_t GetShieldIgnoreBinPercent() const;
-    void     SetShieldIgnoreBinPercent(const PctInt_t binPercent);
+    PctInt_t GetShieldIgnorePercentInt() const;
+    void     SetShieldIgnorePercentInt(const PctInt_t PercentInt);
 
     /* 外防 */
     Value_t    GetPhysicsShield() const;
     void       SetPhysicsShield(const Value_t value);
     void       AddPhysicsShield(const Value_t value);
-    PctInt_t   GetPhysicsShieldBinPercent() const;
-    void       SetPhysicsShieldBinPercent(const PctInt_t binPercent);
-    void       AddPhysicsShieldBinPercent(const PctInt_t binPercent);
+    PctInt_t   GetPhysicsShieldPercentInt() const;
+    void       SetPhysicsShieldPercentInt(const PctInt_t PercentInt);
+    void       AddPhysicsShieldPercentInt(const PctInt_t PercentInt);
     PctFloat_t GetPhysicsResistPercent() const;
 
     /* 内防 */
     Value_t    GetMagicShield() const;
     void       SetMagicShield(const Value_t value);
     void       AddMagicShield(const Value_t value);
-    PctInt_t   GetMagicShieldBinPercent() const;
-    void       SetMagicShieldBinPercent(const PctInt_t binPercent);
-    void       AddMagicShieldBinPercent(const PctInt_t binPercent);
+    PctInt_t   GetMagicShieldPercentInt() const;
+    void       SetMagicShieldPercentInt(const PctInt_t PercentInt);
+    void       AddMagicShieldPercentInt(const PctInt_t PercentInt);
     PctFloat_t GetMagicResistPercent() const;
 
     /* 易伤 */
-    PctInt_t   GetDamageAddBinPercent() const;
-    void       SetDamageAddBinPercent(const PctInt_t binPercent);
-    void       AddDamageAddBinPercent(const PctInt_t binPercent);
+    PctInt_t   GetDamageAddPercentInt() const;
+    void       SetDamageAddPercentInt(const PctInt_t PercentInt);
+    void       AddDamageAddPercentInt(const PctInt_t PercentInt);
     PctFloat_t GetDamageAddPercent() const;
 
 private:
@@ -101,20 +101,20 @@ private:
     PctFloat_t m_manaPercent = 1.0;
 
     /* 忽视防御 */
-    PctInt_t m_shieldIgnoreBinPercent = 0;
+    PctInt_t m_shieldIgnorePercentInt = 0;
 
     /* 外防 */
     Value_t    m_physicsShield           = 0;
-    PctInt_t   m_physicsShieldBinPercent = 0;
+    PctInt_t   m_physicsShieldPercentInt = 0;
     PctFloat_t m_physicsResistPercent    = 0.0;
 
     /* 内防 */
     Value_t    m_magicShield           = 0;
-    PctInt_t   m_magicShieldBinPercent = 0;
+    PctInt_t   m_magicShieldPercentInt = 0;
     PctFloat_t m_magicResistPercent    = 0.0;
 
     /* 易伤 */
-    PctInt_t   m_damageAddBinPercent = 0;
+    PctInt_t   m_damageAddPercentInt = 0;
     PctFloat_t m_damageAddPercent    = 0.0;
 };
 

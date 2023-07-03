@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 18:59:38
+ * Last Modified: 2023-07-04 04:22:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -125,29 +125,26 @@ JX3DPS::Error_t JX3DPS::ParseJson2Attr(const nlohmann::json &json, Attr &attr)
 {
     try {
         nlohmann::json j = json.at("attr");
-        attr.AddAgilityBase(j.at("Agility").get<int>());
-        attr.AddSpiritBase(j.at("Spirit").get<int>());
-        attr.AddStrengthBase(j.at("Strength").get<int>());
-        attr.AddSpunkBase(j.at("Spunk").get<int>());
+        attr.SetAgilityBase(j.at("Agility").get<int>());
+        attr.SetSpiritBase(j.at("Spirit").get<int>());
+        attr.SetStrengthBase(j.at("Strength").get<int>());
+        attr.SetSpunkBase(j.at("Spunk").get<int>());
 
-        attr.AddPhysicsAttackBase(j.at("PhysicsAttackPowerBase").get<int>() - attr.GetPhysicsAttackBaseFromMajor());
+        attr.SetPhysicsAttackBase(j.at("PhysicsAttackPowerBase").get<int>() - attr.GetPhysicsAttackBaseFromMajor());
 
-        PctFloat_t criticalStrikePercent =
-            attr.GetPhysicsCriticalStrikePercent() - attr.GetPhysicsCriticalStrikePercentFromCustom();
-        attr.AddPhysicsCriticalStrikePercentFromCustom(j.at("PhysicsCriticalStrikeRate").get<double>() - criticalStrikePercent);
-        attr.AddPhysicsCriticalStrikePowerPercentFromCustom(
-            j.at("PhysicsCriticalDamagePowerPercent").get<double>() - attr.GetPhysicsCriticalStrikePowerPercent());
-        attr.AddPhysicsOvercomeBase(j.at("PhysicsOvercome").get<int>() - attr.GetPhysicsOvercomeBaseFromMajor());
-        attr.AddHaste(j.at("Haste").get<int>());
-        attr.AddStrain(j.at("Strain").get<int>());
-        attr.AddSurplusBase(j.at("SurplusValue").get<int>());
-        attr.AddWeaponAttack(
-            (j.at("MeleeWeaponDamage").get<int>() * 2 + j.at("MeleeWeaponDamageRand").get<int>()) / 2);
+        attr.SetBoxPhysicsCriticalStrikePercent(j.at("PhysicsCriticalStrikeRate").get<double>());
+        attr.SetBoxPhysicsCriticalStrikePowerPercent(j.at("PhysicsCriticalDamagePowerPercent").get<double>());
+
+        attr.SetPhysicsOvercomeBase(j.at("PhysicsOvercome").get<int>() - attr.GetPhysicsOvercomeBaseFromMajor());
+        attr.SetHaste(j.at("Haste").get<int>());
+        attr.SetStrain(j.at("Strain").get<int>());
+        attr.SetSurplusBase(j.at("SurplusValue").get<int>());
+        attr.SetWeaponAttack(j.at("MeleeWeaponDamage").get<int>(),
+                             j.at("MeleeWeaponDamage").get<int>() + j.at("MeleeWeaponDamageRand").get<int>());
 
     } catch (const std::exception &e) {
         spdlog::error("属性解析失败 {}", e.what());
         return JX3DPS_ERROR_INVALID_JSON;
     }
-    attr.AddAgilityBase(json.at("attr").at("Agility").get<int>());
     return JX3DPS_SUCCESS;
 }

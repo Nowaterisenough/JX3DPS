@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 19:56:32
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-24 17:23:18
+ * Last Modified: 2023-07-03 04:02:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -33,8 +33,8 @@ inline const std::vector<std::string> &CLASS = {
 /*----------------------- 游戏常数 -----------------------*/
 
 /* 百分数基数100% */
-const PctInt_t   JX3_BIN_PCT = 1024;
-const PctFloat_t JX3_PCT     = 1.0;
+const PctInt_t   JX3_PCT_INT_BASE   = 1024;
+const PctFloat_t JX3_PCT_FLOAT_BASE = 1.0;
 
 /* 每秒帧数 */
 const Frame_t JX3_FRAME_PER_SECOND = 16;

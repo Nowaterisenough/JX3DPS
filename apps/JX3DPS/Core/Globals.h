@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-20 18:54:55
+ * Last Modified: 2023-06-28 02:55:41
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -52,17 +52,18 @@ const Error_t JX3DPS_ERROR_INVALID_MACRO_CONDITION = -3;
 /* 无效参数 */
 const Error_t JX3DPS_ERROR_INVALID_MACRO_SKILL = -3;
 
+/* 无效参数 */
 const Error_t JX3DPS_ERROR_INVALID_JSON = -100;
 
-/*----------------------- 定义 -----------------------*/
+/*----------------------- 常量定义 -----------------------*/
 
 /* 延迟常数: (PING / JX3DPS_DELAY) 即 延迟帧数 */
 const int JX3DPS_DELAY = 35;
 
-const Id_t JX3DPS_NO_SKILL = 0;
-
+/* 玩家角色 */
 const Id_t JX3DPS_PLAYER = 0;
 
+/* 无限制释放距离 */
 const int JX3DPS_UNLIMITED_RANGE = INT_MAX;
 
 /* 帧数变量无效值 */

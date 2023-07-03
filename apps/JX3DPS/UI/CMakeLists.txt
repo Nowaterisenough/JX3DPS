@@ -12,8 +12,8 @@ set(CMAKE_AUTORCC ON)
 
 # list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.5.0/msvc2019_64")
 # list(APPEND CMAKE_TOOLCHAIN_FILE "C:/Qt/6.5.0/msvc2022_64_static/lib/cmake/Qt6/qt.toolchain.cmake")
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
 # qt_standard_project_setup()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -41,6 +41,7 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Network
     JX3DPS
     ThreadPool
     spdlog

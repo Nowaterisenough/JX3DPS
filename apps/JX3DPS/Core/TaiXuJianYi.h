@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 20:35:16
+ * Last Modified: 2023-06-28 13:52:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -404,14 +404,12 @@ public:
 
     Player::Player(const Player &other) : JX3DPS::Player(other)
     {
-        for (Id_t i = Talent::BEGIN; i < Talent::END; i++) {
-            if (other.talents.find(i) == other.talents.end()) {
-                talents[i] = false;
-            }
-        }
+
 
         // 添加心法气点随机帧数分布
         this->buffs[JX3DPS::Buff::CLASS_FEATURE]->Add();
+
+
     }
 
     Player &Player::operator=(const JX3DPS::Player &other) override

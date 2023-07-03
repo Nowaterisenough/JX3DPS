@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-23 14:46:56
+ * Last Modified: 2023-07-04 04:16:07
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -73,57 +73,59 @@ public:
 
     /* 身法 */
     Value_t  GetAgilityBase() const;
-    void     SetAgilityBase(const Value_t value);
-    void     AddAgilityBase(const Value_t value);
-    PctInt_t GetAgilityBaseBinPercent() const;
-    void     SetAgilityBaseBinPercent(const PctInt_t binPercent);
-    void     AddAgilityBaseBinPercent(const PctInt_t binPercent);
+    void     SetAgilityBase(Value_t value);
+    void     AddAgilityBase(Value_t value);
+    PctInt_t GetAgilityBasePercentInt() const;
+    void     SetAgilityBasePercentInt(PctInt_t PercentInt);
+    void     AddAgilityBasePercentInt(PctInt_t PercentInt);
     Value_t  GetAgility() const;
 
     /* 力道 */
     Value_t  GetStrengthBase() const;
-    void     SetStrengthBase(const Value_t value);
-    void     AddStrengthBase(const Value_t value);
-    PctInt_t GetStrengthBaseBinPercent() const;
-    void     SetStrengthBaseBinPercent(const PctInt_t binPercent);
-    void     AddStrengthBaseBinPercent(const PctInt_t binPercent);
+    void     SetStrengthBase(Value_t value);
+    void     AddStrengthBase(Value_t value);
+    PctInt_t GetStrengthBasePercentInt() const;
+    void     SetStrengthBasePercentInt(PctInt_t PercentInt);
+    void     AddStrengthBasePercentInt(PctInt_t PercentInt);
     Value_t  GetStrength() const;
 
     /* 根骨 */
     Value_t  GetSpiritBase() const;
-    void     SetSpiritBase(const Value_t value);
-    void     AddSpiritBase(const Value_t value);
-    PctInt_t GetSpiritBaseBinPercent() const;
-    void     SetSpiritBaseBinPercent(const PctInt_t binPercent);
-    void     AddSpiritBaseBinPercent(const PctInt_t binPercent);
+    void     SetSpiritBase(Value_t value);
+    void     AddSpiritBase(Value_t value);
+    PctInt_t GetSpiritBasePercentInt() const;
+    void     SetSpiritBasePercentInt(PctInt_t PercentInt);
+    void     AddSpiritBasePercentInt(PctInt_t PercentInt);
     Value_t  GetSpirit() const;
 
     /* 元气 */
     Value_t  GetSpunkBase() const;
-    void     SetSpunkBase(const Value_t value);
-    void     AddSpunkBase(const Value_t value);
-    PctInt_t GetSpunkBaseBinPercent() const;
-    void     SetSpunkBaseBinPercent(const PctInt_t binPercent);
-    void     AddSpunkBaseBinPercent(const PctInt_t binPercent);
+    void     SetSpunkBase(Value_t value);
+    void     AddSpunkBase(Value_t value);
+    PctInt_t GetSpunkBasePercentInt() const;
+    void     SetSpunkBasePercentInt(PctInt_t PercentInt);
+    void     AddSpunkBasePercentInt(PctInt_t PercentInt);
     Value_t  GetSpunk() const;
 
     /* 武器伤害 */
     Value_t GetWeaponAttack() const;
-    void    SetWeaponAttack(const Value_t lower, const Value_t upper);
-    void    AddWeaponAttack(const Value_t value);
-    void    AddWeaponAttack(const Value_t lower, const Value_t upper);
+    void    SetWeaponAttack(Value_t lower, Value_t upper);
+    void    AddWeaponAttack(Value_t value);
+    void    AddWeaponAttack(Value_t lower, Value_t upper);
+    Value_t GetWeaponAttackLower() const;
+    Value_t GetWeaponAttackUpper() const;
 
     /* 外功攻击 */
     Value_t  GetPhysicsAttackBaseFromCustom() const;
-    void     SetPhysicsAttackBaseFromCustom(const Value_t value);
-    void     AddPhysicsAttackBaseFromCustom(const Value_t value);
+    void     SetPhysicsAttackBaseFromCustom(Value_t value);
+    void     AddPhysicsAttackBaseFromCustom(Value_t value);
     Value_t  GetPhysicsAttackBaseFromMajor() const;
     Value_t  GetPhysicsAttackBase() const;
-    void     SetPhysicsAttackBase(const Value_t value);
-    void     AddPhysicsAttackBase(const Value_t value);
-    PctInt_t GetPhysicsAttackBaseBinPercent() const;
-    void     SetPhysicsAttackBaseBinPercent(const PctInt_t binPercent);
-    void     AddPhysicsAttackBaseBinPercent(const PctInt_t binPercent);
+    void     SetPhysicsAttackBase(Value_t value);
+    void     AddPhysicsAttackBase(Value_t value);
+    PctInt_t GetPhysicsAttackBasePercentInt() const;
+    void     SetPhysicsAttackBasePercentInt(PctInt_t PercentInt);
+    void     AddPhysicsAttackBasePercentInt(PctInt_t PercentInt);
     Value_t  GetPhysicsAttackFromMain() const;
     Value_t  GetPhysicsAttackFromBase() const;
     Value_t  GetPhysicsAttack() const;
@@ -132,15 +134,15 @@ public:
 
     /* 内功攻击 */
     Value_t  GetMagicAttackBaseFromCustom() const;
-    void     SetMagicAttackBaseFromCustom(const Value_t value);
-    void     AddMagicAttackBaseFromCustom(const Value_t value);
+    void     SetMagicAttackBaseFromCustom(Value_t value);
+    void     AddMagicAttackBaseFromCustom(Value_t value);
     Value_t  GetMagicAttackBaseFromMajor() const;
     Value_t  GetMagicAttackBase() const;
-    void     SetMagicAttackBase(const Value_t value);
-    void     AddMagicAttackBase(const Value_t value);
-    PctInt_t GetMagicAttackBaseBinPercent() const;
-    void     SetMagicAttackBaseBinPercent(const PctInt_t binPercent);
-    void     AddMagicAttackBaseBinPercent(const PctInt_t binPercent);
+    void     SetMagicAttackBase(Value_t value);
+    void     AddMagicAttackBase(Value_t value);
+    PctInt_t GetMagicAttackBasePercentInt() const;
+    void     SetMagicAttackBasePercentInt(PctInt_t PercentInt);
+    void     AddMagicAttackBasePercentInt(PctInt_t PercentInt);
     Value_t  GetMagicAttackFromMain() const;
     Value_t  GetMagicAttackFromBase() const;
     Value_t  GetMagicAttack() const;
@@ -149,63 +151,71 @@ public:
 
     /* 外功会心 */
     Value_t    GetPhysicsCriticalStrikeFromCustom() const;
-    void       SetPhysicsCriticalStrikeFromCustom(const Value_t value);
-    void       AddPhysicsCriticalStrikeFromCustom(const Value_t value);
+    void       SetPhysicsCriticalStrikeFromCustom(Value_t value);
+    void       AddPhysicsCriticalStrikeFromCustom(Value_t value);
     Value_t    GetPhysicsCriticalStrikeFromMajor() const;
     Value_t    GetPhysicsCriticalStrikeFromClass() const;
     Value_t    GetPhysicsCriticalStrike() const;
-    void       SetPhysicsCriticalStrike(const Value_t value);
-    void       AddPhysicsCriticalStrike(const Value_t value);
+    void       SetPhysicsCriticalStrike(Value_t value);
+    void       AddPhysicsCriticalStrike(Value_t value);
     PctFloat_t GetPhysicsCriticalStrikePercentFromCustom() const;
-    void       SetPhysicsCriticalStrikePercentFromCustom(const PctFloat_t percent);
-    void       AddPhysicsCriticalStrikePercentFromCustom(const PctFloat_t percent);
+    void       SetPhysicsCriticalStrikePercentFromCustom(PctFloat_t percent);
+    void       AddPhysicsCriticalStrikePercentFromCustom(PctFloat_t percent);
     PctFloat_t GetPhysicsCriticalStrikePercent() const;
     Value_t    GetPhysicsCriticalStrikeMinimum() const;
 
+    void SetBoxPhysicsCriticalStrikePercent(PctFloat_t percent);
+
     /* 内功会心 */
     Value_t    GetMagicCriticalStrikeFromCustom() const;
-    void       SetMagicCriticalStrikeFromCustom(const Value_t value);
-    void       AddMagicCriticalStrikeFromCustom(const Value_t value);
+    void       SetMagicCriticalStrikeFromCustom(Value_t value);
+    void       AddMagicCriticalStrikeFromCustom(Value_t value);
     Value_t    GetMagicCriticalStrikeFromMajor() const;
     Value_t    GetMagicCriticalStrikeFromClass() const;
     Value_t    GetMagicCriticalStrike() const;
-    void       SetMagicCriticalStrike(const Value_t value);
-    void       AddMagicCriticalStrike(const Value_t value);
+    void       SetMagicCriticalStrike(Value_t value);
+    void       AddMagicCriticalStrike(Value_t value);
     PctFloat_t GetMagicCriticalStrikePercentFromCustom() const;
-    void       SetMagicCriticalStrikePercentFromCustom(const PctFloat_t percent);
-    void       AddMagicCriticalStrikePercentFromCustom(const PctFloat_t percent);
+    void       SetMagicCriticalStrikePercentFromCustom(PctFloat_t percent);
+    void       AddMagicCriticalStrikePercentFromCustom(PctFloat_t percent);
     PctFloat_t GetMagicCriticalStrikePercent() const;
     Value_t    GetMagicCriticalStrikeMinimum() const;
 
+    void SetBoxMagicCriticalStrikePercent(PctFloat_t percent);
+
     /* 外功会心效果 */
     Value_t    GetPhysicsCriticalStrikePower() const;
-    void       SetPhysicsCriticalStrikePower(const Value_t value);
-    void       AddPhysicsCriticalStrikePower(const Value_t value);
+    void       SetPhysicsCriticalStrikePower(Value_t value);
+    void       AddPhysicsCriticalStrikePower(Value_t value);
     PctFloat_t GetPhysicsCriticalStrikePowerPercentFromCustom() const;
-    void       SetPhysicsCriticalStrikePowerPercentFromCustom(const PctFloat_t percent);
-    void       AddPhysicsCriticalStrikePowerPercentFromCustom(const PctFloat_t percent);
+    void       SetPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
+    void       AddPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
     PctFloat_t GetPhysicsCriticalStrikePowerPercent() const;
+
+    void SetBoxPhysicsCriticalStrikePowerPercent(PctFloat_t percent);
 
     /* 内功会心效果 */
     Value_t    GetMagicCriticalStrikePower() const;
-    void       SetMagicCriticalStrikePower(const Value_t value);
-    void       AddMagicCriticalStrikePower(const Value_t value);
+    void       SetMagicCriticalStrikePower(Value_t value);
+    void       AddMagicCriticalStrikePower(Value_t value);
     PctFloat_t GetMagicCriticalStrikePowerPercentFromCustom() const;
-    void       SetMagicCriticalStrikePowerPercentFromCustom(const PctFloat_t percent);
-    void       AddMagicCriticalStrikePowerPercentFromCustom(const PctFloat_t percent);
+    void       SetMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
+    void       AddMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
     PctFloat_t GetMagicCriticalStrikePowerPercent() const;
+
+    void SetBoxMagicCriticalStrikePowerPercent(PctFloat_t percent);
 
     /* 外功破防 */
     Value_t    GetPhysicsOvercomeBaseFromCustom() const;
-    void       SetPhysicsOvercomeBaseFromCustom(const Value_t value);
-    void       AddPhysicsOvercomeBaseFromCustom(const Value_t value);
+    void       SetPhysicsOvercomeBaseFromCustom(Value_t value);
+    void       AddPhysicsOvercomeBaseFromCustom(Value_t value);
     Value_t    GetPhysicsOvercomeBaseFromMajor() const;
     Value_t    GetPhysicsOvercomeBase() const;
-    void       SetPhysicsOvercomeBase(const Value_t value);
-    void       AddPhysicsOvercomeBase(const Value_t value);
-    PctInt_t   GetPhysicsOvercomeBaseBinPercent() const;
-    void       SetPhysicsOvercomeBaseBinPercent(const PctInt_t binPercent);
-    void       AddPhysicsOvercomeBaseBinPercent(const PctInt_t binPercent);
+    void       SetPhysicsOvercomeBase(Value_t value);
+    void       AddPhysicsOvercomeBase(Value_t value);
+    PctInt_t   GetPhysicsOvercomeBasePercentInt() const;
+    void       SetPhysicsOvercomeBasePercentInt(PctInt_t PercentInt);
+    void       AddPhysicsOvercomeBasePercentInt(PctInt_t PercentInt);
     Value_t    GetPhysicsOvercomeFromClass() const;
     Value_t    GetPhysicsOvercome() const;
     PctFloat_t GetPhysicsOvercomePercent() const;
@@ -214,15 +224,15 @@ public:
 
     /* 内功破防 */
     Value_t    GetMagicOvercomeBaseFromCustom() const;
-    void       SetMagicOvercomeBaseFromCustom(const Value_t value);
-    void       AddMagicOvercomeBaseFromCustom(const Value_t value);
+    void       SetMagicOvercomeBaseFromCustom(Value_t value);
+    void       AddMagicOvercomeBaseFromCustom(Value_t value);
     Value_t    GetMagicOvercomeBaseFromMajor() const;
     Value_t    GetMagicOvercomeBase() const;
-    void       SetMagicOvercomeBase(const Value_t value);
-    void       AddMagicOvercomeBase(const Value_t value);
-    PctInt_t   GetMagicOvercomeBaseBinPercent() const;
-    void       SetMagicOvercomeBaseBinPercent(const PctInt_t binPercent);
-    void       AddMagicOvercomeBaseBinPercent(const PctInt_t binPercent);
+    void       SetMagicOvercomeBase(Value_t value);
+    void       AddMagicOvercomeBase(Value_t value);
+    PctInt_t   GetMagicOvercomeBasePercentInt() const;
+    void       SetMagicOvercomeBasePercentInt(PctInt_t PercentInt);
+    void       AddMagicOvercomeBasePercentInt(PctInt_t PercentInt);
     Value_t    GetMagicOvercomeFromClass() const;
     Value_t    GetMagicOvercome() const;
     PctFloat_t GetMagicOvercomePercent() const;
@@ -231,32 +241,32 @@ public:
 
     /* 加速 */
     Value_t    GetHaste() const;
-    void       SetHaste(const Value_t value);
-    void       AddHaste(const Value_t value);
-    PctInt_t   GetHasteBinPercent() const;
-    void       SetHasteBinPercent(const PctInt_t binPercent);
-    void       AddHasteBinPercent(const PctInt_t binPercent);
+    void       SetHaste(Value_t value);
+    void       AddHaste(Value_t value);
+    PctInt_t   GetHastePercentInt() const;
+    void       SetHastePercentInt(PctInt_t PercentInt);
+    void       AddHastePercentInt(PctInt_t PercentInt);
     PctFloat_t GetHastePercent() const;
     PctFloat_t GetHastePercentVisible() const;
 
     /* 无双 */
     Value_t    GetStrain() const;
-    void       SetStrain(const Value_t value);
-    void       AddStrain(const Value_t value);
+    void       SetStrain(Value_t value);
+    void       AddStrain(Value_t value);
     PctFloat_t GetStrainPercent() const;
-    void       AddStrainPercent(const PctFloat_t percent);
+    void       AddStrainPercent(PctFloat_t percent);
 
     /* 破招 */
     Value_t  GetSurplusBaseFromCustom() const;
-    void     SetSurplusBaseFromCustom(const Value_t value);
-    void     AddSurplusBaseFromCustom(const Value_t value);
+    void     SetSurplusBaseFromCustom(Value_t value);
+    void     AddSurplusBaseFromCustom(Value_t value);
     Value_t  GetSurplusBaseFromMajor() const;
     Value_t  GetSurplusBase() const;
-    void     SetSurplusBase(const Value_t value);
-    void     AddSurplusBase(const Value_t value);
-    PctInt_t GetSurplusBaseBinPercent() const;
-    void     SetSurplusBaseBinPercent(const PctInt_t binPercent);
-    void     AddSurplusBaseBinPercent(const PctInt_t binPercent);
+    void     SetSurplusBase(Value_t value);
+    void     AddSurplusBase(Value_t value);
+    PctInt_t GetSurplusBasePercentInt() const;
+    void     SetSurplusBasePercentInt(PctInt_t PercentInt);
+    void     AddSurplusBasePercentInt(PctInt_t PercentInt);
     Value_t  GetSurplusFromClass() const;
     Value_t  GetSurplus() const;
     Value_t  GetSurplusBaseMinimum() const;
@@ -264,9 +274,9 @@ public:
     Value_t  GetSurplusDamage() const;
 
     /* 忽视防御 */
-    PctInt_t GetShieldIgnoreBinPercent() const;
-    void     SetShieldIgnoreBinPercent(Targets *targets, const PctInt_t binPercent);
-    void     AddShieldIgnoreBinPercent(Targets *targets, const PctInt_t binPercent);
+    PctInt_t GetShieldIgnorePercentInt() const;
+    void     SetShieldIgnorePercentInt(Targets *targets, PctInt_t PercentInt);
+    void     AddShieldIgnorePercentInt(Targets *targets, PctInt_t PercentInt);
 
 private:
     /* 缺省函数 */
@@ -322,7 +332,7 @@ private:
     void UpdateSurplusDamage();
 
     /* 忽视防御 */
-    void UpdateShieldIgnorePercent(Targets *targets, const PctInt_t binPercent);
+    void UpdateShieldIgnorePercent(Targets *targets, PctInt_t PercentInt);
 
 private:
     /* 心法属性加成 */
@@ -338,37 +348,39 @@ private:
 
     /* 身法 */
     Value_t  m_agilityBase           = 0;
-    PctInt_t m_agilityBaseBinPercent = 0;
+    PctInt_t m_agilityBasePercentInt = 0;
     Value_t  m_agility               = 0;
 
     /* 力道 */
     Value_t  m_strengthBase           = 0;
-    PctInt_t m_strengthBaseBinPercent = 0;
+    PctInt_t m_strengthBasePercentInt = 0;
     Value_t  m_strength               = 0;
 
     /* 根骨 */
     Value_t  m_spiritBase           = 0;
-    PctInt_t m_spiritBaseBinPercent = 0;
+    PctInt_t m_spiritBasePercentInt = 0;
     Value_t  m_spirit               = 0;
 
     /* 元气 */
     Value_t  m_spunkBase           = 0;
-    PctInt_t m_spunkBaseBinPercent = 0;
+    PctInt_t m_spunkBasePercentInt = 0;
     Value_t  m_spunk               = 0;
 
     /* 武器伤害 */
-    Value_t m_weaponAttack = 0;
+    Value_t m_weaponAttackLower = 0;
+    Value_t m_weaponAttackUpper = 0;
+    Value_t m_weaponAttack      = 0;
 
     /* 外功攻击 */
     Value_t  m_physicsAttackBaseFromCustom = 0;
-    PctInt_t m_physicsAttackBaseBinPercent = 0;
+    PctInt_t m_physicsAttackBasePercentInt = 0;
     Value_t  m_physicsAttackFromMain       = 0;
     Value_t  m_physicsAttackFromBase       = 0;
     Value_t  m_physicsAttack               = 0;
 
     /* 内功攻击 */
     Value_t  m_magicAttackBaseFromCustom = 0;
-    PctInt_t m_magicAttackBaseBinPercent = 0;
+    PctInt_t m_magicAttackBasePercentInt = 0;
     Value_t  m_magicAttackFromMain       = 0;
     Value_t  m_magicAttackFromBase       = 0;
     Value_t  m_magicAttack               = 0;
@@ -397,19 +409,19 @@ private:
 
     /* 外功破防 */
     Value_t    m_physicsOvercomeBaseFromCustom = 0;
-    PctInt_t   m_physicsOvercomeBaseBinPercent = 0;
+    PctInt_t   m_physicsOvercomeBasePercentInt = 0;
     Value_t    m_physicsOvercome               = 0;
     PctFloat_t m_physicsOvercomePercent        = 0.0;
 
     /* 内功破防 */
     Value_t    m_magicOvercomeBaseFromCustom = 0;
-    PctInt_t   m_magicOvercomeBaseBinPercent = 0;
+    PctInt_t   m_magicOvercomeBasePercentInt = 0;
     Value_t    m_magicOvercome               = 0;
     PctFloat_t m_magicOvercomePercent        = 0.0;
 
     /* 加速 */
     Value_t    m_haste               = 0;
-    PctInt_t   m_hasteBinPercent     = 0;
+    PctInt_t   m_hastePercentInt     = 0;
     PctFloat_t m_hastePercent        = 0.0;
     PctFloat_t m_hastePercentVisible = 0.0;
 
@@ -420,12 +432,12 @@ private:
 
     /* 破招 */
     Value_t  m_surplusBaseFromCustom = 0;
-    PctInt_t m_surplusBaseBinPercent = 0;
+    PctInt_t m_surplusBasePercentInt = 0;
     Value_t  m_surplus               = 0;
     Value_t  m_surplusDamage         = 0;
 
     /* 忽视防御 */
-    PctInt_t m_shieldIgnoreBinPercent = 0;
+    PctInt_t m_shieldIgnorePercentInt = 0;
 };
 
 } // namespace JX3DPS

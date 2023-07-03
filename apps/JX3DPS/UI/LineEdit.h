@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-17 12:28:05
+ * Last Modified: 2023-07-04 02:57:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -24,6 +24,9 @@ class LineEdit : public QLineEdit
 
 public:
     LineEdit(QWidget *parent = nullptr);
+
+    void UpdateValue(int value);
+    void UpdateValueFloat(float value);
 };
 
 #endif // LINEEDIT_H

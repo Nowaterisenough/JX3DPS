@@ -9,10 +9,14 @@
 
 #include "Widget.h"
 
+#include <fstream>
+
 #include <QEvent>
+#include <QEventLoop>
 #include <QGraphicsDropShadowEffect>
 #include <QGridLayout>
 #include <QPainter>
+#include <QTimer>
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -24,10 +28,14 @@
 #include "Button.h"
 #include "CheckBox.h"
 #include "ComboBox.h"
+#include "DataBars.h"
 #include "FramelessWidget.h"
 #include "GroupBox.h"
+#include "ImportWidget.h"
 #include "LineEdit.h"
 #include "PlainTextEdit.h"
+#include "ProgressBar.h"
+#include "SpinBox.h"
 #include "Splitter.h"
 #include "TabWidget.h"
 
@@ -38,7 +46,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground, true);
-    this->setFixedSize(610, 680);
+    this->setFixedSize(610, 700);
 
     QGridLayout *layout = new QGridLayout(this);
 
@@ -68,10 +76,11 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     layout->addWidget(closeButton, 0, 4, 1, 1);
     layout->addWidget(widget, 1, 0, 1, 5);
 
-    GreenButton *greenButton = new GreenButton(widget);
-    greenButton->setText("开始模拟");
-    greenButton->setFont(QFont("Microsoft YaHei", 14));
-    greenButton->setFixedSize(134, 44);
+    Button *button = new Button(widget);
+    button->setText("开始模拟");
+    button->setFont(QFont("Microsoft YaHei", 14));
+    button->setFixedSize(134, 44);
+    button->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
 
     GroupBox *groupBoxSetting = new GroupBox("设置", widget);
     InitWidgetSetting(groupBoxSetting);
@@ -84,8 +93,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     InitWidgetAttr(tabWidgetAttrAndEchant->Widget(0));
     tabWidgetAttrAndEchant->AddTab("配装");
     InitWidgetEchant(tabWidgetAttrAndEchant->Widget(1));
-    CheckBox *checkBoxSecret = new CheckBox(widget);
-    checkBoxSecret->setGeometry(95, 127, 22, 22);
+    CheckBox *checkBox = new CheckBox(widget);
+    checkBox->setGeometry(100, 126, 22, 22);
 
     TabWidget *tabWidgetAttrGain = new TabWidget(widget);
     tabWidgetAttrGain->AddTab("收益");
@@ -119,8 +128,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     splitter->addWidget(spacer);
     splitter->addWidget(tabWidgetEvent);
 
-    groupBoxSetting->setFixedWidth(188);
-    tabWidgetAttrAndEchant->setFixedWidth(188);
+    groupBoxSetting->setFixedWidth(208);
+    tabWidgetAttrAndEchant->setFixedWidth(208);
     groupBoxOut->setFixedWidth(134);
     tabWidgetAttrGain->setFixedWidth(134);
     tabWidgetAttrGain->setFixedHeight(312);
@@ -131,7 +140,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     gLayout->setContentsMargins(12, 5, 12, 12);
     gLayout->setSpacing(10);
     gLayout->addWidget(groupBoxSetting, 0, 0, 2, 1);
-    gLayout->addWidget(greenButton, 0, 1, 1, 1);
+    gLayout->addWidget(button, 0, 1, 1, 1);
     gLayout->addWidget(groupBoxOut, 1, 1, 1, 1);
     gLayout->addWidget(tabWidgetAttrAndEchant, 2, 0, 2, 1);
     gLayout->addWidget(tabWidgetAttrGain, 2, 1, 1, 1);
@@ -140,7 +149,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
     gLayout->addItem(verticalSpacer3, 3, 0, 1, 1);
 
-    connect(greenButton, &GreenButton::clicked, this, [=]() {
+    connect(button, &Button::clicked, this, [=]() {
         nlohmann::json json;
 
         nlohmann::json jsonObj;
@@ -166,35 +175,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
                                      1424, 1430, 1433, 1436, 1444, 1448 };
         json["talents"]          = nlohmann::json(talents);
 
-        std::string str = R"({
-                    "Vitality": 38099,
-                    "Agility": 5674,
-                    "Spirit": 41,
-                    "Spunk": 41,
-                    "Strength": 41,
-                    "PhysicsAttackPowerBase": 21983,
-                    "PhysicsAttackPower": 30211,
-                    "PhysicsCriticalStrikeRate": 0.2541002893573723,
-                    "PhysicsCriticalDamagePowerPercent": 1.8277066012448322,
-                    "PhysicsOvercomePercent": 0.3735317498171643,
-                    "StrainPercent": 0.37304154835986375,
-                    "HastePercent": 0.008281187246557064,
-                    "SurplusValue": 11959,
-                    "MaxHealth": 532708,
-                    "PhysicsShieldPercent": 0.06539867266729343,
-                    "LunarShieldPercent": 0.05702643085264617,
-                    "ToughnessDefCriticalPercent": 0,
-                    "DecriticalDamagePercent": 0.1,
-                    "MeleeWeaponAttackSpeed": 21,
-                    "MeleeWeaponDamage": 2248,
-                    "MeleeWeaponDamageRand": 1498,
-                    "PhysicsOvercome": 29368,
-                    "Strain": 28280,
-                    "Haste": 799
-                    }
-                )";
-
-        json["attr"] = nlohmann::json::parse(str);
+        json["attr"] = m_json;
 
         std::string str2 = R"({
                     "无我无剑": [
@@ -245,9 +226,16 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
         json["secrets"] = nlohmann::json::parse(str2);
 
+        m_progressBar = new ProgressBar(nullptr);
+        m_progressBar->setAttribute(Qt::WA_DeleteOnClose);
+        m_progressBar->show();
+
         ThreadPool::Instance()->Enqueue([=]() {
             char *result = new char[1024];
-            JX3DPSSimulate(json.dump().c_str(), result);
+
+            JX3DPSSimulate(json.dump().c_str(), result, this, [](void *obj, double arg) {
+                static_cast<Widget *>(obj)->SetProgress(arg);
+            });
             std::string str = result;
             delete[] result;
             nlohmann::json res = nlohmann::json::parse(str);
@@ -257,6 +245,13 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
             });
         });
     });
+
+    InitClass("太虚剑意");
+}
+
+void Widget::SetProgress(double value)
+{
+    QMetaObject::invokeMethod(this, [=, this] { m_progressBar->SetProgress(value); });
 }
 
 void Widget::paintEvent(QPaintEvent *event)
@@ -264,8 +259,100 @@ void Widget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setPen(QColor(64, 64, 64));
-    painter.setBrush(QColor(23, 29, 37));
+    painter.setBrush(QColor(COLOR_BACKGROUND_BASE));
     painter.drawRoundedRect(this->rect(), 10, 10);
+}
+
+bool LoadConfig(const std::string &path, nlohmann::json &json)
+{
+    std::ifstream ifs(path);
+    if (!ifs.is_open()) {
+        return false;
+    }
+
+    ifs >> json;
+    ifs.close();
+    return true;
+}
+
+void ParseJson2Talents(const nlohmann::json &json, const std::string &className, std::vector<std::vector<TalentInfo>> &talents)
+{
+    for (auto &item : json["class"]) {
+        if (item["name"].get<std::string>() == className) {
+            for (int i = 1; i <= 12; ++i) {
+                std::vector<TalentInfo> talentInfos;
+                for (auto &talentInfo : item["talents"][std::to_string(i)]) {
+                    TalentInfo info;
+                    info.id     = talentInfo["id"].get<int>();
+                    info.iconId = talentInfo["icon"].get<int>();
+                    info.name   = talentInfo["name"].get<std::string>();
+                    info.type   = talentInfo["type"].get<std::string>();
+                    info.desc   = talentInfo["desc"].get<std::string>();
+                    talentInfos.push_back(info);
+                }
+                talents.push_back(talentInfos);
+            }
+            break;
+        }
+    }
+}
+
+void ParseJson2Secrets(const nlohmann::json                                     &json,
+                       const std::string                                        &className,
+                       std::unordered_map<std::string, std::vector<SecretInfo>> &secrets)
+{
+    for (auto &item : json["class"]) {
+        if (item["name"].get<std::string>() == className) {
+            for (auto &secretInfo : item["secrets"].items()) {
+                std::string key = secretInfo.key();
+                for (auto &secret : secretInfo.value()) {
+                    SecretInfo info;
+                    info.iconId = secret["icon"].get<int>();
+                    info.desc   = secret["desc"].get<std::string>();
+                    info.name   = secret["name"].get<std::string>();
+                    secrets[key].push_back(info);
+                }
+            }
+            break;
+        }
+    }
+}
+
+bool Widget::InitClass(const std::string &className)
+{
+    nlohmann::json json;
+    if (!LoadConfig("C:\\Users\\NoWat\\Project\\JX3DPS2\\config.json", json)) {
+        return false;
+    }
+
+    m_attr = JX3DPS::Attr(JX3DPS::Class::TAI_XU_JIAN_YI);
+
+    std::vector<std::vector<TalentInfo>> talents;
+    ParseJson2Talents(json, className, talents);
+
+    for (int i = 0; i < 12; ++i) {
+        for (auto &talentInfo : talents[i]) {
+            m_talentWidgets[i]->AddItem(talentInfo);
+        }
+    }
+
+    std::unordered_map<std::string, std::vector<SecretInfo>> secrets;
+    ParseJson2Secrets(json, className, secrets);
+
+    int index = 0;
+    for (auto &secret : secrets) {
+        static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->AddTab(QString::fromStdString(secret.first));
+        QGridLayout *gLayoutSecret =
+            new QGridLayout(static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->Widget(index));
+
+        for (int i = 0; i < secret.second.size(); ++i) {
+            SecretCheckBox *checkBox =
+                new SecretCheckBox(secret.second[i],
+                                   static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->Widget(index));
+            gLayoutSecret->addWidget(checkBox, i / 3, i % 3, 1, 1);
+        }
+        index++;
+    }
 }
 
 void Widget::InitWidgetSetting(QWidget *parent)
@@ -330,6 +417,35 @@ void Widget::InitWidgetOut(QWidget *parent)
     gLayout->addWidget(m_lineEditDPS, 0, 1, 1, 1);
 }
 
+bool ParseJson2Attr(const nlohmann::json &json, JX3DPS::Attr &attr)
+{
+    try {
+        nlohmann::json j = json;
+        attr.SetAgilityBase(j.at("Agility").get<int>());
+        attr.SetSpiritBase(j.at("Spirit").get<int>());
+        attr.SetStrengthBase(j.at("Strength").get<int>());
+        attr.SetSpunkBase(j.at("Spunk").get<int>());
+
+        attr.SetPhysicsAttackBase(j.at("PhysicsAttackPowerBase").get<int>() - attr.GetPhysicsAttackBaseFromMajor());
+
+        attr.SetBoxPhysicsCriticalStrikePercent(j.at("PhysicsCriticalStrikeRate").get<double>());
+        attr.SetBoxPhysicsCriticalStrikePowerPercent(j.at("PhysicsCriticalDamagePowerPercent").get<double>());
+
+        attr.SetPhysicsOvercomeBase(j.at("PhysicsOvercome").get<int>() - attr.GetPhysicsOvercomeBaseFromMajor() -
+                                    attr.GetPhysicsOvercomeFromClass());
+        attr.SetHaste(j.at("Haste").get<int>());
+        attr.SetStrain(j.at("Strain").get<int>());
+        attr.SetSurplusBase(j.at("SurplusValue").get<int>());
+        attr.SetWeaponAttack(j.at("MeleeWeaponDamage").get<int>(),
+                             j.at("MeleeWeaponDamage").get<int>() + j.at("MeleeWeaponDamageRand").get<int>());
+
+    } catch (const std::exception &e) {
+        spdlog::error("属性解析失败 {}", e.what());
+        return false;
+    }
+    return true;
+}
+
 void Widget::InitWidgetAttr(QWidget *parent)
 {
 
@@ -337,114 +453,212 @@ void Widget::InitWidgetAttr(QWidget *parent)
     textButtonAgilityOrSpirit->setText("身法");
     textButtonAgilityOrSpirit->setFixedSize(60, 21);
     LineEdit *lineEditAgilityOrSpirit = new LineEdit(parent);
-    lineEditAgilityOrSpirit->setFixedSize(48, 21);
-    LineEdit *lineEditAgilityOrSpirit2 = new LineEdit(parent);
-    lineEditAgilityOrSpirit2->setFixedSize(48, 21);
+    lineEditAgilityOrSpirit->setFixedSize(58, 21);
+    lineEditAgilityOrSpirit->setAlignment(Qt::AlignRight);
+    lineEditAgilityOrSpirit->setReadOnly(true);
+    SpinBox *spinBoxAgilityOrSpirit = new SpinBox(parent);
+    spinBoxAgilityOrSpirit->setFixedSize(58, 21);
 
     TextButton *textButtonStrengthOrSpunk = new TextButton(parent);
     textButtonStrengthOrSpunk->setFixedSize(60, 21);
     textButtonStrengthOrSpunk->setText("力道");
     LineEdit *lineEditStrengthOrSpunk = new LineEdit(parent);
-    lineEditStrengthOrSpunk->setFixedSize(48, 21);
-    LineEdit *lineEditStrengthOrSpunk2 = new LineEdit(parent);
-    lineEditStrengthOrSpunk2->setFixedSize(48, 21);
+    lineEditStrengthOrSpunk->setFixedSize(58, 21);
+    lineEditStrengthOrSpunk->setAlignment(Qt::AlignRight);
+    lineEditStrengthOrSpunk->setReadOnly(true);
+    SpinBox *spinBoxStrengthOrSpunk = new SpinBox(parent);
+    spinBoxStrengthOrSpunk->setFixedSize(58, 21);
 
     TextButton *textButtonAttack = new TextButton(parent);
     textButtonAttack->setFixedSize(60, 21);
     textButtonAttack->setText("外功攻击");
     LineEdit *lineEditAttack = new LineEdit(parent);
-    lineEditAttack->setFixedSize(48, 21);
-    LineEdit *lineEditAttack2 = new LineEdit(parent);
-    lineEditAttack2->setFixedSize(48, 21);
+    lineEditAttack->setFixedSize(58, 21);
+    lineEditAttack->setAlignment(Qt::AlignRight);
+    lineEditAttack->setReadOnly(true);
+    SpinBox *spinBoxAttack = new SpinBox(parent);
+    spinBoxAttack->setFixedSize(58, 21);
 
     TextButton *textButtonCritical = new TextButton(parent);
     textButtonCritical->setFixedSize(60, 21);
     textButtonCritical->setText("外功会心");
     LineEdit *lineEditCritical = new LineEdit(parent);
-    lineEditCritical->setFixedSize(48, 21);
-    LineEdit *lineEditCritical2 = new LineEdit(parent);
-    lineEditCritical2->setFixedSize(48, 21);
+    lineEditCritical->setFixedSize(58, 21);
+    lineEditCritical->setAlignment(Qt::AlignRight);
+    lineEditCritical->setReadOnly(true);
+    SpinBox *spinBoxCritical = new SpinBox(parent);
+    spinBoxCritical->setFixedSize(58, 21);
 
     TextButton *textButtonCriticalPower = new TextButton(parent);
     textButtonCriticalPower->setFixedSize(60, 21);
     textButtonCriticalPower->setText("外功会效");
     LineEdit *lineEditCriticalPower = new LineEdit(parent);
-    lineEditCriticalPower->setFixedSize(48, 21);
-    LineEdit *lineEditCriticalPower2 = new LineEdit(parent);
-    lineEditCriticalPower2->setFixedSize(48, 21);
+    lineEditCriticalPower->setFixedSize(58, 21);
+    lineEditCriticalPower->setAlignment(Qt::AlignRight);
+    lineEditCriticalPower->setReadOnly(true);
+    SpinBox *spinBoxCriticalPower = new SpinBox(parent);
+    spinBoxCriticalPower->setFixedSize(58, 21);
 
     TextButton *textButtonHaste = new TextButton(parent);
     textButtonHaste->setFixedSize(60, 21);
     textButtonHaste->setText("加速");
     LineEdit *lineEditHaste = new LineEdit(parent);
-    lineEditHaste->setFixedSize(48, 21);
-    LineEdit *lineEditHaste2 = new LineEdit(parent);
-    lineEditHaste2->setFixedSize(48, 21);
+    lineEditHaste->setFixedSize(58, 21);
+    lineEditHaste->setAlignment(Qt::AlignRight);
+    lineEditHaste->setReadOnly(true);
+    SpinBox *spinBoxHaste = new SpinBox(parent);
+    spinBoxHaste->setFixedSize(58, 21);
 
     TextButton *textButtonOvercome = new TextButton(parent);
     textButtonOvercome->setFixedSize(60, 21);
     textButtonOvercome->setText("外功破防");
     LineEdit *lineEditOvercome = new LineEdit(parent);
-    lineEditOvercome->setFixedSize(48, 21);
-    LineEdit *lineEditOvercome2 = new LineEdit(parent);
-    lineEditOvercome2->setFixedSize(48, 21);
+    lineEditOvercome->setFixedSize(58, 21);
+    lineEditOvercome->setAlignment(Qt::AlignRight);
+    lineEditOvercome->setReadOnly(true);
+    SpinBox *spinBoxOvercome = new SpinBox(parent);
+    spinBoxOvercome->setFixedSize(58, 21);
 
     TextButton *textButtonStrain = new TextButton(parent);
     textButtonStrain->setFixedSize(60, 21);
-    textButtonStrain->setText("外功无双");
+    textButtonStrain->setText("无双");
     LineEdit *lineEditStrain = new LineEdit(parent);
-    lineEditStrain->setFixedSize(48, 21);
-    LineEdit *lineEditStrain2 = new LineEdit(parent);
-    lineEditStrain2->setFixedSize(48, 21);
+    lineEditStrain->setFixedSize(58, 21);
+    lineEditStrain->setAlignment(Qt::AlignRight);
+    lineEditStrain->setReadOnly(true);
+    SpinBox *spinBoxStrain = new SpinBox(parent);
+    spinBoxStrain->setFixedSize(58, 21);
 
     TextButton *textButtonSurplus = new TextButton(parent);
     textButtonSurplus->setFixedSize(60, 21);
     textButtonSurplus->setText("破招");
     LineEdit *lineEditSurplus = new LineEdit(parent);
-    lineEditSurplus->setFixedSize(48, 21);
-    LineEdit *lineEditSurplus2 = new LineEdit(parent);
-    lineEditSurplus2->setFixedSize(48, 21);
+    lineEditSurplus->setFixedSize(58, 21);
+    lineEditSurplus->setAlignment(Qt::AlignRight);
+    lineEditSurplus->setReadOnly(true);
+    SpinBox *spinBoxSurplus = new SpinBox(parent);
+    spinBoxSurplus->setFixedSize(58, 21);
 
     TextButton *textButtonWeaponAttack = new TextButton(parent);
     textButtonWeaponAttack->setFixedSize(60, 21);
     textButtonWeaponAttack->setText("武器伤害");
-    LineEdit *lineEditWeaponAttack = new LineEdit(parent);
-    lineEditWeaponAttack->setFixedSize(48, 21);
-    LineEdit *lineEditWeaponAttack2 = new LineEdit(parent);
-    lineEditWeaponAttack2->setFixedSize(48, 21);
+    SpinBox *spinBoxWeaponAttackMin = new SpinBox(parent);
+    spinBoxWeaponAttackMin->setFixedSize(58, 21);
+    SpinBox *spinBoxWeaponAttackMax = new SpinBox(parent);
+    spinBoxWeaponAttackMax->setFixedSize(58, 21);
+
+    connect(spinBoxAgilityOrSpirit, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        if (textButtonAgilityOrSpirit->text() == "身法") {
+            m_attr.SetAgilityBase(value);
+        } else {
+            m_attr.SetSpiritBase(value);
+        }
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxStrengthOrSpunk, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        if (textButtonStrengthOrSpunk->text() == "力道") {
+            m_attr.SetStrengthBase(value);
+        } else {
+            m_attr.SetSpunkBase(value);
+        }
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxAttack, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        if (textButtonAttack->text() == "外功攻击") {
+            m_attr.SetPhysicsAttackBase(value);
+        } else {
+            m_attr.SetMagicAttackBase(value);
+        }
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxCritical, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        if (textButtonCritical->text() == "外功会心") {
+            m_attr.SetPhysicsCriticalStrike(value);
+        } else {
+            m_attr.SetMagicCriticalStrike(value);
+        }
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxCriticalPower, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        if (textButtonCriticalPower->text() == "外功会效") {
+            m_attr.SetPhysicsCriticalStrikePower(value);
+        } else {
+            m_attr.SetMagicCriticalStrikePower(value);
+        }
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxHaste, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        m_attr.SetHaste(value);
+
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxOvercome, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        if (textButtonOvercome->text() == "外功破防") {
+            m_attr.SetPhysicsOvercomeBase(value);
+        } else {
+            m_attr.SetMagicOvercomeBase(value);
+        }
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxStrain, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        m_attr.SetStrain(value);
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxSurplus, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        m_attr.SetSurplusBase(value);
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxWeaponAttackMin, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        m_attr.SetWeaponAttack(value, spinBoxWeaponAttackMax->value());
+        emit Signal_UpdateAttr();
+    });
+
+    connect(spinBoxWeaponAttackMax, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        m_attr.SetWeaponAttack(spinBoxWeaponAttackMin->value(), value);
+        emit Signal_UpdateAttr();
+    });
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
     gLayout->addWidget(textButtonAgilityOrSpirit, 0, 0, 1, 1);
     gLayout->addWidget(lineEditAgilityOrSpirit, 0, 1, 1, 1);
-    gLayout->addWidget(lineEditAgilityOrSpirit2, 0, 2, 1, 1);
+    gLayout->addWidget(spinBoxAgilityOrSpirit, 0, 2, 1, 1);
     gLayout->addWidget(textButtonStrengthOrSpunk, 1, 0, 1, 1);
     gLayout->addWidget(lineEditStrengthOrSpunk, 1, 1, 1, 1);
-    gLayout->addWidget(lineEditStrengthOrSpunk2, 1, 2, 1, 1);
+    gLayout->addWidget(spinBoxStrengthOrSpunk, 1, 2, 1, 1);
     gLayout->addWidget(textButtonAttack, 2, 0, 1, 1);
     gLayout->addWidget(lineEditAttack, 2, 1, 1, 1);
-    gLayout->addWidget(lineEditAttack2, 2, 2, 1, 1);
+    gLayout->addWidget(spinBoxAttack, 2, 2, 1, 1);
     gLayout->addWidget(textButtonCritical, 3, 0, 1, 1);
     gLayout->addWidget(lineEditCritical, 3, 1, 1, 1);
-    gLayout->addWidget(lineEditCritical2, 3, 2, 1, 1);
+    gLayout->addWidget(spinBoxCritical, 3, 2, 1, 1);
     gLayout->addWidget(textButtonCriticalPower, 4, 0, 1, 1);
     gLayout->addWidget(lineEditCriticalPower, 4, 1, 1, 1);
-    gLayout->addWidget(lineEditCriticalPower2, 4, 2, 1, 1);
+    gLayout->addWidget(spinBoxCriticalPower, 4, 2, 1, 1);
     gLayout->addWidget(textButtonHaste, 5, 0, 1, 1);
     gLayout->addWidget(lineEditHaste, 5, 1, 1, 1);
-    gLayout->addWidget(lineEditHaste2, 5, 2, 1, 1);
+    gLayout->addWidget(spinBoxHaste, 5, 2, 1, 1);
     gLayout->addWidget(textButtonOvercome, 6, 0, 1, 1);
     gLayout->addWidget(lineEditOvercome, 6, 1, 1, 1);
-    gLayout->addWidget(lineEditOvercome2, 6, 2, 1, 1);
+    gLayout->addWidget(spinBoxOvercome, 6, 2, 1, 1);
     gLayout->addWidget(textButtonStrain, 7, 0, 1, 1);
     gLayout->addWidget(lineEditStrain, 7, 1, 1, 1);
-    gLayout->addWidget(lineEditStrain2, 7, 2, 1, 1);
+    gLayout->addWidget(spinBoxStrain, 7, 2, 1, 1);
     gLayout->addWidget(textButtonSurplus, 8, 0, 1, 1);
     gLayout->addWidget(lineEditSurplus, 8, 1, 1, 1);
-    gLayout->addWidget(lineEditSurplus2, 8, 2, 1, 1);
+    gLayout->addWidget(spinBoxSurplus, 8, 2, 1, 1);
     gLayout->addWidget(textButtonWeaponAttack, 9, 0, 1, 1);
-    gLayout->addWidget(lineEditWeaponAttack, 9, 1, 1, 1);
-    gLayout->addWidget(lineEditWeaponAttack2, 9, 2, 1, 1);
+    gLayout->addWidget(spinBoxWeaponAttackMin, 9, 1, 1, 1);
+    gLayout->addWidget(spinBoxWeaponAttackMax, 9, 2, 1, 1);
 
     QSpacerItem *verticalSpacer = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
     gLayout->addItem(verticalSpacer, 10, 0, 1, 1);
@@ -452,6 +666,104 @@ void Widget::InitWidgetAttr(QWidget *parent)
     GroupBox *groupBoxAttrSetEffect = new GroupBox("装备效果", parent);
 
     gLayout->addWidget(groupBoxAttrSetEffect, 11, 0, 1, 3);
+
+    Button *buttonImportJX3Box = new Button(parent);
+    buttonImportJX3Box->setFont(QFont("Microsoft YaHei", 11));
+    buttonImportJX3Box->setFixedHeight(35);
+    buttonImportJX3Box->setText("导入魔盒属性");
+
+    gLayout->addWidget(buttonImportJX3Box, 12, 0, 1, 3);
+
+    connect(buttonImportJX3Box, &Button::clicked, this, [=] {
+        ImportWidget *importWidget = new ImportWidget();
+        importWidget->show();
+        importWidget->setAttribute(Qt::WA_DeleteOnClose);
+
+        connect(importWidget, &ImportWidget::Signal_Import, this, [=](const nlohmann::json &json) {
+            m_json = json;
+
+            int index = 0;
+            for (auto &talent : m_json["TalentCode"]) {
+                spdlog::info("{}", talent["name"].get<std::string>());
+                m_talentWidgets[index++]->SetTalent(QString::fromStdString(talent["name"].get<std::string>()));
+            }
+
+            ParseJson2Attr(m_json, m_attr);
+
+            emit Signal_UpdateAttr();
+        });
+    });
+
+    connect(this, &Widget::Signal_UpdateAttr, this, [=] {
+        if (textButtonAgilityOrSpirit->text() == "身法") {
+            spinBoxAgilityOrSpirit->UpdateValue(m_attr.GetAgility());
+            lineEditAgilityOrSpirit->UpdateValue(m_attr.GetAgility());
+        } else {
+            spinBoxAgilityOrSpirit->UpdateValue(m_attr.GetSpirit());
+            lineEditAgilityOrSpirit->UpdateValue(m_attr.GetSpirit());
+        }
+
+        if (textButtonStrengthOrSpunk->text() == "力道") {
+            spinBoxStrengthOrSpunk->UpdateValue(m_attr.GetStrength());
+            lineEditStrengthOrSpunk->UpdateValue(m_attr.GetStrength());
+        } else {
+            spinBoxStrengthOrSpunk->UpdateValue(m_attr.GetSpunk());
+            lineEditStrengthOrSpunk->UpdateValue(m_attr.GetSpunk());
+        }
+
+        if (textButtonAttack->text() == "外功攻击") {
+            spinBoxAttack->setRange(m_attr.GetPhysicsAttackBaseMinimum());
+            spinBoxAttack->UpdateValue(m_attr.GetPhysicsAttackFromBase());
+            lineEditAttack->UpdateValue(m_attr.GetPhysicsAttack());
+
+        } else {
+            spinBoxAttack->setRange(m_attr.GetMagicAttackBaseMinimum());
+            spinBoxAttack->UpdateValue(m_attr.GetMagicAttackFromBase());
+            lineEditAttack->UpdateValue(m_attr.GetMagicAttack());
+        }
+
+        if (textButtonCritical->text() == "外功会心") {
+            spinBoxCritical->setRange(m_attr.GetPhysicsCriticalStrikeMinimum());
+            spinBoxCritical->UpdateValue(m_attr.GetPhysicsCriticalStrike());
+            lineEditCritical->UpdateValueFloat(m_attr.GetPhysicsCriticalStrikePercent());
+
+        } else {
+            spinBoxCritical->setRange(m_attr.GetMagicCriticalStrikeMinimum());
+            spinBoxCritical->UpdateValue(m_attr.GetMagicCriticalStrike());
+            lineEditCritical->UpdateValueFloat(m_attr.GetMagicCriticalStrikePercent());
+        }
+
+        if (textButtonCriticalPower->text() == "外功会效") {
+            spinBoxCriticalPower->UpdateValue(m_attr.GetPhysicsCriticalStrikePower());
+            lineEditCriticalPower->UpdateValueFloat(m_attr.GetPhysicsCriticalStrikePowerPercent());
+        } else {
+            spinBoxCriticalPower->UpdateValue(m_attr.GetMagicCriticalStrikePower());
+            lineEditCriticalPower->UpdateValueFloat(m_attr.GetMagicCriticalStrikePowerPercent());
+        }
+
+        spinBoxHaste->UpdateValue(m_attr.GetHaste());
+        lineEditHaste->UpdateValueFloat(m_attr.GetHastePercentVisible());
+
+        if (textButtonOvercome->text() == "外功破防") {
+            spinBoxOvercome->setRange(m_attr.GetPhysicsOvercomeBaseMinimum());
+            spinBoxOvercome->UpdateValue(m_attr.GetPhysicsOvercomeBase());
+            lineEditOvercome->UpdateValueFloat(m_attr.GetPhysicsOvercomePercent());
+
+        } else {
+            spinBoxOvercome->setRange(m_attr.GetMagicOvercomeBaseMinimum());
+            spinBoxOvercome->UpdateValue(m_attr.GetMagicAttackBase());
+            lineEditOvercome->UpdateValueFloat(m_attr.GetMagicOvercomePercent());
+        }
+
+        spinBoxStrain->UpdateValue(m_attr.GetStrain());
+        lineEditStrain->UpdateValueFloat(m_attr.GetStrainPercent());
+
+        spinBoxSurplus->UpdateValue(m_attr.GetSurplusBase());
+        lineEditSurplus->UpdateValue(m_attr.GetSurplus());
+
+        spinBoxWeaponAttackMin->UpdateValue(m_attr.GetWeaponAttackLower());
+        spinBoxWeaponAttackMax->UpdateValue(m_attr.GetWeaponAttackUpper());
+    });
 }
 
 void Widget::InitWidgetEchant(QWidget *parent) { }
@@ -459,100 +771,69 @@ void Widget::InitWidgetEchant(QWidget *parent) { }
 void Widget::InitWidgetAttrGain(QWidget *parent)
 {
 
-    LineEdit *lineEditAttrGainAgilityOrSpirit = new LineEdit(parent);
-    lineEditAttrGainAgilityOrSpirit->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainAgilityOrSpirit2 = new LineEdit(parent);
-    lineEditAttrGainAgilityOrSpirit2->setFixedSize(48, 21);
+    DataBars *dataBarAgilityOrSpirit = new DataBars(parent);
+    dataBarAgilityOrSpirit->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainStrengthOrSpunk = new LineEdit(parent);
-    lineEditAttrGainStrengthOrSpunk->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainStrengthOrSpunk2 = new LineEdit(parent);
-    lineEditAttrGainStrengthOrSpunk2->setFixedSize(48, 21);
+    DataBars *dataBarStrengthOrSpunk = new DataBars(parent);
+    dataBarStrengthOrSpunk->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainAttack = new LineEdit(parent);
-    lineEditAttrGainAttack->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainAttack2 = new LineEdit(parent);
-    lineEditAttrGainAttack2->setFixedSize(48, 21);
+    DataBars *dataBarAttack = new DataBars(parent);
+    dataBarAttack->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainCritical = new LineEdit(parent);
-    lineEditAttrGainCritical->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainCritical2 = new LineEdit(parent);
-    lineEditAttrGainCritical2->setFixedSize(48, 21);
+    DataBars *dataBarCritical = new DataBars(parent);
+    dataBarCritical->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainCriticalPower = new LineEdit(parent);
-    lineEditAttrGainCriticalPower->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainCriticalPower2 = new LineEdit(parent);
-    lineEditAttrGainCriticalPower2->setFixedSize(48, 21);
+    DataBars *dataBarCriticalPower = new DataBars(parent);
+    dataBarCriticalPower->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainHaste = new LineEdit(parent);
-    lineEditAttrGainHaste->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainHaste2 = new LineEdit(parent);
-    lineEditAttrGainHaste2->setFixedSize(48, 21);
+    DataBars *dataBarHaste = new DataBars(parent);
+    dataBarHaste->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainOvercome = new LineEdit(parent);
-    lineEditAttrGainOvercome->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainOvercome2 = new LineEdit(parent);
-    lineEditAttrGainOvercome2->setFixedSize(48, 21);
+    DataBars *dataBarOvercome = new DataBars(parent);
+    dataBarOvercome->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainStrain = new LineEdit(parent);
-    lineEditAttrGainStrain->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainStrain2 = new LineEdit(parent);
-    lineEditAttrGainStrain2->setFixedSize(48, 21);
+    DataBars *dataBarStrain = new DataBars(parent);
+    dataBarStrain->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainSurplus = new LineEdit(parent);
-    lineEditAttrGainSurplus->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainSurplus2 = new LineEdit(parent);
-    lineEditAttrGainSurplus2->setFixedSize(48, 21);
+    DataBars *dataBarSurplus = new DataBars(parent);
+    dataBarSurplus->setFixedSize(110, 21);
 
-    LineEdit *lineEditAttrGainWeaponAttack = new LineEdit(parent);
-    lineEditAttrGainWeaponAttack->setFixedSize(48, 21);
-    LineEdit *lineEditAttrGainWeaponAttack2 = new LineEdit(parent);
-    lineEditAttrGainWeaponAttack2->setFixedSize(48, 21);
+    DataBars *dataBarWeaponAttack = new DataBars(parent);
+    dataBarWeaponAttack->setFixedSize(110, 21);
 
     QGridLayout *gLayout = new QGridLayout(parent);
-    gLayout->addWidget(lineEditAttrGainAgilityOrSpirit, 0, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainAgilityOrSpirit2, 0, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainStrengthOrSpunk, 1, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainStrengthOrSpunk2, 1, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainAttack, 2, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainAttack2, 2, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainCritical, 3, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainCritical2, 3, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainCriticalPower, 4, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainCriticalPower2, 4, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainHaste, 5, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainHaste2, 5, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainOvercome, 6, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainOvercome2, 6, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainStrain, 7, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainStrain2, 7, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainSurplus, 8, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainSurplus2, 8, 1, 1, 1);
-    gLayout->addWidget(lineEditAttrGainWeaponAttack, 9, 0, 1, 1);
-    gLayout->addWidget(lineEditAttrGainWeaponAttack2, 9, 1, 1, 1);
+
+    gLayout->addWidget(dataBarAgilityOrSpirit, 0, 0, 1, 1);
+    gLayout->addWidget(dataBarStrengthOrSpunk, 1, 0, 1, 1);
+    gLayout->addWidget(dataBarAttack, 2, 0, 1, 1);
+    gLayout->addWidget(dataBarCritical, 3, 0, 1, 1);
+    gLayout->addWidget(dataBarCriticalPower, 4, 0, 1, 1);
+    gLayout->addWidget(dataBarHaste, 5, 0, 1, 1);
+    gLayout->addWidget(dataBarOvercome, 6, 0, 1, 1);
+    gLayout->addWidget(dataBarStrain, 7, 0, 1, 1);
+    gLayout->addWidget(dataBarSurplus, 8, 0, 1, 1);
+    gLayout->addWidget(dataBarWeaponAttack, 9, 0, 1, 1);
 }
 
 void Widget::InitWidgetTalent(QWidget *parent)
 {
+    QGridLayout *gLayout = new QGridLayout(parent);
+    gLayout->setContentsMargins(10, 10, 10, 4);
 
-    // for (int i = 0; i < 12; ++i) {
-    //     ComboBoxTalent *talent = new ComboBoxTalent(parent);
-    //     talent->setFixedSize(52, 62);
-    //     gLayout->addWidget(talent, i / 6, i % 6, 1, 1);
-    // }
+    for (int i = 0; i < 12; ++i) {
+        TalentWidget *talent = new TalentWidget(parent);
+        m_talentWidgets.push_back(talent);
+        gLayout->addWidget(talent, i / 6, i % 6, 1, 1);
+    }
 }
 
 void Widget::InitWidgetSecret(QWidget *parent)
 {
 
-    QGridLayout       *gLayout   = new QGridLayout(parent);
-    VerticalTabWidget *tabWidget = new VerticalTabWidget(parent);
-    tabWidget->AddTab("无我无剑");
-    tabWidget->AddTab("八荒归元");
-    tabWidget->AddTab("三环套月");
-    tabWidget->AddTab("人剑合一");
-    tabWidget->AddTab("生太极");
-    gLayout->addWidget(tabWidget, 0, 0, 1, 1);
+    QGridLayout *gLayout = new QGridLayout(parent);
+    m_tabWidgetSecrets   = new VerticalTabWidget(parent);
+
+    gLayout->addWidget(m_tabWidgetSecrets, 0, 0, 1, 1);
 }
 
 void Widget::InitWidgetSkill(QWidget *parent)

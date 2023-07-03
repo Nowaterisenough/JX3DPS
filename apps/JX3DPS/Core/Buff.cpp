@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 16:19:33
+ * Last Modified: 2023-07-03 05:50:21
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -45,9 +45,9 @@ JX3DPS::Buff::Buff(const Buff &other)
     m_effectCountFixed                   = other.m_effectCountFixed;
     m_damageParams                       = other.m_damageParams;
     m_damageStats                        = other.m_damageStats;
-    m_skillCriticalStrikePercentAdd      = other.m_skillCriticalStrikePercentAdd;
-    m_skillCriticalStrikePowerPercentAdd = other.m_skillCriticalStrikePowerPercentAdd;
-    m_skillDamageBinPercentAdd           = other.m_skillDamageBinPercentAdd;
+    m_skillCriticalStrikeAddPercent      = other.m_skillCriticalStrikeAddPercent;
+    m_skillCriticalStrikePowerAddPercent = other.m_skillCriticalStrikePowerAddPercent;
+    m_skillDamageAddPercentInt           = other.m_skillDamageAddPercentInt;
 }
 
 JX3DPS::Buff &JX3DPS::Buff::operator=(const Buff &other)
@@ -69,9 +69,9 @@ JX3DPS::Buff &JX3DPS::Buff::operator=(const Buff &other)
     m_effectCountFixed                   = other.m_effectCountFixed;
     m_damageParams                       = other.m_damageParams;
     m_damageStats                        = other.m_damageStats;
-    m_skillCriticalStrikePercentAdd      = other.m_skillCriticalStrikePercentAdd;
-    m_skillCriticalStrikePowerPercentAdd = other.m_skillCriticalStrikePowerPercentAdd;
-    m_skillDamageBinPercentAdd           = other.m_skillDamageBinPercentAdd;
+    m_skillCriticalStrikeAddPercent      = other.m_skillCriticalStrikeAddPercent;
+    m_skillCriticalStrikePowerAddPercent = other.m_skillCriticalStrikePowerAddPercent;
+    m_skillDamageAddPercentInt           = other.m_skillDamageAddPercentInt;
 
     return *this;
 }
@@ -133,14 +133,14 @@ void JX3DPS::Buff::UpdateKeyFrame(Frame_t frame)
 
 RollResult Buff::GetPhysicsRollResult(Id_t targetId) const
 {
-    return RandomUniform(0.0, 1.0) < m_targetSnapshots.at(targetId).criticalStrikePercent + m_skillCriticalStrikePercentAdd
+    return RandomUniform(0.0, 1.0) < m_targetSnapshots.at(targetId).criticalStrikePercent + m_skillCriticalStrikeAddPercent
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
 
 RollResult Buff::GetMagicRollResult(Id_t targetId) const
 {
-    return RandomUniform(0.0, 1.0) < m_targetSnapshots.at(targetId).criticalStrikePercent + m_skillCriticalStrikePercentAdd
+    return RandomUniform(0.0, 1.0) < m_targetSnapshots.at(targetId).criticalStrikePercent + m_skillCriticalStrikeAddPercent
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -148,17 +148,19 @@ RollResult Buff::GetMagicRollResult(Id_t targetId) const
 Damage Buff::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub, int level, int effectCount, int type) const
 {
     PctFloat_t surplusDamagePercent =
-        (1 + m_player->attr->GetPhysicsOvercomePercent()) *       // 破防加成
-        (1 + (*m_targets)[targetId]->GetDamageAddPercent()) *     // 易伤加成
-        (1 - (*m_targets)[targetId]->GetPhysicsResistPercent()) * // 忽视加成
-        m_targetSnapshots.at(targetId).strainPercent *            // 无双加成
+        (JX3_PCT_INT_BASE + m_player->damageAddPercentInt) * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE * // 心法加成
+        (JX3_PCT_FLOAT_BASE + m_player->attr->GetPhysicsOvercomePercent()) *       // 破防加成
+        (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *     // 易伤加成
+        (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetPhysicsResistPercent()) * // 忽视加成
+        (JX3_PCT_FLOAT_BASE + m_targetSnapshots.at(targetId).strainPercent) *      // 无双加成
         ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION; // 等级差加成
     PctFloat_t damagePercent =
-        effectCount * ((JX3_BIN_PCT + m_skillDamageBinPercentAdd) / JX3_BIN_PCT) * surplusDamagePercent;
+        effectCount * surplusDamagePercent * (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
 
     int fixedDamage = static_cast<int>(m_damageParams.at(sub)[level].fixedDamage * damagePercent);
-    int weaponDamage = static_cast<int>((m_damageParams.at(sub)[level].weaponDamageBinPercent >> 10) *
-                                        m_player->attr->GetWeaponAttack() * damagePercent);
+    int weaponDamage =
+        static_cast<int>((m_damageParams.at(sub)[level].weaponDamagePercentInt * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE) *
+                         m_player->attr->GetWeaponAttack() * damagePercent);
     int attackBaseDamage =
         static_cast<int>(m_damageParams.at(sub)[level].attackDamagePercent *
                          m_targetSnapshots.at(targetId).attackBase * damagePercent) /
@@ -173,10 +175,10 @@ Damage Buff::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub, in
     PctFloat_t criticalStrikePowerPercent = m_targetSnapshots.at(targetId).criticalStrikePowerPercent;
 
     return Damage(
-        GET_FINAL_DAMAGE(fixedDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerPercentAdd)),
-        GET_FINAL_DAMAGE(weaponDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerPercentAdd)),
-        GET_FINAL_DAMAGE(attackBaseDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerPercentAdd)),
-        GET_FINAL_DAMAGE(attackMainDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerPercentAdd)),
+        GET_FINAL_DAMAGE(fixedDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerAddPercent)),
+        GET_FINAL_DAMAGE(weaponDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerAddPercent)),
+        GET_FINAL_DAMAGE(attackBaseDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerAddPercent)),
+        GET_FINAL_DAMAGE(attackMainDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerAddPercent)),
         GET_FINAL_DAMAGE(surplusDamage, rollResult, criticalStrikePowerPercent));
 }
 
@@ -184,18 +186,20 @@ Damage Buff::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub, int 
 {
 
     PctFloat_t surplusDamagePercent =
-        (1 + m_player->attr->GetMagicOvercomePercent()) *       // 破防加成
-        (1 + (*m_targets)[targetId]->GetDamageAddPercent()) *   // 易伤加成
-        (1 - (*m_targets)[targetId]->GetMagicResistPercent()) * // 忽视加成
-        m_targetSnapshots.at(targetId).strainPercent *          // 无双加成
+        (JX3_PCT_INT_BASE + m_player->damageAddPercentInt) * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE * // 心法加成
+        (JX3_PCT_FLOAT_BASE + m_player->attr->GetMagicOvercomePercent()) *       // 破防加成
+        (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *   // 易伤加成
+        (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetMagicResistPercent()) * // 忽视加成
+        (JX3_PCT_FLOAT_BASE + m_targetSnapshots.at(targetId).strainPercent) *    // 无双加成
         ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION; // 等级差加成
 
     PctFloat_t damagePercent =
-        effectCount * ((JX3_BIN_PCT + m_skillDamageBinPercentAdd) / JX3_BIN_PCT) * surplusDamagePercent;
+        effectCount * surplusDamagePercent * (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
 
     int fixedDamage = static_cast<int>(m_damageParams.at(sub)[level].fixedDamage * damagePercent);
-    int weaponDamage = static_cast<int>((m_damageParams.at(sub)[level].weaponDamageBinPercent >> 10) *
-                                        m_player->attr->GetWeaponAttack() * damagePercent);
+    int weaponDamage =
+        static_cast<int>((m_damageParams.at(sub)[level].weaponDamagePercentInt * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE) *
+                         m_player->attr->GetWeaponAttack() * damagePercent);
     int attackBaseDamage =
         static_cast<int>(m_damageParams.at(sub)[level].attackDamagePercent *
                          m_targetSnapshots.at(targetId).attackBase * damagePercent) /
@@ -210,10 +214,10 @@ Damage Buff::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub, int 
     PctFloat_t criticalStrikePowerPercent = m_targetSnapshots.at(targetId).criticalStrikePowerPercent;
 
     return Damage(
-        GET_FINAL_DAMAGE(fixedDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerPercentAdd)),
-        GET_FINAL_DAMAGE(weaponDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerPercentAdd)),
-        GET_FINAL_DAMAGE(attackBaseDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerPercentAdd)),
-        GET_FINAL_DAMAGE(attackMainDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerPercentAdd)),
+        GET_FINAL_DAMAGE(fixedDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerAddPercent)),
+        GET_FINAL_DAMAGE(weaponDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerAddPercent)),
+        GET_FINAL_DAMAGE(attackBaseDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerAddPercent)),
+        GET_FINAL_DAMAGE(attackMainDamage, rollResult, (criticalStrikePowerPercent + m_skillCriticalStrikePowerAddPercent)),
         GET_FINAL_DAMAGE(surplusDamage, rollResult, criticalStrikePowerPercent));
 }
 
@@ -238,3 +242,219 @@ const std::string &Buff::GetName() const
 }
 
 } // namespace JX3DPS
+
+JX3DPS::Buff3rd::EnchantShoesPhysics::EnchantShoesPhysics(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::ENCHANT_SHOES;
+    m_name = "大附魔·鞋";
+
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100, 0.0);
+
+    m_intervalFixed = 16 * 10;
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::Trigger()
+{
+    // 内置CD时间结束
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::TriggerDamage()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 10)
+    {
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+        SubEffect();
+    }
+}
+
+void JX3DPS::Buff3rd::EnchantShoesPhysics::SubEffect()
+{
+    RollResult rollResult = GetPhysicsRollResult(m_player->targetId);
+    Damage     damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
+    Record(m_player->targetId, rollResult, damage, 0, 0);
+}
+
+JX3DPS::Buff3rd::EnchantWristPhysics::EnchantWristPhysics(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::ENCHANT_WRIST;
+    m_name = "大附魔·腕";
+
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100, 0.0);
+
+    m_intervalFixed = 16 * 10;
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::Trigger()
+{
+    // 内置CD时间结束
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::TriggerDamage()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 10)
+    {
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+        SubEffect();
+    }
+}
+
+void JX3DPS::Buff3rd::EnchantWristPhysics::SubEffect()
+{
+    RollResult rollResult = GetPhysicsRollResult(m_player->targetId);
+    Damage     damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
+    Record(m_player->targetId, rollResult, damage, 0, 0);
+}
+
+JX3DPS::Buff3rd::EnchantBelt::EnchantBelt(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::ENCHANT_BELT;
+    m_name = "大附魔·腰";
+
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+
+    m_intervalFixed = 16 * 30;
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::Trigger()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].duration == 0) { // buff时间结束
+        m_targetSnapshots[JX3DPS_PLAYER].duration = JX3DPS_INVALID_FRAMES_SET;
+        SubEffectClear();
+    } else { // 内置CD时间结束
+        m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+    }
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.empty()) {
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+    SubEffectAdd();
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::TriggerAdd()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET && RandomUniform(1, 100) <= 20)
+    {
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+        SubEffectAdd();
+    }
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::SubEffectAdd()
+{
+    // TODO
+}
+
+void JX3DPS::Buff3rd::EnchantBelt::SubEffectClear()
+{
+    // TODO
+}
+
+JX3DPS::Buff3rd::JiaoSu::JiaoSu(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::ENCHANT_BELT;
+    m_name = "皎素";
+
+    m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+
+    m_intervalFixed = 16 * 30;
+    m_durationFixed = 16 * 5;
+}
+
+void JX3DPS::Buff3rd::JiaoSu::Trigger()
+{
+    m_targetSnapshots[JX3DPS_PLAYER].duration = JX3DPS_INVALID_FRAMES_SET;
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::JiaoSu::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.empty()) {
+        SubEffectAdd();
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::JiaoSu::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::JiaoSu::SubEffectAdd()
+{
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(0.05);
+}
+
+void JX3DPS::Buff3rd::JiaoSu::SubEffectClear()
+{
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-0.05);
+}

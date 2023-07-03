@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-25 18:32:29
+ * Last Modified: 2023-07-04 02:45:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -55,7 +55,13 @@
 
 #include <QWidget>
 
+#include <nlohmann/json.hpp>
+
+#include "Core/Attr.h"
+
 class FramelessWidget;
+class TalentWidget;
+class ProgressBar;
 
 class JX3DPSUI_API Widget : public QWidget
 {
@@ -64,11 +70,18 @@ class JX3DPSUI_API Widget : public QWidget
 public:
     explicit Widget(QWidget *parent = 0);
 
+    void SetProgress(double value);
+
+signals:
+    void Signal_UpdateAttr();
+
 protected:
     void paintEvent(QPaintEvent *event);
 
 private:
     FramelessWidget *m_frameless = nullptr;
+
+    bool InitClass(const std::string &className);
 
     void InitWidgetSetting(QWidget *parent = nullptr);
     void InitWidgetOut(QWidget *parent = nullptr);
@@ -81,10 +94,19 @@ private:
     void InitWidgetSkillHelp(QWidget *parent = nullptr);
     void InitWidgetEvent(QWidget *parent = nullptr);
 
-    QWidget *m_plainTextEditSkill = nullptr;
-    QWidget *m_plainTextEditEvent = nullptr;
+    QWidget *m_plainTextEditSkill    = nullptr;
+    QWidget *m_plainTextEditEvent    = nullptr;
     QWidget *m_lineEditSimulateCount = nullptr;
-    QWidget *m_lineEditDPS = nullptr;
+    QWidget *m_lineEditDPS           = nullptr;
+    QWidget *m_tabWidgetSecrets      = nullptr;
+
+    std::vector<TalentWidget *> m_talentWidgets;
+
+    JX3DPS::Attr m_attr;
+
+    ProgressBar *m_progressBar = nullptr;
+
+    nlohmann::json m_json;
 };
 
 #endif // WIDGET_H

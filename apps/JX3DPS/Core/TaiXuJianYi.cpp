@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 22:17:40
+ * Last Modified: 2023-07-03 05:49:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,6 +30,14 @@ JX3DPS::TaiXuJianYi::Player::~Player() { }
 
 void JX3DPS::TaiXuJianYi::Player::Init()
 {
+    damageAddPercentInt = 184;
+    
+    for (Id_t i = Talent::BEGIN; i < Talent::END; i++) {
+        if (talents.find(i) == talents.end()) {
+            talents[i] = false;
+        }
+    }
+
     skills.emplace(JX3DPS::Skill::WU_WO_WU_JIAN,
                    std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::WuWoWuJian>(this, nullptr)));
     skills.emplace(JX3DPS::Skill::BA_HUANG_GUI_YUAN,
@@ -124,6 +132,38 @@ void JX3DPS::TaiXuJianYi::Player::Init()
                       std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::YunZhongJianSuiXingChen>(this, nullptr)));
         buffs.emplace(JX3DPS::Buff::YUN_ZHONG_JIAN_TUN_RI_YUE,
                       std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::YunZhongJianTunRiYue>(this, nullptr)));
+    }
+
+    if (enchantShoes) {
+        buffs.emplace(JX3DPS::Buff::ENCHANT_SHOES,
+                      std::move(std::make_unique<JX3DPS::Buff3rd::EnchantShoesPhysics>(this, nullptr)));
+    }
+
+    if (enchantWrist) {
+        buffs.emplace(JX3DPS::Buff::ENCHANT_WRIST,
+                      std::move(std::make_unique<JX3DPS::Buff3rd::EnchantWristPhysics>(this, nullptr)));
+    }
+
+    if (enchantBelt) {
+        buffs.emplace(JX3DPS::Buff::ENCHANT_BELT,
+                      std::move(std::make_unique<JX3DPS::Buff3rd::EnchantBelt>(this, nullptr)));
+    }
+
+    if (enchantJacket) {
+        attr->AddPhysicsAttackBase(450);
+    }
+
+    if (enchantHat) {
+        attr->AddPhysicsOvercomeBase(999);
+    }
+
+    if (hasBuff3rd.hanRuLei) {
+        attr->AddPhysicsAttackBasePercentInt(51);
+    }
+
+    if (hasBuff3rd.xiuQi) {
+        attr->AddAgilityBase(244);
+        attr->AddStrengthBase(244);
     }
 }
 
@@ -233,31 +273,31 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
                                    0.23);
 
     if (m_player->talents[Talent::TONG_GEN]) {
-        m_skillDamageBinPercentAdd += 102;
+        m_skillDamageAddPercentInt += 102;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][0]) {
-        m_skillCriticalStrikePercentAdd += 0.02;
+        m_skillCriticalStrikeAddPercent += 0.02;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][1]) {
-        m_skillCriticalStrikePercentAdd += 0.03;
+        m_skillCriticalStrikeAddPercent += 0.03;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][2]) {
-        m_skillCriticalStrikePercentAdd += 0.04;
+        m_skillCriticalStrikeAddPercent += 0.04;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][3]) {
-        m_skillDamageBinPercentAdd += 30;
+        m_skillDamageAddPercentInt += 30;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][4]) {
-        m_skillDamageBinPercentAdd += 40;
+        m_skillDamageAddPercentInt += 40;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][5]) {
-        m_skillDamageBinPercentAdd += 51;
+        m_skillDamageAddPercentInt += 51;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][6]) {
@@ -279,12 +319,12 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Trigger() { }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiAdd()
 {
-    m_skillDamageBinPercentAdd += 307;
+    m_skillDamageAddPercentInt += 307;
 }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiClear()
 {
-    m_skillDamageBinPercentAdd -= 307;
+    m_skillDamageAddPercentInt -= 307;
 }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
@@ -304,8 +344,8 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
 
     // 无意 3格气以上
     if (m_player->talents.at(Talent::WU_YI) && qidian > 6) {
-        m_skillCriticalStrikePercentAdd      += 0.1;
-        m_skillCriticalStrikePowerPercentAdd += 0.3;
+        m_skillCriticalStrikeAddPercent      += 0.1;
+        m_skillCriticalStrikePowerAddPercent += 0.3;
     }
 
     // 白虹 目标外额外5个目标
@@ -336,6 +376,23 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
         static_cast<Buff::ChiYing *>(m_player->buffs[JX3DPS::Buff::CHI_YING].get())->TriggerDamage();
     }
 
+    // 大附魔 腕
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
+
+    // 大附魔 鞋
+    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+            ->TriggerDamage();
+    }
+
     // 叠刃
     if (m_player->talents.at(Talent::DIE_REN) && rollResult == RollResult::DOUBLE) {
         m_player->buffs[JX3DPS::Buff::DIE_REN]->Add(m_player->targetId, 2);
@@ -350,8 +407,8 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
 
     // 无意 结束去掉状态
     if (m_player->talents.at(Talent::WU_YI) && qidian > 6) {
-        m_skillCriticalStrikePercentAdd      -= 0.1;
-        m_skillCriticalStrikePowerPercentAdd -= 0.3;
+        m_skillCriticalStrikeAddPercent      -= 0.1;
+        m_skillCriticalStrikePowerAddPercent -= 0.3;
     }
 
     // 风逝 结束去掉状态
@@ -445,16 +502,16 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
     m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 9) * 1.1 * 1.1 * 1.05, 0.0);
     m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05, 0.0);
 
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
 
     m_cooldownFixed = 16 * 12;
 
@@ -463,15 +520,15 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
     }
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][0]) {
-        m_skillDamageBinPercentAdd += 30;
+        m_skillDamageAddPercentInt += 30;
     }
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][1]) {
-        m_skillDamageBinPercentAdd += 40;
+        m_skillDamageAddPercentInt += 40;
     }
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][2]) {
-        m_skillDamageBinPercentAdd += 51;
+        m_skillDamageAddPercentInt += 51;
     }
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][3]) {
@@ -502,7 +559,7 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
     // 续气秘籍
     m_player->AddQidian(m_skillQidianAdd);
 
-    int level = ((*m_targets)[m_player->targetId]->GetLifePercent() - 0.01) * 10;
+    int level = 10 - ((*m_targets)[m_player->targetId]->GetLifePercent() - 0.01) * 10;
 
     RollResult rollResult = GetPhysicsRollResult();
     Damage     damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, level);
@@ -511,6 +568,23 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
     // 深埋 会心
     if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
         m_player->AddQidian(2);
+    }
+
+    // 大附魔 腕
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
+
+    // 大附魔 鞋
+    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+            ->TriggerDamage();
     }
 
     rollResult = GetPhysicsRollResult();
@@ -588,8 +662,8 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
     m_cooldownFixed = 16 * 2;
 
     if (m_player->talents[Talent::XIN_GU]) {
-        m_skillCriticalStrikePercentAdd      += 0.1;
-        m_skillCriticalStrikePowerPercentAdd += 0.1;
+        m_skillCriticalStrikeAddPercent      += 0.1;
+        m_skillCriticalStrikePowerAddPercent += 0.1;
     }
     if (m_player->talents[Talent::HUAN_YUE]) {
         m_cooldownFixed += 16 * 4;
@@ -603,27 +677,27 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][1]) {
-        m_skillCriticalStrikePercentAdd += 0.02;
+        m_skillCriticalStrikeAddPercent += 0.02;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][2]) {
-        m_skillCriticalStrikePercentAdd += 0.03;
+        m_skillCriticalStrikeAddPercent += 0.03;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][3]) {
-        m_skillCriticalStrikePercentAdd += 0.04;
+        m_skillCriticalStrikeAddPercent += 0.04;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][4]) {
-        m_skillDamageBinPercentAdd += 30;
+        m_skillDamageAddPercentInt += 30;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][5]) {
-        m_skillDamageBinPercentAdd += 40;
+        m_skillDamageAddPercentInt += 40;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][6]) {
-        m_skillDamageBinPercentAdd += 51;
+        m_skillDamageAddPercentInt += 51;
     }
 }
 
@@ -651,6 +725,23 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
     // 深埋 会心
     if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
         m_player->AddQidian(2);
+    }
+
+    // 大附魔 腕
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
+
+    // 大附魔 鞋
+    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+            ->TriggerDamage();
     }
 
     damage = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
@@ -713,13 +804,13 @@ JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *playe
     m_targetCountFixed = 6;
 
     if (m_player->talents[Talent::TONG_GEN]) {
-        m_skillDamageBinPercentAdd += 102;
+        m_skillDamageAddPercentInt += 102;
         m_targetCountFixed         += 2;
     }
 
     if (m_player->talents[Talent::XU_JI]) {
-        m_skillCriticalStrikePercentAdd      += 0.1;
-        m_skillCriticalStrikePowerPercentAdd += 0.1;
+        m_skillCriticalStrikeAddPercent      += 0.1;
+        m_skillCriticalStrikePowerAddPercent += 0.1;
         m_cooldownFixed                      -= 16 * 2;
     }
 }
@@ -756,6 +847,23 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
         // 深埋 会心
         if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
             m_player->AddQidian(2);
+        }
+
+        // 大附魔 腕
+        if (m_player->enchantWrist) [[likely]] {
+            static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                ->TriggerDamage();
+        }
+
+        // 大附魔 腰
+        if (m_player->enchantBelt) [[likely]] {
+            static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+        }
+
+        // 大附魔 鞋
+        if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+            static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                ->TriggerDamage();
         }
 
         // 虚极
@@ -826,11 +934,11 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Tar
     }
 
     if (m_player->secrets[Skill::REN_JIAN_HE_YI][4]) {
-        m_skillDamageBinPercentAdd += 409;
+        m_skillDamageAddPercentInt += 409;
     }
 
     if (m_player->secrets[Skill::REN_JIAN_HE_YI][5]) {
-        m_skillDamageBinPercentAdd += 614;
+        m_skillDamageAddPercentInt += 614;
     }
 
     // 人剑Dot
@@ -864,6 +972,26 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
             // 深埋 会心
             if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
                 m_player->AddQidian(2);
+            }
+
+            // 大附魔 腕
+            if (m_player->enchantWrist) [[likely]] {
+                static_cast<Buff3rd::EnchantWristPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                    ->TriggerDamage();
+            }
+
+            // 大附魔 腰
+            if (m_player->enchantBelt) [[likely]] {
+                static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())
+                    ->TriggerAdd();
+            }
+
+            // 大附魔 鞋
+            if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+                static_cast<Buff3rd::EnchantShoesPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                    ->TriggerDamage();
             }
 
             // 橙武特效1 八荒归元无调息 持续伤害
@@ -946,6 +1074,23 @@ void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
     // 深埋 会心
     if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
         m_player->AddQidian(2);
+    }
+
+    // 大附魔 腕
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
+
+    // 大附魔 鞋
+    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+            ->TriggerDamage();
     }
 
     // 橙武特效1 八荒归元无调息 持续伤害
@@ -1242,6 +1387,23 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffect(int sub)
             m_player->AddQidian(2);
         }
 
+        // 大附魔 腕
+        if (m_player->enchantWrist) [[likely]] {
+            static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                ->TriggerDamage();
+        }
+
+        // 大附魔 腰
+        if (m_player->enchantBelt) [[likely]] {
+            static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+        }
+
+        // 大附魔 鞋
+        if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+            static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                ->TriggerDamage();
+        }
+
         // 橙武特效1 八荒归元无调息 持续伤害
         if (m_player->weaponCW && m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_CW_1]->GetTimeLeft() > 0)
         {
@@ -1303,7 +1465,7 @@ JX3DPS::TaiXuJianYi::Buff::DieRen::DieRen(JX3DPS::Player *player, Targets *targe
     }
 
     if (m_player->talents[Talent::XU_JI]) {
-        m_skillDamageBinPercentAdd += 102 * 2;
+        m_skillDamageAddPercentInt += 102 * 2;
     }
 }
 
@@ -1479,14 +1641,14 @@ void JX3DPS::TaiXuJianYi::Buff::ZiQiDongLai::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::ZiQiDongLai::SubEffectAdd()
 {
-    m_player->attr->AddPhysicsAttackBaseBinPercent(256);
+    m_player->attr->AddPhysicsAttackBasePercentInt(256);
     m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(0.25);
     m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(0.25);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::ZiQiDongLai::SubEffectClear()
 {
-    m_player->attr->AddPhysicsAttackBaseBinPercent(-256);
+    m_player->attr->AddPhysicsAttackBasePercentInt(-256);
     m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-0.25);
     m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-0.25);
 }
@@ -1541,13 +1703,13 @@ void JX3DPS::TaiXuJianYi::Buff::XuanMen::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::XuanMen::SubEffectAdd(int stackNum)
 {
-    m_player->attr->AddPhysicsOvercomeBaseBinPercent(204 * stackNum);
+    m_player->attr->AddPhysicsOvercomeBasePercentInt(204 * stackNum);
     m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(0.03 * stackNum);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::XuanMen::SubEffectClear(int stackNum)
 {
-    m_player->attr->AddPhysicsOvercomeBaseBinPercent(-204 * stackNum);
+    m_player->attr->AddPhysicsOvercomeBasePercentInt(-204 * stackNum);
     m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-0.03 * stackNum);
 }
 
@@ -1906,14 +2068,14 @@ JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targ
 
     m_damageParams[0].emplace_back(0, 0, 0, 0.0);
 
-    m_skillCriticalStrikePercentAdd      = 0.05;
-    m_skillCriticalStrikePowerPercentAdd = 0.1;
+    m_skillCriticalStrikeAddPercent      = 0.05;
+    m_skillCriticalStrikePowerAddPercent = 0.1;
 
     m_durationFixed = 16 * 4;
 
     if (m_player->talents[Talent::FU_YIN]) {
-        m_skillCriticalStrikePercentAdd      = 0.1;
-        m_skillCriticalStrikePowerPercentAdd = 0.2;
+        m_skillCriticalStrikeAddPercent      = 0.1;
+        m_skillCriticalStrikePowerAddPercent = 0.2;
     }
 }
 
@@ -1943,19 +2105,19 @@ void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SubEffectAdd()
 {
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(m_skillCriticalStrikePercentAdd);
-    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(m_skillCriticalStrikePowerPercentAdd);
+    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(m_skillCriticalStrikeAddPercent);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(m_skillCriticalStrikePowerAddPercent);
     if (m_player->talents[Talent::GU_CHANG]) {
-        m_player->attr->AddShieldIgnoreBinPercent(m_targets, 614);
+        m_player->attr->AddShieldIgnorePercentInt(m_targets, 614);
     }
 }
 
 void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SubEffectClear()
 {
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-m_skillCriticalStrikePercentAdd);
-    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-m_skillCriticalStrikePowerPercentAdd);
+    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-m_skillCriticalStrikeAddPercent);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-m_skillCriticalStrikePowerAddPercent);
     if (m_player->talents[Talent::GU_CHANG]) {
-        m_player->attr->AddShieldIgnoreBinPercent(m_targets, -614);
+        m_player->attr->AddShieldIgnorePercentInt(m_targets, -614);
     }
 }
 
@@ -2000,12 +2162,12 @@ void JX3DPS::TaiXuJianYi::Buff::QiSheng::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::QiSheng::SubEffectAdd()
 {
-    m_player->attr->AddPhysicsAttackBaseBinPercent(102);
+    m_player->attr->AddPhysicsAttackBasePercentInt(102);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::QiSheng::SubEffectClear()
 {
-    m_player->attr->AddPhysicsAttackBaseBinPercent(-102);
+    m_player->attr->AddPhysicsAttackBasePercentInt(-102);
 }
 
 JX3DPS::TaiXuJianYi::Buff::FengShi::FengShi(JX3DPS::Player *player, Targets *targets) :
@@ -2414,8 +2576,8 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianSuiXingChen::SubEffect()
             if (count == 4) {
                 break;
             }
-            //RollResult rollResult = GetPhysicsRollResult(target.first);
-            //Damage     damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+            // RollResult rollResult = GetPhysicsRollResult(target.first);
+            // Damage     damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
             Record(target.first, RollResult::HIT, Damage(), 0, 0);
         }
     }
@@ -2475,8 +2637,8 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianTunRiYue::SubEffect()
             if (count == 4) {
                 break;
             }
-            //RollResult rollResult = GetPhysicsRollResult(target.first);
-            //Damage     damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+            // RollResult rollResult = GetPhysicsRollResult(target.first);
+            // Damage     damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
             Record(target.first, RollResult::HIT, Damage(), 0, 0);
         }
     }

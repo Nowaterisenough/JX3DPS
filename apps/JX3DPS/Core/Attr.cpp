@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 04:54:22
+ * Last Modified: 2023-07-04 06:30:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -48,7 +48,9 @@ Attr::Attr(const Attr &other)
     this->m_spunkBasePercentInt = other.m_spunkBasePercentInt;
     this->m_spunk               = other.m_spunk;
 
-    this->m_weaponAttack = other.m_weaponAttack;
+    this->m_weaponAttack      = other.m_weaponAttack;
+    this->m_weaponAttackLower = other.m_weaponAttackLower;
+    this->m_weaponAttackUpper = other.m_weaponAttackUpper;
 
     this->m_physicsAttackBaseFromCustom = other.m_physicsAttackBaseFromCustom;
     this->m_physicsAttackBasePercentInt = other.m_physicsAttackBasePercentInt;
@@ -125,7 +127,9 @@ Attr &Attr::operator=(const Attr &other)
     this->m_spunkBasePercentInt = other.m_spunkBasePercentInt;
     this->m_spunk               = other.m_spunk;
 
-    this->m_weaponAttack = other.m_weaponAttack;
+    this->m_weaponAttack      = other.m_weaponAttack;
+    this->m_weaponAttackLower = other.m_weaponAttackLower;
+    this->m_weaponAttackUpper = other.m_weaponAttackUpper;
 
     this->m_physicsAttackBaseFromCustom = other.m_physicsAttackBaseFromCustom;
     this->m_physicsAttackBasePercentInt = other.m_physicsAttackBasePercentInt;
@@ -349,7 +353,9 @@ Value_t Attr::GetWeaponAttack() const
 
 void Attr::SetWeaponAttack(Value_t lower, Value_t upper)
 {
-    m_weaponAttack = (lower + upper) / 2;
+    m_weaponAttackLower = lower;
+    m_weaponAttackUpper = upper;
+    m_weaponAttack      = (lower + upper) / 2;
 }
 
 void Attr::AddWeaponAttack(Value_t value)
@@ -360,6 +366,16 @@ void Attr::AddWeaponAttack(Value_t value)
 void Attr::AddWeaponAttack(Value_t lower, Value_t upper)
 {
     m_weaponAttack += (lower + upper) / 2;
+}
+
+Value_t Attr::GetWeaponAttackLower() const
+{
+    return m_weaponAttackLower;
+}
+
+Value_t Attr::GetWeaponAttackUpper() const
+{
+    return m_weaponAttackUpper;
 }
 
 Value_t Attr::GetPhysicsAttackBaseFromCustom() const
@@ -586,7 +602,21 @@ PctFloat_t Attr::GetPhysicsCriticalStrikePercent() const
 
 Value_t Attr::GetPhysicsCriticalStrikeMinimum() const
 {
-    return GetPhysicsCriticalStrikeFromCustom() + GetPhysicsCriticalStrikeFromClass();
+    return GetPhysicsCriticalStrikeFromMajor() + GetPhysicsCriticalStrikeFromClass();
+}
+
+void Attr::SetBoxPhysicsCriticalStrikePercent(PctFloat_t percent)
+{
+    m_physicsCriticalStrikeFromCustom =
+        1 + percent * (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) -
+        GetPhysicsCriticalStrikeFromClass() - GetPhysicsCriticalStrikeFromMajor();
+    UpdatePhysicsCriticalStrikePercent();
+    if (GetPhysicsCriticalStrikePercent() != percent) {
+        m_physicsCriticalStrikeFromCustom =
+            percent * (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) -
+            GetPhysicsCriticalStrikeFromClass() - GetPhysicsCriticalStrikeFromMajor();
+        UpdatePhysicsCriticalStrikePercent();
+    }
 }
 
 Value_t Attr::GetMagicCriticalStrikeFromCustom() const
@@ -655,7 +685,21 @@ PctFloat_t Attr::GetMagicCriticalStrikePercent() const
 
 Value_t Attr::GetMagicCriticalStrikeMinimum() const
 {
-    return GetMagicCriticalStrikeFromCustom() + GetMagicCriticalStrikeFromClass();
+    return GetMagicCriticalStrikeFromMajor() + GetMagicCriticalStrikeFromClass();
+}
+
+void Attr::SetBoxMagicCriticalStrikePercent(PctFloat_t percent)
+{
+    m_magicCriticalStrikeFromCustom =
+        1 + percent * (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) -
+        GetMagicCriticalStrikeFromClass() - GetMagicCriticalStrikeFromMajor();
+    UpdateMagicCriticalStrikePercent();
+    if (GetMagicCriticalStrikePercent() != percent) {
+        m_magicCriticalStrikeFromCustom =
+            percent * (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) -
+            GetMagicCriticalStrikeFromClass() - GetMagicCriticalStrikeFromMajor();
+        UpdateMagicCriticalStrikePercent();
+    }
 }
 
 Value_t Attr::GetPhysicsCriticalStrikePower() const
@@ -697,6 +741,20 @@ PctFloat_t Attr::GetPhysicsCriticalStrikePowerPercent() const
     return m_physicsCriticalStrikePowerPercent;
 }
 
+void Attr::SetBoxPhysicsCriticalStrikePowerPercent(PctFloat_t percent)
+{
+    m_physicsCriticalStrikePower =
+        1 + (percent - JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE) *
+                (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+    UpdatePhysicsCriticalStrikePowerPercent();
+    if (GetPhysicsCriticalStrikePowerPercent() != percent) {
+        m_physicsCriticalStrikePower =
+            (percent - JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE) *
+            (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+        UpdatePhysicsCriticalStrikePowerPercent();
+    }
+}
+
 Value_t Attr::GetMagicCriticalStrikePower() const
 {
     return m_magicCriticalStrikePower;
@@ -734,6 +792,20 @@ void Attr::AddMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
 PctFloat_t Attr::GetMagicCriticalStrikePowerPercent() const
 {
     return m_magicCriticalStrikePowerPercent;
+}
+
+void Attr::SetBoxMagicCriticalStrikePowerPercent(PctFloat_t percent)
+{
+    m_magicCriticalStrikePower =
+        1 + (percent - JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE) *
+                (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+    UpdateMagicCriticalStrikePowerPercent();
+    if (GetMagicCriticalStrikePowerPercent() != percent) {
+        m_magicCriticalStrikePower =
+            (percent - JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE) *
+            (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+        UpdateMagicCriticalStrikePowerPercent();
+    }
 }
 
 Value_t Attr::GetPhysicsOvercomeBaseFromCustom() const
@@ -1121,9 +1193,9 @@ void Attr::UpdateSpunk()
 void Attr::UpdatePhysicsAttack()
 {
     m_physicsAttackFromBase =
-        (GetPhysicsAttackBaseFromMajor() + GetPhysicsAttackBaseFromCustom()) * // 基础攻击
-        (JX3_PCT_INT_BASE + GetPhysicsAttackBasePercentInt()) / JX3_PCT_INT_BASE;        // 基础攻击加成
-    m_physicsAttackFromMain = (this->*m_physicsAttackFromClass)();             // 面板攻击加成
+        (GetPhysicsAttackBaseFromMajor() + GetPhysicsAttackBaseFromCustom()) *    // 基础攻击
+        (JX3_PCT_INT_BASE + GetPhysicsAttackBasePercentInt()) / JX3_PCT_INT_BASE; // 基础攻击加成
+    m_physicsAttackFromMain = (this->*m_physicsAttackFromClass)(); // 面板攻击加成
     m_physicsAttack         = m_physicsAttackFromBase + m_physicsAttackFromMain;
 }
 
@@ -1176,19 +1248,20 @@ void Attr::UpdatePhysicsOvercomePercent()
     m_physicsOvercome =
         (GetPhysicsOvercomeBaseFromMajor() + GetPhysicsOvercomeBaseFromCustom()) * // 基础破防
             (JX3_PCT_INT_BASE + GetPhysicsOvercomeBasePercentInt()) / JX3_PCT_INT_BASE + // 基础破防加成
-        GetPhysicsOvercomeFromClass();                                         // 面板破防加成
+        GetPhysicsOvercomeFromClass(); // 面板破防加成
     m_physicsOvercomePercent =
-        GetPhysicsOvercome() /                                                 // 面板破防
+        GetPhysicsOvercome() /         // 面板破防
         (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)); // 破防系数
 }
 
 void Attr::UpdateMagicOvercomePercent()
 {
-    m_magicOvercome = (GetMagicOvercomeBaseFromMajor() + GetMagicOvercomeBaseFromCustom()) * // 基础破防
-                          (JX3_PCT_INT_BASE + GetMagicOvercomeBasePercentInt()) / JX3_PCT_INT_BASE + // 基础破防加成
-                      GetMagicOvercomeFromClass(); // 面板破防加成
+    m_magicOvercome =
+        (GetMagicOvercomeBaseFromMajor() + GetMagicOvercomeBaseFromCustom()) * // 基础破防
+            (JX3_PCT_INT_BASE + GetMagicOvercomeBasePercentInt()) / JX3_PCT_INT_BASE + // 基础破防加成
+        GetMagicOvercomeFromClass(); // 面板破防加成
     m_magicOvercomePercent =
-        GetMagicOvercome() /                       // 面板破防
+        GetMagicOvercome() /         // 面板破防
         (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)); // 破防系数
 }
 

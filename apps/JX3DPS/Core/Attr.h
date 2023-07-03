@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 03:45:47
+ * Last Modified: 2023-07-04 04:16:07
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -112,6 +112,8 @@ public:
     void    SetWeaponAttack(Value_t lower, Value_t upper);
     void    AddWeaponAttack(Value_t value);
     void    AddWeaponAttack(Value_t lower, Value_t upper);
+    Value_t GetWeaponAttackLower() const;
+    Value_t GetWeaponAttackUpper() const;
 
     /* 外功攻击 */
     Value_t  GetPhysicsAttackBaseFromCustom() const;
@@ -162,6 +164,8 @@ public:
     PctFloat_t GetPhysicsCriticalStrikePercent() const;
     Value_t    GetPhysicsCriticalStrikeMinimum() const;
 
+    void SetBoxPhysicsCriticalStrikePercent(PctFloat_t percent);
+
     /* 内功会心 */
     Value_t    GetMagicCriticalStrikeFromCustom() const;
     void       SetMagicCriticalStrikeFromCustom(Value_t value);
@@ -177,6 +181,8 @@ public:
     PctFloat_t GetMagicCriticalStrikePercent() const;
     Value_t    GetMagicCriticalStrikeMinimum() const;
 
+    void SetBoxMagicCriticalStrikePercent(PctFloat_t percent);
+
     /* 外功会心效果 */
     Value_t    GetPhysicsCriticalStrikePower() const;
     void       SetPhysicsCriticalStrikePower(Value_t value);
@@ -186,6 +192,8 @@ public:
     void       AddPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
     PctFloat_t GetPhysicsCriticalStrikePowerPercent() const;
 
+    void SetBoxPhysicsCriticalStrikePowerPercent(PctFloat_t percent);
+
     /* 内功会心效果 */
     Value_t    GetMagicCriticalStrikePower() const;
     void       SetMagicCriticalStrikePower(Value_t value);
@@ -194,6 +202,8 @@ public:
     void       SetMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
     void       AddMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
     PctFloat_t GetMagicCriticalStrikePowerPercent() const;
+
+    void SetBoxMagicCriticalStrikePowerPercent(PctFloat_t percent);
 
     /* 外功破防 */
     Value_t    GetPhysicsOvercomeBaseFromCustom() const;
@@ -357,7 +367,9 @@ private:
     Value_t  m_spunk               = 0;
 
     /* 武器伤害 */
-    Value_t m_weaponAttack = 0;
+    Value_t m_weaponAttackLower = 0;
+    Value_t m_weaponAttackUpper = 0;
+    Value_t m_weaponAttack      = 0;
 
     /* 外功攻击 */
     Value_t  m_physicsAttackBaseFromCustom = 0;

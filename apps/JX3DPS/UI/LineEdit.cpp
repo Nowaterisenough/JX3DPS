@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-04 01:22:40
+ * Last Modified: 2023-07-04 02:59:20
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -58,4 +58,13 @@ LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent)
             .arg(TO_STR(COLOR_HIGHLIGHT)));
 
     this->setValidator(new QIntValidator(1, 9999999, this));
+}
+
+void LineEdit::UpdateValue(int value)
+{
+    this->setText(QString::number(value));
+}
+
+void LineEdit::UpdateValueFloat(float value) { 
+    this->setText(QString::number(value * 100, 'f', 2).append("%"));
 }

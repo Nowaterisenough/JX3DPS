@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 18:10:54
+ * Last Modified: 2023-07-04 02:45:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -71,6 +71,9 @@ public:
     explicit Widget(QWidget *parent = 0);
 
     void SetProgress(double value);
+
+signals:
+    void Signal_UpdateAttr();
 
 protected:
     void paintEvent(QPaintEvent *event);

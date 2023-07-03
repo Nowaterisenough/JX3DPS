@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-04 01:00:41
+ * Last Modified: 2023-07-04 06:31:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -39,6 +39,7 @@ int SpinBox::value() const
 
 void SpinBox::setValue(int value)
 {
+
     if (value < m_min) {
         value = m_min;
     } else if (value > m_max) {
@@ -47,13 +48,26 @@ void SpinBox::setValue(int value)
 
     m_value = value;
     update();
+    emit Signal_UpdateValue(value);
 }
 
 void SpinBox::setRange(int min, int max)
 {
     m_min = min;
     m_max = max;
-    setValue(m_value);
+    // if (m_value < m_min) {
+    //     m_value = m_min;
+    // } else if (m_value > m_max) {
+    //     m_value = m_max;
+    // }
+
+    update();
+}
+
+void SpinBox::UpdateValue(int value)
+{
+    m_value = value;
+    update();
 }
 
 void SpinBox::paintEvent(QPaintEvent *event)

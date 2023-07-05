@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 04:58:37
+ * Last Modified: 2023-07-05 10:16:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -74,6 +74,8 @@ struct TargetSnapshot
 
     /* 快照无双 */
     PctFloat_t strainPercent = 0.0;
+
+    PctFloat_t skillDamageAddPercentInt = 0;
 };
 
 using TargetSnapshots = std::unordered_map<Id_t, TargetSnapshot>;
@@ -225,22 +227,19 @@ public:
     Frame_t GetNextKeyFrame() const;
     void    UpdateKeyFrame(Frame_t frame);
 
-    RollResult GetPhysicsRollResult(Id_t targetId) const;
-    RollResult GetMagicRollResult(Id_t targetId) const;
+    RollResult GetPhysicsRollResult() const;
+    RollResult GetMagicRollResult() const;
 
-    Damage CalcPhysicsDamage(Id_t       targetId,
-                             RollResult rollResult,
-                             int        sub         = 0,
-                             int        level       = 0,
-                             int        effectCount = 1,
-                             int        type        = JX3_NORMAL_SKILL_DAMAGE_PARAM) const;
+    Damage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
 
-    Damage CalcMagicDamage(Id_t       targetId,
-                           RollResult rollResult,
-                           int        sub         = 0,
-                           int        level       = 0,
-                           int        effectCount = 1,
-                           int        type        = JX3_NORMAL_SKILL_DAMAGE_PARAM) const;
+    Damage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+
+    RollResult GetPhysicsRollResultDot(Id_t targetId) const;
+    RollResult GetMagicRollResultDot(Id_t targetId) const;
+
+    Damage CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+
+    Damage CalcMagicDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
 
     void Record(Id_t          targetId   = 1,
                 RollResult    rollResult = RollResult::HIT,
@@ -347,6 +346,9 @@ public:
     void TriggerAdd();
     void SubEffectAdd();
     void SubEffectClear();
+
+private:
+    bool m_70 = false;
 };
 
 class JiaoSu : public Buff

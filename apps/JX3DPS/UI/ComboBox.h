@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 20:18:11
+ * Last Modified: 2023-07-05 06:55:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -93,6 +93,7 @@ public:
 
     QPixmap *GetIcon() const;
     QString  GetName() const;
+    int      GetId() const;
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
@@ -107,6 +108,7 @@ private:
     QPixmap *m_pixmap = nullptr;
     QString  m_name;
     QString  m_desc;
+    int      m_id;
 };
 
 class ListWidgetTalent : public QListWidget
@@ -137,6 +139,8 @@ public:
 
     void SetTalent(const QString &name);
 
+    int GetId() const;
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void showPopup() override;
@@ -150,6 +154,7 @@ private:
     QPixmap *m_pixmap = nullptr;
     QString  m_name;
     bool     m_isHovered = false;
+    int      m_id;
 };
 
 class TalentWidget : public QWidget
@@ -163,9 +168,12 @@ public:
 
     void SetTalent(const QString &name);
 
+    int GetId() const;
+
 private:
     ComboBoxTalent *m_comboBox = nullptr;
     TextButton     *m_button   = nullptr;
+    int m_id;
 };
 
 #endif // COMBOBOX_H

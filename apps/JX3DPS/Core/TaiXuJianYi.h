@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 13:52:46
+ * Last Modified: 2023-07-05 08:00:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -320,7 +320,6 @@ class TunRiYue : public Buff
 
 public:
     void SubEffectAdd();
-
 };
 
 class JingHuaYing : public Buff
@@ -405,11 +404,8 @@ public:
     Player::Player(const Player &other) : JX3DPS::Player(other)
     {
 
-
         // 添加心法气点随机帧数分布
         this->buffs[JX3DPS::Buff::CLASS_FEATURE]->Add();
-
-
     }
 
     Player &Player::operator=(const JX3DPS::Player &other) override

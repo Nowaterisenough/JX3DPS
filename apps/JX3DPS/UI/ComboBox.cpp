@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 21:28:06
+ * Last Modified: 2023-07-05 07:16:32
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -88,8 +88,10 @@ ComboBoxClass::ComboBoxClass(QWidget *parent) : QComboBox(parent)
             new QPixmap(QString(":/resources/pics/JX3/%1.png")
                             .arg(QString::fromStdString(JX3DPS::CLASS.at(index.row() * ROWS + index.column()))));
         this->update();
-        emit Signal_CurrentClassChanged(index.row() * ROWS + index.column());
+        // emit Signal_CurrentClassChanged(index.row() * ROWS + index.column());
     });
+
+    connect(this, &QComboBox::currentIndexChanged, this, &ComboBoxClass::Signal_CurrentClassChanged);
 }
 
 void ComboBoxClass::paintEvent(QPaintEvent *event)
@@ -207,6 +209,7 @@ ComboBoxTalent::ComboBoxTalent(QWidget *parent)
         ((ItemWidgetTalent *)listWidgetTalent->itemWidget(current))->SetSelected(true);
         m_pixmap  = ((ItemWidgetTalent *)listWidgetTalent->itemWidget(current))->GetIcon();
         m_name    = ((ItemWidgetTalent *)listWidgetTalent->itemWidget(current))->GetName();
+        m_id      = ((ItemWidgetTalent *)listWidgetTalent->itemWidget(current))->GetId();
         int index = listWidgetTalent->indexFromItem(current).row();
         this->setCurrentIndex(index);
         update();
@@ -232,12 +235,11 @@ QString ComboBoxTalent::GetName() const
     return m_name;
 }
 
-#include <QDebug>
-
 void ComboBoxTalent::SetTalent(const QString &name)
-{   
-    QListWidgetItem  *currentItem = static_cast<ListWidgetTalent *>(this->view())->item(currentIndex());
-    static_cast<ItemWidgetTalent *>(static_cast<ListWidgetTalent *>(this->view())->itemWidget(currentItem));
+{
+    QListWidgetItem *currentItem = static_cast<ListWidgetTalent *>(this->view())->item(currentIndex());
+    static_cast<ItemWidgetTalent *>(static_cast<ListWidgetTalent *>(this->view())->itemWidget(currentItem))
+        ->SetSelected(false);
     currentItem->setSelected(false);
     for (int i = 0; i < this->count(); i++) {
         QListWidgetItem  *indexItem = static_cast<ListWidgetTalent *>(this->view())->item(i);
@@ -247,12 +249,20 @@ void ComboBoxTalent::SetTalent(const QString &name)
             itemWidget->SetSelected(true);
             m_pixmap = itemWidget->GetIcon();
             m_name   = itemWidget->GetName();
+            m_id     = itemWidget->GetId();
             int index = static_cast<ListWidgetTalent *>(this->view())->indexFromItem(indexItem).row();
             this->setCurrentIndex(i);
             update();
             break;
         }
     }
+}
+
+int ComboBoxTalent::GetId() const
+{
+    QListWidgetItem *currentItem = static_cast<ListWidgetTalent *>(this->view())->item(currentIndex());
+    return static_cast<ItemWidgetTalent *>(static_cast<ListWidgetTalent *>(this->view())->itemWidget(currentItem))
+        ->GetId();
 }
 
 void ComboBoxTalent::paintEvent(QPaintEvent *event)
@@ -356,6 +366,7 @@ ItemWidgetTalent::ItemWidgetTalent(const TalentInfo &talentInfo, QWidget *parent
     }
 
     m_desc = QString::fromStdString(talentInfo.desc);
+    m_id   = talentInfo.id;
     this->setToolTip(QString::fromStdString(talentInfo.desc));
 
     // 设置样式表
@@ -386,6 +397,11 @@ QPixmap *ItemWidgetTalent::GetIcon() const
 QString ItemWidgetTalent::GetName() const
 {
     return m_name;
+}
+
+int ItemWidgetTalent::GetId() const
+{
+    return m_id;
 }
 
 void ItemWidgetTalent::paintEvent(QPaintEvent *event)
@@ -462,6 +478,7 @@ TalentWidget::TalentWidget(QWidget *parent) : QWidget(parent)
 
     connect(m_comboBox, &QComboBox::activated, [=](int index) {
         m_button->setText(m_comboBox->GetName());
+        m_id = m_comboBox->GetId();
     });
 
     TalentInfo talentInfo;
@@ -479,4 +496,9 @@ void TalentWidget::SetTalent(const QString &name)
 {
     m_comboBox->SetTalent(name);
     m_button->setText(name);
+}
+
+int TalentWidget::GetId() const
+{
+    return m_comboBox->GetId();
 }

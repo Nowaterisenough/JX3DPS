@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 22:05:11
+ * Last Modified: 2023-07-05 07:56:44
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -193,4 +193,9 @@ SecretCheckBox::SecretCheckBox(const SecretInfo &info, QWidget *parent)
     // 设置样式表
     this->setStyleSheet(
         "QToolTip { color: white; background-color: rgb(23, 29, 37); border: none; }");
+}
+
+bool SecretCheckBox::IsChecked()
+{
+    return m_checkBox->isChecked();
 }

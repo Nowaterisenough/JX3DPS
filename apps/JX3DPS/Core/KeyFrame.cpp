@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-26 19:09:25
+ * Last Modified: 2023-07-05 11:10:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -88,7 +88,7 @@ void JX3DPS::KeyFrame::UpdateKeyFrameSequence(KeyFrameSequence &keyFrameSequence
 void JX3DPS::KeyFrame::KeyFrameAdvance(KeyFrameSequence &keyFrameSequence, Player *player, Targets *targets, ExprEvents &exprEvents, ExprSkills &exprSkills)
 {
     while (player->end == false) {
-
+        //spdlog::debug("{}",  player->attr->GetPhysicsCriticalStrikePercent());
         // auto rIter = keyFrameSequence.rbegin();  // 指向最后一个元素
         // ++rIter;
         // if (rIter->first <= 13850) {

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 01:54:46
+ * Last Modified: 2023-07-05 07:56:23
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -78,6 +78,8 @@ class SecretCheckBox : public QWidget
 
 public:
     SecretCheckBox(const SecretInfo &info, QWidget *parent = nullptr);
+
+    bool IsChecked();
 
 private:
     CheckBox    *m_checkBox = nullptr;

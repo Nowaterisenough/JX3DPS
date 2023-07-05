@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-01 02:44:34
+ * Last Modified: 2023-07-05 11:19:23
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -133,7 +133,19 @@ Error_t InitPlayer(const nlohmann::json &json, std::shared_ptr<Player> &player)
     ParseJson2Secrets(json, player->secrets);
 
     ParseJson2Attr(json, *(player->attr.get()));
+    
+    player->enchantWrist = json["set_effects"]["EnchantWrist"];
+    player->enchantShoes = json["set_effects"]["EnchantShoes"];
+    player->enchantBelt = json["set_effects"]["EnchantBelt"];
+    player->enchantJacket = json["set_effects"]["EnchantJacket"];
+    player->enchantHat = json["set_effects"]["EnchantHat"];
+    player->weaponCW = json["set_effects"]["WeaponCW"];
+    player->classSetBuff = json["set_effects"]["ClassSetBuff"];
+    player->classSetSkill = json["set_effects"]["ClassSetSkill"];
 
+    player->delayMin = json["delay_min"].get<int>();
+    player->delayMax = json["delay_max"].get<int>();
+    
     player->Init();
 
     return JX3DPS::JX3DPS_SUCCESS;

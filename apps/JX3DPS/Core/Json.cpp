@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-04 04:22:30
+ * Last Modified: 2023-07-05 06:33:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -129,18 +129,18 @@ JX3DPS::Error_t JX3DPS::ParseJson2Attr(const nlohmann::json &json, Attr &attr)
         attr.SetSpiritBase(j.at("Spirit").get<int>());
         attr.SetStrengthBase(j.at("Strength").get<int>());
         attr.SetSpunkBase(j.at("Spunk").get<int>());
-
-        attr.SetPhysicsAttackBase(j.at("PhysicsAttackPowerBase").get<int>() - attr.GetPhysicsAttackBaseFromMajor());
-
-        attr.SetBoxPhysicsCriticalStrikePercent(j.at("PhysicsCriticalStrikeRate").get<double>());
-        attr.SetBoxPhysicsCriticalStrikePowerPercent(j.at("PhysicsCriticalDamagePowerPercent").get<double>());
-
-        attr.SetPhysicsOvercomeBase(j.at("PhysicsOvercome").get<int>() - attr.GetPhysicsOvercomeBaseFromMajor());
+        attr.SetPhysicsAttackBase(j.at("PhysicsAttackBase").get<int>());
+        attr.SetPhysicsCriticalStrike(j.at("PhysicsCriticalStrike").get<int>());
+        attr.SetPhysicsCriticalStrikePower(j.at("PhysicsCriticalStrikePower").get<int>());
+        attr.SetPhysicsOvercomeBase(j.at("PhysicsOvercomeBase").get<int>());
+        attr.SetMagicAttackBase(j.at("MagicAttackBase").get<int>());
+        attr.SetMagicCriticalStrike(j.at("MagicCriticalStrike").get<int>());
+        attr.SetMagicCriticalStrikePower(j.at("MagicCriticalStrikePower").get<int>());
+        attr.SetMagicOvercomeBase(j.at("MagicOvercomeBase").get<int>());
         attr.SetHaste(j.at("Haste").get<int>());
         attr.SetStrain(j.at("Strain").get<int>());
-        attr.SetSurplusBase(j.at("SurplusValue").get<int>());
-        attr.SetWeaponAttack(j.at("MeleeWeaponDamage").get<int>(),
-                             j.at("MeleeWeaponDamage").get<int>() + j.at("MeleeWeaponDamageRand").get<int>());
+        attr.SetSurplusBase(j.at("Surplus").get<int>());
+        attr.SetWeaponAttack(j.at("WeaponAttack").get<int>());
 
     } catch (const std::exception &e) {
         spdlog::error("属性解析失败 {}", e.what());

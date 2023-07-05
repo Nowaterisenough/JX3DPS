@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 23:04:27
+ * Last Modified: 2023-07-04 19:46:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -527,6 +527,8 @@ void VerticalTabWidget::AddTab(const QString &text)
         tabButton->setChecked(true);
     }
     m_tabs.emplace_back(QPair<VerticalTabButton *, TWidget *>(tabButton, tWidget));
+
+    update();
 }
 
 TWidget *VerticalTabWidget::Widget(int index)
@@ -536,7 +538,9 @@ TWidget *VerticalTabWidget::Widget(int index)
 
 void VerticalTabWidget::resizeEvent(QResizeEvent *event)
 {
+
     Resize();
+
     QWidget::resizeEvent(event);
 }
 
@@ -549,7 +553,10 @@ void VerticalTabWidget::paintEvent(QPaintEvent *event)
     }
 
     int space       = 2;
-    int buttonWidth = m_tabs[0].first->width();
+    int buttonWidth = 25;
+    if (!m_tabs.empty()) {
+        buttonWidth = m_tabs[0].first->width();
+    }
 
     if (m_currentIndex > m_lastIndex) {
 
@@ -603,7 +610,10 @@ void VerticalTabWidget::Resize()
     bool checked     = false;
     int  y           = height() / 2;
     int  space       = 2;
-    int  buttonWidth = m_tabs[0].first->width();
+    int  buttonWidth = 25;
+    if (!m_tabs.empty()) {
+        buttonWidth = m_tabs[0].first->width();
+    }
     for (int i = 0; i < m_tabs.size(); ++i) {
         VerticalTabButton *tabButton = m_tabs[i].first;
         TWidget           *tWidget   = m_tabs[i].second;
@@ -627,7 +637,9 @@ void VerticalTabWidget::Resize()
                 checked = true;
             }
         }
+        tabButton->show();
     }
+    update();
 }
 
 void VerticalTabWidget::AnimatedResize(int index)

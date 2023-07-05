@@ -39,6 +39,48 @@
 #include "Splitter.h"
 #include "TabWidget.h"
 
+void Attr2Json(const JX3DPS::Attr &attr, nlohmann::json &json)
+{
+    json["Agility"]                    = attr.GetAgility();
+    json["Spirit"]                     = attr.GetSpirit();
+    json["Strength"]                   = attr.GetStrength();
+    json["Spunk"]                      = attr.GetSpunk();
+    json["PhysicsAttackBase"]          = attr.GetPhysicsAttackBase();
+    json["PhysicsCriticalStrike"]      = attr.GetPhysicsCriticalStrike();
+    json["PhysicsCriticalStrikePower"] = attr.GetPhysicsCriticalStrikePower();
+    json["PhysicsOvercomeBase"]        = attr.GetPhysicsOvercomeBase();
+    json["MagicAttackBase"]            = attr.GetMagicAttackBase();
+    json["MagicCriticalStrike"]        = attr.GetMagicCriticalStrike();
+    json["MagicCriticalStrikePower"]   = attr.GetMagicCriticalStrikePower();
+    json["MagicOvercomeBase"]          = attr.GetMagicOvercomeBase();
+    json["Haste"]                      = attr.GetHaste();
+    json["Strain"]                     = attr.GetStrain();
+    json["Surplus"]                    = attr.GetSurplus();
+    json["WeaponAttack"]               = attr.GetWeaponAttack();
+}
+
+void Secrets2Json(const std::unordered_map<std::string, std::list<SecretCheckBox *>> &secretWidgets,
+                  nlohmann::json                                                     &json)
+{
+    for (auto &secret : secretWidgets) {
+        for (auto &secretWidget : secret.second) {
+            json[secret.first].push_back(secretWidget->IsChecked());
+        }
+    }
+}
+
+void SetEffects2Json(const std::vector<CheckBox *> &checkBoxes, nlohmann::json &json)
+{
+    json["EnchantWrist"]  = checkBoxes[0]->isChecked();
+    json["EnchantShoes"]  = checkBoxes[0]->isChecked();
+    json["EnchantBelt"]   = checkBoxes[0]->isChecked();
+    json["EnchantJacket"] = checkBoxes[0]->isChecked();
+    json["EnchantHat"]    = checkBoxes[0]->isChecked();
+    json["WeaponCW"]      = checkBoxes[0]->isChecked();
+    json["ClassSetBuff"]  = checkBoxes[0]->isChecked();
+    json["ClassSetSkill"] = checkBoxes[0]->isChecked();
+}
+
 Widget::Widget(QWidget *parent) : QWidget(parent)
 {
     m_frameless = new FramelessWidget(this);
@@ -171,60 +213,27 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
         int simIterations      = static_cast<LineEdit *>(m_lineEditSimulateCount)->text().toInt();
         json["sim_iterations"] = simIterations;
 
-        std::vector<int> talents = { 1401, 1403, 1409, 1411, 1415, 1420,
-                                     1424, 1430, 1433, 1436, 1444, 1448 };
-        json["talents"]          = nlohmann::json(talents);
+        std::vector<int> talents;
+        for (auto &talent : m_talentWidgets) {
+            talents.push_back(talent->GetId());
+            spdlog::info("{}", talent->GetId());
+        }
+        json["talents"] = nlohmann::json(talents);
 
-        json["attr"] = m_json;
+        nlohmann::json jsonAttr;
+        Attr2Json(m_attr, jsonAttr);
+        json["attr"] = jsonAttr;
 
-        std::string str2 = R"({
-                    "无我无剑": [
-                        false,
-                        true,
-                        true,
-                        false,
-                        true,
-                        true,
-                        false
-                    ],
-                    "八荒归元": [
-                        true,
-                        true,
-                        true,
-                        false,
-                        true
-                    ],
-                    "三环套月": [
-                        true,
-                        false,
-                        false,
-                        true,
-                        false,
-                        true,
-                        true
-                    ],
-                    "人剑合一": [
-                        false,
-                        false,
-                        false,
-                        false,
-                        true,
-                        true,
-                        true,
-                        true
-                    ],
-                    "生太极": [
-                        true,
-                        true,
-                        true,
-                        true,
-                        false,
-                        false,
-                        false
-                    ]
-                })";
+        nlohmann::json jsonSecrets;
+        Secrets2Json(m_secretWidgets, jsonSecrets);
+        json["secrets"] = jsonSecrets;
 
-        json["secrets"] = nlohmann::json::parse(str2);
+        nlohmann::json jsonSetEffects;
+        SetEffects2Json(m_setEffectWidgets, jsonSetEffects);
+        json["set_effects"] = jsonSetEffects;
+
+        json["delay_min"] = static_cast<LineEdit *>(m_lineEditDelayMin)->text().toInt();
+        json["delay_max"] = static_cast<LineEdit *>(m_lineEditDelayMax)->text().toInt();
 
         m_progressBar = new ProgressBar(nullptr);
         m_progressBar->setAttribute(Qt::WA_DeleteOnClose);
@@ -246,7 +255,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
         });
     });
 
-    InitClass("太虚剑意");
+    emit Signal_UpdateAttr();
 }
 
 void Widget::SetProgress(double value)
@@ -275,10 +284,10 @@ bool LoadConfig(const std::string &path, nlohmann::json &json)
     return true;
 }
 
-void ParseJson2Talents(const nlohmann::json &json, const std::string &className, std::vector<std::vector<TalentInfo>> &talents)
+void ParseJson2Talents(const nlohmann::json &json, JX3DPS::Class classType, std::vector<std::vector<TalentInfo>> &talents)
 {
     for (auto &item : json["class"]) {
-        if (item["name"].get<std::string>() == className) {
+        if (item["id"].get<int>() == static_cast<int>(classType)) {
             for (int i = 1; i <= 12; ++i) {
                 std::vector<TalentInfo> talentInfos;
                 for (auto &talentInfo : item["talents"][std::to_string(i)]) {
@@ -298,11 +307,11 @@ void ParseJson2Talents(const nlohmann::json &json, const std::string &className,
 }
 
 void ParseJson2Secrets(const nlohmann::json                                     &json,
-                       const std::string                                        &className,
+                       JX3DPS::Class                                             classType,
                        std::unordered_map<std::string, std::vector<SecretInfo>> &secrets)
 {
     for (auto &item : json["class"]) {
-        if (item["name"].get<std::string>() == className) {
+        if (item["id"].get<int>() == static_cast<int>(classType)) {
             for (auto &secretInfo : item["secrets"].items()) {
                 std::string key = secretInfo.key();
                 for (auto &secret : secretInfo.value()) {
@@ -318,17 +327,60 @@ void ParseJson2Secrets(const nlohmann::json                                     
     }
 }
 
-bool Widget::InitClass(const std::string &className)
+void ParseJson2SkillExprs(const nlohmann::json                             &json,
+                          JX3DPS::Class                                     classType,
+                          std::vector<std::pair<std::string, std::string>> &exprs)
 {
+    exprs.clear();
+    for (auto &item : json["class"]) {
+        if (item["id"].get<int>() == static_cast<int>(classType)) {
+            for (auto &iter : item["default_macros"]) {
+                exprs.push_back(std::pair<std::string, std::string>(item["name"].get<std::string>(), ""));
+                for (auto &it : iter["expr"]) {
+                    exprs.back().second.append(it.get<std::string>());
+                    exprs.back().second.append("\n");
+                }
+            }
+        }
+    }
+}
+
+void ParseJson2EventExprs(const nlohmann::json                             &json,
+                          JX3DPS::Class                                     classType,
+                          std::vector<std::pair<std::string, std::string>> &exprs)
+{
+    exprs.clear();
+    for (auto &item : json["class"]) {
+        if (item["id"].get<int>() == static_cast<int>(classType)) {
+            for (auto &iter : item["default_events"]) {
+                exprs.push_back(std::pair<std::string, std::string>(item["name"].get<std::string>(), ""));
+                for (auto &it : iter["expr"]) {
+                    exprs.back().second.append(it.get<std::string>());
+                    exprs.back().second.append("\n");
+                }
+            }
+        }
+    }
+}
+
+bool Widget::InitClass(JX3DPS::Class classType)
+{
+    m_progressBar = new ProgressBar(nullptr);
+    m_progressBar->setAttribute(Qt::WA_DeleteOnClose);
+    m_progressBar->show();
+    m_progressBar->SetLoadMode();
+
     nlohmann::json json;
-    if (!LoadConfig("C:\\Users\\NoWat\\Project\\JX3DPS2\\config.json", json)) {
+    if (!LoadConfig(".\\config.json", json)) {
         return false;
     }
 
-    m_attr = JX3DPS::Attr(JX3DPS::Class::TAI_XU_JIAN_YI);
+    m_attr = JX3DPS::Attr(classType);
 
     std::vector<std::vector<TalentInfo>> talents;
-    ParseJson2Talents(json, className, talents);
+    ParseJson2Talents(json, classType, talents);
+
+    m_progressBar->SetProgress(0.3);
 
     for (int i = 0; i < 12; ++i) {
         for (auto &talentInfo : talents[i]) {
@@ -337,7 +389,9 @@ bool Widget::InitClass(const std::string &className)
     }
 
     std::unordered_map<std::string, std::vector<SecretInfo>> secrets;
-    ParseJson2Secrets(json, className, secrets);
+    ParseJson2Secrets(json, classType, secrets);
+
+    m_progressBar->SetProgress(0.5);
 
     int index = 0;
     for (auto &secret : secrets) {
@@ -346,19 +400,43 @@ bool Widget::InitClass(const std::string &className)
             new QGridLayout(static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->Widget(index));
 
         for (int i = 0; i < secret.second.size(); ++i) {
+
             SecretCheckBox *checkBox =
                 new SecretCheckBox(secret.second[i],
                                    static_cast<VerticalTabWidget *>(m_tabWidgetSecrets)->Widget(index));
             gLayoutSecret->addWidget(checkBox, i / 3, i % 3, 1, 1);
+            m_secretWidgets[secret.first].push_back(checkBox);
         }
         index++;
     }
+
+    ParseJson2SkillExprs(json, classType, m_skills);
+    LoadSkills(0);
+
+    m_progressBar->SetProgress(0.7);
+
+    ParseJson2EventExprs(json, classType, m_events);
+    LoadEvents(0);
+
+    m_progressBar->SetProgress(1.0);
+}
+
+void Widget::LoadSkills(int index)
+{
+    static_cast<PlainTextEdit *>(m_plainTextEditSkill)
+        ->appendPlainText(QString::fromStdString(m_skills[index].second));
+}
+
+void Widget::LoadEvents(int index)
+{
+    static_cast<PlainTextEdit *>(m_plainTextEditEvent)
+        ->appendPlainText(QString::fromStdString(m_events[index].second));
 }
 
 void Widget::InitWidgetSetting(QWidget *parent)
 {
     ComboBoxClass *comboBoxClass = new ComboBoxClass(parent);
-    comboBoxClass->setFixedSize(48, 48);
+    comboBoxClass->setFixedSize(50, 50);
 
     TextButton *textButtonSimulateCount = new TextButton(parent);
     textButtonSimulateCount->setText("模拟次数");
@@ -366,34 +444,56 @@ void Widget::InitWidgetSetting(QWidget *parent)
 
     m_lineEditSimulateCount = new LineEdit(parent);
     m_lineEditSimulateCount->setFixedSize(48, 21);
+    static_cast<LineEdit *>(m_lineEditSimulateCount)->setText("1");
 
-    TextButton *textButtonSimulateTime = new TextButton(parent);
-    textButtonSimulateTime->setText("模拟时间");
-    textButtonSimulateTime->setFixedSize(60, 21);
+    // TextButton *textButtonSimulateTime = new TextButton(parent);
+    // textButtonSimulateTime->setText("模拟时间");
+    // textButtonSimulateTime->setFixedSize(60, 21);
 
-    LineEdit *lineEditSimulateTime = new LineEdit(parent);
-    lineEditSimulateTime->setFixedSize(48, 21);
+    // LineEdit *lineEditSimulateTime = new LineEdit(parent);
+    // lineEditSimulateTime->setFixedSize(48, 21);
+
+    CheckBox *checkBoxDebug = new CheckBox(parent);
+    checkBoxDebug->setFixedHeight(22);
+    checkBoxDebug->setText("调试");
 
     TextButton *textButtonDelay = new TextButton(parent);
     textButtonDelay->setText("延迟波动");
     textButtonDelay->setFixedSize(60, 21);
 
-    LineEdit *lineEditDelayMin = new LineEdit(parent);
-    lineEditDelayMin->setFixedSize(48, 21);
+    m_lineEditDelayMin = new LineEdit(parent);
+    m_lineEditDelayMin->setFixedSize(48, 21);
+    static_cast<LineEdit *>(m_lineEditDelayMin)->setText("40");
 
-    LineEdit *lineEditDelayMax = new LineEdit(parent);
-    lineEditDelayMax->setFixedSize(48, 21);
+    m_lineEditDelayMax = new LineEdit(parent);
+    m_lineEditDelayMax->setFixedSize(48, 21);
+    static_cast<LineEdit *>(m_lineEditDelayMax)->setText("75");
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
     gLayout->addWidget(comboBoxClass, 0, 2, 2, 1);
+    gLayout->addWidget(checkBoxDebug, 2, 2, 1, 1);
     gLayout->addWidget(textButtonSimulateCount, 0, 0, 1, 1);
     gLayout->addWidget(m_lineEditSimulateCount, 0, 1, 1, 1);
-    gLayout->addWidget(textButtonSimulateTime, 1, 0, 1, 1);
-    gLayout->addWidget(lineEditSimulateTime, 1, 1, 1, 1);
-    gLayout->addWidget(textButtonDelay, 2, 0, 1, 1);
-    gLayout->addWidget(lineEditDelayMin, 2, 1, 1, 1);
-    gLayout->addWidget(lineEditDelayMax, 2, 2, 1, 1);
+    // gLayout->addWidget(textButtonSimulateTime, 1, 0, 1, 1);
+    // gLayout->addWidget(lineEditSimulateTime, 1, 1, 1, 1);
+    gLayout->addWidget(textButtonDelay, 1, 0, 1, 1);
+    gLayout->addWidget(m_lineEditDelayMin, 1, 1, 1, 1);
+    gLayout->addWidget(m_lineEditDelayMax, 2, 1, 1, 1);
+
+    connect(comboBoxClass, &ComboBoxClass::Signal_CurrentClassChanged, this, [=](int index) {
+        InitClass(static_cast<JX3DPS::Class>(index + 1));
+    });
+
+    connect(checkBoxDebug, &QCheckBox::stateChanged, [=](int checked) {
+        if (checked) {
+            spdlog::default_logger()->set_level(spdlog::level::debug);
+            spdlog::flush_on(spdlog::level::debug);
+        } else {
+            spdlog::default_logger()->set_level(spdlog::level::info);
+            spdlog::flush_on(spdlog::level::info);
+        }
+    });
 }
 
 void Widget::InitWidgetOut(QWidget *parent)
@@ -405,11 +505,6 @@ void Widget::InitWidgetOut(QWidget *parent)
 
     m_lineEditDPS = new LineEdit(parent);
     m_lineEditDPS->setFixedSize(48, 21);
-
-    // GreenButton *greenButtonDPS = new GreenButton(groupBoxDPS);
-    // greenButtonDPS->setText("详情统计");
-    // greenButtonDPS->setFont(QFont("Microsoft YaHei", 11));
-    // greenButtonDPS->setFixedSize(110, 27);
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -664,7 +759,7 @@ void Widget::InitWidgetAttr(QWidget *parent)
     gLayout->addItem(verticalSpacer, 10, 0, 1, 1);
 
     GroupBox *groupBoxAttrSetEffect = new GroupBox("装备效果", parent);
-
+    InitWidgetSetEffect(groupBoxAttrSetEffect);
     gLayout->addWidget(groupBoxAttrSetEffect, 11, 0, 1, 3);
 
     Button *buttonImportJX3Box = new Button(parent);
@@ -680,17 +775,17 @@ void Widget::InitWidgetAttr(QWidget *parent)
         importWidget->setAttribute(Qt::WA_DeleteOnClose);
 
         connect(importWidget, &ImportWidget::Signal_Import, this, [=](const nlohmann::json &json) {
-            m_json = json;
-
+            m_json    = json;
             int index = 0;
-            for (auto &talent : m_json["TalentCode"]) {
+            for (auto &talent : json["TalentCode"]) {
                 spdlog::info("{}", talent["name"].get<std::string>());
                 m_talentWidgets[index++]->SetTalent(QString::fromStdString(talent["name"].get<std::string>()));
             }
 
-            ParseJson2Attr(m_json, m_attr);
+            ParseJson2Attr(json, m_attr);
 
             emit Signal_UpdateAttr();
+            
         });
     });
 
@@ -842,16 +937,6 @@ void Widget::InitWidgetSkill(QWidget *parent)
     QGridLayout *gLayout = new QGridLayout(parent);
     gLayout->setContentsMargins(0, 0, 0, 0);
     gLayout->addWidget(m_plainTextEditSkill, 0, 0, 1, 1);
-
-    static_cast<PlainTextEdit *>(m_plainTextEditSkill)
-        ->appendPlainText("/cast [qidian<10&bufftime:玄门>20] 紫气东来\n"
-                          "/cast 三环套月\n"
-                          "/cast [buff:风逝] 人剑合一\n"
-                          "/cast [bufftime:玄门>35] 碎星辰\n"
-                          "/cast [buff:风逝|buff:持盈] 无我无剑\n"
-                          "/cast 八荒归元\n"
-                          "/cast 吞日月\n"
-                          "/cast 三柴剑法\n");
 }
 
 void Widget::InitWidgetSkillHelp(QWidget *parent) { }
@@ -862,28 +947,55 @@ void Widget::InitWidgetEvent(QWidget *parent)
     QGridLayout *gLayout = new QGridLayout(parent);
     gLayout->setContentsMargins(0, 0, 0, 0);
     gLayout->addWidget(m_plainTextEditEvent, 0, 0, 1, 1);
+}
 
-    static_cast<PlainTextEdit *>(m_plainTextEditEvent)
-        ->appendPlainText(
-            "00:00 /add_buff id=0 name=玄门 stack_num=3 duration=35\n"
-            "00:00 /add_buff id=0 name=气场·碎星辰 stack_num=1 duration=22\n"
-            "00:00 /add_target id=1 level=124 shield=27550 distance=3\n"
-            "00:00 /set_target id=1\n"
-            "01:30 /set_target id=1 life=0.9\n"
-            "03:00 /set_target id=1 life=0.8\n"
-            "04:30 /set_target id=1 life=0.7\n"
-            "06:00 /set_target id=1 life=0.6\n"
-            "07:30 /set_target id=1 life=0.5\n"
-            "07:30 /add_target id=2 level=124 shield=27550 distance=3\n"
-            "07:30 /set_target id=2\n"
-            "08:00 /set_target id=2 dead\n"
-            "08:00 /stop\n"
-            "09:00 /continue\n"
-            "09:00 /add_buff id=0 name=玄门 stack_num=3 duration=35\n"
-            "09:00 /set_target id=1\n"
-            "09:00 /set_target id=1 life=0.4\n"
-            "10:30 /set_target id=1 life=0.3\n"
-            "12:00 /set_target id=1 life=0.2\n"
-            "13:30 /set_target id=1 life=0.1\n"
-            "15:00 /end\n");
+void Widget::InitWidgetSetEffect(QWidget *parent)
+{
+    QGridLayout *gLayout = new QGridLayout(parent);
+
+    CheckBox *checkBoxEnchantWrist  = new CheckBox(parent);
+    CheckBox *checkBoxEnchantShoes  = new CheckBox(parent);
+    CheckBox *checkBoxEnchantBelt   = new CheckBox(parent);
+    CheckBox *checkBoxEnchantJacket = new CheckBox(parent);
+    CheckBox *checkBoxEnchantHat    = new CheckBox(parent);
+    CheckBox *checkBoxWeaponCW      = new CheckBox(parent);
+    CheckBox *checkBoxClassSetBuff  = new CheckBox(parent);
+    CheckBox *checkBoxClassSetSkill = new CheckBox(parent);
+
+    m_setEffectWidgets.push_back(checkBoxEnchantWrist);
+    m_setEffectWidgets.push_back(checkBoxEnchantShoes);
+    m_setEffectWidgets.push_back(checkBoxEnchantBelt);
+    m_setEffectWidgets.push_back(checkBoxEnchantJacket);
+    m_setEffectWidgets.push_back(checkBoxEnchantHat);
+    m_setEffectWidgets.push_back(checkBoxWeaponCW);
+    m_setEffectWidgets.push_back(checkBoxClassSetBuff);
+    m_setEffectWidgets.push_back(checkBoxClassSetSkill);
+
+    checkBoxEnchantWrist->setText("大附魔·腕");
+    checkBoxEnchantShoes->setText("大附魔·鞋");
+    checkBoxEnchantBelt->setText("大附魔·腰");
+    checkBoxEnchantJacket->setText("大附魔·衣");
+    checkBoxEnchantHat->setText("大附魔·帽");
+    checkBoxWeaponCW->setText("大橙武");
+    checkBoxClassSetBuff->setText("套装·攻击");
+    checkBoxClassSetSkill->setText("套装·技能");
+
+    checkBoxEnchantWrist->setFixedHeight(22);
+    checkBoxEnchantShoes->setFixedHeight(22);
+    checkBoxEnchantBelt->setFixedHeight(22);
+    checkBoxEnchantJacket->setFixedHeight(22);
+    checkBoxEnchantHat->setFixedHeight(22);
+    checkBoxWeaponCW->setFixedHeight(22);
+    checkBoxClassSetBuff->setFixedHeight(22);
+    checkBoxClassSetSkill->setFixedHeight(22);
+
+    gLayout->addWidget(checkBoxEnchantWrist, 0, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantShoes, 1, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantBelt, 2, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantJacket, 3, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantHat, 4, 0, 1, 1);
+
+    gLayout->addWidget(checkBoxWeaponCW, 0, 1, 1, 1);
+    gLayout->addWidget(checkBoxClassSetBuff, 1, 1, 1, 1);
+    gLayout->addWidget(checkBoxClassSetSkill, 2, 1, 1, 1);
 }

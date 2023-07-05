@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-04 04:16:07
+ * Last Modified: 2023-07-05 06:30:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -109,6 +109,7 @@ public:
 
     /* 武器伤害 */
     Value_t GetWeaponAttack() const;
+    void    SetWeaponAttack(Value_t value);
     void    SetWeaponAttack(Value_t lower, Value_t upper);
     void    AddWeaponAttack(Value_t value);
     void    AddWeaponAttack(Value_t lower, Value_t upper);

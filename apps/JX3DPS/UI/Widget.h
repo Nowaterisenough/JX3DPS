@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-04 02:45:27
+ * Last Modified: 2023-07-05 11:16:04
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -53,6 +53,8 @@
 #    error "Do not know how to export classes for this platform"
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
+#include <unordered_map>
+
 #include <QWidget>
 
 #include <nlohmann/json.hpp>
@@ -62,6 +64,8 @@
 class FramelessWidget;
 class TalentWidget;
 class ProgressBar;
+class SecretCheckBox;
+class CheckBox;
 
 class JX3DPSUI_API Widget : public QWidget
 {
@@ -81,7 +85,9 @@ protected:
 private:
     FramelessWidget *m_frameless = nullptr;
 
-    bool InitClass(const std::string &className);
+    bool InitClass(JX3DPS::Class classType);
+    void LoadSkills(int index);
+    void LoadEvents(int index);
 
     void InitWidgetSetting(QWidget *parent = nullptr);
     void InitWidgetOut(QWidget *parent = nullptr);
@@ -93,20 +99,28 @@ private:
     void InitWidgetSkill(QWidget *parent = nullptr);
     void InitWidgetSkillHelp(QWidget *parent = nullptr);
     void InitWidgetEvent(QWidget *parent = nullptr);
+    void InitWidgetSetEffect(QWidget *parent = nullptr);
 
     QWidget *m_plainTextEditSkill    = nullptr;
     QWidget *m_plainTextEditEvent    = nullptr;
     QWidget *m_lineEditSimulateCount = nullptr;
     QWidget *m_lineEditDPS           = nullptr;
     QWidget *m_tabWidgetSecrets      = nullptr;
+    QWidget *m_lineEditDelayMin      = nullptr;
+    QWidget *m_lineEditDelayMax      = nullptr;
 
-    std::vector<TalentWidget *> m_talentWidgets;
+    std::vector<TalentWidget *>                                  m_talentWidgets;
+    std::unordered_map<std::string, std::list<SecretCheckBox *>> m_secretWidgets;
+    std::vector<CheckBox *>                                      m_setEffectWidgets;
 
     JX3DPS::Attr m_attr;
 
     ProgressBar *m_progressBar = nullptr;
 
     nlohmann::json m_json;
+
+    std::vector<std::pair<std::string, std::string>> m_skills;
+    std::vector<std::pair<std::string, std::string>> m_events;
 };
 
 #endif // WIDGET_H

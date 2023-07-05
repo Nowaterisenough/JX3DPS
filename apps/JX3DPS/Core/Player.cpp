@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 05:20:14
+ * Last Modified: 2023-07-05 10:16:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -57,10 +57,17 @@ JX3DPS::Player::Player(const Player &other)
     classSetBuff  = other.classSetBuff;
     classSetSkill = other.classSetSkill;
 
+    enchantShoes  = other.enchantShoes;
+    enchantWrist  = other.enchantWrist;
+    enchantBelt   = other.enchantBelt;
+    enchantJacket = other.enchantJacket;
+    enchantHat    = other.enchantHat;
+
     end  = other.end;
     stop = other.stop;
 
-    damageAddPercentInt  = other.damageAddPercentInt;
+    damageAddPercentInt = other.damageAddPercentInt;
+    skillDamageAddPercentInt = other.skillDamageAddPercentInt;
 
     for (auto &buff : other.buffs) {
         std::unique_ptr<Buff> ptr(buff.second->Clone());
@@ -118,10 +125,17 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
     classSetBuff  = other.classSetBuff;
     classSetSkill = other.classSetSkill;
 
+    enchantShoes  = other.enchantShoes;
+    enchantWrist  = other.enchantWrist;
+    enchantBelt   = other.enchantBelt;
+    enchantJacket = other.enchantJacket;
+    enchantHat    = other.enchantHat;
+
     end  = other.end;
     stop = other.stop;
 
-    damageAddPercentInt  = other.damageAddPercentInt;
+    damageAddPercentInt = other.damageAddPercentInt;
+    skillDamageAddPercentInt = other.skillDamageAddPercentInt;
 
     for (auto &buff : other.buffs) {
         std::unique_ptr<Buff> ptr(buff.second->Clone());

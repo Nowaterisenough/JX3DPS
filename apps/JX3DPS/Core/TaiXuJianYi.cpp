@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 05:49:05
+ * Last Modified: 2023-07-05 11:44:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -31,7 +31,7 @@ JX3DPS::TaiXuJianYi::Player::~Player() { }
 void JX3DPS::TaiXuJianYi::Player::Init()
 {
     damageAddPercentInt = 184;
-    
+
     for (Id_t i = Talent::BEGIN; i < Talent::END; i++) {
         if (talents.find(i) == talents.end()) {
             talents[i] = false;
@@ -1076,22 +1076,22 @@ void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
         m_player->AddQidian(2);
     }
 
-    // 大附魔 腕
-    if (m_player->enchantWrist) [[likely]] {
-        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
-            ->TriggerDamage();
-    }
+    // // 大附魔 腕
+    // if (m_player->enchantWrist) [[likely]] {
+    //     static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+    //         ->TriggerDamage();
+    // }
 
-    // 大附魔 腰
-    if (m_player->enchantBelt) [[likely]] {
-        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
-    }
+    // // 大附魔 腰
+    // if (m_player->enchantBelt) [[likely]] {
+    //     static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    // }
 
-    // 大附魔 鞋
-    if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
-        static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
-            ->TriggerDamage();
-    }
+    // // 大附魔 鞋
+    // if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+    //     static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+    //         ->TriggerDamage();
+    // }
 
     // 橙武特效1 八荒归元无调息 持续伤害
     if (m_player->weaponCW && m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_CW_1]->GetTimeLeft() > 0) {
@@ -1370,6 +1370,9 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::TriggerClearJingHuaYing()
 
 void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffect(int sub)
 {
+    if (sub == 1 && m_targets->find(m_player->targetId) == m_targets->end()) {
+        return;
+    }
     RollResult rollResult = GetPhysicsRollResult();
     Damage     damage     = CalcPhysicsDamage(m_player->targetId, rollResult, sub, 0);
     Record(m_player->targetId, rollResult, damage, sub, 0);
@@ -1448,13 +1451,13 @@ JX3DPS::TaiXuJianYi::Buff::DieRen::DieRen(JX3DPS::Player *player, Targets *targe
     m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6, 0.0);
     m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7, 0.0);
 
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7, 0.0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1, 0.0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2, 0.0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3, 0.0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4, 0.0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5, 0.0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6, 0.0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7, 0.0);
 
     m_intervalFixed    = 16 * 3;
     m_stackNumFixed    = 5;
@@ -1537,6 +1540,8 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::Add(Id_t targetId, int stackNum, Frame_t
         m_player->attr->GetPhysicsCriticalStrikePowerPercent();
     m_targetSnapshots[targetId].hastePercent  = m_player->attr->GetHastePercent();
     m_targetSnapshots[targetId].strainPercent = m_player->attr->GetStrainPercent();
+    m_targetSnapshots[targetId].skillDamageAddPercentInt =
+        m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt;
 
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_targetSnapshots[targetId].duration =
@@ -1559,15 +1564,15 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffect(Id_t targetId, int stackNum)
 {
-    RollResult rollResult = GetPhysicsRollResult(targetId);
-    Damage damage = CalcPhysicsDamage(targetId, rollResult, 0, stackNum, 1, JX3_DOT_SKILL_DAMAGE_CONST);
+    RollResult rollResult = GetPhysicsRollResultDot(targetId);
+    Damage     damage     = CalcPhysicsDamageDot(targetId, rollResult, 0, stackNum, 1);
     Record(targetId, rollResult, damage, 0, stackNum);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffectQieYun(Id_t targetId, int stackNum, int effectCount)
 {
-    RollResult rollResult = GetPhysicsRollResult(targetId);
-    Damage damage = CalcPhysicsDamage(targetId, rollResult, 1, stackNum, effectCount, JX3_DOT_SKILL_DAMAGE_CONST);
+    RollResult rollResult = GetPhysicsRollResultDot(targetId);
+    Damage     damage     = CalcPhysicsDamageDot(targetId, rollResult, 1, stackNum, effectCount);
     Record(targetId, rollResult, damage, 1, stackNum);
 }
 
@@ -2452,7 +2457,7 @@ void JX3DPS::TaiXuJianYi::Buff::ChiYing::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::ChiYing::TriggerDamage()
 {
-    RollResult rollResult = GetPhysicsRollResult(m_player->targetId);
+    RollResult rollResult = GetPhysicsRollResult();
     Damage     damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
     Record(m_player->targetId, rollResult, damage, 0, 0);
     m_targetSnapshots[JX3DPS_PLAYER].stackNum--;
@@ -2515,7 +2520,7 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianShengTaiJi::SubEffect()
             if (count == 4) {
                 break;
             }
-            RollResult rollResult = GetPhysicsRollResult(m_player->targetId);
+            RollResult rollResult = GetPhysicsRollResult();
             Damage     damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
             Record(target.second->GetId(), rollResult, damage, 0, 0);
         }
@@ -2779,7 +2784,7 @@ void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Trigger()
 
 void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
-    if (m_targetSnapshots.empty()) {
+    if (m_targetSnapshots[JX3DPS_PLAYER].duration == JX3DPS_INVALID_FRAMES_SET) {
         SubEffectAdd();
     }
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -2798,8 +2803,10 @@ void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Clear(Id_t targetId, int s
 void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::TriggerAdd()
 {
     if (RandomUniform(1, 100) <= 10) {
+        if (m_targetSnapshots[JX3DPS_PLAYER].duration == JX3DPS_INVALID_FRAMES_SET) {
+            SubEffectAdd();
+        }
         m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
-        SubEffectAdd();
     }
 }
 

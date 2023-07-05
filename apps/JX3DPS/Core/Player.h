@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 03:51:49
+ * Last Modified: 2023-07-05 10:13:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -93,9 +93,10 @@ public:
     bool enchantHat    = false;
 
     HasBuff3rd hasBuff3rd;
-    
 
     PctInt_t damageAddPercentInt = 0;
+
+    PctInt_t skillDamageAddPercentInt = 0;
 };
 
 } // namespace JX3DPS

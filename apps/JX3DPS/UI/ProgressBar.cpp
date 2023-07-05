@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-02 20:41:20
+ * Last Modified: 2023-07-05 11:26:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -41,6 +41,11 @@ void ProgressBar::SetProgress(double progress)
         m_progress = progress;
         this->update();
     }
+}
+
+void ProgressBar::SetLoadMode()
+{
+    m_loadMode = true;
 }
 
 double ProgressBar::GetProgress() const
@@ -93,16 +98,20 @@ void ProgressBar::paintEvent(QPaintEvent *event)
 
     double percentage = m_progress * 100;
     QByteArray byteArray = QByteArray::number(percentage, 'f', 0); // 转换为整数形式的字符串
+
+
+    QString text = m_loadMode ? "心法配置加载中..." : "正在模拟中...";
+
     painter.drawText(0,
                      20,
                      this->width(),
                      this->height() - 20,
                      Qt::AlignCenter,
-                     QString("%1%  正在模拟中...").arg(byteArray.constData()));
+                     QString("%1%  %2").arg(byteArray.constData()).arg(text));
     painter.drawText(0,
                      20,
                      this->width(),
                      this->height() - 20,
                      Qt::AlignCenter,
-                     QString("%1%  正在模拟中...").arg(byteArray.constData()));
+                     QString("%1%  %2").arg(byteArray.constData()).arg(text));
 }

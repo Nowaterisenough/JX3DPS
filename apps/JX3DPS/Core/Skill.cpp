@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 04:59:35
+ * Last Modified: 2023-07-05 10:13:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -187,7 +187,7 @@ Damage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub, i
         (JX3_PCT_FLOAT_BASE +
          ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
     PctFloat_t damagePercent =
-        surplusDamagePercent * (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
+        surplusDamagePercent * (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
 
     int fixedDamage = static_cast<int>(m_damageParams.at(sub)[level].fixedDamage * damagePercent);
     int weaponDamage =
@@ -224,7 +224,7 @@ Damage Skill::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub, int
          ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
 
     PctFloat_t damagePercent =
-        ((JX3_PCT_INT_BASE + m_skillDamageAddPercentInt) / JX3_PCT_INT_BASE) * surplusDamagePercent;
+        surplusDamagePercent * ((JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE);
 
     int fixedDamage = static_cast<int>(m_damageParams.at(sub)[level].fixedDamage * damagePercent);
     int weaponDamage =

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-04 06:30:54
+ * Last Modified: 2023-07-05 06:31:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -349,6 +349,11 @@ Value_t Attr::GetSpunk() const
 Value_t Attr::GetWeaponAttack() const
 {
     return m_weaponAttack;
+}
+
+void Attr::SetWeaponAttack(Value_t value)
+{
+    m_weaponAttack = value;
 }
 
 void Attr::SetWeaponAttack(Value_t lower, Value_t upper)

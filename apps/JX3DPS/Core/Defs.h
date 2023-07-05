@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 20:59:11
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 04:20:36
+ * Last Modified: 2023-07-04 18:19:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -134,23 +134,7 @@ struct DamageParam
 enum class Class
 {
     NONE_CLASS     = 0,
-    TAI_XU_JIAN_YI = 2,
-    ZI_XIA_GONG    = 3,
-    WEN_SHUI_JUE   = 4,
-    AO_XUE_ZHAN_YI = 6,
-    FEN_SHAN_JING  = 8,
-    XIAO_CHEN_JUE  = 10,
-    LING_HAI_JUE   = 12,
-    JING_YU_JUE    = 14,
-    BEI_AO_JUE     = 16,
-    YIN_LONG_JUE   = 18,
-
-    BING_XIN_JUE       = 1,
-    MO_WEN             = 5,
-    YI_JIN_JING        = 7,
-    FEN_YING_SHENG_JUE = 9,
-
-    XIANG_ZHI = 11,
+    TAI_XU_JIAN_YI = 1,
 };
 
 /* [判定] - <数目, 伤害> */

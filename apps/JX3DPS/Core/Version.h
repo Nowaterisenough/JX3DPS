@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-14 11:17:20
+ * Last Modified: 2023-07-05 11:52:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -142,10 +142,10 @@ namespace JX3DPS {
 /* 剑网3 - 资料片 */
 #define JX3_VERSION           QUN_XIA_WAN_BIAN
 
-/* JX3DPS - 内核 - 主版本号 */
-#define VERSION_MAJOR         3
+/* JX3DPS - 主版本号 */
+#define VERSION_MAJOR         0
 
-/* JX3DPS - 内核 - 次版本号 */
+/* JX3DPS - 次版本号 */
 #define VERSION_MINOR         JX3_VERSION
 
 #define AUX_STR(_STR)         #_STR

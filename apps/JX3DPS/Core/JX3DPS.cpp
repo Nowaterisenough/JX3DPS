@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 11:19:23
+ * Last Modified: 2023-07-07 05:56:45
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -33,6 +33,57 @@ void SummarizeStats(Player &player, DamageStats &damageStats)
     for (auto &buff : player.buffs) {
         damageStats += buff.second->GetDamageStats();
     }
+}
+
+void EvaluateGains(Player &player, const DamageStats &damageStats, std::vector<float> &gains, int time, int simCount)
+{
+    gains.resize(17);
+    long long attackBaseDamage = 0;
+    long long weaponDamage     = 0;
+    long long surplusDamage    = 0;
+    long long totalDamage      = 0;
+    long long criticalDamage   = 0;
+
+    for (auto &targetStats : damageStats) {             // TargetStats
+        for (auto &effectStats : targetStats.second) {  // EffectStats
+            for (auto &subStats : effectStats.second) { // SubStats
+                for (auto &levelStats : subStats.second) {
+                    for (auto &rollStats : levelStats.second) {
+                        weaponDamage     += rollStats.second.second.weaponDamage;
+                        attackBaseDamage += rollStats.second.second.attackBaseDamage;
+                        surplusDamage    += rollStats.second.second.surplusDamage;
+                        totalDamage      += rollStats.second.second.SumDamage();
+                        if (rollStats.first == RollResult::DOUBLE) {
+                            criticalDamage += rollStats.second.second.SumDamage();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    gains[static_cast<int>(AttributeType::NONE)] = totalDamage / time / simCount;
+    gains[static_cast<int>(AttributeType::PHYSICS_ATTACK)] =
+        (float)attackBaseDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::PHYSICS_ATTACK) /
+        player.attr->GetPhysicsAttackFromBase() / totalDamage;
+    gains[static_cast<int>(AttributeType::SURPLUS)] =
+        (float)surplusDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::SURPLUS) /
+        player.attr->GetSurplus() / totalDamage;
+    gains[static_cast<int>(AttributeType::WEAPON_ATTACK)] =
+        (float)weaponDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::WEAPON_ATTACK) /
+        player.attr->GetWeaponAttack() / totalDamage;
+    gains[static_cast<int>(AttributeType::PHYSICS_OVERCOME)] =
+        (float)totalDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::PHYSICS_OVERCOME) *
+        player.attr->GetPhysicsOvercomePercent() / (1 + player.attr->GetPhysicsOvercomePercent()) /
+        player.attr->GetPhysicsOvercomeBase() / totalDamage;
+    gains[static_cast<int>(AttributeType::STRAIN)] =
+        (float)totalDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::STRAIN) *
+        player.attr->GetStrainPercent() / (1 + player.attr->GetStrainPercent()) /
+        player.attr->GetStrain() / totalDamage;
+    gains[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)] =
+        (float)criticalDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER) *
+        (player.attr->GetPhysicsCriticalStrikePowerPercent() - 1.75) /
+        player.attr->GetPhysicsCriticalStrikePowerPercent() /
+        player.attr->GetPhysicsCriticalStrikePower() / totalDamage;
 }
 
 DamageStats Simulate(Player &p, ExprEvents &exprEvents, ExprSkills &exprSkills)
@@ -133,19 +184,19 @@ Error_t InitPlayer(const nlohmann::json &json, std::shared_ptr<Player> &player)
     ParseJson2Secrets(json, player->secrets);
 
     ParseJson2Attr(json, *(player->attr.get()));
-    
-    player->enchantWrist = json["set_effects"]["EnchantWrist"];
-    player->enchantShoes = json["set_effects"]["EnchantShoes"];
-    player->enchantBelt = json["set_effects"]["EnchantBelt"];
+
+    player->enchantWrist  = json["set_effects"]["EnchantWrist"];
+    player->enchantShoes  = json["set_effects"]["EnchantShoes"];
+    player->enchantBelt   = json["set_effects"]["EnchantBelt"];
     player->enchantJacket = json["set_effects"]["EnchantJacket"];
-    player->enchantHat = json["set_effects"]["EnchantHat"];
-    player->weaponCW = json["set_effects"]["WeaponCW"];
-    player->classSetBuff = json["set_effects"]["ClassSetBuff"];
+    player->enchantHat    = json["set_effects"]["EnchantHat"];
+    player->weaponCW      = json["set_effects"]["WeaponCW"];
+    player->classSetBuff  = json["set_effects"]["ClassSetBuff"];
     player->classSetSkill = json["set_effects"]["ClassSetSkill"];
 
     player->delayMin = json["delay_min"].get<int>();
     player->delayMax = json["delay_max"].get<int>();
-    
+
     player->Init();
 
     return JX3DPS::JX3DPS_SUCCESS;
@@ -220,37 +271,15 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*memberFunc
         return err;
     }
 
-    long long sum = 0;
-    for (auto &damageStat : damageStats) {
-        for (auto &targetStats : damageStat.second) {
-            int num = 0;
-            for (auto &effectStats : targetStats.second) {
-                for (auto &subStats : effectStats.second) {
-                    for (auto &levelStats : subStats.second) {
+    int time = exprEvents.back().first / 16;
 
-                        num += levelStats.second.first;
-
-                        sum += levelStats.second.second.SumDamage();
-                    }
-                }
-            }
-            std::string  name;
-            JX3DPS::Id_t id = targetStats.first;
-            if ((id / 100) % 10) {
-                name = JX3DPS::Buff::BUFF_NAME.at(id);
-            } else {
-                name = JX3DPS::Skill::SKILL_NAME.at(id);
-            }
-            spdlog::debug("target: {}\t skill: {}\t num: {}", damageStat.first, name, num);
-        }
-    }
-    sum /= 60;
-    sum /= 15;
-    sum /= simIterations;
-
-    spdlog::debug("avg : {}", sum);
     nlohmann::json jsonObj;
-    jsonObj["avg"] = sum;
+
+    std::vector<float> gains;
+    JX3DPS::EvaluateGains(*player.get(), damageStats, gains, time, simIterations);
+    JX3DPS::Gains2Json(gains, jsonObj["gains"]);
+
+    JX3DPS::Stats2Json(damageStats, jsonObj["stats"]);
     strcpy(out, jsonObj.dump().data());
 
     auto end = std::chrono::steady_clock::now();

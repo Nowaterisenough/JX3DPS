@@ -240,7 +240,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
         m_progressBar->show();
 
         ThreadPool::Instance()->Enqueue([=]() {
-            char *result = new char[1024];
+            char *result = new char[1024 * 1024];
 
             JX3DPSSimulate(json.dump().c_str(), result, this, [](void *obj, double arg) {
                 static_cast<Widget *>(obj)->SetProgress(arg);
@@ -248,9 +248,16 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
             std::string str = result;
             delete[] result;
             nlohmann::json res = nlohmann::json::parse(str);
-            str                = res["avg"].dump();
+            // str                = res["avg"].dump();
+            std::ofstream  output_file("output.json");
+            if (output_file.is_open()) {
+                output_file << res.dump(4); // 参数 4 表示缩进 4 个空格
+                output_file.close();
+            }
             QMetaObject::invokeMethod(this, [=, this] {
-                static_cast<LineEdit *>(m_lineEditDPS)->setText(QString::fromStdString(str));
+                emit Signal_UpdateGains(res["gains"]);
+                int avg = res["gains"]["空"];
+                static_cast<LineEdit *>(m_lineEditDPS)->setText(QString::number(avg, 10));
             });
         });
     });
@@ -498,7 +505,6 @@ void Widget::InitWidgetSetting(QWidget *parent)
 
 void Widget::InitWidgetOut(QWidget *parent)
 {
-
     TextButton *textButtonDPS = new TextButton(parent);
     textButtonDPS->setText("DPS 期望");
     textButtonDPS->setFixedSize(60, 21);
@@ -543,7 +549,6 @@ bool ParseJson2Attr(const nlohmann::json &json, JX3DPS::Attr &attr)
 
 void Widget::InitWidgetAttr(QWidget *parent)
 {
-
     TextButton *textButtonAgilityOrSpirit = new TextButton(parent);
     textButtonAgilityOrSpirit->setText("身法");
     textButtonAgilityOrSpirit->setFixedSize(60, 21);
@@ -785,7 +790,6 @@ void Widget::InitWidgetAttr(QWidget *parent)
             ParseJson2Attr(json, m_attr);
 
             emit Signal_UpdateAttr();
-            
         });
     });
 
@@ -865,7 +869,6 @@ void Widget::InitWidgetEchant(QWidget *parent) { }
 
 void Widget::InitWidgetAttrGain(QWidget *parent)
 {
-
     DataBars *dataBarAgilityOrSpirit = new DataBars(parent);
     dataBarAgilityOrSpirit->setFixedSize(110, 21);
 
@@ -908,6 +911,15 @@ void Widget::InitWidgetAttrGain(QWidget *parent)
     gLayout->addWidget(dataBarStrain, 7, 0, 1, 1);
     gLayout->addWidget(dataBarSurplus, 8, 0, 1, 1);
     gLayout->addWidget(dataBarWeaponAttack, 9, 0, 1, 1);
+
+    connect(this, &Widget::Signal_UpdateGains, this, [=](const nlohmann::json &json) {
+        dataBarAttack->SetValue(json["外功攻击"]);
+        dataBarOvercome->SetValue(json["外功破防"]);
+        dataBarCriticalPower->SetValue(json["外功会效"]);
+        dataBarStrain->SetValue(json["无双"]);
+        dataBarSurplus->SetValue(json["破招"]);
+        dataBarWeaponAttack->SetValue(json["武器伤害"]);
+    });
 }
 
 void Widget::InitWidgetTalent(QWidget *parent)
@@ -924,7 +936,6 @@ void Widget::InitWidgetTalent(QWidget *parent)
 
 void Widget::InitWidgetSecret(QWidget *parent)
 {
-
     QGridLayout *gLayout = new QGridLayout(parent);
     m_tabWidgetSecrets   = new VerticalTabWidget(parent);
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 11:16:04
+ * Last Modified: 2023-07-07 05:30:32
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -78,6 +78,7 @@ public:
 
 signals:
     void Signal_UpdateAttr();
+    void Signal_UpdateGains(const nlohmann::json &json);
 
 protected:
     void paintEvent(QPaintEvent *event);

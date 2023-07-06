@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 20:59:11
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-04 18:19:11
+ * Last Modified: 2023-07-07 05:18:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -189,6 +189,67 @@ inline DamageStats &operator+=(DamageStats &lhs, DamageStats &rhs)
     }
     return lhs;
 }
+
+enum class AttributeType
+{
+    NONE = 0,
+    AGILITY,
+    SPIRIT,
+    STRENGTH,
+    SPUNK,
+    PHYSICS_ATTACK,
+    PHYSICS_CRITICAL_STRIKE,
+    PHYSICS_CRITICAL_STRIKE_POWER,
+    PHYSICS_OVERCOME,
+    MAGIC_ATTACK,
+    MAGIC_CRITICAL_STRIKE,
+    MAGIC_CRITICAL_STRIKE_POWER,
+    MAGIC_OVERCOME,
+    HASTE,
+    STRAIN,
+    SURPLUS,
+    WEAPON_ATTACK,
+};
+
+inline const std::unordered_map<AttributeType, std::string> &ATTRIBUTE_NAME = {
+    {AttributeType::NONE,                           "空"         },
+    { AttributeType::AGILITY,                       "身法"      },
+    { AttributeType::SPIRIT,                        "根骨"      },
+    { AttributeType::STRENGTH,                      "力道"      },
+    { AttributeType::SPUNK,                         "元气"      },
+    { AttributeType::PHYSICS_ATTACK,                "外功攻击"},
+    { AttributeType::PHYSICS_CRITICAL_STRIKE,       "外功会心"},
+    { AttributeType::PHYSICS_CRITICAL_STRIKE_POWER, "外功会效"},
+    { AttributeType::PHYSICS_OVERCOME,              "外功破防"},
+    { AttributeType::MAGIC_ATTACK,                  "内功攻击"},
+    { AttributeType::MAGIC_CRITICAL_STRIKE,         "内功会心"},
+    { AttributeType::MAGIC_CRITICAL_STRIKE_POWER,   "内功会效"},
+    { AttributeType::MAGIC_OVERCOME,                "内功破防"},
+    { AttributeType::HASTE,                         "加速"      },
+    { AttributeType::STRAIN,                        "无双"      },
+    { AttributeType::SURPLUS,                       "破招"      },
+    { AttributeType::WEAPON_ATTACK,                 "武器伤害"},
+};
+
+inline const std::unordered_map<AttributeType, int> &ATTRIBUTE_GAIN_BY_BASE = {
+    {AttributeType::NONE,                           0  },
+    { AttributeType::AGILITY,                       179},
+    { AttributeType::SPIRIT,                        179},
+    { AttributeType::STRENGTH,                      179},
+    { AttributeType::SPUNK,                         179},
+    { AttributeType::PHYSICS_ATTACK,                360},
+    { AttributeType::PHYSICS_CRITICAL_STRIKE,       799},
+    { AttributeType::PHYSICS_CRITICAL_STRIKE_POWER, 799},
+    { AttributeType::PHYSICS_OVERCOME,              799},
+    { AttributeType::MAGIC_ATTACK,                  389},
+    { AttributeType::MAGIC_CRITICAL_STRIKE,         799},
+    { AttributeType::MAGIC_CRITICAL_STRIKE_POWER,   799},
+    { AttributeType::MAGIC_OVERCOME,                799},
+    { AttributeType::HASTE,                         799},
+    { AttributeType::STRAIN,                        799},
+    { AttributeType::SURPLUS,                       799},
+    { AttributeType::WEAPON_ATTACK,                 540},
+};
 
 using ExprIf     = std::function<bool(Player *player, Targets *targets)>;
 using ExprIfs    = std::list<std::list<ExprIf>>;

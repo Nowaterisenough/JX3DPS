@@ -252,12 +252,6 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
             std::string str = result;
             delete[] result;
             nlohmann::json res = nlohmann::json::parse(str);
-            // str                = res["avg"].dump();
-            std::ofstream  output_file("output.json");
-            if (output_file.is_open()) {
-                output_file << res.dump(4); // 参数 4 表示缩进 4 个空格
-                output_file.close();
-            }
             QMetaObject::invokeMethod(this, [=, this] {
                 emit Signal_UpdateGains(res["gains"]);
                 emit Signal_UpdateStats(res);

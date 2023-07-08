@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-08 08:54:35
+ * Last Modified: 2023-07-08 17:45:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1056,7 +1056,7 @@ JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player,
 
     m_levelNames.push_back("");
 
-    m_cooldownFixed = 21;
+    m_cooldownFixed = 22;
 
     // TODO
     m_damageParams[0].emplace_back(0, 1024, 0, 0.0);
@@ -1133,8 +1133,10 @@ JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Tar
 
 void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Cast()
 {
-    m_prepareFrames    = m_prepareFramesFixed * m_player->attr->GetHastePercent();
-    m_cooldown         = JX3DPS_INVALID_FRAMES_SET;
+    m_prepareFrames   = m_prepareFramesFixed * m_player->attr->GetHastePercent();
+    m_cooldown        = JX3DPS_INVALID_FRAMES_SET;
+    *m_globalCooldown = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
+                        RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
     m_player->isCast   = true;
     m_player->isReCast = true;
 }
@@ -1147,8 +1149,6 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Trigger()
     m_player->lastCastSkill = m_id;
     m_player->isCast        = false;
     m_player->isReCast      = false;
-    *m_globalCooldown       = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
-                        RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
 
     SubEffect();
 }
@@ -1156,6 +1156,10 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Trigger()
 void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SubEffect()
 {
     m_player->buffs[JX3DPS::Buff::FIELD_SUI_XING_CHEN]->Add();
+
+    if (m_player->talents[Talent::CHANG_SHENG]) {
+        m_player->buffs[JX3DPS::Buff::CHI_YING]->Add();
+    }
 
     Record(JX3DPS_PLAYER, RollResult::HIT, GainsDamage(), 0, 0);
 }
@@ -1195,8 +1199,10 @@ JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targe
 
 void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Cast()
 {
-    m_prepareFrames    = m_prepareFramesFixed * m_player->attr->GetHastePercent();
-    m_cooldown         = JX3DPS_INVALID_FRAMES_SET;
+    m_prepareFrames   = m_prepareFramesFixed * m_player->attr->GetHastePercent();
+    m_cooldown        = JX3DPS_INVALID_FRAMES_SET;
+    *m_globalCooldown = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
+                        RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
     m_player->isCast   = true;
     m_player->isReCast = true;
 }
@@ -1219,8 +1225,6 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Trigger()
     m_player->lastCastSkill = m_id;
     m_player->isCast        = false;
     m_player->isReCast      = false;
-    *m_globalCooldown       = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
-                        RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
 
     SubEffect();
 }
@@ -1228,6 +1232,10 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Trigger()
 void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::SubEffect()
 {
     m_player->buffs[JX3DPS::Buff::FIELD_SHENG_TAI_JI]->Add();
+
+    if (m_player->talents[Talent::CHANG_SHENG]) {
+        m_player->buffs[JX3DPS::Buff::CHI_YING]->Add();
+    }
 
     Record(JX3DPS_PLAYER, RollResult::HIT, GainsDamage(), 0, 0);
 }
@@ -1251,8 +1259,10 @@ JX3DPS::TaiXuJianYi::Skill::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *
 
 void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Cast()
 {
-    m_prepareFrames    = m_prepareFramesFixed * m_player->attr->GetHastePercent();
-    m_cooldown         = JX3DPS_INVALID_FRAMES_SET;
+    m_prepareFrames   = m_prepareFramesFixed * m_player->attr->GetHastePercent();
+    m_cooldown        = JX3DPS_INVALID_FRAMES_SET;
+    *m_globalCooldown = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
+                        RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
     m_player->isCast   = true;
     m_player->isReCast = true;
 }
@@ -1265,8 +1275,6 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Trigger()
     m_player->lastCastSkill = m_id;
     m_player->isCast        = false;
     m_player->isReCast      = false;
-    *m_globalCooldown       = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
-                        RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
 
     SubEffect();
 }
@@ -1274,6 +1282,10 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Trigger()
 void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
 {
     m_player->buffs[JX3DPS::Buff::FIELD_TUN_RI_YUE]->Add();
+
+    if (m_player->talents[Talent::CHANG_SHENG]) {
+        m_player->buffs[JX3DPS::Buff::CHI_YING]->Add();
+    }
 
     Record(JX3DPS_PLAYER, RollResult::HIT, GainsDamage(), 0, 0);
 }
@@ -1348,6 +1360,9 @@ JX3DPS::TaiXuJianYi::Skill::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Tar
     m_damageParams[1].emplace_back(200, 0, 200 * 1.1 * 1.1, 0.0);
 
     m_prepareFramesFixed = 16 * 3;
+
+    m_prepareFrames = JX3DPS_INVALID_FRAMES_SET;
+    m_cooldown      = JX3DPS_INVALID_FRAMES_SET;
 }
 
 void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Cast()

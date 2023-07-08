@@ -5,7 +5,7 @@
  * Created Date: 2022-01-26 21:34:09
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 06:07:08
+ * Last Modified: 2023-07-08 01:48:04
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -178,13 +178,13 @@ void DataBars::paintEvent(QPaintEvent *e)
                      this->width() - 5,
                      this->height() - 5,
                      Qt::AlignRight | Qt::AlignVCenter,
-                     QString::number(m_value * 100, 'f', 2) + "%");
+                     QString::number(m_value * 100, 'f', 4) + "%");
     painter.drawText(2,
                      2,
                      this->width() - 5,
                      this->height() - 5,
                      Qt::AlignRight | Qt::AlignVCenter,
-                     QString::number(m_value * 100, 'f', 2) + "%");
+                     QString::number(m_value * 100, 'f', 4) + "%");
 
     // hover
     painter.setOpacity(m_opacity);
@@ -278,15 +278,15 @@ QColor DataBars::GetColor(const double rate)
 {
     if (rate > 1.0) {
         return m_color2;
-    } else if (rate > 0.4) {
-        double colorRate = (rate - 0.4) / 0.6;
+    } else if (rate > 0.6) {
+        double colorRate = (rate - 0.6) / 0.4;
 
         int r = m_color1.red() + static_cast<int>((m_color2.red() - m_color1.red()) * colorRate);
         int g = m_color1.green() + static_cast<int>((m_color2.green() - m_color1.green()) * colorRate);
         int b = m_color1.blue() + static_cast<int>((m_color2.blue() - m_color1.blue()) * colorRate);
         return QColor(r, g, b);
     } else {
-        double colorRate = rate / 0.4;
+        double colorRate = rate / 0.6;
 
         int r = m_color0.red() + static_cast<int>((m_color1.red() - m_color0.red()) * colorRate);
         int g = m_color0.green() + static_cast<int>((m_color1.green() - m_color0.green()) * colorRate);

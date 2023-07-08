@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 10:16:43
+ * Last Modified: 2023-07-08 06:58:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -75,7 +75,13 @@ struct TargetSnapshot
     /* 快照无双 */
     PctFloat_t strainPercent = 0.0;
 
-    PctFloat_t skillDamageAddPercentInt = 0;
+    PctInt_t skillDamageAddPercentInt = 0;
+
+    /* 快照收益会效 */
+    PctFloat_t criticalStrikePowerGainPercent = 0.0;
+
+    /* 快照收益无双 */
+    PctFloat_t strainGainPercent = 0.0;
 };
 
 using TargetSnapshots = std::unordered_map<Id_t, TargetSnapshot>;
@@ -230,24 +236,24 @@ public:
     RollResult GetPhysicsRollResult() const;
     RollResult GetMagicRollResult() const;
 
-    Damage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
 
-    Damage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
 
     RollResult GetPhysicsRollResultDot(Id_t targetId) const;
     RollResult GetMagicRollResultDot(Id_t targetId) const;
 
-    Damage CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+    GainsDamage CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
 
-    Damage CalcMagicDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+    GainsDamage CalcMagicDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
 
-    void Record(Id_t          targetId   = 1,
-                RollResult    rollResult = RollResult::HIT,
-                const Damage &damage     = Damage(),
-                int           sub        = 0,
-                int           level      = 0);
+    void Record(Id_t               targetId    = 1,
+                RollResult         rollResult  = RollResult::HIT,
+                const GainsDamage &gainsdamage = GainsDamage(),
+                int                sub         = 0,
+                int                level       = 0);
 
-    DamageStats &GetDamageStats();
+    Stats &GetStats();
 
     const std::string &GetName() const;
 
@@ -294,7 +300,7 @@ protected:
     /* 伤害参数 */
     DamageParams m_damageParams;
 
-    DamageStats m_damageStats;
+    Stats m_stats;
 };
 
 struct HasBuff3rd

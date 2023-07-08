@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 05:49:13
+ * Last Modified: 2023-07-07 22:04:29
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -86,15 +86,15 @@ public:
     RollResult GetPhysicsRollResult() const;
     RollResult GetMagicRollResult() const;
 
-    Damage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
+    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
 
-    Damage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
 
-    void Record(Id_t          targetId   = 1,
-                RollResult    rollResult = RollResult::HIT,
-                const Damage &damage     = Damage(),
-                int           sub        = 0,
-                int           level      = 0);
+    void Record(Id_t               targetId    = 1,
+                RollResult         rollResult  = RollResult::HIT,
+                const GainsDamage &gainsDamage = GainsDamage(),
+                int                sub         = 0,
+                int                level       = 0);
 
     void SetPlayer(Player *player);
     void SetTargets(Targets *targets);
@@ -105,7 +105,7 @@ public:
 
     void SetCooldownReduction(Frame_t cooldown);
 
-    DamageStats &GetDamageStats();
+    Stats &GetStats();
 
     const std::string &GetName() const;
 
@@ -166,7 +166,7 @@ protected:
     DamageParams m_damageParams;
 
     /* 记录 */
-    DamageStats m_damageStats;
+    Stats m_stats;
 };
 } // namespace JX3DPS
 #endif // JX3DPS_SKILL_H_

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 10:13:01
+ * Last Modified: 2023-07-08 00:22:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -52,7 +52,7 @@ Skill::Skill(const Skill &other)
     m_skillDamageAddPercentInt           = other.m_skillDamageAddPercentInt;
     m_skillQidianAdd                     = other.m_skillQidianAdd;
     m_damageParams                       = other.m_damageParams;
-    m_damageStats                        = other.m_damageStats;
+    m_stats                              = other.m_stats;
 
     if (other.m_globalCooldown == &(other.m_cooldown)) {
         m_globalCooldown = &(m_cooldown);
@@ -82,7 +82,7 @@ Skill &Skill::operator=(const Skill &other)
     m_skillDamageAddPercentInt           = other.m_skillDamageAddPercentInt;
     m_skillQidianAdd                     = other.m_skillQidianAdd;
     m_damageParams                       = other.m_damageParams;
-    m_damageStats                        = other.m_damageStats;
+    m_stats                              = other.m_stats;
 
     if (other.m_globalCooldown == &(other.m_cooldown)) {
         m_globalCooldown = &(m_cooldown);
@@ -122,9 +122,9 @@ int Skill::GetEnergyCount() const
     return m_energyCount;
 }
 
-DamageStats &Skill::GetDamageStats()
+Stats &Skill::GetStats()
 {
-    return m_damageStats;
+    return m_stats;
 }
 
 const std::string &Skill::GetName() const
@@ -176,87 +176,198 @@ RollResult Skill::GetMagicRollResult() const
                : RollResult::HIT;
 }
 
-Damage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub, int level) const
+inline JX3DPS::Damage GetDamage(const Damage &damage,
+                                RollResult    rollResult,
+                                float         damageAddOvercome,
+                                float         damageAddStrain,
+                                float         criticalStrikePowerPercent,
+                                float         skillCriticalStrikePowerPercent)
 {
-    PctFloat_t surplusDamagePercent =
+    return Damage(
+        GET_FINAL_DAMAGE(damage.fixedDamage * damageAddOvercome * damageAddStrain,
+                         rollResult,
+                         criticalStrikePowerPercent + skillCriticalStrikePowerPercent),
+        GET_FINAL_DAMAGE(damage.weaponDamage * damageAddOvercome * damageAddStrain,
+                         rollResult,
+                         criticalStrikePowerPercent + skillCriticalStrikePowerPercent),
+        GET_FINAL_DAMAGE(damage.attackBaseDamage * damageAddOvercome * damageAddStrain,
+                         rollResult,
+                         criticalStrikePowerPercent + skillCriticalStrikePowerPercent),
+        GET_FINAL_DAMAGE(damage.attackMainDamage * damageAddOvercome * damageAddStrain,
+                         rollResult,
+                         criticalStrikePowerPercent + skillCriticalStrikePowerPercent),
+        GET_FINAL_DAMAGE(damage.surplusDamage * damageAddOvercome * damageAddStrain, rollResult, criticalStrikePowerPercent));
+}
+
+GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub, int level) const
+{
+    PctFloat_t surplusDamageAddPercent =
         (JX3_PCT_INT_BASE + m_player->damageAddPercentInt) * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE * // 心法加成
-        (JX3_PCT_FLOAT_BASE + m_player->attr->GetPhysicsOvercomePercent()) *       // 破防加成
         (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *     // 易伤加成
         (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetPhysicsResistPercent()) * // 忽视加成
-        (JX3_PCT_FLOAT_BASE + m_player->attr->GetStrainPercent()) *                // 无双加成
         (JX3_PCT_FLOAT_BASE +
          ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
     PctFloat_t damagePercent =
-        surplusDamagePercent * (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
+        surplusDamageAddPercent *
+        (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
 
-    int fixedDamage = static_cast<int>(m_damageParams.at(sub)[level].fixedDamage * damagePercent);
-    int weaponDamage =
+    float damageAddOvercome = (JX3_PCT_FLOAT_BASE + m_player->attr->GetPhysicsOvercomePercent()); // 破防加成
+    float damageAddStrain = (JX3_PCT_FLOAT_BASE + m_player->attr->GetStrainPercent()); // 无双加成
+
+    Damage damage;
+    damage.fixedDamage = static_cast<int>(m_damageParams.at(sub)[level].fixedDamage * damagePercent);
+    damage.weaponDamage =
         static_cast<int>((m_damageParams.at(sub)[level].weaponDamagePercentInt * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE) *
                          m_player->attr->GetWeaponAttack() * damagePercent);
-    int attackBaseDamage =
+    damage.attackBaseDamage =
         static_cast<int>(m_damageParams.at(sub)[level].attackDamagePercent *
                          m_player->attr->GetPhysicsAttackFromBase() * damagePercent) /
         JX3_PHYSICS_DAMAGE_PARAM;
-    int attackMainDamage =
+    damage.attackMainDamage =
         static_cast<int>(m_damageParams.at(sub)[level].attackDamagePercent *
                          m_player->attr->GetPhysicsAttackFromMain() * damagePercent) /
         JX3_PHYSICS_DAMAGE_PARAM;
-    int surplusDamage = static_cast<int>(m_damageParams.at(sub)[level].surplusDamagePercent *
-                                         m_player->attr->GetSurplusDamage() * surplusDamagePercent);
+    damage.surplusDamage = static_cast<int>(m_damageParams.at(sub)[level].surplusDamagePercent *
+                                            m_player->attr->GetSurplusDamage() * surplusDamageAddPercent);
 
-    return Damage(
-        GET_FINAL_DAMAGE(fixedDamage, rollResult, (m_player->attr->GetPhysicsCriticalStrikePowerPercent() + m_skillCriticalStrikePowerAddPercent)),
-        GET_FINAL_DAMAGE(weaponDamage, rollResult, (m_player->attr->GetPhysicsCriticalStrikePowerPercent() + m_skillCriticalStrikePowerAddPercent)),
-        GET_FINAL_DAMAGE(attackBaseDamage, rollResult, (m_player->attr->GetPhysicsCriticalStrikePowerPercent() + m_skillCriticalStrikePowerAddPercent)),
-        GET_FINAL_DAMAGE(attackMainDamage, rollResult, (m_player->attr->GetPhysicsCriticalStrikePowerPercent() + m_skillCriticalStrikePowerAddPercent)),
-        GET_FINAL_DAMAGE(surplusDamage, rollResult, m_player->attr->GetPhysicsCriticalStrikePowerPercent()));
+    float physicsCriticalStrikePowerPercent = m_player->attr->GetPhysicsCriticalStrikePowerPercent();
+
+    GainsDamage gainsDamage;
+    gainsDamage.normalDamage =
+        GetDamage(damage, rollResult, damageAddOvercome, damageAddStrain, physicsCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+
+    // 会效收益
+    m_player->attr->AddPhysicsCriticalStrikePower(
+        ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
+    gainsDamage.criticalStrikePowerDamage =
+        GetDamage(damage,
+                  rollResult,
+                  damageAddOvercome,
+                  damageAddStrain,
+                  m_player->attr->GetPhysicsCriticalStrikePowerPercent(),
+                  m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddPhysicsCriticalStrikePower(
+        -ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
+
+    // 破防收益
+    m_player->attr->AddPhysicsOvercomeBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_OVERCOME)]);
+    float damageAddOvercomeGain = (JX3_PCT_FLOAT_BASE + m_player->attr->GetPhysicsOvercomePercent());
+    gainsDamage.overcomeDamage =
+        GetDamage(damage, rollResult, damageAddOvercomeGain, damageAddStrain, physicsCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddPhysicsOvercomeBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_OVERCOME)]);
+
+    // 无双收益
+    m_player->attr->AddStrain(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
+    float damageAddStrainGain = (JX3_PCT_FLOAT_BASE + m_player->attr->GetStrainPercent());
+    gainsDamage.strainDamage =
+        GetDamage(damage, rollResult, damageAddOvercome, damageAddStrainGain, physicsCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddStrain(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
+
+    // 破招收益
+    m_player->attr->AddSurplusBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
+    damage.surplusDamage = static_cast<int>(m_damageParams.at(sub)[level].surplusDamagePercent *
+                                            m_player->attr->GetSurplusDamage() * surplusDamageAddPercent);
+    gainsDamage.surplusDamage =
+        GetDamage(damage, rollResult, damageAddOvercome, damageAddStrain, physicsCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddSurplusBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
+
+    return gainsDamage;
 }
 
-Damage Skill::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub, int level) const
+GainsDamage Skill::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub, int level) const
 {
-    PctFloat_t surplusDamagePercent =
+    PctFloat_t surplusDamageAddPercent =
         (JX3_PCT_INT_BASE + m_player->damageAddPercentInt) * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE * // 心法加成
-        (JX3_PCT_FLOAT_BASE + m_player->attr->GetMagicOvercomePercent()) *       // 破防加成
         (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *   // 易伤加成
         (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetMagicResistPercent()) * // 忽视加成
-        (JX3_PCT_FLOAT_BASE + m_player->attr->GetStrainPercent()) *              // 无双加成
         (JX3_PCT_FLOAT_BASE +
          ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
-
     PctFloat_t damagePercent =
-        surplusDamagePercent * ((JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE);
+        surplusDamageAddPercent *
+        (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
 
-    int fixedDamage = static_cast<int>(m_damageParams.at(sub)[level].fixedDamage * damagePercent);
-    int weaponDamage =
+    float damageAddOvercome = (JX3_PCT_FLOAT_BASE + m_player->attr->GetMagicOvercomePercent()); // 破防加成
+    float damageAddStrain = (JX3_PCT_FLOAT_BASE + m_player->attr->GetStrainPercent()); // 无双加成
+
+    Damage damage;
+    damage.fixedDamage = static_cast<int>(m_damageParams.at(sub)[level].fixedDamage * damagePercent);
+    damage.weaponDamage =
         static_cast<int>((m_damageParams.at(sub)[level].weaponDamagePercentInt * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE) *
                          m_player->attr->GetWeaponAttack() * damagePercent);
-    int attackBaseDamage =
+    damage.attackBaseDamage =
         static_cast<int>(m_damageParams.at(sub)[level].attackDamagePercent *
                          m_player->attr->GetMagicAttackFromBase() * damagePercent) /
-        JX3_MAGIC_DAMAGE_PARAM;
-    int attackMainDamage =
+        JX3_PHYSICS_DAMAGE_PARAM;
+    damage.attackMainDamage =
         static_cast<int>(m_damageParams.at(sub)[level].attackDamagePercent *
                          m_player->attr->GetMagicAttackFromMain() * damagePercent) /
-        JX3_MAGIC_DAMAGE_PARAM;
-    int surplusDamage = static_cast<int>(m_damageParams.at(sub)[level].surplusDamagePercent *
-                                         m_player->attr->GetSurplusDamage() * surplusDamagePercent);
+        JX3_PHYSICS_DAMAGE_PARAM;
+    damage.surplusDamage = static_cast<int>(m_damageParams.at(sub)[level].surplusDamagePercent *
+                                            m_player->attr->GetSurplusDamage() * surplusDamageAddPercent);
 
-    return Damage(
-        GET_FINAL_DAMAGE(fixedDamage, rollResult, (m_player->attr->GetMagicCriticalStrikePowerPercent() + m_skillCriticalStrikePowerAddPercent)),
-        GET_FINAL_DAMAGE(weaponDamage, rollResult, (m_player->attr->GetMagicCriticalStrikePowerPercent() + m_skillCriticalStrikePowerAddPercent)),
-        GET_FINAL_DAMAGE(attackBaseDamage, rollResult, (m_player->attr->GetMagicCriticalStrikePowerPercent() + m_skillCriticalStrikePowerAddPercent)),
-        GET_FINAL_DAMAGE(attackMainDamage, rollResult, (m_player->attr->GetMagicCriticalStrikePowerPercent() + m_skillCriticalStrikePowerAddPercent)),
-        GET_FINAL_DAMAGE(surplusDamage, rollResult, m_player->attr->GetMagicCriticalStrikePowerPercent()));
+    float magicCriticalStrikePowerPercent = m_player->attr->GetMagicCriticalStrikePowerPercent();
+
+    GainsDamage gainsDamage;
+    gainsDamage.normalDamage =
+        GetDamage(damage, rollResult, damageAddOvercome, damageAddStrain, magicCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+
+    // 会效收益
+    m_player->attr->AddMagicCriticalStrikePower(
+        ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::MAGIC_CRITICAL_STRIKE_POWER)]);
+    gainsDamage.criticalStrikePowerDamage =
+        GetDamage(damage,
+                  rollResult,
+                  damageAddOvercome,
+                  damageAddStrain,
+                  m_player->attr->GetMagicCriticalStrikePowerPercent(),
+                  m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddMagicCriticalStrikePower(
+        -ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::MAGIC_CRITICAL_STRIKE_POWER)]);
+
+    // 破防收益
+    m_player->attr->AddMagicOvercomeBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::MAGIC_OVERCOME)]);
+    float damageAddOvercomeGain = (JX3_PCT_FLOAT_BASE + m_player->attr->GetMagicOvercomePercent());
+    gainsDamage.overcomeDamage =
+        GetDamage(damage, rollResult, damageAddOvercomeGain, damageAddStrain, magicCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddMagicOvercomeBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::MAGIC_OVERCOME)]);
+
+    // 无双收益
+    m_player->attr->AddStrain(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
+    float damageAddStrainGain = (JX3_PCT_FLOAT_BASE + m_player->attr->GetStrainPercent());
+    gainsDamage.strainDamage =
+        GetDamage(damage, rollResult, damageAddOvercome, damageAddStrainGain, magicCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddStrain(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
+
+    // 破招收益
+    m_player->attr->AddSurplusBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
+    damage.surplusDamage = static_cast<int>(m_damageParams.at(sub)[level].surplusDamagePercent *
+                                            m_player->attr->GetSurplusDamage() * surplusDamageAddPercent);
+    gainsDamage.surplusDamage =
+        GetDamage(damage, rollResult, damageAddOvercome, damageAddStrain, magicCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddSurplusBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
+
+    return gainsDamage;
 }
 
-void Skill::Record(Id_t targetId, RollResult rollResult, const Damage &damage, int sub, int level)
+void Skill::Record(Id_t targetId, RollResult rollResult, const GainsDamage &gainsDamage, int sub, int level)
 {
-    m_damageStats[targetId][m_id][sub][level][rollResult].first++;
-    m_damageStats[targetId][m_id][sub][level][rollResult].second.fixedDamage += damage.fixedDamage;
-    m_damageStats[targetId][m_id][sub][level][rollResult].second.weaponDamage += damage.weaponDamage;
-    m_damageStats[targetId][m_id][sub][level][rollResult].second.attackBaseDamage += damage.attackBaseDamage;
-    m_damageStats[targetId][m_id][sub][level][rollResult].second.attackMainDamage += damage.attackMainDamage;
-    m_damageStats[targetId][m_id][sub][level][rollResult].second.surplusDamage += damage.surplusDamage;
+    m_stats.damageStats[targetId][m_id][sub][level][rollResult].first++;
+    m_stats.damageStats[targetId][m_id][sub][level][rollResult].second.fixedDamage +=
+        gainsDamage.normalDamage.fixedDamage;
+    m_stats.damageStats[targetId][m_id][sub][level][rollResult].second.weaponDamage +=
+        gainsDamage.normalDamage.weaponDamage;
+    m_stats.damageStats[targetId][m_id][sub][level][rollResult].second.attackBaseDamage +=
+        gainsDamage.normalDamage.attackBaseDamage;
+    m_stats.damageStats[targetId][m_id][sub][level][rollResult].second.attackMainDamage +=
+        gainsDamage.normalDamage.attackMainDamage;
+    m_stats.damageStats[targetId][m_id][sub][level][rollResult].second.surplusDamage +=
+        gainsDamage.normalDamage.surplusDamage;
+
+    m_stats.normalDamage              += gainsDamage.normalDamage.SumDamage();
+    m_stats.criticalStrikePowerDamage += gainsDamage.criticalStrikePowerDamage.SumDamage();
+    m_stats.overcomeDamage            += gainsDamage.overcomeDamage.SumDamage();
+    m_stats.strainDamage              += gainsDamage.strainDamage.SumDamage();
+    m_stats.surplusDamage             += gainsDamage.surplusDamage.SumDamage();
 }
 
 } // namespace JX3DPS

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 20:59:11
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-07 05:18:00
+ * Last Modified: 2023-07-07 23:46:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -155,10 +155,7 @@ using DamageStats = std::unordered_map<Id_t, TargetStats>;
 /* [序号] - <[目标] - <[效果] - <[词缀] - <[强度] - <[判定] - <数目, 伤害>>>>>>
  * 序号0表示总计
  */
-using Stats = std::list<DamageStats>;
-
-/* 伤害参数 */
-using DamageParams = std::unordered_map<int, std::vector<DamageParam>>;
+// using Stats = std::list<DamageStats>;
 
 inline DamageStats &operator+=(DamageStats &lhs, DamageStats &rhs)
 {
@@ -189,6 +186,41 @@ inline DamageStats &operator+=(DamageStats &lhs, DamageStats &rhs)
     }
     return lhs;
 }
+
+struct GainsDamage
+{
+    Damage normalDamage;
+    Damage criticalStrikePowerDamage;
+    Damage overcomeDamage;
+    Damage strainDamage;
+    Damage surplusDamage;
+};
+
+struct Stats
+{
+    DamageStats damageStats;
+    long long   normalDamage = 0;
+    long long   criticalStrikePowerDamage = 0;
+    long long   overcomeDamage = 0;
+    long long   strainDamage = 0;
+    long long   surplusDamage = 0;
+
+    inline Stats &operator+=(Stats &other)
+    {
+        damageStats               += other.damageStats;
+        normalDamage              += other.normalDamage;
+        criticalStrikePowerDamage += other.criticalStrikePowerDamage;
+        overcomeDamage            += other.overcomeDamage;
+        strainDamage              += other.strainDamage;
+        surplusDamage             += other.surplusDamage;
+        return *this;
+    }
+};
+
+/* 伤害参数 */
+using DamageParams = std::unordered_map<int, std::vector<DamageParam>>;
+
+
 
 enum class AttributeType
 {
@@ -231,24 +263,8 @@ inline const std::unordered_map<AttributeType, std::string> &ATTRIBUTE_NAME = {
     { AttributeType::WEAPON_ATTACK,                 "武器伤害"},
 };
 
-inline const std::unordered_map<AttributeType, int> &ATTRIBUTE_GAIN_BY_BASE = {
-    {AttributeType::NONE,                           0  },
-    { AttributeType::AGILITY,                       179},
-    { AttributeType::SPIRIT,                        179},
-    { AttributeType::STRENGTH,                      179},
-    { AttributeType::SPUNK,                         179},
-    { AttributeType::PHYSICS_ATTACK,                360},
-    { AttributeType::PHYSICS_CRITICAL_STRIKE,       799},
-    { AttributeType::PHYSICS_CRITICAL_STRIKE_POWER, 799},
-    { AttributeType::PHYSICS_OVERCOME,              799},
-    { AttributeType::MAGIC_ATTACK,                  389},
-    { AttributeType::MAGIC_CRITICAL_STRIKE,         799},
-    { AttributeType::MAGIC_CRITICAL_STRIKE_POWER,   799},
-    { AttributeType::MAGIC_OVERCOME,                799},
-    { AttributeType::HASTE,                         799},
-    { AttributeType::STRAIN,                        799},
-    { AttributeType::SURPLUS,                       799},
-    { AttributeType::WEAPON_ATTACK,                 540},
+inline const std::vector<int> &ATTRIBUTE_GAIN_BY_BASE = {
+    0, 179, 179, 179, 179, 360, 799, 799, 799, 389, 799, 799, 799, 799, 799, 799, 540,
 };
 
 using ExprIf     = std::function<bool(Player *player, Targets *targets)>;

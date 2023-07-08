@@ -295,7 +295,10 @@
         "qhoverevent": "cpp",
         "qgroupbox": "cpp",
         "qtimer": "cpp",
-        "qstylepainter": "cpp"
+        "qstylepainter": "cpp",
+        "qdialog": "cpp",
+        "qwidget": "cpp",
+        "qstyleditemdelegate": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

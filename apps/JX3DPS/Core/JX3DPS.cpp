@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-07 05:56:45
+ * Last Modified: 2023-07-08 06:17:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -25,68 +25,50 @@
 
 namespace JX3DPS {
 
-void SummarizeStats(Player &player, DamageStats &damageStats)
+void SummarizeStats(Player &player, Stats &stats)
 {
     for (auto &skill : player.skills) {
-        damageStats += skill.second->GetDamageStats();
+        stats += skill.second->GetStats();
     }
     for (auto &buff : player.buffs) {
-        damageStats += buff.second->GetDamageStats();
+        stats += buff.second->GetStats();
     }
 }
 
-void EvaluateGains(Player &player, const DamageStats &damageStats, std::vector<float> &gains, int time, int simCount)
+void EvaluateGains(Player &player, const Stats &stats, std::vector<float> &gains, int time, int simCount)
 {
     gains.resize(17);
     long long attackBaseDamage = 0;
     long long weaponDamage     = 0;
-    long long surplusDamage    = 0;
-    long long totalDamage      = 0;
-    long long criticalDamage   = 0;
 
-    for (auto &targetStats : damageStats) {             // TargetStats
+    for (auto &targetStats : stats.damageStats) {       // TargetStats
         for (auto &effectStats : targetStats.second) {  // EffectStats
             for (auto &subStats : effectStats.second) { // SubStats
                 for (auto &levelStats : subStats.second) {
                     for (auto &rollStats : levelStats.second) {
                         weaponDamage     += rollStats.second.second.weaponDamage;
                         attackBaseDamage += rollStats.second.second.attackBaseDamage;
-                        surplusDamage    += rollStats.second.second.surplusDamage;
-                        totalDamage      += rollStats.second.second.SumDamage();
-                        if (rollStats.first == RollResult::DOUBLE) {
-                            criticalDamage += rollStats.second.second.SumDamage();
-                        }
                     }
                 }
             }
         }
     }
-    gains[static_cast<int>(AttributeType::NONE)] = totalDamage / time / simCount;
+    gains[static_cast<int>(AttributeType::NONE)] = stats.normalDamage / time / simCount;
     gains[static_cast<int>(AttributeType::PHYSICS_ATTACK)] =
-        (float)attackBaseDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::PHYSICS_ATTACK) /
-        player.attr->GetPhysicsAttackFromBase() / totalDamage;
-    gains[static_cast<int>(AttributeType::SURPLUS)] =
-        (float)surplusDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::SURPLUS) /
-        player.attr->GetSurplus() / totalDamage;
+        (float)attackBaseDamage * ATTRIBUTE_GAIN_BY_BASE.at(static_cast<int>(AttributeType::PHYSICS_ATTACK)) /
+        player.attr->GetPhysicsAttackFromBase() / stats.normalDamage;
     gains[static_cast<int>(AttributeType::WEAPON_ATTACK)] =
-        (float)weaponDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::WEAPON_ATTACK) /
-        player.attr->GetWeaponAttack() / totalDamage;
-    gains[static_cast<int>(AttributeType::PHYSICS_OVERCOME)] =
-        (float)totalDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::PHYSICS_OVERCOME) *
-        player.attr->GetPhysicsOvercomePercent() / (1 + player.attr->GetPhysicsOvercomePercent()) /
-        player.attr->GetPhysicsOvercomeBase() / totalDamage;
-    gains[static_cast<int>(AttributeType::STRAIN)] =
-        (float)totalDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::STRAIN) *
-        player.attr->GetStrainPercent() / (1 + player.attr->GetStrainPercent()) /
-        player.attr->GetStrain() / totalDamage;
+        (float)weaponDamage * ATTRIBUTE_GAIN_BY_BASE.at(static_cast<int>(AttributeType::WEAPON_ATTACK)) /
+        player.attr->GetWeaponAttack() / stats.normalDamage;
     gains[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)] =
-        (float)criticalDamage * ATTRIBUTE_GAIN_BY_BASE.at(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER) *
-        (player.attr->GetPhysicsCriticalStrikePowerPercent() - 1.75) /
-        player.attr->GetPhysicsCriticalStrikePowerPercent() /
-        player.attr->GetPhysicsCriticalStrikePower() / totalDamage;
+        stats.criticalStrikePowerDamage * 1.0 / stats.normalDamage - 1.0;
+    gains[static_cast<int>(AttributeType::PHYSICS_OVERCOME)] =
+        stats.overcomeDamage * 1.0 / stats.normalDamage - 1.0;
+    gains[static_cast<int>(AttributeType::STRAIN)] = stats.strainDamage * 1.0 / stats.normalDamage - 1.0;
+    gains[static_cast<int>(AttributeType::SURPLUS)] = stats.surplusDamage * 1.0 / stats.normalDamage - 1.0;
 }
 
-DamageStats Simulate(Player &p, ExprEvents &exprEvents, ExprSkills &exprSkills)
+Stats Simulate(Player &p, ExprEvents &exprEvents, ExprSkills &exprSkills)
 {
 
     Targets *targets = new Targets;
@@ -105,24 +87,24 @@ DamageStats Simulate(Player &p, ExprEvents &exprEvents, ExprSkills &exprSkills)
     KeyFrame::GenerateKeyFrameSequence(keyFrameSequence, player, events);
     KeyFrame::KeyFrameAdvance(keyFrameSequence, player, targets, events, skills);
 
-    DamageStats damageStats;
-    SummarizeStats(*player, damageStats);
+    Stats stats;
+    SummarizeStats(*player, stats);
 
     delete player;
     delete targets;
 
-    return damageStats;
+    return stats;
 }
 
-Error_t SimulatePool(ExprEvents  &exprEvents,
-                     ExprSkills  &exprSkills,
-                     Player      &player,
-                     int          simIterations,
-                     DamageStats &damageStats,
-                     void        *obj,
+Error_t SimulatePool(ExprEvents &exprEvents,
+                     ExprSkills &exprSkills,
+                     Player     &player,
+                     int         simIterations,
+                     Stats      &stats,
+                     void       *obj,
                      void (*memberFunction)(void *, double))
 {
-    std::list<std::future<DamageStats>> results;
+    std::list<std::future<Stats>> results;
     for (int i = 0; i < simIterations; i++) {
         auto res =
             ThreadPool::Instance()->Enqueue(Simulate, std::ref(player), std::ref(exprEvents), std::ref(exprSkills));
@@ -137,7 +119,7 @@ Error_t SimulatePool(ExprEvents  &exprEvents,
         if (i % step == 0) {
             memberFunction(obj, (double)i / simIterations);
         }
-        damageStats += results.front().get();
+        stats += results.front().get();
         results.pop_front();
     }
     memberFunction(obj, 1.0);
@@ -263,9 +245,9 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*memberFunc
         return err;
     }
 
-    JX3DPS::DamageStats damageStats;
+    JX3DPS::Stats stats;
 
-    err = SimulatePool(exprEvents, exprSkills, *player.get(), simIterations, damageStats, obj, memberFunction);
+    err = SimulatePool(exprEvents, exprSkills, *player.get(), simIterations, stats, obj, memberFunction);
 
     if (err != JX3DPS::JX3DPS_SUCCESS) {
         return err;
@@ -276,10 +258,11 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*memberFunc
     nlohmann::json jsonObj;
 
     std::vector<float> gains;
-    JX3DPS::EvaluateGains(*player.get(), damageStats, gains, time, simIterations);
+    JX3DPS::EvaluateGains(*player.get(), stats, gains, time, simIterations);
     JX3DPS::Gains2Json(gains, jsonObj["gains"]);
 
-    JX3DPS::Stats2Json(damageStats, jsonObj["stats"]);
+    JX3DPS::Stats2Json(stats.damageStats, jsonObj["stats"]);
+    jsonObj["sim_iterations"] = simIterations;
     strcpy(out, jsonObj.dump().data());
 
     auto end = std::chrono::steady_clock::now();

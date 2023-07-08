@@ -37,6 +37,7 @@
 #include "ProgressBar.h"
 #include "SpinBox.h"
 #include "Splitter.h"
+#include "StatsWidget.h"
 #include "TabWidget.h"
 
 void Attr2Json(const JX3DPS::Attr &attr, nlohmann::json &json)
@@ -72,14 +73,16 @@ void Secrets2Json(const std::unordered_map<std::string, std::list<SecretCheckBox
 void SetEffects2Json(const std::vector<CheckBox *> &checkBoxes, nlohmann::json &json)
 {
     json["EnchantWrist"]  = checkBoxes[0]->isChecked();
-    json["EnchantShoes"]  = checkBoxes[0]->isChecked();
-    json["EnchantBelt"]   = checkBoxes[0]->isChecked();
-    json["EnchantJacket"] = checkBoxes[0]->isChecked();
-    json["EnchantHat"]    = checkBoxes[0]->isChecked();
-    json["WeaponCW"]      = checkBoxes[0]->isChecked();
-    json["ClassSetBuff"]  = checkBoxes[0]->isChecked();
-    json["ClassSetSkill"] = checkBoxes[0]->isChecked();
+    json["EnchantShoes"]  = checkBoxes[1]->isChecked();
+    json["EnchantBelt"]   = checkBoxes[2]->isChecked();
+    json["EnchantJacket"] = checkBoxes[3]->isChecked();
+    json["EnchantHat"]    = checkBoxes[4]->isChecked();
+    json["WeaponCW"]      = checkBoxes[5]->isChecked();
+    json["ClassSetBuff"]  = checkBoxes[6]->isChecked();
+    json["ClassSetSkill"] = checkBoxes[7]->isChecked();
 }
+
+#include <iostream>
 
 Widget::Widget(QWidget *parent) : QWidget(parent)
 {
@@ -136,7 +139,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     tabWidgetAttrAndEchant->AddTab("配装");
     InitWidgetEchant(tabWidgetAttrAndEchant->Widget(1));
     CheckBox *checkBox = new CheckBox(widget);
-    checkBox->setGeometry(100, 126, 22, 22);
+    checkBox->setGeometry(100, 129, 22, 22);
 
     TabWidget *tabWidgetAttrGain = new TabWidget(widget);
     tabWidgetAttrGain->AddTab("收益");
@@ -148,7 +151,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     InitWidgetTalent(tabWidgetTalent->Widget(0));
     tabWidgetTalent->AddTab("秘籍");
     InitWidgetSecret(tabWidgetTalent->Widget(1));
-    tabWidgetTalent->AddTab("临时增益");
+    tabWidgetTalent->AddTab("常驻增益");
 
     TabWidget *tabWidgetSkill = new TabWidget(widget);
     tabWidgetSkill->AddTab("宏");
@@ -216,7 +219,6 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
         std::vector<int> talents;
         for (auto &talent : m_talentWidgets) {
             talents.push_back(talent->GetId());
-            spdlog::info("{}", talent->GetId());
         }
         json["talents"] = nlohmann::json(talents);
 
@@ -231,6 +233,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
         nlohmann::json jsonSetEffects;
         SetEffects2Json(m_setEffectWidgets, jsonSetEffects);
         json["set_effects"] = jsonSetEffects;
+
+        std::cout << json["set_effects"];
 
         json["delay_min"] = static_cast<LineEdit *>(m_lineEditDelayMin)->text().toInt();
         json["delay_max"] = static_cast<LineEdit *>(m_lineEditDelayMax)->text().toInt();
@@ -256,7 +260,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
             }
             QMetaObject::invokeMethod(this, [=, this] {
                 emit Signal_UpdateGains(res["gains"]);
-                int avg = res["gains"]["空"];
+                emit Signal_UpdateStats(res);
+                int  avg = res["gains"]["空"];
                 static_cast<LineEdit *>(m_lineEditDPS)->setText(QString::number(avg, 10));
             });
         });
@@ -516,6 +521,15 @@ void Widget::InitWidgetOut(QWidget *parent)
 
     gLayout->addWidget(textButtonDPS, 0, 0, 1, 1);
     gLayout->addWidget(m_lineEditDPS, 0, 1, 1, 1);
+
+    m_statsWidget = new StatsWidget();
+
+    connect(this,
+            QOverload<const nlohmann::json &>::of(&Widget::Signal_UpdateStats),
+            static_cast<StatsWidget *>(m_statsWidget),
+            QOverload<const nlohmann::json &>::of(&StatsWidget::Signal_UpdateStats));
+
+    connect(textButtonDPS, &TextButton::clicked, this, [=]() { m_statsWidget->show(); });
 }
 
 bool ParseJson2Attr(const nlohmann::json &json, JX3DPS::Attr &attr)
@@ -783,7 +797,6 @@ void Widget::InitWidgetAttr(QWidget *parent)
             m_json    = json;
             int index = 0;
             for (auto &talent : json["TalentCode"]) {
-                spdlog::info("{}", talent["name"].get<std::string>());
                 m_talentWidgets[index++]->SetTalent(QString::fromStdString(talent["name"].get<std::string>()));
             }
 
@@ -988,7 +1001,7 @@ void Widget::InitWidgetSetEffect(QWidget *parent)
     checkBoxEnchantJacket->setText("大附魔·衣");
     checkBoxEnchantHat->setText("大附魔·帽");
     checkBoxWeaponCW->setText("大橙武");
-    checkBoxClassSetBuff->setText("套装·攻击");
+    checkBoxClassSetBuff->setText("套装·属性");
     checkBoxClassSetSkill->setText("套装·技能");
 
     checkBoxEnchantWrist->setFixedHeight(22);

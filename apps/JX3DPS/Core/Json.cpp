@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 06:33:14
+ * Last Modified: 2023-07-07 05:16:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -19,6 +19,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "Buff.h"
 #include "Globals.h"
 #include "Skill.h"
 
@@ -145,6 +146,76 @@ JX3DPS::Error_t JX3DPS::ParseJson2Attr(const nlohmann::json &json, Attr &attr)
     } catch (const std::exception &e) {
         spdlog::error("属性解析失败 {}", e.what());
         return JX3DPS_ERROR_INVALID_JSON;
+    }
+    return JX3DPS_SUCCESS;
+}
+
+JX3DPS::Error_t JX3DPS::Stats2Json(const DamageStats &damageStats, nlohmann::json &json)
+{
+
+    std::vector<std::string> rollResult = { "命中", "会心" };
+    int                      index      = 0;
+
+    for (auto &targetStats : damageStats) {             // TargetStats
+        for (auto &effectStats : targetStats.second) {  // EffectStats
+            for (auto &subStats : effectStats.second) { // SubStats
+                for (auto &levelStats : subStats.second) {
+                    for (auto &rollStats : levelStats.second) {
+                        std::string  name;
+                        JX3DPS::Id_t id = effectStats.first;
+                        if ((id / 100) % 10) {
+                            name = JX3DPS::Buff::BUFF_NAME.at(id);
+                        } else {
+                            name = JX3DPS::Skill::SKILL_NAME.at(id);
+                        }
+
+                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
+                            [std::string("词缀").append(std::to_string(subStats.first))]
+                            [std::string("强度").append(std::to_string(levelStats.first))]
+                            [rollResult[static_cast<int>(rollStats.first)]]["数目"] =
+                                rollStats.second.first;
+
+                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
+                            [std::string("词缀").append(std::to_string(subStats.first))]
+                            [std::string("强度").append(std::to_string(levelStats.first))]
+                            [rollResult[static_cast<int>(rollStats.first)]]["固定伤害"] =
+                                rollStats.second.second.fixedDamage;
+
+                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
+                            [std::string("词缀").append(std::to_string(subStats.first))]
+                            [std::string("强度").append(std::to_string(levelStats.first))]
+                            [rollResult[static_cast<int>(rollStats.first)]]["武器伤害"] =
+                                rollStats.second.second.weaponDamage;
+
+                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
+                            [std::string("词缀").append(std::to_string(subStats.first))]
+                            [std::string("强度").append(std::to_string(levelStats.first))]
+                            [rollResult[static_cast<int>(rollStats.first)]]["基础攻击伤害"] =
+                                rollStats.second.second.attackBaseDamage;
+
+                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
+                            [std::string("词缀").append(std::to_string(subStats.first))]
+                            [std::string("强度").append(std::to_string(levelStats.first))]
+                            [rollResult[static_cast<int>(rollStats.first)]]["面板攻击伤害"] =
+                                rollStats.second.second.attackMainDamage;
+
+                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
+                            [std::string("词缀").append(std::to_string(subStats.first))]
+                            [std::string("强度").append(std::to_string(levelStats.first))]
+                            [rollResult[static_cast<int>(rollStats.first)]]["破招伤害"] =
+                                rollStats.second.second.surplusDamage;
+                    }
+                }
+            }
+        }
+    }
+    return JX3DPS_SUCCESS;
+}
+
+JX3DPS::Error_t JX3DPS::Gains2Json(const std::vector<float> &gains, nlohmann::json &json)
+{
+    for (int i = 0; i < gains.size(); ++i) {
+        json[ATTRIBUTE_NAME.at(static_cast<AttributeType>(i))] = gains[i];
     }
     return JX3DPS_SUCCESS;
 }

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 11:16:04
+ * Last Modified: 2023-07-08 02:50:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -78,6 +78,8 @@ public:
 
 signals:
     void Signal_UpdateAttr();
+    void Signal_UpdateGains(const nlohmann::json &json);
+    void Signal_UpdateStats(const nlohmann::json &json);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -108,6 +110,7 @@ private:
     QWidget *m_tabWidgetSecrets      = nullptr;
     QWidget *m_lineEditDelayMin      = nullptr;
     QWidget *m_lineEditDelayMax      = nullptr;
+    QWidget *m_statsWidget           = nullptr;
 
     std::vector<TalentWidget *>                                  m_talentWidgets;
     std::unordered_map<std::string, std::list<SecretCheckBox *>> m_secretWidgets;

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 05:49:13
+ * Last Modified: 2023-07-10 05:43:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -43,30 +43,46 @@ namespace JX3DPS {
 class Skill
 {
 public:
-    static constexpr Id_t SAN_CHAI_JIAN_FA  = 1000;
-    static constexpr Id_t WU_WO_WU_JIAN     = 1001;
-    static constexpr Id_t BA_HUANG_GUI_YUAN = 1002;
-    static constexpr Id_t SAN_HUAN_TAO_YUE  = 1003;
-    static constexpr Id_t WAN_JIAN_GUI_ZONG = 1004;
-    static constexpr Id_t REN_JIAN_HE_YI    = 1005;
-    static constexpr Id_t SUI_XING_CHEN     = 1006;
-    static constexpr Id_t SHENG_TAI_JI      = 1007;
-    static constexpr Id_t TUN_RI_YUE        = 1008;
-    static constexpr Id_t ZI_QI_DONG_LAI    = 1009;
-    static constexpr Id_t JING_HUA_YING     = 1010;
+    static constexpr Id_t SAN_CHAI_JIAN_FA             = 1000;
+    static constexpr Id_t WU_WO_WU_JIAN                = 1001;
+    static constexpr Id_t BA_HUANG_GUI_YUAN            = 1002;
+    static constexpr Id_t SAN_HUAN_TAO_YUE             = 1003;
+    static constexpr Id_t WAN_JIAN_GUI_ZONG            = 1004;
+    static constexpr Id_t REN_JIAN_HE_YI               = 1005;
+    static constexpr Id_t SUI_XING_CHEN                = 1006;
+    static constexpr Id_t SHENG_TAI_JI                 = 1007;
+    static constexpr Id_t TUN_RI_YUE                   = 1008;
+    static constexpr Id_t ZI_QI_DONG_LAI               = 1009;
+    static constexpr Id_t JING_HUA_YING                = 1010;
+    static constexpr Id_t REN_JIAN_HE_YI_SUI_XING_CHEN = 1011;
+    static constexpr Id_t REN_JIAN_HE_YI_TUN_RI_YUE    = 1012;
+
+    static constexpr Id_t DUN_YA           = 3000;
+    static constexpr Id_t DUN_JI           = 3001;
+    static constexpr Id_t DUN_DAO          = 3002;
+    static constexpr Id_t DUN_MENG         = 3003;
+    static constexpr Id_t DUN_FEI          = 3004;
+    static constexpr Id_t JUE_DAO          = 3005;
+    static constexpr Id_t ZHAN_DAO         = 3006;
+    static constexpr Id_t SHAN_DAO         = 3007;
+    static constexpr Id_t JIE_DAO          = 3008;
+    static constexpr Id_t YE_HUO_LIN_GUANG = 3009;
+    static constexpr Id_t ZHEN_YUN_JIE_HUI = 3010;
 
     inline static const std::unordered_map<Id_t, std::string> &SKILL_NAME = {
-        {SAN_CHAI_JIAN_FA,   "三柴剑法"},
-        { WU_WO_WU_JIAN,     "无我无剑"},
-        { BA_HUANG_GUI_YUAN, "八荒归元"},
-        { SAN_HUAN_TAO_YUE,  "三环套月"},
-        { WAN_JIAN_GUI_ZONG, "万剑归宗"},
-        { REN_JIAN_HE_YI,    "人剑合一"},
-        { SUI_XING_CHEN,     "碎星辰"   },
-        { SHENG_TAI_JI,      "生太极"   },
-        { TUN_RI_YUE,        "吞日月"   },
-        { ZI_QI_DONG_LAI,    "紫气东来"},
-        { JING_HUA_YING,     "镜花影"   },
+        {SAN_CHAI_JIAN_FA,              "三柴剑法"                   },
+        { WU_WO_WU_JIAN,                "无我无剑"                   },
+        { BA_HUANG_GUI_YUAN,            "八荒归元"                   },
+        { SAN_HUAN_TAO_YUE,             "三环套月"                   },
+        { WAN_JIAN_GUI_ZONG,            "万剑归宗"                   },
+        { REN_JIAN_HE_YI,               "人剑合一"                   },
+        { SUI_XING_CHEN,                "碎星辰"                      },
+        { SHENG_TAI_JI,                 "生太极"                      },
+        { TUN_RI_YUE,                   "吞日月"                      },
+        { ZI_QI_DONG_LAI,               "紫气东来"                   },
+        { JING_HUA_YING,                "镜花影"                      },
+        { REN_JIAN_HE_YI_SUI_XING_CHEN, "人剑合一·空爆·碎星辰"},
+        { REN_JIAN_HE_YI_TUN_RI_YUE,    "人剑合一·空爆·吞日月"},
     };
 
 public:
@@ -86,26 +102,27 @@ public:
     RollResult GetPhysicsRollResult() const;
     RollResult GetMagicRollResult() const;
 
-    Damage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
+    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
 
-    Damage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
 
-    void Record(Id_t          targetId   = 1,
-                RollResult    rollResult = RollResult::HIT,
-                const Damage &damage     = Damage(),
-                int           sub        = 0,
-                int           level      = 0);
+    void Record(Id_t               targetId    = 1,
+                RollResult         rollResult  = RollResult::HIT,
+                const GainsDamage &gainsDamage = GainsDamage(),
+                int                sub         = 0,
+                int                level       = 0);
 
     void SetPlayer(Player *player);
     void SetTargets(Targets *targets);
 
     Frame_t GetCooldown() const;
+    void    SetCooldown(Frame_t frame);
     float   GetRange() const;
     int     GetEnergyCount() const;
 
     void SetCooldownReduction(Frame_t cooldown);
 
-    DamageStats &GetDamageStats();
+    Stats &GetStats();
 
     const std::string &GetName() const;
 
@@ -166,7 +183,7 @@ protected:
     DamageParams m_damageParams;
 
     /* 记录 */
-    DamageStats m_damageStats;
+    Stats m_stats;
 };
 } // namespace JX3DPS
 #endif // JX3DPS_SKILL_H_

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 15:41:10
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 09:14:25
+ * Last Modified: 2023-07-09 22:19:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -65,7 +65,7 @@ const char *const JX3DPS_MACRO_TYPE_END = "end";
 const char *const JX3DPS_MACRO_REGEX = "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*)[ ]?\\/([a-z0-9_]*)[ ]?(.*)";
 
 const char *const JX3DPS_MACRO_REGEX_CAST =
-    "\\/(f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+([\u4e00-\u9fa5]+)";
+    "\\/(f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+([\u4e00-\u9fa5·0-9a-z]+)";
 
 const char *const JX3DPS_MACRO_REGEX_ADD_TARGET =
     "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*) \\/add_target id=(\\d{1,2}) level=(\\d{3}) shield=(\\d{1,}) "
@@ -78,11 +78,11 @@ const char *const JX3DPS_MACRO_REGEX_SET_TARGET_DEAD =
     "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*) \\/set_target id=(\\d{1,2})[ ]dead";
 
 const char *const JX3DPS_MACRO_REGEX_ADD_BUFF =
-    "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*) \\/add_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5]+)( "
+    "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*) \\/add_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-z]+)( "
     "stack_num=(\\d{1,}))?( duration=(\\d{1,}))?";
 
 const char *const JX3DPS_MACRO_REGEX_CLEAR_BUFF =
-    "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*) \\/clear_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5]+) "
+    "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*) \\/clear_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-z]+) "
     "stack_num=(\\d{1,})";
 
 const char *const JX3DPS_MACRO_REGEX_STOP = "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*) \\/stop";
@@ -94,26 +94,26 @@ const char *const JX3DPS_MACRO_REGEX_END = "([\\d{1,2}:\\d{1,2}.\\d{1,2}]*) \\/e
 const char *const JX3DPS_MACRO_REGEX_CONDITION_QIDIAN = "qidian([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_BUFF_LAYERS =
-    "buff:([\u4e00-\u9fa5]+)([=~<>]+)(\\d+)";
+    "buff:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
 
-const char *const JX3DPS_MACRO_REGEX_CONDITION_BUFF = "buff:([\u4e00-\u9fa5]+)";
+const char *const JX3DPS_MACRO_REGEX_CONDITION_BUFF = "buff:([\u4e00-\u9fa5·0-9a-z]+)";
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_BUFFTIME =
-    "bufftime:([\u4e00-\u9fa5]+)([=~<>]+)(\\d+)";
+    "bufftime:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_TBUFF_LAYERS =
-    "tbuff:([\u4e00-\u9fa5]+)([=~<>]+)(\\d+)";
+    "tbuff:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
 
-const char *const JX3DPS_MACRO_REGEX_CONDITION_TBUFF = "tbuff:([\u4e00-\u9fa5]+)";
+const char *const JX3DPS_MACRO_REGEX_CONDITION_TBUFF = "tbuff:([\u4e00-\u9fa5·0-9a-z]+)";
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_TBUFFTIME =
-    "tbufftime:([\u4e00-\u9fa5]+)(.*?)(\\d+)";
+    "tbufftime:([\u4e00-\u9fa5·0-9a-z]+)(.*?)(\\d+)";
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_LAST_CAST_SKILL =
-    "last_cast_skill(.*?)([\u4e00-\u9fa5]+)";
+    "last_cast_skill(.*?)([\u4e00-\u9fa5·0-9a-z]+)";
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_SKILL_CD =
-    "skill_cd:([\u4e00-\u9fa5]+)([=~<>]+)(\\d+)";
+    "skill_cd:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_MACRO_REGEX_FRAME = "(\\d{1,2}):(\\d{1,2}).?(\\d{0,2})";
 

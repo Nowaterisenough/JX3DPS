@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 08:00:40
+ * Last Modified: 2023-07-10 05:09:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -145,6 +145,22 @@ public:
     void SubEffect();
 };
 
+class RenJianHeYiSuiXingChen : public Skill
+{
+    SKILL_DEFAULT_FUNCTION(RenJianHeYiSuiXingChen)
+
+public:
+    void SubEffect();
+};
+
+class RenJianHeYiTunRiYue : public Skill
+{
+    SKILL_DEFAULT_FUNCTION(RenJianHeYiTunRiYue)
+
+public:
+    void SubEffect();
+};
+
 class SanChaiJianFa : public Skill
 {
     SKILL_DEFAULT_FUNCTION(SanChaiJianFa)
@@ -213,6 +229,21 @@ public:
     void SubEffectAdd(Id_t targetId, int stackNum);
     void SubEffectClear(Id_t targetId, int stackNum);
 };
+
+class WanXiangGuiYuan : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(WanXiangGuiYuan)
+
+public:
+    void SubEffect(Id_t targetId, int stackNum);
+};
+
+class RenJianHeYi : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(RenJianHeYi)
+public:
+    void SubEffect(Id_t targetId);
+};    
 
 class ZiQiDongLai : public Buff
 {

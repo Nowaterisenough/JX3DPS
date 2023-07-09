@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-08 00:22:40
+ * Last Modified: 2023-07-10 05:38:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -110,6 +110,11 @@ Frame_t Skill::GetCooldown() const
         return 0;
     }
     return m_cooldown > *m_globalCooldown ? m_cooldown : *m_globalCooldown;
+}
+
+void Skill::SetCooldown(Frame_t frame)
+{
+    m_cooldown = frame;
 }
 
 float Skill::GetRange() const

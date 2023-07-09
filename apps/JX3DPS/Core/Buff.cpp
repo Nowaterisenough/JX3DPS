@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-08 06:58:02
+ * Last Modified: 2023-07-10 05:58:32
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -388,7 +388,12 @@ GainsDamage Buff::CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int
 
     // 无双收益
     gainsDamage.strainDamage =
-        GetDamage(damage, rollResult, damageAddOvercome, JX3_PCT_FLOAT_BASE + m_targetSnapshots.at(targetId).strainGainPercent, physicsCriticalStrikePowerPercent, 0.0);
+        GetDamage(damage,
+                  rollResult,
+                  damageAddOvercome,
+                  JX3_PCT_FLOAT_BASE + m_targetSnapshots.at(targetId).strainGainPercent,
+                  physicsCriticalStrikePowerPercent,
+                  0.0);
 
     // 破招收益
     m_player->attr->AddSurplusBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
@@ -457,7 +462,12 @@ GainsDamage Buff::CalcMagicDamageDot(Id_t targetId, RollResult rollResult, int s
 
     // 无双收益
     gainsDamage.strainDamage =
-        GetDamage(damage, rollResult, damageAddOvercome, JX3_PCT_FLOAT_BASE + m_targetSnapshots.at(targetId).strainGainPercent, magicCriticalStrikePowerPercent, 0.0);
+        GetDamage(damage,
+                  rollResult,
+                  damageAddOvercome,
+                  JX3_PCT_FLOAT_BASE + m_targetSnapshots.at(targetId).strainGainPercent,
+                  magicCriticalStrikePowerPercent,
+                  0.0);
 
     // 破招收益
     m_player->attr->AddSurplusBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
@@ -683,7 +693,7 @@ JX3DPS::Buff3rd::JiaoSu::JiaoSu(JX3DPS::Player *player, Targets *targets) :
     JX3DPS::Buff(player, targets)
 {
     m_id   = Buff::ENCHANT_BELT;
-    m_name = "皎素";
+    m_name = "3rd·皎素";
 
     m_targetSnapshots[JX3DPS_PLAYER].interval = JX3DPS_INVALID_FRAMES_SET;
 
@@ -729,4 +739,724 @@ void JX3DPS::Buff3rd::JiaoSu::SubEffectAdd()
 void JX3DPS::Buff3rd::JiaoSu::SubEffectClear()
 {
     m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-0.05);
+}
+
+JX3DPS::Buff3rd::HanRuLei::HanRuLei(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_HAN_RU_LEI;
+    m_name = "3rd·撼如雷";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 60 * 30;
+}
+
+void JX3DPS::Buff3rd::HanRuLei::Trigger()
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::HanRuLei::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        SubEffectAdd();
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::HanRuLei::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::HanRuLei::SubEffectAdd()
+{
+    m_player->attr->AddPhysicsAttackBasePercentInt(51);
+}
+
+void JX3DPS::Buff3rd::HanRuLei::SubEffectClear()
+{
+    m_player->attr->AddPhysicsAttackBasePercentInt(-51);
+}
+
+JX3DPS::Buff3rd::XiuQi::XiuQi(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_XIU_QI;
+    m_name = "3rd·袖气";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 60 * 30;
+}
+
+void JX3DPS::Buff3rd::XiuQi::Trigger()
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::XiuQi::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        SubEffectAdd();
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::XiuQi::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::XiuQi::SubEffectAdd()
+{
+    m_player->attr->AddAgilityBase(244);
+    m_player->attr->AddSpiritBase(244);
+    m_player->attr->AddStrengthBase(244);
+    m_player->attr->AddSpunkBase(244);
+}
+
+void JX3DPS::Buff3rd::XiuQi::SubEffectClear()
+{
+    m_player->attr->AddAgilityBase(-244);
+    m_player->attr->AddSpiritBase(-244);
+    m_player->attr->AddStrengthBase(-244);
+    m_player->attr->AddSpunkBase(-244);
+}
+
+JX3DPS::Buff3rd::PoFeng::PoFeng(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_PO_FENG;
+    m_name = "3rd·破风";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 14;
+}
+
+void JX3DPS::Buff3rd::PoFeng::Trigger()
+{
+    for (auto it = m_targetSnapshots.begin(); it != m_targetSnapshots.end();) {
+        if (it->second.duration == 0) {
+            it = m_targetSnapshots.erase(it);
+            SubEffectClear(it->first);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void JX3DPS::Buff3rd::PoFeng::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(targetId) == m_targetSnapshots.end()) {
+        SubEffectAdd(targetId);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[unlikely]] {
+        m_targetSnapshots[targetId].duration = m_durationFixed;
+    } else [[likely]] {
+        m_targetSnapshots[targetId].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::PoFeng::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(targetId);
+    SubEffectClear(targetId);
+}
+
+void JX3DPS::Buff3rd::PoFeng::SubEffectAdd(int targetId)
+{
+    (*m_targets)[targetId]->AddPhysicsShield(-1150);
+}
+
+void JX3DPS::Buff3rd::PoFeng::SubEffectClear(int targetId)
+{
+    (*m_targets)[targetId]->AddPhysicsShield(1150);
+}
+
+JX3DPS::Buff3rd::JingFeng::JingFeng(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_JING_FENG;
+    m_name = "3rd·劲风";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 14;
+}
+
+void JX3DPS::Buff3rd::JingFeng::Trigger()
+{
+    for (auto it = m_targetSnapshots.begin(); it != m_targetSnapshots.end();) {
+        if (it->second.duration == 0) {
+            it = m_targetSnapshots.erase(it);
+            SubEffectClear(it->first);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void JX3DPS::Buff3rd::JingFeng::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(targetId) == m_targetSnapshots.end()) {
+        SubEffectAdd(targetId);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[unlikely]] {
+        m_targetSnapshots[targetId].duration = m_durationFixed;
+    } else [[likely]] {
+        m_targetSnapshots[targetId].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::JingFeng::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(targetId);
+    SubEffectClear(targetId);
+}
+
+void JX3DPS::Buff3rd::JingFeng::SubEffectAdd(int targetId)
+{
+    (*m_targets)[targetId]->AddPhysicsShield(-1397);
+}
+
+void JX3DPS::Buff3rd::JingFeng::SubEffectClear(int targetId)
+{
+    (*m_targets)[targetId]->AddPhysicsShield(1397);
+}
+
+JX3DPS::Buff3rd::JieHuo::JieHuo(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_JIE_HUO;
+    m_name = "3rd·戒火";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 15;
+}
+
+void JX3DPS::Buff3rd::JieHuo::Trigger()
+{
+    for (auto it = m_targetSnapshots.begin(); it != m_targetSnapshots.end();) {
+        if (it->second.duration == 0) {
+            it = m_targetSnapshots.erase(it);
+            SubEffectClear(it->first);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void JX3DPS::Buff3rd::JieHuo::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(targetId) == m_targetSnapshots.end()) {
+        SubEffectAdd(targetId);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[unlikely]] {
+        m_targetSnapshots[targetId].duration = m_durationFixed;
+    } else [[likely]] {
+        m_targetSnapshots[targetId].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::JieHuo::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(targetId);
+    SubEffectClear(targetId);
+}
+
+void JX3DPS::Buff3rd::JieHuo::SubEffectAdd(int targetId)
+{
+    (*m_targets)[targetId]->AddDamageAddPercentInt(20);
+}
+
+void JX3DPS::Buff3rd::JieHuo::SubEffectClear(int targetId)
+{
+    (*m_targets)[targetId]->AddDamageAddPercentInt(-20);
+}
+
+JX3DPS::Buff3rd::HaoLingSanJun::HaoLingSanJun(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_HAO_LING_SAN_JUN;
+    m_name = "3rd·号令三军";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 60;
+    m_intervalFixed = 16 * 30;
+    m_stackNumFixed = 48;
+}
+
+void JX3DPS::Buff3rd::HaoLingSanJun::Trigger()
+{
+    if (m_targetSnapshots[JX3DPS_PLAYER].duration == 0) { // 消失
+        int stackNum = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots.erase(JX3DPS_PLAYER);
+        SubEffectClear(JX3DPS_PLAYER, stackNum);
+    } else { // 一鼓结束，二鼓开始
+        m_targetSnapshots[JX3DPS_PLAYER].interval  = m_intervalFixed;
+        int stackNum                               = m_targetSnapshots[JX3DPS_PLAYER].stackNum / 2;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum -= stackNum;
+        SubEffectClear(JX3DPS_PLAYER, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    }
+}
+
+void JX3DPS::Buff3rd::HaoLingSanJun::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = std::min(stackNum, m_stackNumFixed);
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+        m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
+        SubEffectAdd(JX3DPS_PLAYER);
+    }
+}
+
+void JX3DPS::Buff3rd::HaoLingSanJun::Clear(Id_t targetId, int stackNum)
+{
+    stackNum = std::min(stackNum, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    m_targetSnapshots[JX3DPS_PLAYER].stackNum -= stackNum;
+    if (m_targetSnapshots[JX3DPS_PLAYER].stackNum == 0) {
+        m_targetSnapshots.erase(JX3DPS_PLAYER);
+    }
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::HaoLingSanJun::SubEffectAdd(int targetId)
+{
+    m_player->attr->AddStrain(m_targetSnapshots[JX3DPS_PLAYER].stackNum * 440);
+}
+
+void JX3DPS::Buff3rd::HaoLingSanJun::SubEffectClear(int targetId, int stackNum)
+{
+    m_player->attr->AddStrain(-stackNum * 440);
+}
+
+JX3DPS::Buff3rd::SheShenHongFa::SheShenHongFa(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_SHE_SHEN_HONG_FA;
+    m_name = "3rd·舍身弘法";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 20;
+    m_stackNumFixed = 36;
+}
+
+void JX3DPS::Buff3rd::SheShenHongFa::Trigger()
+{
+    int stackNum = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::SheShenHongFa::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = std::min(stackNum, m_stackNumFixed);
+        SubEffectAdd(JX3DPS_PLAYER, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else { // 已有buff,刷新层数
+        stackNum  = std::min(stackNum, m_stackNumFixed);
+        int stack = stackNum - m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        SubEffectAdd(JX3DPS_PLAYER, stack);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::SheShenHongFa::Clear(Id_t targetId, int stackNum)
+{
+    stackNum = std::min(stackNum, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    m_targetSnapshots[JX3DPS_PLAYER].stackNum -= stackNum;
+    if (m_targetSnapshots[JX3DPS_PLAYER].stackNum == 0) {
+        m_targetSnapshots.erase(JX3DPS_PLAYER);
+    }
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::SheShenHongFa::SubEffectAdd(int targetId, int stackNum)
+{
+    m_player->attr->AddStrain(stackNum * 400);
+}
+
+void JX3DPS::Buff3rd::SheShenHongFa::SubEffectClear(int targetId, int stackNum)
+{
+    m_player->attr->AddStrain(-stackNum * 400);
+}
+
+JX3DPS::Buff3rd::ChaoSheng::ChaoSheng(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_CHAO_SHENG;
+    m_name = "3rd·朝圣";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 8;
+    m_stackNumFixed = 24;
+}
+
+void JX3DPS::Buff3rd::ChaoSheng::Trigger()
+{
+    int stackNum = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::ChaoSheng::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = std::min(stackNum, m_stackNumFixed);
+        SubEffectAdd(JX3DPS_PLAYER, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else { // 已有buff,刷新层数
+        stackNum  = std::min(stackNum, m_stackNumFixed);
+        int stack = stackNum - m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        SubEffectAdd(JX3DPS_PLAYER, stack);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::ChaoSheng::Clear(Id_t targetId, int stackNum)
+{
+    stackNum = std::min(stackNum, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    m_targetSnapshots[JX3DPS_PLAYER].stackNum -= stackNum;
+    if (m_targetSnapshots[JX3DPS_PLAYER].stackNum == 0) {
+        m_targetSnapshots.erase(JX3DPS_PLAYER);
+    }
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::ChaoSheng::SubEffectAdd(int targetId, int stackNum)
+{
+    m_player->attr->AddStrain(stackNum * 400);
+}
+
+void JX3DPS::Buff3rd::ChaoSheng::SubEffectClear(int targetId, int stackNum)
+{
+    m_player->attr->AddStrain(-stackNum * 400);
+}
+
+JX3DPS::Buff3rd::ShengYuMingXin::ShengYuMingXin(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_SHENG_YU_MING_XIN;
+    m_name = "3rd·圣浴明心";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 8;
+    m_stackNumFixed = 24;
+}
+
+void JX3DPS::Buff3rd::ShengYuMingXin::Trigger()
+{
+    int stackNum = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::ShengYuMingXin::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = std::min(stackNum, m_stackNumFixed);
+        SubEffectAdd(JX3DPS_PLAYER, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else { // 已有buff,刷新层数
+        stackNum  = std::min(stackNum, m_stackNumFixed);
+        int stack = stackNum - m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        SubEffectAdd(JX3DPS_PLAYER, stack);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::ShengYuMingXin::Clear(Id_t targetId, int stackNum)
+{
+    stackNum = std::min(stackNum, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    m_targetSnapshots[JX3DPS_PLAYER].stackNum -= stackNum;
+    if (m_targetSnapshots[JX3DPS_PLAYER].stackNum == 0) {
+        m_targetSnapshots.erase(JX3DPS_PLAYER);
+    }
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::ShengYuMingXin::SubEffectAdd(int targetId, int stackNum)
+{
+    m_player->attr->AddStrain(stackNum * 600);
+}
+
+void JX3DPS::Buff3rd::ShengYuMingXin::SubEffectClear(int targetId, int stackNum)
+{
+    m_player->attr->AddStrain(-stackNum * 600);
+}
+
+JX3DPS::Buff3rd::ZhenFen::ZhenFen(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_ZHEN_FEN;
+    m_name = "3rd·振奋";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 10;
+    m_stackNumFixed = 125;
+}
+
+void JX3DPS::Buff3rd::ZhenFen::Trigger()
+{
+    int stackNum = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::ZhenFen::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = std::min(stackNum, m_stackNumFixed);
+        SubEffectAdd(JX3DPS_PLAYER, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else { // 已有buff,刷新层数
+        stackNum  = std::min(stackNum, m_stackNumFixed);
+        int stack = stackNum - m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        SubEffectAdd(JX3DPS_PLAYER, stack);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::ZhenFen::Clear(Id_t targetId, int stackNum)
+{
+    stackNum = std::min(stackNum, m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    m_targetSnapshots[JX3DPS_PLAYER].stackNum -= stackNum;
+    if (m_targetSnapshots[JX3DPS_PLAYER].stackNum == 0) {
+        m_targetSnapshots.erase(JX3DPS_PLAYER);
+    }
+    SubEffectClear(JX3DPS_PLAYER, stackNum);
+}
+
+void JX3DPS::Buff3rd::ZhenFen::SubEffectAdd(int targetId, int stackNum)
+{
+    m_player->attr->AddPhysicsOvercomeBase(stackNum * 60);
+    m_player->attr->AddMagicOvercomeBase(stackNum * 60);
+}
+
+void JX3DPS::Buff3rd::ZhenFen::SubEffectClear(int targetId, int stackNum)
+{
+    m_player->attr->AddPhysicsOvercomeBase(-stackNum * 60);
+    m_player->attr->AddMagicOvercomeBase(-stackNum * 60);
+}
+
+JX3DPS::Buff3rd::HanXiaoQianJun::HanXiaoQianJun(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_HAN_XIAO_QIAN_JUN;
+    m_name = "3rd·寒啸千军";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 15;
+}
+
+void JX3DPS::Buff3rd::HanXiaoQianJun::Trigger()
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::HanXiaoQianJun::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        SubEffectAdd(JX3DPS_PLAYER);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::HanXiaoQianJun::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::HanXiaoQianJun::SubEffectAdd(int targetId)
+{
+    m_player->attr->AddPhysicsOvercomeBasePercentInt(256);
+    m_player->attr->AddMagicOvercomeBasePercentInt(256);
+}
+
+void JX3DPS::Buff3rd::HanXiaoQianJun::SubEffectClear(int targetId)
+{
+    m_player->attr->AddPhysicsOvercomeBasePercentInt(-256);
+    m_player->attr->AddMagicOvercomeBasePercentInt(-256);
+}
+
+JX3DPS::Buff3rd::ShuKuang::ShuKuang(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_SHU_KUANG;
+    m_name = "3rd·疏狂";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 12;
+}
+
+void JX3DPS::Buff3rd::ShuKuang::Trigger()
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::ShuKuang::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        SubEffectAdd(JX3DPS_PLAYER);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::ShuKuang::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::ShuKuang::SubEffectAdd(int targetId)
+{
+    m_player->attr->AddPhysicsAttackBasePercentInt(307);
+}
+
+void JX3DPS::Buff3rd::ShuKuang::SubEffectClear(int targetId)
+{
+    m_player->attr->AddPhysicsAttackBasePercentInt(-307);
+}
+
+JX3DPS::Buff3rd::HanChangLinLi::HanChangLinLi(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_HAN_CHANG_LIN_LI;
+    m_name = "3rd·酣畅淋漓";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 5;
+}
+
+void JX3DPS::Buff3rd::HanChangLinLi::Trigger()
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::HanChangLinLi::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        SubEffectAdd(JX3DPS_PLAYER);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::HanChangLinLi::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::HanChangLinLi::SubEffectAdd(int targetId)
+{
+    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(0.1);
+}
+
+void JX3DPS::Buff3rd::HanChangLinLi::SubEffectClear(int targetId)
+{
+    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-0.1);
+}
+
+JX3DPS::Buff3rd::JiLei::JiLei(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::THIRD_JI_LEI;
+    m_name = "3rd·激雷";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 6;
+}
+
+void JX3DPS::Buff3rd::JiLei::Trigger()
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::JiLei::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        SubEffectAdd(JX3DPS_PLAYER);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::JiLei::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(JX3DPS_PLAYER);
+}
+
+void JX3DPS::Buff3rd::JiLei::SubEffectAdd(int targetId)
+{
+    m_player->attr->AddPhysicsOvercomeBasePercentInt(205);
+    m_player->attr->AddPhysicsAttackBasePercentInt(205);
+}
+
+void JX3DPS::Buff3rd::JiLei::SubEffectClear(int targetId)
+{
+    m_player->attr->AddPhysicsOvercomeBasePercentInt(-205);
+    m_player->attr->AddPhysicsAttackBasePercentInt(-205);
 }

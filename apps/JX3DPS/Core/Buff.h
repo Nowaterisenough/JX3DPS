@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-08 06:58:06
+ * Last Modified: 2023-07-10 06:00:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,9 +18,9 @@
 
 #include <unordered_map>
 
+#include "Attr.h"
 #include "Globals.h"
 #include "JX3Params.h"
-
 #define BUFF_DEFAULT_FUNCTION(class_name)                                                                        \
                                                                                                                  \
 public:                                                                                                          \
@@ -75,6 +75,7 @@ struct TargetSnapshot
     /* 快照无双 */
     PctFloat_t strainPercent = 0.0;
 
+    /* 快照增伤 */
     PctInt_t skillDamageAddPercentInt = 0;
 
     /* 快照收益会效 */
@@ -82,6 +83,24 @@ struct TargetSnapshot
 
     /* 快照收益无双 */
     PctFloat_t strainGainPercent = 0.0;
+
+    void SnapShot(Attr &attr, PctFloat_t skillCriticalStrikeAddPercent, PctFloat_t skillCriticalStrikePowerAddPercent, PctInt_t skillDamageAddPercentInt)
+    {
+        attackBase = attr.GetPhysicsAttackFromBase();
+        attackMain = attr.GetPhysicsAttackFromMain();
+        criticalStrikePercent = attr.GetPhysicsCriticalStrikePercent() + skillCriticalStrikeAddPercent;
+        criticalStrikePowerPercent = attr.GetPhysicsCriticalStrikePowerPercent() + skillCriticalStrikePowerAddPercent;
+        hastePercent             = attr.GetHastePercent();
+        strainPercent            = attr.GetStrainPercent();
+        skillDamageAddPercentInt = skillDamageAddPercentInt + skillDamageAddPercentInt;
+
+        attr.AddPhysicsCriticalStrikePower(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
+        attr.AddStrain(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
+        criticalStrikePowerGainPercent = attr.GetPhysicsCriticalStrikePowerPercent();
+        strainGainPercent              = attr.GetStrainPercent();
+        attr.AddPhysicsCriticalStrikePower(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
+        attr.AddStrain(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
+    }
 };
 
 using TargetSnapshots = std::unordered_map<Id_t, TargetSnapshot>;
@@ -137,14 +156,16 @@ public:
     static constexpr Id_t THIRD_QING_JUAN         = 185;
     static constexpr Id_t THIRD_XIU_QI            = 186;
     static constexpr Id_t THIRD_HAN_RU_LEI        = 187;
+    static constexpr Id_t THIRD_SHENG_YU_MING_XIN = 188;
+    static constexpr Id_t THIRD_JI_LEI            = 189;
 
     // 三方tbuff
-    static constexpr Id_t THIRD_JIE_HUO_ZHAN = 200;
-    static constexpr Id_t THIRD_QIU_SU       = 201;
-    static constexpr Id_t THIRD_PO_FENG      = 202;
-    static constexpr Id_t THIRD_JIN_FENG     = 203;
-    static constexpr Id_t THIRD_XU_RUO       = 204;
-    static constexpr Id_t THIRD_PO_JIA       = 205;
+    static constexpr Id_t THIRD_JIE_HUO   = 200;
+    static constexpr Id_t THIRD_QIU_SU    = 201;
+    static constexpr Id_t THIRD_PO_FENG   = 202;
+    static constexpr Id_t THIRD_JING_FENG = 203;
+    static constexpr Id_t THIRD_XU_RUO    = 204;
+    static constexpr Id_t THIRD_PO_JIA    = 205;
 
     // 太虚剑意buff
     static constexpr Id_t ZI_QI_DONG_LAI = 1100;
@@ -165,9 +186,10 @@ public:
     static constexpr Id_t LIE_YUN                      = 1115;
 
     // 太虚剑意tbuff
-    static constexpr Id_t DIE_REN        = 1200;
-    static constexpr Id_t REN_JIAN_HE_YI = 1201;
-    static constexpr Id_t TUN_RI_YUE     = 1202;
+    static constexpr Id_t DIE_REN            = 1200;
+    static constexpr Id_t REN_JIAN_HE_YI     = 1201;
+    static constexpr Id_t TUN_RI_YUE         = 1202;
+    static constexpr Id_t WAN_XIANG_GUI_YUAN = 1203;
 
     inline static const std::unordered_map<Id_t, std::string> &BUFF_NAME = {
         {CLASS_FEATURE,                 "心法特效"             },
@@ -190,6 +212,19 @@ public:
         { THIRD_ZHUANG_ZHOU_MENG,       "3rd·庄周梦"           },
         { THIRD_ZUO_XUAN_YOU_XUAN,      "3rd·左旋右旋"        },
         { THIRD_HAO_LING_SAN_JUN,       "3rd·号令三军"        },
+        { THIRD_HAN_RU_LEI,             "3rd·撼如雷"           },
+        { THIRD_XIU_QI,                 "3rd·袖气"              },
+        { THIRD_PO_FENG,                "3rd·破风"              },
+        { THIRD_JING_FENG,              "3rd·劲风"              },
+        { THIRD_JI_LEI,                 "3rd·激雷"              },
+        { THIRD_JIE_HUO,                "3rd·戒火"              },
+        { THIRD_HAN_CHANG_LIN_LI,       "3rd·酣畅淋漓"        },
+        { THIRD_SHU_KUANG,              "3rd·疏狂"              },
+        { THIRD_HAN_XIAO_QIAN_JUN,      "3rd·寒啸千军"        },
+        { THIRD_ZHEN_FEN,               "3rd·振奋"              },
+        { THIRD_SHENG_YU_MING_XIN,      "3rd·圣浴明心"        },
+        { THIRD_CHAO_SHENG,             "3rd·朝圣"              },
+        { THIRD_SHE_SHEN_HONG_FA,       "3rd·舍身弘法"        },
         { XUAN_MEN,                     "玄门"                   },
         { ZI_QI_DONG_LAI,               "紫气东来"             },
         { SUI_XING_CHEN,                "碎星辰"                },
@@ -203,8 +238,9 @@ public:
         { CHI_YING,                     "持盈"                   },
         { QI_SHENG,                     "期声"                   },
         { FENG_SHI,                     "风逝"                   },
-        { DIE_REN,                      "叠刃"                   },
-        { REN_JIAN_HE_YI,               "人剑合一"             },
+        { DIE_REN,                      "Dot·叠刃"              },
+        { REN_JIAN_HE_YI,               "Dot·人剑合一"        },
+        { WAN_XIANG_GUI_YUAN,           "Dot·万象归元"        },
         { TUN_RI_YUE,                   "吞日月"                },
         { JING_HUA_YING,                "镜花影"                },
     };
@@ -321,7 +357,7 @@ struct HasBuff3rd
     bool qiuSu                   = false;
     bool jieHuo                  = false;
     bool liDiChengFo             = false;
-    bool fengLeiYAOqinJianEffect = false;
+    bool fengLeiYaoQinJianEffect = false;
 };
 
 namespace Buff3rd {
@@ -362,9 +398,134 @@ class JiaoSu : public Buff
     BUFF_DEFAULT_FUNCTION(JiaoSu)
 
 public:
-    void TriggerAdd();
     void SubEffectAdd();
     void SubEffectClear();
+};
+
+class XiuQi : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(XiuQi)
+
+public:
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class HanRuLei : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(HanRuLei)
+
+public:
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class PoFeng : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(PoFeng)
+
+public:
+    void SubEffectAdd(int targetId);
+    void SubEffectClear(int targetId);
+};
+
+class JingFeng : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JingFeng)
+
+public:
+    void SubEffectAdd(int targetId);
+    void SubEffectClear(int targetId);
+};
+
+class JieHuo : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JieHuo)
+
+public:
+    void SubEffectAdd(int targetId);
+    void SubEffectClear(int targetId);
+};
+
+class HaoLingSanJun : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(HaoLingSanJun)
+
+public:
+    void SubEffectAdd(int targetId);
+    void SubEffectClear(int targetId, int stackNum);
+};
+
+class SheShenHongFa : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(SheShenHongFa)
+
+public:
+    void SubEffectAdd(int targetId, int stackNum);
+    void SubEffectClear(int targetId, int stackNum);
+};
+
+class ChaoSheng : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(ChaoSheng)
+
+public:
+    void SubEffectAdd(int targetId, int stackNum);
+    void SubEffectClear(int targetId, int stackNum);
+};
+
+class ShengYuMingXin : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(ShengYuMingXin)
+
+public:
+    void SubEffectAdd(int targetId, int stackNum);
+    void SubEffectClear(int targetId, int stackNum);
+};
+
+class ZhenFen : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(ZhenFen)
+
+public:
+    void SubEffectAdd(int targetId, int stackNum);
+    void SubEffectClear(int targetId, int stackNum);
+};
+
+class HanXiaoQianJun : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(HanXiaoQianJun)
+
+public:
+    void SubEffectAdd(int targetId);
+    void SubEffectClear(int targetId);
+};
+
+class ShuKuang : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(ShuKuang)
+
+public:
+    void SubEffectAdd(int targetId);
+    void SubEffectClear(int targetId);
+};
+
+class HanChangLinLi : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(HanChangLinLi)
+
+public:
+    void SubEffectAdd(int targetId);
+    void SubEffectClear(int targetId);
+};
+
+class JiLei : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JiLei)
+
+public:
+    void SubEffectAdd(int targetId);
+    void SubEffectClear(int targetId);
 };
 
 } // namespace Buff3rd

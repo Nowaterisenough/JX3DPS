@@ -5,7 +5,7 @@
  * Created Date: 2022-01-26 21:34:09
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-08 01:48:04
+ * Last Modified: 2023-07-10 06:38:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -199,9 +199,9 @@ void DataBars::paintEvent(QPaintEvent *e)
 
     if (this->isEnabled()) {
         if (m_isPressed) {
-            painter.setBrush(Qt::black);
+            painter.setBrush(QColor(COLOR_ACTIVE));
         } else {
-            painter.setBrush(QColor(COLOR_BACKGROUND_PRIMARY));
+            painter.setBrush(QColor(10, 115, 230));
         }
         if (width > 0) {
             painter.drawRect(2, 2, width, this->height() - 5);
@@ -210,10 +210,10 @@ void DataBars::paintEvent(QPaintEvent *e)
     } else {
         if (m_isPressed) {
             painter.setPen(QColor(34, 39, 47));
-            painter.setBrush(Qt::black);
+            painter.setBrush(QColor(COLOR_ACTIVE));
         } else {
             painter.setPen(QColor(34, 39, 47));
-            painter.setBrush(QColor(COLOR_BACKGROUND_PRIMARY));
+            painter.setBrush(QColor(10, 115, 230));
         }
         painter.drawRect(0, 0, this->width() - 1, this->height() - 1);
     }

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 06:00:02
+ * Last Modified: 2023-07-10 21:37:45
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -193,7 +193,7 @@ public:
 
     inline static const std::unordered_map<Id_t, std::string> &BUFF_NAME = {
         {CLASS_FEATURE,                 "心法特效"             },
-        { WEAPON_EFFECT_CW_1,           "武器·橙武特效1"    },
+        { WEAPON_EFFECT_CW_1,           "武器·橙武特效"     },
         { WEAPON_EFFECT_CW_2,           "武器·橙武特效2"    },
         { WEAPON_EFFECT_CW_3,           "武器·小橙武特效"  },
         { WEAPON_EFFECT_CLASS,          "武器·心法特效"     },
@@ -201,12 +201,12 @@ public:
         { WEAPON_EFFECT_LIGHTNING,      "武器·雷特效"        },
         { WEAPON_EFFECT_WATER,          "武器·水特效"        },
         { PENDANT_OVERCOME,             "腰坠·破防"           },
-        { CLASS_SET_BUFF,               "套装·心法"           },
-        { ENCHANT_SHOES,                "大附魔·鞋"           },
+        { CLASS_SET_BUFF,               "套装·属性"           },
+        { ENCHANT_SHOES,                "刃凌"                   },
         { ENCHANT_JACKET,               "大附魔·衣"           },
         { ENCHANT_HAT,                  "大附魔·头"           },
         { ENCHANT_BELT,                 "大附魔·腰"           },
-        { ENCHANT_WRIST,                "大附魔·腕"           },
+        { ENCHANT_WRIST,                "昆吾·弦刃"           },
         { CORE_TAI_XU_JIAN_YI,          "阵眼·北斗七星阵"  },
         { THIRD_SUI_XING_CHEN,          "3rd·碎星辰"           },
         { THIRD_ZHUANG_ZHOU_MENG,       "3rd·庄周梦"           },

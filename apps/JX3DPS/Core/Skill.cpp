@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 05:38:26
+ * Last Modified: 2023-07-11 10:05:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -211,7 +211,7 @@ GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int s
         (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *     // 易伤加成
         (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetPhysicsResistPercent()) * // 忽视加成
         (JX3_PCT_FLOAT_BASE +
-         ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
+         (JX3_PLAYER_LEVEL - (*m_targets)[targetId]->GetLevel()) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
     PctFloat_t damagePercent =
         surplusDamageAddPercent *
         (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
@@ -240,6 +240,20 @@ GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int s
     GainsDamage gainsDamage;
     gainsDamage.normalDamage =
         GetDamage(damage, rollResult, damageAddOvercome, damageAddStrain, physicsCriticalStrikePowerPercent, m_skillCriticalStrikePowerAddPercent);
+
+    spdlog::debug("心法加成 {} 易伤加成 {} 忽视加成 {} 等级差加成 {} 破防加成 {} 无双加成 {} 固定伤害 {} "
+        "武器伤害 {} 系数伤害 {}",
+        (JX3_PCT_INT_BASE + m_player->damageAddPercentInt) * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE,
+        (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()),
+        (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetPhysicsResistPercent()),
+        (JX3_PCT_FLOAT_BASE + (JX3_PLAYER_LEVEL - (*m_targets)[targetId]->GetLevel()) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION),
+        damageAddOvercome,
+        damageAddStrain,
+        m_damageParams.at(sub)[level].fixedDamage,
+        m_damageParams.at(sub)[level].weaponDamagePercentInt * JX3_PCT_FLOAT_BASE /
+            JX3_PCT_INT_BASE * m_player->attr->GetWeaponAttack(),
+        static_cast<int>(m_damageParams.at(sub)[level].attackDamagePercent * m_player->attr->GetPhysicsAttack()) /
+            JX3_PHYSICS_DAMAGE_PARAM);
 
     // 会效收益
     m_player->attr->AddPhysicsCriticalStrikePower(
@@ -286,7 +300,7 @@ GainsDamage Skill::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub
         (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *   // 易伤加成
         (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetMagicResistPercent()) * // 忽视加成
         (JX3_PCT_FLOAT_BASE +
-         ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
+        (JX3_PLAYER_LEVEL - (*m_targets)[targetId]->GetLevel()) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
     PctFloat_t damagePercent =
         surplusDamageAddPercent *
         (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE;

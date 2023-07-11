@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 21:37:45
+ * Last Modified: 2023-07-11 09:52:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -92,7 +92,7 @@ struct TargetSnapshot
         criticalStrikePowerPercent = attr.GetPhysicsCriticalStrikePowerPercent() + skillCriticalStrikePowerAddPercent;
         hastePercent             = attr.GetHastePercent();
         strainPercent            = attr.GetStrainPercent();
-        skillDamageAddPercentInt = skillDamageAddPercentInt + skillDamageAddPercentInt;
+        this->skillDamageAddPercentInt = skillDamageAddPercentInt;
 
         attr.AddPhysicsCriticalStrikePower(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
         attr.AddStrain(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);

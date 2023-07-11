@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 22:21:52
+ * Last Modified: 2023-07-11 10:05:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1407,7 +1407,7 @@ JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player,
     m_cooldownFixed = 22;
 
     // TODO
-    m_damageParams[0].emplace_back(0, 1024, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 1024, 16, 0.0);
 }
 
 void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Cast()
@@ -2061,7 +2061,7 @@ JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targ
     m_subNames.push_back("");
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(16, 0, 64, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 64, 0.0);
 
     m_intervalFixed    = 16 * 3;
     m_effectCountFixed = 4;

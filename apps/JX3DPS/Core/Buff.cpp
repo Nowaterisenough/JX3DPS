@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 21:34:10
+ * Last Modified: 2023-07-11 10:05:33
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -14,6 +14,8 @@
  */
 
 #include "Buff.h"
+
+#include <spdlog/spdlog.h>
 
 #include <Utils/Utils.h>
 
@@ -175,7 +177,7 @@ GainsDamage Buff::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int su
         (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *     // 易伤加成
         (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetPhysicsResistPercent()) * // 忽视加成
         (JX3_PCT_FLOAT_BASE +
-         ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
+         (JX3_PLAYER_LEVEL - (*m_targets)[targetId]->GetLevel()) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
     PctFloat_t damagePercent =
         effectCount * surplusDamageAddPercent *
         (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
@@ -250,7 +252,7 @@ GainsDamage Buff::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub,
         (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *   // 易伤加成
         (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetMagicResistPercent()) * // 忽视加成
         (JX3_PCT_FLOAT_BASE +
-         ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
+         (JX3_PLAYER_LEVEL - (*m_targets)[targetId]->GetLevel()) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
     PctFloat_t damagePercent =
         effectCount * surplusDamageAddPercent *
         (JX3_PCT_INT_BASE + m_skillDamageAddPercentInt + m_player->skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
@@ -339,10 +341,10 @@ GainsDamage Buff::CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int
         (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *     // 易伤加成
         (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetPhysicsResistPercent()) * // 忽视加成
         (JX3_PCT_FLOAT_BASE +
-         ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
+         (JX3_PLAYER_LEVEL - (*m_targets)[targetId]->GetLevel()) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
     PctFloat_t damagePercent =
         effectCount * surplusDamageAddPercent *
-        (JX3_PCT_INT_BASE + m_targetSnapshots.at(targetId).skillDamageAddPercentInt) / JX3_PCT_INT_BASE; // 武学加成
+        (JX3_PCT_INT_BASE + m_targetSnapshots.at(targetId).skillDamageAddPercentInt) * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE; // 武学加成
 
     float damageAddOvercome = (JX3_PCT_FLOAT_BASE + m_player->attr->GetPhysicsOvercomePercent()); // 破防加成
     float damageAddStrain = (JX3_PCT_FLOAT_BASE + m_targetSnapshots.at(targetId).strainPercent); // 无双加成
@@ -364,6 +366,24 @@ GainsDamage Buff::CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int
                                             m_player->attr->GetSurplusDamage() * surplusDamageAddPercent);
 
     float physicsCriticalStrikePowerPercent = m_targetSnapshots.at(targetId).criticalStrikePowerPercent;
+
+    spdlog::debug(
+        "心法加成 {} 易伤加成 {} 忽视加成 {} 等级差加成 {} 破防加成 {} 无双加成 {} 武学加成 {} --- 固定伤害 {} "
+        "武器伤害 {} 系数伤害 {} 层数 {} --- 最终伤害 {}",
+        (JX3_PCT_INT_BASE + m_player->damageAddPercentInt) * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE,
+        (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()),
+        (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetPhysicsResistPercent()),
+        (JX3_PCT_FLOAT_BASE + (JX3_PLAYER_LEVEL - (*m_targets)[targetId]->GetLevel()) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION),
+        damageAddOvercome,
+        damageAddStrain,
+        (JX3_PCT_INT_BASE + m_targetSnapshots.at(targetId).skillDamageAddPercentInt)  * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE,
+        m_damageParams.at(sub)[level].fixedDamage,
+        m_damageParams.at(sub)[level].weaponDamagePercentInt * JX3_PCT_FLOAT_BASE /
+            JX3_PCT_INT_BASE * m_player->attr->GetWeaponAttack(),
+        static_cast<int>(m_damageParams.at(sub)[level].attackDamagePercent * m_player->attr->GetPhysicsAttack()) /
+            JX3_PHYSICS_DAMAGE_PARAM,
+        level,
+        damage.SumDamage());
 
     GainsDamage gainsDamage;
     gainsDamage.normalDamage =
@@ -413,10 +433,10 @@ GainsDamage Buff::CalcMagicDamageDot(Id_t targetId, RollResult rollResult, int s
         (JX3_PCT_FLOAT_BASE + (*m_targets)[targetId]->GetDamageAddPercent()) *   // 易伤加成
         (JX3_PCT_FLOAT_BASE - (*m_targets)[targetId]->GetMagicResistPercent()) * // 忽视加成
         (JX3_PCT_FLOAT_BASE +
-         ((*m_targets)[targetId]->GetLevel() - JX3_PLAYER_LEVEL) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
+         (JX3_PLAYER_LEVEL - (*m_targets)[targetId]->GetLevel()) * JX3_HIGH_LEVEL_DAMAGE_REDUCTION); // 等级差加成
     PctFloat_t damagePercent =
         effectCount * surplusDamageAddPercent *
-        (JX3_PCT_INT_BASE + m_targetSnapshots.at(targetId).skillDamageAddPercentInt) / JX3_PCT_INT_BASE;
+        (JX3_PCT_INT_BASE + m_targetSnapshots.at(targetId).skillDamageAddPercentInt) * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE;
 
     float damageAddOvercome = (JX3_PCT_FLOAT_BASE + m_player->attr->GetMagicOvercomePercent()); // 破防加成
     float damageAddStrain = (JX3_PCT_FLOAT_BASE + m_targetSnapshots.at(targetId).strainPercent); // 无双加成
@@ -548,8 +568,7 @@ void JX3DPS::Buff3rd::EnchantShoesPhysics::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::Buff3rd::EnchantShoesPhysics::TriggerDamage()
 {
-    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET)
-    {
+    if (m_targetSnapshots[JX3DPS_PLAYER].interval == JX3DPS_INVALID_FRAMES_SET) {
         m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed;
         SubEffect();
     }

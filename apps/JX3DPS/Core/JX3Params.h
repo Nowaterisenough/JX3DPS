@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 19:56:32
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 04:02:56
+ * Last Modified: 2023-07-12 07:03:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-#include "Defs.h"
+#include "JX3DPSTypes.h"
 #include "Version.h"
 
 namespace JX3DPS {
@@ -32,36 +32,40 @@ inline const std::vector<std::string> &CLASS = {
 
 /*----------------------- 游戏常数 -----------------------*/
 
-/* 百分数基数100% */
-const PctInt_t   JX3_PCT_INT_BASE   = 1024;
+/* 整型百分数基数100% */
+const PctInt_t JX3_PCT_INT_BASE = 1024;
+
+/* 浮点型百分数基数100% */
 const PctFloat_t JX3_PCT_FLOAT_BASE = 1.0;
 
+/* 会心百分数基数100% */
+const PctFloat_t JX3_CRITICAL_STRIKE_PERCENT_BASE = 10000.0;
+
 /* 每秒帧数 */
-const Frame_t JX3_FRAME_PER_SECOND = 16;
+const Frame_t JX3_FRAMES_PER_SECOND = 16;
 
 /* 高等级等级差减伤比例 */
-const PctFloat_t JX3_HIGH_LEVEL_DAMAGE_REDUCTION = 0.05;
-
-/* 高等级等级差最大减伤比例 */
-const PctFloat_t JX3_HIGH_LEVEL_DAMAGE_REDUCTION_MAX = 0.5;
+const PctFloat_t JX3_LEVEL_DAMAGE_REDUCTION = 0.05;
 
 /* 低等级等级差增伤比例 */
-const PctFloat_t JX3_LOW_LEVEL_DAMAGE_BOOST = 0.15;
+const PctFloat_t JX3_LEVEL_DAMAGE_INCREASE = 0.15;
 
-/* 低等级等级差最大增伤比例 */
-const PctFloat_t JX3_LOW_LEVEL_DAMAGE_BOOST_MAX = 1.5;
+/* 最大等级差 */
+const int JX3_LEVEL_DAMAGE_MAX_LEVEL_DIFF = 10;
 
 /* 外功伤害系数 */
-const float JX3_PHYSICS_DAMAGE_PARAM = 160;
+const PctFloat_t JX3_PHYSICS_DAMAGE_PARAM = 10;
 
 /* 内功伤害系数 */
-const float JX3_MAGIC_DAMAGE_PARAM = 192;
+const PctFloat_t JX3_MAGIC_DAMAGE_PARAM = 12;
 
-/* 普通技能伤害系数 */
-const int JX3_NORMAL_SKILL_DAMAGE_PARAM = 1;
+/* 伤害常数 */
+const PctFloat_t JX3_DAMAGE_CONST_PARAM = 16;
 
-/* Dot技能伤害常数 */
-const int JX3_DOT_SKILL_DAMAGE_CONST = 4;
+/* DOT伤害常数 */
+const PctFloat_t JX3_DOT_DAMAGE_CONST_PARAM = 12;
+
+
 
 /* 角色等级 */
 const int JX3_PLAYER_LEVEL = JX3_LEVEL_VERSION;

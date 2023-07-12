@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 15:41:10
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-09 22:19:53
+ * Last Modified: 2023-07-12 03:46:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -267,37 +267,37 @@ JX3DPS::Error_t Parse2ExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "<=") {
             exprIf = std::bind(&JX3DPS::Macro::BuffTimeLe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "=") {
             exprIf = std::bind(&JX3DPS::Macro::BuffTimeEq,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "~=") {
             exprIf = std::bind(&JX3DPS::Macro::BuffTimeNe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">=") {
             exprIf = std::bind(&JX3DPS::Macro::BuffTimeGe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">") {
             exprIf = std::bind(&JX3DPS::Macro::BuffTimeGt,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         }
     } else if (std::regex_match(str, mat, regTbuff)) {
         JX3DPS::Id_t id = GetBuffId(mat[1].str());
@@ -348,37 +348,37 @@ JX3DPS::Error_t Parse2ExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "<=") {
             exprIf = std::bind(&JX3DPS::Macro::TBuffTimeLe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "=") {
             exprIf = std::bind(&JX3DPS::Macro::TBuffTimeEq,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "~=") {
             exprIf = std::bind(&JX3DPS::Macro::TBuffTimeNe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">=") {
             exprIf = std::bind(&JX3DPS::Macro::TBuffTimeGe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">") {
             exprIf = std::bind(&JX3DPS::Macro::TBuffTimeGt,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAME_PER_SECOND);
+                               std::stoi(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         }
     } else if (std::regex_match(str, mat, regLastCastSkill)) {
         JX3DPS::Id_t id = GetSkillId(mat[1].str());
@@ -519,7 +519,7 @@ JX3DPS::Frame_t Parse2Frame(const std::string &str)
     if (!mat[3].str().empty()) {
         frame = std::stoi(mat[3].str());
     }
-    return (std::stoi(mat[1].str()) * JX3DPS_SECOND_PER_MINUTE + std::stoi(mat[2].str())) * JX3DPS::JX3_FRAME_PER_SECOND +
+    return (std::stoi(mat[1].str()) * JX3DPS_SECOND_PER_MINUTE + std::stoi(mat[2].str())) * JX3DPS::JX3_FRAMES_PER_SECOND +
            frame;
 }
 
@@ -622,7 +622,7 @@ JX3DPS::Error_t Parse2AddBuff(const std::string &str, JX3DPS::ExprEvent &exprEve
 
     JX3DPS::Frame_t duration = JX3DPS::JX3DPS_DEFAULT_DURATION_FRAMES;
     if (!mat[7].str().empty()) {
-        duration = std::stoi(mat[7].str()) * JX3DPS::JX3_FRAME_PER_SECOND;
+        duration = std::stoi(mat[7].str()) * JX3DPS::JX3_FRAMES_PER_SECOND;
     }
 
     exprEvent.second =

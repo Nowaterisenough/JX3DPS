@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-11 09:52:53
+ * Last Modified: 2023-07-12 07:12:47
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -21,6 +21,7 @@
 #include "Attr.h"
 #include "Globals.h"
 #include "JX3Params.h"
+
 #define BUFF_DEFAULT_FUNCTION(class_name)                                                                        \
                                                                                                                  \
 public:                                                                                                          \
@@ -58,46 +59,66 @@ struct TargetSnapshot
     int stackNum = 0;
 
     /* 快照攻击 */
-    Value_t attackBase = 0;
-
-    /* 快照攻击 */
-    Value_t attackMain = 0;
+    Value_t attack = 0;
 
     /* 快照会心 */
-    PctFloat_t criticalStrikePercent = 0.0;
+    Value_t criticalStrike = 0;
+
+    /* 快照会心率 */
+    PctFloat_t criticalStrikePercent = 0;
 
     /* 快照会效 */
-    PctFloat_t criticalStrikePowerPercent = 0.0;
+    Value_t criticalStrikePower = 0;
 
     /* 快照加速 */
-    PctFloat_t hastePercent = 0.0;
+    PctFloat_t hastePercent = 0;
 
     /* 快照无双 */
-    PctFloat_t strainPercent = 0.0;
+    Value_t strain = 0;
+
+    /* 快照效果会心 */
+    PctInt_t effectCriticalStrikeAddPercentInt = 0;
+
+    /* 快照效果会效 */
+    PctInt_t effectCriticalStrikePowerAddPercentInt = 0;
 
     /* 快照增伤 */
-    PctInt_t skillDamageAddPercentInt = 0;
+    PctInt_t effectDamageAddPercentInt = 0;
+
+    /* 快照收益攻击 */
+    Value_t attackGain = 0;
 
     /* 快照收益会效 */
-    PctFloat_t criticalStrikePowerGainPercent = 0.0;
+    Value_t criticalStrikePowerGain = 0;
 
     /* 快照收益无双 */
-    PctFloat_t strainGainPercent = 0.0;
+    Value_t strainGain = 0;
 
-    void SnapShot(Attr &attr, PctFloat_t skillCriticalStrikeAddPercent, PctFloat_t skillCriticalStrikePowerAddPercent, PctInt_t skillDamageAddPercentInt)
+    void SnapShot(Attr    &attr,
+                  PctInt_t effectCriticalStrikeAddPercentInt,
+                  PctInt_t effectCriticalStrikePowerAddPercentInt,
+                  PctInt_t effectDamageAddPercentInt)
     {
-        attackBase = attr.GetPhysicsAttackFromBase();
-        attackMain = attr.GetPhysicsAttackFromMain();
-        criticalStrikePercent = attr.GetPhysicsCriticalStrikePercent() + skillCriticalStrikeAddPercent;
-        criticalStrikePowerPercent = attr.GetPhysicsCriticalStrikePowerPercent() + skillCriticalStrikePowerAddPercent;
-        hastePercent             = attr.GetHastePercent();
-        strainPercent            = attr.GetStrainPercent();
-        this->skillDamageAddPercentInt = skillDamageAddPercentInt;
+        attack                = attr.GetPhysicsAttack();
+        criticalStrike        = attr.GetPhysicsCriticalStrike();
+        criticalStrikePercent = attr.GetPhysicsCriticalStrikePercent();
+        criticalStrikePower   = attr.GetPhysicsCriticalStrikePower();
+        hastePercent          = attr.GetHastePercent();
+        strain                = attr.GetStrain();
 
+        this->effectCriticalStrikeAddPercentInt      = effectCriticalStrikeAddPercentInt;
+        this->effectCriticalStrikePowerAddPercentInt = effectCriticalStrikePowerAddPercentInt;
+        this->effectDamageAddPercentInt              = effectDamageAddPercentInt;
+
+        attr.AddPhysicsAttackBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_ATTACK)]);
         attr.AddPhysicsCriticalStrikePower(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
         attr.AddStrain(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
-        criticalStrikePowerGainPercent = attr.GetPhysicsCriticalStrikePowerPercent();
-        strainGainPercent              = attr.GetStrainPercent();
+
+        attackGain              = attr.GetPhysicsAttack();
+        criticalStrikePowerGain = attr.GetPhysicsCriticalStrikePower();
+        strainGain              = attr.GetStrain();
+
+        attr.AddPhysicsAttackBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_ATTACK)]);
         attr.AddPhysicsCriticalStrikePower(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
         attr.AddStrain(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
     }
@@ -272,16 +293,41 @@ public:
     RollResult GetPhysicsRollResult() const;
     RollResult GetMagicRollResult() const;
 
-    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+    Damage GetPhysicsDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        int        effectCount,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain,
+        Value_t    surplus);
 
-    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
 
-    RollResult GetPhysicsRollResultDot(Id_t targetId) const;
-    RollResult GetMagicRollResultDot(Id_t targetId) const;
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
 
-    GainsDamage CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+    RollResult GetRollResultDot(Id_t targetId) const;
 
-    GainsDamage CalcMagicDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1) const;
+    Damage GetPhysicsDamageDot(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        int        effectCount,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain,
+        Value_t    surplus);
+
+    GainsDamage CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
+
+    GainsDamage CalcMagicDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
 
     void Record(Id_t               targetId    = 1,
                 RollResult         rollResult  = RollResult::HIT,
@@ -325,13 +371,13 @@ protected:
     int m_effectCountFixed = 0;
 
     /* 技能会心加成 */
-    PctInt_t m_skillCriticalStrikeAddPercent = 0.0;
+    PctInt_t m_effectCriticalStrikeAddPercentInt = 0;
 
     /* 技能会心效果加成 */
-    PctFloat_t m_skillCriticalStrikePowerAddPercent = 0.0;
+    PctInt_t m_effectCriticalStrikePowerAddPercentInt = 0;
 
     /* 技能伤害加成 */
-    PctInt_t m_skillDamageAddPercentInt = 0;
+    PctInt_t m_effectDamageAddPercentInt = 0;
 
     /* 伤害参数 */
     DamageParams m_damageParams;

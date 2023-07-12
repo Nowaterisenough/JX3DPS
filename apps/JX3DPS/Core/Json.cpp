@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-07 05:16:51
+ * Last Modified: 2023-07-12 03:55:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -178,26 +178,8 @@ JX3DPS::Error_t JX3DPS::Stats2Json(const DamageStats &damageStats, nlohmann::jso
                         json[std::string("目标").append(std::to_string(targetStats.first))][name]
                             [std::string("词缀").append(std::to_string(subStats.first))]
                             [std::string("强度").append(std::to_string(levelStats.first))]
-                            [rollResult[static_cast<int>(rollStats.first)]]["固定伤害"] =
-                                rollStats.second.second.fixedDamage;
-
-                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
-                            [std::string("词缀").append(std::to_string(subStats.first))]
-                            [std::string("强度").append(std::to_string(levelStats.first))]
-                            [rollResult[static_cast<int>(rollStats.first)]]["武器伤害"] =
-                                rollStats.second.second.weaponDamage;
-
-                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
-                            [std::string("词缀").append(std::to_string(subStats.first))]
-                            [std::string("强度").append(std::to_string(levelStats.first))]
-                            [rollResult[static_cast<int>(rollStats.first)]]["基础攻击伤害"] =
-                                rollStats.second.second.attackBaseDamage;
-
-                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
-                            [std::string("词缀").append(std::to_string(subStats.first))]
-                            [std::string("强度").append(std::to_string(levelStats.first))]
-                            [rollResult[static_cast<int>(rollStats.first)]]["面板攻击伤害"] =
-                                rollStats.second.second.attackMainDamage;
+                            [rollResult[static_cast<int>(rollStats.first)]]["伤害"] =
+                                rollStats.second.second.damage;
 
                         json[std::string("目标").append(std::to_string(targetStats.first))][name]
                             [std::string("词缀").append(std::to_string(subStats.first))]

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 05:43:28
+ * Last Modified: 2023-07-12 06:35:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -16,7 +16,11 @@
 #ifndef JX3DPS_SKILL_H_
 #define JX3DPS_SKILL_H_
 
+#include <unordered_map>
+
+#include "Attr.h"
 #include "Globals.h"
+#include "JX3Params.h"
 
 #define SKILL_DEFAULT_FUNCTION(class_name)                 \
                                                            \
@@ -102,9 +106,21 @@ public:
     RollResult GetPhysicsRollResult() const;
     RollResult GetMagicRollResult() const;
 
-    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
+    Damage GetPhysicsDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain,
+        Value_t    surplus);
 
-    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
+    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
     void Record(Id_t               targetId    = 1,
                 RollResult         rollResult  = RollResult::HIT,
@@ -168,13 +184,13 @@ protected:
     int m_targetCountFixed = 0;
 
     /* 技能会心加成 */
-    PctFloat_t m_skillCriticalStrikeAddPercent = 0.0;
+    PctInt_t m_effectCriticalStrikeAddPercentInt = 0;
 
     /* 技能会心效果加成 */
-    PctFloat_t m_skillCriticalStrikePowerAddPercent = 0.0;
+    PctInt_t m_effectCriticalStrikePowerAddPercentInt = 0;
 
     /* 技能伤害加成 */
-    PctInt_t m_skillDamageAddPercentInt = 0;
+    PctInt_t m_effectDamageAddPercentInt = 0;
 
     /* 技能气点加成 */
     int m_skillQidianAdd = 0;

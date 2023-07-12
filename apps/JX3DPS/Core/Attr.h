@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 06:30:46
+ * Last Modified: 2023-07-12 06:56:59
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -159,9 +159,9 @@ public:
     Value_t    GetPhysicsCriticalStrike() const;
     void       SetPhysicsCriticalStrike(Value_t value);
     void       AddPhysicsCriticalStrike(Value_t value);
-    PctFloat_t GetPhysicsCriticalStrikePercentFromCustom() const;
-    void       SetPhysicsCriticalStrikePercentFromCustom(PctFloat_t percent);
-    void       AddPhysicsCriticalStrikePercentFromCustom(PctFloat_t percent);
+    PctInt_t   GetPhysicsCriticalStrikePercentIntFromCustom() const;
+    void       SetPhysicsCriticalStrikePercentIntFromCustom(PctInt_t percentInt);
+    void       AddPhysicsCriticalStrikePercentIntFromCustom(PctInt_t percentInt);
     PctFloat_t GetPhysicsCriticalStrikePercent() const;
     Value_t    GetPhysicsCriticalStrikeMinimum() const;
 
@@ -176,9 +176,9 @@ public:
     Value_t    GetMagicCriticalStrike() const;
     void       SetMagicCriticalStrike(Value_t value);
     void       AddMagicCriticalStrike(Value_t value);
-    PctFloat_t GetMagicCriticalStrikePercentFromCustom() const;
-    void       SetMagicCriticalStrikePercentFromCustom(PctFloat_t percent);
-    void       AddMagicCriticalStrikePercentFromCustom(PctFloat_t percent);
+    PctInt_t   GetMagicCriticalStrikePercentIntFromCustom() const;
+    void       SetMagicCriticalStrikePercentIntFromCustom(PctInt_t percentInt);
+    void       AddMagicCriticalStrikePercentIntFromCustom(PctInt_t percentInt);
     PctFloat_t GetMagicCriticalStrikePercent() const;
     Value_t    GetMagicCriticalStrikeMinimum() const;
 
@@ -188,9 +188,9 @@ public:
     Value_t    GetPhysicsCriticalStrikePower() const;
     void       SetPhysicsCriticalStrikePower(Value_t value);
     void       AddPhysicsCriticalStrikePower(Value_t value);
-    PctFloat_t GetPhysicsCriticalStrikePowerPercentFromCustom() const;
-    void       SetPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
-    void       AddPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
+    PctInt_t   GetPhysicsCriticalStrikePowerPercentIntFromCustom() const;
+    void       SetPhysicsCriticalStrikePowerPercentIntFromCustom(PctInt_t percentInt);
+    void       AddPhysicsCriticalStrikePowerPercentIntFromCustom(PctInt_t percentInt);
     PctFloat_t GetPhysicsCriticalStrikePowerPercent() const;
 
     void SetBoxPhysicsCriticalStrikePowerPercent(PctFloat_t percent);
@@ -199,9 +199,9 @@ public:
     Value_t    GetMagicCriticalStrikePower() const;
     void       SetMagicCriticalStrikePower(Value_t value);
     void       AddMagicCriticalStrikePower(Value_t value);
-    PctFloat_t GetMagicCriticalStrikePowerPercentFromCustom() const;
-    void       SetMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
-    void       AddMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent);
+    PctInt_t   GetMagicCriticalStrikePowerPercentIntFromCustom() const;
+    void       SetMagicCriticalStrikePowerPercentIntFromCustom(PctInt_t percentInt);
+    void       AddMagicCriticalStrikePowerPercentIntFromCustom(PctInt_t percentInt);
     PctFloat_t GetMagicCriticalStrikePowerPercent() const;
 
     void SetBoxMagicCriticalStrikePowerPercent(PctFloat_t percent);
@@ -389,23 +389,23 @@ private:
     /* 外功会心 */
     Value_t    m_physicsCriticalStrike                  = 0;
     Value_t    m_physicsCriticalStrikeFromCustom        = 0;
-    PctFloat_t m_physicsCriticalStrikePercentFromCustom = 0.0;
+    PctInt_t m_physicsCriticalStrikePercentIntFromCustom = 0.0;
     PctFloat_t m_physicsCriticalStrikePercent           = 0.0;
 
     /* 内功会心 */
     Value_t    m_magicCriticalStrike                  = 0;
     Value_t    m_magicCriticalStrikeFromCustom        = 0;
-    PctFloat_t m_magicCriticalStrikePercentFromCustom = 0.0;
+    PctInt_t m_magicCriticalStrikePercentIntFromCustom = 0.0;
     PctFloat_t m_magicCriticalStrikePercent           = 0.0;
 
     /* 外功会心效果 */
     Value_t    m_physicsCriticalStrikePower                  = 0;
-    PctFloat_t m_physicsCriticalStrikePowerPercentFromCustom = 0.0;
+    PctInt_t m_physicsCriticalStrikePowerPercentIntFromCustom = 0.0;
     PctFloat_t m_physicsCriticalStrikePowerPercent = JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
 
     /* 内功会心效果 */
     Value_t    m_magicCriticalStrikePower                  = 0;
-    PctFloat_t m_magicCriticalStrikePowerPercentFromCustom = 0.0;
+    PctInt_t m_magicCriticalStrikePowerPercentIntFromCustom = 0.0;
     PctFloat_t m_magicCriticalStrikePowerPercent = JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
 
     /* 外功破防 */

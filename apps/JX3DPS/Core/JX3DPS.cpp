@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-08 06:17:54
+ * Last Modified: 2023-07-12 03:58:24
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -38,28 +38,10 @@ void SummarizeStats(Player &player, Stats &stats)
 void EvaluateGains(Player &player, const Stats &stats, std::vector<float> &gains, int time, int simCount)
 {
     gains.resize(17);
-    long long attackBaseDamage = 0;
-    long long weaponDamage     = 0;
 
-    for (auto &targetStats : stats.damageStats) {       // TargetStats
-        for (auto &effectStats : targetStats.second) {  // EffectStats
-            for (auto &subStats : effectStats.second) { // SubStats
-                for (auto &levelStats : subStats.second) {
-                    for (auto &rollStats : levelStats.second) {
-                        weaponDamage     += rollStats.second.second.weaponDamage;
-                        attackBaseDamage += rollStats.second.second.attackBaseDamage;
-                    }
-                }
-            }
-        }
-    }
     gains[static_cast<int>(AttributeType::NONE)] = stats.normalDamage / time / simCount;
-    gains[static_cast<int>(AttributeType::PHYSICS_ATTACK)] =
-        (float)attackBaseDamage * ATTRIBUTE_GAIN_BY_BASE.at(static_cast<int>(AttributeType::PHYSICS_ATTACK)) /
-        player.attr->GetPhysicsAttackFromBase() / stats.normalDamage;
-    gains[static_cast<int>(AttributeType::WEAPON_ATTACK)] =
-        (float)weaponDamage * ATTRIBUTE_GAIN_BY_BASE.at(static_cast<int>(AttributeType::WEAPON_ATTACK)) /
-        player.attr->GetWeaponAttack() / stats.normalDamage;
+    gains[static_cast<int>(AttributeType::PHYSICS_ATTACK)] = stats.attackDamage * 1.0 / stats.normalDamage - 1.0;
+    gains[static_cast<int>(AttributeType::WEAPON_ATTACK)] = stats.weaponDamage * 1.0 / stats.normalDamage - 1.0;
     gains[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)] =
         stats.criticalStrikePowerDamage * 1.0 / stats.normalDamage - 1.0;
     gains[static_cast<int>(AttributeType::PHYSICS_OVERCOME)] =

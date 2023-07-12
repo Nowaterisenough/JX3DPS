@@ -375,6 +375,7 @@ bool Widget::InitClass(JX3DPS::Class classType)
     m_progressBar->setAttribute(Qt::WA_DeleteOnClose);
     m_progressBar->show();
     m_progressBar->SetLoadMode();
+    connect(this, &Widget::Signal_UpdateProgress, m_progressBar, &ProgressBar::SetProgress);
 
     nlohmann::json json;
     if (!LoadConfig(".\\config.json", json)) {
@@ -383,10 +384,24 @@ bool Widget::InitClass(JX3DPS::Class classType)
 
     m_attr = JX3DPS::Attr(classType);
 
+    ThreadPool::Instance()->Enqueue([=, this] {
+        QEventLoop loop;
+
+        QTimer timer;
+        int    value = 0;
+        connect(&timer, &QTimer::timeout, [&]() {
+            emit Signal_UpdateProgress(value / 100.0);
+            value++;
+            if (value == 100) {
+                loop.quit(); // 当进度设置到100后，停止事件循环
+            }
+        });
+        timer.start(40); 
+        loop.exec();
+    });
+
     std::vector<std::vector<TalentInfo>> talents;
     ParseJson2Talents(json, classType, talents);
-
-    m_progressBar->SetProgress(0.3);
 
     for (int i = 0; i < 12; ++i) {
         for (auto &talentInfo : talents[i]) {
@@ -396,8 +411,6 @@ bool Widget::InitClass(JX3DPS::Class classType)
 
     std::unordered_map<std::string, std::vector<SecretInfo>> secrets;
     ParseJson2Secrets(json, classType, secrets);
-
-    m_progressBar->SetProgress(0.5);
 
     int index = 0;
     for (auto &secret : secrets) {
@@ -418,8 +431,6 @@ bool Widget::InitClass(JX3DPS::Class classType)
 
     ParseJson2SkillExprs(json, classType, m_skills);
     LoadSkills(0);
-
-    m_progressBar->SetProgress(0.7);
 
     ParseJson2EventExprs(json, classType, m_events);
     LoadEvents(0);

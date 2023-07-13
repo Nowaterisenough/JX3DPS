@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 08:46:05
+ * Last Modified: 2023-07-13 21:33:17
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -15,7 +15,7 @@
 
 #include <QApplication>
 #include <QIcon>
-
+#include <QFontDatabase>
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/spdlog.h>
 
@@ -32,7 +32,10 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    QFont font("Microsoft YaHei UI", 10.5);
+    int     index = QFontDatabase::addApplicationFont(":/resources/NoWatsFont.ttf");
+    QString str   = QFontDatabase::applicationFontFamilies(index).at(0);
+    QFont font(str, 10.5);
+
     font.setStyleStrategy(QFont::PreferAntialias);
     font.setHintingPreference(QFont::PreferFullHinting);
     qApp->setFont(font);

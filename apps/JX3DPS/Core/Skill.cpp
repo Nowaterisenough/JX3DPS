@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 09:18:55
+ * Last Modified: 2023-07-14 03:26:38
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -193,8 +193,7 @@ Damage Skill::GetPhysicsDamage(
     Value_t    weaponDamage,
     Value_t    criticalStrikePower,
     Value_t    overcome,
-    Value_t    strain,
-    Value_t    surplus)
+    Value_t    strain)
 {
     Damage damage;
 
@@ -206,9 +205,6 @@ Damage Skill::GetPhysicsDamage(
     Value_t effectDamage =
         EffectDamageAll(attack, physicsDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAddPercentInt);
 
-    PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].surplusDamagePercent;
-    Value_t  surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
-
     int      playerLevel                = JX3_PLAYER_LEVEL;
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
     Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
@@ -217,7 +213,8 @@ Damage Skill::GetPhysicsDamage(
     PctInt_t ignoreShieldPercentInt     = 0;
     int      rollResultInt              = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePower =
-        (m_effectCriticalStrikePowerAddPercentInt + m_player->attr->GetPhysicsCriticalStrikePercentIntFromCustom());
+        (m_effectCriticalStrikePowerAddPercentInt +
+         m_player->attr->GetPhysicsCriticalStrikePowerPercentIntFromCustom());
     PctInt_t strainPercentInt         = 0;
     PctInt_t classDamageAddPercentInt = m_player->damageAddPercentInt;
     PctInt_t vulnerablePercentInt     = (*m_targets)[targetId]->GetDamageAddPercentInt();
@@ -226,23 +223,6 @@ Damage Skill::GetPhysicsDamage(
         playerLevel,
         targetLevel,
         effectDamage,
-        shieldBase,
-        shieldAdd,
-        ignoreShieldBasePercentInt,
-        ignoreShieldPercentInt,
-        overcome,
-        rollResultInt,
-        criticalStrikePower,
-        effectCriticalStrikePower,
-        strain,
-        strainPercentInt,
-        classDamageAddPercentInt,
-        vulnerablePercentInt);
-
-    damage.surplusDamage = FinalPhysicsDamage(
-        playerLevel,
-        targetLevel,
-        surplusDamage,
         shieldBase,
         shieldAdd,
         ignoreShieldBasePercentInt,
@@ -271,8 +251,7 @@ GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int s
         m_player->attr->GetWeaponAttack(),
         m_player->attr->GetPhysicsCriticalStrikePower(),
         m_player->attr->GetPhysicsOvercome(),
-        m_player->attr->GetStrain(),
-        m_player->attr->GetSurplus());
+        m_player->attr->GetStrain());
 
     // 攻击收益
     m_player->attr->AddPhysicsAttackBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_ATTACK)]);
@@ -286,8 +265,7 @@ GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int s
         m_player->attr->GetWeaponAttack(),
         m_player->attr->GetPhysicsCriticalStrikePower(),
         m_player->attr->GetPhysicsOvercome(),
-        m_player->attr->GetStrain(),
-        m_player->attr->GetSurplus());
+        m_player->attr->GetStrain());
 
     m_player->attr->AddPhysicsAttackBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_ATTACK)]);
 
@@ -304,8 +282,7 @@ GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int s
         m_player->attr->GetWeaponAttack(),
         m_player->attr->GetPhysicsCriticalStrikePower(),
         m_player->attr->GetPhysicsOvercome(),
-        m_player->attr->GetStrain(),
-        m_player->attr->GetSurplus());
+        m_player->attr->GetStrain());
 
     m_player->attr->AddPhysicsCriticalStrikePower(
         -ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
@@ -322,8 +299,7 @@ GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int s
         m_player->attr->GetWeaponAttack(),
         m_player->attr->GetPhysicsCriticalStrikePower(),
         m_player->attr->GetPhysicsOvercome(),
-        m_player->attr->GetStrain(),
-        m_player->attr->GetSurplus());
+        m_player->attr->GetStrain());
 
     m_player->attr->AddPhysicsOvercomeBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_OVERCOME)]);
 
@@ -339,27 +315,12 @@ GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int s
         m_player->attr->GetWeaponAttack(),
         m_player->attr->GetPhysicsCriticalStrikePower(),
         m_player->attr->GetPhysicsOvercome(),
-        m_player->attr->GetStrain(),
-        m_player->attr->GetSurplus());
+        m_player->attr->GetStrain());
 
     m_player->attr->AddStrain(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::STRAIN)]);
 
     // 破招收益
-    m_player->attr->AddSurplusBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
-
-    gainsDamage.surplusDamage = GetPhysicsDamage(
-        targetId,
-        rollResult,
-        sub,
-        level,
-        m_player->attr->GetPhysicsAttack(),
-        m_player->attr->GetWeaponAttack(),
-        m_player->attr->GetPhysicsCriticalStrikePower(),
-        m_player->attr->GetPhysicsOvercome(),
-        m_player->attr->GetStrain(),
-        m_player->attr->GetSurplus());
-
-    m_player->attr->AddSurplusBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
+    gainsDamage.surplusDamage = gainsDamage.normalDamage;
 
     // 武器伤害收益
     m_player->attr->AddWeaponAttack(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::WEAPON_ATTACK)]);
@@ -373,8 +334,7 @@ GainsDamage Skill::CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int s
         m_player->attr->GetWeaponAttack(),
         m_player->attr->GetPhysicsCriticalStrikePower(),
         m_player->attr->GetPhysicsOvercome(),
-        m_player->attr->GetStrain(),
-        m_player->attr->GetSurplus());
+        m_player->attr->GetStrain());
 
     m_player->attr->AddWeaponAttack(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::WEAPON_ATTACK)]);
 
@@ -385,6 +345,91 @@ GainsDamage Skill::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub
 {
 
     GainsDamage gainsDamage;
+
+    return gainsDamage;
+}
+
+Damage Skill::GetPhysicsSurplusDamage(
+    Id_t       targetId,
+    RollResult rollResult,
+    int        sub,
+    int        level,
+    Value_t    criticalStrikePower,
+    Value_t    overcome,
+    Value_t    strain,
+    Value_t    surplus)
+{
+    Damage   damage;
+    PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercent;
+    Value_t  surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
+
+    int      playerLevel                = JX3_PLAYER_LEVEL;
+    int      targetLevel                = (*m_targets)[targetId]->GetLevel();
+    Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
+    Value_t  shieldAdd                  = 0;
+    PctInt_t ignoreShieldBasePercentInt = m_player->attr->GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldPercentInt     = 0;
+    int      rollResultInt              = static_cast<int>(rollResult);
+    PctInt_t effectCriticalStrikePower =
+        (m_effectCriticalStrikePowerAddPercentInt +
+         m_player->attr->GetPhysicsCriticalStrikePowerPercentIntFromCustom());
+    PctInt_t strainPercentInt         = 0;
+    PctInt_t classDamageAddPercentInt = m_player->damageAddPercentInt;
+    PctInt_t vulnerablePercentInt     = (*m_targets)[targetId]->GetDamageAddPercentInt();
+
+    damage.surplusDamage = FinalPhysicsDamage(
+        playerLevel,
+        targetLevel,
+        surplusDamage,
+        shieldBase,
+        shieldAdd,
+        ignoreShieldBasePercentInt,
+        ignoreShieldPercentInt,
+        overcome,
+        rollResultInt,
+        criticalStrikePower,
+        effectCriticalStrikePower,
+        strain,
+        strainPercentInt,
+        classDamageAddPercentInt,
+        vulnerablePercentInt);
+
+        return damage;
+}
+
+GainsDamage Skill::CalcPhysicsSurplusDamage(Id_t targetId, RollResult rollResult, int sub, int level)
+{
+    GainsDamage gainsDamage;
+    gainsDamage.normalDamage = GetPhysicsSurplusDamage(
+        targetId,
+        rollResult,
+        sub,
+        level,
+        m_player->attr->GetPhysicsCriticalStrikePower(),
+        m_player->attr->GetPhysicsOvercome(),
+        m_player->attr->GetStrain(),
+        m_player->attr->GetSurplus());
+
+    // 破招收益
+    m_player->attr->AddSurplusBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
+
+    gainsDamage.surplusDamage = GetPhysicsSurplusDamage(
+        targetId,
+        rollResult,
+        sub,
+        level,
+        m_player->attr->GetPhysicsCriticalStrikePower(),
+        m_player->attr->GetPhysicsOvercome(),
+        m_player->attr->GetStrain(),
+        m_player->attr->GetSurplus());
+
+    m_player->attr->AddSurplusBase(-ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::SURPLUS)]);
+
+    gainsDamage.attackDamage              = gainsDamage.normalDamage;
+    gainsDamage.criticalStrikePowerDamage = gainsDamage.normalDamage;
+    gainsDamage.overcomeDamage            = gainsDamage.normalDamage;
+    gainsDamage.strainDamage              = gainsDamage.normalDamage;
+    gainsDamage.weaponDamage              = gainsDamage.normalDamage;
 
     return gainsDamage;
 }

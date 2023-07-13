@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 11:26:22
+ * Last Modified: 2023-07-13 21:34:38
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -94,7 +94,7 @@ void ProgressBar::paintEvent(QPaintEvent *event)
 
     painter.setPen(QPen(QColor(COLOR_HIGHLIGHT)));
     painter.setBrush(Qt::NoBrush);
-    painter.setFont(QFont("微软雅黑", 11));
+    painter.setFont(QFont("NoWatsFont", 11));
 
     double percentage = m_progress * 100;
     QByteArray byteArray = QByteArray::number(percentage, 'f', 0); // 转换为整数形式的字符串

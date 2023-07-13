@@ -5,7 +5,7 @@
  * Created Date: 2023-07-02 17:47:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 19:58:00
+ * Last Modified: 2023-07-13 21:34:45
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -36,7 +36,7 @@ ImportWidget::ImportWidget(QWidget *parent) : QDialog(parent)
     textEdit->setWordWrapMode(QTextOption::NoWrap);
     Button *button = new Button(this);
     button->setFixedHeight(30);
-    button->setFont(QFont("微软雅黑", 11));
+    button->setFont(QFont("NoWatsFont", 11));
     button->setText("应用");
 
     QGridLayout *layout = new QGridLayout(this);

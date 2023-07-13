@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 05:09:53
+ * Last Modified: 2023-07-14 03:13:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -97,6 +97,14 @@ const Id_t END = 1451;
 } // namespace Talent
 
 namespace Skill {
+
+class PoZhao : public Skill
+{
+    SKILL_DEFAULT_FUNCTION(PoZhao)
+
+public:
+    void TriggerDamage(Id_t targetId, int sub, int level);
+};
 
 class WuWoWuJian : public Skill
 {

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-13 06:55:01
+ * Last Modified: 2023-07-14 04:04:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -29,10 +29,7 @@ namespace JX3DPS {
     ((1 & (~(((y) - (x)) >> 31))) * (x) - (~(((x) - (y)) >> 31)) * (y))
 
 // 负数为1，非负数为0
-#define JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(x)    (((x) >> (sizeof(x) * 8 - 1)) & 1)
-
-/* 1st为0时, 返回0, 否则返回2nd */
-#define JX3DPS_OPTIMIZATION_ZERO_OR_SECOND(x, y) ((x) == 0 ? 0 : (y))
+#define JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(x) (((x) >> (sizeof(x) * 8 - 1)) & 1)
 
 /*-----------  系数  -----------*/
 
@@ -107,10 +104,7 @@ inline Value_t SurplusDamage(Value_t surplus, PctInt_t surplusCoefficientInt, in
     PctFloat_t surplusPercent =
         (surplusCoefficientInt + JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(surplusCoefficientInt)) *
         JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE / JX3_PCT_INT_BASE;
-        spdlog::debug("surplusCoefficientInt: {}, JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(surplusCoefficientInt): {}", surplusCoefficientInt, JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(surplusCoefficientInt));
-    return JX3DPS_OPTIMIZATION_ZERO_OR_SECOND(
-        surplusCoefficientInt,
-        static_cast<Value_t>(surplus * ((surplusPercent + JX3_PCT_FLOAT_BASE) * JX3_SURPLUS_PARAM)));
+    return static_cast<Value_t>(surplus * ((surplusPercent + JX3_PCT_FLOAT_BASE) * JX3_SURPLUS_PARAM));
 }
 
 /*-----------  效果加成伤害  -----------*/
@@ -173,12 +167,15 @@ inline Value_t RollDamage(Value_t overcomeDamage, int rollResult, Value_t critic
     Value_t criticalStrikePowerDamage =
         rollResult *
         ((overcomeDamage * (JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE - JX3_PCT_FLOAT_BASE)) +
-         static_cast<Value_t>(overcomeDamage *
-                              (criticalStrikePowerPercentInt +
-                               effectCriticalStrikePowerPercentInt) *
+         static_cast<Value_t>(overcomeDamage * (criticalStrikePowerPercentInt + effectCriticalStrikePowerPercentInt) *
                               JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE));
 
-    spdlog::debug("overcomeDamage: {} criticalStrikePowerDamage: {}", overcomeDamage, criticalStrikePowerDamage);
+    spdlog::debug("overcomeDamage: {} criticalStrikePowerDamage: {} criticalStrikePower {} "
+                  "effectCriticalStrikePowerPercentInt {}",
+                  overcomeDamage,
+                  criticalStrikePowerDamage,
+                  criticalStrikePower,
+                  effectCriticalStrikePowerPercentInt);
     return overcomeDamage + criticalStrikePowerDamage;
 }
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-04 19:46:16
+ * Last Modified: 2023-07-13 21:35:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -45,7 +45,7 @@ void TabWidget::AddTab(const QString &text)
     });
 
     tabButton->setText(text);
-    QFont font("Microsoft YaHei", 11);
+    QFont font("NoWatsFont", 11);
     tabButton->setFont(font);
     int width = QFontMetrics(font).horizontalAdvance(text);
     if (m_tabs.empty()) {
@@ -345,7 +345,7 @@ void VTabWidget::AddTab(const QString &text)
         }
     });
 
-    QFont font("Microsoft YaHei", 11);
+    QFont font("NoWatsFont", 11);
     tabButton->setFont(font);
     tabButton->setText(text);
     int width = QFontMetrics(font).horizontalAdvance(text);
@@ -380,7 +380,7 @@ TWidget *VTabWidget::Widget(int index)
 void VTabWidget::resizeEvent(QResizeEvent *event)
 {
     for (auto &tab : m_tabs) {
-        QFont font("Microsoft YaHei", 11);
+        QFont font("NoWatsFont", 11);
         int   width = tab.first->x() + tab.first->rect().width();
         tab.second->setGeometry(width + 3, 0, this->width() - width - 3, this->height());
     }
@@ -518,7 +518,7 @@ void VerticalTabWidget::AddTab(const QString &text)
     });
 
     int y = height() / 2;
-    tabButton->setFont(QFont("微软雅黑", 11));
+    tabButton->setFont(QFont("NoWatsFont", 11));
     tabButton->setText(text);
     tabButton->setFixedSize(QFontMetrics(tabButton->font()).horizontalAdvance(text.at(0)) + 10,
                             (QFontMetrics(tabButton->font()).height() - 2) * text.length() + 2);

@@ -298,7 +298,9 @@
         "qstylepainter": "cpp",
         "qdialog": "cpp",
         "qwidget": "cpp",
-        "qstyleditemdelegate": "cpp"
+        "qstyleditemdelegate": "cpp",
+        "qevent": "cpp",
+        "qsplitterhandle": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

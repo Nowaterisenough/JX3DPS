@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 07:16:29
+ * Last Modified: 2023-07-14 03:34:44
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -38,6 +38,8 @@ void JX3DPS::TaiXuJianYi::Player::Init()
         }
     }
 
+    skills.emplace(JX3DPS::Skill::PO_ZHAO,
+                   std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::PoZhao>(this, nullptr)));
     skills.emplace(JX3DPS::Skill::WU_WO_WU_JIAN,
                    std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::WuWoWuJian>(this, nullptr)));
     skills.emplace(JX3DPS::Skill::BA_HUANG_GUI_YUAN,
@@ -208,6 +210,42 @@ void JX3DPS::TaiXuJianYi::Player::Init()
 
 /* ------------------------------------------------ Skill ----------------------------------------------- */
 
+JX3DPS::TaiXuJianYi::Skill::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) :
+    Skill(player, targets)
+{
+    m_id    = Skill::PO_ZHAO;
+    m_name  = "破招";
+    m_range = 4;
+
+    m_subNames.push_back("无我无剑");
+    m_subNames.push_back("三环套月");
+
+    m_levelNames.push_back("1");
+    m_levelNames.push_back("2");
+    m_levelNames.push_back("3");
+
+    m_damageParams[0].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+    m_damageParams[0].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.13 - 1));
+    m_damageParams[0].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.23 - 1));
+
+    m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+    m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+    m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+
+    
+}
+
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::Cast() { }
+
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::Trigger() { }
+
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
+{
+    RollResult  rollResult = GetPhysicsRollResult();
+    GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
+    Record(m_player->targetId, rollResult, damage, 0, level);
+}
+
 JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
@@ -231,85 +269,65 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
 
     m_damageParams[0].emplace_back((2696 * 1 / 10 / 12 + (2696 + 286) * 1 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 1,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 1);
     m_damageParams[0].emplace_back((2696 * 2 / 10 / 12 + (2696 + 286) * 2 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 2,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 2);
     m_damageParams[0].emplace_back((2696 * 3 / 10 / 12 + (2696 + 286) * 3 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 3,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 3);
     m_damageParams[0].emplace_back((2696 * 4 / 10 / 12 + (2696 + 286) * 4 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 4,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 4);
     m_damageParams[0].emplace_back((2696 * 5 / 10 / 12 + (2696 + 286) * 5 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 5,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 5);
     m_damageParams[0].emplace_back((2696 * 6 / 10 / 12 + (2696 + 286) * 6 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 6,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 6);
     m_damageParams[0].emplace_back((2696 * 7 / 10 / 12 + (2696 + 286) * 7 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 7,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 7);
     m_damageParams[0].emplace_back((2696 * 8 / 10 / 12 + (2696 + 286) * 8 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 8,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.13 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 8);
     m_damageParams[0].emplace_back((2696 * 9 / 10 / 12 + (2696 + 286) * 9 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 9,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.13 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 9);
     m_damageParams[0].emplace_back((2696 * 10 / 10 / 12 + (2696 + 286) * 10 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.23 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10);
 
     m_damageParams[1].emplace_back((2696 * 1 / 10 / 12 + (2696 + 286) * 1 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 1,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 1);
     m_damageParams[1].emplace_back((2696 * 2 / 10 / 12 + (2696 + 286) * 2 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 2,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 2);
     m_damageParams[1].emplace_back((2696 * 3 / 10 / 12 + (2696 + 286) * 3 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 3,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 3);
     m_damageParams[1].emplace_back((2696 * 4 / 10 / 12 + (2696 + 286) * 4 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 4,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 4);
     m_damageParams[1].emplace_back((2696 * 5 / 10 / 12 + (2696 + 286) * 5 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 5,
-                                   0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 5);
     m_damageParams[1].emplace_back((2696 * 6 / 10 / 12 + (2696 + 286) * 6 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 6,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.13 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 6);
     m_damageParams[1].emplace_back((2696 * 7 / 10 / 12 + (2696 + 286) * 7 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 7,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.13 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 7);
     m_damageParams[1].emplace_back((2696 * 8 / 10 / 12 + (2696 + 286) * 8 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 8,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.13 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 8);
     m_damageParams[1].emplace_back((2696 * 9 / 10 / 12 + (2696 + 286) * 9 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 9,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.13 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 9);
     m_damageParams[1].emplace_back((2696 * 10 / 10 / 12 + (2696 + 286) * 10 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10,
-                                   JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.23 - 1));
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10);
 
     if (m_player->talents[Talent::TONG_GEN]) {
         m_effectDamageAddPercentInt += 102;
@@ -423,6 +441,11 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
         static_cast<Buff::ChiYing *>(m_player->buffs[JX3DPS::Buff::CHI_YING].get())->TriggerDamage();
     }
 
+    if (qidian >= 6) {
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[Skill::PO_ZHAO].get())
+            ->TriggerDamage(m_player->targetId, 0, (qidian - 6) / 2);
+    }
+
     // 大附魔 腕
     if (m_player->enchantWrist) [[likely]] {
         static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
@@ -527,38 +550,38 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
     m_levelNames.push_back("20%-10%");
     m_levelNames.push_back("10%-0%");
 
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
 
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 1) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 2) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 3) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 4) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 5) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 6) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 7) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 8) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 9) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05, 0.0);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 1) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 2) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 3) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 4) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 5) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 6) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 7) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 8) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 9) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05);
 
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
 
     m_cooldownFixed = 16 * 12;
 
@@ -713,7 +736,7 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((1233 / 10 + (1233 + 137) / 10) / 2, 1024, 120 * 1.1 * 1.05 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((1233 / 10 + (1233 + 137) / 10) / 2, 1024, 120 * 1.1 * 1.05 * 1.1);
 
     m_cooldownFixed = 16 * 2;
 
@@ -723,7 +746,6 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
     }
     if (m_player->talents[Talent::HUAN_YUE]) {
         m_cooldownFixed += 16 * 4;
-        m_damageParams[0][0].surplusDamagePercent += JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1);
     }
     if (m_player->talents[Talent::FENG_SHI]) {
         m_range += 2.0;
@@ -778,6 +800,15 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
     Record(m_player->targetId, rollResult, damage, 0, 0);
+
+    if (m_player->talents[Talent::HUAN_YUE]) {
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[Skill::PO_ZHAO].get())
+            ->TriggerDamage(m_player->targetId, 1, 0);
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[Skill::PO_ZHAO].get())
+            ->TriggerDamage(m_player->targetId, 1, 0);
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[Skill::PO_ZHAO].get())
+            ->TriggerDamage(m_player->targetId, 1, 0);
+    }
 
     // 深埋 会心
     if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
@@ -857,7 +888,7 @@ JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *playe
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((1132 / 10 * 1.5 + (1132 + 113) / 10 * 1.5) / 2, 0, 100 * 1.1 * 1.25 * 1.05 * 1.5 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((1132 / 10 * 1.5 + (1132 + 113) / 10 * 1.5) / 2, 0, 100 * 1.1 * 1.25 * 1.05 * 1.5 * 1.1);
 
     m_cooldownFixed    = 16 * 12;
     m_targetCountFixed = 6;
@@ -972,7 +1003,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(1273 / 20, 0, 40, 0);
+    m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
     m_cooldownFixed = 16 * 20;
 
@@ -1111,7 +1142,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DP
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(1273 / 20, 0, 40, 0);
+    m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
     m_cooldownFixed = 16 * 20;
 
@@ -1258,7 +1289,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Pla
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(1273 / 20, 0, 40, 0);
+    m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
     m_cooldownFixed = 16 * 20;
 
@@ -1409,7 +1440,7 @@ JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player,
     m_cooldownFixed = 22;
 
     // TODO
-    m_damageParams[0].emplace_back(0, 1024, 20, 0);
+    m_damageParams[0].emplace_back(0, 1024, 20);
 }
 
 void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Cast()
@@ -1475,7 +1506,7 @@ JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_cooldownFixed      = 16 * 10;
     m_prepareFramesFixed = 16 * 1;
@@ -1530,7 +1561,7 @@ JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targe
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_cooldownFixed      = 16 * 10;
     m_prepareFramesFixed = 16 * 1;
@@ -1611,7 +1642,7 @@ JX3DPS::TaiXuJianYi::Skill::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_cooldownFixed      = 16 * 10;
     m_prepareFramesFixed = 16 * 1;
@@ -1671,7 +1702,7 @@ JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     if (m_player->talents[Talent::RUO_SHUI]) {
         m_cooldownFixed = 16 * 60;
@@ -1720,9 +1751,9 @@ JX3DPS::TaiXuJianYi::Skill::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Tar
     m_levelNames.push_back("");
 
     // TODO ： 武器伤害 lua脚本没有，描述有
-    m_damageParams[0].emplace_back((113 + 113 + 67) / 2, 0, 620 * 1.1 * 1.1, 0);
+    m_damageParams[0].emplace_back((113 + 113 + 67) / 2, 0, 620 * 1.1 * 1.1);
 
-    m_damageParams[1].emplace_back(200, 0, 200 * 1.1 * 1.1, 0);
+    m_damageParams[1].emplace_back(200, 0, 200 * 1.1 * 1.1);
 
     m_prepareFramesFixed = 16 * 3;
 
@@ -1834,21 +1865,21 @@ JX3DPS::TaiXuJianYi::Buff::DieRen::DieRen(JX3DPS::Player *player, Targets *targe
     m_levelNames.push_back("6层");
     m_levelNames.push_back("7层");
 
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1, 0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2, 0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3, 0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4, 0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5, 0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6, 0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7, 0);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
 
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1, 0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2, 0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3, 0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4, 0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5, 0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6, 0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7, 0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
 
     m_intervalFixed    = 16 * 3;
     m_stackNumFixed    = 5;
@@ -1989,9 +2020,9 @@ JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::WanXiangGuiYuan(JX3DPS::Player *play
     m_levelNames.push_back("2层");
     m_levelNames.push_back("3层");
 
-    m_damageParams[0].emplace_back(10, 0, 64 * 1, 0);
-    m_damageParams[0].emplace_back(10, 0, 64 * 2, 0);
-    m_damageParams[0].emplace_back(10, 0, 64 * 3, 0);
+    m_damageParams[0].emplace_back(10, 0, 64 * 1);
+    m_damageParams[0].emplace_back(10, 0, 64 * 2);
+    m_damageParams[0].emplace_back(10, 0, 64 * 3);
 
     m_intervalFixed    = 16 * 3;
     m_stackNumFixed    = 3;
@@ -2063,7 +2094,7 @@ JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targ
     m_subNames.push_back("");
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 40, 0);
+    m_damageParams[0].emplace_back(0, 0, 40);
 
     m_intervalFixed    = 16 * 3;
     m_effectCountFixed = 4;
@@ -2125,7 +2156,7 @@ JX3DPS::TaiXuJianYi::Buff::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targ
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 10;
     m_intervalFixed = 16 * 1;
@@ -2193,7 +2224,7 @@ JX3DPS::TaiXuJianYi::Buff::XuanMen::XuanMen(JX3DPS::Player *player, Targets *tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 40;
 
@@ -2253,7 +2284,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::FieldSuiXingChen(JX3DPS::Player *pl
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 16 * 3;
@@ -2352,7 +2383,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::FieldShengTaiJi(JX3DPS::Player *play
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 16 * 3;
@@ -2455,7 +2486,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldTunRiYue::FieldTunRiYue(JX3DPS::Player *player, 
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 20;
@@ -2545,7 +2576,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::FieldSuiXingChenQiSheng(JX3D
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 16 * 3;
@@ -2596,7 +2627,7 @@ JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targ
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_effectCriticalStrikeAddPercentInt      = 500;
     m_effectCriticalStrikePowerAddPercentInt = 102;
@@ -2661,7 +2692,7 @@ JX3DPS::TaiXuJianYi::Buff::QiSheng::QiSheng(JX3DPS::Player *player, Targets *tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 3;
 }
@@ -2710,7 +2741,7 @@ JX3DPS::TaiXuJianYi::Buff::FengShi::FengShi(JX3DPS::Player *player, Targets *tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 5;
 }
@@ -2760,7 +2791,7 @@ JX3DPS::TaiXuJianYi::Buff::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *t
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 20;
 }
@@ -2800,7 +2831,7 @@ JX3DPS::TaiXuJianYi::Buff::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targ
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 8;
 }
@@ -2850,7 +2881,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldLieYun::FieldLieYun(JX3DPS::Player *player, Targ
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 8;
@@ -2900,7 +2931,7 @@ JX3DPS::TaiXuJianYi::Buff::LieYun::LieYun(JX3DPS::Player *player, Targets *targe
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 1;
 }
@@ -2949,7 +2980,7 @@ JX3DPS::TaiXuJianYi::Buff::ChiYing::ChiYing(JX3DPS::Player *player, Targets *tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 127, 0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 127);
 
     m_durationFixed = 16 * 15;
     m_stackNumFixed = 3;
@@ -3002,7 +3033,7 @@ JX3DPS::TaiXuJianYi::Buff::YunZhongJianShengTaiJi::YunZhongJianShengTaiJi(JX3DPS
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1, 0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1);
 
     m_durationFixed = 16 * 8;
     m_intervalFixed = 16 * 1;
@@ -3084,7 +3115,7 @@ JX3DPS::TaiXuJianYi::Buff::YunZhongJianSuiXingChen::YunZhongJianSuiXingChen(JX3D
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1, 0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1);
 
     m_durationFixed = 16 * 8;
     m_intervalFixed = 16 * 1;
@@ -3167,7 +3198,7 @@ JX3DPS::TaiXuJianYi::Buff::YunZhongJianTunRiYue::YunZhongJianTunRiYue(JX3DPS::Pl
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1);
 
     m_durationFixed = 16 * 8;
     m_intervalFixed = 16 * 1;
@@ -3250,7 +3281,7 @@ JX3DPS::TaiXuJianYi::Buff::ClassFeatureRongJin::ClassFeatureRongJin(JX3DPS::Play
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_intervalFixed = 16 * 1;
 }
@@ -3290,7 +3321,7 @@ JX3DPS::TaiXuJianYi::Buff::WeaponEffectCW1::WeaponEffectCW1(JX3DPS::Player *play
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_intervalFixed = 16 * 30;
     m_durationFixed = 16 * 6;
@@ -3359,7 +3390,7 @@ JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::ClassSetBuffJianMing(JX3DPS::Pl
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 6;
 }

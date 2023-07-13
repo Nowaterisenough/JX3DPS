@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 20:59:11
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 04:52:43
+ * Last Modified: 2023-07-14 02:29:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -77,21 +77,14 @@ struct Damage
 /* 伤害系数 */
 struct DamageParam
 {
-    int        fixedDamage;            // 固定伤害
-    PctInt_t   weaponDamagePercentInt; // 武器伤害系数, 1024为100%
-    PctFloat_t attackDamagePercent;    // 攻击系数
-    PctInt_t   surplusDamagePercent;   // 破招系数
+    int      fixedDamage;            // 固定伤害
+    PctInt_t weaponDamagePercentInt; // 武器伤害系数, 1024为100%
+    PctInt_t attackDamagePercent;    // 攻击系数
 
-    DamageParam() :
-        fixedDamage(0), weaponDamagePercentInt(0), attackDamagePercent(0.0), surplusDamagePercent(0)
-    {
-    }
+    DamageParam() : fixedDamage(0), weaponDamagePercentInt(0), attackDamagePercent(0) { }
 
-    DamageParam(int fixedDamage, PctInt_t weaponDamagePercentInt, PctFloat_t attackDamagePercent, PctInt_t surplusDamagePercent) :
-        fixedDamage(fixedDamage),
-        weaponDamagePercentInt(weaponDamagePercentInt),
-        attackDamagePercent(attackDamagePercent),
-        surplusDamagePercent(surplusDamagePercent)
+    DamageParam(int fixedDamage, PctInt_t weaponDamagePercentInt, PctInt_t attackDamagePercent) :
+        fixedDamage(fixedDamage), weaponDamagePercentInt(weaponDamagePercentInt), attackDamagePercent(attackDamagePercent)
     {
     }
 };

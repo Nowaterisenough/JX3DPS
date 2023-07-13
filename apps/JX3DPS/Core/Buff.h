@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-13 09:49:15
+ * Last Modified: 2023-07-14 03:03:31
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -304,8 +304,7 @@ public:
         Value_t    weaponDamage,
         Value_t    criticalStrikePower,
         Value_t    overcome,
-        Value_t    strain,
-        Value_t    surplus);
+        Value_t    strain);
 
     GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
 
@@ -323,8 +322,7 @@ public:
         Value_t    weaponDamage,
         Value_t    criticalStrikePower,
         Value_t    overcome,
-        Value_t    strain,
-        Value_t    surplus);
+        Value_t    strain);
 
     GainsDamage CalcPhysicsDamageDot(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
 

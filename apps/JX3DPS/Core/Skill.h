@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 06:35:19
+ * Last Modified: 2023-07-14 03:03:15
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -47,6 +47,8 @@ namespace JX3DPS {
 class Skill
 {
 public:
+    static constexpr Id_t PO_ZHAO = 10;
+
     static constexpr Id_t SAN_CHAI_JIAN_FA             = 1000;
     static constexpr Id_t WU_WO_WU_JIAN                = 1001;
     static constexpr Id_t BA_HUANG_GUI_YUAN            = 1002;
@@ -74,7 +76,8 @@ public:
     static constexpr Id_t ZHEN_YUN_JIE_HUI = 3010;
 
     inline static const std::unordered_map<Id_t, std::string> &SKILL_NAME = {
-        {SAN_CHAI_JIAN_FA,              "三柴剑法"                   },
+        {PO_ZHAO,                       "破"                            },
+        { SAN_CHAI_JIAN_FA,             "三柴剑法"                   },
         { WU_WO_WU_JIAN,                "无我无剑"                   },
         { BA_HUANG_GUI_YUAN,            "八荒归元"                   },
         { SAN_HUAN_TAO_YUE,             "三环套月"                   },
@@ -115,12 +118,23 @@ public:
         Value_t    weaponDamage,
         Value_t    criticalStrikePower,
         Value_t    overcome,
-        Value_t    strain,
-        Value_t    surplus);
+        Value_t    strain);
 
     GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
     GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    Damage GetPhysicsSurplusDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain,
+        Value_t    surplus);
+
+    GainsDamage CalcPhysicsSurplusDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
     void Record(Id_t               targetId    = 1,
                 RollResult         rollResult  = RollResult::HIT,

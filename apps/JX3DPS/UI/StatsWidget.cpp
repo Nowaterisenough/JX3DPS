@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-13 09:30:33
+ * Last Modified: 2023-07-14 04:04:45
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,6 +18,7 @@
 #include <unordered_set>
 
 #include <QGraphicsDropShadowEffect>
+#include <QHeaderView>
 #include <QLayout>
 #include <QPainter>
 #include <QSortFilterProxyModel>
@@ -28,6 +29,7 @@
 #include <spdlog/spdlog.h>
 
 #include "Button.h"
+#include "Splitter.h"
 #include "TableView.h"
 #include "ThemeColors.h"
 
@@ -73,24 +75,6 @@ std::vector<std::string> GetEffectNames(const nlohmann::json &stats, const std::
             // 遍历技能
             for (auto &skill : target.value().items()) {
                 temp.insert(skill.key());
-
-                // 遍历词缀
-                for (auto &prefix : skill.value().items()) {
-                    // 遍历强度
-                    for (auto &intensity : prefix.value().items()) {
-                        // 遍历判定
-                        for (auto &roll : intensity.value().items()) {
-                            // 遍历伤害类型
-                            for (auto &damageType : roll.value().items()) {
-                                // 累加伤害值
-                                if (damageType.key() == "破招伤害" && damageType.value().get<long long>() > 0)
-                                {
-                                    temp.insert("破招·" + skill.key());
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     } else {
@@ -100,24 +84,6 @@ std::vector<std::string> GetEffectNames(const nlohmann::json &stats, const std::
         // 遍历技能
         for (auto &skill : target.items()) {
             temp.insert(skill.key());
-
-            // 遍历词缀
-            for (auto &prefix : skill.value().items()) {
-                // 遍历强度
-                for (auto &intensity : prefix.value().items()) {
-                    // 遍历判定
-                    for (auto &roll : intensity.value().items()) {
-                        // 遍历伤害类型
-                        for (auto &damageType : roll.value().items()) {
-                            // 累加伤害值
-                            if (damageType.key() == "破招伤害" && damageType.value().get<long long>() > 0)
-                            {
-                                temp.insert("破招·" + skill.key());
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -131,59 +97,6 @@ std::vector<std::string> GetEffectNames(const nlohmann::json &stats, const std::
 long long GetEffectDamage(const nlohmann::json &stats, const std::string &targetName, const std::string &effectName)
 {
     long long effectDamage = 0;
-
-    if (effectName.find("破招·") != std::string::npos) {
-        std::string name = effectName.substr(effectName.find("破招·") + std::string("破招·").length());
-        if (targetName == "总计") {
-            // 遍历目标
-            for (auto &target : stats["stats"].items()) {
-                if (target.value().find(name) == target.value().end()) {
-                    continue;
-                }
-
-                // 遍历词缀
-                for (auto &prefix : target.value()[name].items()) {
-                    // 遍历强度
-                    for (auto &intensity : prefix.value().items()) {
-                        // 遍历判定
-                        for (auto &roll : intensity.value().items()) {
-                            // 遍历伤害类型
-                            for (auto &damageType : roll.value().items()) {
-                                // 累加伤害值
-                                if (damageType.key() == "破招伤害") {
-                                    effectDamage += damageType.value().get<long long>();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // 获取目标
-            nlohmann::json skill = stats["stats"][targetName][name];
-
-            // 遍历词缀
-            for (auto &prefix : skill.items()) {
-                // 遍历强度
-                for (auto &intensity : prefix.value().items()) {
-                    // 遍历判定
-                    for (auto &roll : intensity.value().items()) {
-
-                        // 遍历伤害类型
-                        for (auto &damageType : roll.value().items()) {
-                            // 累加伤害值
-                            if (damageType.key() == "破招伤害") {
-                                effectDamage += damageType.value().get<long long>();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return effectDamage * 1.0 / stats["sim_iterations"];
-    }
-
     if (targetName == "总计") {
         // 遍历目标
         for (auto &target : stats["stats"].items()) {
@@ -200,7 +113,7 @@ long long GetEffectDamage(const nlohmann::json &stats, const std::string &target
                         // 遍历伤害类型
                         for (auto &damageType : roll.value().items()) {
                             // 累加伤害值
-                            if (damageType.key() != "数目" && damageType.key() != "破招伤害") {
+                            if (damageType.key() != "数目") {
                                 effectDamage += damageType.value().get<long long>();
                             }
                         }
@@ -221,7 +134,7 @@ long long GetEffectDamage(const nlohmann::json &stats, const std::string &target
                     // 遍历伤害类型
                     for (auto &damageType : roll.value().items()) {
                         // 累加伤害值
-                        if (damageType.key() != "数目" && damageType.key() != "破招伤害") {
+                        if (damageType.key() != "数目") {
                             effectDamage += damageType.value().get<long long>();
                         }
                     }
@@ -236,58 +149,6 @@ long long GetEffectDamage(const nlohmann::json &stats, const std::string &target
 double GetEffectCount(const nlohmann::json &stats, const std::string &targetName, const std::string &effectName)
 {
     long long count = 0;
-    if (effectName.find("破招·") != std::string::npos) {
-        std::string name = effectName.substr(effectName.find("破招·") + std::string("破招·").length());
-        spdlog::info("name: {}", name);
-        if (targetName == "总计") {
-            // 遍历目标
-            for (auto &target : stats["stats"].items()) {
-                if (target.value().find(name) == target.value().end()) {
-                    continue;
-                }
-
-                // 遍历词缀
-                for (auto &prefix : target.value()[name].items()) {
-                    // 遍历强度
-                    for (auto &intensity : prefix.value().items()) {
-                        // 遍历判定
-                        for (auto &roll : intensity.value().items()) {
-                            // 遍历伤害类型
-                            for (auto &damageType : roll.value().items()) {
-                                // 累加伤害值
-                                if (damageType.key() == "数目" && roll.value()["破招伤害"] != 0) {
-                                    count += damageType.value().get<long long>();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // 获取目标
-            nlohmann::json skill = stats["stats"][targetName][name];
-
-            // 遍历词缀
-            for (auto &prefix : skill.items()) {
-                // 遍历强度
-                for (auto &intensity : prefix.value().items()) {
-                    // 遍历判定
-                    for (auto &roll : intensity.value().items()) {
-
-                        // 遍历伤害类型
-                        for (auto &damageType : roll.value().items()) {
-                            // 累加伤害值
-                            if (damageType.key() == "数目" && roll.value()["破招伤害"] != 0) {
-                                count += damageType.value().get<long long>();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return count * 1.0 / stats["sim_iterations"];
-    }
 
     if (targetName == "总计") {
         // 遍历目标
@@ -343,59 +204,6 @@ long long GetEffectRollDamage(const nlohmann::json &stats,
                               const std::string    &rollName)
 {
     long long effectDamage = 0;
-
-    if (effectName.find("破招·") != std::string::npos) {
-        std::string name = effectName.substr(effectName.find("破招·") + std::string("破招·").length());
-        if (targetName == "总计") {
-            // 遍历目标
-            for (auto &target : stats["stats"].items()) {
-                if (target.value().find(name) == target.value().end()) {
-                    continue;
-                }
-
-                // 遍历词缀
-                for (auto &prefix : target.value()[name].items()) {
-                    // 遍历强度
-                    for (auto &intensity : prefix.value().items()) {
-                        // 遍历判定
-                        for (auto &roll : intensity.value().items()) {
-                            // 遍历伤害类型
-                            for (auto &damageType : roll.value().items()) {
-                                // 累加伤害值
-                                if (damageType.key() == "破招伤害" && roll.key() == rollName) {
-                                    effectDamage += damageType.value().get<long long>();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // 获取目标
-            nlohmann::json skill = stats["stats"][targetName][name];
-
-            // 遍历词缀
-            for (auto &prefix : skill.items()) {
-                // 遍历强度
-                for (auto &intensity : prefix.value().items()) {
-                    // 遍历判定
-                    for (auto &roll : intensity.value().items()) {
-
-                        // 遍历伤害类型
-                        for (auto &damageType : roll.value().items()) {
-                            // 累加伤害值
-                            if (damageType.key() == "破招伤害" && roll.key() == rollName) {
-                                effectDamage += damageType.value().get<long long>();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return effectDamage * 1.0 / stats["sim_iterations"];
-    }
-
     if (targetName == "总计") {
         // 遍历目标
         for (auto &target : stats["stats"].items()) {
@@ -412,7 +220,7 @@ long long GetEffectRollDamage(const nlohmann::json &stats,
                         // 遍历伤害类型
                         for (auto &damageType : roll.value().items()) {
                             // 累加伤害值
-                            if (damageType.key() != "数目" && damageType.key() != "破招伤害" && roll.key() == rollName)
+                            if (damageType.key() != "数目" && roll.key() == rollName)
                             {
                                 effectDamage += damageType.value().get<long long>();
                             }
@@ -434,7 +242,7 @@ long long GetEffectRollDamage(const nlohmann::json &stats,
                     // 遍历伤害类型
                     for (auto &damageType : roll.value().items()) {
                         // 累加伤害值
-                        if (damageType.key() != "数目" && damageType.key() != "破招伤害" && roll.key() == rollName)
+                        if (damageType.key() != "数目" && roll.key() == rollName)
                         {
                             effectDamage += damageType.value().get<long long>();
                         }
@@ -453,61 +261,6 @@ double GetEffectRollCount(const nlohmann::json &stats,
                           const std::string    &rollName)
 {
     long long count = 0;
-    if (effectName.find("破招·") != std::string::npos) {
-        std::string name = effectName.substr(effectName.find("破招·") + std::string("破招·").length());
-        spdlog::info("name: {}", name);
-        if (targetName == "总计") {
-            // 遍历目标
-            for (auto &target : stats["stats"].items()) {
-                if (target.value().find(name) == target.value().end()) {
-                    continue;
-                }
-
-                // 遍历词缀
-                for (auto &prefix : target.value()[name].items()) {
-                    // 遍历强度
-                    for (auto &intensity : prefix.value().items()) {
-                        // 遍历判定
-                        for (auto &roll : intensity.value().items()) {
-                            // 遍历伤害类型
-                            for (auto &damageType : roll.value().items()) {
-                                // 累加伤害值
-                                if (damageType.key() == "数目" && roll.value()["破招伤害"] != 0 &&
-                                    roll.key() == rollName)
-                                {
-                                    count += damageType.value().get<long long>();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // 获取目标
-            nlohmann::json skill = stats["stats"][targetName][name];
-
-            // 遍历词缀
-            for (auto &prefix : skill.items()) {
-                // 遍历强度
-                for (auto &intensity : prefix.value().items()) {
-                    // 遍历判定
-                    for (auto &roll : intensity.value().items()) {
-
-                        // 遍历伤害类型
-                        for (auto &damageType : roll.value().items()) {
-                            // 累加伤害值
-                            if (damageType.key() == "数目" && roll.value()["破招伤害"] != 0 && roll.key() == rollName)
-                            {
-                                count += damageType.value().get<long long>();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return count * 1.0 / stats["sim_iterations"];
-    }
 
     if (targetName == "总计") {
         // 遍历目标
@@ -564,7 +317,7 @@ StatsWidget::StatsWidget(QWidget *parent) : QDialog(parent)
 
     this->setAttribute(Qt::WA_TranslucentBackground);
 
-    this->setFixedWidth(550);
+    this->setFixedWidth(580);
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
     QGridLayout *layout = new QGridLayout(this);
@@ -600,9 +353,15 @@ StatsWidget::StatsWidget(QWidget *parent) : QDialog(parent)
     TableView *tableViewEffect = new TableView(widget);
     TableView *tableViewRoll   = new TableView(widget);
 
-    vLayout->addWidget(tableViewTarget, 0);
-    vLayout->addWidget(tableViewEffect, 1);
-    vLayout->addWidget(tableViewRoll, 2);
+    Splitter *splitter = new Splitter(widget);
+    splitter->setOrientation(Qt::Vertical);
+    splitter->addWidget(tableViewTarget);
+    splitter->addWidget(tableViewEffect);
+    splitter->addWidget(tableViewRoll);
+
+    // tableViewRoll->setFixedHeight(110);
+
+    vLayout->addWidget(splitter, 0);
 
     tableViewTarget->setModel(new QStandardItemModel());
 
@@ -632,7 +391,7 @@ StatsWidget::StatsWidget(QWidget *parent) : QDialog(parent)
         int row = 0;
         modelTarget->setData(modelTarget->index(row, 0), "总计");
         modelTarget->setData(modelTarget->index(row, 1), QString::number(totalDamage));
-        modelTarget->setData(modelTarget->index(row++, 2), QString::number(1, 'f', 2).append("%"));
+        modelTarget->setData(modelTarget->index(row++, 2), QString::number(100, 'f', 2).append("%"));
         for (auto &item : stats["stats"].items()) {
             std::string key = item.key();
             modelTarget->setData(modelTarget->index(row, 0), QString::fromStdString(key));
@@ -709,22 +468,26 @@ StatsWidget::StatsWidget(QWidget *parent) : QDialog(parent)
 
         modelRoll->setRowCount(2);
         modelRoll->setColumnCount(6);
-        
+
         modelRoll->setHeaderData(1, Qt::Horizontal, "数目");
         modelRoll->setHeaderData(2, Qt::Horizontal, "数目占比");
         modelRoll->setHeaderData(3, Qt::Horizontal, "平均伤害");
         modelRoll->setHeaderData(4, Qt::Horizontal, "总伤害");
         modelRoll->setHeaderData(5, Qt::Horizontal, "伤害占比");
 
+        proxyModel->sort(4, Qt::DescendingOrder);
+        tableViewRoll->setModel(proxyModel);
+
         // 获取目标名
-        std::string targetName =
-            modelTarget->data(modelTarget->index(0, 0)).toString().toStdString();
+        std::string targetName = modelTarget->data(modelTarget->index(0, 0)).toString().toStdString();
         std::string effectName =
             static_cast<QSortFilterProxyModel *>(tableViewEffect->model())
                 ->data(static_cast<QSortFilterProxyModel *>(tableViewEffect->model())->index(index.row(), 0))
                 .toString()
                 .toStdString();
-        modelRoll->setHeaderData(0, Qt::Horizontal, QString("%1-%2").arg(targetName.c_str()).arg(effectName.c_str()));
+        modelRoll->setHeaderData(0,
+                                 Qt::Horizontal,
+                                /*  QString("%1-%2").arg(targetName.c_str()).arg(effectName.c_str())*/"判定");
 
         std::vector<std::string> rollNames = { "命中", "会心" };
         int                      row       = 0;
@@ -733,7 +496,6 @@ StatsWidget::StatsWidget(QWidget *parent) : QDialog(parent)
 
             double count = GetEffectRollCount(m_stats, targetName, effectName, rollName);
             modelRoll->setData(modelRoll->index(row, 1), QString::number(count));
-            spdlog::info("count: {}", count);
 
             double sum = GetEffectCount(m_stats, targetName, effectName);
             if (sum == 0) {
@@ -762,8 +524,15 @@ StatsWidget::StatsWidget(QWidget *parent) : QDialog(parent)
             row++;
         }
 
-        proxyModel->sort(4, Qt::DescendingOrder);
-        tableViewRoll->setModel(proxyModel);
+        // tableViewRoll->setWindowTitle("My Table");
+        // tableViewRoll->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+        // tableViewRoll->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents); // 设置其他列的调整方式
+        // tableViewRoll->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents); // 设置其他列的调整方式
+        // tableViewRoll->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents); // 设置其他列的调整方式
+        // // tableViewRoll->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents); // 设置其他列的调整方式
+        // tableViewRoll->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents); // 设置其他列的调整方式
+
+
     });
 }
 

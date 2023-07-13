@@ -123,8 +123,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
     Button *button = new Button(widget);
     button->setText("开始模拟");
-    button->setFont(QFont("Microsoft YaHei", 14));
-    button->setFixedSize(134, 44);
+    button->setFont(QFont("NoWatsFont", 14));
+    button->setFixedSize(154, 44);
     button->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
 
     GroupBox *groupBoxSetting = new GroupBox("设置", widget);
@@ -168,15 +168,12 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     Splitter *splitter = new Splitter(widget);
     splitter->setOrientation(Qt::Vertical);
     splitter->addWidget(tabWidgetSkill);
-    QWidget *spacer = new QWidget(widget);
-    spacer->setFixedHeight(10); // 设置间距的宽度
-    splitter->addWidget(spacer);
     splitter->addWidget(tabWidgetEvent);
 
     groupBoxSetting->setFixedWidth(208);
     tabWidgetAttrAndEchant->setFixedWidth(208);
-    groupBoxOut->setFixedWidth(134);
-    tabWidgetAttrGain->setFixedWidth(134);
+    groupBoxOut->setFixedWidth(154);
+    tabWidgetAttrGain->setFixedWidth(154);
     tabWidgetAttrGain->setFixedHeight(312);
 
     QSpacerItem *verticalSpacer3 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -520,7 +517,7 @@ void Widget::InitWidgetOut(QWidget *parent)
     textButtonDPS->setFixedSize(60, 21);
 
     m_lineEditDPS = new LineEdit(parent);
-    m_lineEditDPS->setFixedSize(48, 21);
+    m_lineEditDPS->setFixedSize(65, 21);
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -788,7 +785,7 @@ void Widget::InitWidgetAttr(QWidget *parent)
     gLayout->addWidget(groupBoxAttrSetEffect, 11, 0, 1, 3);
 
     Button *buttonImportJX3Box = new Button(parent);
-    buttonImportJX3Box->setFont(QFont("Microsoft YaHei", 11));
+    buttonImportJX3Box->setFont(QFont("NoWatsFont", 11));
     buttonImportJX3Box->setFixedHeight(35);
     buttonImportJX3Box->setText("导入魔盒属性");
 
@@ -889,34 +886,34 @@ void Widget::InitWidgetEchant(QWidget *parent) { }
 void Widget::InitWidgetAttrGain(QWidget *parent)
 {
     DataBars *dataBarAgilityOrSpirit = new DataBars(parent);
-    dataBarAgilityOrSpirit->setFixedSize(110, 21);
+    dataBarAgilityOrSpirit->setFixedHeight(21);
 
     DataBars *dataBarStrengthOrSpunk = new DataBars(parent);
-    dataBarStrengthOrSpunk->setFixedSize(110, 21);
+    dataBarStrengthOrSpunk->setFixedHeight(21);
 
     DataBars *dataBarAttack = new DataBars(parent);
-    dataBarAttack->setFixedSize(110, 21);
+    dataBarAttack->setFixedHeight(21);
 
     DataBars *dataBarCritical = new DataBars(parent);
-    dataBarCritical->setFixedSize(110, 21);
+    dataBarCritical->setFixedHeight(21);
 
     DataBars *dataBarCriticalPower = new DataBars(parent);
-    dataBarCriticalPower->setFixedSize(110, 21);
+    dataBarCriticalPower->setFixedHeight(21);
 
     DataBars *dataBarHaste = new DataBars(parent);
-    dataBarHaste->setFixedSize(110, 21);
+    dataBarHaste->setFixedHeight(21);
 
     DataBars *dataBarOvercome = new DataBars(parent);
-    dataBarOvercome->setFixedSize(110, 21);
+    dataBarOvercome->setFixedHeight(21);
 
     DataBars *dataBarStrain = new DataBars(parent);
-    dataBarStrain->setFixedSize(110, 21);
+    dataBarStrain->setFixedHeight(21);
 
     DataBars *dataBarSurplus = new DataBars(parent);
-    dataBarSurplus->setFixedSize(110, 21);
+    dataBarSurplus->setFixedHeight(21);
 
     DataBars *dataBarWeaponAttack = new DataBars(parent);
-    dataBarWeaponAttack->setFixedSize(110, 21);
+    dataBarWeaponAttack->setFixedHeight(21);
 
     QGridLayout *gLayout = new QGridLayout(parent);
 

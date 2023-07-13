@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 07:16:32
+ * Last Modified: 2023-07-13 21:39:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -144,7 +144,7 @@ void ItemDelegateClass::paint(QPainter *painter, const QStyleOptionViewItem &opt
         painter->fillRect(option.rect, QBrush(QColor(COLOR_BACKGROUND_BASE)));
     }
 
-    QFont font("微软雅黑", 10.5);
+    QFont font("NoWatsFont", 10.5);
     painter->setFont(font);
     painter->setPen(QColor(COLOR_HIGHLIGHT));
     painter->drawText(option.rect,
@@ -429,7 +429,7 @@ void ItemWidgetTalent::paintEvent(QPaintEvent *event)
         painter.drawPixmap(border, border, icon.pixmap(m_pixmap->size(), mode).scaledToWidth(this->height() - border * 2));
     }
 
-    painter.setFont(QFont("微软雅黑", 11));
+    painter.setFont(QFont("NoWatsFont", 11));
     painter.setPen(QPen((m_isHovered || m_selected) ? QColor(COLOR_FOCUS) : QColor(COLOR_INACTIVE)));
     painter.drawText(this->height(), 0, this->width() - this->height(), this->height(), Qt::AlignCenter, m_name);
     painter.drawText(this->height(), 0, this->width() - this->height(), this->height(), Qt::AlignCenter, m_name);

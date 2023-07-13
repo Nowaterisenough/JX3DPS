@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 07:22:24
+ * Last Modified: 2023-07-12 12:12:58
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -625,7 +625,7 @@ JX3DPS::Buff3rd::EnchantShoesPhysics::EnchantShoesPhysics(JX3DPS::Player *player
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100, 0.0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 60, 0.0);
 
     m_intervalFixed = 16 * 10;
 }

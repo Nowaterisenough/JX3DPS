@@ -396,7 +396,7 @@ bool Widget::InitClass(JX3DPS::Class classType)
                 loop.quit(); // 当进度设置到100后，停止事件循环
             }
         });
-        timer.start(40); 
+        timer.start(40);
         loop.exec();
     });
 
@@ -546,13 +546,14 @@ bool ParseJson2Attr(const nlohmann::json &json, JX3DPS::Attr &attr)
         attr.SetStrengthBase(j.at("Strength").get<int>());
         attr.SetSpunkBase(j.at("Spunk").get<int>());
 
-        attr.SetPhysicsAttackBase(j.at("PhysicsAttackPowerBase").get<int>() - attr.GetPhysicsAttackBaseFromMajor());
+        attr.SetPhysicsAttackBaseFromCustom(j.at("PhysicsAttackPowerBase").get<int>() -
+                                            attr.GetPhysicsAttackBaseFromMajor());
 
         attr.SetBoxPhysicsCriticalStrikePercent(j.at("PhysicsCriticalStrikeRate").get<double>());
         attr.SetBoxPhysicsCriticalStrikePowerPercent(j.at("PhysicsCriticalDamagePowerPercent").get<double>());
 
-        attr.SetPhysicsOvercomeBase(j.at("PhysicsOvercome").get<int>() - attr.GetPhysicsOvercomeBaseFromMajor() -
-                                    attr.GetPhysicsOvercomeFromClass());
+        attr.SetPhysicsOvercomeBaseFromCustom(j.at("PhysicsOvercome").get<int>() - attr.GetPhysicsOvercomeBaseFromMajor() -
+                                              attr.GetPhysicsOvercomeFromClass());
         attr.SetHaste(j.at("Haste").get<int>());
         attr.SetStrain(j.at("Strain").get<int>());
         attr.SetSurplusBase(j.at("SurplusValue").get<int>());
@@ -933,6 +934,7 @@ void Widget::InitWidgetAttrGain(QWidget *parent)
     connect(this, &Widget::Signal_UpdateGains, this, [=](const nlohmann::json &json) {
         dataBarAttack->SetValue(json["外功攻击"]);
         dataBarOvercome->SetValue(json["外功破防"]);
+        dataBarCritical->SetValue(json["外功会心"]);
         dataBarCriticalPower->SetValue(json["外功会效"]);
         dataBarStrain->SetValue(json["无双"]);
         dataBarSurplus->SetValue(json["破招"]);

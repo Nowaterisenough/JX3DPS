@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 07:04:04
+ * Last Modified: 2023-07-12 09:18:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -217,7 +217,7 @@ Damage Skill::GetPhysicsDamage(
     PctInt_t ignoreShieldPercentInt     = 0;
     int      rollResultInt              = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePower =
-        m_effectCriticalStrikePowerAddPercentInt + m_player->attr->GetPhysicsCriticalStrikePercentIntFromCustom();
+        (m_effectCriticalStrikePowerAddPercentInt + m_player->attr->GetPhysicsCriticalStrikePercentIntFromCustom());
     PctInt_t strainPercentInt         = 0;
     PctInt_t classDamageAddPercentInt = m_player->damageAddPercentInt;
     PctInt_t vulnerablePercentInt     = (*m_targets)[targetId]->GetDamageAddPercentInt();

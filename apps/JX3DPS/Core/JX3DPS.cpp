@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 03:58:24
+ * Last Modified: 2023-07-12 09:46:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -25,6 +25,15 @@
 
 namespace JX3DPS {
 
+Error_t SimulatePool(ExprEvents &exprEvents,
+                     ExprSkills &exprSkills,
+                     Player     &player,
+                     int         simIterations,
+                     Stats      &stats,
+                     void       *obj,
+                     void (*memberFunction)(void *, double),
+                     bool finished = false);
+
 void SummarizeStats(Player &player, Stats &stats)
 {
     for (auto &skill : player.skills) {
@@ -35,11 +44,19 @@ void SummarizeStats(Player &player, Stats &stats)
     }
 }
 
-void EvaluateGains(Player &player, const Stats &stats, std::vector<float> &gains, int time, int simCount)
+void EvaluateGains(ExprEvents         &exprEvents,
+                   ExprSkills         &exprSkills,
+                   Player             &player,
+                   const Stats        &stats,
+                   std::vector<float> &gains,
+                   int                 time,
+                   int                 simIterations,
+                   void               *obj,
+                   void (*memberFunction)(void *, double))
 {
     gains.resize(17);
 
-    gains[static_cast<int>(AttributeType::NONE)] = stats.normalDamage / time / simCount;
+    gains[static_cast<int>(AttributeType::NONE)] = stats.normalDamage / time / simIterations;
     gains[static_cast<int>(AttributeType::PHYSICS_ATTACK)] = stats.attackDamage * 1.0 / stats.normalDamage - 1.0;
     gains[static_cast<int>(AttributeType::WEAPON_ATTACK)] = stats.weaponDamage * 1.0 / stats.normalDamage - 1.0;
     gains[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)] =
@@ -48,6 +65,13 @@ void EvaluateGains(Player &player, const Stats &stats, std::vector<float> &gains
         stats.overcomeDamage * 1.0 / stats.normalDamage - 1.0;
     gains[static_cast<int>(AttributeType::STRAIN)] = stats.strainDamage * 1.0 / stats.normalDamage - 1.0;
     gains[static_cast<int>(AttributeType::SURPLUS)] = stats.surplusDamage * 1.0 / stats.normalDamage - 1.0;
+
+    Stats stats2;
+    player.attr->AddPhysicsCriticalStrike(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE)]);
+    SimulatePool(exprEvents, exprSkills, player, simIterations, stats2, obj, memberFunction, true);
+
+    gains[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE)] =
+        stats2.normalDamage * 1.0 / stats.normalDamage - 1.0;
 }
 
 Stats Simulate(Player &p, ExprEvents &exprEvents, ExprSkills &exprSkills)
@@ -84,7 +108,8 @@ Error_t SimulatePool(ExprEvents &exprEvents,
                      int         simIterations,
                      Stats      &stats,
                      void       *obj,
-                     void (*memberFunction)(void *, double))
+                     void (*memberFunction)(void *, double),
+                     bool finished)
 {
     std::list<std::future<Stats>> results;
     for (int i = 0; i < simIterations; i++) {
@@ -104,7 +129,9 @@ Error_t SimulatePool(ExprEvents &exprEvents,
         stats += results.front().get();
         results.pop_front();
     }
-    memberFunction(obj, 1.0);
+    if (finished) {
+        memberFunction(obj, 1.0);
+    }
 
     return JX3DPS::JX3DPS_SUCCESS;
 }
@@ -240,7 +267,7 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*memberFunc
     nlohmann::json jsonObj;
 
     std::vector<float> gains;
-    JX3DPS::EvaluateGains(*player.get(), stats, gains, time, simIterations);
+    JX3DPS::EvaluateGains(exprEvents, exprSkills, *player.get(), stats, gains, time, simIterations, obj, memberFunction);
     JX3DPS::Gains2Json(gains, jsonObj["gains"]);
 
     JX3DPS::Stats2Json(stats.damageStats, jsonObj["stats"]);

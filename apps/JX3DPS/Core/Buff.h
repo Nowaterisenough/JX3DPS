@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 07:12:47
+ * Last Modified: 2023-07-13 09:49:15
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -107,8 +107,9 @@ struct TargetSnapshot
         strain                = attr.GetStrain();
 
         this->effectCriticalStrikeAddPercentInt      = effectCriticalStrikeAddPercentInt;
-        this->effectCriticalStrikePowerAddPercentInt = effectCriticalStrikePowerAddPercentInt;
+        this->effectCriticalStrikePowerAddPercentInt = effectCriticalStrikePowerAddPercentInt + attr.GetPhysicsCriticalStrikePowerPercentIntFromCustom();
         this->effectDamageAddPercentInt              = effectDamageAddPercentInt;
+
 
         attr.AddPhysicsAttackBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_ATTACK)]);
         attr.AddPhysicsCriticalStrikePower(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);

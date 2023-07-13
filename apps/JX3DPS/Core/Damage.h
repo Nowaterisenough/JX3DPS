@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 07:47:46
+ * Last Modified: 2023-07-13 06:55:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -32,7 +32,7 @@ namespace JX3DPS {
 #define JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(x)    (((x) >> (sizeof(x) * 8 - 1)) & 1)
 
 /* 1st为0时, 返回0, 否则返回2nd */
-#define JX3DPS_OPTIMIZATION_ZERO_OR_SECOND(x, y) ((x) == 0 ? 0 : 0)
+#define JX3DPS_OPTIMIZATION_ZERO_OR_SECOND(x, y) ((x) == 0 ? 0 : (y))
 
 /*-----------  系数  -----------*/
 
@@ -107,10 +107,10 @@ inline Value_t SurplusDamage(Value_t surplus, PctInt_t surplusCoefficientInt, in
     PctFloat_t surplusPercent =
         (surplusCoefficientInt + JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(surplusCoefficientInt)) *
         JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE / JX3_PCT_INT_BASE;
+        spdlog::debug("surplusCoefficientInt: {}, JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(surplusCoefficientInt): {}", surplusCoefficientInt, JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(surplusCoefficientInt));
     return JX3DPS_OPTIMIZATION_ZERO_OR_SECOND(
         surplusCoefficientInt,
-        static_cast<Value_t>(surplus * ((surplusPercent + JX3_PCT_FLOAT_BASE) * JX3_SURPLUS_PARAM *
-                                        (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST))));
+        static_cast<Value_t>(surplus * ((surplusPercent + JX3_PCT_FLOAT_BASE) * JX3_SURPLUS_PARAM)));
 }
 
 /*-----------  效果加成伤害  -----------*/
@@ -134,10 +134,11 @@ inline PctInt_t ShieldPercentInt(Value_t shieldBase, Value_t shieldAdd, PctInt_t
 
 /*-----------  破防加成伤害  -----------*/
 
-inline Value_t OvercomeDamage(Value_t effectDamage, Value_t shield, Value_t overcome, int playerLevel, int targetLevel)
+inline Value_t PhysicsOvercomeDamage(Value_t effectDamage, Value_t shield, Value_t overcome, int playerLevel, int targetLevel)
 {
     PctInt_t overcomePercentInt =
-        overcome * JX3_PCT_INT_BASE / (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST)) + JX3_PCT_INT_BASE;
+        overcome * JX3_PCT_INT_BASE / (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST)) +
+        JX3_PCT_INT_BASE;
     PctInt_t shieldPercentInt =
         shield * JX3_PCT_INT_BASE /
         (shield + JX3_PHYSICS_SHIELD_PARAM * (JX3_LEVEL_PARAM * targetLevel - JX3_LEVEL_CONST));
@@ -166,15 +167,18 @@ inline Value_t MagicOvercomeDamage(Value_t effectDamage, Value_t shield, Value_t
 inline Value_t RollDamage(Value_t overcomeDamage, int rollResult, Value_t criticalStrikePower, PctInt_t effectCriticalStrikePowerPercentInt, int playerLevel)
 {
     PctInt_t criticalStrikePowerPercentInt =
-        criticalStrikePower /
+        criticalStrikePower * JX3_PCT_INT_BASE /
         (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST));
 
     Value_t criticalStrikePowerDamage =
         rollResult *
         ((overcomeDamage * (JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE - JX3_PCT_FLOAT_BASE)) +
-         static_cast<Value_t>(overcomeDamage * (criticalStrikePowerPercentInt + effectCriticalStrikePowerPercentInt) *
+         static_cast<Value_t>(overcomeDamage *
+                              (criticalStrikePowerPercentInt +
+                               effectCriticalStrikePowerPercentInt) *
                               JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE));
 
+    spdlog::debug("overcomeDamage: {} criticalStrikePowerDamage: {}", overcomeDamage, criticalStrikePowerDamage);
     return overcomeDamage + criticalStrikePowerDamage;
 }
 
@@ -264,7 +268,8 @@ inline Value_t FinalPhysicsDamage(
 
     PctInt_t shieldPercentInt =
         ShieldPercentInt(shieldBase, shieldAdd, ignoreShieldBasePercentInt, ignoreShieldPercentInt);
-    Value_t physicsOvercomeDamage = OvercomeDamage(damage, shieldPercentInt, overcome, playerLevel, targetLevel);
+    Value_t physicsOvercomeDamage =
+        PhysicsOvercomeDamage(damage, shieldPercentInt, overcome, playerLevel, targetLevel);
     Value_t rollDamage =
         RollDamage(physicsOvercomeDamage, rollResult, criticalStrikePower, effectCriticalStrikePowerPercentInt, playerLevel);
     Value_t levelDamage  = LevelDamage(rollDamage, targetLevel);

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-14 03:34:44
+ * Last Modified: 2023-07-15 21:54:58
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -231,8 +231,6 @@ JX3DPS::TaiXuJianYi::Skill::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targ
     m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
     m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
     m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
-
-    
 }
 
 void JX3DPS::TaiXuJianYi::Skill::PoZhao::Cast() { }
@@ -373,7 +371,7 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Cast()
 {
     m_player->lastCastSkill = m_id;
-
+    spdlog::debug("无我无剑 {}气点", m_player->qidian);
     *m_globalCooldown = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
                         RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
 
@@ -403,15 +401,16 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
 
     int level = qidian - 1;
 
-    RollResult  rollResult = GetPhysicsRollResult();
-    GainsDamage damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, level);
-    Record(m_player->targetId, rollResult, damage, 0, level);
+    RollResult rollResult = GetPhysicsRollResult();
 
     // 无意 3格气以上
     if (m_player->talents.at(Talent::WU_YI) && qidian > 6) {
         m_effectCriticalStrikeAddPercentInt      += 1000;
         m_effectCriticalStrikePowerAddPercentInt += 307;
     }
+
+    GainsDamage damage = CalcPhysicsDamage(m_player->targetId, rollResult, 0, level);
+    Record(m_player->targetId, rollResult, damage, 0, level);
 
     // 白虹 目标外额外5个目标
     if (m_player->talents.at(Talent::BAI_HONG)) {
@@ -783,10 +782,9 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
 void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Cast()
 {
     m_player->lastCastSkill = m_id;
-    m_cooldown              = m_cooldownFixed;
+    m_cooldown              = m_cooldownFixed * m_player->attr->GetHastePercent();
     *m_globalCooldown       = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
                         RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
-
     SubEffect();
 }
 
@@ -794,11 +792,16 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Trigger() { }
 
 void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
 {
-    // 续气3格
-    m_player->AddQidian(6);
-
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
+    Record(m_player->targetId, rollResult, damage, 0, 0);
+
+    rollResult = GetPhysicsRollResult();
+    damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
+    Record(m_player->targetId, rollResult, damage, 0, 0);
+
+    rollResult = GetPhysicsRollResult();
+    damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
     Record(m_player->targetId, rollResult, damage, 0, 0);
 
     if (m_player->talents[Talent::HUAN_YUE]) {
@@ -821,24 +824,16 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
             ->TriggerDamage();
     }
 
-    // 大附魔 腰
-    if (m_player->enchantBelt) [[likely]] {
-        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
-    }
-
     // 大附魔 鞋
     if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
         static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
             ->TriggerDamage();
     }
 
-    rollResult = GetPhysicsRollResult();
-    damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
-    Record(m_player->targetId, rollResult, damage, 0, 0);
-
-    rollResult = GetPhysicsRollResult();
-    damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
-    Record(m_player->targetId, rollResult, damage, 0, 0);
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
 
     // 风逝
     if (m_player->talents.at(Talent::FENG_SHI)) {
@@ -856,6 +851,8 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
             static_cast<TaiXuJianYi::Buff::DieRen *>(m_player->buffs[JX3DPS::Buff::DIE_REN].get())
                 ->TriggerHuanYue(m_player->targetId);
         }
+    } else {
+        m_player->AddQidian(2);
     }
 
     // 长生 持盈
@@ -888,7 +885,7 @@ JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *playe
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((1132 / 10 * 1.5 + (1132 + 113) / 10 * 1.5) / 2, 0, 100 * 1.1 * 1.25 * 1.05 * 1.5 * 1.1);
+    m_damageParams[0].emplace_back((225 + (225 + 37)) / 2, 0, 100 * 1.1 * 1.25 * 1.05 * 1.5 * 1.1);
 
     m_cooldownFixed    = 16 * 12;
     m_targetCountFixed = 6;
@@ -932,7 +929,9 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
         // 命中一个目标 续气半格
         m_player->AddQidian(1);
 
-        RollResult rollResult = GetPhysicsRollResult();
+        RollResult  rollResult = GetPhysicsRollResult();
+        GainsDamage damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+        Record(target.first, rollResult, damage, 0, 0);
 
         // 深埋 会心
         if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
@@ -974,9 +973,6 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
             static_cast<Buff::WeaponEffectCW1 *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_CW_1].get())
                 ->TriggerAdd();
         }
-
-        GainsDamage damage = CalcPhysicsDamage(target.first, rollResult, 0, 0);
-        Record(target.first, rollResult, damage, 0, 0);
     }
 
     // 长生 持盈 不会因为多目标触发
@@ -1440,7 +1436,9 @@ JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player,
     m_cooldownFixed = 22;
 
     // TODO
-    m_damageParams[0].emplace_back(0, 1024, 20);
+    m_damageParams[0].emplace_back(0, 1024, 16);
+
+    m_effectDamageAddPercentInt = 205;
 }
 
 void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Cast()
@@ -2264,12 +2262,14 @@ void JX3DPS::TaiXuJianYi::Buff::XuanMen::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::XuanMen::SubEffectAdd(int stackNum)
 {
+    spdlog::debug("添加buff:{}", m_name);
     m_player->attr->AddPhysicsOvercomeBasePercentInt(204 * stackNum);
     m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(300 * stackNum);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::XuanMen::SubEffectClear(int stackNum)
 {
+    spdlog::debug("移除buff:{}", m_name);
     m_player->attr->AddPhysicsOvercomeBasePercentInt(-204 * stackNum);
     m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(-300 * stackNum);
 }
@@ -2642,6 +2642,7 @@ JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targ
 
 void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::Trigger()
 {
+    spdlog::debug("移除buff:{}", m_name);
     m_targetSnapshots.erase(JX3DPS_PLAYER);
     SubEffectClear();
 }
@@ -2649,6 +2650,7 @@ void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (m_targetSnapshots.empty()) [[unlikely]] { // buff不存在时，添加buff
+        spdlog::debug("添加buff:{}", m_name);
         SubEffectAdd();
     }
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -2699,6 +2701,10 @@ JX3DPS::TaiXuJianYi::Buff::QiSheng::QiSheng(JX3DPS::Player *player, Targets *tar
 
 void JX3DPS::TaiXuJianYi::Buff::QiSheng::Trigger()
 {
+    if (m_targetSnapshots[JX3DPS_PLAYER].duration != 0) [[likely]] {
+        return;
+    }
+    spdlog::debug("移除buff:{}", m_name);
     m_targetSnapshots.erase(JX3DPS_PLAYER);
     SubEffectClear();
 }
@@ -2706,9 +2712,10 @@ void JX3DPS::TaiXuJianYi::Buff::QiSheng::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::QiSheng::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (m_targetSnapshots.empty()) { // buff不存在时，添加buff
+        spdlog::debug("添加buff:{}", m_name);
         SubEffectAdd();
     }
-    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) {
         m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
     } else [[unlikely]] {
         m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
@@ -2772,11 +2779,13 @@ void JX3DPS::TaiXuJianYi::Buff::FengShi::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::FengShi::SubEffectAdd()
 {
+    spdlog::debug("添加buff:{}", m_name);
     static_cast<Skill::WuWoWuJian *>(m_player->skills[JX3DPS::Skill::WU_WO_WU_JIAN].get())->TriggerFengShiAdd();
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FengShi::SubEffectClear()
 {
+    spdlog::debug("清除buff:{}", m_name);
     static_cast<Skill::WuWoWuJian *>(m_player->skills[JX3DPS::Skill::WU_WO_WU_JIAN].get())->TriggerFengShiClear();
 }
 
@@ -2893,7 +2902,6 @@ void JX3DPS::TaiXuJianYi::Buff::FieldLieYun::Trigger()
         if (iter->second.interval == 0) [[likely]] {
             iter->second.interval = m_intervalFixed;
             SubEffectAdd(iter->first);
-            ++iter;
         }
         if (iter->second.duration == 0) [[unlikely]] {
             iter = m_targetSnapshots.erase(iter);
@@ -2905,8 +2913,11 @@ void JX3DPS::TaiXuJianYi::Buff::FieldLieYun::Trigger()
 
 void JX3DPS::TaiXuJianYi::Buff::FieldLieYun::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
+    if (m_targetSnapshots.find(targetId) == m_targetSnapshots.end()) [[unlikely]] {
+        m_targetSnapshots[targetId].interval = m_intervalFixed;
+        SubEffectAdd(targetId);
+    }
     m_targetSnapshots[targetId].duration = m_durationFixed;
-    SubEffectAdd(targetId);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FieldLieYun::Clear(Id_t targetId, int stackNum)
@@ -2938,6 +2949,7 @@ JX3DPS::TaiXuJianYi::Buff::LieYun::LieYun(JX3DPS::Player *player, Targets *targe
 
 void JX3DPS::TaiXuJianYi::Buff::LieYun::Trigger()
 {
+    spdlog::debug("移除buff:{}", m_name);
     m_targetSnapshots.erase(JX3DPS_PLAYER);
     SubEffectClear();
 }
@@ -2945,6 +2957,7 @@ void JX3DPS::TaiXuJianYi::Buff::LieYun::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::LieYun::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (m_targetSnapshots.empty()) {
+        spdlog::debug("添加buff:{}", m_name);
         SubEffectAdd();
     }
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -3397,6 +3410,7 @@ JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::ClassSetBuffJianMing(JX3DPS::Pl
 
 void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Trigger()
 {
+    spdlog::debug("移除buff:{}", m_name);
     // buff结束，不存在自判定，设置为无效帧避免频繁判定
     m_targetSnapshots[JX3DPS_PLAYER].duration = JX3DPS_INVALID_FRAMES_SET;
     SubEffectClear();
@@ -3405,6 +3419,7 @@ void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (m_targetSnapshots[JX3DPS_PLAYER].duration == JX3DPS_INVALID_FRAMES_SET) {
+
         SubEffectAdd();
     }
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -3424,6 +3439,7 @@ void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::TriggerAdd()
 {
     if (RandomUniform(1, 100) <= 10) {
         if (m_targetSnapshots[JX3DPS_PLAYER].duration == JX3DPS_INVALID_FRAMES_SET) {
+            spdlog::debug("添加buff:{}", m_name);
             SubEffectAdd();
         }
         m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;

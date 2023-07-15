@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-14 04:04:30
+ * Last Modified: 2023-07-14 15:51:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -170,12 +170,6 @@ inline Value_t RollDamage(Value_t overcomeDamage, int rollResult, Value_t critic
          static_cast<Value_t>(overcomeDamage * (criticalStrikePowerPercentInt + effectCriticalStrikePowerPercentInt) *
                               JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE));
 
-    spdlog::debug("overcomeDamage: {} criticalStrikePowerDamage: {} criticalStrikePower {} "
-                  "effectCriticalStrikePowerPercentInt {}",
-                  overcomeDamage,
-                  criticalStrikePowerDamage,
-                  criticalStrikePower,
-                  effectCriticalStrikePowerPercentInt);
     return overcomeDamage + criticalStrikePowerDamage;
 }
 

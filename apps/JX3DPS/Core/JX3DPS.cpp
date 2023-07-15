@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 09:46:35
+ * Last Modified: 2023-07-15 07:20:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -122,16 +122,18 @@ Error_t SimulatePool(ExprEvents &exprEvents,
     if (step == 0) {
         step = 1;
     }
+    double size = 0.0;
+    if (finished) {
+        size = 0.5;
+    }
     for (int i = 0; i < simIterations; i++) {
         if (i % step == 0) {
-            memberFunction(obj, (double)i / simIterations);
+            memberFunction(obj, i / 2.0 / simIterations + size);
         }
         stats += results.front().get();
         results.pop_front();
     }
-    if (finished) {
-        memberFunction(obj, 1.0);
-    }
+    memberFunction(obj, size + 0.5);
 
     return JX3DPS::JX3DPS_SUCCESS;
 }

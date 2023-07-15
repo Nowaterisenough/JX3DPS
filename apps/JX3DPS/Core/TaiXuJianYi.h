@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-14 03:13:28
+ * Last Modified: 2023-07-15 03:44:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -135,6 +135,8 @@ class SanHuanTaoYue : public Skill
 
 public:
     void SubEffect();
+
+    int m_index = 0;
 };
 
 class WanJianGuiZong : public Skill

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-14 03:10:17
+ * Last Modified: 2023-07-15 04:40:45
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -180,10 +180,12 @@ Damage Buff::GetPhysicsDamage(
     PctInt_t ignoreShieldBasePercentInt = m_player->attr->GetShieldIgnorePercentInt();
     PctInt_t ignoreShieldPercentInt     = 0;
     int      rollResultInt              = static_cast<int>(rollResult);
-    PctInt_t effectCriticalStrikePower  = m_effectCriticalStrikePowerAddPercentInt;
-    PctInt_t strainPercentInt           = 0;
-    PctInt_t classDamageAddPercentInt   = m_player->damageAddPercentInt;
-    PctInt_t vulnerablePercentInt       = (*m_targets)[targetId]->GetDamageAddPercentInt();
+    PctInt_t effectCriticalStrikePower =
+        m_effectCriticalStrikePowerAddPercentInt +
+        m_player->attr->GetPhysicsCriticalStrikePowerPercentIntFromCustom();
+    PctInt_t strainPercentInt         = 0;
+    PctInt_t classDamageAddPercentInt = m_player->damageAddPercentInt;
+    PctInt_t vulnerablePercentInt     = (*m_targets)[targetId]->GetDamageAddPercentInt();
 
     damage.damage = FinalPhysicsDamage(
         playerLevel,
@@ -590,7 +592,7 @@ JX3DPS::Buff3rd::EnchantWristPhysics::EnchantWristPhysics(JX3DPS::Player *player
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 75);
 
     m_intervalFixed = 16 * 10;
 }
@@ -686,6 +688,7 @@ void JX3DPS::Buff3rd::EnchantBelt::TriggerAdd()
 
 void JX3DPS::Buff3rd::EnchantBelt::SubEffectAdd()
 {
+    spdlog::debug("添加buff:{}", m_name);
     if (RandomUniform(1, 100) <= 70) {
         m_70                                = true;
         m_player->skillDamageAddPercentInt += 51;
@@ -696,6 +699,7 @@ void JX3DPS::Buff3rd::EnchantBelt::SubEffectAdd()
 
 void JX3DPS::Buff3rd::EnchantBelt::SubEffectClear()
 {
+    spdlog::debug("移除buff:{}", m_name);
     if (m_70 == true) {
         m_player->skillDamageAddPercentInt -= 51;
     } else {

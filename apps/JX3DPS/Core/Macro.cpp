@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 15:41:10
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 03:46:52
+ * Last Modified: 2023-07-15 10:50:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -98,6 +98,8 @@ const char *const JX3DPS_MACRO_REGEX_CONDITION_BUFF_LAYERS =
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_BUFF = "buff:([\u4e00-\u9fa5·0-9a-z]+)";
 
+const char *const JX3DPS_MACRO_REGEX_CONDITION_NOBUFF = "nobuff:([\u4e00-\u9fa5·0-9a-z]+)";
+
 const char *const JX3DPS_MACRO_REGEX_CONDITION_BUFFTIME =
     "bufftime:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
 
@@ -105,6 +107,8 @@ const char *const JX3DPS_MACRO_REGEX_CONDITION_TBUFF_LAYERS =
     "tbuff:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_TBUFF = "tbuff:([\u4e00-\u9fa5·0-9a-z]+)";
+
+const char *const JX3DPS_MACRO_REGEX_CONDITION_TNOBUFF = "tnobuff:([\u4e00-\u9fa5·0-9a-z]+)";
 
 const char *const JX3DPS_MACRO_REGEX_CONDITION_TBUFFTIME =
     "tbufftime:([\u4e00-\u9fa5·0-9a-z]+)(.*?)(\\d+)";
@@ -177,9 +181,11 @@ JX3DPS::Error_t Parse2ExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
 {
     std::regex regQidian(JX3DPS_MACRO_REGEX_CONDITION_QIDIAN);
     std::regex regBuff(JX3DPS_MACRO_REGEX_CONDITION_BUFF);
+    std::regex regNoBuff(JX3DPS_MACRO_REGEX_CONDITION_NOBUFF);
     std::regex regBuffStackNum(JX3DPS_MACRO_REGEX_CONDITION_BUFF_LAYERS);
     std::regex regBuffTime(JX3DPS_MACRO_REGEX_CONDITION_BUFFTIME);
     std::regex regTbuff(JX3DPS_MACRO_REGEX_CONDITION_TBUFF);
+    std::regex regTNoBuff(JX3DPS_MACRO_REGEX_CONDITION_TNOBUFF);
     std::regex regTbuffStackNum(JX3DPS_MACRO_REGEX_CONDITION_TBUFF_LAYERS);
     std::regex regTbuffTime(JX3DPS_MACRO_REGEX_CONDITION_TBUFFTIME);
     std::regex regLastCastSkill(JX3DPS_MACRO_REGEX_CONDITION_LAST_CAST_SKILL);
@@ -221,6 +227,9 @@ JX3DPS::Error_t Parse2ExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
     } else if (std::regex_match(str, mat, regBuff)) {
         JX3DPS::Id_t id = GetBuffId(mat[1].str());
         exprIf = std::bind(&JX3DPS::Macro::BuffExist, std::placeholders::_1, std::placeholders::_2, id);
+    } else if (std::regex_match(str, mat, regNoBuff)) {
+        JX3DPS::Id_t id = GetBuffId(mat[1].str());
+        exprIf = std::bind(&JX3DPS::Macro::NoBuffExist, std::placeholders::_1, std::placeholders::_2, id);
     } else if (std::regex_match(str, mat, regBuffStackNum)) {
         JX3DPS::Id_t id = GetBuffId(mat[1].str());
         if (mat[2].str() == "<") {
@@ -302,6 +311,9 @@ JX3DPS::Error_t Parse2ExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
     } else if (std::regex_match(str, mat, regTbuff)) {
         JX3DPS::Id_t id = GetBuffId(mat[1].str());
         exprIf = std::bind(&JX3DPS::Macro::TBuffExist, std::placeholders::_1, std::placeholders::_2, id);
+    } else if (std::regex_match(str, mat, regTNoBuff)) {
+        JX3DPS::Id_t id = GetBuffId(mat[1].str());
+        exprIf = std::bind(&JX3DPS::Macro::TNoBuffExist, std::placeholders::_1, std::placeholders::_2, id);
     } else if (std::regex_match(str, mat, regTbuffStackNum)) {
         JX3DPS::Id_t id = GetBuffId(mat[1].str());
         if (mat[2].str() == "<") {
@@ -861,6 +873,11 @@ bool JX3DPS::Macro::IsTargetWithinRange(Player *player, Targets *targets, Id_t s
 
 bool JX3DPS::Macro::IsNotReCast(Player *player, Targets *targets)
 {
+    if (player->isReCast) {
+
+        
+        return false;
+    }
     return !player->isReCast;
 }
 

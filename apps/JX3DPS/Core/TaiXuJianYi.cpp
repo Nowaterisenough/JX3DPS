@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-15 21:54:58
+ * Last Modified: 2023-07-18 05:50:25
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -40,6 +40,8 @@ void JX3DPS::TaiXuJianYi::Player::Init()
 
     skills.emplace(JX3DPS::Skill::PO_ZHAO,
                    std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::PoZhao>(this, nullptr)));
+    skills.emplace(JX3DPS::Skill::PENDANT_OVERCOME,
+                   std::move(std::make_unique<JX3DPS::Skill3rd::PendantOvercome>(this, nullptr)));
     skills.emplace(JX3DPS::Skill::WU_WO_WU_JIAN,
                    std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::WuWoWuJian>(this, nullptr)));
     skills.emplace(JX3DPS::Skill::BA_HUANG_GUI_YUAN,
@@ -67,6 +69,8 @@ void JX3DPS::TaiXuJianYi::Player::Init()
     skills.emplace(JX3DPS::Skill::REN_JIAN_HE_YI_TUN_RI_YUE,
                    std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue>(this, nullptr)));
 
+    buffs.emplace(JX3DPS::Buff::PENDANT_OVERCOME,
+                  std::move(std::make_unique<JX3DPS::Buff3rd::PendantOvercome>(this, nullptr)));
     buffs.emplace(JX3DPS::Buff::DIE_REN,
                   std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::DieRen>(this, nullptr)));
     buffs.emplace(JX3DPS::Buff::ZI_QI_DONG_LAI,
@@ -161,6 +165,18 @@ void JX3DPS::TaiXuJianYi::Player::Init()
     if (enchantBelt) {
         buffs.emplace(JX3DPS::Buff::ENCHANT_BELT,
                       std::move(std::make_unique<JX3DPS::Buff3rd::EnchantBelt>(this, nullptr)));
+    }
+
+    if (teamCore == Class::TAI_XU_JIAN_YI) {
+        buffs.emplace(JX3DPS::Buff::BEI_DOU_QI_XING_JING_MIAO,
+                      std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::JingMiao>(this, nullptr)));
+        buffs.emplace(JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN,
+                      std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::YouRen>(this, nullptr)));
+    }
+
+    if (weaponWater) {
+        buffs.emplace(JX3DPS::Buff::WEAPON_EFFECT_WATER,
+                      std::move(std::make_unique<JX3DPS::Buff3rd::WeaponEffectWater>(this, nullptr)));
     }
 
     buffs.emplace(JX3DPS::Buff::THIRD_XIU_QI, std::move(std::make_unique<JX3DPS::Buff3rd::XiuQi>(this, nullptr)));
@@ -401,15 +417,14 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
 
     int level = qidian - 1;
 
-    RollResult rollResult = GetPhysicsRollResult();
-
     // 无意 3格气以上
     if (m_player->talents.at(Talent::WU_YI) && qidian > 6) {
         m_effectCriticalStrikeAddPercentInt      += 1000;
         m_effectCriticalStrikePowerAddPercentInt += 307;
     }
 
-    GainsDamage damage = CalcPhysicsDamage(m_player->targetId, rollResult, 0, level);
+    RollResult  rollResult = GetPhysicsRollResult();
+    GainsDamage damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, level);
     Record(m_player->targetId, rollResult, damage, 0, level);
 
     // 白虹 目标外额外5个目标
@@ -425,6 +440,14 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
                 break;
             }
         }
+    }
+
+    if (m_player->teamCore == Class::TAI_XU_JIAN_YI && m_player->secrets[Skill::WU_WO_WU_JIAN][6] &&
+        rollResult == RollResult::DOUBLE)
+    {
+        static_cast<TaiXuJianYi::Buff::YouRen *>(
+            m_player->buffs[JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN].get())
+            ->TriggerAdd();
     }
 
     // 无欲 目标有叠刃
@@ -496,6 +519,11 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     if (m_player->classSetBuff && m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF]->GetTimeLeft() > 0) {
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
             ->TriggerAdd();
     }
 }
@@ -708,6 +736,17 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
             ->TriggerAdd();
     }
+
+    if (m_player->teamCore == Class::TAI_XU_JIAN_YI && rollResult == RollResult::DOUBLE) {
+        static_cast<TaiXuJianYi::Buff::YouRen *>(
+            m_player->buffs[JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
+            ->TriggerAdd();
+    }
 }
 
 void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::ResetCooldown()
@@ -813,6 +852,12 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
             ->TriggerDamage(m_player->targetId, 1, 0);
     }
 
+    if (m_player->teamCore == Class::TAI_XU_JIAN_YI && rollResult == RollResult::DOUBLE) {
+        static_cast<TaiXuJianYi::Buff::YouRen *>(
+            m_player->buffs[JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN].get())
+            ->TriggerAdd();
+    }
+
     // 深埋 会心
     if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
         m_player->AddQidian(2);
@@ -870,6 +915,11 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     if (m_player->classSetBuff && m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF]->GetTimeLeft() > 0) {
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
             ->TriggerAdd();
     }
 }
@@ -933,6 +983,12 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
         GainsDamage damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
         Record(target.first, rollResult, damage, 0, 0);
 
+        if (m_player->teamCore == Class::TAI_XU_JIAN_YI && rollResult == RollResult::DOUBLE) {
+            static_cast<TaiXuJianYi::Buff::YouRen *>(
+                m_player->buffs[JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN].get())
+                ->TriggerAdd();
+        }
+
         // 深埋 会心
         if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
             m_player->AddQidian(2);
@@ -984,6 +1040,11 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     if (m_player->classSetBuff && m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF]->GetTimeLeft() > 0) {
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
             ->TriggerAdd();
     }
 }
@@ -1104,6 +1165,11 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     if (m_player->classSetBuff && m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF]->GetTimeLeft() > 0) {
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
             ->TriggerAdd();
     }
 
@@ -1248,6 +1314,11 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     if (m_player->classSetBuff && m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF]->GetTimeLeft() > 0) {
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
             ->TriggerAdd();
     }
 
@@ -1398,6 +1469,11 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
             ->TriggerAdd();
     }
 
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
+            ->TriggerAdd();
+    }
+
     // 玄门
     if (m_player->talents[Talent::XUAN_MEN]) {
         m_player->buffs[JX3DPS::Buff::XUAN_MEN]->Add(JX3DPS_PLAYER, count);
@@ -1489,6 +1565,11 @@ void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     if (m_player->classSetBuff && m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF]->GetTimeLeft() > 0) {
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
             ->TriggerAdd();
     }
 }
@@ -3456,4 +3537,116 @@ void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::SubEffectClear()
 {
     m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(-400);
     m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(-41);
+}
+
+JX3DPS::TaiXuJianYi::Buff::YouRen::YouRen(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::BEI_DOU_QI_XING_YOU_REN;
+    m_name = "游刃";
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back(0, 0, 0);
+
+    m_durationFixed = 16 * 20;
+    m_stackNumFixed = 5;
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::Trigger()
+{
+    spdlog::debug("移除buff:{}", m_name);
+    // buff结束，不存在自判定，设置为无效帧避免频繁判定
+    int stackNum = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(stackNum);
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        SubEffectAdd(m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else {
+        int stack                                  = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum += stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum - stack;
+        SubEffectAdd(stack);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::Clear(Id_t targetId, int stackNum)
+{
+    int stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(stack);
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::TriggerAdd(int stackNum)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        SubEffectAdd(m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else {
+        int stack                                  = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum += stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum - stack;
+        SubEffectAdd(stack);
+    }
+    m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::SubEffectAdd(int stackNum)
+{
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(100 * stackNum);
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::SubEffectClear(int stackNum)
+{
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(-100 * stackNum);
+}
+
+JX3DPS::TaiXuJianYi::Buff::JingMiao::JingMiao(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::BEI_DOU_QI_XING_JING_MIAO;
+    m_name = "游刃";
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back(0, 0, 0);
+
+    m_targetSnapshots[JX3DPS_PLAYER].duration = JX3DPS_INVALID_FRAMES_SET;
+
+    m_intervalFixed = 16 * 6;
+}
+
+void JX3DPS::TaiXuJianYi::Buff::JingMiao::Trigger()
+{
+    m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed + RandomUniform(0, 15);
+    SubEffect();
+}
+
+void JX3DPS::TaiXuJianYi::Buff::JingMiao::Add(Id_t targetId, int stackNum, Frame_t duration) { }
+
+void JX3DPS::TaiXuJianYi::Buff::JingMiao::Clear(Id_t targetId, int stackNum) { }
+
+void JX3DPS::TaiXuJianYi::Buff::JingMiao::SubEffect()
+{
+    m_player->AddQidian(2);
 }

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 03:55:06
+ * Last Modified: 2023-07-18 03:41:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -145,6 +145,37 @@ JX3DPS::Error_t JX3DPS::ParseJson2Attr(const nlohmann::json &json, Attr &attr)
 
     } catch (const std::exception &e) {
         spdlog::error("属性解析失败 {}", e.what());
+        return JX3DPS_ERROR_INVALID_JSON;
+    }
+    return JX3DPS_SUCCESS;
+}
+
+JX3DPS::Error_t JX3DPS::ParseJson2Permanent(const nlohmann::json &json, Attr &attr)
+{
+    try {
+        for (auto &item : json["Permanent"]["AttributeAdd"]) {
+            if (item["type"].get<std::string>() == "PhysicsCriticalStrikePercentInt") {
+                attr.AddPhysicsCriticalStrikePercentIntFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "StrainPercentInt") {
+                attr.AddStrainPercentInt(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "PhysicsCriticalStrikePowerPercentInt") {
+                attr.AddPhysicsCriticalStrikePowerPercentIntFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "AttackBase") {
+                attr.AddPhysicsAttackBaseFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "Surplus") {
+                attr.AddSurplusBase(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "OvercomeBase") {
+                attr.AddPhysicsOvercomeBaseFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "CriticalStrike") {
+                attr.AddPhysicsCriticalStrikeFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "Agility") {
+                attr.AddAgilityBase(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "Strain") {
+                attr.AddStrain(item["value"].get<int>());
+            }
+        }
+    } catch (const std::exception &e) {
+        spdlog::error("常驻增益解析失败 {}", e.what());
         return JX3DPS_ERROR_INVALID_JSON;
     }
     return JX3DPS_SUCCESS;

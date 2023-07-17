@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 07:56:44
+ * Last Modified: 2023-07-18 02:04:23
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -33,6 +33,21 @@ CheckBox::CheckBox(QWidget *parent) : QCheckBox(parent)
     shadowEffect->setBlurRadius(5);        // 设置阴影的模糊半径
     shadowEffect->setOffset(0, 0);         // 设置阴影的偏移量
     this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
+
+    // 设置样式表
+    this->setStyleSheet(
+        "QToolTip { color: white; background-color: rgb(23, 29, 37); border: none; }");
+}
+
+void CheckBox::SetItemInfo(const ItemInfo &itemInfo)
+{
+    m_itemInfo = itemInfo;
+    this->setToolTip(QString::fromStdString(itemInfo.desc));
+}
+
+ItemInfo CheckBox::GetItemInfo() const
+{
+    return m_itemInfo;
 }
 
 void CheckBox::paintEvent(QPaintEvent *event)
@@ -177,7 +192,7 @@ SecretCheckBox::SecretCheckBox(const SecretInfo &info, QWidget *parent)
 
     m_checkBox->setFixedSize(22, 22);
 
-    this->setFixedSize(70, 36);
+    this->setFixedSize(58, 36);
 
     layout->addWidget(m_checkBox);
     layout->addWidget(m_image);

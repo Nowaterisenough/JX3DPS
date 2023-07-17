@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-15 03:44:52
+ * Last Modified: 2023-07-18 05:12:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -432,6 +432,25 @@ public:
 
     void SubEffectAdd();
     void SubEffectClear();
+};
+
+class YouRen : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(YouRen)
+
+public:
+    void TriggerAdd(int stackNum = 1);
+
+    void SubEffectAdd(int stackNum);
+    void SubEffectClear(int stackNum);
+};
+
+class JingMiao : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JingMiao)
+
+public:
+    void SubEffect();
 };
 
 } // namespace Buff

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-15 04:40:45
+ * Last Modified: 2023-07-18 05:49:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -183,7 +183,7 @@ Damage Buff::GetPhysicsDamage(
     PctInt_t effectCriticalStrikePower =
         m_effectCriticalStrikePowerAddPercentInt +
         m_player->attr->GetPhysicsCriticalStrikePowerPercentIntFromCustom();
-    PctInt_t strainPercentInt         = 0;
+    PctInt_t strainPercentInt         = m_player->attr->GetStrainPercentInt();
     PctInt_t classDamageAddPercentInt = m_player->damageAddPercentInt;
     PctInt_t vulnerablePercentInt     = (*m_targets)[targetId]->GetDamageAddPercentInt();
 
@@ -362,7 +362,7 @@ Damage Buff::GetPhysicsDamageDot(
     PctInt_t ignoreShieldPercentInt     = 0;
     int      rollResultInt              = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePower = m_targetSnapshots.at(targetId).effectCriticalStrikePowerAddPercentInt;
-    PctInt_t strainPercentInt         = 0;
+    PctInt_t strainPercentInt         = m_targetSnapshots.at(targetId).strainAddPercentInt;
     PctInt_t classDamageAddPercentInt = m_player->damageAddPercentInt;
     PctInt_t vulnerablePercentInt     = (*m_targets)[targetId]->GetDamageAddPercentInt();
 
@@ -1478,4 +1478,131 @@ void JX3DPS::Buff3rd::JiLei::SubEffectClear(int targetId)
 {
     m_player->attr->AddPhysicsOvercomeBasePercentInt(-205);
     m_player->attr->AddPhysicsAttackBasePercentInt(-205);
+}
+
+JX3DPS::Buff3rd::WeaponEffectWater::WeaponEffectWater(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::WEAPON_EFFECT_WATER;
+    m_name = "水·斩流";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 6;
+    m_stackNumFixed = 10;
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::Trigger()
+{
+    int stackNum = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(stackNum);
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        SubEffectAdd(m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else {
+        int stack                                  = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum += stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum - stack;
+        SubEffectAdd(stack);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::Clear(Id_t targetId, int stackNum)
+{
+    int stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(stack);
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::TriggerAdd(int stackNum)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        SubEffectAdd(m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else {
+        int stack                                  = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum += stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum - stack;
+        SubEffectAdd(stack);
+    }
+    m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::SubEffectAdd(int stackNum)
+{
+    m_player->attr->AddPhysicsAttackBaseFromCustom(88 * stackNum);
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::SubEffectClear(int stackNum)
+{
+    m_player->attr->AddPhysicsAttackBaseFromCustom(-88 * stackNum);
+}
+
+JX3DPS::Buff3rd::PendantOvercome::PendantOvercome(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::WEAPON_EFFECT_WATER;
+    m_name = "腰坠·破防";
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_durationFixed = 16 * 15;
+}
+
+void JX3DPS::Buff3rd::PendantOvercome::Trigger()
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::PendantOvercome::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        SubEffectAdd();
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::Buff3rd::PendantOvercome::Clear(Id_t targetId, int stackNum)
+{
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear();
+}
+
+void JX3DPS::Buff3rd::PendantOvercome::TriggerAdd()
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        SubEffectAdd();
+    }
+    m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+}
+
+void JX3DPS::Buff3rd::PendantOvercome::SubEffectAdd()
+{
+    m_player->attr->AddPhysicsOvercomeBaseFromCustom(6408);
+}
+
+void JX3DPS::Buff3rd::PendantOvercome::SubEffectClear()
+{
+    m_player->attr->AddPhysicsOvercomeBaseFromCustom(-6408);
 }

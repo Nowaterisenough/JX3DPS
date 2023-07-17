@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-14 03:03:15
+ * Last Modified: 2023-07-18 05:45:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -49,6 +49,8 @@ class Skill
 public:
     static constexpr Id_t PO_ZHAO = 10;
 
+    static constexpr Id_t PENDANT_OVERCOME = 11;
+
     static constexpr Id_t SAN_CHAI_JIAN_FA             = 1000;
     static constexpr Id_t WU_WO_WU_JIAN                = 1001;
     static constexpr Id_t BA_HUANG_GUI_YUAN            = 1002;
@@ -77,6 +79,7 @@ public:
 
     inline static const std::unordered_map<Id_t, std::string> &SKILL_NAME = {
         {PO_ZHAO,                       "破"                            },
+        { PENDANT_OVERCOME,             "腰坠·破防"                 },
         { SAN_CHAI_JIAN_FA,             "三柴剑法"                   },
         { WU_WO_WU_JIAN,                "无我无剑"                   },
         { BA_HUANG_GUI_YUAN,            "八荒归元"                   },
@@ -215,5 +218,19 @@ protected:
     /* 记录 */
     Stats m_stats;
 };
+
+namespace Skill3rd {
+
+class PendantOvercome : public Skill
+{
+    SKILL_DEFAULT_FUNCTION(PendantOvercome)
+
+public:
+    void SubEffect();
+};
+
+} // namespace Skill3rd
+
 } // namespace JX3DPS
+
 #endif // JX3DPS_SKILL_H_

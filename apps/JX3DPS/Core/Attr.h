@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 06:56:59
+ * Last Modified: 2023-07-18 02:34:17
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -254,6 +254,9 @@ public:
     Value_t    GetStrain() const;
     void       SetStrain(Value_t value);
     void       AddStrain(Value_t value);
+    PctInt_t   GetStrainPercentInt() const;
+    void       SetStrainPercentInt(PctInt_t percentInt);
+    void       AddStrainPercentInt(PctInt_t percentInt);
     PctFloat_t GetStrainPercent() const;
     void       AddStrainPercent(PctFloat_t percent);
 
@@ -387,25 +390,25 @@ private:
     Value_t  m_magicAttack               = 0;
 
     /* 外功会心 */
-    Value_t    m_physicsCriticalStrike                  = 0;
-    Value_t    m_physicsCriticalStrikeFromCustom        = 0;
-    PctInt_t m_physicsCriticalStrikePercentIntFromCustom = 0.0;
-    PctFloat_t m_physicsCriticalStrikePercent           = 0.0;
+    Value_t    m_physicsCriticalStrike                     = 0;
+    Value_t    m_physicsCriticalStrikeFromCustom           = 0;
+    PctInt_t   m_physicsCriticalStrikePercentIntFromCustom = 0.0;
+    PctFloat_t m_physicsCriticalStrikePercent              = 0.0;
 
     /* 内功会心 */
-    Value_t    m_magicCriticalStrike                  = 0;
-    Value_t    m_magicCriticalStrikeFromCustom        = 0;
-    PctInt_t m_magicCriticalStrikePercentIntFromCustom = 0.0;
-    PctFloat_t m_magicCriticalStrikePercent           = 0.0;
+    Value_t    m_magicCriticalStrike                     = 0;
+    Value_t    m_magicCriticalStrikeFromCustom           = 0;
+    PctInt_t   m_magicCriticalStrikePercentIntFromCustom = 0.0;
+    PctFloat_t m_magicCriticalStrikePercent              = 0.0;
 
     /* 外功会心效果 */
-    Value_t    m_physicsCriticalStrikePower                  = 0;
-    PctInt_t m_physicsCriticalStrikePowerPercentIntFromCustom = 0.0;
+    Value_t    m_physicsCriticalStrikePower                     = 0;
+    PctInt_t   m_physicsCriticalStrikePowerPercentIntFromCustom = 0.0;
     PctFloat_t m_physicsCriticalStrikePowerPercent = JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
 
     /* 内功会心效果 */
-    Value_t    m_magicCriticalStrikePower                  = 0;
-    PctInt_t m_magicCriticalStrikePowerPercentIntFromCustom = 0.0;
+    Value_t    m_magicCriticalStrikePower                     = 0;
+    PctInt_t   m_magicCriticalStrikePowerPercentIntFromCustom = 0.0;
     PctFloat_t m_magicCriticalStrikePowerPercent = JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
 
     /* 外功破防 */
@@ -428,6 +431,7 @@ private:
 
     /* 无双 */
     Value_t    m_strain                  = 0;
+    PctInt_t   m_strainPercentInt        = 0;
     PctFloat_t m_strainPercentFromCustom = 0.0;
     PctFloat_t m_strainPercent           = 0.0;
 

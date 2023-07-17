@@ -401,6 +401,326 @@
                     }
                 ]
             },
+            "Permanent": {
+                "TeamCore": [
+                    {
+                        "id": 1,
+                        "name": "北斗七星阵",
+                        "icon": 1798,
+                        "desc": "一重粗识：阅历提高5%，声望提高5%，外功会心几率提高3%。\n二重略懂：无双提高2%。\n三重巧熟：外功会心效果等级提高15%。\n四重精妙：外功招式会心则可使阵眼额外获得一格气。\n五重游刃：阵眼施展续气招式会心，则小队成员外功会心几率提高1%，最多叠加五层。\n六重忘我：被会心攻击则可使阵眼外功基础攻击力提高20%，持续8秒。",
+                        "attr": [
+                            {
+                                "type": "PhysicsCriticalStrikePercentInt",
+                                "value": 300
+                            },
+                            {
+                                "type": "StrainPercentInt",
+                                "value": 20
+                            },
+                            {
+                                "type": "PhysicsCriticalStrikePowerPercentInt",
+                                "value": 154
+                            }
+                        ]
+                    }
+                ],
+                "FoodEnhance": [
+                    {
+                        "name": "断浪·太后饼",
+                        "icon": 7531,
+                        "desc": "攻击 + 630",
+                        "attr": [
+                            {
+                                "type": "AttackBase",
+                                "value": 630
+                            }
+                        ]
+                    },
+                    {
+                        "name": "断浪·白肉血肠",
+                        "icon": 549,
+                        "desc": "破招 + 1399",
+                        "attr": [
+                            {
+                                "type": "Surplus",
+                                "value": 1399
+                            }
+                        ]
+                    },
+                    {
+                        "name": "断浪·红烧排骨",
+                        "icon": 9999,
+                        "desc": "破防 + 1399",
+                        "attr": [
+                            {
+                                "type": "OvercomeBase",
+                                "value": 1399
+                            }
+                        ]
+                    },
+                    {
+                        "name": "断浪·酸菜鱼",
+                        "icon": 8909,
+                        "desc": "会心 + 1399",
+                        "attr": [
+                            {
+                                "type": "CriticalStrike",
+                                "value": 1399
+                            }
+                        ]
+                    }
+                ],
+                "FoodSupport": [
+                    {
+                        "name": "断浪·杂锦鱼球粥",
+                        "icon": 9989,
+                        "desc": "身法 + 314",
+                        "attr": [
+                            {
+                                "type": "Agility",
+                                "value": 314
+                            }
+                        ]
+                    },
+                    {
+                        "name": "断浪·杂碎汤",
+                        "icon": 10000,
+                        "desc": "身法 + 157",
+                        "attr": [
+                            {
+                                "type": "Agility",
+                                "value": 157
+                            }
+                        ]
+                    }
+                ],
+                "MedEnhance": [
+                    {
+                        "name": "断浪·上品亢龙散",
+                        "icon": 4302,
+                        "desc": "攻击 + 810",
+                        "attr": [
+                            {
+                                "type": "AttackBase",
+                                "value": 810
+                            }
+                        ]
+                    },
+                    {
+                        "name": "断浪·上品凝神散",
+                        "icon": 4487,
+                        "desc": "破招 + 1799",
+                        "attr": [
+                            {
+                                "type": "Surplus",
+                                "value": 1799
+                            }
+                        ]
+                    },
+                    {
+                        "name": "断浪·上品破秽散",
+                        "icon": 4278,
+                        "desc": "破防 + 1799",
+                        "attr": [
+                            {
+                                "type": "OvercomeBase",
+                                "value": 1799
+                            }
+                        ]
+                    },
+                    {
+                        "name": "断浪·上品玉璃散",
+                        "icon": 4268,
+                        "desc": "会心 + 1799",
+                        "attr": [
+                            {
+                                "type": "CriticalStrike",
+                                "value": 1799
+                            }
+                        ]
+                    }
+                ],
+                "MedSupport": [
+                    {
+                        "name": "断浪·上品轻身丹",
+                        "icon": 4274,
+                        "desc": "身法 + 403",
+                        "attr": [
+                            {
+                                "type": "Agility",
+                                "value": 403
+                            }
+                        ]
+                    },
+                    {
+                        "name": "断浪·中品轻身丹",
+                        "icon": 4275,
+                        "desc": "身法 + 202",
+                        "attr": [
+                            {
+                                "type": "Agility",
+                                "value": 202
+                            }
+                        ]
+                    }
+                ],
+                "HomeCook": [
+                    {
+                        "name": "炸鱼干",
+                        "icon": 8915,
+                        "desc": "会心 + 648",
+                        "attr": [
+                            {
+                                "type": "CriticalStrike",
+                                "value": 648
+                            }
+                        ]
+                    },
+                    {
+                        "name": "清蒸鲈鱼",
+                        "icon": 8909,
+                        "desc": "破防 + 648",
+                        "attr": [
+                            {
+                                "type": "OvercomeBase",
+                                "value": 648
+                            }
+                        ]
+                    },
+                    {
+                        "name": "葫芦叫花鸡",
+                        "icon": 7646,
+                        "desc": "攻击 + 290",
+                        "attr": [
+                            {
+                                "type": "AttackBase",
+                                "value": 290
+                            }
+                        ]
+                    },
+                    {
+                        "name": "炖豆腐",
+                        "icon": 9989,
+                        "desc": "无双 + 648",
+                        "attr": [
+                            {
+                                "type": "Strain",
+                                "value": 648
+                            }
+                        ]
+                    },
+                    {
+                        "name": "煎豆腐",
+                        "icon": 552,
+                        "desc": "破招 + 648",
+                        "attr": [
+                            {
+                                "type": "Surplus",
+                                "value": 648
+                            }
+                        ]
+                    }
+                ],
+                "HomeWine": [
+                    {
+                        "name": "关外白酒·旬又三",
+                        "icon": 1396,
+                        "desc": "身法 + 232",
+                        "attr": [
+                            {
+                                "type": "Agility",
+                                "value": 232
+                            }
+                        ]
+                    },
+                    {
+                        "name": "女儿红·旬又三",
+                        "icon": 10134,
+                        "desc": "加速 + 1036",
+                        "attr": [
+                            {
+                                "type": "Haste",
+                                "value": 1036
+                            }
+                        ]
+                    }
+                ],
+                "WeaponWhetstone": [
+                    {
+                        "name": "断浪·瀑沙熔锭",
+                        "icon": 7595,
+                        "desc": "攻击 + 540",
+                        "attr": [
+                            {
+                                "type": "AttackBase",
+                                "value": 540
+                            }
+                        ]
+                    }
+                ],
+                "Others": [
+                    {
+                        "name": "玉笛谁家听落梅",
+                        "icon": 9407,
+                        "desc": "攻击 + 360, 会心 + 800, 破招 + 800",
+                        "attr": [
+                            {
+                                "type": "AttackBase",
+                                "value": 360
+                            },
+                            {
+                                "type": "CriticalStrike",
+                                "value": 800
+                            },
+                            {
+                                "type": "Surplus",
+                                "value": 800
+                            }
+                        ]
+                    },
+                    {
+                        "name": "同泽宴",
+                        "icon": 9408,
+                        "desc": "无双 + 192, 破招 + 192",
+                        "attr": [
+                            {
+                                "type": "Strain",
+                                "value": 192
+                            },
+                            {
+                                "type": "Surplus",
+                                "value": 192
+                            }
+                        ]
+                    },
+                    {
+                        "name": "炼狱水煮鱼",
+                        "icon": 7667,
+                        "desc": "无双 + 100, 破招 + 100",
+                        "attr": [
+                            {
+                                "type": "Strain",
+                                "value": 100
+                            },
+                            {
+                                "type": "Surplus",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "name": "蒸鱼菜盘",
+                        "icon": 553,
+                        "desc": "无双 + 517",
+                        "attr": [
+                            {
+                                "type": "Strain",
+                                "value": 517
+                            }
+                        ]
+                    }
+                ]
+            },
             "default_macros": [
                 {
                     "name": "宏1",

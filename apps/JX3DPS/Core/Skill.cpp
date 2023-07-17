@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-14 18:48:18
+ * Last Modified: 2023-07-18 05:44:58
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -215,7 +215,7 @@ Damage Skill::GetPhysicsDamage(
     PctInt_t effectCriticalStrikePower =
         (m_effectCriticalStrikePowerAddPercentInt +
          m_player->attr->GetPhysicsCriticalStrikePowerPercentIntFromCustom());
-    PctInt_t strainPercentInt         = 0;
+    PctInt_t strainPercentInt         = m_player->attr->GetStrainPercentInt();
     PctInt_t classDamageAddPercentInt = m_player->damageAddPercentInt;
     PctInt_t vulnerablePercentInt     = (*m_targets)[targetId]->GetDamageAddPercentInt();
 
@@ -373,7 +373,7 @@ Damage Skill::GetPhysicsSurplusDamage(
     PctInt_t effectCriticalStrikePower =
         (m_effectCriticalStrikePowerAddPercentInt +
          m_player->attr->GetPhysicsCriticalStrikePowerPercentIntFromCustom());
-    PctInt_t strainPercentInt         = 0;
+    PctInt_t strainPercentInt         = m_player->attr->GetStrainPercentInt();
     PctInt_t classDamageAddPercentInt = m_player->damageAddPercentInt;
     PctInt_t vulnerablePercentInt     = (*m_targets)[targetId]->GetDamageAddPercentInt();
 
@@ -394,7 +394,7 @@ Damage Skill::GetPhysicsSurplusDamage(
         classDamageAddPercentInt,
         vulnerablePercentInt);
 
-        return damage;
+    return damage;
 }
 
 GainsDamage Skill::CalcPhysicsSurplusDamage(Id_t targetId, RollResult rollResult, int sub, int level)
@@ -449,6 +449,33 @@ void Skill::Record(Id_t targetId, RollResult rollResult, const GainsDamage &gain
     m_stats.strainDamage              += gainsDamage.strainDamage.SumDamage();
     m_stats.surplusDamage             += gainsDamage.surplusDamage.SumDamage();
     m_stats.weaponDamage              += gainsDamage.weaponDamage.SumDamage();
+}
+
+JX3DPS::Skill3rd::PendantOvercome::PendantOvercome(JX3DPS::Player *player, Targets *targets) :
+    Skill(player, targets)
+{
+    m_id    = Skill::PENDANT_OVERCOME;
+    m_name  = "腰坠·破防";
+    m_range = JX3DPS_UNLIMITED_RANGE;
+
+    m_subNames.push_back("");
+    m_levelNames.push_back("");
+
+    m_cooldownFixed  = 16 * 60 * 3;
+    m_globalCooldown = &m_cooldownFixed;
+}
+
+void JX3DPS::Skill3rd::PendantOvercome::Cast()
+{
+    m_cooldown = m_cooldownFixed;
+    SubEffect();
+}
+
+void JX3DPS::Skill3rd::PendantOvercome::Trigger() { }
+
+void JX3DPS::Skill3rd::PendantOvercome::SubEffect()
+{
+    static_cast<Buff3rd::PendantOvercome *>(m_player->buffs[Buff::PENDANT_OVERCOME].get())->TriggerAdd();
 }
 
 } // namespace JX3DPS

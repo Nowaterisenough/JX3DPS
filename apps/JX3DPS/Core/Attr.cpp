@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 07:05:07
+ * Last Modified: 2023-07-18 02:35:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1038,6 +1038,25 @@ void Attr::AddStrain(Value_t value)
     return;
 }
 
+PctInt_t Attr::GetStrainPercentInt() const
+{
+    return m_strainPercentInt;
+}
+
+void Attr::SetStrainPercentInt(PctInt_t percentInt)
+{
+    m_strainPercentInt = percentInt;
+    UpdateStrainPercent();
+    return;
+}
+
+void Attr::AddStrainPercentInt(PctInt_t percentInt)
+{
+    m_strainPercentInt += percentInt;
+    UpdateStrainPercent();
+    return;
+}
+
 PctFloat_t Attr::GetStrainPercent() const
 {
     return m_strainPercent;
@@ -1284,7 +1303,8 @@ void Attr::UpdateHastePercent()
 void Attr::UpdateStrainPercent()
 {
     m_strainPercent =
-        m_strain / (JX3_INSIGHT_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) + m_strainPercentFromCustom;
+        m_strain / (JX3_INSIGHT_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) +
+        m_strainPercentInt * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE + m_strainPercentFromCustom;
 }
 
 void Attr::UpdateSurplusDamage()

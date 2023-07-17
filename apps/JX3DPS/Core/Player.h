@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 10:13:16
+ * Last Modified: 2023-07-18 05:20:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -83,6 +83,7 @@ public:
     int delayMax = 65;
 
     bool weaponCW      = false;
+    bool weaponWater   = false;
     bool classSetBuff  = false;
     bool classSetSkill = false;
 
@@ -97,6 +98,8 @@ public:
     PctInt_t damageAddPercentInt = 0;
 
     PctInt_t skillDamageAddPercentInt = 0;
+
+    Class teamCore = Class::NONE_CLASS;
 };
 
 } // namespace JX3DPS

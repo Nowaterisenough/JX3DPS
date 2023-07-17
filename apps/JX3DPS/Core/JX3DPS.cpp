@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-15 07:20:46
+ * Last Modified: 2023-07-18 05:28:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -177,6 +177,7 @@ Error_t InitPlayer(const nlohmann::json &json, std::shared_ptr<Player> &player)
     ParseJson2Secrets(json, player->secrets);
 
     ParseJson2Attr(json, *(player->attr.get()));
+    ParseJson2Permanent(json, *(player->attr.get()));
 
     player->enchantWrist  = json["set_effects"]["EnchantWrist"];
     player->enchantShoes  = json["set_effects"]["EnchantShoes"];
@@ -184,11 +185,14 @@ Error_t InitPlayer(const nlohmann::json &json, std::shared_ptr<Player> &player)
     player->enchantJacket = json["set_effects"]["EnchantJacket"];
     player->enchantHat    = json["set_effects"]["EnchantHat"];
     player->weaponCW      = json["set_effects"]["WeaponCW"];
+    player->weaponWater   = json["set_effects"]["WeaponWater"];
     player->classSetBuff  = json["set_effects"]["ClassSetBuff"];
     player->classSetSkill = json["set_effects"]["ClassSetSkill"];
 
     player->delayMin = json["delay_min"].get<int>();
     player->delayMax = json["delay_max"].get<int>();
+
+    player->teamCore = static_cast<Class>(json["Permanent"]["TeamCore"].get<int>());
 
     player->Init();
 

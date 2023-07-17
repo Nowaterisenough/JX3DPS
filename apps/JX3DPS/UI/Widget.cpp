@@ -27,7 +27,7 @@
 
 #include "Button.h"
 #include "CheckBox.h"
-#include "ComboBox.h"
+#include "ComboBox1.h"
 #include "DataBars.h"
 #include "FramelessWidget.h"
 #include "GroupBox.h"
@@ -39,6 +39,30 @@
 #include "Splitter.h"
 #include "StatsWidget.h"
 #include "TabWidget.h"
+
+void Permanent2Json(const std::vector<ComboBox *> &comboBoxes, const std::vector<CheckBox *> &checkBoxes, nlohmann::json &json)
+{
+    for (auto &comboBox : comboBoxes) {
+        for (auto &items : comboBox->GetItemInfo().subItems) {
+            nlohmann::json obj;
+            obj["type"]  = items.first;
+            obj["value"] = items.second;
+            json["AttributeAdd"].push_back(obj);
+        }
+    }
+    for (auto &checkBox : checkBoxes) {
+        if (checkBox->isChecked()) {
+            for (auto &items : checkBox->GetItemInfo().subItems) {
+                nlohmann::json obj;
+                obj["type"]  = items.first;
+                obj["value"] = items.second;
+                json["AttributeAdd"].push_back(obj);
+            }
+        }
+    }
+    json["TeamCore"] = comboBoxes[0]->GetItemInfo().id;
+
+}
 
 void Attr2Json(const JX3DPS::Attr &attr, nlohmann::json &json)
 {
@@ -78,8 +102,9 @@ void SetEffects2Json(const std::vector<CheckBox *> &checkBoxes, nlohmann::json &
     json["EnchantJacket"] = checkBoxes[3]->isChecked();
     json["EnchantHat"]    = checkBoxes[4]->isChecked();
     json["WeaponCW"]      = checkBoxes[5]->isChecked();
-    json["ClassSetBuff"]  = checkBoxes[6]->isChecked();
-    json["ClassSetSkill"] = checkBoxes[7]->isChecked();
+    json["WeaponWater"]      = checkBoxes[6]->isChecked();
+    json["ClassSetBuff"]  = checkBoxes[7]->isChecked();
+    json["ClassSetSkill"] = checkBoxes[8]->isChecked();
 }
 
 #include <iostream>
@@ -91,7 +116,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground, true);
-    this->setFixedSize(610, 700);
+    this->setFixedSize(1000, 770);
 
     QGridLayout *layout = new QGridLayout(this);
 
@@ -124,7 +149,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     Button *button = new Button(widget);
     button->setText("开始模拟");
     button->setFont(QFont("NoWatsFont", 14));
-    button->setFixedSize(154, 44);
+    button->setFixedSize(156, 44);
     button->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
 
     GroupBox *groupBoxSetting = new GroupBox("设置", widget);
@@ -139,7 +164,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     tabWidgetAttrAndEchant->AddTab("配装");
     InitWidgetEchant(tabWidgetAttrAndEchant->Widget(1));
     CheckBox *checkBox = new CheckBox(widget);
-    checkBox->setGeometry(100, 129, 22, 22);
+    checkBox->setGeometry(100, 139, 22, 22);
 
     TabWidget *tabWidgetAttrGain = new TabWidget(widget);
     tabWidgetAttrGain->AddTab("收益");
@@ -151,7 +176,10 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     InitWidgetTalent(tabWidgetTalent->Widget(0));
     tabWidgetTalent->AddTab("秘籍");
     InitWidgetSecret(tabWidgetTalent->Widget(1));
-    tabWidgetTalent->AddTab("常驻增益");
+
+    TabWidget *tabWidgetPermanent = new TabWidget(widget);
+    tabWidgetPermanent->AddTab("常驻增益");
+    InitWidgetPermanent(tabWidgetPermanent->Widget(0));
 
     TabWidget *tabWidgetSkill = new TabWidget(widget);
     tabWidgetSkill->AddTab("宏");
@@ -170,11 +198,12 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     splitter->addWidget(tabWidgetSkill);
     splitter->addWidget(tabWidgetEvent);
 
-    groupBoxSetting->setFixedWidth(208);
-    tabWidgetAttrAndEchant->setFixedWidth(208);
-    groupBoxOut->setFixedWidth(154);
-    tabWidgetAttrGain->setFixedWidth(154);
-    tabWidgetAttrGain->setFixedHeight(312);
+    groupBoxSetting->setFixedWidth(228);
+    tabWidgetAttrAndEchant->setFixedWidth(228);
+    groupBoxOut->setFixedWidth(156);
+    tabWidgetAttrGain->setFixedWidth(156);
+    tabWidgetAttrGain->setFixedHeight(371);
+    tabWidgetPermanent->setFixedWidth(220);
 
     QSpacerItem *verticalSpacer3 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -186,8 +215,9 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     gLayout->addWidget(groupBoxOut, 1, 1, 1, 1);
     gLayout->addWidget(tabWidgetAttrAndEchant, 2, 0, 2, 1);
     gLayout->addWidget(tabWidgetAttrGain, 2, 1, 1, 1);
-    gLayout->addWidget(splitter, 0, 2, 3, 1);
+    gLayout->addWidget(tabWidgetPermanent, 0, 2, 3, 1);
     gLayout->addWidget(tabWidgetTalent, 3, 1, 1, 2);
+    gLayout->addWidget(splitter, 0, 3, 4, 1);
 
     gLayout->addItem(verticalSpacer3, 3, 0, 1, 1);
 
@@ -231,10 +261,12 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
         SetEffects2Json(m_setEffectWidgets, jsonSetEffects);
         json["set_effects"] = jsonSetEffects;
 
-        std::cout << json["set_effects"];
-
         json["delay_min"] = static_cast<LineEdit *>(m_lineEditDelayMin)->text().toInt();
         json["delay_max"] = static_cast<LineEdit *>(m_lineEditDelayMax)->text().toInt();
+
+        nlohmann::json jsonPermanent;
+        Permanent2Json(m_permanentComboBoxes, m_permanentCheckBoxes, jsonPermanent);
+        json["Permanent"] = jsonPermanent;
 
         m_progressBar = new ProgressBar(nullptr);
         m_progressBar->setAttribute(Qt::WA_DeleteOnClose);
@@ -432,6 +464,16 @@ bool Widget::InitClass(JX3DPS::Class classType)
     ParseJson2EventExprs(json, classType, m_events);
     LoadEvents(0);
 
+    nlohmann::json jsonClass;
+    for (auto &item : json["class"]) {
+        if (item["id"].get<int>() == static_cast<int>(classType)) {
+            jsonClass = item;
+            break;
+        }
+    }
+
+    emit Signal_UpdatePermanent(jsonClass);
+
     m_progressBar->SetProgress(1.0);
 }
 
@@ -450,19 +492,19 @@ void Widget::LoadEvents(int index)
 void Widget::InitWidgetSetting(QWidget *parent)
 {
     ComboBoxClass *comboBoxClass = new ComboBoxClass(parent);
-    comboBoxClass->setFixedSize(50, 50);
+    comboBoxClass->setFixedSize(54, 54);
 
     TextButton *textButtonSimulateCount = new TextButton(parent);
     textButtonSimulateCount->setText("模拟次数");
-    textButtonSimulateCount->setFixedSize(60, 21);
+    textButtonSimulateCount->setFixedSize(62, 26);
 
     m_lineEditSimulateCount = new LineEdit(parent);
-    m_lineEditSimulateCount->setFixedSize(48, 21);
+    m_lineEditSimulateCount->setFixedSize(62, 26);
     static_cast<LineEdit *>(m_lineEditSimulateCount)->setText("1");
 
     // TextButton *textButtonSimulateTime = new TextButton(parent);
     // textButtonSimulateTime->setText("模拟时间");
-    // textButtonSimulateTime->setFixedSize(60, 21);
+    // textButtonSimulateTime->setFixedSize(62, 26);
 
     // LineEdit *lineEditSimulateTime = new LineEdit(parent);
     // lineEditSimulateTime->setFixedSize(48, 21);
@@ -473,14 +515,14 @@ void Widget::InitWidgetSetting(QWidget *parent)
 
     TextButton *textButtonDelay = new TextButton(parent);
     textButtonDelay->setText("延迟波动");
-    textButtonDelay->setFixedSize(60, 21);
+    textButtonDelay->setFixedSize(62, 26);
 
     m_lineEditDelayMin = new LineEdit(parent);
-    m_lineEditDelayMin->setFixedSize(48, 21);
+    m_lineEditDelayMin->setFixedSize(62, 26);
     static_cast<LineEdit *>(m_lineEditDelayMin)->setText("40");
 
     m_lineEditDelayMax = new LineEdit(parent);
-    m_lineEditDelayMax->setFixedSize(48, 21);
+    m_lineEditDelayMax->setFixedSize(62, 26);
     static_cast<LineEdit *>(m_lineEditDelayMax)->setText("75");
 
     QGridLayout *gLayout = new QGridLayout(parent);
@@ -514,10 +556,10 @@ void Widget::InitWidgetOut(QWidget *parent)
 {
     TextButton *textButtonDPS = new TextButton(parent);
     textButtonDPS->setText("DPS 期望");
-    textButtonDPS->setFixedSize(60, 21);
+    textButtonDPS->setFixedSize(62, 26);
 
     m_lineEditDPS = new LineEdit(parent);
-    m_lineEditDPS->setFixedSize(65, 21);
+    m_lineEditDPS->setFixedHeight(26);
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -568,101 +610,101 @@ void Widget::InitWidgetAttr(QWidget *parent)
 {
     TextButton *textButtonAgilityOrSpirit = new TextButton(parent);
     textButtonAgilityOrSpirit->setText("身法");
-    textButtonAgilityOrSpirit->setFixedSize(60, 21);
+    textButtonAgilityOrSpirit->setFixedSize(62, 26);
     LineEdit *lineEditAgilityOrSpirit = new LineEdit(parent);
-    lineEditAgilityOrSpirit->setFixedSize(58, 21);
+    lineEditAgilityOrSpirit->setFixedSize(62, 26);
     lineEditAgilityOrSpirit->setAlignment(Qt::AlignRight);
     lineEditAgilityOrSpirit->setReadOnly(true);
     SpinBox *spinBoxAgilityOrSpirit = new SpinBox(parent);
-    spinBoxAgilityOrSpirit->setFixedSize(58, 21);
+    spinBoxAgilityOrSpirit->setFixedSize(62, 26);
 
     TextButton *textButtonStrengthOrSpunk = new TextButton(parent);
-    textButtonStrengthOrSpunk->setFixedSize(60, 21);
+    textButtonStrengthOrSpunk->setFixedSize(62, 26);
     textButtonStrengthOrSpunk->setText("力道");
     LineEdit *lineEditStrengthOrSpunk = new LineEdit(parent);
-    lineEditStrengthOrSpunk->setFixedSize(58, 21);
+    lineEditStrengthOrSpunk->setFixedSize(62, 26);
     lineEditStrengthOrSpunk->setAlignment(Qt::AlignRight);
     lineEditStrengthOrSpunk->setReadOnly(true);
     SpinBox *spinBoxStrengthOrSpunk = new SpinBox(parent);
-    spinBoxStrengthOrSpunk->setFixedSize(58, 21);
+    spinBoxStrengthOrSpunk->setFixedSize(62, 26);
 
     TextButton *textButtonAttack = new TextButton(parent);
-    textButtonAttack->setFixedSize(60, 21);
+    textButtonAttack->setFixedSize(62, 26);
     textButtonAttack->setText("外功攻击");
     LineEdit *lineEditAttack = new LineEdit(parent);
-    lineEditAttack->setFixedSize(58, 21);
+    lineEditAttack->setFixedSize(62, 26);
     lineEditAttack->setAlignment(Qt::AlignRight);
     lineEditAttack->setReadOnly(true);
     SpinBox *spinBoxAttack = new SpinBox(parent);
-    spinBoxAttack->setFixedSize(58, 21);
+    spinBoxAttack->setFixedSize(62, 26);
 
     TextButton *textButtonCritical = new TextButton(parent);
-    textButtonCritical->setFixedSize(60, 21);
+    textButtonCritical->setFixedSize(62, 26);
     textButtonCritical->setText("外功会心");
     LineEdit *lineEditCritical = new LineEdit(parent);
-    lineEditCritical->setFixedSize(58, 21);
+    lineEditCritical->setFixedSize(62, 26);
     lineEditCritical->setAlignment(Qt::AlignRight);
     lineEditCritical->setReadOnly(true);
     SpinBox *spinBoxCritical = new SpinBox(parent);
-    spinBoxCritical->setFixedSize(58, 21);
+    spinBoxCritical->setFixedSize(62, 26);
 
     TextButton *textButtonCriticalPower = new TextButton(parent);
-    textButtonCriticalPower->setFixedSize(60, 21);
+    textButtonCriticalPower->setFixedSize(62, 26);
     textButtonCriticalPower->setText("外功会效");
     LineEdit *lineEditCriticalPower = new LineEdit(parent);
-    lineEditCriticalPower->setFixedSize(58, 21);
+    lineEditCriticalPower->setFixedSize(62, 26);
     lineEditCriticalPower->setAlignment(Qt::AlignRight);
     lineEditCriticalPower->setReadOnly(true);
     SpinBox *spinBoxCriticalPower = new SpinBox(parent);
-    spinBoxCriticalPower->setFixedSize(58, 21);
+    spinBoxCriticalPower->setFixedSize(62, 26);
 
     TextButton *textButtonHaste = new TextButton(parent);
-    textButtonHaste->setFixedSize(60, 21);
+    textButtonHaste->setFixedSize(62, 26);
     textButtonHaste->setText("加速");
     LineEdit *lineEditHaste = new LineEdit(parent);
-    lineEditHaste->setFixedSize(58, 21);
+    lineEditHaste->setFixedSize(62, 26);
     lineEditHaste->setAlignment(Qt::AlignRight);
     lineEditHaste->setReadOnly(true);
     SpinBox *spinBoxHaste = new SpinBox(parent);
-    spinBoxHaste->setFixedSize(58, 21);
+    spinBoxHaste->setFixedSize(62, 26);
 
     TextButton *textButtonOvercome = new TextButton(parent);
-    textButtonOvercome->setFixedSize(60, 21);
+    textButtonOvercome->setFixedSize(62, 26);
     textButtonOvercome->setText("外功破防");
     LineEdit *lineEditOvercome = new LineEdit(parent);
-    lineEditOvercome->setFixedSize(58, 21);
+    lineEditOvercome->setFixedSize(62, 26);
     lineEditOvercome->setAlignment(Qt::AlignRight);
     lineEditOvercome->setReadOnly(true);
     SpinBox *spinBoxOvercome = new SpinBox(parent);
-    spinBoxOvercome->setFixedSize(58, 21);
+    spinBoxOvercome->setFixedSize(62, 26);
 
     TextButton *textButtonStrain = new TextButton(parent);
-    textButtonStrain->setFixedSize(60, 21);
+    textButtonStrain->setFixedSize(62, 26);
     textButtonStrain->setText("无双");
     LineEdit *lineEditStrain = new LineEdit(parent);
-    lineEditStrain->setFixedSize(58, 21);
+    lineEditStrain->setFixedSize(62, 26);
     lineEditStrain->setAlignment(Qt::AlignRight);
     lineEditStrain->setReadOnly(true);
     SpinBox *spinBoxStrain = new SpinBox(parent);
-    spinBoxStrain->setFixedSize(58, 21);
+    spinBoxStrain->setFixedSize(62, 26);
 
     TextButton *textButtonSurplus = new TextButton(parent);
-    textButtonSurplus->setFixedSize(60, 21);
+    textButtonSurplus->setFixedSize(62, 26);
     textButtonSurplus->setText("破招");
     LineEdit *lineEditSurplus = new LineEdit(parent);
-    lineEditSurplus->setFixedSize(58, 21);
+    lineEditSurplus->setFixedSize(62, 26);
     lineEditSurplus->setAlignment(Qt::AlignRight);
     lineEditSurplus->setReadOnly(true);
     SpinBox *spinBoxSurplus = new SpinBox(parent);
-    spinBoxSurplus->setFixedSize(58, 21);
+    spinBoxSurplus->setFixedSize(62, 26);
 
     TextButton *textButtonWeaponAttack = new TextButton(parent);
-    textButtonWeaponAttack->setFixedSize(60, 21);
+    textButtonWeaponAttack->setFixedSize(62, 26);
     textButtonWeaponAttack->setText("武器伤害");
     SpinBox *spinBoxWeaponAttackMin = new SpinBox(parent);
-    spinBoxWeaponAttackMin->setFixedSize(58, 21);
+    spinBoxWeaponAttackMin->setFixedSize(62, 26);
     SpinBox *spinBoxWeaponAttackMax = new SpinBox(parent);
-    spinBoxWeaponAttackMax->setFixedSize(58, 21);
+    spinBoxWeaponAttackMax->setFixedSize(62, 26);
 
     connect(spinBoxAgilityOrSpirit, &SpinBox::Signal_UpdateValue, this, [=](int value) {
         if (textButtonAgilityOrSpirit->text() == "身法") {
@@ -886,34 +928,34 @@ void Widget::InitWidgetEchant(QWidget *parent) { }
 void Widget::InitWidgetAttrGain(QWidget *parent)
 {
     DataBars *dataBarAgilityOrSpirit = new DataBars(parent);
-    dataBarAgilityOrSpirit->setFixedHeight(21);
+    dataBarAgilityOrSpirit->setFixedHeight(26);
 
     DataBars *dataBarStrengthOrSpunk = new DataBars(parent);
-    dataBarStrengthOrSpunk->setFixedHeight(21);
+    dataBarStrengthOrSpunk->setFixedHeight(26);
 
     DataBars *dataBarAttack = new DataBars(parent);
-    dataBarAttack->setFixedHeight(21);
+    dataBarAttack->setFixedHeight(26);
 
     DataBars *dataBarCritical = new DataBars(parent);
-    dataBarCritical->setFixedHeight(21);
+    dataBarCritical->setFixedHeight(26);
 
     DataBars *dataBarCriticalPower = new DataBars(parent);
-    dataBarCriticalPower->setFixedHeight(21);
+    dataBarCriticalPower->setFixedHeight(26);
 
     DataBars *dataBarHaste = new DataBars(parent);
-    dataBarHaste->setFixedHeight(21);
+    dataBarHaste->setFixedHeight(26);
 
     DataBars *dataBarOvercome = new DataBars(parent);
-    dataBarOvercome->setFixedHeight(21);
+    dataBarOvercome->setFixedHeight(26);
 
     DataBars *dataBarStrain = new DataBars(parent);
-    dataBarStrain->setFixedHeight(21);
+    dataBarStrain->setFixedHeight(26);
 
     DataBars *dataBarSurplus = new DataBars(parent);
-    dataBarSurplus->setFixedHeight(21);
+    dataBarSurplus->setFixedHeight(26);
 
     DataBars *dataBarWeaponAttack = new DataBars(parent);
-    dataBarWeaponAttack->setFixedHeight(21);
+    dataBarWeaponAttack->setFixedHeight(26);
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -987,6 +1029,7 @@ void Widget::InitWidgetSetEffect(QWidget *parent)
     CheckBox *checkBoxEnchantJacket = new CheckBox(parent);
     CheckBox *checkBoxEnchantHat    = new CheckBox(parent);
     CheckBox *checkBoxWeaponCW      = new CheckBox(parent);
+    CheckBox *checkBoxWeaponWater      = new CheckBox(parent);
     CheckBox *checkBoxClassSetBuff  = new CheckBox(parent);
     CheckBox *checkBoxClassSetSkill = new CheckBox(parent);
 
@@ -996,6 +1039,7 @@ void Widget::InitWidgetSetEffect(QWidget *parent)
     m_setEffectWidgets.push_back(checkBoxEnchantJacket);
     m_setEffectWidgets.push_back(checkBoxEnchantHat);
     m_setEffectWidgets.push_back(checkBoxWeaponCW);
+    m_setEffectWidgets.push_back(checkBoxWeaponWater);
     m_setEffectWidgets.push_back(checkBoxClassSetBuff);
     m_setEffectWidgets.push_back(checkBoxClassSetSkill);
 
@@ -1005,6 +1049,7 @@ void Widget::InitWidgetSetEffect(QWidget *parent)
     checkBoxEnchantJacket->setText("大附魔·衣");
     checkBoxEnchantHat->setText("大附魔·帽");
     checkBoxWeaponCW->setText("大橙武");
+    checkBoxWeaponWater->setText("水特效");
     checkBoxClassSetBuff->setText("套装·属性");
     checkBoxClassSetSkill->setText("套装·技能");
 
@@ -1014,6 +1059,7 @@ void Widget::InitWidgetSetEffect(QWidget *parent)
     checkBoxEnchantJacket->setFixedHeight(22);
     checkBoxEnchantHat->setFixedHeight(22);
     checkBoxWeaponCW->setFixedHeight(22);
+    checkBoxWeaponWater->setFixedHeight(22);
     checkBoxClassSetBuff->setFixedHeight(22);
     checkBoxClassSetSkill->setFixedHeight(22);
 
@@ -1024,6 +1070,208 @@ void Widget::InitWidgetSetEffect(QWidget *parent)
     gLayout->addWidget(checkBoxEnchantHat, 4, 0, 1, 1);
 
     gLayout->addWidget(checkBoxWeaponCW, 0, 1, 1, 1);
-    gLayout->addWidget(checkBoxClassSetBuff, 1, 1, 1, 1);
-    gLayout->addWidget(checkBoxClassSetSkill, 2, 1, 1, 1);
+    gLayout->addWidget(checkBoxWeaponWater, 1, 1, 1, 1);
+    gLayout->addWidget(checkBoxClassSetBuff, 2, 1, 1, 1);
+    gLayout->addWidget(checkBoxClassSetSkill, 3, 1, 1, 1);
+}
+
+#include "BaseWidgets/ComboBox.h"
+
+void Widget::InitWidgetPermanent(QWidget *parent)
+{
+    QGridLayout *gLayout = new QGridLayout(parent);
+
+    std::vector<std::string> permanents = { "阵眼",     "食品增强", "食品辅助", "药品增强",
+                                            "药品辅助", "家园炊事", "家园酿造" };
+
+    for (int i = 0; i < 7; ++i) {
+        ComboBox *comboBox = new ComboBox(ComboBoxType::DETAILED_MODE, this);
+        comboBox->setFixedHeight(48);
+        comboBox->SetItemSize(201, 48);
+        gLayout->addWidget(comboBox, i, 0, 1, 2);
+
+        ItemInfo itemInfo;
+        itemInfo.name = permanents[i];
+        comboBox->AddItem(itemInfo);
+
+        m_permanentComboBoxes.push_back(comboBox);
+    }
+
+    connect(this, &Widget::Signal_UpdatePermanent, this, [=](const nlohmann::json &json) {
+        for (auto &item : json["Permanent"]["TeamCore"]) {
+            
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : item["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.id   = item["id"].get<int>();
+            itemInfo.name = item["name"].get<std::string>();
+            itemInfo.desc = item["desc"].get<std::string>();
+            itemInfo.icon = std::format(":/resources/pics/JX3/Icons/{}.png", item["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentComboBoxes[0]->AddItem(itemInfo);
+        }
+        for (auto &item : json["Permanent"]["FoodEnhance"]) {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : item["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name = item["name"].get<std::string>();
+            itemInfo.desc = item["desc"].get<std::string>();
+            itemInfo.icon = std::format(":/resources/pics/JX3/Icons/{}.png", item["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentComboBoxes[1]->AddItem(itemInfo);
+        }
+        for (auto &item : json["Permanent"]["FoodSupport"]) {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : item["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name = item["name"].get<std::string>();
+            itemInfo.desc = item["desc"].get<std::string>();
+            itemInfo.icon = std::format(":/resources/pics/JX3/Icons/{}.png", item["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentComboBoxes[2]->AddItem(itemInfo);
+        }
+        for (auto &item : json["Permanent"]["MedEnhance"]) {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : item["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name = item["name"].get<std::string>();
+            itemInfo.desc = item["desc"].get<std::string>();
+            itemInfo.icon = std::format(":/resources/pics/JX3/Icons/{}.png", item["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentComboBoxes[3]->AddItem(itemInfo);
+        }
+        for (auto &item : json["Permanent"]["MedSupport"]) {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : item["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name = item["name"].get<std::string>();
+            itemInfo.desc = item["desc"].get<std::string>();
+            itemInfo.icon = std::format(":/resources/pics/JX3/Icons/{}.png", item["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentComboBoxes[4]->AddItem(itemInfo);
+        }
+        for (auto &item : json["Permanent"]["HomeCook"]) {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : item["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name = item["name"].get<std::string>();
+            itemInfo.desc = item["desc"].get<std::string>();
+            itemInfo.icon = std::format(":/resources/pics/JX3/Icons/{}.png", item["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentComboBoxes[5]->AddItem(itemInfo);
+        }
+        for (auto &item : json["Permanent"]["HomeWine"]) {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : item["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name = item["name"].get<std::string>();
+            itemInfo.desc = item["desc"].get<std::string>();
+            itemInfo.icon = std::format(":/resources/pics/JX3/Icons/{}.png", item["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentComboBoxes[6]->AddItem(itemInfo);
+        }
+        {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : json["Permanent"]["WeaponWhetstone"].front()["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name = json["Permanent"]["WeaponWhetstone"].front()["name"].get<std::string>();
+            itemInfo.desc = json["Permanent"]["WeaponWhetstone"].front()["desc"].get<std::string>();
+            itemInfo.icon = std::format(":/resources/pics/JX3/Icons/{}.png",
+                                        json["Permanent"]["WeaponWhetstone"].front()["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentCheckBoxes[0]->SetItemInfo(itemInfo);
+        }
+        {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : json["Permanent"]["Others"].front()["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name     = json["Permanent"]["Others"][0]["name"].get<std::string>();
+            itemInfo.desc     = json["Permanent"]["Others"][0]["desc"].get<std::string>();
+            itemInfo.icon     = std::format(":/resources/pics/JX3/Icons/{}.png",
+                                        json["Permanent"]["Others"][0]["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentCheckBoxes[1]->SetItemInfo(itemInfo);
+        }
+        {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : json["Permanent"]["Others"].front()["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name     = json["Permanent"]["Others"][1]["name"].get<std::string>();
+            itemInfo.desc     = json["Permanent"]["Others"][1]["desc"].get<std::string>();
+            itemInfo.icon     = std::format(":/resources/pics/JX3/Icons/{}.png",
+                                        json["Permanent"]["Others"][1]["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentCheckBoxes[2]->SetItemInfo(itemInfo);
+        }
+        {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : json["Permanent"]["Others"].front()["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name     = json["Permanent"]["Others"][2]["name"].get<std::string>();
+            itemInfo.desc     = json["Permanent"]["Others"][2]["desc"].get<std::string>();
+            itemInfo.icon     = std::format(":/resources/pics/JX3/Icons/{}.png",
+                                        json["Permanent"]["Others"][2]["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentCheckBoxes[3]->SetItemInfo(itemInfo);
+        }
+        {
+            std::vector<std::pair<std::string, int>> its;
+            for (auto &it : json["Permanent"]["Others"].front()["attr"]) {
+                its.push_back({ it["type"].get<std::string>(), it["value"].get<int>() });
+            }
+            ItemInfo itemInfo;
+            itemInfo.name     = json["Permanent"]["Others"][3]["name"].get<std::string>();
+            itemInfo.desc     = json["Permanent"]["Others"][3]["desc"].get<std::string>();
+            itemInfo.icon     = std::format(":/resources/pics/JX3/Icons/{}.png",
+                                        json["Permanent"]["Others"][3]["icon"].get<int>());
+            itemInfo.subItems = its;
+            m_permanentCheckBoxes[4]->SetItemInfo(itemInfo);
+        }
+    });
+
+    m_permanentCheckBoxes.push_back(new CheckBox(parent));
+    m_permanentCheckBoxes.push_back(new CheckBox(parent));
+    m_permanentCheckBoxes.push_back(new CheckBox(parent));
+    m_permanentCheckBoxes.push_back(new CheckBox(parent));
+    m_permanentCheckBoxes.push_back(new CheckBox(parent));
+
+    m_permanentCheckBoxes[0]->setText("武器熔锭");
+    m_permanentCheckBoxes[1]->setText("玉笛谁家听落梅");
+    m_permanentCheckBoxes[2]->setText("同泽宴");
+    m_permanentCheckBoxes[3]->setText("炼狱水煮鱼");
+    m_permanentCheckBoxes[4]->setText("蒸鱼菜盘");
+
+    m_permanentCheckBoxes[0]->setFixedHeight(22);
+    m_permanentCheckBoxes[1]->setFixedHeight(22);
+    m_permanentCheckBoxes[2]->setFixedHeight(22);
+    m_permanentCheckBoxes[3]->setFixedHeight(22);
+    m_permanentCheckBoxes[4]->setFixedHeight(22);
+
+    gLayout->addWidget(m_permanentCheckBoxes[0], 7, 0, 1, 1);
+    gLayout->addWidget(m_permanentCheckBoxes[1], 8, 0, 1, 1);
+    gLayout->addWidget(m_permanentCheckBoxes[2], 8, 1, 1, 1);
+    gLayout->addWidget(m_permanentCheckBoxes[3], 9, 0, 1, 1);
+    gLayout->addWidget(m_permanentCheckBoxes[4], 9, 1, 1, 1);
 }

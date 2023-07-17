@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 07:56:23
+ * Last Modified: 2023-07-18 02:02:44
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -20,6 +20,8 @@
 #include <QColor>
 #include <QPixmap>
 
+#include "BaseWidgets/ComboBox.h"
+
 #include "ThemeColors.h"
 
 class CheckBox : public QCheckBox
@@ -29,6 +31,9 @@ class CheckBox : public QCheckBox
 public:
     CheckBox(QWidget *parent = nullptr);
 
+    void SetItemInfo(const ItemInfo &itemInfo);
+    ItemInfo GetItemInfo() const;
+
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
     virtual void enterEvent(QEnterEvent *event) override;
@@ -37,6 +42,8 @@ protected:
 
 private:
     QColor m_color = QColor(COLOR_BACKGROUND_HIGHLIGHT);
+
+    ItemInfo m_itemInfo;
 };
 
 class SecretImage : public QWidget

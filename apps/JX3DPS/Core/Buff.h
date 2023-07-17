@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-14 03:03:31
+ * Last Modified: 2023-07-18 05:47:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -76,6 +76,9 @@ struct TargetSnapshot
     /* 快照无双 */
     Value_t strain = 0;
 
+    /* 快照无双加成 */
+    PctInt_t strainAddPercentInt = 0;
+
     /* 快照效果会心 */
     PctInt_t effectCriticalStrikeAddPercentInt = 0;
 
@@ -105,11 +108,12 @@ struct TargetSnapshot
         criticalStrikePower   = attr.GetPhysicsCriticalStrikePower();
         hastePercent          = attr.GetHastePercent();
         strain                = attr.GetStrain();
+        strainAddPercentInt   = attr.GetStrainPercentInt();
 
-        this->effectCriticalStrikeAddPercentInt      = effectCriticalStrikeAddPercentInt;
-        this->effectCriticalStrikePowerAddPercentInt = effectCriticalStrikePowerAddPercentInt + attr.GetPhysicsCriticalStrikePowerPercentIntFromCustom();
-        this->effectDamageAddPercentInt              = effectDamageAddPercentInt;
-
+        this->effectCriticalStrikeAddPercentInt = effectCriticalStrikeAddPercentInt;
+        this->effectCriticalStrikePowerAddPercentInt =
+            effectCriticalStrikePowerAddPercentInt + attr.GetPhysicsCriticalStrikePowerPercentIntFromCustom();
+        this->effectDamageAddPercentInt = effectDamageAddPercentInt;
 
         attr.AddPhysicsAttackBase(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_ATTACK)]);
         attr.AddPhysicsCriticalStrikePower(ATTRIBUTE_GAIN_BY_BASE[static_cast<int>(AttributeType::PHYSICS_CRITICAL_STRIKE_POWER)]);
@@ -206,6 +210,8 @@ public:
     static constexpr Id_t JING_HUA_YING                = 1113;
     static constexpr Id_t FIELD_LIE_YUN                = 1114;
     static constexpr Id_t LIE_YUN                      = 1115;
+    static constexpr Id_t BEI_DOU_QI_XING_YOU_REN      = 1116;
+    static constexpr Id_t BEI_DOU_QI_XING_JING_MIAO    = 1117;
 
     // 太虚剑意tbuff
     static constexpr Id_t DIE_REN            = 1200;
@@ -265,6 +271,7 @@ public:
         { WAN_XIANG_GUI_YUAN,           "Dot·万象归元"        },
         { TUN_RI_YUE,                   "吞日月"                },
         { JING_HUA_YING,                "镜花影"                },
+        { BEI_DOU_QI_XING_YOU_REN,      "北斗七星阵·游刃"  },
     };
 
 public:
@@ -571,6 +578,28 @@ class JiLei : public Buff
 public:
     void SubEffectAdd(int targetId);
     void SubEffectClear(int targetId);
+};
+
+class WeaponEffectWater : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(WeaponEffectWater)
+
+public:
+    void TriggerAdd(int stackNum = 1);
+
+    void SubEffectAdd(int stackNum);
+    void SubEffectClear(int stackNum);
+};
+
+class PendantOvercome : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(PendantOvercome)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
 };
 
 } // namespace Buff3rd

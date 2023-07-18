@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-18 01:58:20
+ * Last Modified: 2023-07-18 10:53:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -57,6 +57,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
 
 private:
     bool m_hovered  = false;

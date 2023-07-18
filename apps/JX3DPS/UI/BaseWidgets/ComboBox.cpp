@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-18 05:55:35
+ * Last Modified: 2023-07-18 11:15:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -108,8 +108,8 @@ ItemWidget::ItemWidget(const ItemInfo &itemInfo, QWidget *parent) : QWidget(pare
     palette.setColor(QPalette::WindowText, QColor(COLOR_HIGHLIGHT));
     m_nameText->setPalette(palette);
     m_descText->setPalette(palette);
-    m_nameText->setFont(QFont("微软雅黑", 11));
-    m_descText->setFont(QFont("微软雅黑", 10));
+    m_nameText->setFont(QFont("NoWatsFont", 11));
+    m_descText->setFont(QFont("NoWatsFont", 10));
 
     m_hLayout = new QHBoxLayout(this);
     m_vLayout = new QVBoxLayout;
@@ -128,8 +128,8 @@ ItemWidget::ItemWidget(QWidget *parent) : QWidget(parent)
     palette.setColor(QPalette::WindowText, QColor(COLOR_HIGHLIGHT));
     m_nameText->setPalette(palette);
     m_descText->setPalette(palette);
-    m_nameText->setFont(QFont("微软雅黑", 11));
-    m_descText->setFont(QFont("微软雅黑", 10));
+    m_nameText->setFont(QFont("NoWatsFont", 11));
+    m_descText->setFont(QFont("NoWatsFont", 10));
 
     m_hLayout = new QHBoxLayout(this);
     m_vLayout = new QVBoxLayout;
@@ -233,10 +233,20 @@ void ItemWidget::enterEvent(QEnterEvent *event)
 
 void ItemWidget::leaveEvent(QEvent *event)
 {
+    qDebug() << "leaveEvent";
     m_hovered = false;
     this->update();
     m_descText->Reset();
     QWidget::leaveEvent(event);
+}
+
+void ItemWidget::focusOutEvent(QFocusEvent *event)
+{
+    qDebug() << "focusOutEvent";
+    m_hovered = false;
+    this->update();
+    m_descText->Reset();
+    QWidget::focusOutEvent(event);
 }
 
 ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
@@ -315,10 +325,6 @@ SubComboBox::SubComboBox(ComboBoxType type, QWidget *parent) : QComboBox(parent)
     this->setModel(listWidget->model());
     this->setView(listWidget);
 
-    connect(listWidget, &ListWidget::itemClicked, this, [=](QListWidgetItem *item) {
-        this->hidePopup();
-    });
-
     connect(listWidget, &QListWidget::currentItemChanged, this, [=](QListWidgetItem *current, QListWidgetItem *previous) {
         if (previous != nullptr) {
             ((ItemWidget *)listWidget->itemWidget(previous))->SetSelected(false);
@@ -382,20 +388,20 @@ void SubComboBox::enterEvent(QEnterEvent *event)
 {
     this->setCursor(Qt::PointingHandCursor);
     m_hovered = true;
-    //this->update();
+    // this->update();
     QComboBox::enterEvent(event);
 }
 
 void SubComboBox::leaveEvent(QEvent *event)
 {
     m_hovered = false;
-    //this->update();
+    // this->update();
     QComboBox::leaveEvent(event);
 }
 
 void SubComboBox::showPopup()
 {
-    
+
     QComboBox::showPopup();
     ((ListWidget *)this->view())->doItemsLayout();
 }
@@ -414,7 +420,7 @@ ComboBox::ComboBox(ComboBoxType type, QWidget *parent) : QWidget(parent)
 
     if (m_type == ComboBoxType::ICON_AND_NAME_MODE) {
         m_label = new QLabel(this);
-        m_label->setFont(QFont("微软雅黑", 10));
+        m_label->setFont(QFont("NoWatsFont", 10));
 
         gLayout->addWidget(m_label, 1, 0, 1, 1, Qt::AlignCenter);
         connect(m_comboBox, &QComboBox::currentIndexChanged, this, [=](int index) {
@@ -483,13 +489,13 @@ void ComboBox::enterEvent(QEnterEvent *event)
 {
     this->setCursor(Qt::PointingHandCursor);
     m_hovered = true;
-    //this->update();
+    // this->update();
     QWidget::enterEvent(event);
 }
 
 void ComboBox::leaveEvent(QEvent *event)
 {
     m_hovered = false;
-    //this->update();
+    // this->update();
     QWidget::leaveEvent(event);
 }

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 15:41:10
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-15 10:50:30
+ * Last Modified: 2023-07-18 10:15:20
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -875,7 +875,6 @@ bool JX3DPS::Macro::IsNotReCast(Player *player, Targets *targets)
 {
     if (player->isReCast) {
 
-        
         return false;
     }
     return !player->isReCast;

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-18 05:49:14
+ * Last Modified: 2023-07-18 10:40:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -871,8 +871,9 @@ void JX3DPS::Buff3rd::PoFeng::Trigger()
 {
     for (auto it = m_targetSnapshots.begin(); it != m_targetSnapshots.end();) {
         if (it->second.duration == 0) {
-            it = m_targetSnapshots.erase(it);
+            
             SubEffectClear(it->first);
+            it = m_targetSnapshots.erase(it);
         } else {
             ++it;
         }
@@ -922,8 +923,8 @@ void JX3DPS::Buff3rd::JingFeng::Trigger()
 {
     for (auto it = m_targetSnapshots.begin(); it != m_targetSnapshots.end();) {
         if (it->second.duration == 0) {
-            it = m_targetSnapshots.erase(it);
             SubEffectClear(it->first);
+            it = m_targetSnapshots.erase(it);
         } else {
             ++it;
         }
@@ -973,8 +974,9 @@ void JX3DPS::Buff3rd::JieHuo::Trigger()
 {
     for (auto it = m_targetSnapshots.begin(); it != m_targetSnapshots.end();) {
         if (it->second.duration == 0) {
-            it = m_targetSnapshots.erase(it);
             SubEffectClear(it->first);
+            it = m_targetSnapshots.erase(it);
+            
         } else {
             ++it;
         }

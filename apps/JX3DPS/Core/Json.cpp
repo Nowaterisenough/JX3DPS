@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-18 03:41:03
+ * Last Modified: 2023-07-18 10:31:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -153,6 +153,9 @@ JX3DPS::Error_t JX3DPS::ParseJson2Attr(const nlohmann::json &json, Attr &attr)
 JX3DPS::Error_t JX3DPS::ParseJson2Permanent(const nlohmann::json &json, Attr &attr)
 {
     try {
+        if (json["Permanent"].find("AttributeAdd") == json["Permanent"].end()) {
+            return JX3DPS_SUCCESS;
+        }
         for (auto &item : json["Permanent"]["AttributeAdd"]) {
             if (item["type"].get<std::string>() == "PhysicsCriticalStrikePercentInt") {
                 attr.AddPhysicsCriticalStrikePercentIntFromCustom(item["value"].get<int>());

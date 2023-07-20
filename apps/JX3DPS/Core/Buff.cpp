@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-18 10:40:01
+ * Last Modified: 2023-07-20 19:43:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -81,7 +81,7 @@ JX3DPS::Buff &JX3DPS::Buff::operator=(const Buff &other)
 
 void Buff::RemoveTarget(Id_t targetId)
 {
-    if (m_tbuff) {
+    if (m_targetSnapshots.find(targetId) != m_targetSnapshots.end()) {
         m_targetSnapshots.erase(targetId);
     }
 }
@@ -871,7 +871,7 @@ void JX3DPS::Buff3rd::PoFeng::Trigger()
 {
     for (auto it = m_targetSnapshots.begin(); it != m_targetSnapshots.end();) {
         if (it->second.duration == 0) {
-            
+
             SubEffectClear(it->first);
             it = m_targetSnapshots.erase(it);
         } else {
@@ -976,7 +976,7 @@ void JX3DPS::Buff3rd::JieHuo::Trigger()
         if (it->second.duration == 0) {
             SubEffectClear(it->first);
             it = m_targetSnapshots.erase(it);
-            
+
         } else {
             ++it;
         }

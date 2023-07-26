@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 06:02:14
+ * Last Modified: 2023-07-18 05:50:25
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -38,6 +38,10 @@ void JX3DPS::TaiXuJianYi::Player::Init()
         }
     }
 
+    skills.emplace(JX3DPS::Skill::PO_ZHAO,
+                   std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::PoZhao>(this, nullptr)));
+    skills.emplace(JX3DPS::Skill::PENDANT_OVERCOME,
+                   std::move(std::make_unique<JX3DPS::Skill3rd::PendantOvercome>(this, nullptr)));
     skills.emplace(JX3DPS::Skill::WU_WO_WU_JIAN,
                    std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::WuWoWuJian>(this, nullptr)));
     skills.emplace(JX3DPS::Skill::BA_HUANG_GUI_YUAN,
@@ -65,6 +69,8 @@ void JX3DPS::TaiXuJianYi::Player::Init()
     skills.emplace(JX3DPS::Skill::REN_JIAN_HE_YI_TUN_RI_YUE,
                    std::move(std::make_unique<JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue>(this, nullptr)));
 
+    buffs.emplace(JX3DPS::Buff::PENDANT_OVERCOME,
+                  std::move(std::make_unique<JX3DPS::Buff3rd::PendantOvercome>(this, nullptr)));
     buffs.emplace(JX3DPS::Buff::DIE_REN,
                   std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::DieRen>(this, nullptr)));
     buffs.emplace(JX3DPS::Buff::ZI_QI_DONG_LAI,
@@ -161,6 +167,18 @@ void JX3DPS::TaiXuJianYi::Player::Init()
                       std::move(std::make_unique<JX3DPS::Buff3rd::EnchantBelt>(this, nullptr)));
     }
 
+    if (teamCore == Class::TAI_XU_JIAN_YI) {
+        buffs.emplace(JX3DPS::Buff::BEI_DOU_QI_XING_JING_MIAO,
+                      std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::JingMiao>(this, nullptr)));
+        buffs.emplace(JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN,
+                      std::move(std::make_unique<JX3DPS::TaiXuJianYi::Buff::YouRen>(this, nullptr)));
+    }
+
+    if (weaponWater) {
+        buffs.emplace(JX3DPS::Buff::WEAPON_EFFECT_WATER,
+                      std::move(std::make_unique<JX3DPS::Buff3rd::WeaponEffectWater>(this, nullptr)));
+    }
+
     buffs.emplace(JX3DPS::Buff::THIRD_XIU_QI, std::move(std::make_unique<JX3DPS::Buff3rd::XiuQi>(this, nullptr)));
     buffs.emplace(JX3DPS::Buff::THIRD_HAN_RU_LEI,
                   std::move(std::make_unique<JX3DPS::Buff3rd::HanRuLei>(this, nullptr)));
@@ -208,6 +226,40 @@ void JX3DPS::TaiXuJianYi::Player::Init()
 
 /* ------------------------------------------------ Skill ----------------------------------------------- */
 
+JX3DPS::TaiXuJianYi::Skill::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) :
+    Skill(player, targets)
+{
+    m_id    = Skill::PO_ZHAO;
+    m_name  = "破招";
+    m_range = 4;
+
+    m_subNames.push_back("无我无剑");
+    m_subNames.push_back("三环套月");
+
+    m_levelNames.push_back("1");
+    m_levelNames.push_back("2");
+    m_levelNames.push_back("3");
+
+    m_damageParams[0].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+    m_damageParams[0].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.13 - 1));
+    m_damageParams[0].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.23 - 1));
+
+    m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+    m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+    m_damageParams[1].emplace_back(0, 0, JX3_PCT_INT_BASE * JX3_PCT_INT_BASE * (0.065 - 1));
+}
+
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::Cast() { }
+
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::Trigger() { }
+
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
+{
+    RollResult  rollResult = GetPhysicsRollResult();
+    GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
+    Record(m_player->targetId, rollResult, damage, 0, level);
+}
+
 JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
@@ -231,112 +283,92 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
 
     m_damageParams[0].emplace_back((2696 * 1 / 10 / 12 + (2696 + 286) * 1 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 1,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 1);
     m_damageParams[0].emplace_back((2696 * 2 / 10 / 12 + (2696 + 286) * 2 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 2,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 2);
     m_damageParams[0].emplace_back((2696 * 3 / 10 / 12 + (2696 + 286) * 3 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 3,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 3);
     m_damageParams[0].emplace_back((2696 * 4 / 10 / 12 + (2696 + 286) * 4 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 4,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 4);
     m_damageParams[0].emplace_back((2696 * 5 / 10 / 12 + (2696 + 286) * 5 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 5,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 5);
     m_damageParams[0].emplace_back((2696 * 6 / 10 / 12 + (2696 + 286) * 6 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 6,
-                                   0.065);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 6);
     m_damageParams[0].emplace_back((2696 * 7 / 10 / 12 + (2696 + 286) * 7 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 7,
-                                   0.065);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 7);
     m_damageParams[0].emplace_back((2696 * 8 / 10 / 12 + (2696 + 286) * 8 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 8,
-                                   0.13);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 8);
     m_damageParams[0].emplace_back((2696 * 9 / 10 / 12 + (2696 + 286) * 9 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 9,
-                                   0.13);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 9);
     m_damageParams[0].emplace_back((2696 * 10 / 10 / 12 + (2696 + 286) * 10 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10,
-                                   0.23);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10);
 
     m_damageParams[1].emplace_back((2696 * 1 / 10 / 12 + (2696 + 286) * 1 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 1,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 1);
     m_damageParams[1].emplace_back((2696 * 2 / 10 / 12 + (2696 + 286) * 2 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 2,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 2);
     m_damageParams[1].emplace_back((2696 * 3 / 10 / 12 + (2696 + 286) * 3 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 3,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 3);
     m_damageParams[1].emplace_back((2696 * 4 / 10 / 12 + (2696 + 286) * 4 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 4,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 4);
     m_damageParams[1].emplace_back((2696 * 5 / 10 / 12 + (2696 + 286) * 5 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 5,
-                                   0.0);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 5);
     m_damageParams[1].emplace_back((2696 * 6 / 10 / 12 + (2696 + 286) * 6 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 6,
-                                   0.065);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 6);
     m_damageParams[1].emplace_back((2696 * 7 / 10 / 12 + (2696 + 286) * 7 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 7,
-                                   0.065);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 7);
     m_damageParams[1].emplace_back((2696 * 8 / 10 / 12 + (2696 + 286) * 8 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 8,
-                                   0.13);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 8);
     m_damageParams[1].emplace_back((2696 * 9 / 10 / 12 + (2696 + 286) * 9 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 9,
-                                   0.13);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 9);
     m_damageParams[1].emplace_back((2696 * 10 / 10 / 12 + (2696 + 286) * 10 / 10 / 12) / 2,
                                    2048,
-                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10,
-                                   0.23);
+                                   19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10);
 
     if (m_player->talents[Talent::TONG_GEN]) {
-        m_skillDamageAddPercentInt += 102;
+        m_effectDamageAddPercentInt += 102;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][0]) {
-        m_skillCriticalStrikeAddPercent += 0.02;
+        m_effectCriticalStrikeAddPercentInt += 200;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][1]) {
-        m_skillCriticalStrikeAddPercent += 0.03;
+        m_effectCriticalStrikeAddPercentInt += 300;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][2]) {
-        m_skillCriticalStrikeAddPercent += 0.04;
+        m_effectCriticalStrikeAddPercentInt += 400;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][3]) {
-        m_skillDamageAddPercentInt += 30;
+        m_effectDamageAddPercentInt += 31;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][4]) {
-        m_skillDamageAddPercentInt += 40;
+        m_effectDamageAddPercentInt += 41;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][5]) {
-        m_skillDamageAddPercentInt += 51;
+        m_effectDamageAddPercentInt += 51;
     }
 
     if (m_player->secrets[Skill::WU_WO_WU_JIAN][6]) {
@@ -344,14 +376,18 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
     }
 
     if (m_player->classSetSkill) {
-        m_skillDamageAddPercentInt += 102;
+        m_effectDamageAddPercentInt += 102;
+    }
+
+    if (m_player->weaponCW) {
+        m_effectDamageAddPercentInt += 51;
     }
 }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Cast()
 {
     m_player->lastCastSkill = m_id;
-
+    spdlog::debug("无我无剑 {}气点", m_player->qidian);
     *m_globalCooldown = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
                         RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
 
@@ -362,12 +398,12 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Trigger() { }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiAdd()
 {
-    m_skillDamageAddPercentInt += 307;
+    m_effectDamageAddPercentInt += 307;
 }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiClear()
 {
-    m_skillDamageAddPercentInt -= 307;
+    m_effectDamageAddPercentInt -= 307;
 }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
@@ -381,15 +417,15 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
 
     int level = qidian - 1;
 
+    // 无意 3格气以上
+    if (m_player->talents.at(Talent::WU_YI) && qidian > 6) {
+        m_effectCriticalStrikeAddPercentInt      += 1000;
+        m_effectCriticalStrikePowerAddPercentInt += 307;
+    }
+
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, level);
     Record(m_player->targetId, rollResult, damage, 0, level);
-
-    // 无意 3格气以上
-    if (m_player->talents.at(Talent::WU_YI) && qidian > 6) {
-        m_skillCriticalStrikeAddPercent      += 0.1;
-        m_skillCriticalStrikePowerAddPercent += 0.3;
-    }
 
     // 白虹 目标外额外5个目标
     if (m_player->talents.at(Talent::BAI_HONG)) {
@@ -406,6 +442,14 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
         }
     }
 
+    if (m_player->teamCore == Class::TAI_XU_JIAN_YI && m_player->secrets[Skill::WU_WO_WU_JIAN][6] &&
+        rollResult == RollResult::DOUBLE)
+    {
+        static_cast<TaiXuJianYi::Buff::YouRen *>(
+            m_player->buffs[JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN].get())
+            ->TriggerAdd();
+    }
+
     // 无欲 目标有叠刃
     if (m_player->talents.at(Talent::WU_YU) &&
         m_player->buffs[JX3DPS::Buff::DIE_REN]->GetTimeLeft(m_player->targetId) > 0)
@@ -417,6 +461,11 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
     if (m_player->talents.at(Talent::CHANG_SHENG) && m_player->buffs[JX3DPS::Buff::CHI_YING]->GetTimeLeft() > 0)
     {
         static_cast<Buff::ChiYing *>(m_player->buffs[JX3DPS::Buff::CHI_YING].get())->TriggerDamage();
+    }
+
+    if (qidian >= 6) {
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[Skill::PO_ZHAO].get())
+            ->TriggerDamage(m_player->targetId, 0, (qidian - 6) / 2);
     }
 
     // 大附魔 腕
@@ -450,8 +499,8 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
 
     // 无意 结束去掉状态
     if (m_player->talents.at(Talent::WU_YI) && qidian > 6) {
-        m_skillCriticalStrikeAddPercent      -= 0.1;
-        m_skillCriticalStrikePowerAddPercent -= 0.3;
+        m_effectCriticalStrikeAddPercentInt      -= 1000;
+        m_effectCriticalStrikePowerAddPercentInt -= 307;
     }
 
     // 风逝 结束去掉状态
@@ -470,6 +519,11 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     if (m_player->classSetBuff && m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF]->GetTimeLeft() > 0) {
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
             ->TriggerAdd();
     }
 }
@@ -523,38 +577,38 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
     m_levelNames.push_back("20%-10%");
     m_levelNames.push_back("10%-0%");
 
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
-    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0, 0.0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
+    m_damageParams[0].emplace_back((1801 / 15 * 1.1 * 1.05 + (1801 + 130) / 15 * 1.1 * 1.05) / 2, 0, 0);
 
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 1) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 2) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 3) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 4) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 5) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 6) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 7) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 8) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 9) * 1.1 * 1.1 * 1.05, 0.0);
-    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05, 0.0);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 1) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 2) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 3) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 4) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 5) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 6) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 7) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 8) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 9) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05);
 
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205, 0.0);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
 
     m_cooldownFixed = 16 * 12;
 
@@ -563,15 +617,15 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
     }
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][0]) {
-        m_skillDamageAddPercentInt += 30;
+        m_effectDamageAddPercentInt += 31;
     }
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][1]) {
-        m_skillDamageAddPercentInt += 40;
+        m_effectDamageAddPercentInt += 41;
     }
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][2]) {
-        m_skillDamageAddPercentInt += 51;
+        m_effectDamageAddPercentInt += 51;
     }
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][3]) {
@@ -580,6 +634,10 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
 
     if (m_player->secrets[Skill::BA_HUANG_GUI_YUAN][4]) {
         m_cooldownFixed -= 16 * 1;
+    }
+
+    if (m_player->weaponCW) {
+        m_effectDamageAddPercentInt += 51;
     }
 }
 
@@ -678,6 +736,17 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
             ->TriggerAdd();
     }
+
+    if (m_player->teamCore == Class::TAI_XU_JIAN_YI && rollResult == RollResult::DOUBLE) {
+        static_cast<TaiXuJianYi::Buff::YouRen *>(
+            m_player->buffs[JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
+            ->TriggerAdd();
+    }
 }
 
 void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::ResetCooldown()
@@ -705,17 +774,16 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((1233 / 10 + (1233 + 137) / 10) / 2, 1024, 120 * 1.1 * 1.05 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((1233 / 10 + (1233 + 137) / 10) / 2, 1024, 120 * 1.1 * 1.05 * 1.1);
 
     m_cooldownFixed = 16 * 2;
 
     if (m_player->talents[Talent::XIN_GU]) {
-        m_skillCriticalStrikeAddPercent      += 0.1;
-        m_skillCriticalStrikePowerAddPercent += 0.1;
+        m_effectCriticalStrikeAddPercentInt      += 1000;
+        m_effectCriticalStrikePowerAddPercentInt += 102;
     }
     if (m_player->talents[Talent::HUAN_YUE]) {
-        m_cooldownFixed                           += 16 * 4;
-        m_damageParams[0][0].surplusDamagePercent += 0.065;
+        m_cooldownFixed += 16 * 4;
     }
     if (m_player->talents[Talent::FENG_SHI]) {
         m_range += 2.0;
@@ -726,37 +794,36 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][1]) {
-        m_skillCriticalStrikeAddPercent += 0.02;
+        m_effectCriticalStrikeAddPercentInt += 200;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][2]) {
-        m_skillCriticalStrikeAddPercent += 0.03;
+        m_effectCriticalStrikeAddPercentInt += 300;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][3]) {
-        m_skillCriticalStrikeAddPercent += 0.04;
+        m_effectCriticalStrikeAddPercentInt += 400;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][4]) {
-        m_skillDamageAddPercentInt += 30;
+        m_effectDamageAddPercentInt += 31;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][5]) {
-        m_skillDamageAddPercentInt += 40;
+        m_effectDamageAddPercentInt += 41;
     }
 
     if (m_player->secrets[Skill::SAN_HUAN_TAO_YUE][6]) {
-        m_skillDamageAddPercentInt += 51;
+        m_effectDamageAddPercentInt += 51;
     }
 }
 
 void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Cast()
 {
     m_player->lastCastSkill = m_id;
-    m_cooldown              = m_cooldownFixed;
+    m_cooldown              = m_cooldownFixed * m_player->attr->GetHastePercent();
     *m_globalCooldown       = m_player->globalCooldownFixed * m_player->attr->GetHastePercent() +
                         RandomNormal(m_player->delayMin, m_player->delayMax) / JX3DPS_DELAY;
-
     SubEffect();
 }
 
@@ -764,12 +831,32 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Trigger() { }
 
 void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
 {
-    // 续气3格
-    m_player->AddQidian(6);
-
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
     Record(m_player->targetId, rollResult, damage, 0, 0);
+
+    rollResult = GetPhysicsRollResult();
+    damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
+    Record(m_player->targetId, rollResult, damage, 0, 0);
+
+    rollResult = GetPhysicsRollResult();
+    damage     = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
+    Record(m_player->targetId, rollResult, damage, 0, 0);
+
+    if (m_player->talents[Talent::HUAN_YUE]) {
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[Skill::PO_ZHAO].get())
+            ->TriggerDamage(m_player->targetId, 1, 0);
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[Skill::PO_ZHAO].get())
+            ->TriggerDamage(m_player->targetId, 1, 0);
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[Skill::PO_ZHAO].get())
+            ->TriggerDamage(m_player->targetId, 1, 0);
+    }
+
+    if (m_player->teamCore == Class::TAI_XU_JIAN_YI && rollResult == RollResult::DOUBLE) {
+        static_cast<TaiXuJianYi::Buff::YouRen *>(
+            m_player->buffs[JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN].get())
+            ->TriggerAdd();
+    }
 
     // 深埋 会心
     if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
@@ -782,22 +869,16 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
             ->TriggerDamage();
     }
 
-    // 大附魔 腰
-    if (m_player->enchantBelt) [[likely]] {
-        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
-    }
-
     // 大附魔 鞋
     if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
         static_cast<Buff3rd::EnchantShoesPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
             ->TriggerDamage();
     }
 
-    damage = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
-    Record(m_player->targetId, rollResult, damage, 0, 0);
-
-    damage = CalcPhysicsDamage(m_player->targetId, rollResult, 0, 0);
-    Record(m_player->targetId, rollResult, damage, 0, 0);
+    // 大附魔 腰
+    if (m_player->enchantBelt) [[likely]] {
+        static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())->TriggerAdd();
+    }
 
     // 风逝
     if (m_player->talents.at(Talent::FENG_SHI)) {
@@ -815,6 +896,8 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
             static_cast<TaiXuJianYi::Buff::DieRen *>(m_player->buffs[JX3DPS::Buff::DIE_REN].get())
                 ->TriggerHuanYue(m_player->targetId);
         }
+    } else {
+        m_player->AddQidian(2);
     }
 
     // 长生 持盈
@@ -834,6 +917,11 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
             ->TriggerAdd();
     }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
+            ->TriggerAdd();
+    }
 }
 
 JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *player, Targets *targets) :
@@ -847,20 +935,20 @@ JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *playe
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((1132 / 10 * 1.5 + (1132 + 113) / 10 * 1.5) / 2, 0, 100 * 1.1 * 1.25 * 1.05 * 1.5 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((225 + (225 + 37)) / 2, 0, 100 * 1.1 * 1.25 * 1.05 * 1.5 * 1.1);
 
     m_cooldownFixed    = 16 * 12;
     m_targetCountFixed = 6;
 
     if (m_player->talents[Talent::TONG_GEN]) {
-        m_skillDamageAddPercentInt += 102;
-        m_targetCountFixed         += 2;
+        m_effectDamageAddPercentInt += 102;
+        m_targetCountFixed          += 2;
     }
 
     if (m_player->talents[Talent::XU_JI]) {
-        m_skillCriticalStrikeAddPercent      += 0.1;
-        m_skillCriticalStrikePowerAddPercent += 0.1;
-        m_cooldownFixed                      -= 16 * 2;
+        m_effectCriticalStrikeAddPercentInt      += 1000;
+        m_effectCriticalStrikePowerAddPercentInt += 102;
+        m_cooldownFixed                          -= 16 * 2;
     }
 }
 
@@ -891,7 +979,15 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
         // 命中一个目标 续气半格
         m_player->AddQidian(1);
 
-        RollResult rollResult = GetPhysicsRollResult();
+        RollResult  rollResult = GetPhysicsRollResult();
+        GainsDamage damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+        Record(target.first, rollResult, damage, 0, 0);
+
+        if (m_player->teamCore == Class::TAI_XU_JIAN_YI && rollResult == RollResult::DOUBLE) {
+            static_cast<TaiXuJianYi::Buff::YouRen *>(
+                m_player->buffs[JX3DPS::Buff::BEI_DOU_QI_XING_YOU_REN].get())
+                ->TriggerAdd();
+        }
 
         // 深埋 会心
         if (m_player->talents.at(Talent::SHEN_MAI) && rollResult == RollResult::DOUBLE) {
@@ -933,9 +1029,6 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
             static_cast<Buff::WeaponEffectCW1 *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_CW_1].get())
                 ->TriggerAdd();
         }
-
-        GainsDamage damage = CalcPhysicsDamage(target.first, rollResult, 0, 0);
-        Record(target.first, rollResult, damage, 0, 0);
     }
 
     // 长生 持盈 不会因为多目标触发
@@ -947,6 +1040,11 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     if (m_player->classSetBuff && m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF]->GetTimeLeft() > 0) {
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
+            ->TriggerAdd();
+    }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
             ->TriggerAdd();
     }
 }
@@ -962,7 +1060,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(1273 / 20, 0, 40, 0.0);
+    m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
     m_cooldownFixed = 16 * 20;
 
@@ -983,11 +1081,11 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Tar
     }
 
     if (m_player->secrets[Skill::REN_JIAN_HE_YI][4]) {
-        m_skillDamageAddPercentInt += 409;
+        m_effectDamageAddPercentInt += 409;
     }
 
     if (m_player->secrets[Skill::REN_JIAN_HE_YI][5]) {
-        m_skillDamageAddPercentInt += 614;
+        m_effectDamageAddPercentInt += 614;
     }
 }
 
@@ -1070,6 +1168,11 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
             ->TriggerAdd();
     }
 
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
+            ->TriggerAdd();
+    }
+
     // 玄门
     if (m_player->talents[Talent::XUAN_MEN]) {
         m_player->buffs[JX3DPS::Buff::XUAN_MEN]->Add(JX3DPS_PLAYER, count);
@@ -1101,7 +1204,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DP
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(1273 / 20, 0, 40, 0.0);
+    m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
     m_cooldownFixed = 16 * 20;
 
@@ -1122,11 +1225,11 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DP
     }
 
     if (m_player->secrets[Skill::REN_JIAN_HE_YI][4]) {
-        m_skillDamageAddPercentInt += 409;
+        m_effectDamageAddPercentInt += 409;
     }
 
     if (m_player->secrets[Skill::REN_JIAN_HE_YI][5]) {
-        m_skillDamageAddPercentInt += 614;
+        m_effectDamageAddPercentInt += 614;
     }
 }
 
@@ -1214,6 +1317,11 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
             ->TriggerAdd();
     }
 
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
+            ->TriggerAdd();
+    }
+
     // 玄门
     if (m_player->talents[Talent::XUAN_MEN]) {
         m_player->buffs[JX3DPS::Buff::XUAN_MEN]->Add(JX3DPS_PLAYER, count);
@@ -1248,7 +1356,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Pla
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(1273 / 20, 0, 40, 0.0);
+    m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
     m_cooldownFixed = 16 * 20;
 
@@ -1269,11 +1377,11 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Pla
     }
 
     if (m_player->secrets[Skill::REN_JIAN_HE_YI][4]) {
-        m_skillDamageAddPercentInt += 409;
+        m_effectDamageAddPercentInt += 409;
     }
 
     if (m_player->secrets[Skill::REN_JIAN_HE_YI][5]) {
-        m_skillDamageAddPercentInt += 614;
+        m_effectDamageAddPercentInt += 614;
     }
 }
 
@@ -1361,6 +1469,11 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
             ->TriggerAdd();
     }
 
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
+            ->TriggerAdd();
+    }
+
     // 玄门
     if (m_player->talents[Talent::XUAN_MEN]) {
         m_player->buffs[JX3DPS::Buff::XUAN_MEN]->Add(JX3DPS_PLAYER, count);
@@ -1399,7 +1512,9 @@ JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player,
     m_cooldownFixed = 22;
 
     // TODO
-    m_damageParams[0].emplace_back(0, 1024, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 1024, 16);
+
+    m_effectDamageAddPercentInt = 205;
 }
 
 void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Cast()
@@ -1452,6 +1567,11 @@ void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
         static_cast<Buff::ClassSetBuffJianMing *>(m_player->buffs[JX3DPS::Buff::CLASS_SET_BUFF].get())
             ->TriggerAdd();
     }
+
+    if (m_player->weaponWater) {
+        static_cast<Buff3rd::WeaponEffectWater *>(m_player->buffs[JX3DPS::Buff::WEAPON_EFFECT_WATER].get())
+            ->TriggerAdd();
+    }
 }
 
 JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targets *targets) :
@@ -1465,7 +1585,7 @@ JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_cooldownFixed      = 16 * 10;
     m_prepareFramesFixed = 16 * 1;
@@ -1495,6 +1615,11 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Trigger()
 
 void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SubEffect()
 {
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+    m_player->AddQidian(2);
     m_player->buffs[JX3DPS::Buff::FIELD_SUI_XING_CHEN]->Add();
 
     if (m_player->talents[Talent::CHANG_SHENG]) {
@@ -1515,7 +1640,7 @@ JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targe
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_cooldownFixed      = 16 * 10;
     m_prepareFramesFixed = 16 * 1;
@@ -1571,6 +1696,11 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Trigger()
 
 void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::SubEffect()
 {
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+    m_player->AddQidian(2);
     m_player->buffs[JX3DPS::Buff::FIELD_SHENG_TAI_JI]->Add();
 
     if (m_player->talents[Talent::CHANG_SHENG]) {
@@ -1591,7 +1721,7 @@ JX3DPS::TaiXuJianYi::Skill::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_cooldownFixed      = 16 * 10;
     m_prepareFramesFixed = 16 * 1;
@@ -1621,6 +1751,11 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Trigger()
 
 void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
 {
+    if (m_player->enchantWrist) [[likely]] {
+        static_cast<Buff3rd::EnchantWristPhysics *>(m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+            ->TriggerDamage();
+    }
+    m_player->AddQidian(2);
     m_player->buffs[JX3DPS::Buff::FIELD_TUN_RI_YUE]->Add();
 
     if (m_player->talents[Talent::CHANG_SHENG]) {
@@ -1646,7 +1781,7 @@ JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     if (m_player->talents[Talent::RUO_SHUI]) {
         m_cooldownFixed = 16 * 60;
@@ -1695,9 +1830,9 @@ JX3DPS::TaiXuJianYi::Skill::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Tar
     m_levelNames.push_back("");
 
     // TODO ： 武器伤害 lua脚本没有，描述有
-    m_damageParams[0].emplace_back((113 + 113 + 67) / 2, 0, 620 * 1.1 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((113 + 113 + 67) / 2, 0, 620 * 1.1 * 1.1);
 
-    m_damageParams[1].emplace_back(200, 0, 200 * 1.1 * 1.1, 0.0);
+    m_damageParams[1].emplace_back(200, 0, 200 * 1.1 * 1.1);
 
     m_prepareFramesFixed = 16 * 3;
 
@@ -1809,21 +1944,21 @@ JX3DPS::TaiXuJianYi::Buff::DieRen::DieRen(JX3DPS::Player *player, Targets *targe
     m_levelNames.push_back("6层");
     m_levelNames.push_back("7层");
 
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6, 0.0);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7, 0.0);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
+    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
 
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1, 0.0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2, 0.0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3, 0.0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4, 0.0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5, 0.0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6, 0.0);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7, 0.0);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
+    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
 
     m_intervalFixed    = 16 * 3;
     m_stackNumFixed    = 5;
@@ -1834,7 +1969,7 @@ JX3DPS::TaiXuJianYi::Buff::DieRen::DieRen(JX3DPS::Player *player, Targets *targe
     }
 
     if (m_player->talents[Talent::XU_JI]) {
-        m_skillDamageAddPercentInt += 102 * 2;
+        m_effectDamageAddPercentInt += 102 * 2;
     }
 }
 
@@ -1900,9 +2035,9 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::Add(Id_t targetId, int stackNum, Frame_t
 
     // 快照属性
     m_targetSnapshots[targetId].SnapShot(*m_player->attr.get(),
-                                         m_skillCriticalStrikeAddPercent,
-                                         m_skillCriticalStrikePowerAddPercent,
-                                         m_skillDamageAddPercentInt);
+                                         m_effectCriticalStrikeAddPercentInt,
+                                         m_effectCriticalStrikePowerAddPercentInt,
+                                         m_effectDamageAddPercentInt + m_player->skillDamageAddPercentInt);
 
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_targetSnapshots[targetId].duration =
@@ -1925,14 +2060,14 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffect(Id_t targetId, int stackNum)
 {
-    RollResult  rollResult = GetPhysicsRollResultDot(targetId);
+    RollResult  rollResult = GetRollResultDot(targetId);
     GainsDamage damage     = CalcPhysicsDamageDot(targetId, rollResult, 0, stackNum, 1);
     Record(targetId, rollResult, damage, 0, stackNum);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffectQieYun(Id_t targetId, int stackNum, int effectCount)
 {
-    RollResult  rollResult = GetPhysicsRollResultDot(targetId);
+    RollResult  rollResult = GetRollResultDot(targetId);
     GainsDamage damage     = CalcPhysicsDamageDot(targetId, rollResult, 1, stackNum, effectCount);
     Record(targetId, rollResult, damage, 1, stackNum);
 }
@@ -1964,9 +2099,9 @@ JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::WanXiangGuiYuan(JX3DPS::Player *play
     m_levelNames.push_back("2层");
     m_levelNames.push_back("3层");
 
-    m_damageParams[0].emplace_back(0, 0, 10 * 1, 0.0);
-    m_damageParams[0].emplace_back(0, 0, 10 * 2, 0.0);
-    m_damageParams[0].emplace_back(0, 0, 10 * 3, 0.0);
+    m_damageParams[0].emplace_back(10, 0, 64 * 1);
+    m_damageParams[0].emplace_back(10, 0, 64 * 2);
+    m_damageParams[0].emplace_back(10, 0, 64 * 3);
 
     m_intervalFixed    = 16 * 3;
     m_stackNumFixed    = 3;
@@ -1999,9 +2134,9 @@ void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::Add(Id_t targetId, int stackNum
 
     // 快照属性
     m_targetSnapshots[targetId].SnapShot(*m_player->attr.get(),
-                                         m_skillCriticalStrikeAddPercent,
-                                         m_skillCriticalStrikePowerAddPercent,
-                                         m_skillDamageAddPercentInt);
+                                         m_effectCriticalStrikeAddPercentInt,
+                                         m_effectCriticalStrikePowerAddPercentInt,
+                                         m_effectDamageAddPercentInt + m_player->skillDamageAddPercentInt);
 
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_targetSnapshots[targetId].duration =
@@ -2023,7 +2158,7 @@ void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::Clear(Id_t targetId, int stackN
 
 void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::SubEffect(Id_t targetId, int stackNum)
 {
-    RollResult  rollResult = GetPhysicsRollResultDot(targetId);
+    RollResult  rollResult = GetRollResultDot(targetId);
     GainsDamage damage     = CalcPhysicsDamageDot(targetId, rollResult, 0, stackNum, 1);
     Record(targetId, rollResult, damage, 0, stackNum);
 }
@@ -2038,7 +2173,7 @@ JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targ
     m_subNames.push_back("");
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 16, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 40);
 
     m_intervalFixed    = 16 * 3;
     m_effectCountFixed = 4;
@@ -2066,9 +2201,9 @@ void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::Add(Id_t targetId, int stackNum, Fr
 
     // 快照属性
     m_targetSnapshots[targetId].SnapShot(*m_player->attr.get(),
-                                         m_skillCriticalStrikeAddPercent,
-                                         m_skillCriticalStrikePowerAddPercent,
-                                         m_skillDamageAddPercentInt);
+                                         m_effectCriticalStrikeAddPercentInt,
+                                         m_effectCriticalStrikePowerAddPercentInt,
+                                         m_effectDamageAddPercentInt + m_player->skillDamageAddPercentInt);
 
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_targetSnapshots[targetId].duration =
@@ -2085,7 +2220,7 @@ void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::SubEffect(Id_t targetId)
 {
-    RollResult  rollResult = GetPhysicsRollResultDot(targetId);
+    RollResult  rollResult = GetRollResultDot(targetId);
     GainsDamage damage     = CalcPhysicsDamageDot(targetId, rollResult, 0, 0, 1);
     Record(targetId, rollResult, damage, 0, 0);
 }
@@ -2100,7 +2235,7 @@ JX3DPS::TaiXuJianYi::Buff::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targ
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 10;
     m_intervalFixed = 16 * 1;
@@ -2147,15 +2282,15 @@ void JX3DPS::TaiXuJianYi::Buff::ZiQiDongLai::Clear(Id_t targetId, int stackNum)
 void JX3DPS::TaiXuJianYi::Buff::ZiQiDongLai::SubEffectAdd()
 {
     m_player->attr->AddPhysicsAttackBasePercentInt(256);
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(0.25);
-    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(0.25);
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(2500);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(256);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::ZiQiDongLai::SubEffectClear()
 {
     m_player->attr->AddPhysicsAttackBasePercentInt(-256);
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-0.25);
-    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-0.25);
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(-2500);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(-256);
 }
 
 JX3DPS::TaiXuJianYi::Buff::XuanMen::XuanMen(JX3DPS::Player *player, Targets *targets) :
@@ -2168,7 +2303,7 @@ JX3DPS::TaiXuJianYi::Buff::XuanMen::XuanMen(JX3DPS::Player *player, Targets *tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 40;
 
@@ -2208,14 +2343,16 @@ void JX3DPS::TaiXuJianYi::Buff::XuanMen::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::XuanMen::SubEffectAdd(int stackNum)
 {
+    spdlog::debug("添加buff:{}", m_name);
     m_player->attr->AddPhysicsOvercomeBasePercentInt(204 * stackNum);
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(0.03 * stackNum);
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(300 * stackNum);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::XuanMen::SubEffectClear(int stackNum)
 {
+    spdlog::debug("移除buff:{}", m_name);
     m_player->attr->AddPhysicsOvercomeBasePercentInt(-204 * stackNum);
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-0.03 * stackNum);
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(-300 * stackNum);
 }
 
 JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::FieldSuiXingChen(JX3DPS::Player *player, Targets *targets) :
@@ -2228,7 +2365,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::FieldSuiXingChen(JX3DPS::Player *pl
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 16 * 3;
@@ -2327,7 +2464,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::FieldShengTaiJi(JX3DPS::Player *play
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 16 * 3;
@@ -2430,7 +2567,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldTunRiYue::FieldTunRiYue(JX3DPS::Player *player, 
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 20;
@@ -2520,7 +2657,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::FieldSuiXingChenQiSheng(JX3D
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 16 * 3;
@@ -2571,21 +2708,22 @@ JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targ
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
-    m_skillCriticalStrikeAddPercent      = 0.05;
-    m_skillCriticalStrikePowerAddPercent = 0.1;
+    m_effectCriticalStrikeAddPercentInt      = 500;
+    m_effectCriticalStrikePowerAddPercentInt = 102;
 
     m_durationFixed = 16 * 4;
 
     if (m_player->talents[Talent::FU_YIN]) {
-        m_skillCriticalStrikeAddPercent      = 0.1;
-        m_skillCriticalStrikePowerAddPercent = 0.2;
+        m_effectCriticalStrikeAddPercentInt      = 1000;
+        m_effectCriticalStrikePowerAddPercentInt = 205;
     }
 }
 
 void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::Trigger()
 {
+    spdlog::debug("移除buff:{}", m_name);
     m_targetSnapshots.erase(JX3DPS_PLAYER);
     SubEffectClear();
 }
@@ -2593,6 +2731,7 @@ void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (m_targetSnapshots.empty()) [[unlikely]] { // buff不存在时，添加buff
+        spdlog::debug("添加buff:{}", m_name);
         SubEffectAdd();
     }
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -2610,8 +2749,8 @@ void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SubEffectAdd()
 {
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(m_skillCriticalStrikeAddPercent);
-    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(m_effectCriticalStrikeAddPercentInt);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(m_effectCriticalStrikePowerAddPercentInt);
     if (m_player->talents[Talent::GU_CHANG]) {
         m_player->attr->AddShieldIgnorePercentInt(m_targets, 614);
     }
@@ -2619,8 +2758,8 @@ void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SubEffectAdd()
 
 void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SubEffectClear()
 {
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-m_skillCriticalStrikeAddPercent);
-    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-m_skillCriticalStrikePowerAddPercent);
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(-m_effectCriticalStrikeAddPercentInt);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(-m_effectCriticalStrikePowerAddPercentInt);
     if (m_player->talents[Talent::GU_CHANG]) {
         m_player->attr->AddShieldIgnorePercentInt(m_targets, -614);
     }
@@ -2636,13 +2775,17 @@ JX3DPS::TaiXuJianYi::Buff::QiSheng::QiSheng(JX3DPS::Player *player, Targets *tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
-    m_durationFixed = 20;
+    m_durationFixed = 16 * 3;
 }
 
 void JX3DPS::TaiXuJianYi::Buff::QiSheng::Trigger()
 {
+    if (m_targetSnapshots[JX3DPS_PLAYER].duration != 0) [[likely]] {
+        return;
+    }
+    spdlog::debug("移除buff:{}", m_name);
     m_targetSnapshots.erase(JX3DPS_PLAYER);
     SubEffectClear();
 }
@@ -2650,9 +2793,10 @@ void JX3DPS::TaiXuJianYi::Buff::QiSheng::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::QiSheng::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (m_targetSnapshots.empty()) { // buff不存在时，添加buff
+        spdlog::debug("添加buff:{}", m_name);
         SubEffectAdd();
     }
-    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) {
         m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
     } else [[unlikely]] {
         m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
@@ -2685,7 +2829,7 @@ JX3DPS::TaiXuJianYi::Buff::FengShi::FengShi(JX3DPS::Player *player, Targets *tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 5;
 }
@@ -2716,11 +2860,13 @@ void JX3DPS::TaiXuJianYi::Buff::FengShi::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::FengShi::SubEffectAdd()
 {
+    spdlog::debug("添加buff:{}", m_name);
     static_cast<Skill::WuWoWuJian *>(m_player->skills[JX3DPS::Skill::WU_WO_WU_JIAN].get())->TriggerFengShiAdd();
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FengShi::SubEffectClear()
 {
+    spdlog::debug("清除buff:{}", m_name);
     static_cast<Skill::WuWoWuJian *>(m_player->skills[JX3DPS::Skill::WU_WO_WU_JIAN].get())->TriggerFengShiClear();
 }
 
@@ -2735,7 +2881,7 @@ JX3DPS::TaiXuJianYi::Buff::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *t
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 20;
 }
@@ -2775,7 +2921,7 @@ JX3DPS::TaiXuJianYi::Buff::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targ
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 8;
 }
@@ -2789,16 +2935,16 @@ void JX3DPS::TaiXuJianYi::Buff::JingHuaYing::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::JingHuaYing::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
-        m_targetSnapshots[targetId].duration = m_durationFixed;
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
     } else [[unlikely]] {
-        m_targetSnapshots[targetId].duration = duration;
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
     }
     SubEffectAdd();
 }
 
 void JX3DPS::TaiXuJianYi::Buff::JingHuaYing::Clear(Id_t targetId, int stackNum)
 {
-    m_targetSnapshots.erase(targetId);
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
     SubEffectClear();
 }
 
@@ -2825,7 +2971,7 @@ JX3DPS::TaiXuJianYi::Buff::FieldLieYun::FieldLieYun(JX3DPS::Player *player, Targ
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 24;
     m_intervalFixed = 8;
@@ -2837,7 +2983,6 @@ void JX3DPS::TaiXuJianYi::Buff::FieldLieYun::Trigger()
         if (iter->second.interval == 0) [[likely]] {
             iter->second.interval = m_intervalFixed;
             SubEffectAdd(iter->first);
-            ++iter;
         }
         if (iter->second.duration == 0) [[unlikely]] {
             iter = m_targetSnapshots.erase(iter);
@@ -2849,8 +2994,11 @@ void JX3DPS::TaiXuJianYi::Buff::FieldLieYun::Trigger()
 
 void JX3DPS::TaiXuJianYi::Buff::FieldLieYun::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
+    if (m_targetSnapshots.find(targetId) == m_targetSnapshots.end()) [[unlikely]] {
+        m_targetSnapshots[targetId].interval = m_intervalFixed;
+        SubEffectAdd(targetId);
+    }
     m_targetSnapshots[targetId].duration = m_durationFixed;
-    SubEffectAdd(targetId);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FieldLieYun::Clear(Id_t targetId, int stackNum)
@@ -2875,13 +3023,14 @@ JX3DPS::TaiXuJianYi::Buff::LieYun::LieYun(JX3DPS::Player *player, Targets *targe
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 1;
 }
 
 void JX3DPS::TaiXuJianYi::Buff::LieYun::Trigger()
 {
+    spdlog::debug("移除buff:{}", m_name);
     m_targetSnapshots.erase(JX3DPS_PLAYER);
     SubEffectClear();
 }
@@ -2889,6 +3038,7 @@ void JX3DPS::TaiXuJianYi::Buff::LieYun::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::LieYun::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (m_targetSnapshots.empty()) {
+        spdlog::debug("添加buff:{}", m_name);
         SubEffectAdd();
     }
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -2906,12 +3056,12 @@ void JX3DPS::TaiXuJianYi::Buff::LieYun::Clear(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::LieYun::SubEffectAdd()
 {
-    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(0.15);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(154);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::LieYun::SubEffectClear()
 {
-    m_player->attr->AddPhysicsCriticalStrikePowerPercentFromCustom(-0.15);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(-154);
 }
 
 JX3DPS::TaiXuJianYi::Buff::ChiYing::ChiYing(JX3DPS::Player *player, Targets *targets) :
@@ -2924,7 +3074,7 @@ JX3DPS::TaiXuJianYi::Buff::ChiYing::ChiYing(JX3DPS::Player *player, Targets *tar
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 127, 0.0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 127);
 
     m_durationFixed = 16 * 15;
     m_stackNumFixed = 3;
@@ -2977,7 +3127,7 @@ JX3DPS::TaiXuJianYi::Buff::YunZhongJianShengTaiJi::YunZhongJianShengTaiJi(JX3DPS
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1);
 
     m_durationFixed = 16 * 8;
     m_intervalFixed = 16 * 1;
@@ -3020,8 +3170,29 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianShengTaiJi::SubEffect()
             if (count == 4) {
                 break;
             }
-            RollResult  rollResult = GetPhysicsRollResult();
-            GainsDamage damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+            RollResult rollResult = GetPhysicsRollResult();
+
+            // 大附魔 腕
+            if (m_player->enchantWrist) [[likely]] {
+                static_cast<Buff3rd::EnchantWristPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                    ->TriggerDamage();
+            }
+
+            // 大附魔 腰
+            if (m_player->enchantBelt) [[likely]] {
+                static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())
+                    ->TriggerAdd();
+            }
+
+            // 大附魔 鞋
+            if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+                static_cast<Buff3rd::EnchantShoesPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                    ->TriggerDamage();
+            }
+
+            GainsDamage damage = CalcPhysicsDamage(target.first, rollResult, 0, 0);
             Record(target.first, rollResult, damage, 0, 0);
         }
     }
@@ -3038,7 +3209,7 @@ JX3DPS::TaiXuJianYi::Buff::YunZhongJianSuiXingChen::YunZhongJianSuiXingChen(JX3D
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1);
 
     m_durationFixed = 16 * 8;
     m_intervalFixed = 16 * 1;
@@ -3081,8 +3252,30 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianSuiXingChen::SubEffect()
             if (count == 4) {
                 break;
             }
-            RollResult  rollResult = GetPhysicsRollResult();
-            GainsDamage damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+
+            RollResult rollResult = GetPhysicsRollResult();
+
+            // 大附魔 腕
+            if (m_player->enchantWrist) [[likely]] {
+                static_cast<Buff3rd::EnchantWristPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                    ->TriggerDamage();
+            }
+
+            // 大附魔 腰
+            if (m_player->enchantBelt) [[likely]] {
+                static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())
+                    ->TriggerAdd();
+            }
+
+            // 大附魔 鞋
+            if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+                static_cast<Buff3rd::EnchantShoesPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                    ->TriggerDamage();
+            }
+
+            GainsDamage damage = CalcPhysicsDamage(target.first, rollResult, 0, 0);
             Record(target.first, rollResult, damage, 0, 0);
         }
     }
@@ -3099,7 +3292,7 @@ JX3DPS::TaiXuJianYi::Buff::YunZhongJianTunRiYue::YunZhongJianTunRiYue(JX3DPS::Pl
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1, 0.0);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 70 * 1.1);
 
     m_durationFixed = 16 * 8;
     m_intervalFixed = 16 * 1;
@@ -3142,8 +3335,29 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianTunRiYue::SubEffect()
             if (count == 4) {
                 break;
             }
-            RollResult  rollResult = GetPhysicsRollResult();
-            GainsDamage damage     = CalcPhysicsDamage(target.first, rollResult, 0, 0);
+            RollResult rollResult = GetPhysicsRollResult();
+
+            // 大附魔 腕
+            if (m_player->enchantWrist) [[likely]] {
+                static_cast<Buff3rd::EnchantWristPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_WRIST].get())
+                    ->TriggerDamage();
+            }
+
+            // 大附魔 腰
+            if (m_player->enchantBelt) [[likely]] {
+                static_cast<Buff3rd::EnchantBelt *>(m_player->buffs[JX3DPS::Buff::ENCHANT_BELT].get())
+                    ->TriggerAdd();
+            }
+
+            // 大附魔 鞋
+            if (m_player->enchantShoes && rollResult == RollResult::DOUBLE) {
+                static_cast<Buff3rd::EnchantShoesPhysics *>(
+                    m_player->buffs[JX3DPS::Buff::ENCHANT_SHOES].get())
+                    ->TriggerDamage();
+            }
+
+            GainsDamage damage = CalcPhysicsDamage(target.first, rollResult, 0, 0);
             Record(target.first, rollResult, damage, 0, 0);
         }
     }
@@ -3161,7 +3375,7 @@ JX3DPS::TaiXuJianYi::Buff::ClassFeatureRongJin::ClassFeatureRongJin(JX3DPS::Play
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_intervalFixed = 16 * 1;
 }
@@ -3201,7 +3415,7 @@ JX3DPS::TaiXuJianYi::Buff::WeaponEffectCW1::WeaponEffectCW1(JX3DPS::Player *play
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_intervalFixed = 16 * 30;
     m_durationFixed = 16 * 6;
@@ -3270,13 +3484,14 @@ JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::ClassSetBuffJianMing(JX3DPS::Pl
 
     m_levelNames.push_back("");
 
-    m_damageParams[0].emplace_back(0, 0, 0, 0.0);
+    m_damageParams[0].emplace_back(0, 0, 0);
 
     m_durationFixed = 16 * 6;
 }
 
 void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Trigger()
 {
+    spdlog::debug("移除buff:{}", m_name);
     // buff结束，不存在自判定，设置为无效帧避免频繁判定
     m_targetSnapshots[JX3DPS_PLAYER].duration = JX3DPS_INVALID_FRAMES_SET;
     SubEffectClear();
@@ -3285,6 +3500,7 @@ void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::Add(Id_t targetId, int stackNum, Frame_t duration)
 {
     if (m_targetSnapshots[JX3DPS_PLAYER].duration == JX3DPS_INVALID_FRAMES_SET) {
+
         SubEffectAdd();
     }
     if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -3304,6 +3520,7 @@ void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::TriggerAdd()
 {
     if (RandomUniform(1, 100) <= 10) {
         if (m_targetSnapshots[JX3DPS_PLAYER].duration == JX3DPS_INVALID_FRAMES_SET) {
+            spdlog::debug("添加buff:{}", m_name);
             SubEffectAdd();
         }
         m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
@@ -3312,12 +3529,124 @@ void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::TriggerAdd()
 
 void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::SubEffectAdd()
 {
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(0.04);
-    m_player->attr->AddMagicCriticalStrikePowerPercentFromCustom(0.04);
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(400);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(41);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::SubEffectClear()
 {
-    m_player->attr->AddPhysicsCriticalStrikePercentFromCustom(-0.04);
-    m_player->attr->AddMagicCriticalStrikePowerPercentFromCustom(-0.04);
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(-400);
+    m_player->attr->AddPhysicsCriticalStrikePowerPercentIntFromCustom(-41);
+}
+
+JX3DPS::TaiXuJianYi::Buff::YouRen::YouRen(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::BEI_DOU_QI_XING_YOU_REN;
+    m_name = "游刃";
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back(0, 0, 0);
+
+    m_durationFixed = 16 * 20;
+    m_stackNumFixed = 5;
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::Trigger()
+{
+    spdlog::debug("移除buff:{}", m_name);
+    // buff结束，不存在自判定，设置为无效帧避免频繁判定
+    int stackNum = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(stackNum);
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::Add(Id_t targetId, int stackNum, Frame_t duration)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        SubEffectAdd(m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else {
+        int stack                                  = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum += stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum - stack;
+        SubEffectAdd(stack);
+    }
+    if (duration == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+    } else [[unlikely]] {
+        m_targetSnapshots[JX3DPS_PLAYER].duration = duration;
+    }
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::Clear(Id_t targetId, int stackNum)
+{
+    int stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+    m_targetSnapshots.erase(JX3DPS_PLAYER);
+    SubEffectClear(stack);
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::TriggerAdd(int stackNum)
+{
+    if (m_targetSnapshots.find(JX3DPS_PLAYER) == m_targetSnapshots.end()) {
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum = stackNum;
+        SubEffectAdd(m_targetSnapshots[JX3DPS_PLAYER].stackNum);
+    } else {
+        int stack                                  = m_targetSnapshots[JX3DPS_PLAYER].stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum += stackNum;
+        m_targetSnapshots[JX3DPS_PLAYER].stackNum =
+            std::min(m_targetSnapshots[JX3DPS_PLAYER].stackNum, m_stackNumFixed);
+        stack = m_targetSnapshots[JX3DPS_PLAYER].stackNum - stack;
+        SubEffectAdd(stack);
+    }
+    m_targetSnapshots[JX3DPS_PLAYER].duration = m_durationFixed;
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::SubEffectAdd(int stackNum)
+{
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(100 * stackNum);
+}
+
+void JX3DPS::TaiXuJianYi::Buff::YouRen::SubEffectClear(int stackNum)
+{
+    m_player->attr->AddPhysicsCriticalStrikePercentIntFromCustom(-100 * stackNum);
+}
+
+JX3DPS::TaiXuJianYi::Buff::JingMiao::JingMiao(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id   = Buff::BEI_DOU_QI_XING_JING_MIAO;
+    m_name = "游刃";
+
+    m_subNames.push_back("");
+
+    m_levelNames.push_back("");
+
+    m_damageParams[0].emplace_back(0, 0, 0);
+
+    m_targetSnapshots[JX3DPS_PLAYER].duration = JX3DPS_INVALID_FRAMES_SET;
+
+    m_intervalFixed = 16 * 6;
+}
+
+void JX3DPS::TaiXuJianYi::Buff::JingMiao::Trigger()
+{
+    m_targetSnapshots[JX3DPS_PLAYER].interval = m_intervalFixed + RandomUniform(0, 15);
+    SubEffect();
+}
+
+void JX3DPS::TaiXuJianYi::Buff::JingMiao::Add(Id_t targetId, int stackNum, Frame_t duration) { }
+
+void JX3DPS::TaiXuJianYi::Buff::JingMiao::Clear(Id_t targetId, int stackNum) { }
+
+void JX3DPS::TaiXuJianYi::Buff::JingMiao::SubEffect()
+{
+    m_player->AddQidian(2);
 }

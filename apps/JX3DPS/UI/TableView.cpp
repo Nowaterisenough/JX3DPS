@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-08 08:41:09
+ * Last Modified: 2023-07-13 21:38:36
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -72,7 +72,7 @@ TableView::TableView(QWidget *parent) : QTableView(parent)
         "  padding: 0;"   // 去掉内边距
         "  margin: 0;}";  // 去掉外边距;
     horizontalHeader()->setStyleSheet(headerStyle);
-    horizontalHeader()->setFont(QFont("Microsoft YaHei", 11));
+    horizontalHeader()->setFont(QFont("NoWatsFont", 11));
 
     this->setFocusPolicy(Qt::NoFocus);
     this->verticalHeader()->setDefaultSectionSize(35);

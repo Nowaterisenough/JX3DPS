@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:40:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 11:23:38
+ * Last Modified: 2023-07-12 08:29:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -28,6 +28,8 @@ public:
     ProgressBar(QWidget *parent = nullptr);
 
     double GetProgress() const;
+
+public slots:
     void   SetProgress(double progress);
 
     void SetLoadMode();

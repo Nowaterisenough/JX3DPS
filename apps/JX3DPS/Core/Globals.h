@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-28 02:55:41
+ * Last Modified: 2023-07-12 00:26:48
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -16,7 +16,8 @@
 #ifndef JX3DPS_GLOBALS_H_
 #define JX3DPS_GLOBALS_H_
 
-#include "Defs.h"
+#include "JX3DPSTypes.h"
+#include "JX3Params.h"
 
 namespace JX3DPS {
 
@@ -64,7 +65,7 @@ const int JX3DPS_DELAY = 35;
 const Id_t JX3DPS_PLAYER = 0;
 
 /* 无限制释放距离 */
-const int JX3DPS_UNLIMITED_RANGE = INT_MAX;
+const double JX3DPS_UNLIMITED_RANGE = INT_MAX;
 
 /* 帧数变量无效值 */
 const Frame_t JX3DPS_INVALID_FRAMES_SET = INT_MAX;
@@ -74,6 +75,8 @@ const Frame_t JX3DPS_DEFAULT_DURATION_FRAMES = -1;
 
 /* 充能数无效值 */
 const int JX3DPS_INVALID_ENERGY_SET = 0;
+
+
 
 } // namespace JX3DPS
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 05:43:28
+ * Last Modified: 2023-07-18 05:45:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -16,7 +16,11 @@
 #ifndef JX3DPS_SKILL_H_
 #define JX3DPS_SKILL_H_
 
+#include <unordered_map>
+
+#include "Attr.h"
 #include "Globals.h"
+#include "JX3Params.h"
 
 #define SKILL_DEFAULT_FUNCTION(class_name)                 \
                                                            \
@@ -43,6 +47,10 @@ namespace JX3DPS {
 class Skill
 {
 public:
+    static constexpr Id_t PO_ZHAO = 10;
+
+    static constexpr Id_t PENDANT_OVERCOME = 11;
+
     static constexpr Id_t SAN_CHAI_JIAN_FA             = 1000;
     static constexpr Id_t WU_WO_WU_JIAN                = 1001;
     static constexpr Id_t BA_HUANG_GUI_YUAN            = 1002;
@@ -70,7 +78,9 @@ public:
     static constexpr Id_t ZHEN_YUN_JIE_HUI = 3010;
 
     inline static const std::unordered_map<Id_t, std::string> &SKILL_NAME = {
-        {SAN_CHAI_JIAN_FA,              "三柴剑法"                   },
+        {PO_ZHAO,                       "破"                            },
+        { PENDANT_OVERCOME,             "腰坠·破防"                 },
+        { SAN_CHAI_JIAN_FA,             "三柴剑法"                   },
         { WU_WO_WU_JIAN,                "无我无剑"                   },
         { BA_HUANG_GUI_YUAN,            "八荒归元"                   },
         { SAN_HUAN_TAO_YUE,             "三环套月"                   },
@@ -102,9 +112,32 @@ public:
     RollResult GetPhysicsRollResult() const;
     RollResult GetMagicRollResult() const;
 
-    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
+    Damage GetPhysicsDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
 
-    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0) const;
+    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    Damage GetPhysicsSurplusDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain,
+        Value_t    surplus);
+
+    GainsDamage CalcPhysicsSurplusDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
     void Record(Id_t               targetId    = 1,
                 RollResult         rollResult  = RollResult::HIT,
@@ -168,13 +201,13 @@ protected:
     int m_targetCountFixed = 0;
 
     /* 技能会心加成 */
-    PctFloat_t m_skillCriticalStrikeAddPercent = 0.0;
+    PctInt_t m_effectCriticalStrikeAddPercentInt = 0;
 
     /* 技能会心效果加成 */
-    PctFloat_t m_skillCriticalStrikePowerAddPercent = 0.0;
+    PctInt_t m_effectCriticalStrikePowerAddPercentInt = 0;
 
     /* 技能伤害加成 */
-    PctInt_t m_skillDamageAddPercentInt = 0;
+    PctInt_t m_effectDamageAddPercentInt = 0;
 
     /* 技能气点加成 */
     int m_skillQidianAdd = 0;
@@ -185,5 +218,19 @@ protected:
     /* 记录 */
     Stats m_stats;
 };
+
+namespace Skill3rd {
+
+class PendantOvercome : public Skill
+{
+    SKILL_DEFAULT_FUNCTION(PendantOvercome)
+
+public:
+    void SubEffect();
+};
+
+} // namespace Skill3rd
+
 } // namespace JX3DPS
+
 #endif // JX3DPS_SKILL_H_

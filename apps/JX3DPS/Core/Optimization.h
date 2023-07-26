@@ -5,7 +5,7 @@
  * Created Date: 2023-06-20 12:37:35
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-03 04:53:33
+ * Last Modified: 2023-07-11 23:10:13
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -19,6 +19,9 @@
 #include "JX3Params.h"
 
 /*------------------ 优化 - 条件跳转 ------------------*/
+
+// 负数为1，非负数为0
+#define CHECK_NEGATIVE(x) (((x) >> (sizeof(x) * 8 - 1)) & 1)
 
 #define OPTIMIZE_SET (3)
 #ifndef OPTIMIZE_SET

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 06:31:05
+ * Last Modified: 2023-07-18 02:35:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -64,22 +64,22 @@ Attr::Attr(const Attr &other)
     this->m_magicAttackFromBase       = other.m_magicAttackFromBase;
     this->m_magicAttack               = other.m_magicAttack;
 
-    this->m_physicsCriticalStrike                  = other.m_physicsCriticalStrike;
-    this->m_physicsCriticalStrikeFromCustom        = other.m_physicsCriticalStrikeFromCustom;
-    this->m_physicsCriticalStrikePercentFromCustom = other.m_physicsCriticalStrikePercentFromCustom;
-    this->m_physicsCriticalStrikePercent           = other.m_physicsCriticalStrikePercent;
+    this->m_physicsCriticalStrike           = other.m_physicsCriticalStrike;
+    this->m_physicsCriticalStrikeFromCustom = other.m_physicsCriticalStrikeFromCustom;
+    this->m_physicsCriticalStrikePercentIntFromCustom = other.m_physicsCriticalStrikePercentIntFromCustom;
+    this->m_physicsCriticalStrikePercent = other.m_physicsCriticalStrikePercent;
 
-    this->m_magicCriticalStrike                  = other.m_magicCriticalStrike;
-    this->m_magicCriticalStrikeFromCustom        = other.m_magicCriticalStrikeFromCustom;
-    this->m_magicCriticalStrikePercentFromCustom = other.m_magicCriticalStrikePercentFromCustom;
-    this->m_magicCriticalStrikePercent           = other.m_magicCriticalStrikePercent;
+    this->m_magicCriticalStrike           = other.m_magicCriticalStrike;
+    this->m_magicCriticalStrikeFromCustom = other.m_magicCriticalStrikeFromCustom;
+    this->m_magicCriticalStrikePercentIntFromCustom = other.m_magicCriticalStrikePercentIntFromCustom;
+    this->m_magicCriticalStrikePercent = other.m_magicCriticalStrikePercent;
 
     this->m_physicsCriticalStrikePower = other.m_physicsCriticalStrikePower;
-    this->m_physicsCriticalStrikePowerPercentFromCustom = other.m_physicsCriticalStrikePowerPercentFromCustom;
+    this->m_physicsCriticalStrikePowerPercentIntFromCustom = other.m_physicsCriticalStrikePowerPercentIntFromCustom;
     this->m_physicsCriticalStrikePowerPercent = other.m_physicsCriticalStrikePowerPercent;
 
     this->m_magicCriticalStrikePower = other.m_magicCriticalStrikePower;
-    this->m_magicCriticalStrikePowerPercentFromCustom = other.m_magicCriticalStrikePowerPercentFromCustom;
+    this->m_magicCriticalStrikePowerPercentIntFromCustom = other.m_magicCriticalStrikePowerPercentIntFromCustom;
     this->m_magicCriticalStrikePowerPercent = other.m_magicCriticalStrikePowerPercent;
 
     this->m_physicsOvercomeBaseFromCustom = other.m_physicsOvercomeBaseFromCustom;
@@ -143,22 +143,22 @@ Attr &Attr::operator=(const Attr &other)
     this->m_magicAttackFromBase       = other.m_magicAttackFromBase;
     this->m_magicAttack               = other.m_magicAttack;
 
-    this->m_physicsCriticalStrike                  = other.m_physicsCriticalStrike;
-    this->m_physicsCriticalStrikeFromCustom        = other.m_physicsCriticalStrikeFromCustom;
-    this->m_physicsCriticalStrikePercentFromCustom = other.m_physicsCriticalStrikePercentFromCustom;
-    this->m_physicsCriticalStrikePercent           = other.m_physicsCriticalStrikePercent;
+    this->m_physicsCriticalStrike           = other.m_physicsCriticalStrike;
+    this->m_physicsCriticalStrikeFromCustom = other.m_physicsCriticalStrikeFromCustom;
+    this->m_physicsCriticalStrikePercentIntFromCustom = other.m_physicsCriticalStrikePercentIntFromCustom;
+    this->m_physicsCriticalStrikePercent = other.m_physicsCriticalStrikePercent;
 
-    this->m_magicCriticalStrike                  = other.m_magicCriticalStrike;
-    this->m_magicCriticalStrikeFromCustom        = other.m_magicCriticalStrikeFromCustom;
-    this->m_magicCriticalStrikePercentFromCustom = other.m_magicCriticalStrikePercentFromCustom;
-    this->m_magicCriticalStrikePercent           = other.m_magicCriticalStrikePercent;
+    this->m_magicCriticalStrike           = other.m_magicCriticalStrike;
+    this->m_magicCriticalStrikeFromCustom = other.m_magicCriticalStrikeFromCustom;
+    this->m_magicCriticalStrikePercentIntFromCustom = other.m_magicCriticalStrikePercentIntFromCustom;
+    this->m_magicCriticalStrikePercent = other.m_magicCriticalStrikePercent;
 
     this->m_physicsCriticalStrikePower = other.m_physicsCriticalStrikePower;
-    this->m_physicsCriticalStrikePowerPercentFromCustom = other.m_physicsCriticalStrikePowerPercentFromCustom;
+    this->m_physicsCriticalStrikePowerPercentIntFromCustom = other.m_physicsCriticalStrikePowerPercentIntFromCustom;
     this->m_physicsCriticalStrikePowerPercent = other.m_physicsCriticalStrikePowerPercent;
 
     this->m_magicCriticalStrikePower = other.m_magicCriticalStrikePower;
-    this->m_magicCriticalStrikePowerPercentFromCustom = other.m_magicCriticalStrikePowerPercentFromCustom;
+    this->m_magicCriticalStrikePowerPercentIntFromCustom = other.m_magicCriticalStrikePowerPercentIntFromCustom;
     this->m_magicCriticalStrikePowerPercent = other.m_magicCriticalStrikePowerPercent;
 
     this->m_physicsOvercomeBaseFromCustom = other.m_physicsOvercomeBaseFromCustom;
@@ -583,20 +583,20 @@ void Attr::AddPhysicsCriticalStrike(Value_t value)
     AddPhysicsCriticalStrikeFromCustom(value);
 }
 
-PctFloat_t Attr::GetPhysicsCriticalStrikePercentFromCustom() const
+PctInt_t Attr::GetPhysicsCriticalStrikePercentIntFromCustom() const
 {
-    return m_physicsCriticalStrikePercentFromCustom;
+    return m_physicsCriticalStrikePercentIntFromCustom;
 }
 
-void Attr::SetPhysicsCriticalStrikePercentFromCustom(PctFloat_t percent)
+void Attr::SetPhysicsCriticalStrikePercentIntFromCustom(PctInt_t percentInt)
 {
-    m_physicsCriticalStrikePercentFromCustom = percent;
+    m_physicsCriticalStrikePercentIntFromCustom = percentInt;
     UpdatePhysicsCriticalStrikePercent();
 }
 
-void Attr::AddPhysicsCriticalStrikePercentFromCustom(PctFloat_t percent)
+void Attr::AddPhysicsCriticalStrikePercentIntFromCustom(PctInt_t percentInt)
 {
-    m_physicsCriticalStrikePercentFromCustom += percent;
+    m_physicsCriticalStrikePercentIntFromCustom += percentInt;
     UpdatePhysicsCriticalStrikePercent();
 }
 
@@ -666,20 +666,20 @@ void Attr::AddMagicCriticalStrike(Value_t value)
     AddMagicCriticalStrikeFromCustom(value);
 }
 
-PctFloat_t Attr::GetMagicCriticalStrikePercentFromCustom() const
+PctInt_t Attr::GetMagicCriticalStrikePercentIntFromCustom() const
 {
-    return m_magicCriticalStrikePercentFromCustom;
+    return m_magicCriticalStrikePercentIntFromCustom;
 }
 
-void Attr::SetMagicCriticalStrikePercentFromCustom(PctFloat_t percent)
+void Attr::SetMagicCriticalStrikePercentIntFromCustom(PctInt_t percentInt)
 {
-    m_magicCriticalStrikePercentFromCustom = percent;
+    m_magicCriticalStrikePercentIntFromCustom = percentInt;
     UpdateMagicCriticalStrikePercent();
 }
 
-void Attr::AddMagicCriticalStrikePercentFromCustom(PctFloat_t percent)
+void Attr::AddMagicCriticalStrikePercentIntFromCustom(PctInt_t percentInt)
 {
-    m_magicCriticalStrikePercentFromCustom += percent;
+    m_magicCriticalStrikePercentIntFromCustom += percentInt;
     UpdateMagicCriticalStrikePercent();
 }
 
@@ -724,20 +724,20 @@ void Attr::AddPhysicsCriticalStrikePower(Value_t value)
     UpdatePhysicsCriticalStrikePowerPercent();
 }
 
-PctFloat_t Attr::GetPhysicsCriticalStrikePowerPercentFromCustom() const
+PctInt_t Attr::GetPhysicsCriticalStrikePowerPercentIntFromCustom() const
 {
-    return m_physicsCriticalStrikePowerPercentFromCustom;
+    return m_physicsCriticalStrikePowerPercentIntFromCustom;
 }
 
-void Attr::SetPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
+void Attr::SetPhysicsCriticalStrikePowerPercentIntFromCustom(PctInt_t percentInt)
 {
-    m_physicsCriticalStrikePowerPercentFromCustom = percent;
+    m_physicsCriticalStrikePowerPercentIntFromCustom = percentInt;
     UpdatePhysicsCriticalStrikePowerPercent();
 }
 
-void Attr::AddPhysicsCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
+void Attr::AddPhysicsCriticalStrikePowerPercentIntFromCustom(PctInt_t percentInt)
 {
-    m_physicsCriticalStrikePowerPercentFromCustom += percent;
+    m_physicsCriticalStrikePowerPercentIntFromCustom += percentInt;
     UpdatePhysicsCriticalStrikePowerPercent();
 }
 
@@ -777,20 +777,20 @@ void Attr::AddMagicCriticalStrikePower(Value_t value)
     UpdateMagicCriticalStrikePowerPercent();
 }
 
-PctFloat_t Attr::GetMagicCriticalStrikePowerPercentFromCustom() const
+PctInt_t Attr::GetMagicCriticalStrikePowerPercentIntFromCustom() const
 {
-    return m_magicCriticalStrikePowerPercentFromCustom;
+    return m_magicCriticalStrikePowerPercentIntFromCustom;
 }
 
-void Attr::SetMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
+void Attr::SetMagicCriticalStrikePowerPercentIntFromCustom(PctInt_t percentInt)
 {
-    m_magicCriticalStrikePowerPercentFromCustom = percent;
+    m_magicCriticalStrikePowerPercentIntFromCustom = percentInt;
     UpdateMagicCriticalStrikePowerPercent();
 }
 
-void Attr::AddMagicCriticalStrikePowerPercentFromCustom(PctFloat_t percent)
+void Attr::AddMagicCriticalStrikePowerPercentIntFromCustom(PctInt_t percentInt)
 {
-    m_magicCriticalStrikePowerPercentFromCustom += percent;
+    m_magicCriticalStrikePowerPercentIntFromCustom += percentInt;
     UpdateMagicCriticalStrikePowerPercent();
 }
 
@@ -1038,6 +1038,25 @@ void Attr::AddStrain(Value_t value)
     return;
 }
 
+PctInt_t Attr::GetStrainPercentInt() const
+{
+    return m_strainPercentInt;
+}
+
+void Attr::SetStrainPercentInt(PctInt_t percentInt)
+{
+    m_strainPercentInt = percentInt;
+    UpdateStrainPercent();
+    return;
+}
+
+void Attr::AddStrainPercentInt(PctInt_t percentInt)
+{
+    m_strainPercentInt += percentInt;
+    UpdateStrainPercent();
+    return;
+}
+
 PctFloat_t Attr::GetStrainPercent() const
 {
     return m_strainPercent;
@@ -1219,7 +1238,7 @@ void Attr::UpdatePhysicsCriticalStrikePercent()
     m_physicsCriticalStrikePercent =
         GetPhysicsCriticalStrike() / // 会心值
             (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) + // 会心系数
-        GetPhysicsCriticalStrikePercentFromCustom(); // 会心比例加成
+        GetPhysicsCriticalStrikePercentIntFromCustom() / JX3_CRITICAL_STRIKE_PERCENT_BASE; // 会心比例加成
 }
 
 void Attr::UpdateMagicCriticalStrikePercent()
@@ -1229,7 +1248,7 @@ void Attr::UpdateMagicCriticalStrikePercent()
     m_magicCriticalStrikePercent =
         GetMagicCriticalStrike() / // 会心值
             (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) + // 会心系数
-        GetMagicCriticalStrikePercentFromCustom(); // 会心比例加成
+        GetMagicCriticalStrikePercentIntFromCustom() / JX3_CRITICAL_STRIKE_PERCENT_BASE; // 会心比例加成
 }
 
 void Attr::UpdatePhysicsCriticalStrikePowerPercent()
@@ -1237,7 +1256,8 @@ void Attr::UpdatePhysicsCriticalStrikePowerPercent()
     m_physicsCriticalStrikePowerPercent =
         GetPhysicsCriticalStrikePower() /
             (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) +
-        GetPhysicsCriticalStrikePowerPercentFromCustom() + JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
+        GetPhysicsCriticalStrikePowerPercentIntFromCustom() * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE +
+        JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
 }
 
 void Attr::UpdateMagicCriticalStrikePowerPercent()
@@ -1245,7 +1265,8 @@ void Attr::UpdateMagicCriticalStrikePowerPercent()
     m_magicCriticalStrikePowerPercent =
         GetMagicCriticalStrikePower() /
             (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) +
-        GetMagicCriticalStrikePowerPercentFromCustom() + JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
+        GetMagicCriticalStrikePowerPercentIntFromCustom() * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE +
+        JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
 }
 
 void Attr::UpdatePhysicsOvercomePercent()
@@ -1282,7 +1303,8 @@ void Attr::UpdateHastePercent()
 void Attr::UpdateStrainPercent()
 {
     m_strainPercent =
-        m_strain / (JX3_INSIGHT_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) + m_strainPercentFromCustom;
+        m_strain / (JX3_INSIGHT_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) +
+        m_strainPercentInt * JX3_PCT_FLOAT_BASE / JX3_PCT_INT_BASE + m_strainPercentFromCustom;
 }
 
 void Attr::UpdateSurplusDamage()

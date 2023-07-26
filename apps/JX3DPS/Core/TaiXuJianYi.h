@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 05:09:53
+ * Last Modified: 2023-07-18 05:12:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -98,6 +98,14 @@ const Id_t END = 1451;
 
 namespace Skill {
 
+class PoZhao : public Skill
+{
+    SKILL_DEFAULT_FUNCTION(PoZhao)
+
+public:
+    void TriggerDamage(Id_t targetId, int sub, int level);
+};
+
 class WuWoWuJian : public Skill
 {
     SKILL_DEFAULT_FUNCTION(WuWoWuJian)
@@ -127,6 +135,8 @@ class SanHuanTaoYue : public Skill
 
 public:
     void SubEffect();
+
+    int m_index = 0;
 };
 
 class WanJianGuiZong : public Skill
@@ -422,6 +432,25 @@ public:
 
     void SubEffectAdd();
     void SubEffectClear();
+};
+
+class YouRen : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(YouRen)
+
+public:
+    void TriggerAdd(int stackNum = 1);
+
+    void SubEffectAdd(int stackNum);
+    void SubEffectClear(int stackNum);
+};
+
+class JingMiao : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JingMiao)
+
+public:
+    void SubEffect();
 };
 
 } // namespace Buff

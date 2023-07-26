@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-02 18:49:48
+ * Last Modified: 2023-07-13 21:35:36
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -51,7 +51,7 @@ PlainTextEdit::PlainTextEdit(QWidget *parent) : QPlainTextEdit(parent)
 
     int     index = QFontDatabase::addApplicationFont(":/resources/Monaco.ttf");
     QString str   = QFontDatabase::applicationFontFamilies(index).at(0);
-    str.append(",Microsoft YaHei");
+    str.append(",NoWatsFont");
     QFont font(str);
     this->setFont(font);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

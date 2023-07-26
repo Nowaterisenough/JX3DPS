@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 20:59:11
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-07 23:46:53
+ * Last Modified: 2023-07-14 02:29:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -22,19 +22,9 @@
 #include <string>
 #include <unordered_map>
 
+#include "JX3DPSTypes.h"
+
 namespace JX3DPS {
-
-using PctInt_t = int;
-
-using PctFloat_t = float;
-
-using Value_t = int;
-
-using Id_t = int;
-
-using Frame_t = int;
-
-using Error_t = int;
 
 class Player;
 class Target;
@@ -63,47 +53,23 @@ enum class RollResult
 /* 伤害统计 */
 struct Damage
 {
-    long long fixedDamage;      // 固定伤害统计
-    long long weaponDamage;     // 武器伤害统计
-    long long attackBaseDamage; // 基础攻击伤害统计
-    long long attackMainDamage; // 面板攻击伤害统计
-    long long surplusDamage;    // 破招伤害统计
+    long long damage;        // 固定伤害统计
+    long long surplusDamage; // 破招伤害统计
 
-    Damage() :
-        fixedDamage(0), weaponDamage(0), attackBaseDamage(0), attackMainDamage(0), surplusDamage(0)
+    Damage() : damage(0), surplusDamage(0) { }
+
+    Damage(const Damage &damage) : damage(damage.damage), surplusDamage(damage.surplusDamage) { }
+
+    Damage(long long damage, long long surplusDamage) : damage(damage), surplusDamage(surplusDamage)
     {
     }
 
-    Damage(const Damage &damage) :
-        fixedDamage(damage.fixedDamage),
-        weaponDamage(damage.weaponDamage),
-        attackBaseDamage(damage.attackBaseDamage),
-        attackMainDamage(damage.attackMainDamage),
-        surplusDamage(damage.surplusDamage)
-    {
-    }
-
-    Damage(long long fixedDamage, long long weaponDamage, long long attackBaseDamage, long long attackMainDamage, long long surplusDamage) :
-        fixedDamage(fixedDamage),
-        weaponDamage(weaponDamage),
-        attackBaseDamage(attackBaseDamage),
-        attackMainDamage(attackMainDamage),
-        surplusDamage(surplusDamage)
-    {
-    }
-
-    long long SumDamage() const
-    {
-        return fixedDamage + weaponDamage + attackBaseDamage + attackMainDamage + surplusDamage;
-    }
+    long long SumDamage() const { return damage + surplusDamage; }
 
     Damage &operator+=(const Damage &damage)
     {
-        this->fixedDamage      += damage.fixedDamage;
-        this->weaponDamage     += damage.weaponDamage;
-        this->attackBaseDamage += damage.attackBaseDamage;
-        this->attackMainDamage += damage.attackMainDamage;
-        this->surplusDamage    += damage.surplusDamage;
+        this->damage        += damage.damage;
+        this->surplusDamage += damage.surplusDamage;
         return *this;
     }
 };
@@ -111,21 +77,14 @@ struct Damage
 /* 伤害系数 */
 struct DamageParam
 {
-    int        fixedDamage;            // 固定伤害
-    PctInt_t   weaponDamagePercentInt; // 武器伤害系数, 1024为100%
-    PctFloat_t attackDamagePercent;    // 攻击系数
-    PctFloat_t surplusDamagePercent;   // 破招系数
+    int      fixedDamage;            // 固定伤害
+    PctInt_t weaponDamagePercentInt; // 武器伤害系数, 1024为100%
+    PctInt_t attackDamagePercent;    // 攻击系数
 
-    DamageParam() :
-        fixedDamage(0), weaponDamagePercentInt(0), attackDamagePercent(0.0), surplusDamagePercent(0.0)
-    {
-    }
+    DamageParam() : fixedDamage(0), weaponDamagePercentInt(0), attackDamagePercent(0) { }
 
-    DamageParam(int fixedDamage, PctInt_t weaponDamagePercentInt, PctFloat_t attackDamagePercent, PctFloat_t surplusDamagePercent) :
-        fixedDamage(fixedDamage),
-        weaponDamagePercentInt(weaponDamagePercentInt),
-        attackDamagePercent(attackDamagePercent),
-        surplusDamagePercent(surplusDamagePercent)
+    DamageParam(int fixedDamage, PctInt_t weaponDamagePercentInt, PctInt_t attackDamagePercent) :
+        fixedDamage(fixedDamage), weaponDamagePercentInt(weaponDamagePercentInt), attackDamagePercent(attackDamagePercent)
     {
     }
 };
@@ -190,37 +149,41 @@ inline DamageStats &operator+=(DamageStats &lhs, DamageStats &rhs)
 struct GainsDamage
 {
     Damage normalDamage;
+    Damage attackDamage;
     Damage criticalStrikePowerDamage;
     Damage overcomeDamage;
     Damage strainDamage;
     Damage surplusDamage;
+    Damage weaponDamage;
 };
 
 struct Stats
 {
     DamageStats damageStats;
-    long long   normalDamage = 0;
+    long long   normalDamage              = 0;
+    long long   attackDamage              = 0;
     long long   criticalStrikePowerDamage = 0;
-    long long   overcomeDamage = 0;
-    long long   strainDamage = 0;
-    long long   surplusDamage = 0;
+    long long   overcomeDamage            = 0;
+    long long   strainDamage              = 0;
+    long long   surplusDamage             = 0;
+    long long   weaponDamage              = 0;
 
     inline Stats &operator+=(Stats &other)
     {
         damageStats               += other.damageStats;
         normalDamage              += other.normalDamage;
+        attackDamage              += other.attackDamage;
         criticalStrikePowerDamage += other.criticalStrikePowerDamage;
         overcomeDamage            += other.overcomeDamage;
         strainDamage              += other.strainDamage;
         surplusDamage             += other.surplusDamage;
+        weaponDamage              += other.weaponDamage;
         return *this;
     }
 };
 
 /* 伤害参数 */
 using DamageParams = std::unordered_map<int, std::vector<DamageParam>>;
-
-
 
 enum class AttributeType
 {

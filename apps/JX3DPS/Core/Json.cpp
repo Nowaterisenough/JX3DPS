@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-07 05:16:51
+ * Last Modified: 2023-07-18 10:31:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -150,6 +150,40 @@ JX3DPS::Error_t JX3DPS::ParseJson2Attr(const nlohmann::json &json, Attr &attr)
     return JX3DPS_SUCCESS;
 }
 
+JX3DPS::Error_t JX3DPS::ParseJson2Permanent(const nlohmann::json &json, Attr &attr)
+{
+    try {
+        if (json["Permanent"].find("AttributeAdd") == json["Permanent"].end()) {
+            return JX3DPS_SUCCESS;
+        }
+        for (auto &item : json["Permanent"]["AttributeAdd"]) {
+            if (item["type"].get<std::string>() == "PhysicsCriticalStrikePercentInt") {
+                attr.AddPhysicsCriticalStrikePercentIntFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "StrainPercentInt") {
+                attr.AddStrainPercentInt(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "PhysicsCriticalStrikePowerPercentInt") {
+                attr.AddPhysicsCriticalStrikePowerPercentIntFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "AttackBase") {
+                attr.AddPhysicsAttackBaseFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "Surplus") {
+                attr.AddSurplusBase(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "OvercomeBase") {
+                attr.AddPhysicsOvercomeBaseFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "CriticalStrike") {
+                attr.AddPhysicsCriticalStrikeFromCustom(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "Agility") {
+                attr.AddAgilityBase(item["value"].get<int>());
+            } else if (item["type"].get<std::string>() == "Strain") {
+                attr.AddStrain(item["value"].get<int>());
+            }
+        }
+    } catch (const std::exception &e) {
+        spdlog::error("常驻增益解析失败 {}", e.what());
+        return JX3DPS_ERROR_INVALID_JSON;
+    }
+    return JX3DPS_SUCCESS;
+}
+
 JX3DPS::Error_t JX3DPS::Stats2Json(const DamageStats &damageStats, nlohmann::json &json)
 {
 
@@ -178,26 +212,8 @@ JX3DPS::Error_t JX3DPS::Stats2Json(const DamageStats &damageStats, nlohmann::jso
                         json[std::string("目标").append(std::to_string(targetStats.first))][name]
                             [std::string("词缀").append(std::to_string(subStats.first))]
                             [std::string("强度").append(std::to_string(levelStats.first))]
-                            [rollResult[static_cast<int>(rollStats.first)]]["固定伤害"] =
-                                rollStats.second.second.fixedDamage;
-
-                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
-                            [std::string("词缀").append(std::to_string(subStats.first))]
-                            [std::string("强度").append(std::to_string(levelStats.first))]
-                            [rollResult[static_cast<int>(rollStats.first)]]["武器伤害"] =
-                                rollStats.second.second.weaponDamage;
-
-                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
-                            [std::string("词缀").append(std::to_string(subStats.first))]
-                            [std::string("强度").append(std::to_string(levelStats.first))]
-                            [rollResult[static_cast<int>(rollStats.first)]]["基础攻击伤害"] =
-                                rollStats.second.second.attackBaseDamage;
-
-                        json[std::string("目标").append(std::to_string(targetStats.first))][name]
-                            [std::string("词缀").append(std::to_string(subStats.first))]
-                            [std::string("强度").append(std::to_string(levelStats.first))]
-                            [rollResult[static_cast<int>(rollStats.first)]]["面板攻击伤害"] =
-                                rollStats.second.second.attackMainDamage;
+                            [rollResult[static_cast<int>(rollStats.first)]]["伤害"] =
+                                rollStats.second.second.damage;
 
                         json[std::string("目标").append(std::to_string(targetStats.first))][name]
                             [std::string("词缀").append(std::to_string(subStats.first))]

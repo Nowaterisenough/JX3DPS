@@ -9,7 +9,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.5.0/msvc2019_64")
-
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
@@ -108,6 +107,15 @@ if(BUILD_SHARED_LIBS AND WIN32)
 
         # --$<LOWER_CASE:$<CONFIG>> --qmldir ${CMAKE_SOURCE_DIR}
     )
+
+    add_custom_command(
+        TARGET ${PROJECT_NAME} # 指定编译的目标名
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/config/config.json # 要复制的文件路径
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/config.json # 目标路径
+    )
+
 elseif(NOT BUILD_SHARED_LIBS)
     add_definitions(
         -DIMPORT_STATIC_THREAD_POOL_LIB

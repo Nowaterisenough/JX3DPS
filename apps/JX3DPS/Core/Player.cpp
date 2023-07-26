@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-05 10:16:16
+ * Last Modified: 2023-07-18 05:23:44
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -54,6 +54,7 @@ JX3DPS::Player::Player(const Player &other)
     delayMax = other.delayMax;
 
     weaponCW      = other.weaponCW;
+    weaponWater   = other.weaponWater;
     classSetBuff  = other.classSetBuff;
     classSetSkill = other.classSetSkill;
 
@@ -68,6 +69,8 @@ JX3DPS::Player::Player(const Player &other)
 
     damageAddPercentInt = other.damageAddPercentInt;
     skillDamageAddPercentInt = other.skillDamageAddPercentInt;
+
+    teamCore = other.teamCore;
 
     for (auto &buff : other.buffs) {
         std::unique_ptr<Buff> ptr(buff.second->Clone());
@@ -122,6 +125,7 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
     delayMax = other.delayMax;
 
     weaponCW      = other.weaponCW;
+    weaponWater   = other.weaponWater;
     classSetBuff  = other.classSetBuff;
     classSetSkill = other.classSetSkill;
 
@@ -136,6 +140,8 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
 
     damageAddPercentInt = other.damageAddPercentInt;
     skillDamageAddPercentInt = other.skillDamageAddPercentInt;
+
+    teamCore = other.teamCore;
 
     for (auto &buff : other.buffs) {
         std::unique_ptr<Buff> ptr(buff.second->Clone());

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-08 02:50:01
+ * Last Modified: 2023-07-18 02:10:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -66,6 +66,7 @@ class TalentWidget;
 class ProgressBar;
 class SecretCheckBox;
 class CheckBox;
+class ComboBox;
 
 class JX3DPSUI_API Widget : public QWidget
 {
@@ -80,6 +81,9 @@ signals:
     void Signal_UpdateAttr();
     void Signal_UpdateGains(const nlohmann::json &json);
     void Signal_UpdateStats(const nlohmann::json &json);
+    void Signal_UpdateProgress(double value);
+
+    void Signal_UpdatePermanent(const nlohmann::json &json);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -102,6 +106,7 @@ private:
     void InitWidgetSkillHelp(QWidget *parent = nullptr);
     void InitWidgetEvent(QWidget *parent = nullptr);
     void InitWidgetSetEffect(QWidget *parent = nullptr);
+    void InitWidgetPermanent(QWidget *parent = nullptr);
 
     QWidget *m_plainTextEditSkill    = nullptr;
     QWidget *m_plainTextEditEvent    = nullptr;
@@ -115,6 +120,8 @@ private:
     std::vector<TalentWidget *>                                  m_talentWidgets;
     std::unordered_map<std::string, std::list<SecretCheckBox *>> m_secretWidgets;
     std::vector<CheckBox *>                                      m_setEffectWidgets;
+    std::vector<ComboBox *>                                      m_permanentComboBoxes;
+    std::vector<CheckBox *>                                      m_permanentCheckBoxes;
 
     JX3DPS::Attr m_attr;
 

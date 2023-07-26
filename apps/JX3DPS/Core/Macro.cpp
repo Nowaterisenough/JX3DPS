@@ -5,7 +5,7 @@
  * Created Date: 2023-06-01 15:41:10
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-18 10:15:20
+ * Last Modified: 2023-07-24 16:25:10
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -171,7 +171,8 @@ void JX3DPS::CastSkill(Player *player, Targets *targets, ExprSkills &exprSkills)
             if (flag) {
                 spdlog::debug("Cast\t\tskill\t{}", player->skills[exprSkill.second]->GetName());
                 player->skills[exprSkill.second]->Cast();
-                break;
+                CastSkill(player, targets, exprSkills);
+                return;
             }
         }
     }

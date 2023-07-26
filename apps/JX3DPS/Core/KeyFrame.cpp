@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-21 04:33:45
+ * Last Modified: 2023-07-25 16:29:49
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -116,7 +116,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(KeyFrameSequence &keyFrameSequence, Playe
                 spdlog::debug("Trigger\tbuff\t{}", player->buffs[temp.second]->GetName());
                 player->buffs[temp.second]->Trigger();
                 KeyFrame keyFrame;
-                keyFrame.first = player->buffs[temp.second]->GetNextKeyFrame();
+                keyFrame.first = 0;
                 keyFrame.second.push_back(std::make_pair(temp.first, temp.second));
                 releasedKeyFrameSequence.push_back(keyFrame);
             }
@@ -182,10 +182,10 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(KeyFrameSequence &keyFrameSequence, Playe
 
         // 检查已施放技能关键帧因为事件、技能施放或buff刷新等原因的状态变化，并插入关键帧序列
         KeyFrameSequence tempKeyFrameSequence;
-        for (auto &exprSkill : tempSkills) {
+        for (auto &id : skills) {
             KeyFrame keyFrame;
-            keyFrame.first = player->skills[exprSkill.second]->GetNextKeyFrame();
-            keyFrame.second.push_back(std::make_pair(KeyFrameType::SKILL, exprSkill.second));
+            keyFrame.first = player->skills[id]->GetNextKeyFrame();
+            keyFrame.second.push_back(std::make_pair(KeyFrameType::SKILL, id));
             if (keyFrame.first == 0) { // 技能冷却时间为0，但因不满足条件无法施放
                 tempKeyFrameSequence.push_back(keyFrame);
             } else {

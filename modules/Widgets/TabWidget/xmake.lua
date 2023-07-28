@@ -1,0 +1,7 @@
+target("TabWidget")
+    add_rules("qt.static")
+    add_files("*.cpp")
+    add_files("*.h")
+    add_includedirs(".", "../Common", {public = true})
+    add_frameworks("QtWidgets", "QtGui")
+    add_defines("EXPORT_TAB_WIDGET")

@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Global.h
  * Description:
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 12:32:49
+ * Last Modified: 2023-07-28 20:46:28
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -131,6 +131,7 @@ enum Id_t
     BUFF_COMMON_DEFAULT, // ---------------------- Buff 通用 ----------------------
     BUFF_CLASS_FEATURE,
     BUFF_WEAPON_EFFECT_CW,
+    BUFF_WEAPON_EFFECT_CW_2,
     BUFF_WEAPON_EFFECT_WATER,
     BUFF_PENDANT_OVERCOME,
     BUFF_SET_ATTRIBUTE,
@@ -173,14 +174,14 @@ enum Id_t
     BUFF_XUAN_MEN,
     BUFF_ZI_QI_DONG_LAI,
     BUFF_FIELD_SUI_XING_CHEN,
-    BUFF_FIELD_SUI_XING_CHEN_QI_SHENG,
-    BUFF_FIELD_SHENG_TAI_JI,
     BUFF_FIELD_TUN_RI_YUE,
+    BUFF_FIELD_SHENG_TAI_JI,
+    BUFF_FIELD_SUI_XING_CHEN_QI_SHENG,
     BUFF_SUI_XING_CHEN,
     BUFF_TUN_RI_YUE,
     BUFF_YUN_ZHONG_JIAN_SUI_XING_CHEN,
-    BUFF_YUN_ZHONG_JIAN_SHENG_TAI_JI,
     BUFF_YUN_ZHONG_JIAN_TUN_RI_YUE,
+    BUFF_YUN_ZHONG_JIAN_SHENG_TAI_JI,
     BUFF_CHI_YING,
     BUFF_QI_SHENG,
     BUFF_FENG_SHI,
@@ -251,6 +252,10 @@ enum Id_t
     SECRET_REN_JIAN_HE_YI_DAMAGE_60,
     SECRET_REN_JIAN_HE_YI_EFFECT_DOT,
     SECRET_REN_JIAN_HE_YI_EFFECT_YUN_ZHONG_JIAN,
+    SECRET_SHENG_TAI_JI_PREPARE_1,
+    SECRET_SHENG_TAI_JI_PREPARE_2,
+    SECRET_SHENG_TAI_JI_PREPARE_3,
+    SECRET_SHENG_TAI_JI_EFFECT_COOLDOWN,
     SECRET_TAI_XU_JIAN_YI_END, // ---------------------- 秘籍 太虚剑意 END ----------------------
 
     SECRET_END,                // ---------------------- 秘籍 END ----------------------
@@ -378,6 +383,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------通用----------------------" },
      { "心法特性" },
      { "武器·橙武特效" },
+     { "武器·橙武特效2" },
      { "武器·水特效" },
      { "腰坠·破防" },
      { "套装·属性" },
@@ -498,6 +504,10 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "《天道剑势·人剑合一》参悟断篇" },
      { "《天道剑势·人剑合一》人偶图残页" },
      { "《天道剑势·人剑合一》人偶图断篇" },
+     { "《纯阳诀·生太极》经脉图残页" },
+     { "《纯阳诀·生太极》经脉图断篇" },
+     { "《纯阳诀·生太极》经脉图绝章" },
+     { "《纯阳诀·生太极》人偶图残页" },
      { "----------------------秘籍 太虚剑意 END-----------------------" },
 
      { "----------------------秘籍 END-----------------------" },

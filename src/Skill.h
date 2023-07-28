@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Skill.h
  * Description:
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-27 20:46:44
+ * Last Modified: 2023-07-28 20:53:53
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -20,26 +20,26 @@
 #include "Global/Id.h"
 #include "Global/Types.h"
 
-#define SKILL_DEFAULT_FUNCTION(class_name)                 \
-                                                           \
-public:                                                    \
-    class_name(JX3DPS::Player *player, Targets *targets);  \
-    class_name(const class_name &other) : Skill(other) { } \
-    ~class_name() { }                                      \
-    class_name &operator=(const class_name &other)         \
-    {                                                      \
-        if (this == &other) {                              \
-            return *this;                                  \
-        }                                                  \
-        JX3DPS::Skill::operator=(other);                   \
-        return *this;                                      \
-    }                                                      \
-    class_name *Clone() const                              \
-    {                                                      \
-        return new class_name(*this);                      \
-    }                                                      \
-    void Trigger() override;                               \
-    void Cast() override;                                  \
+#define SKILL_DEFAULT_FUNCTION(class_name)                         \
+                                                                   \
+public:                                                            \
+    class_name(JX3DPS::Player *player, Targets *targets);          \
+    class_name(const class_name &other) : JX3DPS::Skill(other) { } \
+    ~class_name() { }                                              \
+    JX3DPS::Skill &operator=(const class_name &other)              \
+    {                                                              \
+        if (this == &other) {                                      \
+            return *this;                                          \
+        }                                                          \
+        JX3DPS::Skill::operator=(other);                           \
+        return *this;                                              \
+    }                                                              \
+    JX3DPS::Skill *Clone() const override                          \
+    {                                                              \
+        return new class_name(*this);                              \
+    }                                                              \
+    void Trigger() override;                                       \
+    void Cast() override;                                          \
     void Stop() override;
 
 namespace JX3DPS {
@@ -140,6 +140,9 @@ protected:
 
     /* 技能忽视加成 */
     PctInt_t m_effectShieldIgnoreAdditionalPercentInt = 0;
+    
+    /* 技能调息加成 */
+    Frame_t m_effectCooldownAdditional = 0;
 
     /* 技能气点加成 */
     int m_effectQidianAdditional = 0;
@@ -149,7 +152,6 @@ protected:
 
     /* 统计 */
     Stats m_stats;
-
 };
 
 } // namespace JX3DPS

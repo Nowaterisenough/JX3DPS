@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Defs.h
  * Description:
  * Created Date: 2023-07-22 08:40:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 12:18:42
+ * Last Modified: 2023-07-28 20:54:36
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -220,6 +220,24 @@ struct Options
 
     Frame_t DelayFrames() const { return RandomNormal(delayMin, delayMax) / JX3DPS_DELAY; }
 };
+
+class Player;
+
+struct Params
+{
+    Player    *player = nullptr;
+    Id_t       targetId;
+    RollResult rollResult;
+    int        sub   = 0;
+    int        level = 0;
+    int        stackNum;
+    int        effectCount;
+};
+
+/* 附加效果 */
+using TriggerEffect = std::function<void(const Params &)>;
+
+using TriggerEffects = std::unordered_map<Id_t, TriggerEffect>;
 
 } // namespace JX3DPS
 

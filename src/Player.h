@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Player.h
  * Description:
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-27 23:02:07
+ * Last Modified: 2023-07-28 16:50:31
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -23,18 +23,7 @@
 
 namespace JX3DPS {
 
-struct Params
-{
-    Id_t       targetId;
-    RollResult rollResult;
-    int        stackNum;
-    int        effectCount;
-};
 
-/* 附加效果 */
-using TriggerEffect = std::function<void(const Params &)>;
-
-using TriggerEffects = std::unordered_map<Id_t, TriggerEffect>;
 
 class Player
 {
@@ -173,6 +162,8 @@ public:
         return RandomNormal(m_delayMin, m_delayMax) / JX3DPS_DELAY;
     }
 
+    inline void TriggerVoid(const Params &params) { }
+
 public:
     Frame_t globalCooldown        = 24;            // 冷却
     Frame_t globalCooldownCurrent = 0;             // 当前冷却
@@ -217,8 +208,6 @@ private:
     int m_delayMin = 0;                                  // 最小延迟
     int m_delayMax = 0;                                  // 最大延迟
 };
-
-void TriggerVoid(const Params &params);
 
 } // namespace JX3DPS
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:40:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 20:54:36
+ * Last Modified: 2023-07-29 17:31:31
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -47,7 +47,7 @@ const Frame_t JX3DPS_INVALID_FRAMES_SET = INT_MAX;
 const Frame_t JX3DPS_DEFAULT_DURATION_FRAMES = -1;
 
 /* 充能数无效值 */
-const int JX3DPS_INVALID_ENERGY_SET = 0;
+const int JX3DPS_INVALID_ENERGY_SET = -1;
 
 /*----------------------- 类型定义 -----------------------*/
 
@@ -225,7 +225,14 @@ class Player;
 
 struct Params
 {
+    enum class Type
+    {
+        ADD = 1,
+        CLEAR = -1,
+    };
+
     Player    *player = nullptr;
+    Type       type;
     Id_t       targetId;
     RollResult rollResult;
     int        sub   = 0;

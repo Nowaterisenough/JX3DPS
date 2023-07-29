@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 20:46:28
+ * Last Modified: 2023-07-30 02:18:18
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -131,7 +131,6 @@ enum Id_t
     BUFF_COMMON_DEFAULT, // ---------------------- Buff 通用 ----------------------
     BUFF_CLASS_FEATURE,
     BUFF_WEAPON_EFFECT_CW,
-    BUFF_WEAPON_EFFECT_CW_2,
     BUFF_WEAPON_EFFECT_WATER,
     BUFF_PENDANT_OVERCOME,
     BUFF_SET_ATTRIBUTE,
@@ -200,10 +199,8 @@ enum Id_t
     TALENT_BAI_HONG,
     TALENT_YUN_ZHONG_JIAN,
     TALENT_WU_YI,
-    TALENT_WU_YI_CLEAR,
     TALENT_JING_HUA_YING,
     TALENT_FENG_SHI,
-    TALENT_FENG_SHI_CLEAR,
     TALENT_DIE_REN,
     TALENT_QIE_YU,
     TALENT_CHANG_SHENG,
@@ -255,6 +252,9 @@ enum Id_t
     SECRET_SHENG_TAI_JI_PREPARE_1,
     SECRET_SHENG_TAI_JI_PREPARE_2,
     SECRET_SHENG_TAI_JI_PREPARE_3,
+    SECRET_SHENG_TAI_JI_RANG_1,
+    SECRET_SHENG_TAI_JI_RANG_2,
+    SECRET_SHENG_TAI_JI_RANG_3,
     SECRET_SHENG_TAI_JI_EFFECT_COOLDOWN,
     SECRET_TAI_XU_JIAN_YI_END, // ---------------------- 秘籍 太虚剑意 END ----------------------
 
@@ -271,6 +271,45 @@ enum Id_t
     EQUIP_EFFECT_ENCHANT_BELT,   // 大附魔·腰
     EQUIP_EFFECT_ENCHANT_WRIST,  // 大附魔·腕
     EQUIP_EFFECT_END,            // ---------------------- 装备 END ----------------------
+
+    TRIGGER_DEFAULT,      // ---------------------- 触发效果 ----------------------
+
+    TRIGGER_ENCHANT_WRIST,
+    TRIGGER_ENCHANT_BELT,
+    TRIGGER_ENCHANT_SHOES,
+    TRIGGER_SET_ATTRIBUTE,
+    TRIGGER_WEAPON_CW,
+    TRIGGER_WEAPON_CW_DOT,
+    TRIGGER_WEAPON_CW_DAMAGE,
+    TRIGGER_WEAPON_WATER,
+
+    TRIGGER_TAI_XU_JIAN_YI, // ---------------------- 触发效果 太虚剑意 ----------------------
+    TRIGGER_WU_YI,          // 无意
+    TRIGGER_FENG_SHI_ADD, // 风逝
+    TRIGGER_FENG_SHI_CLEAR, // 风逝
+    TRIGGER_SHEN_MAI, // 深埋
+    TRIGGER_XU_JI,
+    TRIGGER_XUAN_MEN,
+    TRIGGER_CHANG_SHENG,
+    TRIGGER_BAI_HONG,
+    TRIGGER_WU_YU,
+    TRIGGER_DIE_REN,
+    TRIGGER_QIE_YU,
+    TRIGGER_HUAN_YUE,
+    TRIGGER_LIE_YUN,
+    TRIGGER_JING_HUA_YING,
+    TRIGGER_GU_CHANG,
+    TRIGGER_REN_JIAN_HE_YI_DOT,
+    TRIGGER_SHENG_TAI_JI_EFFECT_COOLDOWN,
+    TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN,
+    TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN,
+    TRIGGER_YUN_ZHONG_JIAN_TUN_RI_YUE,
+    TRIGGER_YUN_ZHONG_JIAN_SHENG_TAI_JI,
+    TRIGGER_FIELD_QI_SHENG,
+    TRIGGER_QI_SHENG,
+    TRIGGER_TAI_XU_JIAN_YI_END, // ---------------------- 触发效果 太虚剑意 END ----------------------
+
+    TRIGGER_END, // ---------------------- 触发效果 END ----------------------
 
     COUNT
 }
@@ -294,7 +333,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "JX3DPS 错误 无效JSON" },
      { "----------------------错误码 END-----------------------" },
 
-     { "----------------------技能语句占位符----------------------" },
+     { "----------------------事件语句占位符----------------------" },
      { "模拟开始" },
      { "模拟结束" },
 
@@ -380,10 +419,9 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
 
      { "----------------------Buff----------------------" },
 
-     { "----------------------通用----------------------" },
+     { "----------------------Buff 通用----------------------" },
      { "心法特性" },
      { "武器·橙武特效" },
-     { "武器·橙武特效2" },
      { "武器·水特效" },
      { "腰坠·破防" },
      { "套装·属性" },
@@ -452,10 +490,8 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "白虹" },
      { "云中剑" },
      { "无意" },
-     { "无意 清除" },
      { "镜花影" },
      { "风逝" },
-     { "风逝 清除" },
      { "叠刃" },
      { "切玉" },
      { "长生" },
@@ -507,6 +543,9 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "《纯阳诀·生太极》经脉图残页" },
      { "《纯阳诀·生太极》经脉图断篇" },
      { "《纯阳诀·生太极》经脉图绝章" },
+     { "《纯阳诀·生太极》真传残页" },
+     { "《纯阳诀·生太极》真传断篇" },
+     { "《纯阳诀·生太极》真传绝章" },
      { "《纯阳诀·生太极》人偶图残页" },
      { "----------------------秘籍 太虚剑意 END-----------------------" },
 

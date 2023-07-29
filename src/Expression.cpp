@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Expression.cpp
  * Description:
  * Created Date: 2023-07-23 13:16:27
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-26 17:59:48
+ * Last Modified: 2023-07-29 17:29:04
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -178,62 +178,62 @@ bool JX3DPS::Expression::NotLastCastSkill(Player *player, Targets *targets, Id_t
 
 bool JX3DPS::Expression::BuffStackNumLt(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum() < stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent() < stackNum;
 }
 
 bool JX3DPS::Expression::BuffStackNumLe(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum() <= stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent() <= stackNum;
 }
 
 bool JX3DPS::Expression::BuffStackNumEq(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum() == stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent() == stackNum;
 }
 
 bool JX3DPS::Expression::BuffStackNumNe(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum() != stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent() != stackNum;
 }
 
 bool JX3DPS::Expression::BuffStackNumGe(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum() >= stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent() >= stackNum;
 }
 
 bool JX3DPS::Expression::BuffStackNumGt(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum() > stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent() > stackNum;
 }
 
 bool JX3DPS::Expression::TBuffStackNumLt(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum(player->GetTargetId()) < stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent(player->GetTargetId()) < stackNum;
 }
 
 bool JX3DPS::Expression::TBuffStackNumLe(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum(player->GetTargetId()) <= stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent(player->GetTargetId()) <= stackNum;
 }
 
 bool JX3DPS::Expression::TBuffStackNumEq(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum(player->GetTargetId()) == stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent(player->GetTargetId()) == stackNum;
 }
 
 bool JX3DPS::Expression::TBuffStackNumNe(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum(player->GetTargetId()) != stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent(player->GetTargetId()) != stackNum;
 }
 
 bool JX3DPS::Expression::TBuffStackNumGe(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum(player->GetTargetId()) >= stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent(player->GetTargetId()) >= stackNum;
 }
 
 bool JX3DPS::Expression::TBuffStackNumGt(Player *player, Targets *targets, Id_t id, int stackNum)
 {
-    return player->buffs.at(id)->GetStackNum(player->GetTargetId()) > stackNum;
+    return player->buffs.at(id)->GetStackNumCurrent(player->GetTargetId()) > stackNum;
 }
 
 bool JX3DPS::Expression::BuffTimeLt(Player *player, Targets *targets, Id_t id, Frame_t time)

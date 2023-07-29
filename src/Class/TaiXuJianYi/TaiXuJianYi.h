@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 16:36:28
+ * Last Modified: 2023-07-30 01:36:42
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -61,7 +61,49 @@ public:
         }
     }
 
-    void TriggerShenMai(const Params &params);
+    static void TriggerWuYi(const Params &params);
+
+    static void TriggerFengShiAdd(const Params &params);
+
+    static void TriggerFengShiClear(const Params &params);
+
+    static void TriggerShenMai(const Params &params);
+
+    static void TriggerXuJi(const Params &params);
+
+    static void TriggerXuanMen(const Params &params);
+
+    static void TriggerChangSheng(const Params &params);
+
+    static void TriggerWuYu(const Params &params);
+
+    static void TriggerDieRen(const Params &params);
+
+    static void TriggerQieYu(const Params &params);
+
+    static void TriggerHuanYue(const Params &params);
+
+    static void TriggerJingHuaYing(const Params &params);
+
+    static void TriggerGuChang(const Params &params);
+
+    static void TriggerLieYun(const Params &params);
+
+    static void TriggerQiSheng(const Params &params);
+
+    static void TriggerFieldQiSheng(const Params &params);
+
+    static void TriggerRenJianHeYiDot(const Params &params);
+
+    static void TriggerShengTaiJiEffectCooldown(const Params &params);
+
+    static void TriggerYunZhongJianSuiXingChen(const Params &params);
+
+    static void TriggerYunZhongJianTunRiYue(const Params &params);
+
+    static void TriggerYunZhongJianShengTaiJi(const Params &params);
+
+    static void TriggerTeamCoreTaiXuJianYiYouRen(const Params &params);
 };
 
 } // namespace TaiXuJianYi

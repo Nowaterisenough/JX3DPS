@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Player.cpp
  * Description:
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-27 23:08:03
+ * Last Modified: 2023-07-30 02:46:10
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -66,6 +66,8 @@ JX3DPS::Player::Player(const Player &other)
 
     attribute = other.attribute;
 
+    triggerEffects = other.triggerEffects;
+
     for (auto &[id, buff] : other.buffs) {
         Buff *b = buff->Clone();
         b->SetPlayer(this);
@@ -120,6 +122,8 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
     effectDamageAdditionalPercentInt = other.effectDamageAdditionalPercentInt;
 
     attribute = other.attribute;
+
+    triggerEffects = other.triggerEffects;
 
     for (auto &[id, buff] : other.buffs) {
         Buff *b = buff->Clone();

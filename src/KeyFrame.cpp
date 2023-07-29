@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: KeyFrame.cpp
  * Description:
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 12:43:09
+ * Last Modified: 2023-07-30 02:55:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -217,11 +217,12 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
         // 先判断冷却、距离和读条条件
         bool precondition = false;
         for (auto &exprIf : *std::next(iter->first.begin())) {
-            if (precondition = exprIf(player, targets) == false) {
+            if ((precondition = exprIf(player, targets)) == false) {
                 break;
             }
         }
         if (precondition == false) {
+            ++iter;
             continue; // 前置条件不满足，跳过此技能
         }
 
@@ -229,7 +230,7 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
         bool flag = true;
         for (auto it = std::next(std::next(iter->first.begin())); it != iter->first.end(); ++it) {
             for (auto &exprIf : *it) {
-                if (flag = exprIf(player, targets) == false) {
+                if ((flag = exprIf(player, targets)) == false) {
                     break;
                 }
             }

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 20:51:41
+ * Last Modified: 2023-07-30 02:47:25
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -22,7 +22,7 @@ namespace JX3DPS {
 
 namespace TaiXuJianYi {
 
-JX3DPS::TaiXuJianYi::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id    = SKILL_PO_ZHAO;
@@ -38,20 +38,20 @@ JX3DPS::TaiXuJianYi::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) :
     m_damageParams[1].emplace_back(0, 0, JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE * (0.065 - 1));
 }
 
-void JX3DPS::TaiXuJianYi::PoZhao::Cast() { }
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::Cast() { }
 
-void JX3DPS::TaiXuJianYi::PoZhao::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::PoZhao::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::Stop() { }
 
-void JX3DPS::TaiXuJianYi::PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
+void JX3DPS::TaiXuJianYi::Skill::PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
 {
     RollResult rollResult = GetPhysicsRollResult();
     // GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
     // Record(m_player->GetTargetId(), rollResult, damage, 0, level);
 }
 
-JX3DPS::TaiXuJianYi::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id    = SKILL_WU_WO_WU_JIAN;
@@ -161,7 +161,7 @@ JX3DPS::TaiXuJianYi::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *tar
     }
 }
 
-void JX3DPS::TaiXuJianYi::WuWoWuJian::Cast()
+void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     *m_globalCooldown =
@@ -169,21 +169,21 @@ void JX3DPS::TaiXuJianYi::WuWoWuJian::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::WuWoWuJian::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::WuWoWuJian::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Stop() { }
 
-void JX3DPS::TaiXuJianYi::WuWoWuJian::TriggerFengShiAdd()
+void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiAdd()
 {
     m_effectDamageAdditionalPercentInt += 307;
 }
 
-void JX3DPS::TaiXuJianYi::WuWoWuJian::TriggerFengShiClear()
+void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiClear()
 {
     m_effectDamageAdditionalPercentInt -= 307;
 }
 
-void JX3DPS::TaiXuJianYi::WuWoWuJian::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
 {
     int qidian = m_player->GetQidian();
     int level  = qidian - 1;
@@ -194,10 +194,11 @@ void JX3DPS::TaiXuJianYi::WuWoWuJian::SubEffect()
     m_player->AddQidian(m_effectQidianAdditional);
 
     Params params;
+    params.player = m_player;
 
     // 无意 3格气以上
-    params.skill = this;
-    m_player->triggerEffects[TALENT_WU_YI](params);
+    params.type = Params::Type::ADD;
+    m_player->triggerEffects[TRIGGER_WU_YI](params);
 
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
@@ -206,51 +207,52 @@ void JX3DPS::TaiXuJianYi::WuWoWuJian::SubEffect()
     params.rollResult = rollResult;
 
     if (qidian >= 6) {
-        static_cast<TaiXuJianYi::PoZhao *>(m_player->skills[SKILL_PO_ZHAO])
+        static_cast<TaiXuJianYi::Skill::PoZhao *>(m_player->skills[SKILL_PO_ZHAO])
             ->TriggerDamage(m_player->GetTargetId(), 0, (qidian - 6) / 2);
     }
 
     // 北斗七星阵 游刃
-    m_player->triggerEffects[BUFF_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN](params);
+    m_player->triggerEffects[TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN](params);
 
     // 无欲 目标有叠刃
-    m_player->triggerEffects[TALENT_WU_YU](params);
+    m_player->triggerEffects[TRIGGER_WU_YU](params);
 
     // 长生 持盈
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     // 大附魔 腕
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     // 大附魔 腰
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_BELT](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
     // 大附魔 鞋
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_SHOES](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
     // 叠刃
-    m_player->triggerEffects[TALENT_DIE_REN](params);
+    m_player->triggerEffects[TRIGGER_DIE_REN](params);
 
     // 深埋 会心
-    m_player->triggerEffects[TALENT_SHEN_MAI](params);
+    m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
     // 无意 结束去掉状态
-    m_player->triggerEffects[TALENT_WU_YI_CLEAR](params);
+    params.type = Params::Type::CLEAR;
+    m_player->triggerEffects[TRIGGER_WU_YI](params);
 
     // 风逝 结束去掉状态
-    m_player->triggerEffects[TALENT_FENG_SHI_CLEAR](params);
+    m_player->triggerEffects[TRIGGER_FENG_SHI_CLEAR](params);
 
     // 橙武特效 八荒归元无调息 持续伤害
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-JX3DPS::TaiXuJianYi::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_BA_HUANG_GUI_YUAN;
@@ -321,7 +323,7 @@ JX3DPS::TaiXuJianYi::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *player, Targ
     }
 }
 
-void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::Cast()
+void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -330,11 +332,11 @@ void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Stop() { }
 
-void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
 {
     m_player->AddQidian(2);
 
@@ -348,6 +350,7 @@ void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::SubEffect()
     Record(m_player->GetTargetId(), rollResult, damage, 0, level);
 
     Params params;
+    params.player = m_player;
     params.rollResult = rollResult;
 
     rollResult = GetPhysicsRollResult();
@@ -355,56 +358,56 @@ void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::SubEffect()
     Record(m_player->GetTargetId(), rollResult, damage, 1, level);
 
     // 深埋 会心
-    m_player->triggerEffects[TALENT_SHEN_MAI](params);
+    m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
     // 大附魔 腕
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     // 大附魔 腰
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_BELT](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
     // 大附魔 鞋
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_SHOES](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
     // 风逝
-    m_player->triggerEffects[TALENT_FENG_SHI](params);
+    m_player->triggerEffects[TRIGGER_FENG_SHI_ADD](params);
 
     // 切玉
-    m_player->triggerEffects[TALENT_QIE_YU](params);
+    m_player->triggerEffects[TRIGGER_QIE_YU](params);
 
     // 长生 持盈
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     // 橙武特效 八荒归元无调息 持续伤害
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
 
     // 橙武特效 持续伤害
-    m_player->triggerEffects[BUFF_WAN_XIANG_GUI_YUAN](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_CW_DOT](params);
 
     // 橙武特效 八荒归元 额外一次伤害
-    m_player->triggerEffects[BUFF_WEAPON_EFFECT_CW_2](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_CW_DAMAGE](params);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 北斗七星阵 游刃
-    m_player->triggerEffects[BUFF_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN](params);
+    m_player->triggerEffects[TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::ResetCooldown()
+void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::ResetCooldown()
 {
     m_cooldown = 16 * 12 + m_effectCooldownAdditional;
 }
 
-void JX3DPS::TaiXuJianYi::BaHuangGuiYuan::ClearCooldown()
+void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::ClearCooldown()
 {
     m_cooldown = 0;
 }
 
-JX3DPS::TaiXuJianYi::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_SAN_HUAN_TAO_YUE;
@@ -458,7 +461,7 @@ JX3DPS::TaiXuJianYi::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player, Target
     }
 }
 
-void JX3DPS::TaiXuJianYi::SanHuanTaoYue::Cast()
+void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
@@ -467,11 +470,11 @@ void JX3DPS::TaiXuJianYi::SanHuanTaoYue::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::SanHuanTaoYue::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::SanHuanTaoYue::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Stop() { }
 
-void JX3DPS::TaiXuJianYi::SanHuanTaoYue::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
 {
     m_player->AddQidian(2);
 
@@ -480,6 +483,7 @@ void JX3DPS::TaiXuJianYi::SanHuanTaoYue::SubEffect()
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     Params params;
+    params.player = m_player;
     params.rollResult = rollResult;
 
     rollResult = GetPhysicsRollResult();
@@ -491,40 +495,40 @@ void JX3DPS::TaiXuJianYi::SanHuanTaoYue::SubEffect()
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     // 环月
-    m_player->triggerEffects[TALENT_HUAN_YUE](params);
+    m_player->triggerEffects[TRIGGER_HUAN_YUE](params);
 
     // 北斗七星阵 游刃
-    m_player->triggerEffects[BUFF_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN](params);
+    m_player->triggerEffects[TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN](params);
 
     // 深埋 会心
-    m_player->triggerEffects[TALENT_SHEN_MAI](params);
+    m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
     // 大附魔 腕
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     // 大附魔 腰
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_BELT](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
     // 大附魔 鞋
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_SHOES](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
     // 风逝
-    m_player->triggerEffects[TALENT_FENG_SHI](params);
+    m_player->triggerEffects[TRIGGER_FENG_SHI_ADD](params);
 
     // 长生 持盈
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     // 橙武特效1 八荒归元无调息 持续伤害
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-JX3DPS::TaiXuJianYi::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id          = SKILL_WAN_JIAN_GUI_ZONG;
@@ -548,7 +552,7 @@ JX3DPS::TaiXuJianYi::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *player, Targ
     }
 }
 
-void JX3DPS::TaiXuJianYi::WanJianGuiZong::Cast()
+void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -557,13 +561,14 @@ void JX3DPS::TaiXuJianYi::WanJianGuiZong::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::WanJianGuiZong::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::WanJianGuiZong::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Stop() { }
 
-void JX3DPS::TaiXuJianYi::WanJianGuiZong::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
 {
     Params params;
+    params.player = m_player;
     int    count = 0;
     for (auto &[id, target] : *m_targets) {
         if (target->GetDistance() > m_range) { // 超出范围
@@ -585,41 +590,41 @@ void JX3DPS::TaiXuJianYi::WanJianGuiZong::SubEffect()
         params.targetId   = id;
 
         // 北斗七星阵 游刃
-        m_player->triggerEffects[BUFF_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN](params);
+        m_player->triggerEffects[TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN](params);
 
         // 深埋 会心
-        m_player->triggerEffects[TALENT_SHEN_MAI](params);
+        m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
         // 大附魔 腕
-        m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+        m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
         // 大附魔 腰
-        m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_BELT](params);
+        m_player->triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
         // 大附魔 鞋
-        m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_SHOES](params);
+        m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
         // 虚极
-        m_player->triggerEffects[TALENT_XU_JI](params);
+        m_player->triggerEffects[TRIGGER_XU_JI](params);
 
         // 镜花影
-        m_player->triggerEffects[TALENT_JING_HUA_YING](params);
+        m_player->triggerEffects[TRIGGER_JING_HUA_YING](params);
 
         // 橙武特效 八荒归元无调息 持续伤害
-        m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+        m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
     }
 
     // 长生 持盈
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-JX3DPS::TaiXuJianYi::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_REN_JIAN_HE_YI;
@@ -655,7 +660,7 @@ JX3DPS::TaiXuJianYi::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targets *t
     }
 }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYi::Cast()
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -664,11 +669,11 @@ void JX3DPS::TaiXuJianYi::RenJianHeYi::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYi::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYi::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Stop() { }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYi::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
 {
     m_player->skills[SKILL_REN_JIAN_HE_YI_TUN_RI_YUE]->SetEnergyCooldownCurrent(m_cooldownCurrent);
     m_player->skills[SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN]->SetEnergyCooldownCurrent(m_cooldownCurrent);
@@ -676,12 +681,13 @@ void JX3DPS::TaiXuJianYi::RenJianHeYi::SubEffect()
     int count = 0;
 
     Params params;
+    params.player = m_player;
 
     for (auto &fid : static_cast<TaiXuJianYi::Player *>(m_player)->fields) {
 
         m_player->buffs[fid]->Clear(PLAYER_ID, 1);
 
-        m_player->triggerEffects[static_cast<Id_t>(fid + BUFF_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
+        m_player->triggerEffects[static_cast<Id_t>(fid + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
 
         count++;
 
@@ -696,22 +702,22 @@ void JX3DPS::TaiXuJianYi::RenJianHeYi::SubEffect()
             params.targetId   = id;
 
             // 深埋 会心
-            m_player->triggerEffects[TALENT_SHEN_MAI](params);
+            m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
             // 大附魔 腕
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
             // 大附魔 腰
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_BELT](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
             // 大附魔 鞋
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_SHOES](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
             // 橙武特效 八荒归元无调息 持续伤害
-            m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+            m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
 
             // 人剑秘籍 dot
-            m_player->triggerEffects[SECRET_REN_JIAN_HE_YI_EFFECT_DOT](params);
+            m_player->triggerEffects[TRIGGER_REN_JIAN_HE_YI_DOT](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
             Record(id, rollResult, damage, 0, 0);
@@ -719,20 +725,20 @@ void JX3DPS::TaiXuJianYi::RenJianHeYi::SubEffect()
     }
 
     // 长生 持盈
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 
     // 玄门
     params.stackNum = count;
-    m_player->triggerEffects[TALENT_XUAN_MEN](params);
+    m_player->triggerEffects[TRIGGER_XUAN_MEN](params);
 }
 
-JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN;
@@ -768,7 +774,7 @@ JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DPS::Play
     }
 }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::Cast()
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -777,11 +783,11 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Stop() { }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
 {
     m_player->skills[SKILL_REN_JIAN_HE_YI]->SetEnergyCooldownCurrent(m_cooldownCurrent);
     m_player->skills[SKILL_REN_JIAN_HE_YI_TUN_RI_YUE]->SetEnergyCooldownCurrent(m_cooldownCurrent);
@@ -789,6 +795,7 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::SubEffect()
     int count = 0;
 
     Params params;
+    params.player = m_player;
 
     for (auto &fid : static_cast<TaiXuJianYi::Player *>(m_player)->fields) {
         if (fid == JX3DPS::BUFF_FIELD_SUI_XING_CHEN) {
@@ -797,7 +804,7 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::SubEffect()
 
         m_player->buffs[fid]->Clear(PLAYER_ID, 1);
 
-        m_player->triggerEffects[static_cast<Id_t>(fid + BUFF_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
+        m_player->triggerEffects[static_cast<Id_t>(fid + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
 
         count++;
 
@@ -812,22 +819,22 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::SubEffect()
             params.targetId   = id;
 
             // 深埋 会心
-            m_player->triggerEffects[TALENT_SHEN_MAI](params);
+            m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
             // 大附魔 腕
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
             // 大附魔 腰
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_BELT](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
             // 大附魔 鞋
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_SHOES](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
             // 橙武特效 八荒归元无调息 持续伤害
-            m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+            m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
 
             // 人剑秘籍 dot
-            m_player->triggerEffects[SECRET_REN_JIAN_HE_YI_EFFECT_DOT](params);
+            m_player->triggerEffects[TRIGGER_REN_JIAN_HE_YI_DOT](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
             Record(id, rollResult, damage, 0, 0);
@@ -835,20 +842,20 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiSuiXingChen::SubEffect()
     }
 
     // 长生 持盈
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 
     // 玄门
     params.stackNum = count;
-    m_player->triggerEffects[TALENT_XUAN_MEN](params);
+    m_player->triggerEffects[TRIGGER_XUAN_MEN](params);
 }
 
-JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_REN_JIAN_HE_YI_TUN_RI_YUE;
@@ -884,7 +891,7 @@ JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Player *pl
     }
 }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::Cast()
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -893,11 +900,11 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Stop() { }
 
-void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
 {
     m_player->skills[SKILL_REN_JIAN_HE_YI]->SetEnergyCooldownCurrent(m_cooldownCurrent);
     m_player->skills[SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN]->SetEnergyCooldownCurrent(m_cooldownCurrent);
@@ -905,6 +912,7 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::SubEffect()
     int count = 0;
 
     Params params;
+    params.player = m_player;
 
     for (auto &fid : static_cast<TaiXuJianYi::Player *>(m_player)->fields) {
         if (fid == JX3DPS::BUFF_FIELD_TUN_RI_YUE) {
@@ -913,7 +921,7 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::SubEffect()
 
         m_player->buffs[fid]->Clear(PLAYER_ID, 1);
 
-        m_player->triggerEffects[static_cast<Id_t>(fid + BUFF_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
+        m_player->triggerEffects[static_cast<Id_t>(fid + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
 
         count++;
 
@@ -928,22 +936,22 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::SubEffect()
             params.targetId   = id;
 
             // 深埋 会心
-            m_player->triggerEffects[TALENT_SHEN_MAI](params);
+            m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
             // 大附魔 腕
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
             // 大附魔 腰
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_BELT](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
             // 大附魔 鞋
-            m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_SHOES](params);
+            m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
             // 橙武特效 八荒归元无调息 持续伤害
-            m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+            m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
 
             // 人剑秘籍 dot
-            m_player->triggerEffects[SECRET_REN_JIAN_HE_YI_EFFECT_DOT](params);
+            m_player->triggerEffects[TRIGGER_REN_JIAN_HE_YI_DOT](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
             Record(id, rollResult, damage, 0, 0);
@@ -951,20 +959,20 @@ void JX3DPS::TaiXuJianYi::RenJianHeYiTunRiYue::SubEffect()
     }
 
     // 长生 持盈
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 
     // 玄门
     params.stackNum = count;
-    m_player->triggerEffects[TALENT_XUAN_MEN](params);
+    m_player->triggerEffects[TRIGGER_XUAN_MEN](params);
 }
 
-JX3DPS::TaiXuJianYi::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id             = SKILL_SAN_CHAI_JIAN_FA;
@@ -978,40 +986,41 @@ JX3DPS::TaiXuJianYi::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player, Target
     m_effectDamageAdditionalPercentInt = 205;
 }
 
-void JX3DPS::TaiXuJianYi::SanChaiJianFa::Cast()
+void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Cast()
 {
     m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::SanChaiJianFa::Trigger() { }
+void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::SanChaiJianFa::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Stop() { }
 
-void JX3DPS::TaiXuJianYi::SanChaiJianFa::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
 {
     RollResult rollResult = GetPhysicsRollResult();
 
     Params params;
+    params.player = m_player;
     params.rollResult = rollResult;
 
     // 深埋 会心
-    m_player->triggerEffects[TALENT_SHEN_MAI](params);
+    m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
     // 橙武特效 八荒归元无调息 持续伤害
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
 
     GainsDamage damage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-JX3DPS::TaiXuJianYi::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id            = SKILL_SUI_XING_CHEN;
@@ -1023,45 +1032,48 @@ JX3DPS::TaiXuJianYi::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targets *t
     m_damageParams[0].emplace_back(0, 0, 0);
 }
 
-void JX3DPS::TaiXuJianYi::SuiXingChen::Cast()
+void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Cast()
 {
-    m_prepareFrames   = m_prepareFrames * m_player->attribute.GetHastePercent();
-    m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
+    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
     *m_globalCooldown =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
-void JX3DPS::TaiXuJianYi::SuiXingChen::Trigger()
+void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Trigger()
 {
-    // 读条结束
-    m_prepareFrames   = JX3DPS_INVALID_FRAMES_SET;
-    m_cooldownCurrent = m_cooldown;
-    m_player->SetLastCastSkill(m_id);
-    m_player->SetCast(false);
-    SubEffect();
+    if (m_prepareFramesCurrent == 0) {
+        // 读条结束
+        m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
+        m_cooldownCurrent      = m_cooldown;
+        m_player->SetLastCastSkill(m_id);
+        m_player->SetCast(false);
+        SubEffect();
+    }
 }
 
-void JX3DPS::TaiXuJianYi::SuiXingChen::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Stop() { }
 
-void JX3DPS::TaiXuJianYi::SuiXingChen::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SubEffect()
 {
     m_player->AddQidian(2);
 
     m_player->buffs[BUFF_FIELD_SUI_XING_CHEN]->Add();
 
     Params params;
+    params.player = m_player;
 
     // 大附魔 腕
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     // 长生
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
-JX3DPS::TaiXuJianYi::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id            = SKILL_SHENG_TAI_JI;
@@ -1090,51 +1102,52 @@ JX3DPS::TaiXuJianYi::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targets *tar
     }
 }
 
-void JX3DPS::TaiXuJianYi::ShengTaiJi::Cast()
+void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Cast()
 {
-    m_prepareFrames   = m_prepareFrames * m_player->attribute.GetHastePercent();
-    m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
+    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
     *m_globalCooldown =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
-void JX3DPS::TaiXuJianYi::ShengTaiJi::Trigger()
+void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Trigger()
 {
-    // 读条结束
-    m_prepareFrames   = JX3DPS_INVALID_FRAMES_SET;
-    m_cooldownCurrent = m_cooldown;
-
-    Params params;
-
-    // 生太极冷却秘籍
-    m_player->triggerEffects[SECRET_SHENG_TAI_JI_EFFECT_COOLDOWN](params);
-
-    m_player->SetLastCastSkill(m_id);
-    m_player->SetCast(false);
-    SubEffect();
+    if (m_prepareFramesCurrent == 0) {
+        // 读条结束
+        m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
+        m_cooldownCurrent      = m_cooldown;
+        m_player->SetLastCastSkill(m_id);
+        m_player->SetCast(false);
+        SubEffect();
+    }
 }
 
-void JX3DPS::TaiXuJianYi::ShengTaiJi::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Stop() { }
 
-void JX3DPS::TaiXuJianYi::ShengTaiJi::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::SubEffect()
 {
+
     m_player->AddQidian(2);
 
     m_player->buffs[BUFF_FIELD_SHENG_TAI_JI]->Add();
 
     Params params;
+    params.player = m_player;
+
+    // 生太极冷却秘籍
+    m_player->triggerEffects[TRIGGER_SHENG_TAI_JI_EFFECT_COOLDOWN](params);
 
     // 大附魔 腕
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     // 长生
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
-JX3DPS::TaiXuJianYi::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id            = SKILL_TUN_RI_YUE;
@@ -1146,45 +1159,48 @@ JX3DPS::TaiXuJianYi::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *targets
     m_damageParams[0].emplace_back(0, 0, 0);
 }
 
-void JX3DPS::TaiXuJianYi::TunRiYue::Cast()
+void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Cast()
 {
-    m_prepareFrames   = m_prepareFrames * m_player->attribute.GetHastePercent();
-    m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
+    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
     *m_globalCooldown =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
-void JX3DPS::TaiXuJianYi::TunRiYue::Trigger()
+void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Trigger()
 {
-    // 读条结束
-    m_prepareFrames   = JX3DPS_INVALID_FRAMES_SET;
-    m_cooldownCurrent = m_cooldown;
-    m_player->SetLastCastSkill(m_id);
-    m_player->SetCast(false);
-    SubEffect();
+    if (m_prepareFramesCurrent == 0) {
+        // 读条结束
+        m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
+        m_cooldownCurrent      = m_cooldown;
+        m_player->SetLastCastSkill(m_id);
+        m_player->SetCast(false);
+        SubEffect();
+    }
 }
 
-void JX3DPS::TaiXuJianYi::TunRiYue::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Stop() { }
 
-void JX3DPS::TaiXuJianYi::TunRiYue::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
 {
     m_player->AddQidian(2);
 
     m_player->buffs[BUFF_FIELD_TUN_RI_YUE]->Add();
 
     Params params;
+    params.player = m_player;
 
     // 大附魔 腕
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     // 长生
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
-JX3DPS::TaiXuJianYi::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id                 = SKILL_ZI_QI_DONG_LAI;
@@ -1203,7 +1219,7 @@ JX3DPS::TaiXuJianYi::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *t
     }
 }
 
-void JX3DPS::TaiXuJianYi::ZiQiDongLai::Cast()
+void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -1213,27 +1229,29 @@ void JX3DPS::TaiXuJianYi::ZiQiDongLai::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::ZiQiDongLai::Trigger()
+void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Trigger()
 {
-    // 冷却结束，充能
-    m_energyCount++;
-    if (m_energyCountCurrent >= m_energyCount) {
-        m_energyCountCurrent = m_energyCount;
-        m_cooldown           = JX3DPS_INVALID_FRAMES_SET;
-    } else {
-        m_cooldownCurrent = m_cooldown;
+    if (m_cooldownCurrent == 0) {
+        // 冷却结束，充能
+        m_energyCount++;
+        if (m_energyCountCurrent >= m_energyCount) {
+            m_energyCountCurrent = m_energyCount;
+            m_cooldownCurrent    = JX3DPS_INVALID_FRAMES_SET;
+        } else {
+            m_cooldownCurrent = m_cooldown;
+        }
     }
 }
 
-void JX3DPS::TaiXuJianYi::ZiQiDongLai::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Stop() { }
 
-void JX3DPS::TaiXuJianYi::ZiQiDongLai::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::SubEffect()
 {
     m_player->buffs[BUFF_ZI_QI_DONG_LAI]->Add();
     Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
-JX3DPS::TaiXuJianYi::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::TaiXuJianYi::Skill::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id                   = SKILL_JING_HUA_YING;
@@ -1248,36 +1266,36 @@ JX3DPS::TaiXuJianYi::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targets *t
     m_damageParams[1].emplace_back(200, 0, 200 * 1.1 * 1.1);
 }
 
-void JX3DPS::TaiXuJianYi::JingHuaYing::Cast()
+void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldown = JX3DPS_INVALID_FRAMES_SET;
+    m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
     *m_globalCooldown =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_prepareFramesCurrent = m_prepareFrames;
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::JingHuaYing::Trigger()
+void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Trigger()
 {
     // 触发 镜花影·碎
-    m_prepareFrames = JX3DPS_INVALID_FRAMES_SET;
+    m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
     SubEffectSui();
 }
 
-void JX3DPS::TaiXuJianYi::JingHuaYing::Stop() { }
+void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Stop() { }
 
-void JX3DPS::TaiXuJianYi::JingHuaYing::TriggerAddJingHuaYing()
+void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::TriggerAddJingHuaYing()
 {
-    m_cooldown = 0;
+    m_cooldownCurrent = 0;
 }
 
-void JX3DPS::TaiXuJianYi::JingHuaYing::TriggerClearJingHuaYing()
+void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::TriggerClearJingHuaYing()
 {
-    m_cooldown = JX3DPS_INVALID_FRAMES_SET;
+    m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
 }
 
-void JX3DPS::TaiXuJianYi::JingHuaYing::SubEffect()
+void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffect()
 {
 
     RollResult  rollResult = GetPhysicsRollResult();
@@ -1285,34 +1303,35 @@ void JX3DPS::TaiXuJianYi::JingHuaYing::SubEffect()
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     Params params;
+    params.player = m_player;
     params.rollResult = rollResult;
 
     // 长生 持盈
-    m_player->triggerEffects[TALENT_CHANG_SHENG](params);
+    m_player->triggerEffects[TRIGGER_CHANG_SHENG](params);
 
     // 深埋 会心
-    m_player->triggerEffects[TALENT_SHEN_MAI](params);
+    m_player->triggerEffects[TRIGGER_SHEN_MAI](params);
 
     // 大附魔 腕
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_WRIST](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     // 大附魔 腰
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_BELT](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
     // 大附魔 鞋
-    m_player->triggerEffects[EQUIP_EFFECT_ENCHANT_SHOES](params);
+    m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
     // 橙武特效 八荒归元无调息 持续伤害
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_CW](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_CW](params);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
-    m_player->triggerEffects[EQUIP_EFFECT_SET_ATTRIBUTE](params);
+    m_player->triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
     // 水特效
-    m_player->triggerEffects[EQUIP_EFFECT_WEAPON_WATER](params);
+    m_player->triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-void JX3DPS::TaiXuJianYi::JingHuaYing::SubEffectSui()
+void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffectSui()
 {
     if (m_targets->find(m_player->GetTargetId()) == m_targets->end()) {
         return;

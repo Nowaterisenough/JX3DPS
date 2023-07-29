@@ -5,8 +5,6 @@ include(GoogleTest)
 
 include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 
-
-
 add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)
 
 add_executable(${PROJECT_NAME} TestJX3DPS.cpp)

@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Skill.cpp
  * Description:
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 02:41:59
+ * Last Modified: 2023-07-29 17:34:56
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -100,10 +100,10 @@ void JX3DPS::Skill::SetTargets(Targets *targets)
 
 JX3DPS::Frame_t JX3DPS::Skill::GetNextKeyFrame() const
 {
-    int energyCount = (m_cooldown * m_energyCount - m_cooldownCurrent) / m_cooldown;
-    int temp        = energyCount > 0 ? 0 : 1;
-    Frame_t frame = (m_cooldownCurrent == m_cooldown * m_energyCount ? m_cooldown : m_cooldownCurrent % m_cooldown);
-    Frame_t nextKeyFrame = std::max(frame * temp, *m_globalCooldown);
+    if (m_energyCountCurrent > 0 && *m_globalCooldown == 0) {
+        return 0;
+    }
+    Frame_t nextKeyFrame = std::max(m_cooldownCurrent, *m_globalCooldown);
     return std::min(nextKeyFrame, m_prepareFramesCurrent);
 }
 
@@ -123,10 +123,10 @@ JX3DPS::Frame_t JX3DPS::Skill::GetTriggerFrame() const
 
 JX3DPS::Frame_t JX3DPS::Skill::GetCooldownCurrent() const
 {
-    int energyCount = (m_cooldown * m_energyCount - m_cooldownCurrent) / m_cooldown;
-    int temp        = energyCount > 0 ? 0 : 1;
-    Frame_t frame = (m_cooldownCurrent == m_cooldown * m_energyCount ? m_cooldown : m_cooldownCurrent % m_cooldown);
-    return std::max(frame * temp, *m_globalCooldown);
+    if (m_energyCountCurrent > 0 && *m_globalCooldown == 0) {
+        return 0;
+    }
+    return std::max(m_cooldownCurrent, *m_globalCooldown);
 }
 
 void JX3DPS::Skill::SetEnergyCooldownCurrent(Frame_t frame)
@@ -136,12 +136,12 @@ void JX3DPS::Skill::SetEnergyCooldownCurrent(Frame_t frame)
 
 JX3DPS::Frame_t JX3DPS::Skill::GetEnergyCooldownCurrent() const
 {
-    return (m_cooldownCurrent == m_cooldown * m_energyCount ? m_cooldown : m_cooldownCurrent % m_cooldown);
+    return m_cooldownCurrent;
 }
 
 int JX3DPS::Skill::GetEnergyCountCurrent() const
 {
-    return (m_cooldown * m_energyCount - m_cooldownCurrent) / m_cooldown;
+    return m_energyCountCurrent;
 }
 
 double JX3DPS::Skill::GetRange() const

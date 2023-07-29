@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Buff.h
  * Description:
  * Created Date: 2023-07-21 08:20:30
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-27 20:46:38
+ * Last Modified: 2023-07-30 00:48:11
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -21,26 +21,27 @@
 #include "Global/Id.h"
 #include "Global/Types.h"
 
-#define BUFF_DEFAULT_FUNCTION(class_name)                 \
-                                                          \
-public:                                                   \
-    class_name(JX3DPS::Player *player, Targets *targets); \
-    class_name(const class_name &other) : Buff(other) { } \
-    ~class_name() { }                                     \
-    class_name &operator=(const class_name &other)        \
-    {                                                     \
-        if (this == &other) {                             \
-            return *this;                                 \
-        }                                                 \
-        JX3DPS::Buff::operator=(other);                   \
-        return *this;                                     \
-    }                                                     \
-    class_name *Clone() const                             \
-    {                                                     \
-        return new class_name(*this);                     \
-    }                                                     \
-    void Trigger() override;                              \
-    void Cast() override;
+#define BUFF_DEFAULT_FUNCTION(class_name)                                                     \
+                                                                                              \
+public:                                                                                       \
+    class_name(JX3DPS::Player *player, Targets *targets);                                     \
+    class_name(const class_name &other) : Buff(other) { }                                     \
+    ~class_name() { }                                                                         \
+    class_name &operator=(const class_name &other)                                            \
+    {                                                                                         \
+        if (this == &other) {                                                                 \
+            return *this;                                                                     \
+        }                                                                                     \
+        JX3DPS::Buff::operator=(other);                                                       \
+        return *this;                                                                         \
+    }                                                                                         \
+    class_name *Clone() const override                                                        \
+    {                                                                                         \
+        return new class_name(*this);                                                         \
+    }                                                                                         \
+    void Trigger() override;                                                                  \
+    void Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax) override; \
+    void Clear(Id_t targetId, int stackNum) override;
 
 namespace JX3DPS {
 
@@ -51,7 +52,7 @@ class Buff
     struct Snapshot
     {
         /* 持续时间 */
-        Frame_t duration = JX3DPS_INVALID_FRAMES_SET;
+        Frame_t duration = 0;
 
         /* 作用间隔 内置cd */
         Frame_t interval = JX3DPS_INVALID_FRAMES_SET;
@@ -156,10 +157,47 @@ public:
     void    UpdateKeyFrame(Frame_t frame);
 
     Frame_t GetDurationCurrent(Id_t targetId = PLAYER_ID) const; // 用于宏条件判定
-    int     GetStackNum(Id_t targetId = PLAYER_ID) const;        // 用于宏条件判定
+    int     GetStackNumCurrent(Id_t targetId = PLAYER_ID) const; // 用于宏条件判定
     double  GetRange() const;                                    // 用于宏条件判定
 
     inline Stats &GetStats() { return m_stats; }
+
+    RollResult GetPhysicsRollResult() const;
+
+    Damage GetPhysicsDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
+
+    GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    RollResult GetDotRollResult(Id_t targetId) const;
+
+    Damage GetPhysicsDotDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        int        effectCount,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
+
+    GainsDamage CalcPhysicsDotDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
+
+    void Record(Id_t               targetId,
+                RollResult         rollResult  = RollResult::HIT,
+                const GainsDamage &gainsDamage = GainsDamage(),
+                int                sub         = 0,
+                int                level       = 0);
 
 protected:
     Player  *m_player  = nullptr;
@@ -183,8 +221,12 @@ protected:
     /* 持续时间 */
     Frame_t m_duration = 0;
 
-    /* 作用间隔 内置cd */
+    /* 作用间隔 */
     Frame_t m_interval = 0;
+
+    /* 内置CD */
+    Frame_t m_cooldown        = 0;
+    Frame_t m_cooldownCurrent = 0;
 
     /* 层数 */
     int m_stackNum = 0;
@@ -209,7 +251,6 @@ protected:
 
     /* 统计 */
     Stats m_stats;
-
 };
 
 } // namespace JX3DPS

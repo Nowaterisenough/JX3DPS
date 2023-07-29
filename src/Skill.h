@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 20:53:53
+ * Last Modified: 2023-07-29 17:52:32
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -74,6 +74,16 @@ public:
     int     GetEnergyCountCurrent() const;           // 用于宏条件判定
     double  GetRange() const;                        // 用于宏条件判定
 
+    inline void AddCriticalStrikeAdditionalBasisPointInt(BPInt_t basisPointInt)
+    {
+        m_effectCriticalStrikeAdditionalBasisPointInt += basisPointInt;
+    }
+
+    inline void AddCriticalStrikePowerAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_effectCriticalStrikePowerAdditionalPercentInt += percentInt;
+    }
+
     inline Stats &GetStats() { return m_stats; }
 
     RollResult GetPhysicsRollResult() const;
@@ -126,7 +136,7 @@ protected:
     Frame_t m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
 
     /* 充能数 */
-    int m_energyCount        = 1;
+    int m_energyCount        = JX3DPS_INVALID_ENERGY_SET;
     int m_energyCountCurrent = JX3DPS_INVALID_ENERGY_SET;
 
     /* 技能会心加成 */
@@ -140,7 +150,7 @@ protected:
 
     /* 技能忽视加成 */
     PctInt_t m_effectShieldIgnoreAdditionalPercentInt = 0;
-    
+
     /* 技能调息加成 */
     Frame_t m_effectCooldownAdditional = 0;
 

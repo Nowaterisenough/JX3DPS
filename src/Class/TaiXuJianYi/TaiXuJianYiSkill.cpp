@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 02:47:25
+ * Last Modified: 2023-07-30 10:44:57
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -230,6 +230,7 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
     m_player->triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
     // 叠刃
+    params.targetId = m_player->GetTargetId();
     m_player->triggerEffects[TRIGGER_DIE_REN](params);
 
     // 深埋 会心
@@ -350,7 +351,7 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
     Record(m_player->GetTargetId(), rollResult, damage, 0, level);
 
     Params params;
-    params.player = m_player;
+    params.player     = m_player;
     params.rollResult = rollResult;
 
     rollResult = GetPhysicsRollResult();
@@ -373,6 +374,7 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
     m_player->triggerEffects[TRIGGER_FENG_SHI_ADD](params);
 
     // 切玉
+    params.targetId = m_player->GetTargetId();
     m_player->triggerEffects[TRIGGER_QIE_YU](params);
 
     // 长生 持盈
@@ -483,7 +485,7 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     Params params;
-    params.player = m_player;
+    params.player     = m_player;
     params.rollResult = rollResult;
 
     rollResult = GetPhysicsRollResult();
@@ -569,7 +571,7 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
 {
     Params params;
     params.player = m_player;
-    int    count = 0;
+    int count     = 0;
     for (auto &[id, target] : *m_targets) {
         if (target->GetDistance() > m_range) { // 超出范围
             continue;
@@ -683,11 +685,13 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
     Params params;
     params.player = m_player;
 
-    for (auto &fid : static_cast<TaiXuJianYi::Player *>(m_player)->fields) {
+    int size = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size();
 
-        m_player->buffs[fid]->Clear(PLAYER_ID, 1);
+    for (int i = 0; i < size; i++) {
+        Id_t f = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
+        m_player->buffs[f]->Clear(PLAYER_ID, 1);
 
-        m_player->triggerEffects[static_cast<Id_t>(fid + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
+        m_player->triggerEffects[static_cast<Id_t>(f + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
 
         count++;
 
@@ -796,15 +800,18 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
 
     Params params;
     params.player = m_player;
+    
+    int size = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size();
 
-    for (auto &fid : static_cast<TaiXuJianYi::Player *>(m_player)->fields) {
-        if (fid == JX3DPS::BUFF_FIELD_SUI_XING_CHEN) {
+    for (int i = 0; i < size; i++) {
+        Id_t f = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
+        if (f == JX3DPS::BUFF_FIELD_SUI_XING_CHEN) {
             continue;
         }
 
-        m_player->buffs[fid]->Clear(PLAYER_ID, 1);
+        m_player->buffs[f]->Clear(PLAYER_ID, 1);
 
-        m_player->triggerEffects[static_cast<Id_t>(fid + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
+        m_player->triggerEffects[static_cast<Id_t>(f + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
 
         count++;
 
@@ -914,14 +921,17 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
     Params params;
     params.player = m_player;
 
-    for (auto &fid : static_cast<TaiXuJianYi::Player *>(m_player)->fields) {
-        if (fid == JX3DPS::BUFF_FIELD_TUN_RI_YUE) {
+    int size = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size();
+
+    for (int i = 0; i < size; i++) {
+        Id_t f = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
+        if (f == JX3DPS::BUFF_FIELD_SUI_XING_CHEN) {
             continue;
         }
 
-        m_player->buffs[fid]->Clear(PLAYER_ID, 1);
+        m_player->buffs[f]->Clear(PLAYER_ID, 1);
 
-        m_player->triggerEffects[static_cast<Id_t>(fid + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
+        m_player->triggerEffects[static_cast<Id_t>(f + TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN - BUFF_FIELD_SUI_XING_CHEN)](params);
 
         count++;
 
@@ -1001,7 +1011,7 @@ void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
     RollResult rollResult = GetPhysicsRollResult();
 
     Params params;
-    params.player = m_player;
+    params.player     = m_player;
     params.rollResult = rollResult;
 
     // 深埋 会心
@@ -1303,7 +1313,7 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffect()
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     Params params;
-    params.player = m_player;
+    params.player     = m_player;
     params.rollResult = rollResult;
 
     // 长生 持盈

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 02:51:04
+ * Last Modified: 2023-07-30 10:50:44
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -54,7 +54,7 @@ void Player::Init()
     buffs.emplace(BUFF_FIELD_SUI_XING_CHEN,
                   static_cast<JX3DPS::Buff *>(new Buff::FieldSuiXingChen(this, nullptr)));
     buffs.emplace(BUFF_FIELD_SHENG_TAI_JI, static_cast<JX3DPS::Buff *>(new Buff::FieldShengTaiJi(this, nullptr)));
-    buffs.emplace(BUFF_FIELD_SHENG_TAI_JI, static_cast<JX3DPS::Buff *>(new Buff::FieldTunRiYue(this, nullptr)));
+    buffs.emplace(BUFF_FIELD_TUN_RI_YUE, static_cast<JX3DPS::Buff *>(new Buff::FieldTunRiYue(this, nullptr)));
     buffs.emplace(BUFF_SUI_XING_CHEN, static_cast<JX3DPS::Buff *>(new Buff::SuiXingChen(this, nullptr)));
     buffs.emplace(BUFF_TUN_RI_YUE, static_cast<JX3DPS::Buff *>(new Buff::TunRiYue(this, nullptr)));
     buffs.emplace(BUFF_CLASS_FEATURE, static_cast<JX3DPS::Buff *>(new Buff::ClassFeatureRongJin(this, nullptr)));
@@ -92,21 +92,6 @@ void Player::Init()
         triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_SHENG_TAI_JI, std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
-    if (secrets[SECRET_REN_JIAN_HE_YI_EFFECT_YUN_ZHONG_JIAN]) {
-        buffs.emplace(BUFF_YUN_ZHONG_JIAN_SUI_XING_CHEN,
-                      static_cast<JX3DPS::Buff *>(new Buff::YunZhongJianSuiXingChen(this, nullptr)));
-        buffs.emplace(BUFF_YUN_ZHONG_JIAN_TUN_RI_YUE,
-                      static_cast<JX3DPS::Buff *>(new Buff::YunZhongJianTunRiYue(this, nullptr)));
-        triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN,
-                               std::bind(&TriggerYunZhongJianSuiXingChen, std::placeholders::_1));
-        triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_TUN_RI_YUE,
-                               std::bind(&TriggerYunZhongJianTunRiYue, std::placeholders::_1));
-    } else {
-        triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN,
-                               std::bind(&TriggerVoid, std::placeholders::_1));
-        triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_TUN_RI_YUE, std::bind(&TriggerVoid, std::placeholders::_1));
-    }
-
     if (talents[TALENT_JING_HUA_YING]) {
         buffs.emplace(BUFF_JING_HUA_YING, static_cast<JX3DPS::Buff *>(new Buff::JingHuaYing(this, nullptr)));
         triggerEffects.emplace(TRIGGER_JING_HUA_YING, std::bind(&TriggerJingHuaYing, std::placeholders::_1));
@@ -127,6 +112,12 @@ void Player::Init()
         triggerEffects.emplace(TRIGGER_DIE_REN, std::bind(&TriggerDieRen, std::placeholders::_1));
     } else {
         triggerEffects.emplace(TRIGGER_DIE_REN, std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
+    if (talents[TALENT_QIE_YU]) {
+        triggerEffects.emplace(TRIGGER_QIE_YU, std::bind(&TriggerQieYu, std::placeholders::_1));
+    } else {
+        triggerEffects.emplace(TRIGGER_QIE_YU, std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
     if (talents[TALENT_CHANG_SHENG]) {
@@ -156,6 +147,14 @@ void Player::Init()
         triggerEffects.emplace(TRIGGER_WU_YU, std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
+    if (talents[TALENT_QI_SHENG]) {
+        triggerEffects.emplace(TRIGGER_FIELD_QI_SHENG, std::bind(&TriggerFieldQiSheng, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_QI_SHENG, std::bind(&TriggerQiSheng, std::placeholders::_1));
+    } else {
+        triggerEffects.emplace(TRIGGER_FIELD_QI_SHENG, std::bind(&TriggerVoid, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_QI_SHENG, std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
     if (talents[TALENT_XU_JI]) {
         triggerEffects.emplace(TRIGGER_XU_JI, std::bind(&TriggerXuJi, std::placeholders::_1));
     } else {
@@ -169,10 +168,38 @@ void Player::Init()
         triggerEffects.emplace(TRIGGER_XUAN_MEN, std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
+    if (secrets[SECRET_REN_JIAN_HE_YI_EFFECT_YUN_ZHONG_JIAN]) {
+        buffs.emplace(BUFF_YUN_ZHONG_JIAN_SUI_XING_CHEN,
+                      static_cast<JX3DPS::Buff *>(new Buff::YunZhongJianSuiXingChen(this, nullptr)));
+        buffs.emplace(BUFF_YUN_ZHONG_JIAN_TUN_RI_YUE,
+                      static_cast<JX3DPS::Buff *>(new Buff::YunZhongJianTunRiYue(this, nullptr)));
+        triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN,
+                               std::bind(&TriggerYunZhongJianSuiXingChen, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_TUN_RI_YUE,
+                               std::bind(&TriggerYunZhongJianTunRiYue, std::placeholders::_1));
+    } else {
+        triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_SUI_XING_CHEN,
+                               std::bind(&TriggerVoid, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_TUN_RI_YUE, std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
+    if (secrets[SECRET_REN_JIAN_HE_YI_EFFECT_DOT]) {
+        buffs.emplace(BUFF_REN_JIAN_HE_YI, static_cast<JX3DPS::Buff *>(new Buff::RenJianHeYi(this, nullptr)));
+        triggerEffects.emplace(TRIGGER_REN_JIAN_HE_YI_DOT,
+                               std::bind(&TriggerRenJianHeYiDot, std::placeholders::_1));
+    } else {
+        triggerEffects.emplace(TRIGGER_REN_JIAN_HE_YI_DOT, std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
     if (equipEffects[EQUIP_EFFECT_WEAPON_CW]) {
+        buffs.emplace(BUFF_WEAPON_EFFECT_CW, static_cast<JX3DPS::Buff *>(new Buff::WeaponEffectCW1(this, nullptr)));
         triggerEffects.emplace(TRIGGER_WEAPON_CW, std::bind(&TriggerVoid, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_WEAPON_CW_DOT, std::bind(&TriggerVoid, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_WEAPON_CW_DAMAGE, std::bind(&TriggerVoid, std::placeholders::_1));
     } else {
         triggerEffects.emplace(TRIGGER_WEAPON_CW, std::bind(&TriggerVoid, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_WEAPON_CW_DOT, std::bind(&TriggerVoid, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_WEAPON_CW_DAMAGE, std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
     if (equipEffects[EQUIP_EFFECT_WEAPON_WATER]) {
@@ -206,9 +233,11 @@ void Player::Init()
     }
 
     if (teamCore == ClassType::TAI_XU_JIAN_YI) {
-        triggerEffects.emplace(TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN, std::bind(&TriggerVoid, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN,
+                               std::bind(&TriggerVoid, std::placeholders::_1));
     } else {
-        triggerEffects.emplace(TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN, std::bind(&TriggerVoid, std::placeholders::_1));
+        triggerEffects.emplace(TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN,
+                               std::bind(&TriggerVoid, std::placeholders::_1));
     }
 }
 

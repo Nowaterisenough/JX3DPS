@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Regex.cpp
  * Description:
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 12:27:48
+ * Last Modified: 2023-07-30 10:14:06
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -799,11 +799,11 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToTotalFrames(const std::list<std::string> &
             return JX3DPS_ERROR_INVALID_EXPRESSION_EVENT;
         }
 
-        std::string temp = std::string("/") + mat[2].str() + " " + mat[3].str();
+        std::string temp = std::string("/") + mat[2].str();
 
-        std::regex  regAddbuff(JX3DPS_REGEX_EXPRESSION_EVENT_END);
-        std::smatch matAddbuff;
-        if (!std::regex_match(temp, matAddbuff, regAddbuff)) {
+        std::regex  regEnd(JX3DPS_REGEX_EXPRESSION_EVENT_END);
+        std::smatch matEnd;
+        if (!std::regex_match(temp, matEnd, regEnd)) {
             continue;
         }
 

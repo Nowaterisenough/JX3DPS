@@ -1,19 +1,17 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: TestJX3DPS.cpp
- * Description: 
+ * Description:
  * Created Date: 2023-07-27 20:53:06
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 11:11:02
+ * Last Modified: 2023-07-30 12:17:25
  * Modified By: 难为水
  * -----
  * CHANGELOG:
  * Date      	By     	Comments
  * ----------	-------	----------------------------------------------------------
  */
-
-
 
 #include <fstream>
 
@@ -25,11 +23,11 @@
 int TestJX3DPSTaiXuJianYi()
 {
     nlohmann::ordered_json json;
-    std::ifstream  ifs("TestTaiXuJianYi.json");
+    std::ifstream          ifs("TestTaiXuJianYi.json");
     ifs >> json;
     ifs.close();
 
-    char *buffer = new char[1024 * 1024 * 1024];
+    char *buffer = new char[1024 * 1024]();
 
     int err = JX3DPSSimulate(json.dump().c_str(), buffer, nullptr, nullptr);
 

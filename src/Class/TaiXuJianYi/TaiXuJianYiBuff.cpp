@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 02:31:42
+ * Last Modified: 2023-07-30 10:37:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -177,6 +177,7 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffectAdd(Id_t targetId)
 {
     // 裂云
     Params params;
+    params.player = m_player;
     m_player->triggerEffects[TRIGGER_LIE_YUN](params);
 }
 
@@ -184,6 +185,7 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffectClear(Id_t targetId)
 {
     // 裂云
     Params params;
+    params.player = m_player;
     m_player->triggerEffects[TRIGGER_LIE_YUN](params);
 }
 
@@ -588,17 +590,19 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::SubEffect()
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::SubEffectAdd(int stackNum)
 {
     Params params;
+    params.player   = m_player;
     params.stackNum = stackNum;
     params.type     = Params::Type::ADD;
-    //m_player->triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
+    // m_player->triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::SubEffectClear(int stackNum)
 {
     Params params;
+    params.player   = m_player;
     params.stackNum = stackNum;
     params.type     = Params::Type::CLEAR;
-    //m_player->triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
+    // m_player->triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
 }
 
 JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::FieldShengTaiJi(JX3DPS::Player *player, Targets *targets) :
@@ -712,6 +716,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::TriggerAdd(int stackNum)
 void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::SubEffect()
 {
     Params params;
+    params.player   = m_player;
     params.stackNum = 1;
     params.type     = Params::Type::ADD;
     m_player->triggerEffects[TRIGGER_QI_SHENG](params);
@@ -720,6 +725,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::SubEffect()
 void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::SubEffectAdd(int stackNum)
 {
     Params params;
+    params.player   = m_player;
     params.stackNum = stackNum;
     params.type     = Params::Type::ADD;
     m_player->triggerEffects[TRIGGER_QI_SHENG](params);
@@ -952,7 +958,8 @@ void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SubEffectAdd()
 
     // 故长
     Params params;
-    params.type = Params::Type::ADD;
+    params.player = m_player;
+    params.type   = Params::Type::ADD;
     m_player->triggerEffects[TRIGGER_GU_CHANG](params);
 }
 
@@ -963,7 +970,8 @@ void JX3DPS::TaiXuJianYi::Buff::SuiXingChen::SubEffectClear()
 
     // 故长
     Params params;
-    params.type = Params::Type::CLEAR;
+    params.player = m_player;
+    params.type   = Params::Type::CLEAR;
     m_player->triggerEffects[TRIGGER_GU_CHANG](params);
 }
 
@@ -1404,6 +1412,7 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianShengTaiJi::SubEffect()
             RollResult rollResult = GetPhysicsRollResult();
 
             Params params;
+            params.player     = m_player;
             params.rollResult = rollResult;
 
             // 大附魔 腕
@@ -1482,6 +1491,7 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianSuiXingChen::SubEffect()
             RollResult rollResult = GetPhysicsRollResult();
 
             Params params;
+            params.player     = m_player;
             params.rollResult = rollResult;
 
             // 大附魔 腕
@@ -1559,6 +1569,7 @@ void JX3DPS::TaiXuJianYi::Buff::YunZhongJianTunRiYue::SubEffect()
             RollResult rollResult = GetPhysicsRollResult();
 
             Params params;
+            params.player     = m_player;
             params.rollResult = rollResult;
 
             // 大附魔 腕

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-29 17:34:56
+ * Last Modified: 2023-07-30 09:53:33
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -24,7 +24,7 @@ JX3DPS::Skill::Skill(Player *player, Targets *targets)
 {
     this->m_player   = player;
     this->m_targets  = targets;
-    m_globalCooldown = &(player->globalCooldown);
+    m_globalCooldown = &(player->globalCooldownCurrent);
 }
 
 JX3DPS::Skill::~Skill() { }

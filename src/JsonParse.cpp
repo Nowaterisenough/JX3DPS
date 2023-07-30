@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Json.cpp
  * Description:
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 12:18:15
+ * Last Modified: 2023-07-30 12:13:15
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -215,6 +215,7 @@ JX3DPS::Error_t JX3DPS::StatsToJson(const Stats &stats, nlohmann::ordered_json &
     for (auto &[type, damageStats] : stats.gainStats) {
         nlohmann::ordered_json j;
         DamageStatsToJson(damageStats, j);
+        //spdlog::info("{}", j.dump());
         json[Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))] = j;
     }
     return JX3DPS_SUCCESS;

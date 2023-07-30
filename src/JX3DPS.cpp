@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: JX3DPS.cpp
  * Description:
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 12:44:00
+ * Last Modified: 2023-07-30 12:12:39
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -294,15 +294,22 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
         return err;
     }
 
-    strcpy_s(out, jsonOut.dump().size(), jsonOut.dump().c_str());
-
-    spdlog::debug("Output: {}", out);
-
     auto end = std::chrono::steady_clock::now();
 
     std::chrono::duration<double> elapsed = end - start;
     spdlog::info("Simulation finished.");
     spdlog::info("Total time: {:.8f} s", elapsed.count());
+    
+    //spdlog::info("{}", jsonOut.dump().c_str());
+    strcpy(out, jsonOut.dump().data());
+
+    spdlog::debug("Output: {}", out);
+
+    // auto end = std::chrono::steady_clock::now();
+
+    // std::chrono::duration<double> elapsed = end - start;
+    // spdlog::info("Simulation finished.");
+    // spdlog::info("Total time: {:.8f} s", elapsed.count());
 
     return JX3DPS::JX3DPS_SUCCESS;
 }

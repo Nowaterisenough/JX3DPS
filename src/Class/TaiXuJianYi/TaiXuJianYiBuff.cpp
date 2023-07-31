@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 10:37:56
+ * Last Modified: 2023-08-01 02:04:13
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -616,15 +616,15 @@ JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::FieldShengTaiJi(JX3DPS::Player *play
 
     m_damageParams[0].emplace_back(0, 0, 0);
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_RANG_1]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_RANG_1]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_RANG_2]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_RANG_2]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_RANG_3]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_RANG_3]) {
         m_range += 1;
     }
 }

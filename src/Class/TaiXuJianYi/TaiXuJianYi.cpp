@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 10:50:44
+ * Last Modified: 2023-08-01 02:04:15
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -168,7 +168,7 @@ void Player::Init()
         triggerEffects.emplace(TRIGGER_XUAN_MEN, std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
-    if (secrets[SECRET_REN_JIAN_HE_YI_EFFECT_YUN_ZHONG_JIAN]) {
+    if (recipes[RECIPE_REN_JIAN_HE_YI_EFFECT_YUN_ZHONG_JIAN]) {
         buffs.emplace(BUFF_YUN_ZHONG_JIAN_SUI_XING_CHEN,
                       static_cast<JX3DPS::Buff *>(new Buff::YunZhongJianSuiXingChen(this, nullptr)));
         buffs.emplace(BUFF_YUN_ZHONG_JIAN_TUN_RI_YUE,
@@ -183,7 +183,7 @@ void Player::Init()
         triggerEffects.emplace(TRIGGER_YUN_ZHONG_JIAN_TUN_RI_YUE, std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
-    if (secrets[SECRET_REN_JIAN_HE_YI_EFFECT_DOT]) {
+    if (recipes[RECIPE_REN_JIAN_HE_YI_EFFECT_DOT]) {
         buffs.emplace(BUFF_REN_JIAN_HE_YI, static_cast<JX3DPS::Buff *>(new Buff::RenJianHeYi(this, nullptr)));
         triggerEffects.emplace(TRIGGER_REN_JIAN_HE_YI_DOT,
                                std::bind(&TriggerRenJianHeYiDot, std::placeholders::_1));

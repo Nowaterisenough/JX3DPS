@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 12:13:15
+ * Last Modified: 2023-08-01 02:05:24
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -112,13 +112,13 @@ JX3DPS::Error_t JX3DPS::ParseJsonToTalents(const nlohmann::ordered_json &json, T
     return JX3DPS_SUCCESS;
 }
 
-JX3DPS::Error_t JX3DPS::ParseJsonToSecrets(const nlohmann::ordered_json &json, Secrets &secrets)
+JX3DPS::Error_t JX3DPS::ParseJsonToRecipes(const nlohmann::ordered_json &json, Recipes &recipes)
 {
     try {
-        for (auto &[key, value] : json.at("Secrets").items()) {
+        for (auto &[key, value] : json.at("Recipes").items()) {
             for (auto &secret : value) {
                 std::string secretName        = secret.get<std::string>();
-                secrets[SecretId(secretName)] = true;
+                recipes[RecipeId(secretName)] = true;
             }
         }
     } catch (const std::exception &e) {

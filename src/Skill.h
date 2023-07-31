@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-29 17:52:32
+ * Last Modified: 2023-07-31 23:55:03
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -39,8 +39,7 @@ public:                                                            \
         return new class_name(*this);                              \
     }                                                              \
     void Trigger() override;                                       \
-    void Cast() override;                                          \
-    void Stop() override;
+    void Cast() override;
 
 namespace JX3DPS {
 
@@ -58,7 +57,8 @@ public:
     virtual Skill *Clone() const = 0;
     virtual void   Trigger()     = 0;
     virtual void   Cast()        = 0;
-    virtual void   Stop()        = 0;
+
+    virtual void Stop(){};
 
     void SetPlayer(Player *player);
     void SetTargets(Targets *targets);
@@ -100,6 +100,20 @@ public:
         Value_t    strain);
 
     GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    RollResult GetMagicRollResult() const;
+
+    Damage GetMagicDamage(Id_t       targetId,
+                          RollResult rollResult,
+                          int        sub,
+                          int        level,
+                          Value_t    attack,
+                          Value_t    weaponDamage,
+                          Value_t    criticalStrikePower,
+                          Value_t    overcome,
+                          Value_t    strain);
+
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
     void Record(Id_t               targetId,
                 RollResult         rollResult  = RollResult::HIT,

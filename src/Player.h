@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 02:42:32
+ * Last Modified: 2023-08-01 02:04:58
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -176,7 +176,7 @@ public:
     ClassType teamCore = ClassType::DEFAULT;
 
     Talents        talents;        // 奇穴列表
-    Secrets        secrets;        // 秘籍列表
+    Recipes        recipes;        // 秘籍列表
     Skills         skills;         // 技能列表
     Buffs          buffs;          // Buff列表
     EquipEffects   equipEffects;   // 装备效果列表

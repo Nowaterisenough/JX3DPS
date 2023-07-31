@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 02:46:10
+ * Last Modified: 2023-08-01 02:04:18
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -81,11 +81,11 @@ JX3DPS::Player::Player(const Player &other)
     for (auto &[id, talent] : other.talents) {
         talents.emplace(id, talent);
     }
-    for (auto &[id, secret] : other.secrets) {
-        secrets.emplace(id, secret);
+    for (auto &[id, secret] : other.recipes) {
+        recipes.emplace(id, secret);
     }
     for (auto &[id, equipEffect] : other.equipEffects) {
-        secrets.emplace(id, equipEffect);
+        recipes.emplace(id, equipEffect);
     }
 }
 
@@ -138,11 +138,11 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
     for (auto &[id, talent] : other.talents) {
         talents.emplace(id, talent);
     }
-    for (auto &[id, secret] : other.secrets) {
-        secrets.emplace(id, secret);
+    for (auto &[id, secret] : other.recipes) {
+        recipes.emplace(id, secret);
     }
     for (auto &[id, equipEffect] : other.equipEffects) {
-        secrets.emplace(id, equipEffect);
+        recipes.emplace(id, equipEffect);
     }
 
     return *this;

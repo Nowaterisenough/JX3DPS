@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:40:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-29 17:31:31
+ * Last Modified: 2023-08-01 02:04:58
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -197,7 +197,7 @@ using Buffs = std::unordered_map<Id_t, Buff *>;
 using Talents = std::unordered_map<Id_t, bool>;
 
 /* 秘籍 */
-using Secrets = std::unordered_map<Id_t, bool>;
+using Recipes = std::unordered_map<Id_t, bool>;
 
 /* 装备效果 */
 using EquipEffects = std::unordered_map<Id_t, bool>;

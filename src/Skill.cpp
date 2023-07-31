@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 09:53:33
+ * Last Modified: 2023-07-31 23:56:40
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -237,6 +237,101 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsDamage(Id_t targetId, RollResult r
             m_player->attribute.GetWeaponDamage(),
             m_player->attribute.GetPhysicsCriticalStrikePower(),
             m_player->attribute.GetPhysicsOvercome(),
+            m_player->attribute.GetStrainBase());
+        this->m_player->attribute.SetGainSwitch(type, false);
+    }
+
+    return gainsDamage;
+}
+
+JX3DPS::RollResult JX3DPS::Skill::GetMagicRollResult() const
+{
+    return RandomUniform(0.0, 1.0) < m_player->attribute.GetMagicCriticalStrikePercent() +
+                                         m_effectCriticalStrikeAdditionalBasisPointInt / JX3_BASIS_POINT_INT_BASE
+               ? RollResult::DOUBLE
+               : RollResult::HIT;
+}
+
+JX3DPS::Damage JX3DPS::Skill::GetMagicDamage(
+    Id_t       targetId,
+    RollResult rollResult,
+    int        sub,
+    int        level,
+    Value_t    attack,
+    Value_t    weaponDamage,
+    Value_t    criticalStrikePower,
+    Value_t    overcome,
+    Value_t    strain)
+{
+    Damage damage;
+
+    PctFloat_t magicDamageCoefficient =
+        MagicDamageCoefficient(m_damageParams.at(sub)[level].attackDamagePercentInt, 0);
+    PctInt_t weaponDamageCoefficientInt = m_damageParams.at(sub)[level].weaponDamagePercentInt;
+    Value_t  fixedDamage                = m_damageParams.at(sub)[level].fixedDamage;
+    PctInt_t effectDamageAdditionalPercentInt =
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt;
+    Value_t effectDamage =
+        EffectDamageAll(attack, magicDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
+
+    int      playerLevel                      = JX3_PLAYER_LEVEL;
+    int      targetLevel                      = (*m_targets)[targetId]->GetLevel();
+    Value_t  shieldBase                       = (*m_targets)[targetId]->GetMagicShield();
+    Value_t  shieldAdditional                 = 0;
+    PctInt_t ignoreShieldBasePercentInt       = m_player->attribute.GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
+    int      rollResultInt                    = static_cast<int>(rollResult);
+    PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
+        (m_effectCriticalStrikePowerAdditionalPercentInt +
+         m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt());
+    PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
+    PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
+    PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    damage.damage = FinalMagicDamage(
+        playerLevel,
+        targetLevel,
+        effectDamage,
+        shieldBase,
+        shieldAdditional,
+        ignoreShieldBasePercentInt,
+        ignoreShieldAdditionalPercentInt,
+        overcome,
+        rollResultInt,
+        criticalStrikePower,
+        effectCriticalStrikePowerAdditionalPercentInt,
+        strain,
+        strainPercentInt,
+        pveDamageAdditionalPercentInt,
+        vulnerablePercentInt);
+
+    return damage;
+}
+
+JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub, int level)
+{
+    GainsDamage gainsDamage;
+
+    std::array<Attribute::Type, 6> types = {
+        {{ Attribute::Type::DEFAULT },
+         { Attribute::Type::WEAPON_DAMAGE_BASE },
+         { Attribute::Type::ATTACK_POWER_BASE },
+         { Attribute::Type::CRITICAL_STRIKE_POWER },
+         { Attribute::Type::OVERCOME_BASE },
+         { Attribute::Type::STRAIN_BASE }}
+    };
+
+    for (const auto &type : types) {
+        this->m_player->attribute.SetGainSwitch(type, true);
+        gainsDamage[type] = GetMagicDamage(
+            targetId,
+            rollResult,
+            sub,
+            level,
+            m_player->attribute.GetMagicAttackPower(),
+            m_player->attribute.GetWeaponDamage(),
+            m_player->attribute.GetMagicCriticalStrikePower(),
+            m_player->attribute.GetMagicOvercome(),
             m_player->attribute.GetStrainBase());
         this->m_player->attribute.SetGainSwitch(type, false);
     }

@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Json.h
  * Description:
  * Created Date: 2023-06-18 18:59:53
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 11:06:06
+ * Last Modified: 2023-08-01 02:04:58
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -37,7 +37,7 @@ Error_t ParseJsonToTotalFrames(const nlohmann::ordered_json &json, Frame_t &tota
 
 Error_t ParseJsonToTalents(const nlohmann::ordered_json &json, Talents &talents);
 
-Error_t ParseJsonToSecrets(const nlohmann::ordered_json &json, Secrets &secrets);
+Error_t ParseJsonToRecipes(const nlohmann::ordered_json &json, Recipes &recipes);
 
 Error_t ParseJsonToEquipEffects(const nlohmann::ordered_json &json, EquipEffects &equipEffects);
 

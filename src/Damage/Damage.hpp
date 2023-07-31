@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Damge.h
  * Description:
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-27 21:22:55
+ * Last Modified: 2023-07-31 23:53:33
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -261,6 +261,36 @@ inline Value_t FinalPhysicsDamage(
         PhysicsOvercomeDamage(damage, shieldPercentInt, overcome, playerLevel, targetLevel);
     Value_t rollDamage =
         RollDamage(physicsOvercomeDamage, rollResult, criticalStrikePower, effectCriticalStrikePowerPercentInt, playerLevel);
+    Value_t levelDamage  = LevelDamage(rollDamage, targetLevel);
+    Value_t strainDamage = StrainDamage(levelDamage, strain, strainPercentInt, playerLevel);
+    Value_t classDamage  = PVEDamage(strainDamage, pveDamageAdditionalPercentInt);
+    return VulnerableDamage(classDamage, vulnerablePercentInt);
+}
+
+inline Value_t FinalMagicDamage(
+    int      playerLevel,
+    int      targetLevel,
+    Value_t  damage,
+    Value_t  shieldBase,
+    Value_t  shieldAdditional,
+    PctInt_t ignoreShieldBasePercentInt,
+    PctInt_t ignoreShieldAdditionalPercentInt,
+    Value_t  overcome,
+    int      rollResult,
+    Value_t  criticalStrikePower,
+    PctInt_t effectCriticalStrikePowerPercentInt,
+    Value_t  strain,
+    PctInt_t strainPercentInt,
+    PctInt_t pveDamageAdditionalPercentInt,
+    PctInt_t vulnerablePercentInt)
+{
+
+    PctInt_t shieldPercentInt =
+        ShieldPercentInt(shieldBase, shieldAdditional, ignoreShieldBasePercentInt, ignoreShieldAdditionalPercentInt);
+    Value_t magicOvercomeDamage =
+        MagicOvercomeDamage(damage, shieldPercentInt, overcome, playerLevel, targetLevel);
+    Value_t rollDamage =
+        RollDamage(magicOvercomeDamage, rollResult, criticalStrikePower, effectCriticalStrikePowerPercentInt, playerLevel);
     Value_t levelDamage  = LevelDamage(rollDamage, targetLevel);
     Value_t strainDamage = StrainDamage(levelDamage, strain, strainPercentInt, playerLevel);
     Value_t classDamage  = PVEDamage(strainDamage, pveDamageAdditionalPercentInt);

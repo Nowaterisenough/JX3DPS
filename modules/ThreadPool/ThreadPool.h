@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @Description : 
  * @Author      : NoWats
  * @Date        : 2023-04-08 02:23:52
@@ -151,9 +151,9 @@ public:
     /**
      * @brief 线程数量
      * @param {*}
-     * @return {int}
+     * @return {size_t}
      */
-    int GetThreadCount()
+    size_t GetThreadCount()
     {
         return m_pool.size();
     }

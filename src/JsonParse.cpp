@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 02:05:24
+ * Last Modified: 2023-08-02 00:56:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -215,7 +215,7 @@ JX3DPS::Error_t JX3DPS::StatsToJson(const Stats &stats, nlohmann::ordered_json &
     for (auto &[type, damageStats] : stats.gainStats) {
         nlohmann::ordered_json j;
         DamageStatsToJson(damageStats, j);
-        //spdlog::info("{}", j.dump());
+        // spdlog::info("{}", j.dump());
         json[Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))] = j;
     }
     return JX3DPS_SUCCESS;
@@ -234,14 +234,18 @@ JX3DPS::Error_t JX3DPS::DamageStatsToJson(const DamageStats &damageStats, nlohma
                         auto &[count, damage] = item;
 
                         std::string_view name = JX3DPS_NAME.at(effectId);
-                        std::string_view targetName = std::string("目标").append(std::to_string(targetId));
+                        std::string_view targetName =
+                            std::string("目标").append(std::to_string(targetId));
                         std::string_view subName = std::string("词缀").append(std::to_string(sub));
-                        std::string_view levelName = std::string("强度").append(std::to_string(level));
+                        std::string_view levelName =
+                            std::string("强度").append(std::to_string(level));
                         std::string_view rollName = ROLL_NAME.at(static_cast<int>(rollResult));
 
                         json[targetName][name][subName][levelName][rollName]["数目"] = count;
-                        json[targetName][name][subName][levelName][rollName]["伤害"] = damage.damage;
-                        json[targetName][name][subName][levelName][rollName]["破招伤害"] = damage.surplusDamage;
+                        json[targetName][name][subName][levelName][rollName]["伤害"] =
+                            damage.damage;
+                        json[targetName][name][subName][levelName][rollName]["破招伤害"] =
+                            damage.surplusDamage;
                     }
                 }
             }

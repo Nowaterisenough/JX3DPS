@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-31 23:56:40
+ * Last Modified: 2023-08-02 00:56:46
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -46,7 +46,7 @@ JX3DPS::Skill::Skill(const Skill &other)
     m_stats                  = other.m_stats;
     m_effectCriticalStrikeAdditionalBasisPointInt = other.m_effectCriticalStrikeAdditionalBasisPointInt;
     m_effectCriticalStrikePowerAdditionalPercentInt = other.m_effectCriticalStrikePowerAdditionalPercentInt;
-    m_effectDamageAdditionalPercentInt       = other.m_effectDamageAdditionalPercentInt;
+    m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
 
     if (other.m_globalCooldown == &(other.m_noneGlobalCooldown)) {
@@ -75,7 +75,7 @@ JX3DPS::Skill &JX3DPS::Skill::operator=(const Skill &other)
     m_stats                  = other.m_stats;
     m_effectCriticalStrikeAdditionalBasisPointInt = other.m_effectCriticalStrikeAdditionalBasisPointInt;
     m_effectCriticalStrikePowerAdditionalPercentInt = other.m_effectCriticalStrikePowerAdditionalPercentInt;
-    m_effectDamageAdditionalPercentInt       = other.m_effectDamageAdditionalPercentInt;
+    m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
 
     if (other.m_globalCooldown == &(other.m_noneGlobalCooldown)) {
@@ -173,17 +173,17 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsDamage(
     PctFloat_t physicsDamageCoefficient =
         PhysicsDamageCoefficient(m_damageParams.at(sub)[level].attackDamagePercentInt, 0);
     PctInt_t weaponDamageCoefficientInt = m_damageParams.at(sub)[level].weaponDamagePercentInt;
-    Value_t  fixedDamage                = m_damageParams.at(sub)[level].fixedDamage;
+    Value_t  fixedDamage = m_damageParams.at(sub)[level].fixedDamage;
     PctInt_t effectDamageAdditionalPercentInt =
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt;
     Value_t effectDamage =
         EffectDamageAll(attack, physicsDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
 
-    int      playerLevel                      = JX3_PLAYER_LEVEL;
-    int      targetLevel                      = (*m_targets)[targetId]->GetLevel();
-    Value_t  shieldBase                       = (*m_targets)[targetId]->GetPhysicsShield();
-    Value_t  shieldAdditional                 = 0;
-    PctInt_t ignoreShieldBasePercentInt       = m_player->attribute.GetShieldIgnorePercentInt();
+    int      playerLevel                = JX3_PLAYER_LEVEL;
+    int      targetLevel                = (*m_targets)[targetId]->GetLevel();
+    Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
+    Value_t  shieldAdditional           = 0;
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
     int      rollResultInt                    = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
@@ -268,17 +268,17 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicDamage(
     PctFloat_t magicDamageCoefficient =
         MagicDamageCoefficient(m_damageParams.at(sub)[level].attackDamagePercentInt, 0);
     PctInt_t weaponDamageCoefficientInt = m_damageParams.at(sub)[level].weaponDamagePercentInt;
-    Value_t  fixedDamage                = m_damageParams.at(sub)[level].fixedDamage;
+    Value_t  fixedDamage = m_damageParams.at(sub)[level].fixedDamage;
     PctInt_t effectDamageAdditionalPercentInt =
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt;
     Value_t effectDamage =
         EffectDamageAll(attack, magicDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
 
-    int      playerLevel                      = JX3_PLAYER_LEVEL;
-    int      targetLevel                      = (*m_targets)[targetId]->GetLevel();
-    Value_t  shieldBase                       = (*m_targets)[targetId]->GetMagicShield();
-    Value_t  shieldAdditional                 = 0;
-    PctInt_t ignoreShieldBasePercentInt       = m_player->attribute.GetShieldIgnorePercentInt();
+    int      playerLevel                = JX3_PLAYER_LEVEL;
+    int      targetLevel                = (*m_targets)[targetId]->GetLevel();
+    Value_t  shieldBase                 = (*m_targets)[targetId]->GetMagicShield();
+    Value_t  shieldAdditional           = 0;
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
     int      rollResultInt                    = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
@@ -343,8 +343,14 @@ void JX3DPS::Skill::Record(Id_t targetId, RollResult rollResult, const GainsDama
 {
     for (const auto &[type, damage] : gainsDamage) {
         m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].first++;
-        m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].second.damage += damage.damage;
+        m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].second.damage +=
+            damage.damage;
         m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].second.surplusDamage +=
             damage.surplusDamage;
     }
+}
+
+void JX3DPS::Skill::AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect)
+{
+    m_triggerEffects[id] = triggerEffect;
 }

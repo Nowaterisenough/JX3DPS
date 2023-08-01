@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 02:04:58
+ * Last Modified: 2023-08-02 00:56:31
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -249,7 +249,10 @@ Error_t InitParams(const nlohmann::ordered_json &json,
     return InitPlayer(json, player);
 }
 
-Error_t Start(const nlohmann::ordered_json &in, nlohmann::ordered_json &out, void *obj, void (*progress)(void *, double))
+Error_t Start(const nlohmann::ordered_json &in,
+              nlohmann::ordered_json       &out,
+              void                         *obj,
+              void (*progress)(void *, double))
 {
     ExprSkillsHash exprSkillsHash;
     ExprEvents     exprEvents;
@@ -293,8 +296,8 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
         spdlog::error("Simulate error: {}", err);
         return err;
     }
-    
-    //spdlog::info("{}", jsonOut.dump().c_str());
+
+    // spdlog::info("{}", jsonOut.dump().c_str());
     strcpy(out, jsonOut.dump().data());
 
     spdlog::debug("Output: {}", out);

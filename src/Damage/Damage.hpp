@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-31 23:53:33
+ * Last Modified: 2023-08-02 01:11:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -130,13 +130,15 @@ inline PctInt_t ShieldPercentInt(Value_t shieldBase, Value_t shieldAdditional, P
 inline Value_t PhysicsOvercomeDamage(Value_t effectDamage, Value_t shield, Value_t overcome, int playerLevel, int targetLevel)
 {
     PctInt_t overcomePercentInt =
-        overcome * JX3_PERCENT_INT_BASE / (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST)) +
+        overcome * JX3_PERCENT_INT_BASE /
+            (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST)) +
         JX3_PERCENT_INT_BASE;
     PctInt_t shieldPercentInt =
         shield * JX3_PERCENT_INT_BASE /
         (shield + JX3_PHYSICS_SHIELD_PARAM * (JX3_LEVEL_PARAM * targetLevel - JX3_LEVEL_CONST));
     PctInt_t overcomeDamageAdditionalPercentInt =
-        overcomePercentInt - static_cast<PctInt_t>(overcomePercentInt * shieldPercentInt / JX3_PERCENT_INT_BASE);
+        overcomePercentInt -
+        static_cast<PctInt_t>(overcomePercentInt * shieldPercentInt / JX3_PERCENT_INT_BASE);
     return effectDamage * overcomeDamageAdditionalPercentInt / JX3_PERCENT_INT_BASE;
 }
 
@@ -149,14 +151,19 @@ inline Value_t MagicOvercomeDamage(Value_t effectDamage, Value_t shield, Value_t
         shield * JX3_PERCENT_INT_BASE /
         (shield + JX3_MAGIC_SHIELD_PARAM * (JX3_LEVEL_PARAM * targetLevel - JX3_LEVEL_CONST));
     PctInt_t overcomeDamageAdditionalPercentInt =
-        overcomePercentInt - static_cast<PctInt_t>(overcomePercentInt * shieldPercentInt / JX3_PERCENT_INT_BASE);
+        overcomePercentInt -
+        static_cast<PctInt_t>(overcomePercentInt * shieldPercentInt / JX3_PERCENT_INT_BASE);
     return effectDamage * overcomeDamageAdditionalPercentInt / JX3_PERCENT_INT_BASE;
 }
 
 /*-----------  判定伤害  -----------*/
 
 // rollResult: 0 为命中，1 为会心
-inline Value_t RollDamage(Value_t overcomeDamage, int rollResult, Value_t criticalStrikePower, PctInt_t effectCriticalStrikePowerPercentInt, int playerLevel)
+inline Value_t RollDamage(Value_t  overcomeDamage,
+                          int      rollResult,
+                          Value_t  criticalStrikePower,
+                          PctInt_t effectCriticalStrikePowerPercentInt,
+                          int      playerLevel)
 {
     PctInt_t criticalStrikePowerPercentInt =
         criticalStrikePower * JX3_PERCENT_INT_BASE /
@@ -189,8 +196,9 @@ inline int LevelDifference(int playerLevel, int targetLevel)
 inline PctFloat_t LevelDamageAdditionalPercent(int targetLevel)
 {
     int deltaLevel = JX3_PLAYER_LEVEL - targetLevel;
-    return deltaLevel * (JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(deltaLevel) * JX3_LEVEL_DAMAGE_REDUCTION +
-                         JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(-deltaLevel) * JX3_LEVEL_DAMAGE_INCREASE);
+    return deltaLevel *
+           (JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(deltaLevel) * JX3_LEVEL_DAMAGE_REDUCTION +
+            JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(-deltaLevel) * JX3_LEVEL_DAMAGE_INCREASE);
 }
 
 inline Value_t LevelDamage(Value_t rollDamage, int targetLevel)
@@ -203,7 +211,8 @@ inline Value_t LevelDamage(Value_t rollDamage, int targetLevel)
 inline Value_t StrainDamage(Value_t levelDamage, Value_t strain, PctInt_t strainPercentInt, int playerLevel)
 {
     PctInt_t strainDamageAdditionalPercentInt =
-        strain * JX3_PERCENT_INT_BASE / (JX3_INSIGHT_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST));
+        strain * JX3_PERCENT_INT_BASE /
+        (JX3_INSIGHT_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST));
     strainDamageAdditionalPercentInt += (JX3_PERCENT_INT_BASE + strainPercentInt);
     return levelDamage * strainDamageAdditionalPercentInt / JX3_PERCENT_INT_BASE;
 }
@@ -261,9 +270,9 @@ inline Value_t FinalPhysicsDamage(
         PhysicsOvercomeDamage(damage, shieldPercentInt, overcome, playerLevel, targetLevel);
     Value_t rollDamage =
         RollDamage(physicsOvercomeDamage, rollResult, criticalStrikePower, effectCriticalStrikePowerPercentInt, playerLevel);
-    Value_t levelDamage  = LevelDamage(rollDamage, targetLevel);
+    Value_t levelDamage = LevelDamage(rollDamage, targetLevel);
     Value_t strainDamage = StrainDamage(levelDamage, strain, strainPercentInt, playerLevel);
-    Value_t classDamage  = PVEDamage(strainDamage, pveDamageAdditionalPercentInt);
+    Value_t classDamage = PVEDamage(strainDamage, pveDamageAdditionalPercentInt);
     return VulnerableDamage(classDamage, vulnerablePercentInt);
 }
 
@@ -291,9 +300,9 @@ inline Value_t FinalMagicDamage(
         MagicOvercomeDamage(damage, shieldPercentInt, overcome, playerLevel, targetLevel);
     Value_t rollDamage =
         RollDamage(magicOvercomeDamage, rollResult, criticalStrikePower, effectCriticalStrikePowerPercentInt, playerLevel);
-    Value_t levelDamage  = LevelDamage(rollDamage, targetLevel);
+    Value_t levelDamage = LevelDamage(rollDamage, targetLevel);
     Value_t strainDamage = StrainDamage(levelDamage, strain, strainPercentInt, playerLevel);
-    Value_t classDamage  = PVEDamage(strainDamage, pveDamageAdditionalPercentInt);
+    Value_t classDamage = PVEDamage(strainDamage, pveDamageAdditionalPercentInt);
     return VulnerableDamage(classDamage, vulnerablePercentInt);
 }
 

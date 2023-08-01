@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 02:04:12
+ * Last Modified: 2023-08-02 00:57:23
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -45,8 +45,8 @@ void JX3DPS::TaiXuJianYi::Skill::PoZhao::Trigger() { }
 void JX3DPS::TaiXuJianYi::Skill::PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
 {
     RollResult rollResult = GetPhysicsRollResult();
-    // GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
-    // Record(m_player->GetTargetId(), rollResult, damage, 0, level);
+    // GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub,
+    // level); Record(m_player->GetTargetId(), rollResult, damage, 0, level);
 }
 
 JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) :
@@ -162,8 +162,8 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     SubEffect();
 }
 
@@ -197,7 +197,7 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
     m_player->triggerEffects[TRIGGER_WU_YI](params);
 
     RollResult  rollResult = GetPhysicsRollResult();
-    GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
+    GainsDamage damage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
     Record(m_player->GetTargetId(), rollResult, damage, 0, level);
 
     params.rollResult = rollResult;
@@ -324,8 +324,8 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     SubEffect();
 }
 
@@ -341,7 +341,7 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
     int level = 10 - ((*m_targets)[m_player->GetTargetId()]->GetLifePercent() - 0.01) * 10;
 
     RollResult  rollResult = GetPhysicsRollResult();
-    GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
+    GainsDamage damage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
     Record(m_player->GetTargetId(), rollResult, damage, 0, level);
 
     Params params;
@@ -461,8 +461,8 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     SubEffect();
 }
 
@@ -550,8 +550,8 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     SubEffect();
 }
 
@@ -656,8 +656,8 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     SubEffect();
 }
 
@@ -770,8 +770,8 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     SubEffect();
 }
 
@@ -786,7 +786,7 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
 
     Params params;
     params.player = m_player;
-    
+
     int size = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size();
 
     for (int i = 0; i < size; i++) {
@@ -888,8 +888,8 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     SubEffect();
 }
 
@@ -1028,8 +1028,8 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
@@ -1096,8 +1096,8 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
@@ -1151,8 +1151,8 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
@@ -1254,8 +1254,8 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
+                        m_player->DelayFrames();
     m_prepareFramesCurrent = m_prepareFrames;
     SubEffect();
 }

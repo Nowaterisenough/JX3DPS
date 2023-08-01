@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 02:04:58
+ * Last Modified: 2023-08-02 01:09:42
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -23,8 +23,6 @@
 
 namespace JX3DPS {
 
-
-
 class Player
 {
 public:
@@ -40,9 +38,9 @@ public:
     virtual void    Init()        = 0;
 
     void SetTargets(Targets *targets);
-    inline Targets *GetTargets() const {
-        return m_targets;
-    }
+
+    inline Targets *GetTargets() const { return m_targets; }
+
     void AddBuff3rds(const std::list<Id_t> &buff3rds);
 
     inline ClassType GetClassType() const { return this->attribute.GetClassType(); }
@@ -164,11 +162,11 @@ public:
         return RandomNormal(m_delayMin, m_delayMax + 1) / JX3DPS_DELAY;
     }
 
-    static inline void TriggerVoid(const Params &params) { }
+    inline static void TriggerVoid(const Params &params) { }
 
 public:
-    Frame_t globalCooldown        = 24;            // 冷却
-    Frame_t globalCooldownCurrent = 0;             // 当前冷却
+    Frame_t globalCooldown        = 24; // 冷却
+    Frame_t globalCooldownCurrent = 0;  // 当前冷却
 
     PctInt_t effectDamageAdditionalPercentInt = 0; // 一些奇穴或者秘籍效果的全局伤害加成
 

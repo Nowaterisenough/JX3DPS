@@ -1,16 +1,16 @@
 ﻿/**
  * Project: JX3DPS
- * File: TaiXuJianYi.h
+ * File: MoWen.h
  * Description:
- * Created Date: 2023-07-20 02:40:46
+ * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 01:06:05
+ * Last Modified: 2023-08-02 01:11:56
  * Modified By: 难为水
  * -----
- * CHANGELOG:
- * Date      	By     	Comments
- * ----------	-------	----------------------------------------------------------
+ * HISTORY:
+ * Date      	By   	Comments
+ * ----------	-----	----------------------------------------------------------
  */
 
 #ifndef __JX3DPS_CLASS_MO_WEN_H__
@@ -55,7 +55,14 @@ public:
 
     int styleCount = 0;
 
-    inline void AddStyleCount(int count) { styleCount += (count + static_cast<int>(style)); }
+    inline void AddStyleCount(int count)
+    {
+        styleCount += (count + static_cast<int>(style));
+    }
+
+    static void TriggerXianFeng(const Params &params);
+
+    static void TriggerXianFengBiaoJi(const Params &params);
 };
 
 } // namespace MoWen

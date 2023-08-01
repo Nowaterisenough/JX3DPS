@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 01:34:30
+ * Last Modified: 2023-08-02 01:11:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,8 +30,9 @@ class Shang : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(Shang)
 
 public:
-    void TriggerAdd();
+    void TriggerAdd(Id_t targetId);
 
+    void SubEffect(Id_t targetId);
 };
 
 class Jue : public JX3DPS::Buff
@@ -39,8 +40,25 @@ class Jue : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(Jue)
 
 public:
-    void TriggerAdd();
+    void TriggerAdd(Id_t targetId);
 
+    void SubEffect(Id_t targetId);
+};
+
+class XianFeng : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(XianFeng)
+
+public:
+    void TriggerAdd();
+};
+
+class XianFengBiaoJi : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(XianFengBiaoJi)
+
+public:
+    void TriggerAdd();
 };
 
 } // namespace Buff

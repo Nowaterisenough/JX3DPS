@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 15:45:15
+ * Last Modified: 2023-08-02 00:56:34
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -40,12 +40,16 @@ void JX3DPS::KeyFrame::InsertKeyFrame(KeyFrameSequence &keyFrameSequence, KeyFra
     keyFrameSequence.push_back(keyFrame);
 }
 
-void JX3DPS::KeyFrame::GenerateKeyFrameSequence(KeyFrameSequence &keyFrameSequence, Player *player, ExprEvents &exprEvents, ExprSkillsHash &exprSkillsHash)
+void JX3DPS::KeyFrame::GenerateKeyFrameSequence(KeyFrameSequence &keyFrameSequence,
+                                                Player           *player,
+                                                ExprEvents       &exprEvents,
+                                                ExprSkillsHash   &exprSkillsHash)
 {
     // 强制事件
     for (auto &[frame, exprIf] : exprEvents) {
         if (!keyFrameSequence.empty() && frame == keyFrameSequence.back().first) {
-            keyFrameSequence.back().second.push_back(std::pair<KeyFrameType, Id_t>(KeyFrameType::EVENT, EXPRESSION_EVENT_PLACE_HOLDERS_DEFAULT));
+            keyFrameSequence.back().second.push_back(
+                std::pair<KeyFrameType, Id_t>(KeyFrameType::EVENT, EXPRESSION_EVENT_PLACE_HOLDERS_DEFAULT));
         } else {
             std::list<std::pair<KeyFrameType, Id_t>> events;
             events.push_back(std::pair<KeyFrameType, Id_t>(KeyFrameType::EVENT, EXPRESSION_EVENT_PLACE_HOLDERS_DEFAULT));
@@ -232,7 +236,8 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
 
         // 判断技能施放条件
         bool flag = true;
-        for (auto it = std::next(std::next(iter->first.begin())); it != iter->first.end(); ++it) {
+        for (auto it = std::next(std::next(iter->first.begin())); it != iter->first.end(); ++it)
+        {
             for (auto &exprIf : *it) {
                 if ((flag = exprIf(player, targets)) == false) {
                     break;
@@ -252,7 +257,8 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
                         iter = exprSkills.erase(iter);
                     }
                     // 断读条
-                    if (std::next(iter->first.front().begin()) != iter->first.front().end()) {
+                    if (std::next(iter->first.front().begin()) != iter->first.front().end())
+                    {
                         (*std::next(iter->first.front().begin()))(player, targets);
                     }
                     break; // 转火目标后，不再重新执行宏，避免因为一直满足转火条件导致死循环

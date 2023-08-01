@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 18:59:53
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 02:04:58
+ * Last Modified: 2023-08-02 00:56:29
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -28,7 +28,7 @@ Error_t ParseJsonToClassType(const nlohmann::ordered_json &json, ClassType &clas
 
 Error_t ParseJsonToOptions(const nlohmann::ordered_json &json, Options &options);
 
-Error_t ParseJsonToSkills(const nlohmann::ordered_json                                      &json,
+Error_t ParseJsonToSkills(const nlohmann::ordered_json &json,
                           std::list<std::pair<std::string, std::list<std::string>>> &skills);
 
 Error_t ParseJsonToEvents(const nlohmann::ordered_json &json, std::list<std::string> &events);

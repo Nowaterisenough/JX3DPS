@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Expression.h
  * Description:
  * Created Date: 2023-07-22 13:41:19
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 12:07:06
+ * Last Modified: 2023-08-02 00:56:44
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -26,7 +26,8 @@ namespace JX3DPS {
 
 namespace Regex {
 
-Error_t ParseToExprSkillsHash(const std::list<std::pair<std::string, std::list<std::string>>> &strs, ExprSkillsHash &exprSkillsHash);
+Error_t ParseToExprSkillsHash(const std::list<std::pair<std::string, std::list<std::string>>> &strs,
+                              ExprSkillsHash &exprSkillsHash);
 
 Error_t ParseToExprSkill(const std::string &str, ExprSkill &exprSkill);
 

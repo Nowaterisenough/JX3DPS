@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:40:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 02:04:58
+ * Last Modified: 2023-08-02 01:11:16
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -68,9 +68,13 @@ struct Damage
 
     Damage() : damage(0), surplusDamage(0) { }
 
-    Damage(const Damage &damage) : damage(damage.damage), surplusDamage(damage.surplusDamage) { }
+    Damage(const Damage &damage) :
+        damage(damage.damage), surplusDamage(damage.surplusDamage)
+    {
+    }
 
-    Damage(long long damage, long long surplusDamage) : damage(damage), surplusDamage(surplusDamage)
+    Damage(long long damage, long long surplusDamage) :
+        damage(damage), surplusDamage(surplusDamage)
     {
     }
 
@@ -171,7 +175,9 @@ struct DamageParam
     PctInt_t weaponDamagePercentInt; // 武器伤害系数, 1024为100%
     PctInt_t attackDamagePercentInt; // 攻击系数
 
-    DamageParam() : fixedDamage(0), weaponDamagePercentInt(0), attackDamagePercentInt(0) { }
+    DamageParam() : fixedDamage(0), weaponDamagePercentInt(0), attackDamagePercentInt(0)
+    {
+    }
 
     DamageParam(int fixedDamage, PctInt_t weaponDamagePercentInt, PctInt_t attackDamagePercentInt) :
         fixedDamage(fixedDamage),
@@ -218,7 +224,10 @@ struct Options
 
     std::unordered_map<Attribute::Type, bool> gainSwitch;
 
-    Frame_t DelayFrames() const { return RandomNormal(delayMin, delayMax) / JX3DPS_DELAY; }
+    Frame_t DelayFrames() const
+    {
+        return RandomNormal(delayMin, delayMax) / JX3DPS_DELAY;
+    }
 };
 
 class Player;
@@ -227,7 +236,7 @@ struct Params
 {
     enum class Type
     {
-        ADD = 1,
+        ADD   = 1,
         CLEAR = -1,
     };
 

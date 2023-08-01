@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-31 23:55:03
+ * Last Modified: 2023-08-02 00:56:48
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -67,12 +67,12 @@ public:
     void    UpdateKeyFrame(Frame_t frame);
 
     Frame_t GetTriggerFrame() const;
-    Frame_t GetCooldownCurrent() const;              // 用于宏条件判定
+    Frame_t GetCooldownCurrent() const;           // 用于宏条件判定
 
-    void    SetEnergyCooldownCurrent(Frame_t frame); // 用于事件语句设置技能冷却
-    Frame_t GetEnergyCooldownCurrent() const;        // 用于宏条件判定
-    int     GetEnergyCountCurrent() const;           // 用于宏条件判定
-    double  GetRange() const;                        // 用于宏条件判定
+    void SetEnergyCooldownCurrent(Frame_t frame); // 用于事件语句设置技能冷却
+    Frame_t GetEnergyCooldownCurrent() const;     // 用于宏条件判定
+    int     GetEnergyCountCurrent() const;        // 用于宏条件判定
+    double  GetRange() const;                     // 用于宏条件判定
 
     inline void AddCriticalStrikeAdditionalBasisPointInt(BPInt_t basisPointInt)
     {
@@ -120,6 +120,8 @@ public:
                 const GainsDamage &gainsDamage = GainsDamage(),
                 int                sub         = 0,
                 int                level       = 0);
+
+    void AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect);
 
 protected:
     Player  *m_player  = nullptr;
@@ -176,6 +178,9 @@ protected:
 
     /* 统计 */
     Stats m_stats;
+
+    /* 附加效果 */
+    TriggerEffects m_triggerEffects;
 };
 
 } // namespace JX3DPS

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:30
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 00:48:11
+ * Last Modified: 2023-08-02 01:10:54
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -54,7 +54,7 @@ class Buff
         /* 持续时间 */
         Frame_t duration = 0;
 
-        /* 作用间隔 内置cd */
+        /* 作用间隔 */
         Frame_t interval = JX3DPS_INVALID_FRAMES_SET;
 
         /* 层数 */
@@ -104,16 +104,17 @@ class Buff
                   PctInt_t   effectCriticalStrikePowerAdditionalPercentInt,
                   PctInt_t   effectDamageAdditionalPercentInt)
         {
-            attackPower                    = attribute.GetPhysicsAttackPower();
-            criticalStrike                 = attribute.GetPhysicsCriticalStrike();
-            criticalStrikePercent          = attribute.GetPhysicsCriticalStrikePercent();
-            criticalStrikePower            = attribute.GetPhysicsCriticalStrikePower();
-            hastePercent                   = attribute.GetHastePercent();
-            strainBase                     = attribute.GetStrainBase();
+            attackPower           = attribute.GetPhysicsAttackPower();
+            criticalStrike        = attribute.GetPhysicsCriticalStrike();
+            criticalStrikePercent = attribute.GetPhysicsCriticalStrikePercent();
+            criticalStrikePower   = attribute.GetPhysicsCriticalStrikePower();
+            hastePercent          = attribute.GetHastePercent();
+            strainBase            = attribute.GetStrainBase();
             strainBaseAdditionalPercentInt = attribute.GetStrainBaseAdditionalPercentInt();
 
             this->effectCriticalStrikeAdditionalBasisPointInt = effectCriticalStrikeAdditionalBasisPointInt;
-            this->effectCriticalStrikePowerAdditionalPercentInt = effectCriticalStrikePowerAdditionalPercentInt;
+            this->effectCriticalStrikePowerAdditionalPercentInt =
+                effectCriticalStrikePowerAdditionalPercentInt;
             this->effectDamageAdditionalPercentInt = effectDamageAdditionalPercentInt;
 
             // 收益属性
@@ -193,11 +194,27 @@ public:
 
     GainsDamage CalcPhysicsDotDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
 
+    Damage GetMagicDotDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        int        effectCount,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
+
+    GainsDamage CalcMagicDotDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
+
     void Record(Id_t               targetId,
                 RollResult         rollResult  = RollResult::HIT,
                 const GainsDamage &gainsDamage = GainsDamage(),
                 int                sub         = 0,
                 int                level       = 0);
+
+    void AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect);
 
 protected:
     Player  *m_player  = nullptr;
@@ -251,6 +268,9 @@ protected:
 
     /* 统计 */
     Stats m_stats;
+
+    /* 附加效果 */
+    TriggerEffects m_triggerEffects;
 };
 
 } // namespace JX3DPS

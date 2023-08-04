@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 03:51:13
+ * Last Modified: 2023-08-05 04:07:15
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -46,7 +46,7 @@ void JX3DPS::TaiXuJianYi::Skill::PoZhao::TriggerDamage(Id_t targetId, int sub, i
 {
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, level);
+    Record(targetId, rollResult, damage, sub, level);
 }
 
 JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) :

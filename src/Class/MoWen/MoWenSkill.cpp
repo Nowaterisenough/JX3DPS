@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-04 21:37:56
+ * Last Modified: 2023-08-05 04:07:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -17,6 +17,46 @@
 
 #include "MoWenBuff.h"
 #include "Target.h"
+
+JX3DPS::MoWen::Skill::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) :
+    Skill(player, targets)
+{
+    m_id    = SKILL_PO_ZHAO;
+    m_name  = "破招";
+    m_range = 20;
+
+    m_damageParams[0].emplace_back(0,
+                                   0,
+                                   JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE *
+                                       (0.25 * 0.5 * 1.3 * 1.2 * 0.5 * 1.11 - 1));
+    m_damageParams[0].emplace_back(0,
+                                   0,
+                                   JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE *
+                                       (0.3 * 0.5 * 1.3 * 1.2 * 0.5 * 1.11 - 1));
+    m_damageParams[0].emplace_back(0,
+                                   0,
+                                   JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE *
+                                       (0.36 * 0.5 * 1.3 * 1.2 * 0.5 * 1.11 - 1));
+}
+
+void JX3DPS::MoWen::Skill::PoZhao::Cast() { }
+
+void JX3DPS::MoWen::Skill::PoZhao::Trigger() { }
+
+void JX3DPS::MoWen::Skill::PoZhao::TriggerDamage(Id_t targetId)
+{
+    RollResult  rollResult = GetMagicRollResult();
+    GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 0);
+    Record(targetId, rollResult, damage, 0, 0);
+
+    RollResult  rollResult = GetMagicRollResult();
+    GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 1);
+    Record(targetId, rollResult, damage, 0, 1);
+
+    RollResult  rollResult = GetMagicRollResult();
+    GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 2);
+    Record(targetId, rollResult, damage, 0, 2);
+}
 
 JX3DPS::MoWen::Skill::Gong::Gong(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)

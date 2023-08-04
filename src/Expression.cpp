@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 13:16:27
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:10:12
+ * Last Modified: 2023-08-03 20:04:51
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -109,6 +109,16 @@ JX3DPS::Id_t JX3DPS::Expression::ClearBuff(Player *player, Targets *targets, Id_
 {
     player->buffs[buffId]->Clear(id, stackNum);
     return EXPRESSION_EVENT_PLACE_HOLDERS_DEFAULT;
+}
+
+bool JX3DPS::Expression::IsReady(Player *player, Targets *targets, Id_t id, bool fcast)
+{
+    return player->skills[id]->IsReady(fcast);
+}
+
+bool JX3DPS::Expression::StopReCastSkill(Player *player, Targets *targets, Id_t id)
+{
+    return player->skills[id]->StopReCastSkill();
 }
 
 bool JX3DPS::Expression::IsScast(Player *player, Targets *targets, bool scast)

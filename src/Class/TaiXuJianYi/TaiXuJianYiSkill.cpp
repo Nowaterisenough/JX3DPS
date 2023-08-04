@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:57:23
+ * Last Modified: 2023-08-04 13:08:54
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -162,8 +162,8 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
@@ -324,8 +324,8 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
@@ -461,8 +461,8 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
@@ -550,8 +550,8 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
@@ -656,8 +656,8 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
@@ -770,8 +770,8 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
@@ -888,8 +888,8 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
@@ -969,11 +969,11 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
 JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id             = SKILL_SAN_CHAI_JIAN_FA;
-    m_name           = "三柴剑法";
-    m_range          = 4;
-    m_cooldown       = 22;
-    m_globalCooldown = &m_cooldown;
+    m_id                    = SKILL_SAN_CHAI_JIAN_FA;
+    m_name                  = "三柴剑法";
+    m_range                 = 4;
+    m_cooldown              = 22;
+    m_globalCooldownCurrent = &m_noneGlobalCooldown;
 
     m_damageParams[0].emplace_back(0, 1024, 16);
 
@@ -1028,8 +1028,8 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
@@ -1096,8 +1096,8 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
@@ -1151,8 +1151,8 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
 
@@ -1189,12 +1189,12 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
 JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id                 = SKILL_ZI_QI_DONG_LAI;
-    m_name               = "紫气东来";
-    m_range              = JX3DPS_UNLIMITED_RANGE;
-    m_cooldown           = 16 * 75;
-    m_prepareFrames      = 16 * 3;
-    m_globalCooldown     = &m_cooldown;
+    m_id                    = SKILL_ZI_QI_DONG_LAI;
+    m_name                  = "紫气东来";
+    m_range                 = JX3DPS_UNLIMITED_RANGE;
+    m_cooldown              = 16 * 75;
+    m_prepareFrames         = 16 * 3;
+    m_globalCooldownCurrent = &m_noneGlobalCooldown;
     m_energyCountCurrent = m_energyCount = 2;
 
     m_damageParams[0].emplace_back(0, 0, 0);
@@ -1254,8 +1254,8 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown = m_player->globalCooldown * m_player->attribute.GetHastePercent() +
-                        m_player->DelayFrames();
+    *m_globalCooldownCurrent =
+        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_prepareFramesCurrent = m_prepareFrames;
     SubEffect();
 }

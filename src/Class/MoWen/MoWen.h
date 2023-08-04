@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:56
+ * Last Modified: 2023-08-04 13:14:32
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -43,7 +43,17 @@ public:
 
     void Init() override;
 
-    static void TriggerWuYi(const Params &params);
+    inline void UpdateGlobalCooldown(Frame_t next) override
+    {
+        globalCooldownCurrent -= next;
+        globalCooldownCurrent = std::max(globalCooldownCurrent, 0);
+
+        cooldownStyleCurrent -= next;
+        cooldownStyleCurrent = std::max(cooldownStyleCurrent, 0);
+
+        cooldownGaoShanLiuShuiCurrent -= next;
+        cooldownGaoShanLiuShuiCurrent = std::max(cooldownGaoShanLiuShuiCurrent, 0);
+    }
 
     enum class Style
     {
@@ -60,9 +70,27 @@ public:
         styleCount += (count + static_cast<int>(style));
     }
 
+    Frame_t cooldownStyleCurrent = 0;
+
+    Frame_t cooldownGaoShanLiuShuiCurrent = 0;
+
     static void TriggerXianFeng(const Params &params);
 
     static void TriggerXianFengBiaoJi(const Params &params);
+
+    static void TriggerXianFengDamage(const Params &params);
+
+    static void TriggerYunHan(const Params &params);
+
+    static void TriggerCanLianAdd(const Params &params);
+
+    static void TriggerCanLianClear(const Params &params);
+
+    static void TriggerShuLi(const Params &params);
+
+    static void TriggerShiXiang(const Params &params);
+
+    static void TriggerZhiZhi(const Params &params);
 };
 
 } // namespace MoWen

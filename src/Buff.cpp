@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:10:57
+ * Last Modified: 2023-08-05 03:22:11
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -210,18 +210,167 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcPhysicsDamage(Id_t targetId, RollResult ro
     };
 
     for (const auto &type : types) {
-        this->m_player->attribute.SetGainSwitch(type, true);
-        gainsDamage[type] = GetPhysicsDamage(
-            targetId,
-            rollResult,
-            sub,
-            level,
-            m_player->attribute.GetPhysicsAttackPower(),
-            m_player->attribute.GetWeaponDamage(),
-            m_player->attribute.GetPhysicsCriticalStrikePower(),
-            m_player->attribute.GetPhysicsOvercome(),
-            m_player->attribute.GetStrainBase());
-        this->m_player->attribute.SetGainSwitch(type, false);
+        Value_t attack              = m_player->attribute.GetPhysicsAttackPower();
+        Value_t criticalStrikePower = m_player->attribute.GetPhysicsCriticalStrikePower();
+        Value_t strain              = m_player->attribute.GetStrainBase();
+        Value_t overcome            = m_player->attribute.GetPhysicsOvercome();
+        Value_t weaponDamage        = m_player->attribute.GetWeaponDamage();
+
+        switch (type) {
+            case Attribute::Type::WEAPON_DAMAGE_BASE:
+                m_player->attribute.AddWeaponDamageBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                weaponDamage = m_player->attribute.GetWeaponDamage();
+                m_player->attribute.AddWeaponDamageBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::ATTACK_POWER_BASE:
+                m_player->attribute.AddPhysicsAttackPowerBaseAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                attack = m_player->attribute.GetPhysicsAttackPower();
+                m_player->attribute.AddPhysicsAttackPowerBaseAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::CRITICAL_STRIKE_POWER:
+                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                criticalStrikePower = m_player->attribute.GetPhysicsCriticalStrikePower();
+                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::OVERCOME_BASE:
+                m_player->attribute.AddPhysicsOvercomeBaseAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                overcome = m_player->attribute.GetPhysicsOvercome();
+                m_player->attribute.AddPhysicsOvercomeBaseAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::STRAIN_BASE:
+                m_player->attribute.AddStrainBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                strain = m_player->attribute.GetStrainBase();
+                m_player->attribute.AddStrainBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            default: break;
+        }
+
+        gainsDamage[type] =
+            GetPhysicsDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
+    }
+
+    return gainsDamage;
+}
+
+JX3DPS::Damage JX3DPS::Buff::GetMagicDamage(
+    Id_t       targetId,
+    RollResult rollResult,
+    int        sub,
+    int        level,
+    Value_t    attack,
+    Value_t    weaponDamage,
+    Value_t    criticalStrikePower,
+    Value_t    overcome,
+    Value_t    strain)
+{
+    Damage damage;
+
+    PctFloat_t magicDamageCoefficient =
+        MagicDamageCoefficient(m_damageParams.at(sub)[level].attackDamagePercentInt, 0);
+    PctInt_t weaponDamageCoefficientInt = m_damageParams.at(sub)[level].weaponDamagePercentInt;
+    Value_t  fixedDamage = m_damageParams.at(sub)[level].fixedDamage;
+    PctInt_t effectDamageAdditionalPercentInt =
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt;
+    Value_t effectDamage =
+        EffectDamageAll(attack, magicDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
+
+    int      playerLevel                = JX3_PLAYER_LEVEL;
+    int      targetLevel                = (*m_targets)[targetId]->GetLevel();
+    Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
+    Value_t  shieldAdditional           = 0;
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
+    int      rollResultInt                    = static_cast<int>(rollResult);
+    PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
+        (m_effectCriticalStrikePowerAdditionalPercentInt +
+         m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt());
+    PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
+    PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
+    PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    damage.damage = FinalMagicDamage(
+        playerLevel,
+        targetLevel,
+        effectDamage,
+        shieldBase,
+        shieldAdditional,
+        ignoreShieldBasePercentInt,
+        ignoreShieldAdditionalPercentInt,
+        overcome,
+        rollResultInt,
+        criticalStrikePower,
+        effectCriticalStrikePowerAdditionalPercentInt,
+        strain,
+        strainPercentInt,
+        pveDamageAdditionalPercentInt,
+        vulnerablePercentInt);
+
+    return damage;
+}
+
+JX3DPS::GainsDamage JX3DPS::Buff::CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub, int level)
+{
+    GainsDamage gainsDamage;
+
+    std::array<Attribute::Type, 6> types = {
+        {{ Attribute::Type::DEFAULT },
+         { Attribute::Type::WEAPON_DAMAGE_BASE },
+         { Attribute::Type::ATTACK_POWER_BASE },
+         { Attribute::Type::CRITICAL_STRIKE_POWER },
+         { Attribute::Type::OVERCOME_BASE },
+         { Attribute::Type::STRAIN_BASE }}
+    };
+
+    for (const auto &type : types) {
+        Value_t attack              = m_player->attribute.GetMagicAttackPower();
+        Value_t criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
+        Value_t strain              = m_player->attribute.GetStrainBase();
+        Value_t overcome            = m_player->attribute.GetMagicOvercome();
+        Value_t weaponDamage        = m_player->attribute.GetWeaponDamage();
+
+        switch (type) {
+            case Attribute::Type::WEAPON_DAMAGE_BASE:
+                m_player->attribute.AddWeaponDamageBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                weaponDamage = m_player->attribute.GetWeaponDamage();
+                m_player->attribute.AddWeaponDamageBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::ATTACK_POWER_BASE:
+                m_player->attribute.AddMagicAttackPowerBaseAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                attack = m_player->attribute.GetMagicAttackPower();
+                m_player->attribute.AddMagicAttackPowerBaseAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::CRITICAL_STRIKE_POWER:
+                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
+                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::OVERCOME_BASE:
+                m_player->attribute.AddMagicOvercomeBaseAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                overcome = m_player->attribute.GetMagicOvercome();
+                m_player->attribute.AddMagicOvercomeBaseAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::STRAIN_BASE:
+                m_player->attribute.AddStrainBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                strain = m_player->attribute.GetStrainBase();
+                m_player->attribute.AddStrainBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            default: break;
+        }
+
+        gainsDamage[type] =
+            GetMagicDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
 
     return gainsDamage;
@@ -306,19 +455,39 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcPhysicsDotDamage(Id_t targetId, RollResult
     };
 
     for (const auto &type : types) {
-        this->m_player->attribute.SetGainSwitch(type, true);
-        gainsDamage[type] = GetPhysicsDotDamage(
-            targetId,
-            rollResult,
-            sub,
-            level,
-            effectCount,
-            m_player->attribute.GetPhysicsAttackPower(),
-            m_player->attribute.GetWeaponDamage(),
-            m_player->attribute.GetPhysicsCriticalStrikePower(),
-            m_player->attribute.GetPhysicsOvercome(),
-            m_player->attribute.GetStrainBase());
-        this->m_player->attribute.SetGainSwitch(type, false);
+        Value_t attack              = m_snapshots.at(targetId).attackPower;
+        Value_t criticalStrikePower = m_snapshots.at(targetId).criticalStrikePower;
+        Value_t strain              = m_snapshots.at(targetId).strainBase;
+        Value_t overcome            = m_player->attribute.GetPhysicsOvercome();
+        Value_t weaponDamage        = m_player->attribute.GetWeaponDamage();
+
+        switch (type) {
+            case Attribute::Type::WEAPON_DAMAGE_BASE:
+                m_player->attribute.AddWeaponDamageBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                weaponDamage = m_player->attribute.GetWeaponDamage();
+                m_player->attribute.AddWeaponDamageBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::ATTACK_POWER_BASE:
+                attack = m_snapshots.at(targetId).attackPowerGain;
+                break;
+            case Attribute::Type::CRITICAL_STRIKE_POWER:
+                criticalStrikePower = m_snapshots.at(targetId).criticalStrikePowerGain;
+                break;
+            case Attribute::Type::OVERCOME_BASE:
+                m_player->attribute.AddPhysicsOvercomeBaseAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                overcome = m_player->attribute.GetPhysicsOvercome();
+                m_player->attribute.AddPhysicsOvercomeBaseAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::STRAIN_BASE:
+                strain = m_snapshots.at(targetId).strainBaseGain;
+                break;
+            default: break;
+        }
+
+        gainsDamage[type] =
+            GetPhysicsDotDamage(targetId, rollResult, sub, level, effectCount, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
 
     return gainsDamage;
@@ -394,19 +563,39 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcMagicDotDamage(Id_t targetId, RollResult r
     };
 
     for (const auto &type : types) {
-        this->m_player->attribute.SetGainSwitch(type, true);
-        gainsDamage[type] = GetMagicDotDamage(
-            targetId,
-            rollResult,
-            sub,
-            level,
-            effectCount,
-            m_player->attribute.GetMagicAttackPower(),
-            m_player->attribute.GetWeaponDamage(),
-            m_player->attribute.GetMagicCriticalStrikePower(),
-            m_player->attribute.GetMagicOvercome(),
-            m_player->attribute.GetStrainBase());
-        this->m_player->attribute.SetGainSwitch(type, false);
+        Value_t attack              = m_snapshots.at(targetId).attackPower;
+        Value_t criticalStrikePower = m_snapshots.at(targetId).criticalStrikePower;
+        Value_t strain              = m_snapshots.at(targetId).strainBase;
+        Value_t overcome            = m_player->attribute.GetMagicOvercome();
+        Value_t weaponDamage        = m_player->attribute.GetWeaponDamage();
+
+        switch (type) {
+            case Attribute::Type::WEAPON_DAMAGE_BASE:
+                m_player->attribute.AddWeaponDamageBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                weaponDamage = m_player->attribute.GetWeaponDamage();
+                m_player->attribute.AddWeaponDamageBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::ATTACK_POWER_BASE:
+                attack = m_snapshots.at(targetId).attackPowerGain;
+                break;
+            case Attribute::Type::CRITICAL_STRIKE_POWER:
+                criticalStrikePower = m_snapshots.at(targetId).criticalStrikePowerGain;
+                break;
+            case Attribute::Type::OVERCOME_BASE:
+                m_player->attribute.AddMagicOvercomeBaseAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                overcome = m_player->attribute.GetMagicOvercome();
+                m_player->attribute.AddMagicOvercomeBaseAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::STRAIN_BASE:
+                strain = m_snapshots.at(targetId).strainBaseGain;
+                break;
+            default: break;
+        }
+
+        gainsDamage[type] =
+            GetMagicDotDamage(targetId, rollResult, sub, level, effectCount, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
 
     return gainsDamage;

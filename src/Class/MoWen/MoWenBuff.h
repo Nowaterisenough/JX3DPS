@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:52
+ * Last Modified: 2023-08-05 03:12:09
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -51,6 +51,7 @@ class XianFeng : public JX3DPS::Buff
 
 public:
     void TriggerAdd();
+    void TriggerDamage(Id_t targetId, int stackNum);
 };
 
 class XianFengBiaoJi : public JX3DPS::Buff
@@ -59,6 +60,118 @@ class XianFengBiaoJi : public JX3DPS::Buff
 
 public:
     void TriggerAdd();
+};
+
+class LiuZhao : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(LiuZhao)
+
+public:
+    void TriggerAdd();
+};
+
+class YunHan : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(YunHan)
+
+public:
+    void TriggerAdd(int stackNum);
+
+    void SubEffectAdd(int stackNum);
+};
+
+class CanLian : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(CanLian)
+
+public:
+    void TriggerAdd();
+    void TriggerClear();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class ShuLi : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(ShuLi)
+
+public:
+    void TriggerAdd();
+    void TriggerClear();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class GaoShanLiuShui : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(GaoShanLiuShui)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class YangChunBaiXue : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(YangChunBaiXue)
+
+public:
+    void TriggerAdd();
+    void TriggerClear();
+
+    void SubEffectAdd(int stackNum);
+    void SubEffectClear(int stackNum);
+};
+
+class ZhiYinMiaoYi : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(ZhiYinMiaoYi)
+
+public:
+    void TriggerAdd();
+    void TriggerClear();
+
+    void SubEffectAdd(int stackNum);
+    void SubEffectClear(int stackNum);
+};
+
+class YingZi : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(YingZi)
+
+public:
+    void TriggerAdd(int count = 1);
+    void TriggerClear();
+
+    void SubEffect(Id_t id);
+    void SubEffectClear(int stackNum);
+
+    Id_t            id = TARGET_PLACE_HOLDERS_END;
+    std::list<Id_t> ids;
+
+    Damage GetMagicYingZiDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        int        effectCount,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
+
+    GainsDamage CalcMagicYingZiDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
+
+    void RecordYingZi(Id_t               targetId,
+                      RollResult         rollResult  = RollResult::HIT,
+                      const GainsDamage &gainsDamage = GainsDamage(),
+                      int                sub         = 0,
+                      int                level       = 0);
 };
 
 } // namespace Buff

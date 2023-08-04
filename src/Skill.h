@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:56:48
+ * Last Modified: 2023-08-04 18:27:39
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -58,7 +58,10 @@ public:
     virtual void   Trigger()     = 0;
     virtual void   Cast()        = 0;
 
-    virtual void Stop(){};
+    virtual void Stop() { }
+
+    virtual bool IsReady(bool fcast);
+    virtual bool StopReCastSkill();
 
     void SetPlayer(Player *player);
     void SetTargets(Targets *targets);
@@ -82,6 +85,16 @@ public:
     inline void AddCriticalStrikePowerAdditionalPercentInt(PctInt_t percentInt)
     {
         m_effectCriticalStrikePowerAdditionalPercentInt += percentInt;
+    }
+
+    inline void AddDamageAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_effectDamageAdditionalPercentInt += percentInt;
+    }
+
+    inline void AddShieldIgnoreAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_effectShieldIgnoreAdditionalPercentInt += percentInt;
     }
 
     inline Stats &GetStats() { return m_stats; }
@@ -140,8 +153,8 @@ protected:
     int m_targetLimit = 0;
 
     /* 公共冷却 */
-    Frame_t *m_globalCooldown     = nullptr;
-    Frame_t  m_noneGlobalCooldown = 0;
+    Frame_t *m_globalCooldownCurrent = nullptr;
+    Frame_t  m_noneGlobalCooldown    = 0;
 
     /* 技能冷却 */
     Frame_t m_cooldown        = 0;

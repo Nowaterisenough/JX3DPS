@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:09:42
+ * Last Modified: 2023-08-04 13:11:43
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -45,7 +45,7 @@ public:
 
     inline ClassType GetClassType() const { return this->attribute.GetClassType(); }
 
-    inline void UpdateGlobalCooldown(Frame_t next)
+    inline virtual void UpdateGlobalCooldown(Frame_t next)
     {
         globalCooldownCurrent -= next;
         if (globalCooldownCurrent < 0) {

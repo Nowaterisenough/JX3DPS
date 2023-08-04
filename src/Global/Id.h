@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:01
+ * Last Modified: 2023-08-05 00:27:43
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -134,10 +134,13 @@ enum Id_t
     SKILL_BIAN_ZHI,
     SKILL_YU,
     SKILL_GAO_SHAN_LIU_SHUI,
+    SKILL_GAO_SHAN_LIU_SHUI_ACTIVE,
     SKILL_YANG_CHUN_BAI_XUE,
     SKILL_SHU_YING_HENG_XIE,
     SKILL_SHU_YING_HUA_SHUANG,
-    SKILL_ZHENG_LV_HE_MING,
+    SKILL_ZHENG_LV_HE_MING_1,
+    SKILL_ZHENG_LV_HE_MING_2,
+    SKILL_ZHENG_LV_HE_MING_3,
     SKILL_YI_XING_HUAN_YING,
     SKILL_MO_WEN_END, // ---------------------- 技能 莫问 END ----------------------
 
@@ -220,6 +223,9 @@ enum Id_t
     BUFF_CAN_LIAN,
     BUFF_ZHI_YIN_MIAO_YI,
     BUFF_ZHENG_LV_HE_MING,
+    BUFF_GAO_SHAN_LIU_SHUI,
+    BUFF_YANG_CHUN_BAI_XUE,
+    BUFF_YING_ZI,
     BUFF_MO_WEN_END, // ---------------------- Buff 莫问 END ----------------------
 
     BUFF_END,        // ---------------------- Buff END ----------------------
@@ -390,6 +396,12 @@ enum Id_t
     TRIGGER_MO_WEN, // ---------------------- 触发效果 莫问 ----------------------
     TRIGGER_XIAN_FENG,
     TRIGGER_XIAN_FENG_BIAO_JI,
+    TRIGGER_YUN_HAN,
+    TRIGGER_CAN_LIAN_ADD,
+    TRIGGER_CAN_LIAN_CLEAR,
+    TRIGGER_SHU_LI,
+    TRIGGER_SHI_XIANG,
+    TRIGGER_ZHI_ZHI,
     TRIGGER_MO_WEN_END, // ---------------------- 触发效果 莫问 END ----------------------
 
     TRIGGER_END,        // ---------------------- 触发效果 END ----------------------

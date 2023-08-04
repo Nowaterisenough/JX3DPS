@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 10:14:06
+ * Last Modified: 2023-08-03 20:06:15
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -97,7 +97,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkil
     // 前置条件处理
     std::list<ExprIf> pre;
     std::regex        regChangeTarget(JX3DPS_REGEX_EXPRESSION_SKILL_CHANGE_TARGET);
-    std::regex        regChangeExpression(JX3DPS_REGEX_EXPRESSION_SKILL_CHANGE_EXPRESSION);
+    std::regex regChangeExpression(JX3DPS_REGEX_EXPRESSION_SKILL_CHANGE_EXPRESSION);
     if (std::regex_match(str, mat, regChangeTarget)) {
         Id_t id = static_cast<Id_t>(std::stoi(mat[3].str()) + TARGET_PLACE_HOLDERS_DEFAULT);
         exprSkill.second = id;
@@ -113,17 +113,22 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkil
         // 添加冷却判断
         pre.emplace_back(std::bind(&JX3DPS::Expression::IsCooldown, std::placeholders::_1, std::placeholders::_2, id));
         // 添加是否在范围内判断
-        pre.emplace_back(std::bind(&JX3DPS::Expression::IsTargetWithinRange, std::placeholders::_1, std::placeholders::_2, id));
+        pre.emplace_back(std::bind(&JX3DPS::Expression::IsTargetWithinRange,
+                                   std::placeholders::_1,
+                                   std::placeholders::_2,
+                                   id));
 
-        // 添加是否在读条判断
-        if (cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_CAST || cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_FCAST)
+        // 添加读条判断
+        bool fcast = false;
+        if (cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_FCAST || cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_SFCAST)
         {
-            pre.emplace_back(std::bind(&JX3DPS::Expression::IsNotReCast, std::placeholders::_1, std::placeholders::_2));
-        } else { // fcast语句，需要断读条
-            pre.emplace_back(std::bind(&JX3DPS::Expression::IsNotCast, std::placeholders::_1, std::placeholders::_2));
-            exprSkill.first.front().emplace_back(
-                std::bind(&JX3DPS::Expression::StopReCast, std::placeholders::_1, std::placeholders::_2));
+            fcast = true;
+            exprSkill.first.emplace_back(std::bind(&JX3DPS::Expression::StopReCastSkill,
+                                                   std::placeholders::_1,
+                                                   std::placeholders::_2,
+                                                   id));
         }
+        pre.emplace_back(std::bind(&JX3DPS::Expression::IsReady, std::placeholders::_1, std::placeholders::_2, id, fcast));
     }
     exprSkill.first.emplace_back(pre);
 
@@ -160,7 +165,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkil
 
     while (condition.find(JX3DPS_REGEX_EXPRESSION_SKILL_SYMBOL_AND) != std::string::npos) {
         temp2 = condition.substr(0, condition.find(JX3DPS_REGEX_EXPRESSION_SKILL_SYMBOL_AND));
-        err   = ParseToExprIf(temp2, exprIf);
+        err = ParseToExprIf(temp2, exprIf);
         if (err != JX3DPS_SUCCESS) {
             return err;
         }
@@ -251,9 +256,11 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprEvents(const std::list<std::string> &s
     return JX3DPS_SUCCESS;
 }
 
-const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_QIDIAN = "qidian([=~<>]+)(\\d+)";
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_QIDIAN =
+    "qidian([=~<>]+)(\\d+)";
 
-const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF = "buff:([\u4e00-\u9fa5·0-9a-z]+)";
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF =
+    "buff:([\u4e00-\u9fa5·0-9a-z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_NO_BUFF =
     "nobuff:([\u4e00-\u9fa5·0-9a-z]+)";
@@ -500,9 +507,11 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
     } else if (std::regex_match(str, mat, regLastCastSkill)) {
         JX3DPS::Id_t id = SkillId(mat[1].str());
         if (mat[1].str() == "=") {
-            exprIf = std::bind(&JX3DPS::Expression::LastCastSkill, std::placeholders::_1, std::placeholders::_2, id);
+            exprIf =
+                std::bind(&JX3DPS::Expression::LastCastSkill, std::placeholders::_1, std::placeholders::_2, id);
         } else if (mat[1].str() == "~=") {
-            exprIf = std::bind(&JX3DPS::Expression::NotLastCastSkill, std::placeholders::_1, std::placeholders::_2, id);
+            exprIf =
+                std::bind(&JX3DPS::Expression::NotLastCastSkill, std::placeholders::_1, std::placeholders::_2, id);
         }
     } else if (std::regex_match(str, mat, regSkillCd)) {
         JX3DPS::Id_t id = SkillId(mat[1].str());
@@ -549,7 +558,8 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
     return JX3DPS_SUCCESS;
 }
 
-const char *const JX3DPS_REGEX_EXPRESSION_EVENT_TIME = "(\\d{1,2}):(\\d{1,2}).?(\\d{0,2})";
+const char *const JX3DPS_REGEX_EXPRESSION_EVENT_TIME =
+    "(\\d{1,2}):(\\d{1,2}).?(\\d{0,2})";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToFrame(const std::string &str, Frame_t &frame)
 {
@@ -562,12 +572,15 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToFrame(const std::string &str, Frame_t &fra
     if (!mat[3].str().empty()) {
         temp = std::stoi(mat[3].str());
     }
-    frame = (std::stoi(mat[1].str()) * JX3_SECONDS_PER_MINUTE + std::stoi(mat[2].str())) * JX3DPS::JX3_FRAMES_PER_SECOND + temp;
+    frame = (std::stoi(mat[1].str()) * JX3_SECONDS_PER_MINUTE + std::stoi(mat[2].str())) *
+                JX3DPS::JX3_FRAMES_PER_SECOND +
+            temp;
     return JX3DPS_SUCCESS;
 }
 
 const char *const JX3DPS_REGEX_EXPRESSION_EVENT_ADD_TARGET =
-    "\\/add_target id=(\\d+) level=(\\d+) shield=(\\d+) distance=([\\d.]+)( lifetime=(\\d+))?";
+    "\\/add_target id=(\\d+) level=(\\d+) shield=(\\d+) distance=([\\d.]+)( "
+    "lifetime=(\\d+))?";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToAddTarget(const std::string &str, ExprEvents &exprEvents)
 {
@@ -605,7 +618,8 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToAddTarget(const std::string &str, ExprEven
     return JX3DPS_SUCCESS;
 }
 
-const char *const JX3DPS_REGEX_EXPRESSION_EVENT_CHANGE_TARGET = "\\/change_target id=(\\d+)";
+const char *const JX3DPS_REGEX_EXPRESSION_EVENT_CHANGE_TARGET =
+    "\\/change_target id=(\\d+)";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToChangeTarget(const std::string &str, ExprEvent &exprEvent)
 {
@@ -786,7 +800,8 @@ const char *const JX3DPS_REGEX_EXPRESSION_EVENT_END = "\\/end";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToEnd(const std::string &str, ExprEvent &exprEvent)
 {
-    exprEvent.second = std::bind(&JX3DPS::Expression::SetEnd, std::placeholders::_1, std::placeholders::_2);
+    exprEvent.second =
+        std::bind(&JX3DPS::Expression::SetEnd, std::placeholders::_1, std::placeholders::_2);
     return JX3DPS_SUCCESS;
 }
 

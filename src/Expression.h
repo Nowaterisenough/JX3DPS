@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 13:41:19
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:56:24
+ * Last Modified: 2023-08-03 20:05:08
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -67,6 +67,10 @@ Id_t AddBuff(Player  *player,
              Frame_t  durationMax = JX3DPS_DEFAULT_DURATION_FRAMES);
 
 Id_t ClearBuff(Player *player, Targets *targets, Id_t id, Id_t buffId, int stackNum = 1);
+
+bool IsReady(Player *player, Targets *targets, Id_t id, bool fcast);
+
+bool StopReCastSkill(Player *player, Targets *targets, Id_t id);
 
 bool IsScast(Player *player, Targets *targets, bool scast);
 

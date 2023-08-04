@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 03:27:49
+ * Last Modified: 2023-08-05 03:49:18
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -416,6 +416,212 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicDamage(Id_t targetId, RollResult rol
 
         gainsDamage[type] =
             GetMagicDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
+    }
+
+    return gainsDamage;
+}
+
+JX3DPS::Damage JX3DPS::Skill::GetPhysicsSurplusDamage(
+    Id_t       targetId,
+    RollResult rollResult,
+    int        sub,
+    int        level,
+    Value_t    surplus,
+    Value_t    criticalStrikePower,
+    Value_t    overcome,
+    Value_t    strain)
+{
+    Damage damage;
+
+    PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercentInt;
+    Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
+
+    int      playerLevel                = JX3_PLAYER_LEVEL;
+    int      targetLevel                = (*m_targets)[targetId]->GetLevel();
+    Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
+    Value_t  shieldAdditional           = 0;
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
+    int      rollResultInt                    = static_cast<int>(rollResult);
+    PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
+        (m_effectCriticalStrikePowerAdditionalPercentInt +
+         m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt());
+    PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
+    PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
+    PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    damage.damage = FinalPhysicsDamage(
+        playerLevel,
+        targetLevel,
+        surplusDamage,
+        shieldBase,
+        shieldAdditional,
+        ignoreShieldBasePercentInt,
+        ignoreShieldAdditionalPercentInt,
+        overcome,
+        rollResultInt,
+        criticalStrikePower,
+        effectCriticalStrikePowerAdditionalPercentInt,
+        strain,
+        strainPercentInt,
+        pveDamageAdditionalPercentInt,
+        vulnerablePercentInt);
+
+    return damage;
+}
+
+JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsSurplusDamage(Id_t targetId, RollResult rollResult, int sub, int level)
+{
+    GainsDamage gainsDamage;
+
+    std::array<Attribute::Type, 6> types = {
+        {{ Attribute::Type::DEFAULT },
+         { Attribute::Type::SURPLUS_VALUE_BASE },
+         { Attribute::Type::CRITICAL_STRIKE_POWER },
+         { Attribute::Type::OVERCOME_BASE },
+         { Attribute::Type::STRAIN_BASE }}
+    };
+
+    for (const auto &type : types) {
+        Value_t surplus             = m_player->attribute.GetSurplusValueBase();
+        Value_t criticalStrikePower = m_player->attribute.GetPhysicsCriticalStrikePower();
+        Value_t strain              = m_player->attribute.GetStrainBase();
+        Value_t overcome            = m_player->attribute.GetPhysicsOvercome();
+        Value_t weaponDamage        = m_player->attribute.GetWeaponDamage();
+
+        switch (type) {
+            case Attribute::Type::SURPLUS_VALUE_BASE:
+                m_player->attribute.AddSurplusValueBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                surplus = m_player->attribute.GetSurplusValueBase();
+                m_player->attribute.AddSurplusValueBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::CRITICAL_STRIKE_POWER:
+                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                criticalStrikePower = m_player->attribute.GetPhysicsCriticalStrikePower();
+                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::OVERCOME_BASE:
+                m_player->attribute.AddPhysicsOvercomeBaseAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                overcome = m_player->attribute.GetPhysicsOvercome();
+                m_player->attribute.AddPhysicsOvercomeBaseAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::STRAIN_BASE:
+                m_player->attribute.AddStrainBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                strain = m_player->attribute.GetStrainBase();
+                m_player->attribute.AddStrainBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            default: break;
+        }
+
+        gainsDamage[type] =
+            GetPhysicsSurplusDamage(targetId, rollResult, sub, level, surplus, criticalStrikePower, overcome, strain);
+    }
+
+    return gainsDamage;
+}
+
+JX3DPS::Damage JX3DPS::Skill::GetMagicSurplusDamage(
+    Id_t       targetId,
+    RollResult rollResult,
+    int        sub,
+    int        level,
+    Value_t    surplus,
+    Value_t    criticalStrikePower,
+    Value_t    overcome,
+    Value_t    strain)
+{
+    Damage damage;
+
+    PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercentInt;
+    Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
+
+    int      playerLevel                = JX3_PLAYER_LEVEL;
+    int      targetLevel                = (*m_targets)[targetId]->GetLevel();
+    Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
+    Value_t  shieldAdditional           = 0;
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
+    int      rollResultInt                    = static_cast<int>(rollResult);
+    PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
+        (m_effectCriticalStrikePowerAdditionalPercentInt +
+         m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt());
+    PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
+    PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
+    PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    damage.damage = FinalMagicDamage(
+        playerLevel,
+        targetLevel,
+        surplusDamage,
+        shieldBase,
+        shieldAdditional,
+        ignoreShieldBasePercentInt,
+        ignoreShieldAdditionalPercentInt,
+        overcome,
+        rollResultInt,
+        criticalStrikePower,
+        effectCriticalStrikePowerAdditionalPercentInt,
+        strain,
+        strainPercentInt,
+        pveDamageAdditionalPercentInt,
+        vulnerablePercentInt);
+
+    return damage;
+}
+
+JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicSurplusDamage(Id_t targetId, RollResult rollResult, int sub, int level)
+{
+    GainsDamage gainsDamage;
+
+    std::array<Attribute::Type, 6> types = {
+        {{ Attribute::Type::DEFAULT },
+         { Attribute::Type::SURPLUS_VALUE_BASE },
+         { Attribute::Type::CRITICAL_STRIKE_POWER },
+         { Attribute::Type::OVERCOME_BASE },
+         { Attribute::Type::STRAIN_BASE }}
+    };
+
+    for (const auto &type : types) {
+        Value_t surplus             = m_player->attribute.GetSurplusValueBase();
+        Value_t criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
+        Value_t strain              = m_player->attribute.GetStrainBase();
+        Value_t overcome            = m_player->attribute.GetMagicOvercome();
+        Value_t weaponDamage        = m_player->attribute.GetWeaponDamage();
+
+        switch (type) {
+            case Attribute::Type::SURPLUS_VALUE_BASE:
+                m_player->attribute.AddSurplusValueBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                surplus = m_player->attribute.GetSurplusValueBase();
+                m_player->attribute.AddSurplusValueBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::CRITICAL_STRIKE_POWER:
+                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
+                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::OVERCOME_BASE:
+                m_player->attribute.AddMagicOvercomeBaseAdditional(
+                    Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                overcome = m_player->attribute.GetMagicOvercome();
+                m_player->attribute.AddMagicOvercomeBaseAdditional(
+                    -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            case Attribute::Type::STRAIN_BASE:
+                m_player->attribute.AddStrainBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                strain = m_player->attribute.GetStrainBase();
+                m_player->attribute.AddStrainBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
+                break;
+            default: break;
+        }
+
+        gainsDamage[type] =
+            GetMagicSurplusDamage(targetId, rollResult, sub, level, surplus, criticalStrikePower, overcome, strain);
     }
 
     return gainsDamage;

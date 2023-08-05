@@ -18,7 +18,7 @@ add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 
 # CMake选项 app编译
-option(BUILD_APP "option for build" OFF)
+option(BUILD_APP "option for build" ON)
 
 # CMake选项 UT测试
 option(BUILD_TESTS "option for build" ON)

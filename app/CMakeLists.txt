@@ -8,12 +8,21 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-# list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.5.0/msvc2019_64")
+include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
+
+if(NOT BUILD_SHARED_LIBS)
+    add_definitions(
+        -DIMPORT_STATIC_THREAD_POOL_LIB
+        -DIMPORT_STATIC_JX3DPS_LIB
+        -DIMPORT_STATIC_WIDGET_LIB
+    )
+endif()
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-# qt_standard_project_setup()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/modules/Widgets)
 
 file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h*)
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
@@ -44,32 +53,25 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     JX3DPS
-    JX3DPSUI
     ThreadPool
     spdlog
     nlohmann_json
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Widget
 )
 
 if(MSVC)
-    target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:DEBUG>:/PROFILE>)
-    target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:RELWITHDEBINFO>:/PROFILE>)
-    target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:RELEASE>:/PROFILE>)
+    target_link_options(${PROJECT_NAME} PRIVATE /NODEFAULTLIB:msvcrt.lib)
 endif()
+
+set(APP_NAME "JX3DPS Simulator")
+
+add_definitions(-DAPP_NAME="${APP_NAME}")
 
 if(NOT __APPLE__)
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_NAME ${PROJECT_NAME}
+        OUTPUT_NAME ${APP_NAME}
     )
-endif()
-
-get_target_property(QT_TYPE Qt${QT_VERSION_MAJOR}::Widgets TYPE)
-
-if(QT_TYPE STREQUAL "STATIC_LIBRARY")
-    set_property(TARGET ${PROJECT_NAME} PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-else()
-    set_property(TARGET ${PROJECT_NAME} PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -78,7 +80,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE # TRUE 关闭命令行窗口
-    FOLDER apps
+    FOLDER app
 )
 
 install(TARGETS ${PROJECT_NAME}
@@ -86,7 +88,7 @@ install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION ${PROJECT_NAME}/bin
 )
 
-if(BUILD_SHARED_LIBS AND WIN32)
+if(WIN32)
     get_target_property(_qmake_executable Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
     get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
     find_program(DEPLOYQT_EXECUTABLE NAMES windeployqt macdeployqt HINTS "${_qt_bin_dir}")
@@ -96,16 +98,16 @@ if(BUILD_SHARED_LIBS AND WIN32)
         COMMAND ${DEPLOYQT_EXECUTABLE}
         --verbose 1
         --no-svg
-
-        # --no-angle
+        --no-pdf
+        --no-network
         --no-opengl
         --no-opengl-sw
         --no-compiler-runtime
         --no-system-d3d-compiler
         --no-translations
+        --no-virtualkeyboard
+        --$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>
         $<TARGET_FILE:${PROJECT_NAME}>
-
-        # --$<LOWER_CASE:$<CONFIG>> --qmldir ${CMAKE_SOURCE_DIR}
     )
 
     add_custom_command(
@@ -113,14 +115,7 @@ if(BUILD_SHARED_LIBS AND WIN32)
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/config/config.json # 要复制的文件路径
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/config.json # 目标路径
-    )
-
-elseif(NOT BUILD_SHARED_LIBS)
-    add_definitions(
-        -DIMPORT_STATIC_THREAD_POOL_LIB
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/config.json # 目标路径
     )
 endif()
 
-add_subdirectory(Core)
-add_subdirectory(UI)

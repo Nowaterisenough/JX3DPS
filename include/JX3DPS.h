@@ -5,7 +5,7 @@
  * Created Date: 2023-07-19 07:50:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 15:07:29
+ * Last Modified: 2023-08-06 07:06:37
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -60,6 +60,8 @@ extern "C"
 #endif
 
     JX3DPS_API int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(void *, double));
+
+    JX3DPS_API const char *const JX3DPSVersion();
 
 #ifdef __cplusplus
 }

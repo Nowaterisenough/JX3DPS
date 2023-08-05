@@ -14,6 +14,10 @@ elseif(MSVC)
     add_compile_options(/wd4244)
 endif()
 
+# set(CMAKE_BUILD_TYPE $<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>)
+
+# set(CMAKE_BUILD_TYPE "Release")
+
 # 输出结果
 if(NOT BUILD_SHARED_LIBS)
     if(MSVC)
@@ -26,6 +30,8 @@ else()
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /utf-8 /MDd")
     endif()
 endif()
+
+
 
 # install路径
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)

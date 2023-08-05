@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:56:31
+ * Last Modified: 2023-08-06 07:06:29
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -309,4 +309,9 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
     spdlog::info("Total time: {:.8f} s", elapsed.count());
 
     return JX3DPS::JX3DPS_SUCCESS;
+}
+
+const char *const JX3DPSVersion()
+{
+    return JX3DPS::VERSION;
 }

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:44:56
+ * Last Modified: 2023-08-06 04:16:33
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -45,6 +45,10 @@ void JX3DPS::MoWen::Skill::PoZhao::Trigger() { }
 
 void JX3DPS::MoWen::Skill::PoZhao::TriggerDamage(Id_t targetId)
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE](params);
+
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 0);
     Record(targetId, rollResult, damage, 0, 0);
@@ -421,6 +425,8 @@ void JX3DPS::MoWen::Skill::Zhi::SubEffect()
     params.targetId = m_player->GetTargetId();
     m_triggerEffects[TRIGGER_XIAN_FENG_DAMAGE](params);
 
+    m_triggerEffects[TRIGGER_LIU_ZHAO_DAMAGE](params);
+
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -541,6 +547,8 @@ void JX3DPS::MoWen::Skill::BianZhi::SubEffect()
     params.stackNum = m_player->buffs[BUFF_XIAN_FENG]->GetStackNumCurrent();
     params.targetId = m_player->GetTargetId();
     m_triggerEffects[TRIGGER_XIAN_FENG_DAMAGE](params);
+
+    m_triggerEffects[TRIGGER_LIU_ZHAO_DAMAGE](params);
 
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);

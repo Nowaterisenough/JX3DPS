@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:30:58
+ * Last Modified: 2023-08-06 04:09:09
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -407,6 +407,8 @@ enum Id_t
     TRIGGER_ZHI_ZHI,
     TRIGGER_HAO_QING_ZHI,
     TRIGGER_HAO_QING_BIAN_ZHI,
+    TRIGGER_LIU_ZHAO_DAMAGE,
+    TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
     TRIGGER_MO_WEN_END, // ---------------------- 触发效果 莫问 END ----------------------
 
     TRIGGER_END,        // ---------------------- 触发效果 END ----------------------

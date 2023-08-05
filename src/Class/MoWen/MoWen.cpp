@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 18:48:46
+ * Last Modified: 2023-08-06 04:15:10
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -163,6 +163,24 @@ void Player::Init()
         skills[SKILL_BIAN_GONG]->AddTriggerEffect(TRIGGER_ZHI_ZHI,
                                                   std::bind(&TriggerVoid, std::placeholders::_1));
     }
+
+    if (talents[TALENT_LIU_ZHAO]) {
+        buffs.emplace(BUFF_LIU_ZHAO, new Buff::LiuZhao(this, nullptr));
+
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_LIU_ZHAO_DAMAGE,
+                                            std::bind(&TriggerLiuZhaoDamage, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_LIU_ZHAO_DAMAGE,
+                                                 std::bind(&TriggerLiuZhaoDamage, std::placeholders::_1));
+        skills[SKILL_PO_ZHAO]->AddTriggerEffect(TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
+                                                std::bind(&TriggerLiuZhaoSurplusDamage, std::placeholders::_1));
+    } else {
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_LIU_ZHAO_DAMAGE,
+                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_LIU_ZHAO_DAMAGE,
+                                                 std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_PO_ZHAO]->AddTriggerEffect(TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
+                                                std::bind(&TriggerVoid, std::placeholders::_1));
+    }
 }
 
 void Player::TriggerXianFeng(const Params &params)
@@ -240,6 +258,24 @@ void Player::TriggerHaoQingZhi(const Params &params)
 void Player::TriggerHaoQingBianZhi(const Params &params)
 {
     static_cast<Skill::BianZhi *>(params.player->skills[SKILL_BIAN_ZHI])->SubEffect();
+}
+
+void Player::TriggerLiuZhaoDamage(const Params &params)
+{
+    int stackNum = 0;
+    if (params.player->buffs[BUFF_SHANG]->GetDurationCurrent() > 0) {
+        stackNum++;
+    }
+    if (params.player->buffs[BUFF_JUE]->GetDurationCurrent() > 0) {
+        stackNum++;
+    }
+    static_cast<Buff::LiuZhao *>(params.player->buffs[BUFF_LIU_ZHAO])->TriggerDamage(stackNum);
+    static_cast<Buff::LiuZhao *>(params.player->buffs[BUFF_LIU_ZHAO])->TriggerAdd(stackNum);
+}
+
+void Player::TriggerLiuZhaoSurplusDamage(const Params &params)
+{
+    static_cast<Buff::LiuZhao *>(params.player->buffs[BUFF_LIU_ZHAO])->TriggerSurplusDamage();
 }
 
 } // namespace MoWen

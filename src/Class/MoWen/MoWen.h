@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-04 13:14:32
+ * Last Modified: 2023-08-05 17:52:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -80,6 +80,8 @@ public:
 
     static void TriggerXianFengDamage(const Params &params);
 
+    static void TriggerXianFengClear(const Params &params);
+
     static void TriggerYunHan(const Params &params);
 
     static void TriggerCanLianAdd(const Params &params);
@@ -91,6 +93,10 @@ public:
     static void TriggerShiXiang(const Params &params);
 
     static void TriggerZhiZhi(const Params &params);
+
+    static void TriggerHaoQingZhi(const Params &params);
+
+    static void TriggerHaoQingBianZhi(const Params &params);
 };
 
 } // namespace MoWen

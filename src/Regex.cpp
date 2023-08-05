@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-03 20:06:15
+ * Last Modified: 2023-08-05 23:00:24
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -123,10 +123,8 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkil
         if (cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_FCAST || cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_SFCAST)
         {
             fcast = true;
-            exprSkill.first.emplace_back(std::bind(&JX3DPS::Expression::StopReCastSkill,
-                                                   std::placeholders::_1,
-                                                   std::placeholders::_2,
-                                                   id));
+            exprSkill.first.front().emplace_back(
+                std::bind(&JX3DPS::Expression::StopReCastSkill, std::placeholders::_1, std::placeholders::_2, id));
         }
         pre.emplace_back(std::bind(&JX3DPS::Expression::IsReady, std::placeholders::_1, std::placeholders::_2, id, fcast));
     }

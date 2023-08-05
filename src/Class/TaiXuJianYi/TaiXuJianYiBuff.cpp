@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:40
+ * Last Modified: 2023-08-05 22:39:04
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -80,10 +80,11 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::Add(Id_t targetId, int stackNum, Frame_t
     SubEffectAdd(targetId);
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -115,10 +116,11 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::TriggerAdd(Id_t targetId, int stackNum)
     SubEffectAdd(targetId);
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
@@ -229,10 +231,11 @@ void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::Add(Id_t targetId, int stackNum
     m_snapshots[targetId].stackNum = std::min(m_snapshots[targetId].stackNum, m_stackNum);
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -261,10 +264,11 @@ void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::TriggerAdd(Id_t targetId, int s
     m_snapshots[targetId].stackNum = std::min(m_snapshots[targetId].stackNum, m_stackNum);
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
@@ -310,10 +314,11 @@ void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::Add(Id_t targetId, int stackNum, Fr
     m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -335,10 +340,11 @@ void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::TriggerAdd(Id_t targetId)
     m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +

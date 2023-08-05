@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 00:27:43
+ * Last Modified: 2023-08-05 22:30:58
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -216,6 +216,7 @@ enum Id_t
     BUFF_SHEN_BING_GONG,
     BUFF_QU_FENG,
     BUFF_LIU_ZHAO,
+    BUFF_PO_ZHAO_LIU_ZHAO,
     BUFF_XIAN_FENG,
     BUFF_XIAN_FENG_BIAO_JI,
     BUFF_YUN_HAN,
@@ -396,12 +397,16 @@ enum Id_t
     TRIGGER_MO_WEN, // ---------------------- 触发效果 莫问 ----------------------
     TRIGGER_XIAN_FENG,
     TRIGGER_XIAN_FENG_BIAO_JI,
+    TRIGGER_XIAN_FENG_DAMAGE,
+    TRIGGER_XIAN_FENG_CLEAR,
     TRIGGER_YUN_HAN,
     TRIGGER_CAN_LIAN_ADD,
     TRIGGER_CAN_LIAN_CLEAR,
     TRIGGER_SHU_LI,
     TRIGGER_SHI_XIANG,
     TRIGGER_ZHI_ZHI,
+    TRIGGER_HAO_QING_ZHI,
+    TRIGGER_HAO_QING_BIAN_ZHI,
     TRIGGER_MO_WEN_END, // ---------------------- 触发效果 莫问 END ----------------------
 
     TRIGGER_END,        // ---------------------- 触发效果 END ----------------------

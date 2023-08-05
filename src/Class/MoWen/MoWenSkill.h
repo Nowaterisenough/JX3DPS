@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-04 13:33:54
+ * Last Modified: 2023-08-05 22:42:31
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,7 +30,7 @@ class PoZhao : public JX3DPS::Skill
     SKILL_DEFAULT_FUNCTION(PoZhao)
 
 public:
-    void TriggerDamage(Id_t targetId, int sub, int level);
+    void TriggerDamage(Id_t targetId);
 };
 
 class Gong : public JX3DPS::Skill
@@ -123,7 +123,7 @@ public:
     bool StopReCastSkill() override;
 
     void SetCooldown();
-    
+
     void SubEffect();
 };
 
@@ -133,6 +133,8 @@ class ShuYingHengXie : public JX3DPS::Skill
 
 public:
     void SubEffect();
+
+    int percent = 20;
 };
 
 class ShuYingHuaShuang : public JX3DPS::Skill
@@ -172,6 +174,7 @@ class YiXingHuanYing : public JX3DPS::Skill
     SKILL_DEFAULT_FUNCTION(YiXingHuanYing)
 
 public:
+    bool IsReady(bool fcast) override;
     void SubEffect();
 };
 

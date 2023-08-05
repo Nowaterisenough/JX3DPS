@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 04:07:26
+ * Last Modified: 2023-08-05 22:44:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -16,7 +16,7 @@
 #include "MoWenSkill.h"
 
 #include "MoWenBuff.h"
-#include "Target.h"
+#include "Target.hpp"
 
 JX3DPS::MoWen::Skill::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
@@ -49,12 +49,12 @@ void JX3DPS::MoWen::Skill::PoZhao::TriggerDamage(Id_t targetId)
     GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 0);
     Record(targetId, rollResult, damage, 0, 0);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 1);
+    rollResult = GetMagicRollResult();
+    damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 1);
     Record(targetId, rollResult, damage, 0, 1);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 2);
+    rollResult = GetMagicRollResult();
+    damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 2);
     Record(targetId, rollResult, damage, 0, 2);
 }
 
@@ -124,11 +124,15 @@ void JX3DPS::MoWen::Skill::Gong::Trigger()
 
 void JX3DPS::MoWen::Skill::Gong::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_XIAN_FENG](params);
+
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
-    static_cast<YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
+    static_cast<Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
 }
 
 JX3DPS::MoWen::Skill::BianGong::BianGong(JX3DPS::Player *player, Targets *targets) :
@@ -197,6 +201,13 @@ void JX3DPS::MoWen::Skill::BianGong::Trigger()
 
 void JX3DPS::MoWen::Skill::BianGong::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_XIAN_FENG](params);
+
+    params.targetId = m_player->GetTargetId();
+    m_triggerEffects[TRIGGER_ZHI_ZHI](params);
+
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -249,6 +260,10 @@ void JX3DPS::MoWen::Skill::Shang::Trigger() { }
 
 void JX3DPS::MoWen::Skill::Shang::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_XIAN_FENG](params);
+
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -279,6 +294,10 @@ void JX3DPS::MoWen::Skill::Jue::Trigger() { }
 
 void JX3DPS::MoWen::Skill::Jue::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_XIAN_FENG](params);
+
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -341,6 +360,12 @@ void JX3DPS::MoWen::Skill::Zhi::Cast()
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     static_cast<MoWen::Player *>(m_player)->AddStyleCount(5);
+
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_XIAN_FENG](params);
+
+    m_triggerEffects[TRIGGER_HAO_QING_ZHI](params);
 }
 
 void JX3DPS::MoWen::Skill::Zhi::Trigger()
@@ -353,7 +378,11 @@ void JX3DPS::MoWen::Skill::Zhi::Trigger()
         } else {
             index                  = 0;
             m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
-            static_cast<YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
+            static_cast<Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
+
+            Params params;
+            params.player = m_player;
+            m_triggerEffects[TRIGGER_XIAN_FENG_CLEAR](params);
         }
     }
 }
@@ -386,6 +415,12 @@ void JX3DPS::MoWen::Skill::Zhi::TriggerShiXiang()
 
 void JX3DPS::MoWen::Skill::Zhi::SubEffect()
 {
+    Params params;
+    params.player   = m_player;
+    params.stackNum = m_player->buffs[BUFF_XIAN_FENG]->GetStackNumCurrent();
+    params.targetId = m_player->GetTargetId();
+    m_triggerEffects[TRIGGER_XIAN_FENG_DAMAGE](params);
+
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -446,19 +481,30 @@ void JX3DPS::MoWen::Skill::BianZhi::Cast()
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     static_cast<MoWen::Player *>(m_player)->AddStyleCount(5);
+
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_XIAN_FENG](params);
+
+    m_triggerEffects[TRIGGER_HAO_QING_BIAN_ZHI](params);
 }
 
 void JX3DPS::MoWen::Skill::BianZhi::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
+        SubEffect();
         if (index < 2) {
             index++;
             m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+
         } else {
             index                  = 0;
             m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
+
+            Params params;
+            params.player = m_player;
+            m_triggerEffects[TRIGGER_XIAN_FENG_CLEAR](params);
         }
-        SubEffect();
     }
 }
 
@@ -488,15 +534,26 @@ void JX3DPS::MoWen::Skill::BianZhi::TriggerShiXiang()
     m_cooldownCurrent  = std::max(m_cooldownCurrent, 0);
 }
 
-void JX3DPS::MoWen::Skill::BianZhi::SubEffect() { }
+void JX3DPS::MoWen::Skill::BianZhi::SubEffect()
+{
+    Params params;
+    params.player   = m_player;
+    params.stackNum = m_player->buffs[BUFF_XIAN_FENG]->GetStackNumCurrent();
+    params.targetId = m_player->GetTargetId();
+    m_triggerEffects[TRIGGER_XIAN_FENG_DAMAGE](params);
+
+    RollResult  rollResult = GetMagicRollResult();
+    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+}
 
 JX3DPS::MoWen::Skill::Yu::Yu(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id    = SKILL_YU;
-    m_name  = "羽";
-    m_range = 20;
-
+    m_id       = SKILL_YU;
+    m_name     = "羽";
+    m_range    = 20;
+    m_cooldown = 6 * 16;
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
 
     if (m_player->recipes[RECIPE_YU_CRITICAL_STRIKE_3]) {
@@ -518,24 +575,23 @@ JX3DPS::MoWen::Skill::Yu::Yu(JX3DPS::Player *player, Targets *targets) :
     if (m_player->talents[TALENT_SHI_XIANG]) {
         m_effectShieldIgnoreAdditionalPercentInt += 614;
     }
+
+    if (m_player->talents[TALENT_SHU_LI]) {
+        m_cooldown += 5 * 16;
+    }
 }
 
 void JX3DPS::MoWen::Skill::Yu::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent      = m_cooldown * m_player->attribute.GetHastePercent();
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     static_cast<MoWen::Player *>(m_player)->AddStyleCount(4);
+    SubEffect();
 }
 
-void JX3DPS::MoWen::Skill::Yu::Trigger()
-{
-    if (m_prepareFramesCurrent == 0) {
-        SubEffect();
-    }
-}
+void JX3DPS::MoWen::Skill::Yu::Trigger() { }
 
 void JX3DPS::MoWen::Skill::Yu::TriggerShiXiang()
 {
@@ -543,7 +599,20 @@ void JX3DPS::MoWen::Skill::Yu::TriggerShiXiang()
     m_cooldownCurrent  = std::max(m_cooldownCurrent, 0);
 }
 
-void JX3DPS::MoWen::Skill::Yu::SubEffect() { }
+void JX3DPS::MoWen::Skill::Yu::SubEffect()
+{
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_XIAN_FENG](params);
+
+    m_triggerEffects[TRIGGER_SHI_XIANG](params);
+
+    m_triggerEffects[TRIGGER_SHU_LI](params);
+
+    RollResult  rollResult = GetMagicRollResult();
+    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+}
 
 JX3DPS::MoWen::Skill::GaoShanLiuShui::GaoShanLiuShui(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
@@ -566,6 +635,9 @@ void JX3DPS::MoWen::Skill::GaoShanLiuShui::Cast()
         m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownGaoShanLiuShuiCurrent;
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_YANG_CHUN_BAI_XUE])->SetCooldown();
         m_prepareFramesCurrent = 6;
+        Params params;
+        params.player = m_player;
+        m_triggerEffects[TRIGGER_XIAN_FENG_BIAO_JI](params);
     }
 }
 
@@ -574,6 +646,10 @@ void JX3DPS::MoWen::Skill::GaoShanLiuShui::Trigger()
     if (m_prepareFramesCurrent == 0) {
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
         static_cast<MoWen::Player *>(m_player)->style = MoWen::Player::Style::GAO_SHAN_LIU_SHUI;
+
+        Params params;
+        params.player = m_player;
+        m_triggerEffects[TRIGGER_CAN_LIAN_CLEAR](params);
     }
 }
 
@@ -612,6 +688,10 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::Cast()
     } else { // 切曲风
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_GAO_SHAN_LIU_SHUI])->SetCooldown();
         m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+
+        Params params;
+        params.player = m_player;
+        m_triggerEffects[TRIGGER_XIAN_FENG_BIAO_JI](params);
     }
 }
 
@@ -619,6 +699,10 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
         static_cast<MoWen::Player *>(m_player)->style = MoWen::Player::Style::YANG_CHUN_BAI_XUE;
+
+        Params params;
+        params.player = m_player;
+        m_triggerEffects[TRIGGER_CAN_LIAN_ADD](params);
     }
 }
 
@@ -627,10 +711,10 @@ bool JX3DPS::MoWen::Skill::YangChunBaiXue::IsReady(bool fcast)
     if (m_player->IsCast()) {
         return false;
     }
-    if (!m_player->IsReCast() || fcast) {
+    if (!m_player->IsReCast()) {
         if (static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::YANG_CHUN_BAI_XUE &&
                 m_player->IsReCast() ||
-            static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::GAO_SHAN_LIU_SHUI)
+            static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::GAO_SHAN_LIU_SHUI && fcast)
         {
             return true;
         }
@@ -673,31 +757,35 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::SubEffect()
 JX3DPS::MoWen::Skill::ShuYingHengXie::ShuYingHengXie(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id    = SKILL_SHU_YING_HENG_XIE;
-    m_name  = "疏影横斜";
-    m_range = 20;
+    m_id       = SKILL_SHU_YING_HENG_XIE;
+    m_name     = "疏影横斜";
+    m_range    = 20;
+    m_cooldown = 20 * 16;
 
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
+
+    if (m_player->talents[TALENT_KE_MENG]) {
+        percent = 100;
+    }
 }
 
 void JX3DPS::MoWen::Skill::ShuYingHengXie::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent      = m_cooldown * m_player->attribute.GetHastePercent();
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
-    static_cast<MoWen::Player *>(m_player)->AddStyleCount(4);
 }
 
-void JX3DPS::MoWen::Skill::ShuYingHengXie::Trigger()
+void JX3DPS::MoWen::Skill::ShuYingHengXie::Trigger() { }
+
+void JX3DPS::MoWen::Skill::ShuYingHengXie::SubEffect()
 {
-    if (m_prepareFramesCurrent == 0) {
-        SubEffect();
+    static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->TriggerAdd();
+    if (RandomUniform(1, 100) <= percent) {
+        static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->TriggerAdd();
     }
 }
-
-void JX3DPS::MoWen::Skill::ShuYingHengXie::SubEffect() { }
 
 JX3DPS::MoWen::Skill::ShuYingHuaShuang::ShuYingHuaShuang(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
@@ -820,24 +908,36 @@ JX3DPS::MoWen::Skill::YiXingHuanYing::YiXingHuanYing(JX3DPS::Player *player, Tar
 {
     m_id    = SKILL_YI_XING_HUAN_YING;
     m_name  = "移形换影";
-    m_range = 20;
+    m_range = JX3DPS_UNLIMITED_RANGE;
 }
 
 void JX3DPS::MoWen::Skill::YiXingHuanYing::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent      = m_cooldown * m_player->attribute.GetHastePercent();
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
-    *m_globalCooldownCurrent =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
-    static_cast<MoWen::Player *>(m_player)->AddStyleCount(4);
+    SubEffect();
 }
 
-void JX3DPS::MoWen::Skill::YiXingHuanYing::Trigger()
+void JX3DPS::MoWen::Skill::YiXingHuanYing::Trigger() { }
+
+bool JX3DPS::MoWen::Skill::YiXingHuanYing::IsReady(bool fcast)
 {
-    if (m_prepareFramesCurrent == 0) {
-        SubEffect();
+    if (m_player->IsCast()) {
+        return false;
     }
+    if (!m_player->IsReCast() || fcast) {
+        if (static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->ids.size() > 0) {
+            return true;
+        }
+        return false;
+    }
+    return false;
 }
 
-void JX3DPS::MoWen::Skill::YiXingHuanYing::SubEffect() { }
+void JX3DPS::MoWen::Skill::YiXingHuanYing::SubEffect()
+{
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_XIAN_FENG_BIAO_JI](params);
+
+    static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->TriggerClear();
+}

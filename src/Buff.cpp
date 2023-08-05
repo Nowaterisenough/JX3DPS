@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 03:22:11
+ * Last Modified: 2023-08-05 22:46:49
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -256,6 +256,14 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcPhysicsDamage(Id_t targetId, RollResult ro
     }
 
     return gainsDamage;
+}
+
+JX3DPS::RollResult JX3DPS::Buff::GetMagicRollResult() const
+{
+    return RandomUniform(0.0, 1.0) < m_player->attribute.GetMagicCriticalStrikePercent() +
+                                         m_effectCriticalStrikeAdditionalBasisPointInt / JX3_BASIS_POINT_INT_BASE
+               ? RollResult::DOUBLE
+               : RollResult::HIT;
 }
 
 JX3DPS::Damage JX3DPS::Buff::GetMagicDamage(

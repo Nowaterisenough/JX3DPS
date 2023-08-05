@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 23:32:32
+ * Last Modified: 2023-08-05 18:48:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -36,14 +36,28 @@ void Player::Init()
 
         skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                              std::bind(&TriggerXianFeng, std::placeholders::_1));
+        skills[SKILL_BIAN_GONG]->AddTriggerEffect(TRIGGER_XIAN_FENG,
+                                                  std::bind(&TriggerXianFeng, std::placeholders::_1));
         skills[SKILL_SHANG]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                               std::bind(&TriggerXianFeng, std::placeholders::_1));
         skills[SKILL_JUE]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                             std::bind(&TriggerXianFeng, std::placeholders::_1));
         skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                             std::bind(&TriggerXianFeng, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG,
+                                                 std::bind(&TriggerXianFeng, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                            std::bind(&TriggerXianFeng, std::placeholders::_1));
+
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG_DAMAGE,
+                                            std::bind(&TriggerXianFengDamage, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG_DAMAGE,
+                                                 std::bind(&TriggerXianFengDamage, std::placeholders::_1));
+
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG_CLEAR,
+                                            std::bind(&TriggerXianFengClear, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG_CLEAR,
+                                                 std::bind(&TriggerXianFengClear, std::placeholders::_1));
 
         skills[SKILL_GAO_SHAN_LIU_SHUI]->AddTriggerEffect(
             TRIGGER_XIAN_FENG_BIAO_JI,
@@ -57,14 +71,28 @@ void Player::Init()
     } else {
         skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                              std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_GONG]->AddTriggerEffect(TRIGGER_XIAN_FENG,
+                                                  std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_SHANG]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                               std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_JUE]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                             std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                             std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG,
+                                                 std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_XIAN_FENG,
                                            std::bind(&TriggerVoid, std::placeholders::_1));
+
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG_DAMAGE,
+                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG_DAMAGE,
+                                                 std::bind(&TriggerVoid, std::placeholders::_1));
+
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG_CLEAR,
+                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_XIAN_FENG_CLEAR,
+                                                 std::bind(&TriggerVoid, std::placeholders::_1));
 
         skills[SKILL_GAO_SHAN_LIU_SHUI]->AddTriggerEffect(TRIGGER_XIAN_FENG_BIAO_JI,
                                                           std::bind(&TriggerVoid, std::placeholders::_1));
@@ -72,6 +100,18 @@ void Player::Init()
                                                           std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_YI_XING_HUAN_YING]->AddTriggerEffect(TRIGGER_XIAN_FENG_BIAO_JI,
                                                           std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
+    if (talents[TALENT_HAO_QING]) {
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_HAO_QING_ZHI,
+                                            std::bind(&TriggerHaoQingZhi, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_HAO_QING_BIAN_ZHI,
+                                                 std::bind(&TriggerHaoQingBianZhi, std::placeholders::_1));
+    } else {
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_HAO_QING_ZHI,
+                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_HAO_QING_BIAN_ZHI,
+                                                 std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
     if (talents[TALENT_YUN_HAN]) {
@@ -145,6 +185,13 @@ void Player::TriggerXianFengDamage(const Params &params)
     }
 }
 
+void Player::TriggerXianFengClear(const Params &params)
+{
+    if (params.player->buffs[BUFF_XIAN_FENG]->GetDurationCurrent() > 0) {
+        static_cast<Buff::XianFeng *>(params.player->buffs[BUFF_XIAN_FENG])->TriggerClear();
+    }
+}
+
 void Player::TriggerYunHan(const Params &params)
 {
     static_cast<Buff::YunHan *>(params.player->buffs[BUFF_YUN_HAN])
@@ -182,7 +229,17 @@ void Player::TriggerZhiZhi(const Params &params)
         static_cast<Buff::Jue *>(params.player->buffs[BUFF_JUE])->TriggerAdd(params.targetId);
     }
 
-    // TODO
+    static_cast<MoWen::Player *>(params.player)->cooldownStyleCurrent = 0;
+}
+
+void Player::TriggerHaoQingZhi(const Params &params)
+{
+    static_cast<Skill::Zhi *>(params.player->skills[SKILL_ZHI])->SubEffect();
+}
+
+void Player::TriggerHaoQingBianZhi(const Params &params)
+{
+    static_cast<Skill::BianZhi *>(params.player->skills[SKILL_BIAN_ZHI])->SubEffect();
 }
 
 } // namespace MoWen

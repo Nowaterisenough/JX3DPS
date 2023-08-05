@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 03:12:09
+ * Last Modified: 2023-08-05 22:40:13
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -51,20 +51,13 @@ class XianFeng : public JX3DPS::Buff
 
 public:
     void TriggerAdd();
+    void TriggerClear();
     void TriggerDamage(Id_t targetId, int stackNum);
 };
 
 class XianFengBiaoJi : public JX3DPS::Buff
 {
     BUFF_DEFAULT_FUNCTION(XianFengBiaoJi)
-
-public:
-    void TriggerAdd();
-};
-
-class LiuZhao : public JX3DPS::Buff
-{
-    BUFF_DEFAULT_FUNCTION(LiuZhao)
 
 public:
     void TriggerAdd();
@@ -102,6 +95,34 @@ public:
 
     void SubEffectAdd();
     void SubEffectClear();
+};
+
+class LiuZhao : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(LiuZhao)
+
+public:
+    void TriggerAdd(int stackNum);
+    void TriggerDamage(int stackNum);
+    void TriggerSurplusDamage();
+
+    Damage GetMagicSurplusDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        Value_t    surplus,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
+
+    GainsDamage CalcMagicSurplusDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    void SurplusRecord(Id_t               targetId,
+                       RollResult         rollResult  = RollResult::HIT,
+                       const GainsDamage &gainsDamage = GainsDamage(),
+                       int                sub         = 0,
+                       int                level       = 0);
 };
 
 class GaoShanLiuShui : public JX3DPS::Buff

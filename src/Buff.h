@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:30
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 03:19:21
+ * Last Modified: 2023-08-05 22:46:22
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -126,20 +126,20 @@ class Buff
 
             // 收益属性
 
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, true);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, true);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, true);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, true);
+            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, true);
 
             attackPowerGain         = attribute.GetPhysicsAttackPower();
             criticalStrikePowerGain = attribute.GetPhysicsCriticalStrikePower();
             overcomeGain            = attribute.GetPhysicsOvercome();
             strainBaseGain          = attribute.GetStrainBase();
 
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, false);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, false);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, false);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, false);
+            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, false);
         }
 
         void SnapMagic(Attribute &attribute,
@@ -163,20 +163,20 @@ class Buff
 
             // 收益属性
 
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, true);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, true);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, true);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, true);
+            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, true);
 
             attackPowerGain         = attribute.GetMagicAttackPower();
             criticalStrikePowerGain = attribute.GetMagicCriticalStrikePower();
             overcomeGain            = attribute.GetMagicOvercome();
             strainBaseGain          = attribute.GetStrainBase();
 
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, false);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, false);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, false);
-            this->m_player->attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, false);
+            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, false);
         }
     };
 
@@ -231,6 +231,8 @@ public:
 
     GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
+    RollResult GetMagicRollResult() const;
+    
     Damage GetMagicDamage(Id_t       targetId,
                           RollResult rollResult,
                           int        sub,

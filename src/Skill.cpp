@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 03:49:18
+ * Last Modified: 2023-08-05 22:37:08
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -450,7 +450,7 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsSurplusDamage(
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
     PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
 
-    damage.damage = FinalPhysicsDamage(
+    damage.surplusDamage = FinalPhysicsDamage(
         playerLevel,
         targetLevel,
         surplusDamage,
@@ -553,7 +553,7 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicSurplusDamage(
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
     PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
 
-    damage.damage = FinalMagicDamage(
+    damage.surplusDamage = FinalMagicDamage(
         playerLevel,
         targetLevel,
         surplusDamage,

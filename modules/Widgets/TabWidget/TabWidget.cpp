@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 00:33:42
+ * Last Modified: 2023-08-07 00:39:31
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -249,6 +249,10 @@ Tab *TabWidget::Widget(int index)
 
 void TabWidget::paintEvent(QPaintEvent *event)
 {
+    if (m_tabs.size() == 0) {
+        m_tabButton->setGeometry(5, -5, 12, 30);
+        return;
+    }
     int d = 32;
 
     int index = 0;

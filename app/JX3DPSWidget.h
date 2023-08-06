@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:45:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 03:37:02
+ * Last Modified: 2023-08-07 07:16:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -24,4 +24,9 @@ public:
     ~JX3DPSWidget();
 
     void InitWidgetSetting(QWidget *parent = nullptr);
+    void InitWidgetOut(QWidget *parent = nullptr);
+    void InitWidgetAttribute(QWidget *parent = nullptr);
+    void InitWidgetEquipEffects(QWidget *parent = nullptr);
+    void InitWidgetGains(QWidget *parent = nullptr);
+    void InitWidgetPermanents(QWidget *parent = nullptr);
 };

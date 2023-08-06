@@ -1,11 +1,11 @@
 /**
  * Project: JX3DPS
- * File: DataBars.cpp
+ * File: DataBar.cpp
  * Description:
  * Created Date: 2022-01-26 21:34:09
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-10 06:38:54
+ * Last Modified: 2023-08-07 05:45:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,21 +13,21 @@
  * ----------	-----	----------------------------------------------------------
  */
 
-#include "DataBars.h"
+#include "DataBar.h"
 
 #include <QEvent>
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
 #include <QPropertyAnimation>
 
-#include "BlurImage.hpp"
-#include "ThemeColors.h"
+#include "Common/BlurImage.hpp"
+#include "Common/ThemeColors.h"
 
-double                DataBars::s_valueMax = 0.00;
-double                DataBars::s_valueMin = 0.00;
-std::list<DataBars *> DataBars::s_lineEdits;
+double               DataBar::s_valueMax = 0.00;
+double               DataBar::s_valueMin = 0.00;
+std::list<DataBar *> DataBar::s_lineEdits;
 
-DataBars::DataBars(QWidget *parent) : QLineEdit(parent)
+DataBar::DataBar(QWidget *parent) : QLineEdit(parent)
 {
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->setReadOnly(true);
@@ -52,7 +52,7 @@ DataBars::DataBars(QWidget *parent) : QLineEdit(parent)
     // m_gradient.setColorAt(1.0, m_color2);   // 渐变结束颜色
 }
 
-DataBars::~DataBars()
+DataBar::~DataBar()
 {
     for (auto it = s_lineEdits.begin(); it != s_lineEdits.end();) {
         if (*it == this) {
@@ -63,12 +63,12 @@ DataBars::~DataBars()
     }
 }
 
-double DataBars::GetValue() const
+double DataBar::GetValue() const
 {
     return m_value;
 }
 
-void DataBars::SetValue(double value)
+void DataBar::SetValue(double value)
 {
     if (value < 0.0) {
         m_value = 0.0;
@@ -79,7 +79,7 @@ void DataBars::SetValue(double value)
     UpdateValue();
 }
 
-void DataBars::UpdateValue()
+void DataBar::UpdateValue()
 {
     s_valueMax = std::numeric_limits<double>::min();
     s_valueMin = std::numeric_limits<double>::max();
@@ -109,27 +109,27 @@ void DataBars::UpdateValue()
     }
 }
 
-double DataBars::GetRate() const
+double DataBar::GetRate() const
 {
     return m_rate;
 }
 
-void DataBars::SetRate(double rate)
+void DataBar::SetRate(double rate)
 {
     m_rate = rate;
 }
 
-double DataBars::GetOpacity() const
+double DataBar::GetOpacity() const
 {
     return m_opacity;
 }
 
-void DataBars::SetOpacity(double opacity)
+void DataBar::SetOpacity(double opacity)
 {
     m_opacity = opacity;
 }
 
-void DataBars::paintEvent(QPaintEvent *e)
+void DataBar::paintEvent(QPaintEvent *e)
 {
     // QLineEdit::paintEvent(e);
     QPainter painter(this);
@@ -225,7 +225,7 @@ void DataBars::paintEvent(QPaintEvent *e)
     }
 }
 
-bool DataBars::event(QEvent *event)
+bool DataBar::event(QEvent *event)
 {
     switch (event->type()) {
         case QEvent::MouseButtonPress:
@@ -269,12 +269,12 @@ bool DataBars::event(QEvent *event)
     return QLineEdit::event(event);
 }
 
-void DataBars::mouseReleaseEvent(QMouseEvent *event)
+void DataBar::mouseReleaseEvent(QMouseEvent *event)
 {
     QWidget::mouseReleaseEvent(event);
 }
 
-QColor DataBars::GetColor(const double rate)
+QColor DataBar::GetColor(const double rate)
 {
     if (rate > 1.0) {
         return m_color2;
@@ -295,7 +295,7 @@ QColor DataBars::GetColor(const double rate)
     }
 }
 
-int DataBars::GetWidth(const double rate, const int width)
+int DataBar::GetWidth(const double rate, const int width)
 {
     update();
     return static_cast<int>(width * rate);

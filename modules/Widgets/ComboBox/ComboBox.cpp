@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-18 11:15:00
+ * Last Modified: 2023-08-07 06:04:07
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -95,7 +95,7 @@ private:
 #define COLOR_FOCUS     255, 255, 255
 #define COLOR_HIGHLIGHT 208, 211, 212
 
-ItemWidget::ItemWidget(const ItemInfo &itemInfo, QWidget *parent) : QWidget(parent)
+ItemWidget::ItemWidget(const ComboBoxItemInfo &itemInfo, QWidget *parent) : QWidget(parent)
 {
     m_itemInfo = itemInfo;
 
@@ -155,12 +155,12 @@ void ItemWidget::SetComboBoxView()
     m_icon->SetComboBoxView();
 }
 
-ItemInfo ItemWidget::GetItemInfo() const
+ComboBoxItemInfo ItemWidget::GetItemInfo() const
 {
     return m_itemInfo;
 }
 
-void ItemWidget::SetItemInfo(const ItemInfo &itemInfo)
+void ItemWidget::SetItemInfo(const ComboBoxItemInfo &itemInfo)
 {
     m_nameText->setText(itemInfo.name.c_str());
     m_descText->setText(itemInfo.desc.c_str());
@@ -329,7 +329,7 @@ SubComboBox::SubComboBox(ComboBoxType type, QWidget *parent) : QComboBox(parent)
         if (previous != nullptr) {
             ((ItemWidget *)listWidget->itemWidget(previous))->SetSelected(false);
         }
-        ItemInfo itemInfo = ((ItemWidget *)listWidget->itemWidget(current))->GetItemInfo();
+        ComboBoxItemInfo itemInfo = ((ItemWidget *)listWidget->itemWidget(current))->GetItemInfo();
 
         ((ItemWidget *)listWidget->itemWidget(current))->SetSelected(true);
         int index = listWidget->indexFromItem(current).row();
@@ -343,7 +343,7 @@ SubComboBox::SubComboBox(ComboBoxType type, QWidget *parent) : QComboBox(parent)
     });
 }
 
-void SubComboBox::AddItem(const ItemInfo &itemInfo)
+void SubComboBox::AddItem(const ComboBoxItemInfo &itemInfo)
 {
 
     QListWidgetItem *item = new QListWidgetItem((ListWidget *)this->view());
@@ -443,7 +443,7 @@ ComboBox::ComboBox(ComboBoxType type, QWidget *parent) : QWidget(parent)
     }
 }
 
-void ComboBox::AddItem(const ItemInfo &itemInfo)
+void ComboBox::AddItem(const ComboBoxItemInfo &itemInfo)
 {
     m_comboBox->AddItem(itemInfo);
     if (m_comboBox->count() == 1) {
@@ -461,13 +461,13 @@ void ComboBox::SetItemSize(int width, int height)
     m_comboBox->SetItemSize(width, height);
 }
 
-ItemInfo ComboBox::GetItemInfo() const
+ComboBoxItemInfo ComboBox::GetItemInfo() const
 {
     ListWidget *listWidget = static_cast<ListWidget *>(m_comboBox->view());
     if (listWidget->currentItem() != nullptr) {
         return static_cast<ItemWidget *>(listWidget->itemWidget(listWidget->currentItem()))->GetItemInfo();
     }
-    return ItemInfo();
+    return ComboBoxItemInfo();
 }
 
 void ComboBox::paintEvent(QPaintEvent *event)

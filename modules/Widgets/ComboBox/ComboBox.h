@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 02:14:02
+ * Last Modified: 2023-08-07 06:04:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -61,7 +61,7 @@
 class MarqueeLabel;
 class Icon;
 
-struct ItemInfo
+struct ComboBoxItemInfo
 {
     int         id = 0;
     std::string name;
@@ -76,7 +76,7 @@ class ItemWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ItemWidget(const ItemInfo &itemInfo, QWidget *parent = nullptr);
+    explicit ItemWidget(const ComboBoxItemInfo &itemInfo, QWidget *parent = nullptr);
     explicit ItemWidget(QWidget *parent = nullptr);
 
     void SetHovered(bool hovered);
@@ -84,8 +84,8 @@ public:
 
     void SetComboBoxView();
 
-    ItemInfo GetItemInfo() const;
-    void     SetItemInfo(const ItemInfo &itemInfo);
+    ComboBoxItemInfo GetItemInfo() const;
+    void     SetItemInfo(const ComboBoxItemInfo &itemInfo);
 
 signals:
     void Signal_Hovered(bool hovered);
@@ -102,7 +102,7 @@ private:
 
     bool m_view = false;
 
-    ItemInfo m_itemInfo;
+    ComboBoxItemInfo m_itemInfo;
 
     QLabel       *m_nameText = nullptr;
     MarqueeLabel *m_descText = nullptr;
@@ -142,7 +142,7 @@ class SubComboBox : public QComboBox
 public:
     SubComboBox(ComboBoxType type, QWidget *parent = nullptr);
 
-    void     AddItem(const ItemInfo &itemInfo);
+    void     AddItem(const ComboBoxItemInfo &itemInfo);
     void     SetItemSize(int width, int height);
     QWidget *View();
 
@@ -167,9 +167,9 @@ class COMBO_BOX_API ComboBox : public QWidget
 public:
     ComboBox(ComboBoxType type, QWidget *parent = nullptr);
 
-    void     AddItem(const ItemInfo &itemInfo);
+    void     AddItem(const ComboBoxItemInfo &itemInfo);
     void     SetItemSize(int width, int height);
-    ItemInfo GetItemInfo() const;
+    ComboBoxItemInfo GetItemInfo() const;
 
 protected:
     void paintEvent(QPaintEvent *event) override;

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-29 20:09:12
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 20:09:55
+ * Last Modified: 2023-08-07 05:45:07
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,8 +13,8 @@
  * ----------	-----	----------------------------------------------------------
  */
 
-#ifndef BLURIMAGE_H
-#define BLURIMAGE_H
+#ifndef __BLUR_IMAGE_H__
+#define __BLUR_IMAGE_H__
 
 // qt source code, from qmemrotate.cpp & qpixmapfilter.cpp
 static const int tileSize = 32;
@@ -158,7 +158,8 @@ inline void qt_blurinner(uchar *bptr, int &zR, int &zG, int &zB, int &zA, int al
 #define ZA_MASK (0xff << (zprec + aprec))
     *pixel = qt_static_shift<24 - zprec - aprec>(zA & ZA_MASK) |
              qt_static_shift<16 - zprec - aprec>(zR & ZA_MASK) |
-             qt_static_shift<8 - zprec - aprec>(zG & ZA_MASK) | qt_static_shift<-zprec - aprec>(zB & ZA_MASK);
+             qt_static_shift<8 - zprec - aprec>(zG & ZA_MASK) |
+             qt_static_shift<-zprec - aprec>(zB & ZA_MASK);
 #undef ZA_MASK
 }
 
@@ -222,9 +223,10 @@ void expblur(QImage &img, qreal radius, bool improvedQuality = false, int transp
     // saturated pixel will have an alpha component of no greater than
     // the cutOffIntensity
     const qreal cutOffIntensity = 2;
-    int         alpha           = radius <= qreal(1e-5)
-                                      ? ((1 << aprec) - 1)
-                                      : qRound((1 << aprec) * (1 - qPow(cutOffIntensity * (1 / qreal(255)), 1 / radius)));
+    int         alpha =
+        radius <= qreal(1e-5)
+                    ? ((1 << aprec) - 1)
+                    : qRound((1 << aprec) * (1 - qPow(cutOffIntensity * (1 / qreal(255)), 1 / radius)));
 
     int img_height = img.height();
     for (int row = 0; row < img_height; ++row) {
@@ -308,12 +310,14 @@ static QImage qt_halfScaled(const QImage &source)
 
     QImage srcImage = source;
 
-    if (source.format() == QImage::Format_Indexed8 || source.format() == QImage::Format_Grayscale8) {
+    if (source.format() == QImage::Format_Indexed8 || source.format() == QImage::Format_Grayscale8)
+    {
         // assumes grayscale
         QImage dest(source.width() / 2, source.height() / 2, srcImage.format());
         dest.setDevicePixelRatio(source.devicePixelRatioF());
 
-        const uchar *src = reinterpret_cast<const uchar *>(const_cast<const QImage &>(srcImage).bits());
+        const uchar *src =
+            reinterpret_cast<const uchar *>(const_cast<const QImage &>(srcImage).bits());
         int sx  = srcImage.bytesPerLine();
         int sx2 = sx << 1;
 
@@ -336,7 +340,8 @@ static QImage qt_halfScaled(const QImage &source)
         QImage dest(source.width() / 2, source.height() / 2, srcImage.format());
         dest.setDevicePixelRatio(source.devicePixelRatioF());
 
-        const uchar *src = reinterpret_cast<const uchar *>(const_cast<const QImage &>(srcImage).bits());
+        const uchar *src =
+            reinterpret_cast<const uchar *>(const_cast<const QImage &>(srcImage).bits());
         int sx  = srcImage.bytesPerLine();
         int sx2 = sx << 1;
 
@@ -372,7 +377,8 @@ static QImage qt_halfScaled(const QImage &source)
     QImage dest(source.width() / 2, source.height() / 2, srcImage.format());
     dest.setDevicePixelRatio(source.devicePixelRatioF());
 
-    const quint32 *src = reinterpret_cast<const quint32 *>(const_cast<const QImage &>(srcImage).bits());
+    const quint32 *src =
+        reinterpret_cast<const quint32 *>(const_cast<const QImage &>(srcImage).bits());
     int sx  = srcImage.bytesPerLine() >> 2;
     int sx2 = sx << 1;
 
@@ -414,4 +420,4 @@ static void qt_blurImage(/*QPainter *p, */ QImage &blurImage, qreal radius, bool
     }
 }
 
-#endif // BLURIMAGE_H
+#endif // __BLUR_IMAGE_H__

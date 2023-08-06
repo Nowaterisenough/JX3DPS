@@ -21,6 +21,9 @@ if(NOT BUILD_SHARED_LIBS)
         -DIMPORT_STATIC_SPLITTER_LIB
         -DIMPORT_STATIC_CHECK_BOX_LIB
         -DIMPORT_STATIC_LINE_EDIT_LIB
+        -DIMPORT_STATIC_SPIN_BOX_LIB
+        -DIMPORT_STATIC_DATA_BAR_LIB
+        -DIMPORT_STATIC_COMBO_BOX_LIB
     )
 endif()
 
@@ -29,6 +32,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/modules/Widgets)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h*)
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
@@ -70,6 +74,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Splitter
     CheckBox
     LineEdit
+    SpinBox
+    DataBar
+    ComboBox
 )
 
 if(MSVC)

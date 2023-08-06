@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 23:57:04
+ * Last Modified: 2023-08-07 00:01:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -187,7 +187,7 @@ TabWidget::TabWidget(QWidget *parent) : QWidget(parent)
     m_tabButton->show();
 
     connect(m_tabButton, &QPushButton::clicked, [=, this]() {
-        AddTab("新标签页");
+        AddTab(QString("新标签页%1").arg(m_tabs.size() + 1));
         m_tabButton->setChecked(false);
     });
 }
@@ -234,6 +234,8 @@ Tab *TabWidget::Widget(int index)
 
 void TabWidget::paintEvent(QPaintEvent *event)
 {
+    int d = 32;
+
     int index = 0;
     for (auto &[button, tWidget] : m_tabs) {
         tWidget->setGeometry(0, 30, this->width(), this->height() - 30);
@@ -249,7 +251,7 @@ void TabWidget::paintEvent(QPaintEvent *event)
     int left  = index - 1;
     int right = index + 1;
 
-    while (width < this->width() - 27 && (left >= 0 || right < m_tabs.size())) {
+    while (width < this->width() - d && (left >= 0 || right < m_tabs.size())) {
         if (left >= 0) {
             width += QFontMetrics(m_tabs[left].first->font())
                          .horizontalAdvance(m_tabs[left].first->text());
@@ -257,7 +259,7 @@ void TabWidget::paintEvent(QPaintEvent *event)
             sets.insert(left);
             left--;
         }
-        if (right < m_tabs.size() && width < this->width() - 27) {
+        if (right < m_tabs.size() && width < this->width() - d) {
             width += QFontMetrics(m_tabs[right].first->font())
                          .horizontalAdvance(m_tabs[right].first->text());
             width += 10;
@@ -266,8 +268,9 @@ void TabWidget::paintEvent(QPaintEvent *event)
         }
     }
 
-    int dx = width - (this->width() - 27);
+    int dx = width - (this->width() - d);
     if (dx > 0) {
+        m_widget->setFixedWidth(this->width() - d);
         for (int i = 0; i < *sets.begin(); i++) {
             m_tabs[i].first->hide();
         }
@@ -324,6 +327,7 @@ void TabWidget::paintEvent(QPaintEvent *event)
         }
 
     } else {
+        m_widget->setFixedWidth(width);
         int x = 5;
         for (int i = 0; i < m_tabs.size(); i++) {
             m_tabs[i].first->show();
@@ -336,8 +340,7 @@ void TabWidget::paintEvent(QPaintEvent *event)
         }
     }
 
-    m_widget->setFixedWidth(this->width() - 27);
-    m_tabButton->setGeometry(m_widget->geometry().right() + 5, -5, 12, 30);
+    m_tabButton->setGeometry(m_widget->geometry().right() + 10, -5, 12, 30);
 }
 
 TabButton::TabButton(QWidget *parent) : QPushButton(parent)

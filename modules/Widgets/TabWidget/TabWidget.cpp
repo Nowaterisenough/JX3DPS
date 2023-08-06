@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 00:01:50
+ * Last Modified: 2023-08-07 00:33:42
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -17,6 +17,7 @@
 
 #include <QGraphicsDropShadowEffect>
 #include <QLayout>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPropertyAnimation>
 
@@ -166,6 +167,8 @@ RenameWidget::RenameWidget(QWidget *parent) : Widget(parent)
     connect(buttonOk, &QPushButton::clicked, [=]() {
         emit Signal_Rename(m_lineEdit->text());
     });
+
+    connect(buttonDelete, &QPushButton::clicked, [=]() { emit Signal_Delete(); });
 }
 
 void RenameWidget::SetText(const QString &text)
@@ -217,6 +220,18 @@ void TabWidget::AddTab(const QString &text)
         }
     });
 
+    connect(tabButton, &TabButton::Signal_Delete, this, [=] {
+        for (auto &[button, tab] : m_tabs) {
+            if (button == tabButton) {
+
+                tab->deleteLater();
+                button->deleteLater();
+                m_tabs.removeOne(QPair<TabButton *, Tab *>(button, tab));
+                break;
+            }
+        }
+    });
+
     if (m_tabs.size() == 1) {
         tabButton->setChecked(true);
     }
@@ -244,6 +259,11 @@ void TabWidget::paintEvent(QPaintEvent *event)
         }
         index++;
     }
+    if (index == m_tabs.size()) {
+        index = 0;
+        m_tabs[0].first->setChecked(true);
+    }
+
     std::set<int> sets;
     sets.insert(index);
     int width =
@@ -481,8 +501,6 @@ void TabButton::leaveEvent(QEvent *event)
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-#include <QMouseEvent>
-
 void TabButton::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
@@ -491,9 +509,17 @@ void TabButton::mousePressEvent(QMouseEvent *event)
         RenameWidget *rename = new RenameWidget();
         rename->show();
         rename->SetText(this->text());
+
         connect(rename, &RenameWidget::Signal_Rename, [this, rename](QString text) {
             this->setText(text);
             rename->close();
+            rename->deleteLater();
+        });
+
+        connect(rename, &RenameWidget::Signal_Delete, [this, rename]() {
+            emit Signal_Delete();
+            rename->close();
+            rename->deleteLater();
         });
     }
 }

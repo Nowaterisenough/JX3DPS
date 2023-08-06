@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 22:00:50
+ * Last Modified: 2023-08-07 00:05:31
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -109,6 +109,7 @@ public:
 
 signals:
     void Signal_Rename(const QString &text);
+    void Signal_Delete();
 
 private:
     RenameLineEdit *m_lineEdit = nullptr;
@@ -140,6 +141,9 @@ public:
     int  GetLine() const;
     void SetLine(int line);
 
+signals:
+    void Signal_Delete();
+    
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 00:05:31
+ * Last Modified: 2023-08-07 03:35:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -60,35 +60,6 @@
 
 #include "Common/ThemeColors.h"
 #include "Widget/Widget.h"
-
-class Button : public QPushButton
-{
-    Q_OBJECT
-    Q_PROPERTY(QColor color READ GetColor WRITE SetColor)
-    Q_PROPERTY(QColor textColor READ GetTextColor WRITE SetTextColor)
-
-public:
-    Button(QWidget *parent = nullptr);
-
-    QColor GetColor() const;
-    void   SetColor(QColor color);
-
-    QColor GetTextColor() const;
-    void   SetTextColor(QColor color);
-
-    void SetButtonColor(const QColor &hover, const QColor &normal);
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-    void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QEvent *event) override;
-
-private:
-    QColor m_textColor   = QColor(193, 255, 203);
-    QColor m_hoverColor  = QColor(COLOR_BUTTON_BLUE_HOVER);
-    QColor m_normalColor = QColor(COLOR_BUTTON_BLUE_NORMAL);
-    QColor m_color       = m_normalColor;
-};
 
 class RenameLineEdit : public QLineEdit
 {
@@ -164,6 +135,8 @@ public:
 
     void AddTab(const QString &text);
     Tab *Widget(int index);
+
+    void SetAddButtonVisible(bool visible);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

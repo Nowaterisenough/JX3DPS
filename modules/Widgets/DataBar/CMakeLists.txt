@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(ComboBox VERSION 1.1)
+project(Button VERSION 1.1)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -14,7 +14,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 FILE(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h*)
 FILE(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
 
-add_definitions(-DEXPORT_COMBO_BOX)
+add_definitions(-DEXPORT_BUTTON)
 
 add_library(${PROJECT_NAME} STATIC
     ${HEADER_FILES}
@@ -63,7 +63,7 @@ configure_package_config_file(
 if(NOT BUILD_SHARED_LIBS)
     file(APPEND
         ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-        "add_definitions(-DIMPORT_STATIC_COMBO_BOX_LIB)\n"
+        "add_definitions(-DIMPORT_STATIC_BUTTON_LIB)\n"
     )
 endif(NOT BUILD_SHARED_LIBS)
 

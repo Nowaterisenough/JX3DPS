@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:45:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 06:46:15
+ * Last Modified: 2023-08-07 03:37:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -22,4 +22,6 @@ class JX3DPSWidget : public Widget
 public:
     JX3DPSWidget(QWidget *parent = nullptr);
     ~JX3DPSWidget();
+
+    void InitWidgetSetting(QWidget *parent = nullptr);
 };

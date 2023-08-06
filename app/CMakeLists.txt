@@ -16,6 +16,11 @@ if(NOT BUILD_SHARED_LIBS)
         -DIMPORT_STATIC_JX3DPS_LIB
         -DIMPORT_STATIC_WIDGET_LIB
         -DIMPORT_STATIC_TAB_WIDGET_LIB
+        -DIMPORT_STATIC_GROUP_BOX_LIB
+        -DIMPORT_STATIC_BUTTON_LIB
+        -DIMPORT_STATIC_SPLITTER_LIB
+        -DIMPORT_STATIC_CHECK_BOX_LIB
+        -DIMPORT_STATIC_LINE_EDIT_LIB
     )
 endif()
 
@@ -60,6 +65,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Widgets
     Widget
     TabWidget
+    GroupBox
+    Button
+    Splitter
+    CheckBox
+    LineEdit
 )
 
 if(MSVC)
@@ -120,4 +130,3 @@ if(WIN32)
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/config.json # 目标路径
     )
 endif()
-

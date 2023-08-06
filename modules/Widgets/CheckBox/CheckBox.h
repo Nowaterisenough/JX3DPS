@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-18 02:02:44
+ * Last Modified: 2023-08-07 04:20:13
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,18 +13,63 @@
  * ----------	-----	----------------------------------------------------------
  */
 
-#ifndef CHECKBOX_H
-#define CHECKBOX_H
+#ifndef __CHECK_BOX_H__
+#define __CHECK_BOX_H__
+
+#if defined _WIN32 || defined __CYGWIN__
+#    if defined EXPORT_CHECK_BOX // CMake add_definitions
+#        ifdef __GNUC__
+#            define CHECK_BOX_API __attribute__((dllexport))
+#        else
+#            define CHECK_BOX_API __declspec(dllexport)
+#        endif // __GNUC__
+#    else
+#        ifdef __GNUC__
+#            define CHECK_BOX_API __attribute__((dllimport))
+#        else
+#            ifndef IMPORT_STATIC_CHECK_BOX_LIB
+#                define CHECK_BOX_API __declspec(dllimport)
+#            else
+#                define CHECK_BOX_API
+#            endif
+#        endif // __GNUC__
+#    endif     // EXPORT_CHECK_BOX
+#    define CHECK_BOX_PRIVATE
+
+#elif defined __GNUC__
+#    if __GNUC__ >= 4
+#        define CHECK_BOX_API     __attribute__((visibility("default")))
+#        define CHECK_BOX_PRIVATE __attribute__((visibility("hidden")))
+#    else
+#        define CHECK_BOX_API
+#        define CHECK_BOX_PRIVATE
+#    endif // __GNUC__ >= 4
+
+#elif defined __clang__
+#    define CHECK_BOX_API     __attribute__((visibility("default")))
+#    define CHECK_BOX_PRIVATE __attribute__((visibility("hidden")))
+
+#else
+#    error "Do not know how to export classes for this platform"
+#endif // defined(_WIN32) || defined(__CYGWIN__)
 
 #include <QCheckBox>
 #include <QColor>
 #include <QPixmap>
 
-#include "BaseWidgets/ComboBox.h"
+#include "Common/ThemeColors.h"
 
-#include "ThemeColors.h"
+struct CHECK_BOX_API ItemInfo
+{
+    int         id = 0;
+    std::string name;
+    std::string icon;
+    std::string desc;
 
-class CheckBox : public QCheckBox
+    std::vector<std::pair<std::string, int>> subItems;
+};
+
+class CHECK_BOX_API CheckBox : public QCheckBox
 {
     Q_OBJECT
 
@@ -46,51 +91,4 @@ private:
     ItemInfo m_itemInfo;
 };
 
-class SecretImage : public QWidget
-{
-    Q_OBJECT
-
-public:
-    SecretImage(const QPixmap &pixmap, QWidget *parent = nullptr);
-
-    void SetChecked(bool checked);
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-    void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-
-signals:
-    void Signal_Checked(bool checked);
-
-private:
-    QPixmap *m_pixmap  = nullptr;
-    bool     m_checked = false;
-    bool     m_hovered = false;
-};
-
-struct SecretInfo
-{
-    int iconId = -1;
-
-    std::string name;
-    std::string desc;
-};
-
-class SecretCheckBox : public QWidget
-{
-    Q_OBJECT
-
-public:
-    SecretCheckBox(const SecretInfo &info, QWidget *parent = nullptr);
-
-    bool IsChecked();
-
-private:
-    CheckBox    *m_checkBox = nullptr;
-    SecretImage *m_image    = nullptr;
-};
-
-#endif // CHECKBOX_H
+#endif // __CHECK_BOX_H__

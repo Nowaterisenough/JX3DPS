@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-06-29 20:55:15
+ * Last Modified: 2023-08-07 02:43:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -15,11 +15,10 @@
 
 #include "GroupBox.h"
 
-#include <QDebug>
 #include <QEvent>
 #include <QPainter>
 
-#include "ThemeColors.h"
+#include "Common/ThemeColors.h"
 
 GroupBox::GroupBox(const QString &name, QWidget *parent) : QGroupBox(name, parent)
 {

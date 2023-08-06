@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 01:41:52
+ * Last Modified: 2023-08-07 02:14:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,41 +13,41 @@
  * ----------	-----	----------------------------------------------------------
  */
 
-#ifndef COMBOBOX_H
-#define COMBOBOX_H
+#ifndef __COMBO_BOX_H__
+#define __COMBO_BOX_H__
 
 #if defined _WIN32 || defined __CYGWIN__
-#    if defined EXPORT_COMBOBOX // CMake add_definitions
+#    if defined EXPORT_COMBO_BOX // CMake add_definitions
 #        ifdef __GNUC__
-#            define COMBOBOX_API __attribute__((dllexport))
+#            define COMBO_BOX_API __attribute__((dllexport))
 #        else
-#            define COMBOBOX_API __declspec(dllexport)
+#            define COMBO_BOX_API __declspec(dllexport)
 #        endif // __GNUC__
 #    else
 #        ifdef __GNUC__
-#            define COMBOBOX_API __attribute__((dllimport))
+#            define COMBO_BOX_API __attribute__((dllimport))
 #        else
-#            ifndef IMPORT_STATIC_COMBOBOX_LIB
-#                define COMBOBOX_API __declspec(dllimport)
+#            ifndef IMPORT_STATIC_COMBO_BOX_LIB
+#                define COMBO_BOX_API __declspec(dllimport)
 #            else
-#                define COMBOBOX_API
+#                define COMBO_BOX_API
 #            endif
 #        endif // __GNUC__
-#    endif     // EXPORT_COMBOBOX
-#    define COMBOBOX_PRIVATE
+#    endif     // EXPORT_COMBO_BOX
+#    define COMBO_BOX_PRIVATE
 
 #elif defined __GNUC__
 #    if __GNUC__ >= 4
-#        define COMBOBOX_API     __attribute__((visibility("default")))
-#        define COMBOBOX_PRIVATE __attribute__((visibility("hidden")))
+#        define COMBO_BOX_API     __attribute__((visibility("default")))
+#        define COMBO_BOX_PRIVATE __attribute__((visibility("hidden")))
 #    else
-#        define COMBOBOX_API
-#        define COMBOBOX_PRIVATE
+#        define COMBO_BOX_API
+#        define COMBO_BOX_PRIVATE
 #    endif // __GNUC__ >= 4
 
 #elif defined __clang__
-#    define COMBOBOX_API     __attribute__((visibility("default")))
-#    define COMBOBOX_PRIVATE __attribute__((visibility("hidden")))
+#    define COMBO_BOX_API     __attribute__((visibility("default")))
+#    define COMBO_BOX_PRIVATE __attribute__((visibility("hidden")))
 
 #else
 #    error "Do not know how to export classes for this platform"
@@ -128,7 +128,7 @@ private:
     QListWidgetItem *m_lastEnteredItem = nullptr;
 };
 
-enum class COMBOBOX_API ComboBoxType
+enum class COMBO_BOX_API ComboBoxType
 {
     ICON_MODE = 0,
     ICON_AND_NAME_MODE,
@@ -160,7 +160,7 @@ private:
     QWidget *m_view    = nullptr;
 };
 
-class COMBOBOX_API ComboBox : public QWidget
+class COMBO_BOX_API ComboBox : public QWidget
 {
     Q_OBJECT
 
@@ -183,4 +183,4 @@ private:
     ComboBoxType m_type     = ComboBoxType::ICON_MODE;
 };
 
-#endif // COMBOBOX_H
+#endif // __COMBO_BOX_H__

@@ -1,25 +1,5 @@
 <RCC>
   <qresource prefix="/resources">
-    <file>pics\JX3\紫霞功.png</file>
-    <file>pics\JX3\傲血战意.png</file>
-    <file>pics\JX3\北傲诀.png</file>
-    <file>pics\JX3\冰心诀.png</file>
-    <file>pics\JX3\毒经.png</file>
-    <file>pics\JX3\分山劲.png</file>
-    <file>pics\JX3\焚影圣诀.png</file>
-    <file>pics\JX3\花间游.png</file>
-    <file>pics\JX3\惊羽诀.png</file>
-    <file>pics\JX3\凌海诀.png</file>
-    <file>pics\JX3\莫问.png</file>
-    <file>pics\JX3\太虚剑意.png</file>
-    <file>pics\JX3\太玄经.png</file>
-    <file>pics\JX3\天罗诡道.png</file>
-    <file>pics\JX3\问水诀.png</file>
-    <file>pics\JX3\笑尘诀.png</file>
-    <file>pics\JX3\易筋经.png</file>
-    <file>pics\JX3\隐龙诀.png</file>
-    <file>pics\JX3\孤锋诀.png</file>
-    <file>pics\JX3\无方.png</file>
     <file>Monaco.ttf</file>
     <file>NoWatsFont.ttf</file>
     <file>pics\JX3\Icons\8915.png</file>

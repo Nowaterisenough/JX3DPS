@@ -24,6 +24,7 @@ add_library(${PROJECT_NAME} STATIC
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Widgets
     Widget
+    Button
 )
 
 set(HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h)

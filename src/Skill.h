@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-29 17:52:32
+ * Last Modified: 2023-08-05 03:49:21
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -39,8 +39,7 @@ public:                                                            \
         return new class_name(*this);                              \
     }                                                              \
     void Trigger() override;                                       \
-    void Cast() override;                                          \
-    void Stop() override;
+    void Cast() override;
 
 namespace JX3DPS {
 
@@ -58,7 +57,11 @@ public:
     virtual Skill *Clone() const = 0;
     virtual void   Trigger()     = 0;
     virtual void   Cast()        = 0;
-    virtual void   Stop()        = 0;
+
+    virtual void Stop() { }
+
+    virtual bool IsReady(bool fcast);
+    virtual bool StopReCastSkill();
 
     void SetPlayer(Player *player);
     void SetTargets(Targets *targets);
@@ -67,12 +70,12 @@ public:
     void    UpdateKeyFrame(Frame_t frame);
 
     Frame_t GetTriggerFrame() const;
-    Frame_t GetCooldownCurrent() const;              // 用于宏条件判定
+    Frame_t GetCooldownCurrent() const;           // 用于宏条件判定
 
-    void    SetEnergyCooldownCurrent(Frame_t frame); // 用于事件语句设置技能冷却
-    Frame_t GetEnergyCooldownCurrent() const;        // 用于宏条件判定
-    int     GetEnergyCountCurrent() const;           // 用于宏条件判定
-    double  GetRange() const;                        // 用于宏条件判定
+    void SetEnergyCooldownCurrent(Frame_t frame); // 用于事件语句设置技能冷却
+    Frame_t GetEnergyCooldownCurrent() const;     // 用于宏条件判定
+    int     GetEnergyCountCurrent() const;        // 用于宏条件判定
+    double  GetRange() const;                     // 用于宏条件判定
 
     inline void AddCriticalStrikeAdditionalBasisPointInt(BPInt_t basisPointInt)
     {
@@ -82,6 +85,16 @@ public:
     inline void AddCriticalStrikePowerAdditionalPercentInt(PctInt_t percentInt)
     {
         m_effectCriticalStrikePowerAdditionalPercentInt += percentInt;
+    }
+
+    inline void AddDamageAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_effectDamageAdditionalPercentInt += percentInt;
+    }
+
+    inline void AddShieldIgnoreAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_effectShieldIgnoreAdditionalPercentInt += percentInt;
     }
 
     inline Stats &GetStats() { return m_stats; }
@@ -101,11 +114,51 @@ public:
 
     GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
+    RollResult GetMagicRollResult() const;
+
+    Damage GetMagicDamage(Id_t       targetId,
+                          RollResult rollResult,
+                          int        sub,
+                          int        level,
+                          Value_t    attack,
+                          Value_t    weaponDamage,
+                          Value_t    criticalStrikePower,
+                          Value_t    overcome,
+                          Value_t    strain);
+
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    Damage GetPhysicsSurplusDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        Value_t    surplus,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
+
+    GainsDamage CalcPhysicsSurplusDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
+    Damage GetMagicSurplusDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        Value_t    surplus,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
+
+    GainsDamage CalcMagicSurplusDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
     void Record(Id_t               targetId,
                 RollResult         rollResult  = RollResult::HIT,
                 const GainsDamage &gainsDamage = GainsDamage(),
                 int                sub         = 0,
                 int                level       = 0);
+
+    void AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect);
 
 protected:
     Player  *m_player  = nullptr;
@@ -124,8 +177,8 @@ protected:
     int m_targetLimit = 0;
 
     /* 公共冷却 */
-    Frame_t *m_globalCooldown     = nullptr;
-    Frame_t  m_noneGlobalCooldown = 0;
+    Frame_t *m_globalCooldownCurrent = nullptr;
+    Frame_t  m_noneGlobalCooldown    = 0;
 
     /* 技能冷却 */
     Frame_t m_cooldown        = 0;
@@ -162,6 +215,9 @@ protected:
 
     /* 统计 */
     Stats m_stats;
+
+    /* 附加效果 */
+    TriggerEffects m_triggerEffects;
 };
 
 } // namespace JX3DPS

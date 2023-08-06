@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:30
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 00:48:11
+ * Last Modified: 2023-08-05 22:46:22
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -54,7 +54,7 @@ class Buff
         /* 持续时间 */
         Frame_t duration = 0;
 
-        /* 作用间隔 内置cd */
+        /* 作用间隔 */
         Frame_t interval = JX3DPS_INVALID_FRAMES_SET;
 
         /* 层数 */
@@ -71,6 +71,9 @@ class Buff
 
         /* 快照会效 */
         Value_t criticalStrikePower = 0;
+
+        /* 快照破防 */
+        Value_t overcome = 0;
 
         /* 快照加速 */
         PctFloat_t hastePercent = 0.0;
@@ -96,38 +99,84 @@ class Buff
         /* 快照收益会效 */
         Value_t criticalStrikePowerGain = 0;
 
+        /* 快照收益破防 */
+        Value_t overcomeGain = 0;
+
         /* 快照收益无双 */
         Value_t strainBaseGain = 0;
 
-        void Snap(Attribute &attribute,
-                  BPInt_t    effectCriticalStrikeAdditionalBasisPointInt,
-                  PctInt_t   effectCriticalStrikePowerAdditionalPercentInt,
-                  PctInt_t   effectDamageAdditionalPercentInt)
+        void SnapPhysics(Attribute &attribute,
+                         BPInt_t    effectCriticalStrikeAdditionalBasisPointInt,
+                         PctInt_t   effectCriticalStrikePowerAdditionalPercentInt,
+                         PctInt_t   effectDamageAdditionalPercentInt)
         {
-            attackPower                    = attribute.GetPhysicsAttackPower();
-            criticalStrike                 = attribute.GetPhysicsCriticalStrike();
-            criticalStrikePercent          = attribute.GetPhysicsCriticalStrikePercent();
-            criticalStrikePower            = attribute.GetPhysicsCriticalStrikePower();
-            hastePercent                   = attribute.GetHastePercent();
-            strainBase                     = attribute.GetStrainBase();
+            attackPower           = attribute.GetPhysicsAttackPower();
+            criticalStrike        = attribute.GetPhysicsCriticalStrike();
+            criticalStrikePercent = attribute.GetPhysicsCriticalStrikePercent();
+            criticalStrikePower   = attribute.GetPhysicsCriticalStrikePower();
+            overcome              = attribute.GetPhysicsOvercome();
+            hastePercent          = attribute.GetHastePercent();
+            strainBase            = attribute.GetStrainBase();
             strainBaseAdditionalPercentInt = attribute.GetStrainBaseAdditionalPercentInt();
 
             this->effectCriticalStrikeAdditionalBasisPointInt = effectCriticalStrikeAdditionalBasisPointInt;
-            this->effectCriticalStrikePowerAdditionalPercentInt = effectCriticalStrikePowerAdditionalPercentInt;
+            this->effectCriticalStrikePowerAdditionalPercentInt =
+                effectCriticalStrikePowerAdditionalPercentInt;
             this->effectDamageAdditionalPercentInt = effectDamageAdditionalPercentInt;
 
             // 收益属性
-            attribute.AddPhysicsAttackPowerBaseAdditional(0);
-            attribute.AddPhysicsCriticalStrikePower(0);
-            attribute.AddStrainBase(0);
+
+            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, true);
+            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, true);
 
             attackPowerGain         = attribute.GetPhysicsAttackPower();
             criticalStrikePowerGain = attribute.GetPhysicsCriticalStrikePower();
+            overcomeGain            = attribute.GetPhysicsOvercome();
             strainBaseGain          = attribute.GetStrainBase();
 
-            attribute.AddPhysicsAttackPowerBaseAdditional(-0);
-            attribute.AddPhysicsCriticalStrikePower(-0);
-            attribute.AddStrainBase(-0);
+            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, false);
+            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, false);
+        }
+
+        void SnapMagic(Attribute &attribute,
+                       BPInt_t    effectCriticalStrikeAdditionalBasisPointInt,
+                       PctInt_t   effectCriticalStrikePowerAdditionalPercentInt,
+                       PctInt_t   effectDamageAdditionalPercentInt)
+        {
+            attackPower           = attribute.GetMagicAttackPower();
+            criticalStrike        = attribute.GetMagicCriticalStrike();
+            criticalStrikePercent = attribute.GetMagicCriticalStrikePercent();
+            criticalStrikePower   = attribute.GetMagicCriticalStrikePower();
+            overcome              = attribute.GetMagicOvercome();
+            hastePercent          = attribute.GetHastePercent();
+            strainBase            = attribute.GetStrainBase();
+            strainBaseAdditionalPercentInt = attribute.GetStrainBaseAdditionalPercentInt();
+
+            this->effectCriticalStrikeAdditionalBasisPointInt = effectCriticalStrikeAdditionalBasisPointInt;
+            this->effectCriticalStrikePowerAdditionalPercentInt =
+                effectCriticalStrikePowerAdditionalPercentInt;
+            this->effectDamageAdditionalPercentInt = effectDamageAdditionalPercentInt;
+
+            // 收益属性
+
+            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, true);
+            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, true);
+            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, true);
+
+            attackPowerGain         = attribute.GetMagicAttackPower();
+            criticalStrikePowerGain = attribute.GetMagicCriticalStrikePower();
+            overcomeGain            = attribute.GetMagicOvercome();
+            strainBaseGain          = attribute.GetStrainBase();
+
+            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, false);
+            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, false);
+            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, false);
         }
     };
 
@@ -160,6 +209,11 @@ public:
     int     GetStackNumCurrent(Id_t targetId = PLAYER_ID) const; // 用于宏条件判定
     double  GetRange() const;                                    // 用于宏条件判定
 
+    inline void AddDamageAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_effectDamageAdditionalPercentInt += percentInt;
+    }
+
     inline Stats &GetStats() { return m_stats; }
 
     RollResult GetPhysicsRollResult() const;
@@ -177,6 +231,20 @@ public:
 
     GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
+    RollResult GetMagicRollResult() const;
+    
+    Damage GetMagicDamage(Id_t       targetId,
+                          RollResult rollResult,
+                          int        sub,
+                          int        level,
+                          Value_t    attack,
+                          Value_t    weaponDamage,
+                          Value_t    criticalStrikePower,
+                          Value_t    overcome,
+                          Value_t    strain);
+
+    GainsDamage CalcMagicDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
+
     RollResult GetDotRollResult(Id_t targetId) const;
 
     Damage GetPhysicsDotDamage(
@@ -193,11 +261,27 @@ public:
 
     GainsDamage CalcPhysicsDotDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
 
+    Damage GetMagicDotDamage(
+        Id_t       targetId,
+        RollResult rollResult,
+        int        sub,
+        int        level,
+        int        effectCount,
+        Value_t    attack,
+        Value_t    weaponDamage,
+        Value_t    criticalStrikePower,
+        Value_t    overcome,
+        Value_t    strain);
+
+    GainsDamage CalcMagicDotDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
+
     void Record(Id_t               targetId,
                 RollResult         rollResult  = RollResult::HIT,
                 const GainsDamage &gainsDamage = GainsDamage(),
                 int                sub         = 0,
                 int                level       = 0);
+
+    void AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect);
 
 protected:
     Player  *m_player  = nullptr;
@@ -251,6 +335,9 @@ protected:
 
     /* 统计 */
     Stats m_stats;
+
+    /* 附加效果 */
+    TriggerEffects m_triggerEffects;
 };
 
 } // namespace JX3DPS

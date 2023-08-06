@@ -1,2 +1,2 @@
 add_subdirectory(ThreadPool)
-# add_subdirectory()
+add_subdirectory(Widgets)

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 10:44:57
+ * Last Modified: 2023-08-05 04:07:15
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -42,13 +42,11 @@ void JX3DPS::TaiXuJianYi::Skill::PoZhao::Cast() { }
 
 void JX3DPS::TaiXuJianYi::Skill::PoZhao::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::PoZhao::Stop() { }
-
 void JX3DPS::TaiXuJianYi::Skill::PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
 {
-    RollResult rollResult = GetPhysicsRollResult();
-    // GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
-    // Record(m_player->GetTargetId(), rollResult, damage, 0, level);
+    RollResult  rollResult = GetPhysicsRollResult();
+    GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
+    Record(targetId, rollResult, damage, sub, level);
 }
 
 JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) :
@@ -120,31 +118,31 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
                                    2048,
                                    19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10);
 
-    if (m_player->secrets[SECRET_WU_WO_WU_JIAN_CRITICAL_STRIKE_2]) {
+    if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_2]) {
         m_effectCriticalStrikePowerAdditionalPercentInt += 200;
     }
 
-    if (m_player->secrets[SECRET_WU_WO_WU_JIAN_CRITICAL_STRIKE_3]) {
+    if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_3]) {
         m_effectCriticalStrikePowerAdditionalPercentInt += 300;
     }
 
-    if (m_player->secrets[SECRET_WU_WO_WU_JIAN_CRITICAL_STRIKE_4]) {
+    if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_4]) {
         m_effectCriticalStrikePowerAdditionalPercentInt += 400;
     }
 
-    if (m_player->secrets[SECRET_WU_WO_WU_JIAN_DAMAGE_3]) {
+    if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_DAMAGE_3]) {
         m_effectDamageAdditionalPercentInt += 31;
     }
 
-    if (m_player->secrets[SECRET_WU_WO_WU_JIAN_DAMAGE_4]) {
+    if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_DAMAGE_4]) {
         m_effectDamageAdditionalPercentInt += 41;
     }
 
-    if (m_player->secrets[SECRET_WU_WO_WU_JIAN_DAMAGE_5]) {
+    if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_DAMAGE_5]) {
         m_effectDamageAdditionalPercentInt += 51;
     }
 
-    if (m_player->secrets[SECRET_WU_WO_WU_JIAN_QIDIAN]) {
+    if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_QIDIAN]) {
         m_effectQidianAdditional += 1;
     }
 
@@ -164,14 +162,12 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Trigger() { }
-
-void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiAdd()
 {
@@ -201,7 +197,7 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
     m_player->triggerEffects[TRIGGER_WU_YI](params);
 
     RollResult  rollResult = GetPhysicsRollResult();
-    GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
+    GainsDamage damage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
     Record(m_player->GetTargetId(), rollResult, damage, 0, level);
 
     params.rollResult = rollResult;
@@ -294,23 +290,23 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
     m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
     m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
 
-    if (m_player->secrets[SECRET_BA_HUANG_GUI_YUAN_DAMAGE_3]) {
+    if (m_player->recipes[RECIPE_BA_HUANG_GUI_YUAN_DAMAGE_3]) {
         m_effectDamageAdditionalPercentInt += 31;
     }
 
-    if (m_player->secrets[SECRET_BA_HUANG_GUI_YUAN_DAMAGE_4]) {
+    if (m_player->recipes[RECIPE_BA_HUANG_GUI_YUAN_DAMAGE_4]) {
         m_effectDamageAdditionalPercentInt += 41;
     }
 
-    if (m_player->secrets[SECRET_BA_HUANG_GUI_YUAN_DAMAGE_5]) {
+    if (m_player->recipes[RECIPE_BA_HUANG_GUI_YUAN_DAMAGE_5]) {
         m_effectDamageAdditionalPercentInt += 51;
     }
 
-    if (m_player->secrets[SECRET_BA_HUANG_GUI_YUAN_QIDIAN]) {
+    if (m_player->recipes[RECIPE_BA_HUANG_GUI_YUAN_QIDIAN]) {
         m_effectQidianAdditional += 1;
     }
 
-    if (m_player->secrets[SECRET_BA_HUANG_GUI_YUAN_COOLDOWN]) {
+    if (m_player->recipes[RECIPE_BA_HUANG_GUI_YUAN_COOLDOWN]) {
         m_effectCooldownAdditional  = -16 * 1;
         m_cooldown                 += m_effectCooldownAdditional;
     }
@@ -328,14 +324,12 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
 void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Trigger() { }
-
-void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
 {
@@ -347,7 +341,7 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
     int level = 10 - ((*m_targets)[m_player->GetTargetId()]->GetLifePercent() - 0.01) * 10;
 
     RollResult  rollResult = GetPhysicsRollResult();
-    GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
+    GainsDamage damage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
     Record(m_player->GetTargetId(), rollResult, damage, 0, level);
 
     Params params;
@@ -419,32 +413,32 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
 
     m_damageParams[0].emplace_back((1233 / 10 + (1233 + 137) / 10) / 2, 1024, 120 * 1.1 * 1.05 * 1.1);
 
-    if (m_player->secrets[SECRET_SAN_HUAN_TAO_YUE_COOLDOWN]) {
+    if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_COOLDOWN]) {
         m_effectCooldownAdditional  = -16 / 2;
         m_cooldown                 += m_effectCooldownAdditional;
     }
 
-    if (m_player->secrets[SECRET_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_2]) {
+    if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_2]) {
         m_effectCriticalStrikePowerAdditionalPercentInt += 200;
     }
 
-    if (m_player->secrets[SECRET_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_3]) {
+    if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_3]) {
         m_effectCriticalStrikePowerAdditionalPercentInt += 300;
     }
 
-    if (m_player->secrets[SECRET_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_4]) {
+    if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_4]) {
         m_effectCriticalStrikePowerAdditionalPercentInt += 400;
     }
 
-    if (m_player->secrets[SECRET_SAN_HUAN_TAO_YUE_DAMAGE_3]) {
+    if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_DAMAGE_3]) {
         m_effectDamageAdditionalPercentInt += 31;
     }
 
-    if (m_player->secrets[SECRET_SAN_HUAN_TAO_YUE_DAMAGE_4]) {
+    if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_DAMAGE_4]) {
         m_effectDamageAdditionalPercentInt += 41;
     }
 
-    if (m_player->secrets[SECRET_SAN_HUAN_TAO_YUE_DAMAGE_5]) {
+    if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_DAMAGE_5]) {
         m_effectDamageAdditionalPercentInt += 51;
     }
 
@@ -467,14 +461,12 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
 void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Trigger() { }
-
-void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
 {
@@ -558,14 +550,12 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
 void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Trigger() { }
-
-void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
 {
@@ -636,28 +626,28 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Tar
 
     m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_COOLDOWN]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_COOLDOWN]) {
         m_effectCooldownAdditional  = -16 * 5;
         m_cooldown                 += m_effectCooldownAdditional;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_1]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_1]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_2]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_2]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_3]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_3]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_DAMAGE_40]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_DAMAGE_40]) {
         m_effectDamageAdditionalPercentInt += 409;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_DAMAGE_60]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_DAMAGE_60]) {
         m_effectDamageAdditionalPercentInt += 614;
     }
 }
@@ -666,14 +656,12 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
 void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Trigger() { }
-
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
 {
@@ -752,28 +740,28 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DP
 
     m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_COOLDOWN]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_COOLDOWN]) {
         m_effectCooldownAdditional  = -16 * 5;
         m_cooldown                 += m_effectCooldownAdditional;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_1]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_1]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_2]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_2]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_3]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_3]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_DAMAGE_40]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_DAMAGE_40]) {
         m_effectDamageAdditionalPercentInt += 409;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_DAMAGE_60]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_DAMAGE_60]) {
         m_effectDamageAdditionalPercentInt += 614;
     }
 }
@@ -782,14 +770,12 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
 void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Trigger() { }
-
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
 {
@@ -800,7 +786,7 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
 
     Params params;
     params.player = m_player;
-    
+
     int size = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size();
 
     for (int i = 0; i < size; i++) {
@@ -872,28 +858,28 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Pla
 
     m_damageParams[0].emplace_back(1273 / 20, 0, 40);
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_COOLDOWN]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_COOLDOWN]) {
         m_effectCooldownAdditional  = -16 * 5;
         m_cooldown                 += m_effectCooldownAdditional;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_1]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_1]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_2]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_2]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_RANG_3]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_RANG_3]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_DAMAGE_40]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_DAMAGE_40]) {
         m_effectDamageAdditionalPercentInt += 409;
     }
 
-    if (m_player->secrets[SECRET_REN_JIAN_HE_YI_DAMAGE_60]) {
+    if (m_player->recipes[RECIPE_REN_JIAN_HE_YI_DAMAGE_60]) {
         m_effectDamageAdditionalPercentInt += 614;
     }
 }
@@ -902,14 +888,12 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     SubEffect();
 }
 
 void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Trigger() { }
-
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
 {
@@ -985,11 +969,11 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
 JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id             = SKILL_SAN_CHAI_JIAN_FA;
-    m_name           = "三柴剑法";
-    m_range          = 4;
-    m_cooldown       = 22;
-    m_globalCooldown = &m_cooldown;
+    m_id                    = SKILL_SAN_CHAI_JIAN_FA;
+    m_name                  = "三柴剑法";
+    m_range                 = 4;
+    m_cooldown              = 22;
+    m_globalCooldownCurrent = &m_noneGlobalCooldown;
 
     m_damageParams[0].emplace_back(0, 1024, 16);
 
@@ -1003,8 +987,6 @@ void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Cast()
 }
 
 void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Trigger() { }
-
-void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
 {
@@ -1046,7 +1028,7 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
@@ -1062,8 +1044,6 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Trigger()
         SubEffect();
     }
 }
-
-void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SubEffect()
 {
@@ -1099,15 +1079,15 @@ JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targe
         m_cooldown                 += m_effectCooldownAdditional;
     }
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_PREPARE_1]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_PREPARE_1]) {
         m_prepareFrames -= 2;
     }
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_PREPARE_2]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_PREPARE_2]) {
         m_prepareFrames -= 2;
     }
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_PREPARE_3]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_PREPARE_3]) {
         m_prepareFrames -= 2;
     }
 }
@@ -1116,7 +1096,7 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
@@ -1132,8 +1112,6 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Trigger()
         SubEffect();
     }
 }
-
-void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::SubEffect()
 {
@@ -1173,7 +1151,7 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_player->SetCast(true);
 }
@@ -1189,8 +1167,6 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Trigger()
         SubEffect();
     }
 }
-
-void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
 {
@@ -1213,12 +1189,12 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
 JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id                 = SKILL_ZI_QI_DONG_LAI;
-    m_name               = "紫气东来";
-    m_range              = JX3DPS_UNLIMITED_RANGE;
-    m_cooldown           = 16 * 75;
-    m_prepareFrames      = 16 * 3;
-    m_globalCooldown     = &m_cooldown;
+    m_id                    = SKILL_ZI_QI_DONG_LAI;
+    m_name                  = "紫气东来";
+    m_range                 = JX3DPS_UNLIMITED_RANGE;
+    m_cooldown              = 16 * 75;
+    m_prepareFrames         = 16 * 3;
+    m_globalCooldownCurrent = &m_noneGlobalCooldown;
     m_energyCountCurrent = m_energyCount = 2;
 
     m_damageParams[0].emplace_back(0, 0, 0);
@@ -1253,8 +1229,6 @@ void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Trigger()
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Stop() { }
-
 void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::SubEffect()
 {
     m_player->buffs[BUFF_ZI_QI_DONG_LAI]->Add();
@@ -1280,7 +1254,7 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
-    *m_globalCooldown =
+    *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     m_prepareFramesCurrent = m_prepareFrames;
     SubEffect();
@@ -1292,8 +1266,6 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Trigger()
     m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
     SubEffectSui();
 }
-
-void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Stop() { }
 
 void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::TriggerAddJingHuaYing()
 {

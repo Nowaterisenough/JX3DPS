@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 10:37:56
+ * Last Modified: 2023-08-05 22:39:04
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -75,15 +75,16 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::Add(Id_t targetId, int stackNum, Frame_t
         m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
     }
     m_snapshots[targetId].stackNum += stackNum;
-    m_snapshots[targetId].stackNum  = std::min(m_snapshots[targetId].stackNum, m_stackNum);
+    m_snapshots[targetId].stackNum = std::min(m_snapshots[targetId].stackNum, m_stackNum);
 
     SubEffectAdd(targetId);
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -110,15 +111,16 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::TriggerAdd(Id_t targetId, int stackNum)
         m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
     }
     m_snapshots[targetId].stackNum += stackNum;
-    m_snapshots[targetId].stackNum  = std::min(m_snapshots[targetId].stackNum, m_stackNum);
+    m_snapshots[targetId].stackNum = std::min(m_snapshots[targetId].stackNum, m_stackNum);
 
     SubEffectAdd(targetId);
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
@@ -146,7 +148,8 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::TriggerHuanYue(Id_t targetId)
         return;
     }
     int level = m_snapshots[targetId].stackNum - 1; // 层数
-    m_snapshots[targetId].duration -= static_cast<Frame_t>(m_interval * m_snapshots[targetId].hastePercent);
+    m_snapshots[targetId].duration -=
+        static_cast<Frame_t>(m_interval * m_snapshots[targetId].hastePercent);
     if (m_snapshots[targetId].duration < 0) {
         m_snapshots.erase(targetId);
         SubEffectClear(targetId);
@@ -168,8 +171,8 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffect(Id_t targetId, int stackNum)
 
 void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffectQieYun(Id_t targetId, int stackNum, int effectCount)
 {
-    RollResult  rollResult = GetDotRollResult(targetId);
-    GainsDamage damage     = CalcPhysicsDotDamage(targetId, rollResult, 1, stackNum, effectCount);
+    RollResult rollResult = GetDotRollResult(targetId);
+    GainsDamage damage = CalcPhysicsDotDamage(targetId, rollResult, 1, stackNum, effectCount);
     Record(targetId, rollResult, damage, 1, stackNum);
 }
 
@@ -225,13 +228,14 @@ void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::Add(Id_t targetId, int stackNum
         m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
     }
     m_snapshots[targetId].stackNum += stackNum;
-    m_snapshots[targetId].stackNum  = std::min(m_snapshots[targetId].stackNum, m_stackNum);
+    m_snapshots[targetId].stackNum = std::min(m_snapshots[targetId].stackNum, m_stackNum);
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -257,13 +261,14 @@ void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::TriggerAdd(Id_t targetId, int s
         m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
     }
     m_snapshots[targetId].stackNum += stackNum;
-    m_snapshots[targetId].stackNum  = std::min(m_snapshots[targetId].stackNum, m_stackNum);
+    m_snapshots[targetId].stackNum = std::min(m_snapshots[targetId].stackNum, m_stackNum);
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
@@ -309,10 +314,11 @@ void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::Add(Id_t targetId, int stackNum, Fr
     m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -334,10 +340,11 @@ void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::TriggerAdd(Id_t targetId)
     m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
 
     // 快照属性
-    m_snapshots[targetId].Snap(m_player->attribute,
-                               m_effectCriticalStrikeAdditionalBasisPointInt,
-                               m_effectCriticalStrikePowerAdditionalPercentInt,
-                               m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+    m_snapshots[targetId].SnapPhysics(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
@@ -509,7 +516,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::Trigger()
         }
         if (iter->second.duration == 0) [[unlikely]] { // 气场消失
             iter = m_snapshots.erase(iter);
-            SubEffectClear();                          // 删除同步的碎星辰 期声气场
+            SubEffectClear(); // 删除同步的碎星辰 期声气场
 
             // 删除player记录的气场信息
             static_cast<TaiXuJianYi::Player *>(m_player)->RemoveField(m_id);
@@ -522,7 +529,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
 {
     // 最多三个气场
-    stackNum  = std::min(stackNum, m_stackNum);
+    stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
     // 清除排序靠前的气场
@@ -562,7 +569,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::Clear(Id_t targetId, int stack
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::TriggerAdd(int stackNum)
 {
     // 最多三个气场
-    stackNum  = std::min(stackNum, m_stackNum);
+    stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
     // 清除排序靠前的气场
@@ -616,15 +623,15 @@ JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::FieldShengTaiJi(JX3DPS::Player *play
 
     m_damageParams[0].emplace_back(0, 0, 0);
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_RANG_1]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_RANG_1]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_RANG_2]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_RANG_2]) {
         m_range += 1;
     }
 
-    if (m_player->secrets[SECRET_SHENG_TAI_JI_RANG_3]) {
+    if (m_player->recipes[RECIPE_SHENG_TAI_JI_RANG_3]) {
         m_range += 1;
     }
 }
@@ -651,7 +658,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
 {
     // 最多三个气场
-    stackNum  = std::min(stackNum, m_stackNum);
+    stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
 
@@ -693,7 +700,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::Clear(Id_t targetId, int stackN
 void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::TriggerAdd(int stackNum)
 {
     // 最多三个气场
-    stackNum  = std::min(stackNum, m_stackNum);
+    stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
     // 清除排序靠前的气场
@@ -765,7 +772,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldTunRiYue::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::FieldTunRiYue::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
 {
     // 最多三个气场
-    stackNum  = std::min(stackNum, m_stackNum);
+    stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
 
@@ -806,7 +813,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldTunRiYue::Clear(Id_t targetId, int stackNum
 void JX3DPS::TaiXuJianYi::Buff::FieldTunRiYue::TriggerAdd(int stackNum)
 {
     // 最多三个气场
-    stackNum  = std::min(stackNum, m_stackNum);
+    stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
     // 清除排序靠前的气场
@@ -1318,7 +1325,7 @@ void JX3DPS::TaiXuJianYi::Buff::ChiYing::Trigger()
 void JX3DPS::TaiXuJianYi::Buff::ChiYing::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
 {
     m_snapshots[PLAYER_ID].stackNum += stackNum;
-    m_snapshots[PLAYER_ID].stackNum  = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+    m_snapshots[PLAYER_ID].stackNum = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[PLAYER_ID].duration = m_duration;
     } else [[unlikely]] {
@@ -1337,8 +1344,8 @@ void JX3DPS::TaiXuJianYi::Buff::ChiYing::Clear(Id_t targetId, int stackNum)
 void JX3DPS::TaiXuJianYi::Buff::ChiYing::TriggerAdd(int stackNum)
 {
     m_snapshots[PLAYER_ID].stackNum += stackNum;
-    m_snapshots[PLAYER_ID].stackNum  = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
-    m_snapshots[PLAYER_ID].duration  = m_duration;
+    m_snapshots[PLAYER_ID].stackNum = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+    m_snapshots[PLAYER_ID].duration = m_duration;
 }
 
 void JX3DPS::TaiXuJianYi::Buff::ChiYing::TriggerDamage()
@@ -1671,12 +1678,14 @@ void JX3DPS::TaiXuJianYi::Buff::WeaponEffectCW1::TriggerAdd()
 
 void JX3DPS::TaiXuJianYi::Buff::WeaponEffectCW1::SubEffectAdd()
 {
-    static_cast<TaiXuJianYi::Skill::BaHuangGuiYuan *>(m_player->skills[SKILL_BA_HUANG_GUI_YUAN])->ClearCooldown();
+    static_cast<TaiXuJianYi::Skill::BaHuangGuiYuan *>(m_player->skills[SKILL_BA_HUANG_GUI_YUAN])
+        ->ClearCooldown();
 }
 
 void JX3DPS::TaiXuJianYi::Buff::WeaponEffectCW1::SubEffectClear()
 {
-    static_cast<TaiXuJianYi::Skill::BaHuangGuiYuan *>(m_player->skills[SKILL_BA_HUANG_GUI_YUAN])->ResetCooldown();
+    static_cast<TaiXuJianYi::Skill::BaHuangGuiYuan *>(m_player->skills[SKILL_BA_HUANG_GUI_YUAN])
+        ->ResetCooldown();
 }
 
 JX3DPS::TaiXuJianYi::Buff::ClassSetBuffJianMing::ClassSetBuffJianMing(JX3DPS::Player *player, Targets *targets) :
@@ -1769,8 +1778,8 @@ void JX3DPS::TaiXuJianYi::Buff::YouRen::Add(Id_t targetId, int stackNum, Frame_t
     } else {
         int stack                        = m_snapshots[PLAYER_ID].stackNum;
         m_snapshots[PLAYER_ID].stackNum += stackNum;
-        m_snapshots[PLAYER_ID].stackNum  = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
-        stack                            = m_snapshots[PLAYER_ID].stackNum - stack;
+        m_snapshots[PLAYER_ID].stackNum = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        stack = m_snapshots[PLAYER_ID].stackNum - stack;
         SubEffectAdd(stack);
     }
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -1795,8 +1804,8 @@ void JX3DPS::TaiXuJianYi::Buff::YouRen::TriggerAdd()
     } else {
         int stack                        = m_snapshots[PLAYER_ID].stackNum;
         m_snapshots[PLAYER_ID].stackNum += 1;
-        m_snapshots[PLAYER_ID].stackNum  = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
-        stack                            = m_snapshots[PLAYER_ID].stackNum - stack;
+        m_snapshots[PLAYER_ID].stackNum = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        stack = m_snapshots[PLAYER_ID].stackNum - stack;
         SubEffectAdd(stack);
     }
     m_snapshots[PLAYER_ID].duration = m_duration;

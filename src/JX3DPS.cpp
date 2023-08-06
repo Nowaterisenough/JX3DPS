@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 12:12:39
+ * Last Modified: 2023-08-06 07:06:29
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -173,7 +173,7 @@ Error_t InitPlayer(const nlohmann::ordered_json &json, Player **player)
         return err;
     }
 
-    err = ParseJsonToSecrets(json, (*player)->secrets);
+    err = ParseJsonToRecipes(json, (*player)->recipes);
     if (err != JX3DPS_SUCCESS) {
         return err;
     }
@@ -249,7 +249,10 @@ Error_t InitParams(const nlohmann::ordered_json &json,
     return InitPlayer(json, player);
 }
 
-Error_t Start(const nlohmann::ordered_json &in, nlohmann::ordered_json &out, void *obj, void (*progress)(void *, double))
+Error_t Start(const nlohmann::ordered_json &in,
+              nlohmann::ordered_json       &out,
+              void                         *obj,
+              void (*progress)(void *, double))
 {
     ExprSkillsHash exprSkillsHash;
     ExprEvents     exprEvents;
@@ -294,22 +297,21 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
         return err;
     }
 
+    // spdlog::info("{}", jsonOut.dump().c_str());
+    strcpy(out, jsonOut.dump().data());
+
+    spdlog::debug("Output: {}", out);
+
     auto end = std::chrono::steady_clock::now();
 
     std::chrono::duration<double> elapsed = end - start;
     spdlog::info("Simulation finished.");
     spdlog::info("Total time: {:.8f} s", elapsed.count());
-    
-    //spdlog::info("{}", jsonOut.dump().c_str());
-    strcpy(out, jsonOut.dump().data());
-
-    spdlog::debug("Output: {}", out);
-
-    // auto end = std::chrono::steady_clock::now();
-
-    // std::chrono::duration<double> elapsed = end - start;
-    // spdlog::info("Simulation finished.");
-    // spdlog::info("Total time: {:.8f} s", elapsed.count());
 
     return JX3DPS::JX3DPS_SUCCESS;
+}
+
+const char *const JX3DPSVersion()
+{
+    return JX3DPS::VERSION;
 }

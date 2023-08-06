@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Target.h
  * Description:
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-27 23:09:22
+ * Last Modified: 2023-08-02 00:56:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -84,7 +84,10 @@ public:
     void SetMagicShield(const Value_t value) { m_magicShield = value; }
 
     /* 易伤 */
-    PctInt_t GetDamageAdditionalPercentInt() const { return m_damageAdditionalPercentInt; }
+    PctInt_t GetDamageAdditionalPercentInt() const
+    {
+        return m_damageAdditionalPercentInt;
+    }
 
     void SetDamageAdditionalPercentInt(const PctInt_t PercentInt)
     {

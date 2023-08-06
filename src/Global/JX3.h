@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: JX3.h
  * Description:
  * Created Date: 2023-07-20 01:10:26
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-26 17:46:41
+ * Last Modified: 2023-08-02 01:11:10
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -16,8 +16,8 @@
 #ifndef __JX3DPS_JX3_H__
 #define __JX3DPS_JX3_H__
 
-#include <string_view>
 #include <array>
+#include <string_view>
 
 #include "Types.h"
 #include "Version.h"
@@ -172,7 +172,8 @@ const Value_t JX3_ENCHANTS_VALUE_ATTACK[9] = { 0, 2, 5, 7, 10, 12, 15, 20, 26 };
 const Value_t JX3_ENCHANTS_VALUE_SUB[9] = { 0, 5, 11, 17, 22, 28, 34, 45, 58 };
 
 /* 强化 - 系数 */
-const Cof_t JX3_STRENGTHEN_LEVEL[9] = { 0.0, 0.005, 0.013, 0.024, 0.038, 0.055, 0.075, 0.098, 0.124 };
+const Cof_t JX3_STRENGTHEN_LEVEL[9] = { 0.0,   0.005, 0.013, 0.024, 0.038,
+                                        0.055, 0.075, 0.098, 0.124 };
 
 /* 五彩石 - 主属性 */
 const Cof_t JX3_STONE_PRIMARY = 5.175;

@@ -183,7 +183,7 @@ BreakConstructorInitializers: AfterColon
 BreakStringLiterals: true
 
 # 最大列数
-ColumnLimit: 100
+ColumnLimit: 90
 
 # 特殊注释的正则表达式，不会进行格式化
 CommentPragmas:  '^ IWYU pragma:'
@@ -352,14 +352,32 @@ PenaltyBreakTemplateDeclaration: 10
 # 注释的每个字符超出 ColumnLimit 的罚分
 PenaltyExcessCharacter: 1
 
-# 每个空格缩进的罚分
-PenaltyReturnTypeOnItsOwnLine: 60
+# switch 语句中 case 标签的缩进惩罚因子
+PenaltyIndentSwitchCase: 60
 
 # 择使用较多空格来对齐缩进，并将包含不规则缩进的行向右移动。而如果将其设置为0，则clang-format会简单地根据选项IndentWidth来选择缩进宽度，不考虑行中的非标准缩进
 PenaltyIndentedWhitespace: 1
 
 # 函数返回类型单独成行的罚分
-PenaltyReturnTypeOnItsOwnLine: 100
+PenaltyReturnTypeOnItsOwnLine: 1000
+
+# 在二元运算符前打断的罚分
+PenaltyBreakBeforeBinaryOperators: 1
+
+# 在三元运算符前打断的罚分
+PenaltyBreakBeforeTernaryOperators: 1
+
+# 在符号后断行的惩罚因子
+PenaltyBreakAfterSymbol: 1
+
+# 初始化列表中第一个初始化器断行的惩罚因子
+PenaltyBreakBeforeFirstInitializer: 1
+
+# 函数定义返回类型后断行的惩罚因子
+PenaltyBreakAfterDefinitionReturnType: 1
+
+# 继承列表中第一个基类断行的惩罚因子
+PenaltyBreakBeforeInheritance: 1
 
 # 预处理器缩进, -1 表示使用默认值 IndentWidth
 PPIndentWidth: -1

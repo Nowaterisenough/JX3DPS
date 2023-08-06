@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: main.cpp
  * Description:
  * Created Date: 2023-07-19 03:39:15
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-23 21:22:47
+ * Last Modified: 2023-08-06 06:46:40
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -18,7 +18,7 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/spdlog.h>
 
-#include "Widget.h"
+#include "JX3DPSWidget.h"
 
 int main(int argc, char *argv[])
 {
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    Widget widget;
+    JX3DPSWidget widget;
     widget.show();
 
     return app.exec();

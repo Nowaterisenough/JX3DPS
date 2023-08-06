@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: KeyFrame.h
  * Description:
  * Created Date: 2023-06-19 16:26:49
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 12:39:20
+ * Last Modified: 2023-08-02 00:56:36
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -53,7 +53,10 @@ inline bool operator<(KeyFrame &lhs, KeyFrame &rhs)
 
 void InsertKeyFrame(KeyFrameSequence &keyFrameSequence, KeyFrame &keyFrame);
 
-void GenerateKeyFrameSequence(KeyFrameSequence &keyFrameSequence, Player *player, ExprEvents &exprEvents, ExprSkillsHash &exprSkillsHash);
+void GenerateKeyFrameSequence(KeyFrameSequence &keyFrameSequence,
+                              Player           *player,
+                              ExprEvents       &exprEvents,
+                              ExprSkillsHash   &exprSkillsHash);
 
 void UpdateKeyFrameSequence(KeyFrameSequence &keyFrameSequence, Player *player, Frame_t next);
 

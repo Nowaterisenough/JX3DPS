@@ -1,11 +1,11 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: Attribute.h
  * Description:
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-28 01:53:14
+ * Last Modified: 2023-08-02 01:12:03
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -295,7 +295,9 @@ public:
             case Type::PHYSICS_CRITICAL_STRIKE:
                 this->AddPhysicsCriticalStrikeAdditional(value);
                 break;
-            case Type::MAGIC_CRITICAL_STRIKE: this->AddMagicCriticalStrikeAdditional(value); break;
+            case Type::MAGIC_CRITICAL_STRIKE:
+                this->AddMagicCriticalStrikeAdditional(value);
+                break;
 
             case Type::CRITICAL_STRIKE_ADDITIONAL_BASIS_POINT_INT:
                 this->AddPhysicsCriticalStrikeAdditionalBasisPointInt(value);
@@ -315,7 +317,9 @@ public:
             case Type::PHYSICS_CRITICAL_STRIKE_POWER:
                 this->AddPhysicsCriticalStrikePower(value);
                 break;
-            case Type::MAGIC_CRITICAL_STRIKE_POWER: this->AddMagicCriticalStrikePower(value); break;
+            case Type::MAGIC_CRITICAL_STRIKE_POWER:
+                this->AddMagicCriticalStrikePower(value);
+                break;
 
             case Type::CRITICAL_STRIKE_POWER_ADDITIONAL_PERCENT_INT:
                 this->AddPhysicsCriticalStrikePowerAdditionalPercentInt(value);
@@ -332,8 +336,12 @@ public:
                 this->AddPhysicsOvercomeBaseAdditional(value);
                 this->AddMagicOvercomeBaseAdditional(value);
                 break;
-            case Type::PHYSICS_OVERCOME_BASE: this->AddPhysicsOvercomeBaseAdditional(value); break;
-            case Type::MAGIC_OVERCOME_BASE: this->AddMagicOvercomeBaseAdditional(value); break;
+            case Type::PHYSICS_OVERCOME_BASE:
+                this->AddPhysicsOvercomeBaseAdditional(value);
+                break;
+            case Type::MAGIC_OVERCOME_BASE:
+                this->AddMagicOvercomeBaseAdditional(value);
+                break;
 
             case Type::OVERCOME_BASE_ADDITIONAL_PERCENT_INT:
                 this->AddPhysicsOvercomeBaseAdditionalPercentInt(value);
@@ -357,7 +365,9 @@ public:
                 this->AddHasteBaseAdditionalPercentInt(value);
                 break;
 
-            case Type::SHIELD_IGNORE_PERCENT_INT: this->AddShieldIgnorePercentInt(value); break;
+            case Type::SHIELD_IGNORE_PERCENT_INT:
+                this->AddShieldIgnorePercentInt(value);
+                break;
 
             case Type::PVE_DAMAGE_ADDITIONAL_PERCENT_INT:
                 this->AddPVEDamageAdditionalPercentInt(value);
@@ -433,7 +443,9 @@ public:
             case Type::PHYSICS_CRITICAL_STRIKE_POWER:
                 this->SetPhysicsCriticalStrikePower(value);
                 break;
-            case Type::MAGIC_CRITICAL_STRIKE_POWER: this->SetMagicCriticalStrikePower(value); break;
+            case Type::MAGIC_CRITICAL_STRIKE_POWER:
+                this->SetMagicCriticalStrikePower(value);
+                break;
 
             case Type::OVERCOME_BASE:
                 this->SetPhysicsOvercomeBaseAdditional(value - this->GetPhysicsOvercomeBaseByClass());
@@ -460,11 +472,14 @@ public:
     {
         m_classType = classType;
 
-        this->SetAgilityBaseByClass(ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::AGILITY)]);
+        this->SetAgilityBaseByClass(
+            ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::AGILITY)]);
         this->SetStrengthBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::STRENGTH)]);
-        this->SetSpiritBaseByClass(ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::SPIRIT)]);
-        this->SetSpunkBaseByClass(ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::SPUNK)]);
+        this->SetSpiritBaseByClass(
+            ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::SPIRIT)]);
+        this->SetSpunkBaseByClass(
+            ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::SPUNK)]);
     }
 
     inline ClassType GetClassType() const { return m_classType; }
@@ -652,7 +667,10 @@ public:
 
     inline Value_t GetWeaponDamageLower() const { return m_weaponDamageBase; }
 
-    inline Value_t GetWeaponDamageUpper() const { return m_weaponDamageBase + m_weaponDamageRand; }
+    inline Value_t GetWeaponDamageUpper() const
+    {
+        return m_weaponDamageBase + m_weaponDamageRand;
+    }
 
     inline void SetWeaponDamage(Value_t base, Value_t rand)
     {
@@ -763,7 +781,10 @@ public:
         UpdatePhysicsAttackPower();
     }
 
-    inline Value_t GetPhysicsAttackPowerByClass() const { return m_physicsAttackPowerByClass; }
+    inline Value_t GetPhysicsAttackPowerByClass() const
+    {
+        return m_physicsAttackPowerByClass;
+    }
 
     inline void SetPhysicsAttackPowerByClass(Value_t value)
     {
@@ -780,7 +801,10 @@ public:
     inline Value_t GetPhysicsAttackPower() const { return m_physicsAttackPower; }
 
     /* 内功攻击 */
-    inline Value_t GetMagicAttackPowerBaseByClass() const { return m_magicAttackPowerBaseByClass; }
+    inline Value_t GetMagicAttackPowerBaseByClass() const
+    {
+        return m_magicAttackPowerBaseByClass;
+    }
 
     inline void SetMagicAttackPowerBaseByClass(Value_t value)
     {
@@ -811,7 +835,10 @@ public:
         UpdateMagicAttackPower();
     }
 
-    inline Value_t GetMagicAttackPowerBaseMinimum() const { return m_magicAttackPowerBaseByClass; }
+    inline Value_t GetMagicAttackPowerBaseMinimum() const
+    {
+        return m_magicAttackPowerBaseByClass;
+    }
 
     inline Value_t GetMagicAttackPowerBase() const
     {
@@ -835,7 +862,10 @@ public:
         UpdateMagicAttackPower();
     }
 
-    inline Value_t GetMagicAttackPowerByClass() const { return m_magicAttackPowerByClass; }
+    inline Value_t GetMagicAttackPowerByClass() const
+    {
+        return m_magicAttackPowerByClass;
+    }
 
     inline void SetMagicAttackPowerByClass(Value_t value)
     {
@@ -916,7 +946,10 @@ public:
     }
 
     /* 内功会心 */
-    inline Value_t GetMagicCriticalStrikeByClass() const { return m_magicCriticalStrikeByClass; }
+    inline Value_t GetMagicCriticalStrikeByClass() const
+    {
+        return m_magicCriticalStrikeByClass;
+    }
 
     inline void SetMagicCriticalStrikeByClass(Value_t value)
     {
@@ -947,7 +980,10 @@ public:
         UpdateMagicCriticalStrike();
     }
 
-    inline Value_t GetMagicCriticalStrikeMinimum() const { return m_magicCriticalStrikeByClass; }
+    inline Value_t GetMagicCriticalStrikeMinimum() const
+    {
+        return m_magicCriticalStrikeByClass;
+    }
 
     inline Value_t GetMagicCriticalStrike() const { return m_magicCriticalStrike; }
 
@@ -968,10 +1004,16 @@ public:
         UpdateMagicCriticalStrike();
     }
 
-    inline PctFloat_t GetMagicCriticalStrikePercent() const { return m_magicCriticalStrikePercent; }
+    inline PctFloat_t GetMagicCriticalStrikePercent() const
+    {
+        return m_magicCriticalStrikePercent;
+    }
 
     /* 外功会效 */
-    inline Value_t GetPhysicsCriticalStrikePower() const { return m_physicsCriticalStrikePower; }
+    inline Value_t GetPhysicsCriticalStrikePower() const
+    {
+        return m_physicsCriticalStrikePower;
+    }
 
     inline void SetPhysicsCriticalStrikePower(Value_t value)
     {
@@ -1013,7 +1055,10 @@ public:
     }
 
     /* 内功会效 */
-    inline Value_t GetMagicCriticalStrikePower() const { return m_magicCriticalStrikePower; }
+    inline Value_t GetMagicCriticalStrikePower() const
+    {
+        return m_magicCriticalStrikePower;
+    }
 
     inline void SetMagicCriticalStrikePower(Value_t value)
     {
@@ -1055,7 +1100,10 @@ public:
     }
 
     /* 外功破防 */
-    inline Value_t GetPhysicsOvercomeBaseByClass() const { return m_physicsOvercomeBaseByClass; }
+    inline Value_t GetPhysicsOvercomeBaseByClass() const
+    {
+        return m_physicsOvercomeBaseByClass;
+    }
 
     inline void SetPhysicsOvercomeBaseByClass(Value_t value)
     {
@@ -1086,7 +1134,10 @@ public:
         UpdatePhysicsOvercome();
     }
 
-    inline Value_t GetPhysicsOvercomeBaseMinimum() const { return m_physicsOvercomeBaseByClass; }
+    inline Value_t GetPhysicsOvercomeBaseMinimum() const
+    {
+        return m_physicsOvercomeBaseByClass;
+    }
 
     inline Value_t GetPhysicsOvercomeBase() const { return m_physicsOvercomeBase; }
 
@@ -1123,10 +1174,16 @@ public:
 
     inline Value_t GetPhysicsOvercome() const { return m_physicsOvercome; }
 
-    inline PctFloat_t GetPhysicsOvercomePercent() const { return m_physicsOvercomePercent; }
+    inline PctFloat_t GetPhysicsOvercomePercent() const
+    {
+        return m_physicsOvercomePercent;
+    }
 
     /* 内功破防 */
-    inline Value_t GetMagicOvercomeBaseByClass() const { return m_magicOvercomeBaseByClass; }
+    inline Value_t GetMagicOvercomeBaseByClass() const
+    {
+        return m_magicOvercomeBaseByClass;
+    }
 
     inline void SetMagicOvercomeBaseByClass(Value_t value)
     {
@@ -1140,7 +1197,10 @@ public:
         UpdateMagicOvercome();
     }
 
-    inline Value_t GetMagicOvercomeBaseAdditional() const { return m_magicOvercomeBaseAdditional; }
+    inline Value_t GetMagicOvercomeBaseAdditional() const
+    {
+        return m_magicOvercomeBaseAdditional;
+    }
 
     inline void SetMagicOvercomeBaseAdditional(Value_t value)
     {
@@ -1154,7 +1214,10 @@ public:
         UpdateMagicOvercome();
     }
 
-    inline Value_t GetMagicOvercomeBaseMinimum() const { return m_magicOvercomeBaseByClass; }
+    inline Value_t GetMagicOvercomeBaseMinimum() const
+    {
+        return m_magicOvercomeBaseByClass;
+    }
 
     inline Value_t GetMagicOvercomeBase() const { return m_magicOvercomeBase; }
 
@@ -1344,7 +1407,8 @@ private:
     inline void UpdateWeaponDamage()
     {
         m_weaponDamage =
-            (m_weaponDamageBase * (JX3_PERCENT_INT_BASE + m_weaponDamageBaseAdditionalPercentInt) * 2 / JX3_PERCENT_INT_BASE +
+            (m_weaponDamageBase * (JX3_PERCENT_INT_BASE + m_weaponDamageBaseAdditionalPercentInt) *
+                 2 / JX3_PERCENT_INT_BASE +
              m_weaponDamageRand) /
             2;
     }
@@ -1364,7 +1428,8 @@ private:
     {
         m_magicAttackPowerBase = m_magicAttackPowerBaseByClass + m_magicAttackPowerBaseAdditional;
         m_magicAttackPower =
-            m_magicAttackPowerBase * (JX3_PERCENT_INT_BASE + m_magicAttackPowerBaseAdditionalPercentInt) / JX3_PERCENT_INT_BASE +
+            m_magicAttackPowerBase *
+                (JX3_PERCENT_INT_BASE + m_magicAttackPowerBaseAdditionalPercentInt) / JX3_PERCENT_INT_BASE +
             m_magicAttackPowerByClass;
     }
 
@@ -1375,7 +1440,8 @@ private:
         m_physicsCriticalStrikePercent =
             m_physicsCriticalStrike /
                 (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) + // 会心系数
-            m_physicsCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE; // 会心比例加成
+            m_physicsCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE /
+                JX3_BASIS_POINT_INT_BASE; // 会心比例加成
     }
 
     /* 内功会心 */
@@ -1385,7 +1451,8 @@ private:
         m_magicCriticalStrikePercent =
             m_magicCriticalStrike /
                 (JX3_CRITICAL_STRIKE_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST)) + // 会心系数
-            m_magicCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE; // 会心比例加成
+            m_magicCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE /
+                JX3_BASIS_POINT_INT_BASE; // 会心比例加成
     }
 
     /* 外功会心效果 */
@@ -1417,10 +1484,12 @@ private:
     {
         m_physicsOvercomeBase = m_physicsOvercomeBaseByClass + m_physicsOvercomeBaseAdditional;
         m_physicsOvercome =
-            m_physicsOvercomeBase * (JX3_PERCENT_INT_BASE + m_physicsOvercomeBaseAdditionalPercentInt) / JX3_PERCENT_INT_BASE +
+            m_physicsOvercomeBase *
+                (JX3_PERCENT_INT_BASE + m_physicsOvercomeBaseAdditionalPercentInt) / JX3_PERCENT_INT_BASE +
             m_physicsOvercomeByClass;
         m_physicsOvercomePercent =
-            m_physicsOvercome / (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+            m_physicsOvercome /
+            (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
     }
 
     /* 内功破防 */
@@ -1428,10 +1497,12 @@ private:
     {
         m_magicOvercomeBase = m_magicOvercomeBaseByClass + m_magicOvercomeBaseAdditional;
         m_magicOvercome =
-            m_magicOvercomeBase * (JX3_PERCENT_INT_BASE + m_magicOvercomeBaseAdditionalPercentInt) / JX3_PERCENT_INT_BASE +
+            m_magicOvercomeBase * (JX3_PERCENT_INT_BASE + m_magicOvercomeBaseAdditionalPercentInt) /
+                JX3_PERCENT_INT_BASE +
             m_magicOvercomeByClass;
         m_magicOvercomePercent =
-            m_magicOvercome / (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+            m_magicOvercome /
+            (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
     }
 
     /* 无双 */
@@ -1444,7 +1515,10 @@ private:
     }
 
     /* 破招 */
-    inline void UpdateSurplusValue() { m_surplusValueBase = m_surplusValueBaseAdditional; }
+    inline void UpdateSurplusValue()
+    {
+        m_surplusValueBase = m_surplusValueBaseAdditional;
+    }
 
     /* 加速 */
     inline void UpdateHaste()
@@ -1468,12 +1542,14 @@ private:
 
         this->SetPhysicsAttackPowerBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER_BASE)] +
-            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER_BASE)] * major +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER_BASE)] *
+                major +
             m_strength * JX3_STRENGTH_TO_ATTACK_POWER_BASE);
 
         this->SetMagicAttackPowerBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_ATTACK_POWER_BASE)] +
-            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_ATTACK_POWER_BASE)] * major +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_ATTACK_POWER_BASE)] *
+                major +
             m_spunk * JX3_SPUNK_TO_ATTACK_POWER_BASE);
 
         this->SetPhysicsAttackPowerByClass(
@@ -1488,22 +1564,26 @@ private:
 
         this->SetPhysicsCriticalStrikeByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_CRITICAL_STRIKE)] +
-            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_CRITICAL_STRIKE)] * major +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_CRITICAL_STRIKE)] *
+                major +
             m_agility * JX3_AGILITY_TO_CRITICAL_STRIKE);
 
         this->SetMagicCriticalStrikeByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_CRITICAL_STRIKE)] +
-            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_CRITICAL_STRIKE)] * major +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_CRITICAL_STRIKE)] *
+                major +
             m_spirit * JX3_SPIRIT_TO_CRITICAL_STRIKE);
 
         this->SetPhysicsOvercomeBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_OVERCOME_BASE)] +
-            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_OVERCOME_BASE)] * major +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_OVERCOME_BASE)] *
+                major +
             m_strength * JX3_STRENGTH_TO_OVERCOME_BASE);
 
         this->SetMagicOvercomeBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME_BASE)] +
-            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME_BASE)] * major +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME_BASE)] *
+                major +
             m_spunk * JX3_SPUNK_TO_OVERCOME_BASE);
 
         this->SetPhysicsOvercomeByClass(
@@ -1513,7 +1593,8 @@ private:
 
         this->SetMagicOvercomeByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME)] +
-            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME)] * major);
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME)] *
+                major);
 
         this->SetPVEDamageAdditionalPercentInt(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PVE_DAMAGE_ADDITIONAL_PERCENT_INT)] +

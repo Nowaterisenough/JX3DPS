@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 02:42:32
+ * Last Modified: 2023-08-04 13:11:43
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -23,8 +23,6 @@
 
 namespace JX3DPS {
 
-
-
 class Player
 {
 public:
@@ -40,14 +38,14 @@ public:
     virtual void    Init()        = 0;
 
     void SetTargets(Targets *targets);
-    inline Targets *GetTargets() const {
-        return m_targets;
-    }
+
+    inline Targets *GetTargets() const { return m_targets; }
+
     void AddBuff3rds(const std::list<Id_t> &buff3rds);
 
     inline ClassType GetClassType() const { return this->attribute.GetClassType(); }
 
-    inline void UpdateGlobalCooldown(Frame_t next)
+    inline virtual void UpdateGlobalCooldown(Frame_t next)
     {
         globalCooldownCurrent -= next;
         if (globalCooldownCurrent < 0) {
@@ -164,11 +162,11 @@ public:
         return RandomNormal(m_delayMin, m_delayMax + 1) / JX3DPS_DELAY;
     }
 
-    static inline void TriggerVoid(const Params &params) { }
+    inline static void TriggerVoid(const Params &params) { }
 
 public:
-    Frame_t globalCooldown        = 24;            // 冷却
-    Frame_t globalCooldownCurrent = 0;             // 当前冷却
+    Frame_t globalCooldown        = 24; // 冷却
+    Frame_t globalCooldownCurrent = 0;  // 当前冷却
 
     PctInt_t effectDamageAdditionalPercentInt = 0; // 一些奇穴或者秘籍效果的全局伤害加成
 
@@ -176,7 +174,7 @@ public:
     ClassType teamCore = ClassType::DEFAULT;
 
     Talents        talents;        // 奇穴列表
-    Secrets        secrets;        // 秘籍列表
+    Recipes        recipes;        // 秘籍列表
     Skills         skills;         // 技能列表
     Buffs          buffs;          // Buff列表
     EquipEffects   equipEffects;   // 装备效果列表

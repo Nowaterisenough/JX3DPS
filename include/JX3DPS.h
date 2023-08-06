@@ -1,16 +1,17 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: JX3DPS.h
  * Description: 
  * Created Date: 2023-07-19 07:50:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-26 19:56:34
+ * Last Modified: 2023-08-06 07:06:37
  * Modified By: 难为水
  * -----
  * CHANGELOG:
  * Date      	By     	Comments
  * ----------	-------	----------------------------------------------------------
+ * 2023-07-30	难为水	 更新API
  */
 
 #ifndef __JX3DPS_H__
@@ -59,6 +60,8 @@ extern "C"
 #endif
 
     JX3DPS_API int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(void *, double));
+
+    JX3DPS_API const char *const JX3DPSVersion();
 
 #ifdef __cplusplus
 }

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 02:18:18
+ * Last Modified: 2023-08-06 04:09:09
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -26,11 +26,11 @@ namespace JX3DPS {
 
 enum Id_t
 {
-    JX3DPS_ID_DEFAULT = 0,           // ---------------------- JX3DPS ID ----------------------
+    JX3DPS_ID_DEFAULT = 0, // ---------------------- JX3DPS ID ----------------------
 
-    ERROR_CODE,                      // ---------------------- 错误码 ----------------------
-    JX3DPS_SUCCESS,                  // 成功
-    JX3DPS_ERROR_INVALID_EXPRESSION, // 无效语句
+    ERROR_CODE,            // ---------------------- 错误码 ----------------------
+    JX3DPS_SUCCESS,        // 成功
+    JX3DPS_ERROR_INVALID_EXPRESSION,                     // 无效语句
     JX3DPS_ERROR_INVALID_EXPRESSION_SKILL,               // 无效语句技能
     JX3DPS_ERROR_INVALID_EXPRESSION_EVENT,               // 无效语句事件
     JX3DPS_ERROR_INVALID_EXPRESSION_EVENT_TIME,          // 无效语句时间
@@ -66,7 +66,7 @@ enum Id_t
     EXPRESSION_SKILL_PLACE_HOLDERS_17,
     EXPRESSION_SKILL_PLACE_HOLDERS_18,
     EXPRESSION_SKILL_PLACE_HOLDERS_19,
-    EXPRESSION_SKILL_PLACE_HOLDERS_END,
+    EXPRESSION_SKILL_PLACE_HOLDERS_END, // ---------------------- 技能语句占位符 END ----------------------
 
     PLAYER_ID,                    // ---------------------- 角色 ----------------------
 
@@ -100,11 +100,11 @@ enum Id_t
     TARGET_PLACE_HOLDERS_27,
     TARGET_PLACE_HOLDERS_28,
     TARGET_PLACE_HOLDERS_29,
-    TARGET_PLACE_HOLDERS_END,
+    TARGET_PLACE_HOLDERS_END, // ---------------------- 目标占位符 END ----------------------
 
-    SKILL_DEFAULT, // ---------------------- 技能 ----------------------
+    SKILL_DEFAULT,            // ---------------------- 技能 ----------------------
 
-    SKILL_COMMON,  // ---------------------- 技能 通用 ----------------------
+    SKILL_COMMON, // ---------------------- 技能 通用 ----------------------
     SKILL_PO_ZHAO,
     SKILL_PENDANT_OVERCOME,
 
@@ -123,10 +123,30 @@ enum Id_t
     SKILL_TUN_RI_YUE,
     SKILL_SHENG_TAI_JI,
     SKILL_JING_HUA_YING,
+    SKILL_TAI_XU_JIAN_YI_END, // ---------------------- 技能 太虚剑意 END ----------------------
 
-    SKILL_END,           // ---------------------- 技能 END ----------------------
+    SKILL_MO_WEN, // ---------------------- 技能 莫问 ----------------------
+    SKILL_GONG,
+    SKILL_BIAN_GONG,
+    SKILL_SHANG,
+    SKILL_JUE,
+    SKILL_ZHI,
+    SKILL_BIAN_ZHI,
+    SKILL_YU,
+    SKILL_GAO_SHAN_LIU_SHUI,
+    SKILL_GAO_SHAN_LIU_SHUI_ACTIVE,
+    SKILL_YANG_CHUN_BAI_XUE,
+    SKILL_SHU_YING_HENG_XIE,
+    SKILL_SHU_YING_HUA_SHUANG,
+    SKILL_ZHENG_LV_HE_MING_1,
+    SKILL_ZHENG_LV_HE_MING_2,
+    SKILL_ZHENG_LV_HE_MING_3,
+    SKILL_YI_XING_HUAN_YING,
+    SKILL_MO_WEN_END, // ---------------------- 技能 莫问 END ----------------------
 
-    BUFF_DEFAULT,        // ---------------------- Buff ----------------------
+    SKILL_END,        // ---------------------- 技能 END ----------------------
+
+    BUFF_DEFAULT,     // ---------------------- Buff ----------------------
 
     BUFF_COMMON_DEFAULT, // ---------------------- Buff 通用 ----------------------
     BUFF_CLASS_FEATURE,
@@ -187,10 +207,31 @@ enum Id_t
     BUFF_HIDDEN_LIE_YUN,
     BUFF_LIE_YUN,
     BUFF_JING_HUA_YING,
+    BUFF_TAI_XU_JIAN_YI_END, // ---------------------- Buff 太虚剑意 END ----------------------
 
-    BUFF_END,              // ---------------------- Buff END ----------------------
+    BUFF_MO_WEN,             // ---------------------- Buff 莫问 ----------------------
+    BUFF_SHANG,
+    BUFF_JUE,
+    BUFF_HUAN_YIN,
+    BUFF_SHEN_BING_GONG,
+    BUFF_QU_FENG,
+    BUFF_LIU_ZHAO,
+    BUFF_PO_ZHAO_LIU_ZHAO,
+    BUFF_XIAN_FENG,
+    BUFF_XIAN_FENG_BIAO_JI,
+    BUFF_YUN_HAN,
+    BUFF_SHU_LI,
+    BUFF_CAN_LIAN,
+    BUFF_ZHI_YIN_MIAO_YI,
+    BUFF_ZHENG_LV_HE_MING,
+    BUFF_GAO_SHAN_LIU_SHUI,
+    BUFF_YANG_CHUN_BAI_XUE,
+    BUFF_YING_ZI,
+    BUFF_MO_WEN_END, // ---------------------- Buff 莫问 END ----------------------
 
-    TALENT_DEFAULT,        // ----------------------  奇穴 ----------------------
+    BUFF_END,        // ---------------------- Buff END ----------------------
+
+    TALENT_DEFAULT,  // ----------------------  奇穴 ----------------------
 
     TALENT_TAI_XU_JIAN_YI, // ---------------------- 奇穴 太虚剑意 ----------------------
     TALENT_XIN_GU,
@@ -217,51 +258,95 @@ enum Id_t
     TALENT_XUAN_MEN,
     TALENT_TAI_XU_JIAN_YI_END, // ---------------------- 奇穴 太虚剑意 END ----------------------
 
-    TALENT_END,                // ----------------------  奇穴 END ----------------------
+    TALENT_MO_WEN, // ---------------------- 奇穴 莫问 ----------------------
+    TALENT_HAO_ZHONG,
+    TALENT_FEI_FAN,
+    TALENT_CHANG_QING,
+    TALENT_XIAN_FENG,
+    TALENT_LIU_ZHAO,
+    TALENT_HAO_QING,
+    TALENT_SHI_XIANG,
+    TALENT_ZHI_ZHI,
+    TALENT_KE_MENG,
+    TALENT_SHU_LI,
+    TALENT_XIU_QI,
+    TALENT_YUN_HAN,
+    TALENT_CAN_LIAN,
+    TALENT_ZHENG_LV_HE_MING,
+    TALENT_MO_WEN_END, // ---------------------- 奇穴 莫问 END ----------------------
 
-    SECRET_DEFAULT,            // ---------------------- 秘籍 ----------------------
+    TALENT_END,        // ----------------------  奇穴 END ----------------------
 
-    SECRET_TAI_XU_JIAN_YI,     // ---------------------- 秘籍 太虚剑意 ----------------------
-    SECRET_WU_WO_WU_JIAN_CRITICAL_STRIKE_2,
-    SECRET_WU_WO_WU_JIAN_CRITICAL_STRIKE_3,
-    SECRET_WU_WO_WU_JIAN_CRITICAL_STRIKE_4,
-    SECRET_WU_WO_WU_JIAN_DAMAGE_3,
-    SECRET_WU_WO_WU_JIAN_DAMAGE_4,
-    SECRET_WU_WO_WU_JIAN_DAMAGE_5,
-    SECRET_WU_WO_WU_JIAN_QIDIAN,
-    SECRET_BA_HUANG_GUI_YUAN_DAMAGE_3,
-    SECRET_BA_HUANG_GUI_YUAN_DAMAGE_4,
-    SECRET_BA_HUANG_GUI_YUAN_DAMAGE_5,
-    SECRET_BA_HUANG_GUI_YUAN_QIDIAN,
-    SECRET_BA_HUANG_GUI_YUAN_COOLDOWN,
-    SECRET_SAN_HUAN_TAO_YUE_COOLDOWN,
-    SECRET_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_2,
-    SECRET_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_3,
-    SECRET_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_4,
-    SECRET_SAN_HUAN_TAO_YUE_DAMAGE_3,
-    SECRET_SAN_HUAN_TAO_YUE_DAMAGE_4,
-    SECRET_SAN_HUAN_TAO_YUE_DAMAGE_5,
-    SECRET_REN_JIAN_HE_YI_COOLDOWN,
-    SECRET_REN_JIAN_HE_YI_RANG_1,
-    SECRET_REN_JIAN_HE_YI_RANG_2,
-    SECRET_REN_JIAN_HE_YI_RANG_3,
-    SECRET_REN_JIAN_HE_YI_DAMAGE_40,
-    SECRET_REN_JIAN_HE_YI_DAMAGE_60,
-    SECRET_REN_JIAN_HE_YI_EFFECT_DOT,
-    SECRET_REN_JIAN_HE_YI_EFFECT_YUN_ZHONG_JIAN,
-    SECRET_SHENG_TAI_JI_PREPARE_1,
-    SECRET_SHENG_TAI_JI_PREPARE_2,
-    SECRET_SHENG_TAI_JI_PREPARE_3,
-    SECRET_SHENG_TAI_JI_RANG_1,
-    SECRET_SHENG_TAI_JI_RANG_2,
-    SECRET_SHENG_TAI_JI_RANG_3,
-    SECRET_SHENG_TAI_JI_EFFECT_COOLDOWN,
-    SECRET_TAI_XU_JIAN_YI_END, // ---------------------- 秘籍 太虚剑意 END ----------------------
+    RECIPE_DEFAULT,    // ---------------------- 秘籍 ----------------------
 
-    SECRET_END,                // ---------------------- 秘籍 END ----------------------
+    RECIPE_TAI_XU_JIAN_YI, // ---------------------- 秘籍 太虚剑意 ----------------------
+    RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_2,
+    RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_3,
+    RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_4,
+    RECIPE_WU_WO_WU_JIAN_DAMAGE_3,
+    RECIPE_WU_WO_WU_JIAN_DAMAGE_4,
+    RECIPE_WU_WO_WU_JIAN_DAMAGE_5,
+    RECIPE_WU_WO_WU_JIAN_QIDIAN,
+    RECIPE_BA_HUANG_GUI_YUAN_DAMAGE_3,
+    RECIPE_BA_HUANG_GUI_YUAN_DAMAGE_4,
+    RECIPE_BA_HUANG_GUI_YUAN_DAMAGE_5,
+    RECIPE_BA_HUANG_GUI_YUAN_QIDIAN,
+    RECIPE_BA_HUANG_GUI_YUAN_COOLDOWN,
+    RECIPE_SAN_HUAN_TAO_YUE_COOLDOWN,
+    RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_2,
+    RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_3,
+    RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_4,
+    RECIPE_SAN_HUAN_TAO_YUE_DAMAGE_3,
+    RECIPE_SAN_HUAN_TAO_YUE_DAMAGE_4,
+    RECIPE_SAN_HUAN_TAO_YUE_DAMAGE_5,
+    RECIPE_REN_JIAN_HE_YI_COOLDOWN,
+    RECIPE_REN_JIAN_HE_YI_RANG_1,
+    RECIPE_REN_JIAN_HE_YI_RANG_2,
+    RECIPE_REN_JIAN_HE_YI_RANG_3,
+    RECIPE_REN_JIAN_HE_YI_DAMAGE_40,
+    RECIPE_REN_JIAN_HE_YI_DAMAGE_60,
+    RECIPE_REN_JIAN_HE_YI_EFFECT_DOT,
+    RECIPE_REN_JIAN_HE_YI_EFFECT_YUN_ZHONG_JIAN,
+    RECIPE_SHENG_TAI_JI_PREPARE_1,
+    RECIPE_SHENG_TAI_JI_PREPARE_2,
+    RECIPE_SHENG_TAI_JI_PREPARE_3,
+    RECIPE_SHENG_TAI_JI_RANG_1,
+    RECIPE_SHENG_TAI_JI_RANG_2,
+    RECIPE_SHENG_TAI_JI_RANG_3,
+    RECIPE_SHENG_TAI_JI_EFFECT_COOLDOWN,
+    RECIPE_TAI_XU_JIAN_YI_END, // ---------------------- 秘籍 太虚剑意 END ----------------------
 
-    EQUIP_EFFECT_DEFAULT,      // ---------------------- 装备 ----------------------
-    EQUIP_EFFECT_WEAPON_CW,    // 橙武
+    RECIPE_MO_WEN, // ---------------------- 秘籍 莫问 ----------------------
+    RECIPE_GONG_CRITICAL_STRIKE_2,
+    RECIPE_GONG_CRITICAL_STRIKE_3,
+    RECIPE_GONG_CRITICAL_STRIKE_4,
+    RECIPE_GONG_DAMAGE_3,
+    RECIPE_GONG_DAMAGE_4,
+    RECIPE_GONG_PREPARE_1,
+    RECIPE_GONG_PREPARE_2,
+    RECIPE_GONG_RANGE,
+    RECIPE_SHANG_CRITICAL_STRIKE_2,
+    RECIPE_SHANG_CRITICAL_STRIKE_3,
+    RECIPE_SHANG_CRITICAL_STRIKE_4,
+    RECIPE_SHANG_DAMAGE_3,
+    RECIPE_SHANG_DAMAGE_4,
+    RECIPE_SHANG_DAMAGE_5,
+    RECIPE_ZHI_CRITICAL_STRIKE_2,
+    RECIPE_ZHI_CRITICAL_STRIKE_3,
+    RECIPE_ZHI_CRITICAL_STRIKE_4,
+    RECIPE_ZHI_DAMAGE_3,
+    RECIPE_ZHI_DAMAGE_4,
+    RECIPE_ZHI_RANGE,
+    RECIPE_YU_CRITICAL_STRIKE_3,
+    RECIPE_YU_CRITICAL_STRIKE_4,
+    RECIPE_YU_DAMAGE_3,
+    RECIPE_YU_DAMAGE_4,
+    RECIPE_MO_WEN_END, // ---------------------- 秘籍 莫问 END ----------------------
+
+    RECIPE_END,        // ---------------------- 秘籍 END ----------------------
+
+    EQUIP_EFFECT_DEFAULT,        // ---------------------- 装备 ----------------------
+    EQUIP_EFFECT_WEAPON_CW,      // 橙武
     EQUIP_EFFECT_WEAPON_WATER,   // 水特效
     EQUIP_EFFECT_SET_ATTRIBUTE,  // 套装属性
     EQUIP_EFFECT_SET_SKILL,      // 套装技能
@@ -270,9 +355,9 @@ enum Id_t
     EQUIP_EFFECT_ENCHANT_HAT,    // 大附魔·帽
     EQUIP_EFFECT_ENCHANT_BELT,   // 大附魔·腰
     EQUIP_EFFECT_ENCHANT_WRIST,  // 大附魔·腕
-    EQUIP_EFFECT_END,            // ---------------------- 装备 END ----------------------
+    EQUIP_EFFECT_END, // ---------------------- 装备 END ----------------------
 
-    TRIGGER_DEFAULT,      // ---------------------- 触发效果 ----------------------
+    TRIGGER_DEFAULT,  // ---------------------- 触发效果 ----------------------
 
     TRIGGER_ENCHANT_WRIST,
     TRIGGER_ENCHANT_BELT,
@@ -285,9 +370,9 @@ enum Id_t
 
     TRIGGER_TAI_XU_JIAN_YI, // ---------------------- 触发效果 太虚剑意 ----------------------
     TRIGGER_WU_YI,          // 无意
-    TRIGGER_FENG_SHI_ADD, // 风逝
+    TRIGGER_FENG_SHI_ADD,   // 风逝
     TRIGGER_FENG_SHI_CLEAR, // 风逝
-    TRIGGER_SHEN_MAI, // 深埋
+    TRIGGER_SHEN_MAI,       // 深埋
     TRIGGER_XU_JI,
     TRIGGER_XUAN_MEN,
     TRIGGER_CHANG_SHENG,
@@ -309,7 +394,24 @@ enum Id_t
     TRIGGER_QI_SHENG,
     TRIGGER_TAI_XU_JIAN_YI_END, // ---------------------- 触发效果 太虚剑意 END ----------------------
 
-    TRIGGER_END, // ---------------------- 触发效果 END ----------------------
+    TRIGGER_MO_WEN, // ---------------------- 触发效果 莫问 ----------------------
+    TRIGGER_XIAN_FENG,
+    TRIGGER_XIAN_FENG_BIAO_JI,
+    TRIGGER_XIAN_FENG_DAMAGE,
+    TRIGGER_XIAN_FENG_CLEAR,
+    TRIGGER_YUN_HAN,
+    TRIGGER_CAN_LIAN_ADD,
+    TRIGGER_CAN_LIAN_CLEAR,
+    TRIGGER_SHU_LI,
+    TRIGGER_SHI_XIANG,
+    TRIGGER_ZHI_ZHI,
+    TRIGGER_HAO_QING_ZHI,
+    TRIGGER_HAO_QING_BIAN_ZHI,
+    TRIGGER_LIU_ZHAO_DAMAGE,
+    TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
+    TRIGGER_MO_WEN_END, // ---------------------- 触发效果 莫问 END ----------------------
+
+    TRIGGER_END,        // ---------------------- 触发效果 END ----------------------
 
     COUNT
 }
@@ -357,7 +459,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "技能语句占位符_17" },
      { "技能语句占位符_18" },
      { "技能语句占位符_19" },
-     { "技能语句占位符_END" },
+     { "----------------------技能语句占位符 END----------------------" },
 
      { "----------------------角色 ID----------------------" },
 
@@ -391,7 +493,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "目标占位符_27" },
      { "目标占位符_28" },
      { "目标占位符_29" },
-     { "目标占位符_END" },
+     { "----------------------目标占位符 END----------------------" },
 
      { "----------------------技能----------------------" },
 
@@ -414,6 +516,22 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "吞日月" },
      { "生太极" },
      { "镜花影" },
+     { "----------------------技能 太虚剑意 END----------------------" },
+
+     { "----------------------技能 莫问----------------------" },
+     { "宫" },
+     { "变宫" },
+     { "商" },
+     { "角" },
+     { "徵" },
+     { "变徵" },
+     { "羽" },
+     { "高山流水" },
+     { "阳春白雪" },
+     { "疏影横斜" },
+     { "疏影化双" },
+     { "正律和鸣" },
+     { "----------------------技能 莫问 END----------------------" },
 
      { "----------------------技能 END----------------------" },
 
@@ -478,6 +596,22 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "隐藏Buff·裂云" },
      { "裂云" },
      { "镜花影" },
+     { "----------------------Buff 太虚剑意 END----------------------" },
+
+     { "----------------------Buff 莫问----------------------" },
+     { "Dot·商" },
+     { "Dot·角" },
+     { "Dot·幻音" },
+     { "Dot·神兵·宫" },
+     { "曲风" },
+     { "流照" },
+     { "弦风" },
+     { "云汉" },
+     { "书离" },
+     { "参连" },
+     { "知音妙意" },
+     { "正律和鸣" },
+     { "----------------------Buff 莫问 END----------------------" },
 
      { "----------------------Buff END-----------------------" },
 
@@ -507,6 +641,23 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "虚极" },
      { "玄门" },
      { "----------------------奇穴 太虚剑意 END-----------------------" },
+
+     { "----------------------奇穴 莫问-----------------------" },
+     { "号钟" },
+     { "飞帆" },
+     { "长清" },
+     { "弦风" },
+     { "流照" },
+     { "豪情" },
+     { "师襄" },
+     { "知止" },
+     { "刻梦" },
+     { "书离" },
+     { "修齐" },
+     { "云汉" },
+     { "参连" },
+     { "正律和鸣" },
+     { "----------------------奇穴 莫问 END-----------------------" },
 
      { "----------------------奇穴 END-----------------------" },
 
@@ -548,6 +699,33 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "《纯阳诀·生太极》真传绝章" },
      { "《纯阳诀·生太极》人偶图残页" },
      { "----------------------秘籍 太虚剑意 END-----------------------" },
+
+     { "----------------------秘籍 莫问-----------------------" },
+     { "《音·宫》秘诀断篇" },
+     { "《音·宫》秘诀断篇" },
+     { "《音·宫》秘诀绝章" },
+     { "《音·宫》参悟残页" },
+     { "《音·宫》参悟断篇" },
+     { "《音·宫》经脉图残页" },
+     { "《音·宫》经脉图断篇" },
+     { "《音·宫》真传残页" },
+     { "《音·商》秘诀残页" },
+     { "《音·商》秘诀断篇" },
+     { "《音·商》秘诀绝章" },
+     { "《音·商》参悟残页" },
+     { "《音·商》参悟断篇" },
+     { "《音·商》参悟绝章" },
+     { "《音·徵》秘诀残页" },
+     { "《音·徵》秘诀断篇" },
+     { "《音·徵》秘诀绝章" },
+     { "《音·徵》参悟残页" },
+     { "《音·徵》参悟断篇" },
+     { "《音·徵》真传残页" },
+     { "《音·羽》秘诀残页" },
+     { "《音·羽》秘诀断篇" },
+     { "《音·羽》参悟残页" },
+     { "《音·羽》参悟断篇" },
+     { "----------------------秘籍 莫问 END-----------------------" },
 
      { "----------------------秘籍 END-----------------------" },
 
@@ -594,9 +772,9 @@ inline Id_t TalentId(const std::string &name)
     return Id_t::JX3DPS_ID_DEFAULT;
 }
 
-inline Id_t SecretId(const std::string &name)
+inline Id_t RecipeId(const std::string &name)
 {
-    for (int id = Id_t::SECRET_DEFAULT; id < Id_t::SECRET_END; ++id) {
+    for (int id = Id_t::RECIPE_DEFAULT; id < Id_t::RECIPE_END; ++id) {
         if (name == JX3DPS_NAME[id]) {
             return static_cast<Id_t>(id);
         }

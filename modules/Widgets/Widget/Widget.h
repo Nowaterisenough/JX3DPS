@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 07:23:03
+ * Last Modified: 2023-08-07 01:42:21
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -33,7 +33,7 @@
 #                define WIDGET_API
 #            endif
 #        endif // __GNUC__
-#    endif     // EXPORT_FRAMELESS_WIDGET
+#    endif     // EXPORT_WIDGET
 #    define WIDGET_PRIVATE
 
 #elif defined __GNUC__

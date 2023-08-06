@@ -58,6 +58,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     nlohmann_json
     Qt${QT_VERSION_MAJOR}::Widgets
     Widget
+    TabWidget
 )
 
 if(MSVC)
@@ -79,7 +80,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
     MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE # TRUE 关闭命令行窗口
+    WIN32_EXECUTABLE FALSE # TRUE 关闭命令行窗口
     FOLDER app
 )
 

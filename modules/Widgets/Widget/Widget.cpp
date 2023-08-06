@@ -185,7 +185,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     closeButton->setToolTip("关闭");
     connect(closeButton, &QPushButton::clicked, this, &Widget::close);
 
-    QWidget *widget = new QWidget(this);
+    centralWidget = new QWidget(this);
 
     QSpacerItem *horizontalSpacer1 = new QSpacerItem(2, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
     QSpacerItem *horizontalSpacer2 =
@@ -198,14 +198,14 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     layout->addWidget(m_title, 0, 1, 1, 1);
     layout->addItem(horizontalSpacer2, 0, 2, 1, 1);
     layout->addWidget(closeButton, 0, 3, 1, 1);
-    layout->addWidget(widget, 1, 0, 1, 4);
+    layout->addWidget(centralWidget, 1, 0, 1, 4);
 }
 
 void Widget::SetTitle(const QString &title)
 {
     m_title->setText(title);
-    m_title->setFixedWidth(QFontMetrics(this->font()).horizontalAdvance(title));
-
+    m_title->setFont(QFont("微软雅黑"));
+    m_title->setFixedWidth(QFontMetrics(m_title->font()).horizontalAdvance(title));
     m_title->update();
 }
 

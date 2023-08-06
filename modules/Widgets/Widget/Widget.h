@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 06:42:45
+ * Last Modified: 2023-08-06 07:23:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -116,6 +116,8 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+
+    QWidget *centralWidget = nullptr;
 
 private:
     FramelessWidget *m_frameless = nullptr;

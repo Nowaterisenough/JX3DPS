@@ -24,6 +24,8 @@ if(NOT BUILD_SHARED_LIBS)
         -DIMPORT_STATIC_SPIN_BOX_LIB
         -DIMPORT_STATIC_DATA_BAR_LIB
         -DIMPORT_STATIC_COMBO_BOX_LIB
+        -DIMPORT_STATIC_STACK_WIDGET_LIB
+        -DIMPORT_STATIC_PLAIN_TEXT_EDIT_LIB
     )
 endif()
 
@@ -77,6 +79,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     SpinBox
     DataBar
     ComboBox
+    StackWidget
+    PlainTextEdit
 )
 
 if(MSVC)

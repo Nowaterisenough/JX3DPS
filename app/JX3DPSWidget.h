@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:45:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 07:16:11
+ * Last Modified: 2023-08-07 16:37:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -28,5 +28,6 @@ public:
     void InitWidgetAttribute(QWidget *parent = nullptr);
     void InitWidgetEquipEffects(QWidget *parent = nullptr);
     void InitWidgetGains(QWidget *parent = nullptr);
+    void InitWidgetTalents(QWidget *parent = nullptr);
     void InitWidgetPermanents(QWidget *parent = nullptr);
 };

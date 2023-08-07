@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:40:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-12 08:29:05
+ * Last Modified: 2023-08-07 17:57:07
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,7 +30,7 @@ public:
     double GetProgress() const;
 
 public slots:
-    void   SetProgress(double progress);
+    void SetProgress(double progress);
 
     void SetLoadMode();
 

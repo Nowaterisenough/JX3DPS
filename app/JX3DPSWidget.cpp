@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 07:21:54
+ * Last Modified: 2023-08-07 17:59:48
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -27,8 +27,10 @@
 #include "DataBar/DataBar.h"
 #include "GroupBox/GroupBox.h"
 #include "LineEdit/LineEdit.h"
+#include "PlainTextEdit/PlainTextEdit.h"
 #include "SpinBox/SpinBox.h"
 #include "Splitter/Splitter.h"
+#include "StackWidget/StackWidget.h"
 #include "TabWidget/TabWidget.h"
 
 #include "JX3DPS.h"
@@ -37,6 +39,9 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
 {
     QString title = QString("%1  %3").arg(APP_NAME).arg(JX3DPSVersion());
     this->SetTitle(title);
+
+    this->setFixedHeight(848);
+    this->setMinimumWidth(1000);
 
     GroupBox  *groupBoxSetting         = new GroupBox("设置", this->centralWidget);
     TabWidget *tabWidgetAttribute      = new TabWidget(this->centralWidget);
@@ -51,12 +56,11 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
 
     buttonSimulate->setText("开始模拟");
     buttonSimulate->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
-    buttonSimulate->setFixedSize(190, 52);
+    buttonSimulate->setFixedHeight(52);
     buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 14));
 
     tabWidgetAttribute->AddTab("属性");
     tabWidgetAttribute->AddTab("配装");
-    tabWidgetAttribute->setFixedWidth(220);
 
     tabWidgetGains->AddTab("收益");
     tabWidgetGains->setFixedHeight(428);
@@ -66,7 +70,6 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
 
     tabWidgetSkills->AddTab("宏");
     tabWidgetSkills->SetAddButtonVisible(true);
-    tabWidgetSkills->setFixedWidth(400);
 
     tabWidgetEvents->AddTab("事件");
 
@@ -84,6 +87,11 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
     layout->addWidget(tabWidgetTalentsRecipes, 3, 1, 1, 3);
     layout->addWidget(groupBoxPermanents, 0, 3, 3, 1);
     layout->addWidget(splitter, 0, 4, 4, 1);
+    layout->setColumnStretch(0, 0);
+    layout->setColumnStretch(1, 0);
+    layout->setColumnStretch(2, 0);
+    layout->setColumnStretch(3, 0);
+    layout->setColumnStretch(4, 1);
 
     InitWidgetSetting(groupBoxSetting);
 
@@ -92,6 +100,8 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
     InitWidgetAttribute(tabWidgetAttribute->Widget(0));
 
     InitWidgetGains(tabWidgetGains->Widget(0));
+
+    InitWidgetTalents(tabWidgetTalentsRecipes->Widget(0));
 
     InitWidgetPermanents(groupBoxPermanents);
 }
@@ -106,6 +116,7 @@ void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
 
     LineEdit *lineEditSimulateCount = new LineEdit(parent);
     lineEditSimulateCount->setFixedSize(62, 26);
+    lineEditSimulateCount->setText("1000");
 
     TextButton *textButtonDelay = new TextButton(parent);
     textButtonDelay->setFixedSize(62, 26);
@@ -119,7 +130,7 @@ void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
     lineEditDelayMax->setFixedSize(62, 26);
     lineEditDelayMax->setText("75");
 
-    LineEdit *comboBoxClass = new LineEdit(parent);
+    ComboBox *comboBoxClass = new ComboBox(ComboBoxType::ICON_MODE, parent);
     comboBoxClass->setFixedSize(54, 54);
 
     CheckBox *checkBoxDebug = new CheckBox(parent);
@@ -247,21 +258,27 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
     gLayout->addWidget(spinBoxWeaponMin, index, 1, 1, 1);
     gLayout->addWidget(spinBoxWeaponMax, index, 2, 1, 1);
 
-    QSpacerItem *spacerItem = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QSpacerItem *spacerItem =
+        new QSpacerItem(0, 10, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
     gLayout->addItem(spacerItem, ++index, 0, 1, 3);
 
     GroupBox *groupBoxEquipEffect = new GroupBox("装备效果", parent);
 
     InitWidgetEquipEffects(groupBoxEquipEffect);
 
-    gLayout->addWidget(groupBoxEquipEffect, index++, 0, 1, 3);
+    gLayout->addWidget(groupBoxEquipEffect, ++index, 0, 1, 3);
+    gLayout->setRowStretch(index, 0);
+
+    QSpacerItem *spacerItem2 =
+        new QSpacerItem(0, 5, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+    gLayout->addItem(spacerItem2, ++index, 0, 1, 3);
 
     Button *buttonImport = new Button(parent);
     buttonImport->setFixedHeight(35);
     buttonImport->setText("导入魔盒属性");
     buttonImport->setFont(QFont(buttonImport->font().family(), 11));
 
-    gLayout->addWidget(buttonImport, index++, 0, 1, 3);
+    gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
 }
 
 void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
@@ -275,8 +292,7 @@ void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
     CheckBox *checkBoxEnchantBelt   = new CheckBox(parent);
     CheckBox *checkBoxEnchantJacket = new CheckBox(parent);
     CheckBox *checkBoxEnchantHat    = new CheckBox(parent);
-    CheckBox *checkBoxWeaponCW      = new CheckBox(parent);
-    CheckBox *checkBoxWeaponWater   = new CheckBox(parent);
+
     CheckBox *checkBoxClassSetBuff  = new CheckBox(parent);
     CheckBox *checkBoxClassSetSkill = new CheckBox(parent);
 
@@ -285,8 +301,7 @@ void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
     setEffectWidgets.push_back(checkBoxEnchantBelt);
     setEffectWidgets.push_back(checkBoxEnchantJacket);
     setEffectWidgets.push_back(checkBoxEnchantHat);
-    setEffectWidgets.push_back(checkBoxWeaponCW);
-    setEffectWidgets.push_back(checkBoxWeaponWater);
+
     setEffectWidgets.push_back(checkBoxClassSetBuff);
     setEffectWidgets.push_back(checkBoxClassSetSkill);
 
@@ -295,8 +310,6 @@ void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
     checkBoxEnchantBelt->setText("大附魔·腰");
     checkBoxEnchantJacket->setText("大附魔·衣");
     checkBoxEnchantHat->setText("大附魔·帽");
-    checkBoxWeaponCW->setText("大橙武");
-    checkBoxWeaponWater->setText("水特效");
     checkBoxClassSetBuff->setText("套装·属性");
     checkBoxClassSetSkill->setText("套装·技能");
 
@@ -305,8 +318,7 @@ void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
     checkBoxEnchantBelt->setFixedHeight(22);
     checkBoxEnchantJacket->setFixedHeight(22);
     checkBoxEnchantHat->setFixedHeight(22);
-    checkBoxWeaponCW->setFixedHeight(22);
-    checkBoxWeaponWater->setFixedHeight(22);
+
     checkBoxClassSetBuff->setFixedHeight(22);
     checkBoxClassSetSkill->setFixedHeight(22);
 
@@ -316,10 +328,8 @@ void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
     gLayout->addWidget(checkBoxEnchantJacket, 3, 0, 1, 1);
     gLayout->addWidget(checkBoxEnchantHat, 4, 0, 1, 1);
 
-    gLayout->addWidget(checkBoxWeaponCW, 0, 1, 1, 1);
-    gLayout->addWidget(checkBoxWeaponWater, 1, 1, 1, 1);
-    gLayout->addWidget(checkBoxClassSetBuff, 2, 1, 1, 1);
-    gLayout->addWidget(checkBoxClassSetSkill, 3, 1, 1, 1);
+    gLayout->addWidget(checkBoxClassSetBuff, 0, 1, 1, 1);
+    gLayout->addWidget(checkBoxClassSetSkill, 1, 1, 1, 1);
 }
 
 void JX3DPSWidget::InitWidgetGains(QWidget *parent)
@@ -359,20 +369,38 @@ void JX3DPSWidget::InitWidgetGains(QWidget *parent)
     gLayout->addItem(spacerItem, index + 1, 0, 1, 1);
 }
 
+void JX3DPSWidget::InitWidgetTalents(QWidget *parent)
+{
+    std::vector<ComboBox *> talentsComboBoxes;
+    QGridLayout            *gLayout = new QGridLayout(parent);
+    for (int i = 0; i < 12; ++i) {
+        ComboBox *comboBox = new ComboBox(ComboBoxType::ICON_AND_NAME_MODE, parent);
+        comboBox->setFixedSize(54, 72);
+
+        gLayout->addWidget(comboBox, i / 6, i % 6, 1, 1);
+
+        talentsComboBoxes.push_back(comboBox);
+    }
+}
+
 void JX3DPSWidget::InitWidgetPermanents(QWidget *parent)
 {
     QGridLayout *gLayout = new QGridLayout(parent);
 
-    std::vector<LineEdit *>  permanentComboBoxes;
+    std::vector<ComboBox *>  permanentComboBoxes;
     std::vector<std::string> permanents = { "阵眼",     "食品增强", "食品辅助",
                                             "药品增强", "药品辅助", "家园炊事",
                                             "家园酿造", "武器磨石" };
 
     for (int i = 0; i < permanents.size(); ++i) {
-        LineEdit *comboBox = new LineEdit(parent);
-        comboBox->setFixedSize(202, 48);
-        // comboBox->SetItemSize(201, 48);
+        ComboBox *comboBox = new ComboBox(ComboBoxType::DETAILED_MODE, parent);
+        comboBox->setFixedSize(200, 48);
+        comboBox->SetItemSize(200, 48);
         gLayout->addWidget(comboBox, i, 0, 1, 2);
+
+        ComboBoxItemInfo itemInfo;
+        itemInfo.name = permanents[i];
+        comboBox->AddItem(itemInfo);
 
         permanentComboBoxes.push_back(comboBox);
     }

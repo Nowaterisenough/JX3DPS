@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 01:10:26
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:10
+ * Last Modified: 2023-08-08 13:04:08
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -100,12 +100,12 @@ const Cof_t JX3_DAMAGE_CONST_PARAM = 16.0;
 const Cof_t JX3_DOT_DAMAGE_CONST_PARAM = 12.0;
 
 /* 主属性转换系数 */
-const Cof_t JX3_AGILITY_TO_CRITICAL_STRIKE    = 0.64;
-const Cof_t JX3_STRENGTH_TO_ATTACK_POWER_BASE = 0.15;
-const Cof_t JX3_STRENGTH_TO_OVERCOME_BASE     = 0.3;
-const Cof_t JX3_SPIRIT_TO_CRITICAL_STRIKE     = 0.64;
-const Cof_t JX3_SPUNK_TO_ATTACK_POWER_BASE    = 0.18;
-const Cof_t JX3_SPUNK_TO_OVERCOME_BASE        = 0.3;
+const PctInt_t JX3_AGILITY_TO_CRITICAL_STRIKE    = 655;
+const PctInt_t JX3_STRENGTH_TO_ATTACK_POWER_BASE = 153;
+const PctInt_t JX3_STRENGTH_TO_OVERCOME_BASE     = 307;
+const PctInt_t JX3_SPIRIT_TO_CRITICAL_STRIKE     = 655;
+const PctInt_t JX3_SPUNK_TO_ATTACK_POWER_BASE    = 184;
+const PctInt_t JX3_SPUNK_TO_OVERCOME_BASE        = 307;
 
 /* 角色等级 */
 const int JX3_PLAYER_LEVEL = JX3_LEVEL_VERSION;

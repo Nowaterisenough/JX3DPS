@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-08 07:50:48
+ * Last Modified: 2023-08-08 13:37:08
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -195,12 +195,12 @@ public:
           { 41, 41, 41, 41, 0, 0, 3725, 0, 0, 1279, 0, 0, 0, 0, 143 }}  // 莫问
     };
 
-    constexpr static std::array<std::array<Cof_t, static_cast<size_t>(TypeByClass::COUNT)>, static_cast<size_t>(ClassType::COUNT)> MAJOR_TO_OTHER_COEFFICIENT{
+    constexpr static std::array<std::array<PctInt_t, static_cast<size_t>(TypeByClass::COUNT)>, static_cast<size_t>(ClassType::COUNT)> MAJOR_TO_OTHER_COEFFICIENT{
         {{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-         { 0, 0, 0, 0, 0, 1.45, 0, 0, 0.58, 0, 0, 0, 0, 0, 0 }, // 太虚剑意
-          { 0, 0, 0, 0, 0, 0, 0, 1.75, 0, 0.56, 0, 0, 0, 0, 0 }, // 紫霞功
-          { 0, 0, 0, 0, 0, 1.71, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 分山劲
-          { 0, 0, 0, 0, 0, 0, 0, 1.8506, 0, 0.38, 0, 0, 0, 0, 0 }}  // 莫问
+         { 0, 0, 0, 0, 0, 1485, 0, 0, 594, 0, 0, 0, 0, 0, 0 }, // 太虚剑意
+          { 0, 0, 0, 0, 0, 0, 0, 1792, 0, 573, 0, 0, 0, 0, 0 }, // 紫霞功
+          { 0, 0, 0, 0, 0, 1751, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 分山劲
+          { 0, 0, 0, 0, 0, 0, 0, 1895, 0, 389, 0, 0, 0, 0, 0 }}  // 莫问
     };
 
     constexpr static std::array<std::array<int, static_cast<size_t>(MajorType::COUNT)>, static_cast<size_t>(ClassType::COUNT)> MAJOR{
@@ -840,10 +840,7 @@ public:
         return m_magicAttackPowerBaseByClass;
     }
 
-    inline Value_t GetMagicAttackPowerBase() const
-    {
-        return m_magicAttackPowerBase;
-    }
+    inline Value_t GetMagicAttackPowerBase() const { return m_magicAttackPowerBase; }
 
     inline PctInt_t GetMagicAttackPowerBaseAdditionalPercentInt() const
     {
@@ -1543,63 +1540,63 @@ private:
         this->SetPhysicsAttackPowerBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER_BASE)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER_BASE)] *
-                major +
-            m_strength * JX3_STRENGTH_TO_ATTACK_POWER_BASE);
+                major  / JX3_PERCENT_INT_BASE +
+            m_strength * JX3_STRENGTH_TO_ATTACK_POWER_BASE / JX3_PERCENT_INT_BASE);
 
         this->SetMagicAttackPowerBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_ATTACK_POWER_BASE)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_ATTACK_POWER_BASE)] *
-                major +
-            m_spunk * JX3_SPUNK_TO_ATTACK_POWER_BASE);
+                major / JX3_PERCENT_INT_BASE +
+            m_spunk * JX3_SPUNK_TO_ATTACK_POWER_BASE / JX3_PERCENT_INT_BASE);
 
         this->SetPhysicsAttackPowerByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER)] *
-                major);
+                major / JX3_PERCENT_INT_BASE);
 
         this->SetMagicAttackPowerByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_ATTACK_POWER)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_ATTACK_POWER)] *
-                major);
+                major / JX3_PERCENT_INT_BASE);
 
         this->SetPhysicsCriticalStrikeByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_CRITICAL_STRIKE)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_CRITICAL_STRIKE)] *
-                major +
-            m_agility * JX3_AGILITY_TO_CRITICAL_STRIKE);
+                major / JX3_PERCENT_INT_BASE +
+            m_agility * JX3_AGILITY_TO_CRITICAL_STRIKE / JX3_PERCENT_INT_BASE);
 
         this->SetMagicCriticalStrikeByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_CRITICAL_STRIKE)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_CRITICAL_STRIKE)] *
-                major +
-            m_spirit * JX3_SPIRIT_TO_CRITICAL_STRIKE);
+                major / JX3_PERCENT_INT_BASE +
+            m_spirit * JX3_SPIRIT_TO_CRITICAL_STRIKE / JX3_PERCENT_INT_BASE);
 
         this->SetPhysicsOvercomeBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_OVERCOME_BASE)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_OVERCOME_BASE)] *
-                major +
-            m_strength * JX3_STRENGTH_TO_OVERCOME_BASE);
+                major / JX3_PERCENT_INT_BASE +
+            m_strength * JX3_STRENGTH_TO_OVERCOME_BASE / JX3_PERCENT_INT_BASE);
 
         this->SetMagicOvercomeBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME_BASE)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME_BASE)] *
-                major +
-            m_spunk * JX3_SPUNK_TO_OVERCOME_BASE);
+                major / JX3_PERCENT_INT_BASE +
+            m_spunk * JX3_SPUNK_TO_OVERCOME_BASE / JX3_PERCENT_INT_BASE);
 
         this->SetPhysicsOvercomeByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_OVERCOME)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_OVERCOME)] *
-                major);
+                major / JX3_PERCENT_INT_BASE);
 
         this->SetMagicOvercomeByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME)] *
-                major);
+                major / JX3_PERCENT_INT_BASE);
 
         this->SetPVEDamageAdditionalPercentInt(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PVE_DAMAGE_ADDITIONAL_PERCENT_INT)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PVE_DAMAGE_ADDITIONAL_PERCENT_INT)] *
-                major);
+                major / JX3_PERCENT_INT_BASE);
     }
 
     ClassType m_classType = ClassType::DEFAULT;

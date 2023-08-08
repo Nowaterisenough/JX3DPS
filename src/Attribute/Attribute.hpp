@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:12:03
+ * Last Modified: 2023-08-08 07:50:48
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -200,7 +200,7 @@ public:
          { 0, 0, 0, 0, 0, 1.45, 0, 0, 0.58, 0, 0, 0, 0, 0, 0 }, // 太虚剑意
           { 0, 0, 0, 0, 0, 0, 0, 1.75, 0, 0.56, 0, 0, 0, 0, 0 }, // 紫霞功
           { 0, 0, 0, 0, 0, 1.71, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 分山劲
-          { 0, 0, 0, 0, 0, 0, 0, 1.85, 0, 0.38, 0, 0, 0, 0, 0 }}  // 莫问
+          { 0, 0, 0, 0, 0, 0, 0, 1.8506, 0, 0.38, 0, 0, 0, 0, 0 }}  // 莫问
     };
 
     constexpr static std::array<std::array<int, static_cast<size_t>(MajorType::COUNT)>, static_cast<size_t>(ClassType::COUNT)> MAJOR{
@@ -630,13 +630,13 @@ public:
     inline void SetSpunkBaseAdditional(Value_t value)
     {
         m_spunkBaseAdditional = value;
-        UpdateStrength();
+        UpdateSpunk();
     }
 
     inline void AddSpunkBaseAdditional(Value_t value)
     {
         m_spunkBaseAdditional += value;
-        UpdateStrength();
+        UpdateSpunk();
     }
 
     inline Value_t GetSpunkBase() const { return m_spunkBase; }
@@ -649,13 +649,13 @@ public:
     inline void SetSpunkBaseAdditionalPercentInt(PctInt_t percentInt)
     {
         m_spunkBaseAdditionalPercentInt = percentInt;
-        UpdateStrength();
+        UpdateSpunk();
     }
 
     inline void AddSpunkBaseAdditionalPercentInt(PctInt_t percentInt)
     {
         m_spunkBaseAdditionalPercentInt += percentInt;
-        UpdateStrength();
+        UpdateSpunk();
     }
 
     inline Value_t GetSpunk() const { return m_spunk; }
@@ -842,7 +842,7 @@ public:
 
     inline Value_t GetMagicAttackPowerBase() const
     {
-        return m_magicAttackPowerBase + m_magicAttackPowerBaseAdditional;
+        return m_magicAttackPowerBase;
     }
 
     inline PctInt_t GetMagicAttackPowerBaseAdditionalPercentInt() const
@@ -1029,7 +1029,7 @@ public:
 
     inline Value_t GetPhysicsCriticalStrikePowerMinimum() const
     {
-        return m_physicsAttackPowerBaseByClass;
+        return m_physicsCriticalStrikePowerPercentBySelf;
     }
 
     inline PctInt_t GetPhysicsCriticalStrikePowerAdditionalPercentInt() const
@@ -1062,19 +1062,19 @@ public:
 
     inline void SetMagicCriticalStrikePower(Value_t value)
     {
-        m_magicCriticalStrikePower = value;
+        m_magicCriticalStrikePowerAdditional = value;
         UpdateMagicCriticalStrikePower();
     }
 
     inline void AddMagicCriticalStrikePower(Value_t value)
     {
-        m_magicCriticalStrikePower += value;
+        m_magicCriticalStrikePowerAdditional += value;
         UpdateMagicCriticalStrikePower();
     }
 
     inline Value_t GetMagicCriticalStrikePowerMinimum() const
     {
-        return m_magicAttackPowerBaseByClass;
+        return m_magicCriticalStrikePowerPercentBySelf;
     }
 
     inline PctInt_t GetMagicCriticalStrikePowerAdditionalPercentInt() const

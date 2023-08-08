@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 17:53:39
+ * Last Modified: 2023-08-07 18:08:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -56,6 +56,8 @@
 #include <QPushButton>
 #include <QStringList>
 #include <QWidget>
+
+#include "Common/ThemeColors.h"
 
 class Stack : public QWidget
 {

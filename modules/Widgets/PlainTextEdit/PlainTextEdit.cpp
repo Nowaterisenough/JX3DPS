@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-13 21:35:36
+ * Last Modified: 2023-08-07 18:09:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -20,7 +20,7 @@
 #include <QIntValidator>
 #include <QPainter>
 
-#include "ThemeColors.h"
+#include "Common/ThemeColors.h"
 
 PlainTextEdit::PlainTextEdit(QWidget *parent) : QPlainTextEdit(parent)
 {

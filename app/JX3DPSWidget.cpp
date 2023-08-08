@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 17:59:48
+ * Last Modified: 2023-08-08 07:10:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -68,10 +68,7 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
     tabWidgetTalentsRecipes->AddTab("奇穴");
     tabWidgetTalentsRecipes->AddTab("秘籍");
 
-    tabWidgetSkills->AddTab("宏");
     tabWidgetSkills->SetAddButtonVisible(true);
-
-    tabWidgetEvents->AddTab("事件");
 
     splitter->setOrientation(Qt::Vertical);
     splitter->addWidget(tabWidgetSkills);
@@ -93,6 +90,27 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
     layout->setColumnStretch(3, 0);
     layout->setColumnStretch(4, 1);
 
+    connect(tabWidgetSkills, &TabWidget::Signal_AddTab, this, [=]() {
+        QWidget *widget = tabWidgetSkills->Widget(tabWidgetSkills->Count() - 1);
+
+        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
+        QGridLayout   *layout        = new QGridLayout(widget);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(plainTextEdit);
+    });
+
+    connect(tabWidgetEvents, &TabWidget::Signal_AddTab, this, [=]() {
+        QWidget *widget = tabWidgetEvents->Widget(tabWidgetEvents->Count() - 1);
+
+        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
+        QGridLayout   *layout        = new QGridLayout(widget);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(plainTextEdit);
+    });
+
+    tabWidgetSkills->AddTab("宏");
+    tabWidgetEvents->AddTab("事件");
+
     InitWidgetSetting(groupBoxSetting);
 
     InitWidgetOut(groupBoxOut);
@@ -111,23 +129,23 @@ JX3DPSWidget::~JX3DPSWidget() { }
 void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
 {
     TextButton *textButtonSimulateCount = new TextButton(parent);
-    textButtonSimulateCount->setFixedSize(62, 26);
+    textButtonSimulateCount->setFixedSize(64, 26);
     textButtonSimulateCount->setText("模拟次数");
 
     LineEdit *lineEditSimulateCount = new LineEdit(parent);
-    lineEditSimulateCount->setFixedSize(62, 26);
+    lineEditSimulateCount->setFixedSize(64, 26);
     lineEditSimulateCount->setText("1000");
 
     TextButton *textButtonDelay = new TextButton(parent);
-    textButtonDelay->setFixedSize(62, 26);
+    textButtonDelay->setFixedSize(64, 26);
     textButtonDelay->setText("延迟波动");
 
     LineEdit *lineEditDelayMin = new LineEdit(parent);
-    lineEditDelayMin->setFixedSize(62, 26);
+    lineEditDelayMin->setFixedSize(64, 26);
     lineEditDelayMin->setText("40");
 
     LineEdit *lineEditDelayMax = new LineEdit(parent);
-    lineEditDelayMax->setFixedSize(62, 26);
+    lineEditDelayMax->setFixedSize(64, 26);
     lineEditDelayMax->setText("75");
 
     ComboBox *comboBoxClass = new ComboBox(ComboBoxType::ICON_MODE, parent);
@@ -209,7 +227,30 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
     QMap<JX3DPS::Attribute::Type, LineEdit *>   attributeLineEdits;
     QMap<JX3DPS::Attribute::Type, SpinBox *>    attributeSpinBoxes;
 
+    JX3DPS::Attribute *attribute = new JX3DPS::Attribute;
+
+    attribute->SetClassType(JX3DPS::ClassType::MO_WEN);
+
     QGridLayout *gLayout = new QGridLayout(parent);
+
+    static const std::unordered_map<std::string_view, JX3DPS::Attribute::Type> &ATTRIBUTE_TYPE_HASH = {
+        {{ "身法", JX3DPS::Attribute::Type::AGILITY_BASE },
+         { "力道", JX3DPS::Attribute::Type::STRENGTH_BASE },
+         { "根骨", JX3DPS::Attribute::Type::SPIRIT_BASE },
+         { "元气", JX3DPS::Attribute::Type::SPUNK_BASE },
+         { "外功攻击", JX3DPS::Attribute::Type::PHYSICS_ATTACK_POWER_BASE },
+         { "内功攻击", JX3DPS::Attribute::Type::MAGIC_ATTACK_POWER_BASE },
+         { "外功会心", JX3DPS::Attribute::Type::PHYSICS_CRITICAL_STRIKE },
+         { "内功会心", JX3DPS::Attribute::Type::MAGIC_CRITICAL_STRIKE },
+         { "外功会效", JX3DPS::Attribute::Type::PHYSICS_CRITICAL_STRIKE_POWER },
+         { "内功会效", JX3DPS::Attribute::Type::MAGIC_CRITICAL_STRIKE_POWER },
+         { "外功破防", JX3DPS::Attribute::Type::PHYSICS_OVERCOME_BASE },
+         { "内功破防", JX3DPS::Attribute::Type::MAGIC_OVERCOME_BASE },
+         { "加速", JX3DPS::Attribute::Type::HASTE_BASE },
+         { "无双", JX3DPS::Attribute::Type::STRAIN_BASE },
+         { "破招", JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE },
+         { "武器伤害", JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE }}
+    };
 
     int index = 0;
     for (const auto &type : attributeTypes) {
@@ -223,17 +264,18 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
                 } else {
                     textButton->setText(types[0] + attributeNames[index]);
                 }
+                emit Signal_UpdateAttribute();
             });
         }
 
         textButton->setText(str + attributeNames[index]);
-        textButton->setFixedSize(62, 26);
+        textButton->setFixedSize(64, 26);
         LineEdit *lineEdit = new LineEdit(parent);
-        lineEdit->setFixedSize(62, 26);
+        lineEdit->setFixedSize(64, 26);
         lineEdit->setAlignment(Qt::AlignRight);
         lineEdit->setReadOnly(true);
         SpinBox *spinBox = new SpinBox(parent);
-        spinBox->setFixedSize(62, 26);
+        spinBox->setFixedSize(64, 26);
 
         gLayout->addWidget(textButton, index, 0, 1, 1);
         gLayout->addWidget(lineEdit, index, 1, 1, 1);
@@ -243,16 +285,119 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
         attributeLineEdits.insert(type, lineEdit);
         attributeSpinBoxes.insert(type, spinBox);
 
+        connect(spinBox, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+            JX3DPS::Attribute::Type t = ATTRIBUTE_TYPE_HASH.at(textButton->text().toStdString());
+            attribute->SetAttributeInitial(t, value);
+            emit Signal_UpdateAttribute();
+        });
+
         index++;
     }
 
     TextButton *textButtonWeapon = new TextButton(parent);
     textButtonWeapon->setText(attributeNames[index]);
-    textButtonWeapon->setFixedSize(62, 26);
+    textButtonWeapon->setFixedSize(64, 26);
     SpinBox *spinBoxWeaponMin = new SpinBox(parent);
-    spinBoxWeaponMin->setFixedSize(62, 26);
+    spinBoxWeaponMin->setFixedSize(64, 26);
     SpinBox *spinBoxWeaponMax = new SpinBox(parent);
-    spinBoxWeaponMax->setFixedSize(62, 26);
+    spinBoxWeaponMax->setFixedSize(64, 26);
+
+    connect(this, &JX3DPSWidget::Signal_UpdateAttribute, this, [=] {
+        attributeLineEdits[JX3DPS::Attribute::Type::AGILITY_BASE]->UpdateValue(attribute->GetAgility());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::AGILITY_BASE]->UpdateValue(attribute->GetAgility());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::AGILITY_BASE]->setRange(attribute->GetAgilityBaseByClass());
+
+        attributeLineEdits[JX3DPS::Attribute::Type::STRENGTH_BASE]->UpdateValue(attribute->GetStrength());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::STRENGTH_BASE]->UpdateValue(attribute->GetStrength());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::STRENGTH_BASE]->setRange(attribute->GetStrengthBaseByClass());
+
+        attributeLineEdits[JX3DPS::Attribute::Type::SPIRIT_BASE]->UpdateValue(attribute->GetSpirit());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::SPIRIT_BASE]->UpdateValue(attribute->GetSpirit());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::SPIRIT_BASE]->setRange(attribute->GetSpiritBaseByClass());
+
+        attributeLineEdits[JX3DPS::Attribute::Type::SPUNK_BASE]->UpdateValue(attribute->GetSpunk());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::SPUNK_BASE]->UpdateValue(attribute->GetSpunk());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::SPUNK_BASE]->setRange(attribute->GetSpunkBaseByClass());
+
+        if (attributeTextButtons[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->text().contains(types[0]))
+        {
+            attributeLineEdits[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
+                attribute->GetPhysicsAttackPower());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
+                attribute->GetPhysicsAttackPowerBase());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->setRange(
+                attribute->GetPhysicsAttackPowerBaseByClass());
+
+        } else {
+            attributeLineEdits[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
+                attribute->GetMagicAttackPower());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
+                attribute->GetMagicAttackPowerBase());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->setRange(
+                attribute->GetMagicAttackPowerBaseByClass());
+        }
+
+        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->text().contains(types[0]))
+        {
+            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValueFloat(
+                attribute->GetPhysicsCriticalStrikePercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValue(
+                attribute->GetPhysicsCriticalStrike());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->setRange(
+                attribute->GetPhysicsCriticalStrikeMinimum());
+
+        } else {
+            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValueFloat(
+                attribute->GetMagicCriticalStrikePercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValue(
+                attribute->GetMagicCriticalStrike());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->setRange(
+                attribute->GetMagicCriticalStrikeMinimum());
+        }
+
+        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->text().contains(types[0]))
+        {
+            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValueFloat(
+                attribute->GetPhysicsCriticalStrikePowerPercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValue(
+                attribute->GetPhysicsCriticalStrikePower());
+        } else {
+            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValueFloat(
+                attribute->GetMagicCriticalStrikePowerPercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValue(
+                attribute->GetMagicCriticalStrikePower());
+        }
+
+        if (attributeTextButtons[JX3DPS::Attribute::Type::OVERCOME_BASE]->text().contains(types[0]))
+        {
+            attributeLineEdits[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValueFloat(
+                attribute->GetPhysicsOvercomePercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValue(
+                attribute->GetPhysicsOvercomeBase());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->setRange(
+                attribute->GetPhysicsOvercomeBaseMinimum());
+
+        } else {
+            attributeLineEdits[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValueFloat(
+                attribute->GetMagicOvercomePercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValue(
+                attribute->GetMagicOvercomeBase());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->setRange(attribute->GetMagicOvercomeBaseMinimum());
+        }
+
+        attributeLineEdits[JX3DPS::Attribute::Type::HASTE_BASE]->UpdateValueFloat(
+            attribute->GetHasteVisiblePercent());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::HASTE_BASE]->UpdateValue(attribute->GetHasteBase());
+
+        attributeLineEdits[JX3DPS::Attribute::Type::STRAIN_BASE]->UpdateValueFloat(
+            attribute->GetStrainPercent());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::STRAIN_BASE]->UpdateValue(attribute->GetStrainBase());
+
+        attributeLineEdits[JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE]->UpdateValue(
+            attribute->GetSurplusValueBase());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE]->UpdateValue(
+            attribute->GetSurplusValueBase());
+    });
 
     gLayout->addWidget(textButtonWeapon, index, 0, 1, 1);
     gLayout->addWidget(spinBoxWeaponMin, index, 1, 1, 1);

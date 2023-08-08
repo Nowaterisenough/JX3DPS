@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 03:35:03
+ * Last Modified: 2023-08-07 18:14:44
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -114,7 +114,7 @@ public:
 
 signals:
     void Signal_Delete();
-    
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
@@ -137,6 +137,11 @@ public:
     Tab *Widget(int index);
 
     void SetAddButtonVisible(bool visible);
+
+    int Count() const;
+
+signals:
+    void Signal_AddTab();
 
 protected:
     void paintEvent(QPaintEvent *event) override;

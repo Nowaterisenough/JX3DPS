@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 03:35:32
+ * Last Modified: 2023-08-07 18:14:47
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -150,6 +150,8 @@ void TabWidget::AddTab(const QString &text)
     if (m_tabs.size() == 1) {
         tabButton->setChecked(true);
     }
+
+    emit Signal_AddTab();
 }
 
 Tab *TabWidget::Widget(int index)
@@ -163,6 +165,11 @@ Tab *TabWidget::Widget(int index)
 void TabWidget::SetAddButtonVisible(bool visible)
 {
     m_tabButton->setVisible(visible);
+}
+
+int TabWidget::Count() const
+{
+    return m_tabs.size();
 }
 
 #include <set>

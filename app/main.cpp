@@ -5,7 +5,7 @@
  * Created Date: 2023-07-19 03:39:15
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 07:31:35
+ * Last Modified: 2023-08-10 00:01:54
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     font.setHintingPreference(QFont::PreferFullHinting);
     qApp->setFont(font);
 
-    JX3DPSWidget widget;
+    JX3DPS::Simulator::Widget widget;
     widget.show();
 
     return app.exec();

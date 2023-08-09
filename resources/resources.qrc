@@ -2,24 +2,63 @@
   <qresource prefix="/resources">
     <file>Monaco.ttf</file>
     <file>NoWatsFont.ttf</file>
-    <file>pics\JX3\Icons\8915.png</file>
-    <file>pics\JX3\Icons\9989.png</file>
-    <file>pics\JX3\Icons\9996.png</file>
-    <file>pics\JX3\Icons\9999.png</file>
-    <file>pics\JX3\Icons\10000.png</file>
-    <file>pics\JX3\Icons\10134.png</file>
     <file>pics\JX3\Icons\549.png</file>
     <file>pics\JX3\Icons\552.png</file>
+    <file>pics\JX3\Icons\617.png</file>
     <file>pics\JX3\Icons\1396.png</file>
+    <file>pics\JX3\Icons\1440.png</file>
     <file>pics\JX3\Icons\1798.png</file>
+    <file>pics\JX3\Icons\2924.png</file>
+    <file>pics\JX3\Icons\2926.png</file>
+    <file>pics\JX3\Icons\2931.png</file>
+    <file>pics\JX3\Icons\2934.png</file>
+    <file>pics\JX3\Icons\2936.png</file>
+    <file>pics\JX3\Icons\2941.png</file>
+    <file>pics\JX3\Icons\2942.png</file>
+    <file>pics\JX3\Icons\4221.png</file>
     <file>pics\JX3\Icons\4268.png</file>
     <file>pics\JX3\Icons\4274.png</file>
     <file>pics\JX3\Icons\4275.png</file>
     <file>pics\JX3\Icons\4278.png</file>
     <file>pics\JX3\Icons\4302.png</file>
     <file>pics\JX3\Icons\4487.png</file>
+    <file>pics\JX3\Icons\4525.png</file>
+    <file>pics\JX3\Icons\7099.png</file>
+    <file>pics\JX3\Icons\7103.png</file>
+    <file>pics\JX3\Icons\7105.png</file>
+    <file>pics\JX3\Icons\7120.png</file>
+    <file>pics\JX3\Icons\7122.png</file>
+    <file>pics\JX3\Icons\7132.png</file>
+    <file>pics\JX3\Icons\7138.png</file>
+    <file>pics\JX3\Icons\7145.png</file>
+    <file>pics\JX3\Icons\7163.png</file>
+    <file>pics\JX3\Icons\7422.png</file>
+    <file>pics\JX3\Icons\7454.png</file>
+    <file>pics\JX3\Icons\7470.png</file>
+    <file>pics\JX3\Icons\7492.png</file>
     <file>pics\JX3\Icons\7531.png</file>
     <file>pics\JX3\Icons\7646.png</file>
+    <file>pics\JX3\Icons\8479.png</file>
+    <file>pics\JX3\Icons\8483.png</file>
+    <file>pics\JX3\Icons\8484.png</file>
+    <file>pics\JX3\Icons\8501.png</file>
     <file>pics\JX3\Icons\8909.png</file>
+    <file>pics\JX3\Icons\8915.png</file>
+    <file>pics\JX3\Icons\9989.png</file>
+    <file>pics\JX3\Icons\9996.png</file>
+    <file>pics\JX3\Icons\9999.png</file>
+    <file>pics\JX3\Icons\10000.png</file>
+    <file>pics\JX3\Icons\10134.png</file>
+    <file>pics\JX3\Icons\11854.png</file>
+    <file>pics\JX3\Icons\11857.png</file>
+    <file>pics\JX3\Icons\11858.png</file>
+    <file>pics\JX3\Icons\12722.png</file>
+    <file>pics\JX3\Icons\14078.png</file>
+    <file>pics\JX3\Icons\14081.png</file>
+    <file>pics\JX3\Icons\17197.png</file>
+    <file>pics\JX3\Icons\17198.png</file>
+    <file>pics\JX3\Icons\17199.png</file>
+    <file>pics\JX3\Icons\18281.png</file>
+    <file>pics\JX3\Icons\18326.png</file>
   </qresource>
 </RCC>

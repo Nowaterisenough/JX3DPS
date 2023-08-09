@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-09 21:14:51
+ * Last Modified: 2023-08-10 05:39:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -82,7 +82,10 @@ protected:
 
         painter.setOpacity(opacity);
         // painter.setPen(Qt::NoPen);
-        QIcon       icon(m_pixmap.copy(4, 4, 40, 40));
+        QIcon       icon(m_pixmap.copy(m_pixmap.width() / 12,
+                                 m_pixmap.width() / 12,
+                                 m_pixmap.width() / 12 * 10,
+                                 m_pixmap.width() / 12 * 10));
         QIcon::Mode mode =
             (m_hovered || m_type != ComboBox::Type::DEFAULT) ? QIcon::Normal : QIcon::Disabled;
         painter.drawPixmap(border,
@@ -125,7 +128,14 @@ ComboBox::ComboBox(QWidget *parent) : QWidget(parent)
     connect(m_subComboBox, &SubComboBox::Signal_CurrentItemChanged, this, [=](const ItemInfo &itemInfo) {
         m_name = itemInfo.name;
         update();
+        emit Signal_CurrentItemChanged(itemInfo);
     });
+}
+
+void ComboBox::Clear()
+{
+    m_subComboBox->clear();
+    update();
 }
 
 void ComboBox::SetType(Type type)

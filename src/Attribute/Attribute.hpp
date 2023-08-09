@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-08 13:37:08
+ * Last Modified: 2023-08-10 04:24:28
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -1660,13 +1660,13 @@ private:
     Value_t  m_physicsCriticalStrikePower                     = 0;
     PctInt_t m_physicsCriticalStrikePowerAdditionalPercentInt = 0;
     PctFloat_t m_physicsCriticalStrikePowerPercentBySelf = JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
-    PctFloat_t m_physicsCriticalStrikePowerPercent = 0.0;
+    PctFloat_t m_physicsCriticalStrikePowerPercent = JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
 
     Value_t  m_magicCriticalStrikePowerAdditional           = 0;
     Value_t  m_magicCriticalStrikePower                     = 0;
     PctInt_t m_magicCriticalStrikePowerAdditionalPercentInt = 0;
     PctFloat_t m_magicCriticalStrikePowerPercentBySelf = JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
-    PctFloat_t m_magicCriticalStrikePowerPercent = 0.0;
+    PctFloat_t m_magicCriticalStrikePowerPercent = JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE;
 
     Value_t    m_physicsOvercomeBaseByClass              = 0;
     Value_t    m_physicsOvercomeBaseAdditional           = 0;

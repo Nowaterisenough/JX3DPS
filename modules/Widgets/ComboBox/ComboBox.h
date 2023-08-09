@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-09 20:46:07
+ * Last Modified: 2023-08-10 05:39:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -90,6 +90,11 @@ public:
 
     void AddItem(const ItemInfo &itemInfo);
     void SetItemSize(int width, int height);
+
+    void Clear();
+
+signals:
+    void Signal_CurrentItemChanged(const ComboBox::ItemInfo &itemInfo);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

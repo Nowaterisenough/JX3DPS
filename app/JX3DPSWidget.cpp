@@ -1,11 +1,11 @@
 /**
  * Project: JX3DPS
- * File: JX3DPSWidget.cpp
+ * File: JX3DPS::Simulator::Widget.cpp
  * Description:
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-09 22:10:28
+ * Last Modified: 2023-08-10 05:42:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -34,13 +34,16 @@
 #include "TabWidget/TabWidget.h"
 
 #include "JX3DPS.h"
+#include "JX3DPSJsonParser.h"
 
-JX3DPSWidget::JX3DPSWidget(QWidget *parent)
+const char *const CONFIG_PATH = "./config.json";
+
+JX3DPS::Simulator::Widget::Widget(QWidget *parent)
 {
     QString title = QString("%1  %3").arg(APP_NAME).arg(JX3DPSVersion());
     this->SetTitle(title);
 
-    this->setFixedHeight(800);
+    this->setFixedHeight(814);
     this->setMinimumWidth(1000);
 
     GroupBox  *groupBoxSetting         = new GroupBox("设置", this->centralWidget);
@@ -57,7 +60,8 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
     buttonSimulate->setText("开始模拟");
     buttonSimulate->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
     buttonSimulate->setFixedHeight(40);
-    buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 14));
+    buttonSimulate->setFixedWidth(160);
+    buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 13));
 
     tabWidgetAttribute->AddTab("属性");
     tabWidgetAttribute->AddTab("配装");
@@ -77,7 +81,7 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
     layout->setSpacing(10);
     layout->addWidget(groupBoxSetting, 0, 0, 2, 1);
     layout->addWidget(tabWidgetAttribute, 2, 0, 2, 1);
-    layout->addWidget(buttonSimulate, 0, 1, 1, 2);
+    layout->addWidget(buttonSimulate, 0, 1, 1, 2, Qt::AlignCenter);
     layout->addWidget(groupBoxOut, 1, 1, 1, 2);
     layout->addWidget(tabWidgetGains, 2, 1, 1, 2);
     layout->addWidget(tabWidgetTalentsRecipes, 3, 1, 1, 3);
@@ -123,9 +127,9 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
     InitWidgetPermanents(groupBoxPermanents);
 }
 
-JX3DPSWidget::~JX3DPSWidget() { }
+JX3DPS::Simulator::Widget::~Widget() { }
 
-void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
 {
     ComboBox *comboBoxClass = new ComboBox(parent);
     comboBoxClass->SetType(ComboBox::Type::DETAILED);
@@ -156,14 +160,14 @@ void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
     lineEditDelayMax->setFixedSize(64, 28);
     lineEditDelayMax->setText("75");
 
-    // for (int i = 0; i < static_cast<int>(JX3DPS::ClassType::COUNT); ++i) {
-    //     ComboBoxItemInfo itemInfo;
-    //     itemInfo.id = i;
-    //     itemInfo.name = JX3DPS::CLASS_NAME[i];
-    //     itemInfo.icon = ":/resources/pics/JX3/Icons/4278.png";
-    //     itemInfo.desc = ":/resources/pics/JX3/Icons/4278.png";
-    //     comboBoxClass->AddItem(itemInfo);
-    // }
+    JsonParser::LoadConfig(CONFIG_PATH, m_config);
+
+    std::list<ComboBox::ItemInfo> itemInfos;
+    JsonParser::ParseJsonToClassTypeItemInfos(m_config, itemInfos);
+
+    for (const auto &itemInfo : itemInfos) {
+        comboBoxClass->AddItem(itemInfo);
+    }
 
     CheckBox *checkBoxDebug = new CheckBox(parent);
     checkBoxDebug->setFixedHeight(22);
@@ -176,7 +180,7 @@ void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
     gLayout->addWidget(textButtonDelay, 2, 0, 1, 1);
     gLayout->addWidget(lineEditDelayMin, 2, 1, 1, 1);
     gLayout->addWidget(lineEditDelayMax, 2, 2, 1, 1);
-    
+
     gLayout->addWidget(checkBoxDebug, 1, 2, 1, 1);
 
     connect(checkBoxDebug, &QCheckBox::stateChanged, [=](int checked) {
@@ -195,13 +199,17 @@ void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
         }
     });
 
-    // connect(comboBoxClass, &LineEdit::Signal_CurrentIndexChanged, [=](int index) {
-    //     JX3DPS::ClassType type = JX3DPS::GetClassType(comboBoxClass->GetItemInfo().name);
-    //     emit              Signal_UpdateClassType(type);
-    // });
+    connect(comboBoxClass, &ComboBox::Signal_CurrentItemChanged, [=](const ComboBox::ItemInfo &itemInfo) {
+        if (itemInfo.name == "心法") {
+            return;
+        }
+        JX3DPS::ClassType type = JX3DPS::GetClassType(itemInfo.name.toStdString());
+
+        emit Signal_UpdateClassType(type);
+    });
 }
 
-void JX3DPSWidget::InitWidgetOut(QWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
 {
     TextButton *textButtonDPS = new TextButton(parent);
     textButtonDPS->setText("DPS 期望");
@@ -226,11 +234,11 @@ void JX3DPSWidget::InitWidgetOut(QWidget *parent)
     gLayout->addWidget(buttonStats, 2, 0, 1, 2);
 }
 
-void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
 {
 
     QList<JX3DPS::Attribute::Type> attributeTypes = {
-        JX3DPS::Attribute::Type::AGILITY_BASE,
+        JX3DPS::Attribute::Type::DEFAULT,
         JX3DPS::Attribute::Type::ATTACK_POWER_BASE,
         JX3DPS::Attribute::Type::CRITICAL_STRIKE,
         JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER,
@@ -344,22 +352,28 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
         emit Signal_UpdateAttribute();
     });
 
-    connect(this, &JX3DPSWidget::Signal_UpdateAttribute, this, [=] {
-        attributeLineEdits[JX3DPS::Attribute::Type::AGILITY_BASE]->UpdateValue(attribute->GetAgility());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::AGILITY_BASE]->UpdateValue(attribute->GetAgility());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::AGILITY_BASE]->setRange(attribute->GetAgilityBaseByClass());
-
-        attributeLineEdits[JX3DPS::Attribute::Type::STRENGTH_BASE]->UpdateValue(attribute->GetStrength());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::STRENGTH_BASE]->UpdateValue(attribute->GetStrength());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::STRENGTH_BASE]->setRange(attribute->GetStrengthBaseByClass());
-
-        attributeLineEdits[JX3DPS::Attribute::Type::SPIRIT_BASE]->UpdateValue(attribute->GetSpirit());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::SPIRIT_BASE]->UpdateValue(attribute->GetSpirit());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::SPIRIT_BASE]->setRange(attribute->GetSpiritBaseByClass());
-
-        attributeLineEdits[JX3DPS::Attribute::Type::SPUNK_BASE]->UpdateValue(attribute->GetSpunk());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::SPUNK_BASE]->UpdateValue(attribute->GetSpunk());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::SPUNK_BASE]->setRange(attribute->GetSpunkBaseByClass());
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateAttribute, this, [=] {
+        if (attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->text() == "身法") {
+            attributeLineEdits[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetAgility());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetAgility());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->setRange(attribute->GetAgilityBaseByClass());
+        } else if (attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->text() ==
+                   "力道")
+        {
+            attributeLineEdits[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetStrength());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetStrength());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->setRange(attribute->GetStrengthBaseByClass());
+        } else if (attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->text() ==
+                   "根骨")
+        {
+            attributeLineEdits[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetSpirit());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetSpirit());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->setRange(attribute->GetSpiritBaseByClass());
+        } else {
+            attributeLineEdits[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetSpunk());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetSpunk());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->setRange(attribute->GetSpunkBaseByClass());
+        }
 
         if (attributeTextButtons[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->text().contains(types[1]))
         {
@@ -369,7 +383,6 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
                 attribute->GetPhysicsAttackPowerBase());
             attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->setRange(
                 attribute->GetPhysicsAttackPowerBaseByClass());
-
         } else {
             attributeLineEdits[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
                 attribute->GetMagicAttackPower());
@@ -387,7 +400,6 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
                 attribute->GetPhysicsCriticalStrike());
             attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->setRange(
                 attribute->GetPhysicsCriticalStrikeMinimum());
-
         } else {
             attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValueFloat(
                 attribute->GetMagicCriticalStrikePercent());
@@ -418,7 +430,6 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
                 attribute->GetPhysicsOvercomeBase());
             attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->setRange(
                 attribute->GetPhysicsOvercomeBaseMinimum());
-
         } else {
             attributeLineEdits[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValueFloat(
                 attribute->GetMagicOvercomePercent());
@@ -446,13 +457,27 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
             attribute->GetWeaponDamageBase() + attribute->GetWeaponDamageRand());
     });
 
-    // emit Signal_UpdateAttribute();
+    emit Signal_UpdateAttribute();
 
-    connect(this, &JX3DPSWidget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
-        for (int index = 4; index <= 7; ++index) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+        for (int index = 1; index <= 4; ++index) {
             attributeTextButtons[attributeTypes[index]]->setText(types[static_cast<int>(type) % 2] +
                                                                  attributeNames[index]);
         }
+
+        if (JX3DPS::Attribute::MAJOR[static_cast<int>(type)][static_cast<int>(JX3DPS::Attribute::MajorType::AGILITY)])
+        {
+            attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->setText("身法");
+        } else if (JX3DPS::Attribute::MAJOR[static_cast<int>(type)][static_cast<int>(JX3DPS::Attribute::MajorType::STRENGTH)])
+        {
+            attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->setText("力道");
+        } else if (JX3DPS::Attribute::MAJOR[static_cast<int>(type)][static_cast<int>(JX3DPS::Attribute::MajorType::SPIRIT)])
+        {
+            attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->setText("根骨");
+        } else {
+            attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->setText("元气");
+        }
+
         attribute->SetClassType(type);
         emit Signal_UpdateAttribute();
     });
@@ -484,7 +509,7 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
     gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
 }
 
-void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
 {
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -498,6 +523,20 @@ void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
 
     CheckBox *checkBoxClassSetBuff  = new CheckBox(parent);
     CheckBox *checkBoxClassSetSkill = new CheckBox(parent);
+
+    ComboBox *comboBoxWeapon = new ComboBox(parent);
+
+    comboBoxWeapon->setFixedHeight(36);
+    comboBoxWeapon->SetItemSize(184, 36);
+    comboBoxWeapon->SetType(ComboBox::Type::DETAILED);
+
+    ComboBox::ItemInfo itemInfo;
+    itemInfo.name = "武器效果";
+    comboBoxWeapon->AddItem(itemInfo);
+    itemInfo.name = "武器效果·橙武";
+    comboBoxWeapon->AddItem(itemInfo);
+    itemInfo.name = "武器效果·水特效";
+    comboBoxWeapon->AddItem(itemInfo);
 
     setEffectWidgets.push_back(checkBoxEnchantWrist);
     setEffectWidgets.push_back(checkBoxEnchantShoes);
@@ -526,16 +565,17 @@ void JX3DPSWidget::InitWidgetEquipEffects(QWidget *parent)
     checkBoxClassSetSkill->setFixedHeight(22);
 
     gLayout->addWidget(checkBoxEnchantWrist, 0, 0, 1, 1);
-    gLayout->addWidget(checkBoxEnchantShoes, 1, 0, 1, 1);
-    gLayout->addWidget(checkBoxEnchantBelt, 2, 0, 1, 1);
-    gLayout->addWidget(checkBoxEnchantJacket, 3, 0, 1, 1);
-    gLayout->addWidget(checkBoxEnchantHat, 4, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantShoes, 0, 1, 1, 1);
+    gLayout->addWidget(checkBoxEnchantBelt, 1, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantJacket, 1, 1, 1, 1);
+    gLayout->addWidget(checkBoxEnchantHat, 2, 0, 1, 1);
 
-    gLayout->addWidget(checkBoxClassSetBuff, 0, 1, 1, 1);
-    gLayout->addWidget(checkBoxClassSetSkill, 1, 1, 1, 1);
+    gLayout->addWidget(checkBoxClassSetBuff, 2, 1, 1, 1);
+    gLayout->addWidget(checkBoxClassSetSkill, 3, 1, 1, 1);
+    gLayout->addWidget(comboBoxWeapon, 4, 0, 1, 2);
 }
 
-void JX3DPSWidget::InitWidgetGains(QWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
 {
     QList<JX3DPS::Attribute::Type> attributeTypes = {
         JX3DPS::Attribute::Type::AGILITY_BASE,
@@ -569,7 +609,7 @@ void JX3DPSWidget::InitWidgetGains(QWidget *parent)
     gLayout->addItem(spacerItem, index, 0, 1, 1);
 }
 
-void JX3DPSWidget::InitWidgetTalents(QWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
 {
     std::vector<ComboBox *> talentsComboBoxes;
     QGridLayout            *gLayout = new QGridLayout(parent);
@@ -579,6 +619,7 @@ void JX3DPSWidget::InitWidgetTalents(QWidget *parent)
         ComboBox *comboBox = new ComboBox(parent);
         comboBox->SetType(ComboBox::Type::ICON_NAME);
         comboBox->setFixedSize(54, 78);
+        comboBox->SetItemSize(200, 54);
 
         ComboBox::ItemInfo itemInfo;
         itemInfo.name = QString("第%1重").arg(nums[i]);
@@ -588,9 +629,24 @@ void JX3DPSWidget::InitWidgetTalents(QWidget *parent)
 
         talentsComboBoxes.push_back(comboBox);
     }
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+        std::vector<std::list<ComboBox::ItemInfo>> talents;
+        JsonParser::ParseJsonToTalentItemInfos(m_config, type, talents);
+        for (int i = 0; i < 12; ++i) {
+            talentsComboBoxes[i]->Clear();
+            ComboBox::ItemInfo itemInfo;
+            itemInfo.name = QString("第%1重").arg(nums[i]);
+            talentsComboBoxes[i]->AddItem(itemInfo);
+
+            for (const auto &itemInfo : talents[i]) {
+                talentsComboBoxes[i]->AddItem(itemInfo);
+            }
+        }
+    });
 }
 
-void JX3DPSWidget::InitWidgetPermanents(QWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 {
     QGridLayout *gLayout = new QGridLayout(parent);
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 06:04:02
+ * Last Modified: 2023-08-09 20:46:07
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -59,57 +59,45 @@
 #include <QListWidget>
 
 class MarqueeLabel;
+class SubComboBox;
+class ItemWidget;
 class Icon;
 
-struct ComboBoxItemInfo
+class COMBO_BOX_API ComboBox : public QWidget
 {
-    int         id = 0;
-    std::string name;
-    std::string icon;
-    std::string desc;
 
-    std::vector<std::pair<std::string, int>> subItems;
-};
-
-class ItemWidget : public QWidget
-{
     Q_OBJECT
 
 public:
-    explicit ItemWidget(const ComboBoxItemInfo &itemInfo, QWidget *parent = nullptr);
-    explicit ItemWidget(QWidget *parent = nullptr);
+    enum Type
+    {
+        DEFAULT,
+        ICON,
+        ICON_NAME,
+        DETAILED,
+    };
 
-    void SetHovered(bool hovered);
-    void SetSelected(bool selected);
+    struct ItemInfo
+    {
+        QString iconPath;
+        QString name;
+        QString description;
+    };
 
-    void SetComboBoxView();
+    ComboBox(QWidget *parent = nullptr);
 
-    ComboBoxItemInfo GetItemInfo() const;
-    void     SetItemInfo(const ComboBoxItemInfo &itemInfo);
+    void SetType(Type type);
 
-signals:
-    void Signal_Hovered(bool hovered);
+    void AddItem(const ItemInfo &itemInfo);
+    void SetItemSize(int width, int height);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QEvent *event) override;
-    void focusOutEvent(QFocusEvent *event) override;
 
 private:
-    bool m_hovered  = false;
-    bool m_selected = false;
-
-    bool m_view = false;
-
-    ComboBoxItemInfo m_itemInfo;
-
-    QLabel       *m_nameText = nullptr;
-    MarqueeLabel *m_descText = nullptr;
-    Icon         *m_icon     = nullptr;
-
-    QHBoxLayout *m_hLayout = nullptr;
-    QVBoxLayout *m_vLayout = nullptr;
+    Type         m_type        = DEFAULT;
+    SubComboBox *m_subComboBox = nullptr;
+    QString      m_name        = "";
 };
 
 class ListWidget : public QListWidget
@@ -128,48 +116,47 @@ private:
     QListWidgetItem *m_lastEnteredItem = nullptr;
 };
 
-enum class COMBO_BOX_API ComboBoxType
-{
-    ICON_MODE = 0,
-    ICON_AND_NAME_MODE,
-    DETAILED_MODE,
-};
-
 class SubComboBox : public QComboBox
 {
     Q_OBJECT
 
 public:
-    SubComboBox(ComboBoxType type, QWidget *parent = nullptr);
+    SubComboBox(QWidget *parent = nullptr);
 
-    void     AddItem(const ComboBoxItemInfo &itemInfo);
-    void     SetItemSize(int width, int height);
-    QWidget *View();
+    void               SetType(ComboBox::Type type);
+    void               SetView(const ComboBox::ItemInfo &itemInfo);
+    void               AddItem(const ComboBox::ItemInfo &itemInfo);
+    void               SetItemSize(int width, int height);
+    ComboBox::ItemInfo GetItemInfo() const;
+
+signals:
+    void Signal_CurrentItemChanged(const ComboBox::ItemInfo &itemInfo);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QEvent *event) override;
     void showPopup() override;
 
 private:
-    QPixmap *m_pixmap  = nullptr;
-    bool     m_hovered = false;
-    int      m_width   = 0;
-    int      m_height  = 0;
-    QWidget *m_view    = nullptr;
+    ItemWidget *m_detailedView = nullptr;
+    Icon       *m_icon         = nullptr;
+
+    int m_width  = 0;
+    int m_height = 0;
 };
 
-class COMBO_BOX_API ComboBox : public QWidget
+class ItemWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    ComboBox(ComboBoxType type, QWidget *parent = nullptr);
+    explicit ItemWidget(const ComboBox::ItemInfo &itemInfo, QWidget *parent = nullptr);
+    explicit ItemWidget(QWidget *parent = nullptr);
 
-    void     AddItem(const ComboBoxItemInfo &itemInfo);
-    void     SetItemSize(int width, int height);
-    ComboBoxItemInfo GetItemInfo() const;
+    void               SetView();
+    void               SetItemInfo(const ComboBox::ItemInfo &itemInfo);
+    void               SetSelected(bool selected);
+    ComboBox::ItemInfo GetItemInfo() const;
+    void SetHovered(bool hovered);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -177,10 +164,17 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    SubComboBox *m_comboBox = nullptr;
-    QLabel      *m_label    = nullptr;
-    bool         m_hovered  = false;
-    ComboBoxType m_type     = ComboBoxType::ICON_MODE;
+    ComboBox::ItemInfo m_itemInfo;
+
+    QLabel       *m_nameText = nullptr;
+    MarqueeLabel *m_descText = nullptr;
+    Icon         *m_icon     = nullptr;
+
+    bool m_hovered  = false;
+    bool m_selected = false;
+
+    QHBoxLayout *m_hLayout = nullptr;
+    QVBoxLayout *m_vLayout = nullptr;
 };
 
 #endif // __COMBO_BOX_H__

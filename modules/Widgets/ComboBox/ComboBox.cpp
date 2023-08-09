@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 06:04:07
+ * Last Modified: 2023-08-09 21:14:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -15,238 +15,260 @@
 
 #include "ComboBox.h"
 
+#include <QApplication>
 #include <QGraphicsDropShadowEffect>
 #include <QLayout>
 #include <QPainter>
+#include <QWheelEvent>
+
+#include "Common/ThemeColors.h"
 
 #include "MarqueeLabel.h"
-
-#define COLOR_BACKGROUND_BASE      23, 29, 37
-#define COLOR_BACKGROUND_HIGHLIGHT 43, 46, 50
-
-#define TO_STR(x)                  ADD_QUOTES_HELPER(x)
-#define ADD_QUOTES_HELPER(x)       #x
 
 class Icon : public QWidget
 {
 public:
     Icon(const QPixmap &pixmap, QWidget *parent) : QWidget(parent) { m_pixmap = pixmap; }
 
-    void SetComboBoxView() { m_view = true; }
+    void SetType(ComboBox::Type type) { m_type = type; }
 
     void SetHovered(bool hovered) { m_hovered = hovered; }
 
-    void SetPixmap(const QPixmap &pixmap) { m_pixmap = pixmap; }
+    void SetItemInfo(const ComboBox::ItemInfo &itemInfo)
+    {
+        m_itemInfo = itemInfo;
+        m_pixmap   = QPixmap(m_itemInfo.iconPath);
+    }
 
 protected:
     void paintEvent(QPaintEvent *event)
     {
 
         QPainter painter(this);
-        painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+        painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing |
+                               QPainter::SmoothPixmapTransform);
 
         double opacity = 1.0;
-        if (m_view) {
+        if (m_type == ComboBox::Type::ICON_NAME || m_type == ComboBox::Type::ICON) {
             painter.setPen(QPen(Qt::black));
-            painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
+            if (m_hovered) {
+                painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_BASE)));
+            } else {
+                painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
+            }
             painter.drawRect(this->rect());
+        }
+
+        if (m_type != ComboBox::Type::DEFAULT) {
             if (!m_hovered) {
                 opacity = 0.8;
             }
         }
 
         if (m_pixmap.isNull()) {
+            // painter.setPen(QPen(QColor(COLOR_HIGHLIGHT)));
+            // painter.drawText(this->rect(), Qt::AlignCenter, m_itemInfo.name);
+            // painter.drawText(this->rect(), Qt::AlignCenter, m_itemInfo.name);
             return;
         }
 
         // 画一个框
         int border = 3;
         painter.setPen(QPen(Qt::black));
+
         painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
+
         painter.drawRect(border, border, this->height() - border * 2, this->height() - border * 2);
 
         painter.setOpacity(opacity);
         // painter.setPen(Qt::NoPen);
         QIcon       icon(m_pixmap.copy(4, 4, 40, 40));
-        QIcon::Mode mode = (m_hovered || m_view) ? QIcon::Normal : QIcon::Disabled;
-        painter.drawPixmap(border, border, icon.pixmap(this->size(), mode).scaledToWidth(this->height() - border * 2));
+        QIcon::Mode mode =
+            (m_hovered || m_type != ComboBox::Type::DEFAULT) ? QIcon::Normal : QIcon::Disabled;
+        painter.drawPixmap(border,
+                           border,
+                           icon.pixmap(this->size(), mode).scaledToWidth(this->height() - border * 2));
     }
 
     void enterEvent(QEnterEvent *event)
     {
         m_hovered = true;
-        this->update();
         QWidget::enterEvent(event);
     }
 
     void leaveEvent(QEvent *event)
     {
         m_hovered = false;
-        this->update();
         QWidget::leaveEvent(event);
     }
 
 private:
-    QPixmap m_pixmap;
-    bool    m_hovered = false;
-    bool    m_view    = false;
+    QPixmap            m_pixmap;
+    bool               m_hovered = false;
+    ComboBox::ItemInfo m_itemInfo;
+
+    ComboBox::Type m_type = ComboBox::Type::DEFAULT;
 };
 
-#define COLOR_FOCUS     255, 255, 255
-#define COLOR_HIGHLIGHT 208, 211, 212
-
-ItemWidget::ItemWidget(const ComboBoxItemInfo &itemInfo, QWidget *parent) : QWidget(parent)
+ComboBox::ComboBox(QWidget *parent) : QWidget(parent)
 {
-    m_itemInfo = itemInfo;
+    m_subComboBox = new SubComboBox(this);
 
-    m_nameText = new QLabel(QString::fromStdString(m_itemInfo.name), this);
-    m_descText = new MarqueeLabel(QString::fromStdString(m_itemInfo.desc), this);
-    m_icon     = new Icon(QPixmap(m_itemInfo.icon.c_str()), this);
-    m_icon->setFixedSize(this->height(), this->height());
+    // 创建一个阴影效果对象
+    QGraphicsDropShadowEffect *shadowEffect = new QGraphicsDropShadowEffect(this);
+    shadowEffect->setColor(Qt::black);     // 设置阴影的颜色
+    shadowEffect->setBlurRadius(10);       // 设置阴影的模糊半径
+    shadowEffect->setOffset(0, 0);         // 设置阴影的偏移量
 
-    QPalette palette;
-    palette.setColor(QPalette::WindowText, QColor(COLOR_HIGHLIGHT));
-    m_nameText->setPalette(palette);
-    m_descText->setPalette(palette);
-    m_nameText->setFont(QFont("NoWatsFont", 11));
-    m_descText->setFont(QFont("NoWatsFont", 10));
+    this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
 
-    m_hLayout = new QHBoxLayout(this);
-    m_vLayout = new QVBoxLayout;
-
-    SetItemInfo(itemInfo);
+    connect(m_subComboBox, &SubComboBox::Signal_CurrentItemChanged, this, [=](const ItemInfo &itemInfo) {
+        m_name = itemInfo.name;
+        update();
+    });
 }
 
-ItemWidget::ItemWidget(QWidget *parent) : QWidget(parent)
+void ComboBox::SetType(Type type)
 {
-    m_nameText = new QLabel(QString::fromStdString(m_itemInfo.name), this);
-    m_descText = new MarqueeLabel(QString::fromStdString(m_itemInfo.desc), this);
-    m_icon     = new Icon(QPixmap(m_itemInfo.icon.c_str()), this);
-    m_icon->setFixedSize(this->height(), this->height());
-
-    QPalette palette;
-    palette.setColor(QPalette::WindowText, QColor(COLOR_HIGHLIGHT));
-    m_nameText->setPalette(palette);
-    m_descText->setPalette(palette);
-    m_nameText->setFont(QFont("NoWatsFont", 11));
-    m_descText->setFont(QFont("NoWatsFont", 10));
-
-    m_hLayout = new QHBoxLayout(this);
-    m_vLayout = new QVBoxLayout;
-
-    SetItemInfo(m_itemInfo);
+    m_type = type;
+    m_subComboBox->SetType(type);
+    update();
 }
 
-void ItemWidget::SetHovered(bool hovered)
+void ComboBox::AddItem(const ItemInfo &itemInfo)
 {
-    m_hovered = hovered;
-    this->update();
+    m_subComboBox->AddItem(itemInfo);
+    update();
 }
 
-void ItemWidget::SetSelected(bool selected)
+void ComboBox::SetItemSize(int width, int height)
 {
-    m_selected = selected;
-    m_hovered  = false;
-    this->update();
+    m_subComboBox->SetItemSize(width, height);
 }
 
-void ItemWidget::SetComboBoxView()
+void ComboBox::paintEvent(QPaintEvent *event)
 {
-    m_icon->SetComboBoxView();
-}
-
-ComboBoxItemInfo ItemWidget::GetItemInfo() const
-{
-    return m_itemInfo;
-}
-
-void ItemWidget::SetItemInfo(const ComboBoxItemInfo &itemInfo)
-{
-    m_nameText->setText(itemInfo.name.c_str());
-    m_descText->setText(itemInfo.desc.c_str());
-    m_icon->SetPixmap(QPixmap(itemInfo.icon.c_str()));
-
-    if (itemInfo.icon.empty()) {
-        m_hLayout->removeItem(m_vLayout);
-        m_hLayout->removeWidget(m_icon);
-        m_vLayout->removeWidget(m_descText);
-        m_vLayout->removeWidget(m_nameText);
-        m_vLayout->setParent(NULL);
-
-        m_descText->close();
-        m_icon->SetPixmap(QPixmap());
-        m_icon->close();
-
-        m_hLayout->addWidget(m_nameText, 0, Qt::AlignCenter);
-    } else {
-        m_hLayout->removeWidget(m_nameText);
-        m_vLayout->setParent(NULL);
-
-        m_descText->show();
-        m_icon->show();
-
-        m_hLayout->setContentsMargins(0, 0, 0, 0);
-        m_hLayout->setSpacing(0);
-        m_hLayout->addWidget(m_icon, 0);
-        m_hLayout->addLayout(m_vLayout, 1);
-
-        m_vLayout->setContentsMargins(3, 5, 5, 3);
-        m_vLayout->addWidget(m_nameText);
-        m_vLayout->addWidget(m_descText);
-    }
-}
-
-void ItemWidget::paintEvent(QPaintEvent *event)
-{
-    m_icon->setFixedSize(this->height(), this->height());
     QPainter painter(this);
-    if (m_hovered || m_selected) {
-        painter.fillRect(this->rect(), QColor(23, 29, 37));
-        m_nameText->setStyleSheet("background-color: rgb(23, 29, 37);");
-        m_descText->setStyleSheet("background-color: rgb(23, 29, 37);");
-        m_icon->setStyleSheet("background-color: rgb(23, 29, 37);");
+    if (m_type == Type::ICON_NAME) {
+        m_subComboBox->setGeometry(this->rect().x(),
+                                   this->rect().y(),
+                                   this->rect().width(),
+                                   this->rect().width());
 
-        m_icon->SetHovered(true);
-        this->setStyleSheet("background-color: rgb(23, 29, 37);");
-        this->setStyleSheet("color: rgb(255, 255, 255);");
+        painter.setFont(QFont(this->font().family(), 10));
+        painter.setPen(QPen(QColor(COLOR_HIGHLIGHT)));
+        painter.drawText(this->rect().x(),
+                         this->rect().y() + this->rect().width(),
+                         this->rect().width(),
+                         this->rect().height() - this->rect().width(),
+                         Qt::AlignCenter,
+                         m_name);
+        painter.drawText(this->rect().x(),
+                         this->rect().y() + this->rect().width(),
+                         this->rect().width(),
+                         this->rect().height() - this->rect().width(),
+                         Qt::AlignCenter,
+                         m_name);
     } else {
-        painter.fillRect(this->rect(), QColor(43, 46, 50));
-        m_nameText->setStyleSheet("background-color: rgb(43, 46, 50);");
-        m_descText->setStyleSheet("background-color: rgb(43, 46, 50);");
-        m_icon->setStyleSheet("background-color: rgb(43, 46, 50);");
-
-        m_icon->SetHovered(false);
-        this->setStyleSheet("background-color: rgb(43, 46, 50);");
-        this->setStyleSheet("color: rgb(208, 211, 212);");
+        m_subComboBox->setGeometry(this->rect());
     }
-
-    QWidget::paintEvent(event);
 }
 
-void ItemWidget::enterEvent(QEnterEvent *event)
+SubComboBox::SubComboBox(QWidget *parent) : QComboBox(parent)
 {
-    m_hovered = true;
-    this->update();
-    m_descText->Start();
-    QWidget::enterEvent(event);
+    this->setAttribute(Qt::WA_TranslucentBackground);
+    this->setStyleSheet("QComboBox QAbstractItemView { border: none; }");
+    this->setMaxVisibleItems(8);
+
+    m_detailedView = new ItemWidget(this);
+    m_icon         = new Icon(QPixmap(), this);
+
+    m_detailedView->SetView();
+    m_icon->SetType(ComboBox::Type::ICON);
+
+    ListWidget *listWidget = new ListWidget(this);
+    this->setModel(listWidget->model());
+    this->setView(listWidget);
+
+    connect(listWidget, &QListWidget::currentItemChanged, this, [=](QListWidgetItem *current, QListWidgetItem *previous) {
+        if (previous != nullptr) {
+            ((ItemWidget *)listWidget->itemWidget(previous))->SetSelected(false);
+        }
+        ComboBox::ItemInfo itemInfo = ((ItemWidget *)listWidget->itemWidget(current))->GetItemInfo();
+
+        ((ItemWidget *)listWidget->itemWidget(current))->SetSelected(true);
+        int index = listWidget->indexFromItem(current).row();
+        this->setCurrentIndex(index);
+        this->SetView(itemInfo);
+
+        emit Signal_CurrentItemChanged(itemInfo);
+    });
 }
 
-void ItemWidget::leaveEvent(QEvent *event)
+void SubComboBox::SetType(ComboBox::Type type)
 {
-    qDebug() << "leaveEvent";
-    m_hovered = false;
-    this->update();
-    m_descText->Reset();
-    QWidget::leaveEvent(event);
+    if (type == ComboBox::Type::DETAILED) {
+        m_detailedView->show();
+        m_icon->hide();
+    } else {
+        m_icon->show();
+        m_detailedView->hide();
+    }
 }
 
-void ItemWidget::focusOutEvent(QFocusEvent *event)
+void SubComboBox::SetView(const ComboBox::ItemInfo &itemInfo)
 {
-    qDebug() << "focusOutEvent";
-    m_hovered = false;
-    this->update();
-    m_descText->Reset();
-    QWidget::focusOutEvent(event);
+    m_detailedView->SetItemInfo(itemInfo);
+    m_icon->SetItemInfo(itemInfo);
+}
+
+void SubComboBox::AddItem(const ComboBox::ItemInfo &itemInfo)
+{
+    QListWidgetItem *item = new QListWidgetItem((ListWidget *)this->view());
+    item->setSizeHint(QSize(m_width, m_height));
+
+    ItemWidget *itemWidget = new ItemWidget(itemInfo, this->view());
+
+    ((ListWidget *)this->view())->addItem(item);
+    ((ListWidget *)this->view())->setItemWidget(item, itemWidget);
+
+    if (this->count() == 1) {
+        this->SetView(itemInfo);
+        emit Signal_CurrentItemChanged(itemInfo);
+    }
+}
+
+void SubComboBox::SetItemSize(int width, int height)
+{
+    m_width       = width;
+    m_height      = height;
+    int itemCount = static_cast<ListWidget *>(this->view())->count();
+    for (int i = 0; i < itemCount; i++) {
+        QListWidgetItem *item = static_cast<ListWidget *>(this->view())->item(i);
+        item->setSizeHint(QSize(m_width, m_height));
+    }
+    QWidget *popup = this->findChild<QFrame *>();
+    popup->setFixedWidth(m_width);
+}
+
+void SubComboBox::showPopup()
+{
+    QComboBox::showPopup();
+    m_detailedView->SetHovered(false);
+    m_icon->SetHovered(false);
+}
+
+ComboBox::ItemInfo SubComboBox::GetItemInfo() const
+{
+    return m_detailedView->GetItemInfo();
+}
+
+void SubComboBox::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    m_icon->setGeometry(this->rect());
+    m_detailedView->setGeometry(this->rect());
 }
 
 ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
@@ -269,9 +291,6 @@ QRect ListWidget::visualRect(const QModelIndex &index) const
     return rect;
 }
 
-#include <QApplication>
-#include <QWheelEvent>
-
 void ListWidget::wheelEvent(QWheelEvent *event)
 {
     QListWidget::wheelEvent(event);
@@ -284,7 +303,8 @@ void ListWidget::wheelEvent(QWheelEvent *event)
     QListWidgetItem *item = itemAt(pos.toPoint());
 
     if (item != m_lastEnteredItem && m_lastEnteredItem != nullptr) {
-        QApplication::sendEvent(((ItemWidget *)this->itemWidget(m_lastEnteredItem)), new QEvent(QEvent::Leave));
+        QApplication::sendEvent(((ItemWidget *)this->itemWidget(m_lastEnteredItem)),
+                                new QEvent(QEvent::Leave));
         m_lastEnteredItem = nullptr;
     }
 
@@ -295,207 +315,170 @@ void ListWidget::wheelEvent(QWheelEvent *event)
     }
 }
 
-SubComboBox::SubComboBox(ComboBoxType type, QWidget *parent) : QComboBox(parent)
+ItemWidget::ItemWidget(const ComboBox::ItemInfo &itemInfo, QWidget *parent) :
+    QWidget(parent)
 {
-    this->setAttribute(Qt::WA_TranslucentBackground);
-    this->setStyleSheet("QComboBox QAbstractItemView { border: none; }");
-    this->setMaxVisibleItems(8);
+    m_itemInfo = itemInfo;
+    m_nameText = new QLabel(m_itemInfo.name, this);
+    m_descText = new MarqueeLabel(m_itemInfo.description, this);
+    m_icon     = new Icon(QPixmap(m_itemInfo.iconPath), this);
 
-    // 创建一个阴影效果对象
-    QGraphicsDropShadowEffect *shadowEffect = new QGraphicsDropShadowEffect(this);
-    shadowEffect->setColor(Qt::black);     // 设置阴影的颜色
-    shadowEffect->setBlurRadius(10);       // 设置阴影的模糊半径
-    shadowEffect->setOffset(0, 0);         // 设置阴影的偏移量
-    this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
+    QPalette palette;
+    palette.setColor(QPalette::WindowText, QColor(COLOR_HIGHLIGHT));
+    m_nameText->setPalette(palette);
+    m_descText->setPalette(palette);
 
-    QGridLayout *gLayout = new QGridLayout(this);
-    gLayout->setContentsMargins(1, 1, 1, 1);
-    gLayout->setSpacing(0);
+    m_nameText->setFont(QFont(m_nameText->font().family(), 11));
 
-    if (type == ComboBoxType::DETAILED_MODE) {
-        m_view = new ItemWidget(this);
-        static_cast<ItemWidget *>(m_view)->SetComboBoxView();
-    } else {
-        m_view = new Icon(QPixmap(), this);
-        static_cast<Icon *>(m_view)->SetComboBoxView();
-    }
-    gLayout->addWidget(m_view);
+    m_hLayout = new QHBoxLayout(this);
+    m_vLayout = new QVBoxLayout;
 
-    ListWidget *listWidget = new ListWidget(this);
-    this->setModel(listWidget->model());
-    this->setView(listWidget);
+    m_hLayout->setContentsMargins(0, 0, 0, 0);
+    m_hLayout->setSpacing(0);
+    m_hLayout->addWidget(m_icon, 0);
+    m_hLayout->addLayout(m_vLayout, 1);
 
-    connect(listWidget, &QListWidget::currentItemChanged, this, [=](QListWidgetItem *current, QListWidgetItem *previous) {
-        if (previous != nullptr) {
-            ((ItemWidget *)listWidget->itemWidget(previous))->SetSelected(false);
-        }
-        ComboBoxItemInfo itemInfo = ((ItemWidget *)listWidget->itemWidget(current))->GetItemInfo();
-
-        ((ItemWidget *)listWidget->itemWidget(current))->SetSelected(true);
-        int index = listWidget->indexFromItem(current).row();
-        this->setCurrentIndex(index);
-
-        if (type == ComboBoxType::DETAILED_MODE) {
-            static_cast<ItemWidget *>(m_view)->SetItemInfo(itemInfo);
-        } else {
-            static_cast<Icon *>(m_view)->SetPixmap(QPixmap(itemInfo.icon.c_str()));
-        }
-    });
+    m_vLayout->setContentsMargins(3, 5, 5, 3);
+    m_vLayout->addWidget(m_nameText);
+    m_vLayout->addWidget(m_descText);
 }
 
-void SubComboBox::AddItem(const ComboBoxItemInfo &itemInfo)
+ItemWidget::ItemWidget(QWidget *parent) : QWidget(parent)
 {
 
-    QListWidgetItem *item = new QListWidgetItem((ListWidget *)this->view());
-    item->setSizeHint(QSize(m_width, m_height));
+    this->setMouseTracking(true);
 
-    ItemWidget *itemWidget = new ItemWidget(itemInfo, this->view());
+    m_nameText = new QLabel(this);
+    m_descText = new MarqueeLabel(this);
+    m_icon     = new Icon(QPixmap(), this);
 
-    ((ListWidget *)this->view())->addItem(item);
-    ((ListWidget *)this->view())->setItemWidget(item, itemWidget);
+    QPalette palette;
+    palette.setColor(QPalette::WindowText, QColor(COLOR_HIGHLIGHT));
+    m_nameText->setPalette(palette);
+    m_descText->setPalette(palette);
+
+    m_nameText->setFont(QFont(m_nameText->font().family(), 11));
+
+    m_hLayout = new QHBoxLayout(this);
+    m_vLayout = new QVBoxLayout;
+
+    m_hLayout->setContentsMargins(0, 0, 0, 0);
+    m_hLayout->setSpacing(0);
+    m_hLayout->addWidget(m_icon, 0);
+    m_hLayout->addLayout(m_vLayout, 1);
+
+    m_vLayout->setContentsMargins(3, 5, 5, 3);
+    m_vLayout->addWidget(m_nameText);
+    m_vLayout->addWidget(m_descText);
 }
 
-void SubComboBox::SetItemSize(int width, int height)
+void ItemWidget::SetHovered(bool hovered)
 {
-    m_width       = width;
-    m_height      = height;
-    int itemCount = static_cast<ListWidget *>(this->view())->count();
-    for (int i = 0; i < itemCount; i++) {
-        QListWidgetItem *item = static_cast<ListWidget *>(this->view())->item(i);
-        item->setSizeHint(QSize(m_width, m_height));
-    }
-    QWidget *popup = this->findChild<QFrame *>();
-    popup->setFixedWidth(m_width);
+    m_hovered = hovered;
 }
 
-QWidget *SubComboBox::View()
+void ItemWidget::SetView()
 {
-    return m_view;
+    m_icon->SetType(ComboBox::Type::DETAILED);
 }
 
-void SubComboBox::paintEvent(QPaintEvent *event)
+void ItemWidget::SetItemInfo(const ComboBox::ItemInfo &itemInfo)
+{
+    m_itemInfo = itemInfo;
+    m_nameText->setText(m_itemInfo.name);
+    m_descText->setText(m_itemInfo.description);
+    m_icon->SetItemInfo(m_itemInfo);
+}
+
+void ItemWidget::SetSelected(bool selected)
+{
+    m_selected = selected;
+}
+
+ComboBox::ItemInfo ItemWidget::GetItemInfo() const
+{
+    return m_itemInfo;
+}
+
+void ItemWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    painter.setPen(Qt::black);
-    painter.drawRect(this->rect());
-
-    // QComboBox::paintEvent(event);
-}
-
-void SubComboBox::enterEvent(QEnterEvent *event)
-{
-    this->setCursor(Qt::PointingHandCursor);
-    m_hovered = true;
-    // this->update();
-    QComboBox::enterEvent(event);
-}
-
-void SubComboBox::leaveEvent(QEvent *event)
-{
-    m_hovered = false;
-    // this->update();
-    QComboBox::leaveEvent(event);
-}
-
-void SubComboBox::showPopup()
-{
-
-    QComboBox::showPopup();
-    ((ListWidget *)this->view())->doItemsLayout();
-}
-
-ComboBox::ComboBox(ComboBoxType type, QWidget *parent) : QWidget(parent)
-{
-    // this->setAttribute(Qt::WA_TranslucentBackground);
-    m_type = type;
-
-    QGridLayout *gLayout = new QGridLayout(this);
-    gLayout->setContentsMargins(0, 0, 0, 0);
-    gLayout->setSpacing(0);
-    m_comboBox = new SubComboBox(m_type, this);
-
-    gLayout->addWidget(m_comboBox, 0, 0, 1, 1, Qt::AlignCenter);
-
-    if (m_type == ComboBoxType::ICON_AND_NAME_MODE) {
-        m_label = new QLabel(this);
-        m_label->setFont(QFont("NoWatsFont", 10));
-
-        gLayout->addWidget(m_label, 1, 0, 1, 1, Qt::AlignCenter);
-        connect(m_comboBox, &QComboBox::currentIndexChanged, this, [=](int index) {
-            ListWidget *listWidget = static_cast<ListWidget *>(m_comboBox->view());
-            if (listWidget->currentItem() != nullptr) {
-                std::string name =
-                    static_cast<ItemWidget *>(listWidget->itemWidget(listWidget->currentItem()))
-                        ->GetItemInfo()
-                        .name;
-                m_label->setText(name.c_str());
-            }
-        });
+    if (m_hovered || m_selected) {
+        painter.fillRect(this->rect(), QColor(23, 29, 37));
+        m_nameText->setStyleSheet("background-color: rgb(23, 29, 37);");
+        m_descText->setStyleSheet("background-color: rgb(23, 29, 37);");
+        this->setStyleSheet("background-color: rgb(23, 29, 37);");
+        this->setStyleSheet("color: rgb(255, 255, 255);");
+        m_icon->SetHovered(true);
     } else {
-        // 创建一个阴影效果对象
-        QGraphicsDropShadowEffect *shadowEffect = new QGraphicsDropShadowEffect(this);
-        shadowEffect->setColor(Qt::black);     // 设置阴影的颜色
-        shadowEffect->setBlurRadius(10);       // 设置阴影的模糊半径
-        shadowEffect->setOffset(0, 0);         // 设置阴影的偏移量
-        this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
+        painter.fillRect(this->rect(), QColor(43, 46, 50));
+        m_nameText->setStyleSheet("background-color: rgb(43, 46, 50);");
+        m_descText->setStyleSheet("background-color: rgb(43, 46, 50);");
+        this->setStyleSheet("background-color: rgb(43, 46, 50);");
+        this->setStyleSheet("color: rgb(208, 211, 212);");
+        m_icon->SetHovered(false);
     }
-}
 
-void ComboBox::AddItem(const ComboBoxItemInfo &itemInfo)
-{
-    m_comboBox->AddItem(itemInfo);
-    if (m_comboBox->count() == 1) {
-        if (m_type == ComboBoxType::ICON_AND_NAME_MODE) {
-            m_label->setText(itemInfo.name.c_str());
+    if (m_itemInfo.description.isEmpty()) {
+        m_nameText->hide();
+        m_descText->hide();
+        painter.setFont(QFont(this->font().family(), 11));
+        painter.setPen(QPen(QColor(COLOR_HIGHLIGHT)));
+        if (m_itemInfo.iconPath.isEmpty()) {
+            painter.drawText(this->rect().x(),
+                             this->rect().y(),
+                             this->rect().width(),
+                             this->rect().height(),
+                             Qt::AlignCenter,
+                             m_itemInfo.name);
+            painter.drawText(this->rect().x(),
+                             this->rect().y(),
+                             this->rect().width(),
+                             this->rect().height(),
+                             Qt::AlignCenter,
+                             m_itemInfo.name);
         } else {
-            static_cast<ItemWidget *>(m_comboBox->View())->SetItemInfo(itemInfo);
+            m_icon->setFixedSize(this->height(), this->height());
+            painter.drawText(this->rect().x() + this->rect().height(),
+                             this->rect().y(),
+                             this->rect().width() - this->rect().height(),
+                             this->rect().height(),
+                             Qt::AlignCenter,
+                             m_itemInfo.name);
+            painter.drawText(this->rect().x() + this->rect().height(),
+                             this->rect().y(),
+                             this->rect().width() - this->rect().height(),
+                             this->rect().height(),
+                             Qt::AlignCenter,
+                             m_itemInfo.name);
         }
-    }
-    update();
-}
 
-void ComboBox::SetItemSize(int width, int height)
-{
-    m_comboBox->SetItemSize(width, height);
-}
-
-ComboBoxItemInfo ComboBox::GetItemInfo() const
-{
-    ListWidget *listWidget = static_cast<ListWidget *>(m_comboBox->view());
-    if (listWidget->currentItem() != nullptr) {
-        return static_cast<ItemWidget *>(listWidget->itemWidget(listWidget->currentItem()))->GetItemInfo();
-    }
-    return ComboBoxItemInfo();
-}
-
-void ComboBox::paintEvent(QPaintEvent *event)
-{
-    if (m_type == ComboBoxType::ICON_AND_NAME_MODE) {
-        m_comboBox->setFixedSize(this->height() - 22, this->height() - 22);
-        if (m_hovered) {
-            m_label->setStyleSheet("color: rgb(255, 255, 255);");
-        } else {
-            m_label->setStyleSheet("color: rgb(208, 211, 212);");
-        }
     } else {
-        m_comboBox->setFixedSize(this->size());
+        m_icon->setFixedSize(this->height(), this->height());
+        m_nameText->show();
+        m_descText->show();
     }
-    // QWidget::paintEvent(event);
+
+    painter.setPen(QColor(COLOR_BACKGROUND_PRIMARY));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(this->rect().x(),
+                     this->rect().y(),
+                     this->rect().width() - 1,
+                     this->rect().height() - 1);
+
+    QWidget::paintEvent(event);
 }
 
-void ComboBox::enterEvent(QEnterEvent *event)
+void ItemWidget::enterEvent(QEnterEvent *event)
 {
-    this->setCursor(Qt::PointingHandCursor);
     m_hovered = true;
-    // this->update();
+    m_descText->Start();
     QWidget::enterEvent(event);
 }
 
-void ComboBox::leaveEvent(QEvent *event)
+void ItemWidget::leaveEvent(QEvent *event)
 {
     m_hovered = false;
-    // this->update();
+    m_descText->Reset();
     QWidget::leaveEvent(event);
 }

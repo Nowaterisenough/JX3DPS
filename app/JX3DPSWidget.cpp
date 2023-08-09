@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-08 07:10:19
+ * Last Modified: 2023-08-09 22:10:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -40,7 +40,7 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
     QString title = QString("%1  %3").arg(APP_NAME).arg(JX3DPSVersion());
     this->SetTitle(title);
 
-    this->setFixedHeight(848);
+    this->setFixedHeight(800);
     this->setMinimumWidth(1000);
 
     GroupBox  *groupBoxSetting         = new GroupBox("设置", this->centralWidget);
@@ -56,14 +56,13 @@ JX3DPSWidget::JX3DPSWidget(QWidget *parent)
 
     buttonSimulate->setText("开始模拟");
     buttonSimulate->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
-    buttonSimulate->setFixedHeight(52);
+    buttonSimulate->setFixedHeight(40);
     buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 14));
 
     tabWidgetAttribute->AddTab("属性");
     tabWidgetAttribute->AddTab("配装");
 
     tabWidgetGains->AddTab("收益");
-    tabWidgetGains->setFixedHeight(428);
 
     tabWidgetTalentsRecipes->AddTab("奇穴");
     tabWidgetTalentsRecipes->AddTab("秘籍");
@@ -128,41 +127,57 @@ JX3DPSWidget::~JX3DPSWidget() { }
 
 void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
 {
+    ComboBox *comboBoxClass = new ComboBox(parent);
+    comboBoxClass->SetType(ComboBox::Type::DETAILED);
+    comboBoxClass->setFixedHeight(54);
+    comboBoxClass->SetItemSize(204, 54);
+
+    ComboBox::ItemInfo itemInfo;
+    itemInfo.name = "心法";
+    comboBoxClass->AddItem(itemInfo);
+
     TextButton *textButtonSimulateCount = new TextButton(parent);
-    textButtonSimulateCount->setFixedSize(64, 26);
+    textButtonSimulateCount->setFixedSize(64, 28);
     textButtonSimulateCount->setText("模拟次数");
 
     LineEdit *lineEditSimulateCount = new LineEdit(parent);
-    lineEditSimulateCount->setFixedSize(64, 26);
+    lineEditSimulateCount->setFixedSize(64, 28);
     lineEditSimulateCount->setText("1000");
 
     TextButton *textButtonDelay = new TextButton(parent);
-    textButtonDelay->setFixedSize(64, 26);
+    textButtonDelay->setFixedSize(64, 28);
     textButtonDelay->setText("延迟波动");
 
     LineEdit *lineEditDelayMin = new LineEdit(parent);
-    lineEditDelayMin->setFixedSize(64, 26);
+    lineEditDelayMin->setFixedSize(64, 28);
     lineEditDelayMin->setText("40");
 
     LineEdit *lineEditDelayMax = new LineEdit(parent);
-    lineEditDelayMax->setFixedSize(64, 26);
+    lineEditDelayMax->setFixedSize(64, 28);
     lineEditDelayMax->setText("75");
 
-    ComboBox *comboBoxClass = new ComboBox(ComboBoxType::ICON_MODE, parent);
-    comboBoxClass->setFixedSize(54, 54);
+    // for (int i = 0; i < static_cast<int>(JX3DPS::ClassType::COUNT); ++i) {
+    //     ComboBoxItemInfo itemInfo;
+    //     itemInfo.id = i;
+    //     itemInfo.name = JX3DPS::CLASS_NAME[i];
+    //     itemInfo.icon = ":/resources/pics/JX3/Icons/4278.png";
+    //     itemInfo.desc = ":/resources/pics/JX3/Icons/4278.png";
+    //     comboBoxClass->AddItem(itemInfo);
+    // }
 
     CheckBox *checkBoxDebug = new CheckBox(parent);
     checkBoxDebug->setFixedHeight(22);
     checkBoxDebug->setText("调试");
 
     QGridLayout *gLayout = new QGridLayout(parent);
-    gLayout->addWidget(textButtonSimulateCount, 0, 0, 1, 1);
-    gLayout->addWidget(lineEditSimulateCount, 0, 1, 1, 1);
-    gLayout->addWidget(textButtonDelay, 1, 0, 1, 1);
-    gLayout->addWidget(lineEditDelayMin, 1, 1, 1, 1);
-    gLayout->addWidget(lineEditDelayMax, 2, 1, 1, 1);
-    gLayout->addWidget(comboBoxClass, 0, 2, 2, 1);
-    gLayout->addWidget(checkBoxDebug, 2, 2, 1, 1);
+    gLayout->addWidget(comboBoxClass, 0, 0, 1, 3);
+    gLayout->addWidget(textButtonSimulateCount, 1, 0, 1, 1);
+    gLayout->addWidget(lineEditSimulateCount, 1, 1, 1, 2);
+    gLayout->addWidget(textButtonDelay, 2, 0, 1, 1);
+    gLayout->addWidget(lineEditDelayMin, 2, 1, 1, 1);
+    gLayout->addWidget(lineEditDelayMax, 2, 2, 1, 1);
+    
+    gLayout->addWidget(checkBoxDebug, 1, 2, 1, 1);
 
     connect(checkBoxDebug, &QCheckBox::stateChanged, [=](int checked) {
         if (checked) {
@@ -179,36 +194,43 @@ void JX3DPSWidget::InitWidgetSetting(QWidget *parent)
             lineEditSimulateCount->setReadOnly(false);
         }
     });
+
+    // connect(comboBoxClass, &LineEdit::Signal_CurrentIndexChanged, [=](int index) {
+    //     JX3DPS::ClassType type = JX3DPS::GetClassType(comboBoxClass->GetItemInfo().name);
+    //     emit              Signal_UpdateClassType(type);
+    // });
 }
 
 void JX3DPSWidget::InitWidgetOut(QWidget *parent)
 {
     TextButton *textButtonDPS = new TextButton(parent);
-    textButtonDPS->setText("DPS");
-    textButtonDPS->setFixedSize(25, 26);
+    textButtonDPS->setText("DPS 期望");
+    textButtonDPS->setFixedHeight(28);
 
     LineEdit *lineEditDPS = new LineEdit(parent);
-    lineEditDPS->setFixedSize(66, 26);
+    lineEditDPS->setFixedSize(75, 28);
+    lineEditDPS->setReadOnly(true);
+
+    QSpacerItem *spacerItem = new QSpacerItem(0, 2, QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     Button *buttonStats = new Button(parent);
-    buttonStats->setText("统计");
-    buttonStats->setFixedSize(60, 26);
-    buttonStats->setFont(QFont(buttonStats->font().family(), 10.5));
+    buttonStats->setText("数据统计");
+    buttonStats->setFixedHeight(36);
+    buttonStats->setFont(QFont(buttonStats->font().family(), 11));
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
     gLayout->addWidget(textButtonDPS, 0, 0, 1, 1);
     gLayout->addWidget(lineEditDPS, 0, 1, 1, 1);
-    gLayout->addWidget(buttonStats, 0, 2, 1, 1);
+    gLayout->addItem(spacerItem, 1, 0, 1, 2);
+    gLayout->addWidget(buttonStats, 2, 0, 1, 2);
 }
 
 void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
 {
+
     QList<JX3DPS::Attribute::Type> attributeTypes = {
         JX3DPS::Attribute::Type::AGILITY_BASE,
-        JX3DPS::Attribute::Type::STRENGTH_BASE,
-        JX3DPS::Attribute::Type::SPIRIT_BASE,
-        JX3DPS::Attribute::Type::SPUNK_BASE,
         JX3DPS::Attribute::Type::ATTACK_POWER_BASE,
         JX3DPS::Attribute::Type::CRITICAL_STRIKE,
         JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER,
@@ -218,10 +240,10 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
         JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE,
     };
 
-    QList<QString> attributeNames = { "身法", "力道", "根骨", "元气", "攻击", "会心",
-                                      "会效", "破防", "加速", "无双", "破招", "武器伤害" };
+    QList<QString> attributeNames = { "身法", "攻击", "会心", "会效",    "破防",
+                                      "加速", "无双", "破招", "武器伤害" };
 
-    QList<QString> types = { "外功", "内功" };
+    QList<QString> types = { "内功", "外功" };
 
     QMap<JX3DPS::Attribute::Type, TextButton *> attributeTextButtons;
     QMap<JX3DPS::Attribute::Type, LineEdit *>   attributeLineEdits;
@@ -238,6 +260,14 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
          { "力道", JX3DPS::Attribute::Type::STRENGTH_BASE },
          { "根骨", JX3DPS::Attribute::Type::SPIRIT_BASE },
          { "元气", JX3DPS::Attribute::Type::SPUNK_BASE },
+         { "攻击", JX3DPS::Attribute::Type::ATTACK_POWER_BASE },
+         { "会心", JX3DPS::Attribute::Type::CRITICAL_STRIKE },
+         { "会效", JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER },
+         { "破防", JX3DPS::Attribute::Type::OVERCOME_BASE },
+         { "加速", JX3DPS::Attribute::Type::HASTE_BASE },
+         { "无双", JX3DPS::Attribute::Type::STRAIN_BASE },
+         { "破招", JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE },
+         { "武器伤害", JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE },
          { "外功攻击", JX3DPS::Attribute::Type::PHYSICS_ATTACK_POWER_BASE },
          { "内功攻击", JX3DPS::Attribute::Type::MAGIC_ATTACK_POWER_BASE },
          { "外功会心", JX3DPS::Attribute::Type::PHYSICS_CRITICAL_STRIKE },
@@ -245,18 +275,14 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
          { "外功会效", JX3DPS::Attribute::Type::PHYSICS_CRITICAL_STRIKE_POWER },
          { "内功会效", JX3DPS::Attribute::Type::MAGIC_CRITICAL_STRIKE_POWER },
          { "外功破防", JX3DPS::Attribute::Type::PHYSICS_OVERCOME_BASE },
-         { "内功破防", JX3DPS::Attribute::Type::MAGIC_OVERCOME_BASE },
-         { "加速", JX3DPS::Attribute::Type::HASTE_BASE },
-         { "无双", JX3DPS::Attribute::Type::STRAIN_BASE },
-         { "破招", JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE },
-         { "武器伤害", JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE }}
+         { "内功破防", JX3DPS::Attribute::Type::MAGIC_OVERCOME_BASE }}
     };
 
     int index = 0;
     for (const auto &type : attributeTypes) {
         TextButton *textButton = new TextButton(parent);
         QString     str        = "";
-        if (index >= 4 && index <= 7) {
+        if (index >= 1 && index <= 4) {
             str = types[0];
             connect(textButton, &TextButton::clicked, [=]() {
                 if (textButton->text() == types[0] + attributeNames[index]) {
@@ -269,13 +295,13 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
         }
 
         textButton->setText(str + attributeNames[index]);
-        textButton->setFixedSize(64, 26);
+        textButton->setFixedSize(64, 28);
         LineEdit *lineEdit = new LineEdit(parent);
-        lineEdit->setFixedSize(64, 26);
+        lineEdit->setFixedSize(64, 28);
         lineEdit->setAlignment(Qt::AlignRight);
         lineEdit->setReadOnly(true);
         SpinBox *spinBox = new SpinBox(parent);
-        spinBox->setFixedSize(64, 26);
+        spinBox->setFixedSize(64, 28);
 
         gLayout->addWidget(textButton, index, 0, 1, 1);
         gLayout->addWidget(lineEdit, index, 1, 1, 1);
@@ -296,11 +322,27 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
 
     TextButton *textButtonWeapon = new TextButton(parent);
     textButtonWeapon->setText(attributeNames[index]);
-    textButtonWeapon->setFixedSize(64, 26);
+    textButtonWeapon->setFixedSize(64, 28);
     SpinBox *spinBoxWeaponMin = new SpinBox(parent);
-    spinBoxWeaponMin->setFixedSize(64, 26);
+    spinBoxWeaponMin->setFixedSize(64, 28);
     SpinBox *spinBoxWeaponMax = new SpinBox(parent);
-    spinBoxWeaponMax->setFixedSize(64, 26);
+    spinBoxWeaponMax->setFixedSize(64, 28);
+
+    attributeTextButtons.insert(JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE, textButtonWeapon);
+    attributeSpinBoxes.insert(JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE, spinBoxWeaponMin);
+    attributeSpinBoxes.insert(JX3DPS::Attribute::Type::WEAPON_DAMAGE_RAND, spinBoxWeaponMax);
+
+    connect(spinBoxWeaponMin, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        JX3DPS::Attribute::Type t = JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE;
+        attribute->SetAttributeInitial(t, value);
+        emit Signal_UpdateAttribute();
+    });
+
+    connect(spinBoxWeaponMax, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        JX3DPS::Attribute::Type t = JX3DPS::Attribute::Type::WEAPON_DAMAGE_RAND;
+        attribute->SetAttributeInitial(t, value - attribute->GetWeaponDamageBase());
+        emit Signal_UpdateAttribute();
+    });
 
     connect(this, &JX3DPSWidget::Signal_UpdateAttribute, this, [=] {
         attributeLineEdits[JX3DPS::Attribute::Type::AGILITY_BASE]->UpdateValue(attribute->GetAgility());
@@ -319,7 +361,7 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
         attributeSpinBoxes[JX3DPS::Attribute::Type::SPUNK_BASE]->UpdateValue(attribute->GetSpunk());
         attributeSpinBoxes[JX3DPS::Attribute::Type::SPUNK_BASE]->setRange(attribute->GetSpunkBaseByClass());
 
-        if (attributeTextButtons[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->text().contains(types[0]))
+        if (attributeTextButtons[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->text().contains(types[1]))
         {
             attributeLineEdits[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
                 attribute->GetPhysicsAttackPower());
@@ -337,7 +379,7 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
                 attribute->GetMagicAttackPowerBaseByClass());
         }
 
-        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->text().contains(types[0]))
+        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->text().contains(types[1]))
         {
             attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValueFloat(
                 attribute->GetPhysicsCriticalStrikePercent());
@@ -355,7 +397,7 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
                 attribute->GetMagicCriticalStrikeMinimum());
         }
 
-        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->text().contains(types[0]))
+        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->text().contains(types[1]))
         {
             attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValueFloat(
                 attribute->GetPhysicsCriticalStrikePowerPercent());
@@ -368,7 +410,7 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
                 attribute->GetMagicCriticalStrikePower());
         }
 
-        if (attributeTextButtons[JX3DPS::Attribute::Type::OVERCOME_BASE]->text().contains(types[0]))
+        if (attributeTextButtons[JX3DPS::Attribute::Type::OVERCOME_BASE]->text().contains(types[1]))
         {
             attributeLineEdits[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValueFloat(
                 attribute->GetPhysicsOvercomePercent());
@@ -397,6 +439,22 @@ void JX3DPSWidget::InitWidgetAttribute(QWidget *parent)
             attribute->GetSurplusValueBase());
         attributeSpinBoxes[JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE]->UpdateValue(
             attribute->GetSurplusValueBase());
+
+        attributeSpinBoxes[JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE]->UpdateValue(
+            attribute->GetWeaponDamageBase());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::WEAPON_DAMAGE_RAND]->UpdateValue(
+            attribute->GetWeaponDamageBase() + attribute->GetWeaponDamageRand());
+    });
+
+    // emit Signal_UpdateAttribute();
+
+    connect(this, &JX3DPSWidget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+        for (int index = 4; index <= 7; ++index) {
+            attributeTextButtons[attributeTypes[index]]->setText(types[static_cast<int>(type) % 2] +
+                                                                 attributeNames[index]);
+        }
+        attribute->SetClassType(type);
+        emit Signal_UpdateAttribute();
     });
 
     gLayout->addWidget(textButtonWeapon, index, 0, 1, 1);
@@ -481,9 +539,6 @@ void JX3DPSWidget::InitWidgetGains(QWidget *parent)
 {
     QList<JX3DPS::Attribute::Type> attributeTypes = {
         JX3DPS::Attribute::Type::AGILITY_BASE,
-        JX3DPS::Attribute::Type::STRENGTH_BASE,
-        JX3DPS::Attribute::Type::SPIRIT_BASE,
-        JX3DPS::Attribute::Type::SPUNK_BASE,
         JX3DPS::Attribute::Type::ATTACK_POWER_BASE,
         JX3DPS::Attribute::Type::CRITICAL_STRIKE,
         JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER,
@@ -501,7 +556,7 @@ void JX3DPSWidget::InitWidgetGains(QWidget *parent)
     int index = 0;
     for (const auto &type : attributeTypes) {
         DataBar *dataBar = new DataBar(parent);
-        dataBar->setFixedHeight(26);
+        dataBar->setFixedHeight(28);
 
         gLayout->addWidget(dataBar, index, 0, 1, 1);
 
@@ -511,16 +566,23 @@ void JX3DPSWidget::InitWidgetGains(QWidget *parent)
     }
 
     QSpacerItem *spacerItem = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    gLayout->addItem(spacerItem, index + 1, 0, 1, 1);
+    gLayout->addItem(spacerItem, index, 0, 1, 1);
 }
 
 void JX3DPSWidget::InitWidgetTalents(QWidget *parent)
 {
     std::vector<ComboBox *> talentsComboBoxes;
     QGridLayout            *gLayout = new QGridLayout(parent);
+    QVector<QString>        nums    = { "一", "二", "三", "四", "五",   "六",
+                                        "七", "八", "九", "十", "十一", "十二" };
     for (int i = 0; i < 12; ++i) {
-        ComboBox *comboBox = new ComboBox(ComboBoxType::ICON_AND_NAME_MODE, parent);
-        comboBox->setFixedSize(54, 72);
+        ComboBox *comboBox = new ComboBox(parent);
+        comboBox->SetType(ComboBox::Type::ICON_NAME);
+        comboBox->setFixedSize(54, 78);
+
+        ComboBox::ItemInfo itemInfo;
+        itemInfo.name = QString("第%1重").arg(nums[i]);
+        comboBox->AddItem(itemInfo);
 
         gLayout->addWidget(comboBox, i / 6, i % 6, 1, 1);
 
@@ -538,13 +600,14 @@ void JX3DPSWidget::InitWidgetPermanents(QWidget *parent)
                                             "家园酿造", "武器磨石" };
 
     for (int i = 0; i < permanents.size(); ++i) {
-        ComboBox *comboBox = new ComboBox(ComboBoxType::DETAILED_MODE, parent);
+        ComboBox *comboBox = new ComboBox(parent);
+        comboBox->SetType(ComboBox::Type::DETAILED);
         comboBox->setFixedSize(200, 48);
         comboBox->SetItemSize(200, 48);
         gLayout->addWidget(comboBox, i, 0, 1, 2);
 
-        ComboBoxItemInfo itemInfo;
-        itemInfo.name = permanents[i];
+        ComboBox::ItemInfo itemInfo;
+        itemInfo.name = permanents[i].c_str();
         comboBox->AddItem(itemInfo);
 
         permanentComboBoxes.push_back(comboBox);

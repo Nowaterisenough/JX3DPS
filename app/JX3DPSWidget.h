@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:45:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 19:52:54
+ * Last Modified: 2023-08-08 15:31:49
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -14,6 +14,8 @@
  */
 
 #include "Widget/Widget.h"
+
+#include "Global/JX3.h"
 
 class JX3DPSWidget : public Widget
 {
@@ -25,6 +27,7 @@ public:
 
 signals:
     void Signal_UpdateAttribute();
+    void Signal_UpdateClassType(JX3DPS::ClassType classType);
 
 private:
     void InitWidgetSetting(QWidget *parent = nullptr);

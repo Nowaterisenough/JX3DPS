@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 18:08:43
+ * Last Modified: 2023-08-10 22:50:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -108,6 +108,7 @@ public:
     Stack *Widget(int index);
     void   Resize();
     void   AnimatedResize(int index);
+    void   Clear();
 
     int  GetDx() const;
     void SetDx(int dx);

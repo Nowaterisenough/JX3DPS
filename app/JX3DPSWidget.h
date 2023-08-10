@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:45:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-10 05:08:44
+ * Last Modified: 2023-08-11 03:03:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,6 +18,7 @@
 #include <nlohmann/json.hpp>
 
 #include "Global/JX3.h"
+#include "TabWidget/TabWidget.h"
 #include "Widget/Widget.h"
 
 namespace JX3DPS {
@@ -43,7 +44,10 @@ private:
     void InitWidgetEquipEffects(QWidget *parent = nullptr);
     void InitWidgetGains(QWidget *parent = nullptr);
     void InitWidgetTalents(QWidget *parent = nullptr);
+    void InitWidgetRecipes(QWidget *parent = nullptr);
     void InitWidgetPermanents(QWidget *parent = nullptr);
+    void InitWidgetSkills(TabWidget *parent = nullptr);
+    void InitWidgetEvents(TabWidget *parent = nullptr);
 
     nlohmann::ordered_json m_config;
 };

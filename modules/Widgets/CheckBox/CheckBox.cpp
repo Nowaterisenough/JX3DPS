@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 04:16:49
+ * Last Modified: 2023-08-11 00:58:09
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -39,10 +39,10 @@ CheckBox::CheckBox(QWidget *parent) : QCheckBox(parent)
 void CheckBox::SetItemInfo(const ItemInfo &itemInfo)
 {
     m_itemInfo = itemInfo;
-    this->setToolTip(QString::fromStdString(itemInfo.desc));
+    this->setToolTip(itemInfo.description);
 }
 
-ItemInfo CheckBox::GetItemInfo() const
+CheckBox::ItemInfo CheckBox::GetItemInfo() const
 {
     return m_itemInfo;
 }
@@ -100,4 +100,64 @@ void CheckBox::mousePressEvent(QMouseEvent *event)
     this->setChecked(!this->isChecked());
     update();
     // QCheckBox::mousePressEvent(event);
+}
+
+CheckBoxIcon::CheckBoxIcon(QWidget *parent)
+{
+    this->setAttribute(Qt::WA_TranslucentBackground);
+}
+
+void CheckBoxIcon::SetItemInfo(const CheckBox::ItemInfo &itemInfo)
+{
+    m_itemInfo = itemInfo;
+    this->setToolTip(m_itemInfo.description);
+    m_pixmap = QPixmap(m_itemInfo.iconPath);
+}
+
+void CheckBoxIcon::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+
+    painter.setPen(QPen(Qt::black));
+    if (m_hovered) {
+        painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_BASE)));
+    } else {
+        painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
+    }
+    painter.drawRect(this->rect());
+
+    // 画一个框
+    int border = 3;
+    painter.setPen(QPen(Qt::black));
+
+    painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
+
+    painter.drawRect(border, border, this->height() - border * 2, this->height() - border * 2);
+
+    QIcon icon(m_pixmap.copy(m_pixmap.width() / 12,
+                             m_pixmap.width() / 12,
+                             m_pixmap.width() / 12 * 10,
+                             m_pixmap.width() / 12 * 10));
+
+    QIcon::Mode mode = (m_hovered || this->isChecked()) ? QIcon::Normal : QIcon::Disabled;
+    painter.drawPixmap(border, border, icon.pixmap(this->size(), mode).scaledToWidth(this->height() - border * 2));
+}
+
+void CheckBoxIcon::enterEvent(QEnterEvent *event)
+{
+    m_hovered = true;
+    QCheckBox::enterEvent(event);
+}
+
+void CheckBoxIcon::leaveEvent(QEvent *event)
+{
+    m_hovered = false;
+    QCheckBox::leaveEvent(event);
+}
+
+void CheckBoxIcon::mousePressEvent(QMouseEvent *event)
+{
+    this->setChecked(!this->isChecked());
+    update();
 }

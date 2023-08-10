@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 04:20:13
+ * Last Modified: 2023-08-10 23:09:25
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -59,24 +59,21 @@
 
 #include "Common/ThemeColors.h"
 
-struct CHECK_BOX_API ItemInfo
-{
-    int         id = 0;
-    std::string name;
-    std::string icon;
-    std::string desc;
-
-    std::vector<std::pair<std::string, int>> subItems;
-};
-
 class CHECK_BOX_API CheckBox : public QCheckBox
 {
     Q_OBJECT
 
 public:
+    struct ItemInfo
+    {
+        QString name;
+        QString iconPath;
+        QString description;
+    };
+
     CheckBox(QWidget *parent = nullptr);
 
-    void SetItemInfo(const ItemInfo &itemInfo);
+    void     SetItemInfo(const ItemInfo &itemInfo);
     ItemInfo GetItemInfo() const;
 
 protected:
@@ -89,6 +86,29 @@ private:
     QColor m_color = QColor(COLOR_BACKGROUND_HIGHLIGHT);
 
     ItemInfo m_itemInfo;
+};
+
+class CHECK_BOX_API CheckBoxIcon : public QCheckBox
+{
+    Q_OBJECT
+
+public:
+    CheckBoxIcon(QWidget *parent = nullptr);
+
+    void SetItemInfo(const CheckBox::ItemInfo &itemInfo);
+
+protected:
+    virtual void paintEvent(QPaintEvent *event) override;
+    virtual void enterEvent(QEnterEvent *event) override;
+    virtual void leaveEvent(QEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+
+private:
+    bool m_hovered = false;
+
+    QPixmap m_pixmap;
+
+    CheckBox::ItemInfo m_itemInfo;
 };
 
 #endif // __CHECK_BOX_H__

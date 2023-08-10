@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-10 05:39:55
+ * Last Modified: 2023-08-10 23:04:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -201,8 +201,13 @@ SubComboBox::SubComboBox(QWidget *parent) : QComboBox(parent)
     this->setView(listWidget);
 
     connect(listWidget, &QListWidget::currentItemChanged, this, [=](QListWidgetItem *current, QListWidgetItem *previous) {
-        if (previous != nullptr) {
+        if (previous != nullptr && ((ItemWidget *)listWidget->itemWidget(previous)) != nullptr)
+        {
             ((ItemWidget *)listWidget->itemWidget(previous))->SetSelected(false);
+        }
+        if (current == nullptr && ((ItemWidget *)listWidget->itemWidget(current)) == nullptr)
+        {
+            return;
         }
         ComboBox::ItemInfo itemInfo = ((ItemWidget *)listWidget->itemWidget(current))->GetItemInfo();
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-10 05:42:02
+ * Last Modified: 2023-08-11 03:31:21
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -31,7 +31,6 @@
 #include "SpinBox/SpinBox.h"
 #include "Splitter/Splitter.h"
 #include "StackWidget/StackWidget.h"
-#include "TabWidget/TabWidget.h"
 
 #include "JX3DPS.h"
 #include "JX3DPSJsonParser.h"
@@ -111,9 +110,6 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
         layout->addWidget(plainTextEdit);
     });
 
-    tabWidgetSkills->AddTab("宏");
-    tabWidgetEvents->AddTab("事件");
-
     InitWidgetSetting(groupBoxSetting);
 
     InitWidgetOut(groupBoxOut);
@@ -124,7 +120,13 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
 
     InitWidgetTalents(tabWidgetTalentsRecipes->Widget(0));
 
+    InitWidgetRecipes(tabWidgetTalentsRecipes->Widget(1));
+
     InitWidgetPermanents(groupBoxPermanents);
+
+    InitWidgetSkills(tabWidgetSkills);
+
+    InitWidgetEvents(tabWidgetEvents);
 }
 
 JX3DPS::Simulator::Widget::~Widget() { }
@@ -646,6 +648,37 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
     });
 }
 
+void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
+{
+    QGridLayout *gLayout = new QGridLayout(parent);
+
+    StackWidget *stackWidget = new StackWidget(parent);
+
+    gLayout->addWidget(stackWidget, 0, 0, 1, 1);
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+        stackWidget->Clear();
+
+        std::unordered_map<std::string, std::list<CheckBox::ItemInfo>> recipes;
+        JsonParser::ParseJsonToRecipeItemInfos(m_config, type, recipes);
+
+        int index = 0;
+        for (const auto &[name, itemInfos] : recipes) {
+            stackWidget->AddTab(name.c_str());
+            QGridLayout *layout = new QGridLayout(stackWidget->Widget(index));
+            int          idx    = 0;
+            for (const auto &itemInfo : itemInfos) {
+                CheckBoxIcon *checkBoxIcon = new CheckBoxIcon(parent);
+                checkBoxIcon->SetItemInfo(itemInfo);
+                checkBoxIcon->setFixedSize(42, 42);
+                layout->addWidget(checkBoxIcon, idx / 4, idx % 4, 1, 1);
+                idx++;
+            }
+            index++;
+        }
+    });
+}
+
 void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 {
     QGridLayout *gLayout = new QGridLayout(parent);
@@ -690,4 +723,37 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     gLayout->addWidget(permanentCheckBoxes[1], 8, 1, 1, 1);
     gLayout->addWidget(permanentCheckBoxes[2], 9, 0, 1, 1);
     gLayout->addWidget(permanentCheckBoxes[3], 9, 1, 1, 1);
+}
+
+void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)
+{
+    parent->AddTab("宏");
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+        parent->Clear();
+        std::list<std::pair<std::string, std::list<std::string>>> skills;
+        JsonParser::ParseJsonToSkills(m_config, type, skills);
+        int index = 0;
+        for (auto &[name, exprs] : skills) {
+            parent->AddTab(name.c_str());
+            PlainTextEdit *text = parent->Widget(index)->findChild<PlainTextEdit *>();
+            for (const auto &expr : exprs) {
+                text->appendHtml(expr.c_str());
+            }
+            index++;
+        }
+    });
+}
+
+void JX3DPS::Simulator::Widget::InitWidgetEvents(TabWidget *parent)
+{
+    parent->AddTab("事件");
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+        std::list<std::string> events;
+        JsonParser::ParseJsonToEvents(m_config, type, events);
+        PlainTextEdit *text = parent->Widget(0)->findChild<PlainTextEdit *>();
+        text->clear();
+        for (auto &expr : events) {
+            text->appendHtml(expr.c_str());
+        }
+    });
 }

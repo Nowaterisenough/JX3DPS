@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 18:14:47
+ * Last Modified: 2023-08-11 03:28:25
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -170,6 +170,15 @@ void TabWidget::SetAddButtonVisible(bool visible)
 int TabWidget::Count() const
 {
     return m_tabs.size();
+}
+
+void TabWidget::Clear()
+{
+    for (auto &[btn, tab] : m_tabs) {
+        btn->deleteLater();
+        tab->deleteLater();
+    }
+    m_tabs.clear();
 }
 
 #include <set>

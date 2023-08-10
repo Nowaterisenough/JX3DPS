@@ -2,9 +2,14 @@
   <qresource prefix="/resources">
     <file>Monaco.ttf</file>
     <file>NoWatsFont.ttf</file>
+    <file>pics\JX3\Icons\18281.png</file>
+    <file>pics\JX3\Icons\18326.png</file>
+    <file>pics\JX3\Icons\237.png</file>
+    <file>pics\JX3\Icons\261.png</file>
     <file>pics\JX3\Icons\549.png</file>
     <file>pics\JX3\Icons\552.png</file>
     <file>pics\JX3\Icons\617.png</file>
+    <file>pics\JX3\Icons\1360.png</file>
     <file>pics\JX3\Icons\1396.png</file>
     <file>pics\JX3\Icons\1440.png</file>
     <file>pics\JX3\Icons\1798.png</file>
@@ -22,6 +27,7 @@
     <file>pics\JX3\Icons\2941.png</file>
     <file>pics\JX3\Icons\2942.png</file>
     <file>pics\JX3\Icons\4221.png</file>
+    <file>pics\JX3\Icons\4266.png</file>
     <file>pics\JX3\Icons\4268.png</file>
     <file>pics\JX3\Icons\4274.png</file>
     <file>pics\JX3\Icons\4275.png</file>
@@ -29,6 +35,7 @@
     <file>pics\JX3\Icons\4302.png</file>
     <file>pics\JX3\Icons\4487.png</file>
     <file>pics\JX3\Icons\4525.png</file>
+    <file>pics\JX3\Icons\7047.png</file>
     <file>pics\JX3\Icons\7099.png</file>
     <file>pics\JX3\Icons\7103.png</file>
     <file>pics\JX3\Icons\7105.png</file>
@@ -43,6 +50,8 @@
     <file>pics\JX3\Icons\7470.png</file>
     <file>pics\JX3\Icons\7492.png</file>
     <file>pics\JX3\Icons\7531.png</file>
+    <file>pics\JX3\Icons\7595.png</file>
+    <file>pics\JX3\Icons\7614.png</file>
     <file>pics\JX3\Icons\7646.png</file>
     <file>pics\JX3\Icons\7971.png</file>
     <file>pics\JX3\Icons\7973.png</file>
@@ -68,7 +77,5 @@
     <file>pics\JX3\Icons\17197.png</file>
     <file>pics\JX3\Icons\17198.png</file>
     <file>pics\JX3\Icons\17199.png</file>
-    <file>pics\JX3\Icons\18281.png</file>
-    <file>pics\JX3\Icons\18326.png</file>
   </qresource>
 </RCC>

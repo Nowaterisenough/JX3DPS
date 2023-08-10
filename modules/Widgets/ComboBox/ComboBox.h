@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-10 23:06:43
+ * Last Modified: 2023-08-11 06:27:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -87,7 +87,7 @@ public:
     ComboBox(QWidget *parent = nullptr);
 
     void SetType(Type type);
-
+    void SetView(const ComboBox::ItemInfo &itemInfo);
     void AddItem(const ItemInfo &itemInfo);
     void SetItemSize(int width, int height);
 
@@ -161,7 +161,7 @@ public:
     void               SetItemInfo(const ComboBox::ItemInfo &itemInfo);
     void               SetSelected(bool selected);
     ComboBox::ItemInfo GetItemInfo() const;
-    void SetHovered(bool hovered);
+    void               SetHovered(bool hovered);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 00:58:09
+ * Last Modified: 2023-08-11 05:51:38
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -20,6 +20,8 @@
 #include <QHBoxLayout>
 #include <QIntValidator>
 #include <QPainter>
+
+#include "Common/ThemeColors.h"
 
 CheckBox::CheckBox(QWidget *parent) : QCheckBox(parent)
 {
@@ -53,7 +55,12 @@ void CheckBox::paintEvent(QPaintEvent *event)
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
     painter.setPen(QPen(QColor(56, 60, 67), 1));
-    painter.setBrush(m_color);
+
+    if (m_hovered) {
+        painter.setBrush(QColor(35, 38, 46));
+    } else {
+        painter.setBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT));
+    }
 
     painter.drawRect(3, 7, this->height() - 12, this->height() - 12);
 
@@ -67,7 +74,12 @@ void CheckBox::paintEvent(QPaintEvent *event)
                           << QLineF(3 + width / 2 - 1, 7 + width - 2, 3 + width, 7 + width / 2 - 3));
     }
 
-    painter.setPen(QPen(QColor(COLOR_INACTIVE), 1));
+    if (m_hovered) {
+        painter.setPen(QPen(QColor(COLOR_HIGHLIGHT), 1));
+    } else {
+        painter.setPen(QPen(QColor(COLOR_INACTIVE), 1));
+    }
+
     painter.setBrush(Qt::NoBrush);
     painter.drawText(3 + this->height() - 12 + 6,
                      0,
@@ -85,13 +97,13 @@ void CheckBox::paintEvent(QPaintEvent *event)
 
 void CheckBox::enterEvent(QEnterEvent *event)
 {
-    m_color = QColor(35, 38, 46);
+    m_hovered = true;
     update();
 }
 
 void CheckBox::leaveEvent(QEvent *event)
 {
-    m_color = QColor(COLOR_BACKGROUND_HIGHLIGHT);
+    m_hovered = false;
     update();
 }
 
@@ -105,6 +117,10 @@ void CheckBox::mousePressEvent(QMouseEvent *event)
 CheckBoxIcon::CheckBoxIcon(QWidget *parent)
 {
     this->setAttribute(Qt::WA_TranslucentBackground);
+
+    // 设置样式表
+    this->setStyleSheet(
+        "QToolTip { color: white; background-color: rgb(23, 29, 37); border: none; }");
 }
 
 void CheckBoxIcon::SetItemInfo(const CheckBox::ItemInfo &itemInfo)

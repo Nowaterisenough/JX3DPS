@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-10 23:04:11
+ * Last Modified: 2023-08-11 06:38:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -121,6 +121,7 @@ ComboBox::ComboBox(QWidget *parent) : QWidget(parent)
     QGraphicsDropShadowEffect *shadowEffect = new QGraphicsDropShadowEffect(this);
     shadowEffect->setColor(Qt::black);     // 设置阴影的颜色
     shadowEffect->setBlurRadius(10);       // 设置阴影的模糊半径
+
     shadowEffect->setOffset(0, 0);         // 设置阴影的偏移量
 
     this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
@@ -145,10 +146,18 @@ void ComboBox::SetType(Type type)
     update();
 }
 
+void ComboBox::SetView(const ComboBox::ItemInfo &itemInfo)
+{
+    m_subComboBox->SetView(itemInfo);
+    m_name = itemInfo.name;
+}
+
 void ComboBox::AddItem(const ItemInfo &itemInfo)
 {
+    // m_subComboBox->blockSignals(true);
     m_subComboBox->AddItem(itemInfo);
-    update();
+    // m_subComboBox->blockSignals(false);
+    m_subComboBox->update();
 }
 
 void ComboBox::SetItemSize(int width, int height)
@@ -187,6 +196,7 @@ void ComboBox::paintEvent(QPaintEvent *event)
 SubComboBox::SubComboBox(QWidget *parent) : QComboBox(parent)
 {
     this->setAttribute(Qt::WA_TranslucentBackground);
+    this->setStyle(nullptr);
     this->setStyleSheet("QComboBox QAbstractItemView { border: none; }");
     this->setMaxVisibleItems(8);
 
@@ -234,6 +244,7 @@ void SubComboBox::SetType(ComboBox::Type type)
 void SubComboBox::SetView(const ComboBox::ItemInfo &itemInfo)
 {
     m_detailedView->SetItemInfo(itemInfo);
+    this->setCurrentIndex(this->findText(itemInfo.name));
     m_icon->SetItemInfo(itemInfo);
 }
 
@@ -241,7 +252,8 @@ void SubComboBox::AddItem(const ComboBox::ItemInfo &itemInfo)
 {
     QListWidgetItem *item = new QListWidgetItem((ListWidget *)this->view());
     item->setSizeHint(QSize(m_width, m_height));
-
+    item->setText(itemInfo.name);
+    
     ItemWidget *itemWidget = new ItemWidget(itemInfo, this->view());
 
     ((ListWidget *)this->view())->addItem(item);
@@ -251,6 +263,7 @@ void SubComboBox::AddItem(const ComboBox::ItemInfo &itemInfo)
         this->SetView(itemInfo);
         emit Signal_CurrentItemChanged(itemInfo);
     }
+    ((ListWidget *)this->view())->update();
 }
 
 void SubComboBox::SetItemSize(int width, int height)
@@ -297,6 +310,7 @@ ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
     this->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     this->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->setMouseTracking(true);
+    this->setStyle(nullptr);
     this->setStyleSheet("QListWidget { border: none; }");
 }
 

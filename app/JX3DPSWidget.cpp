@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 03:31:21
+ * Last Modified: 2023-08-11 06:46:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -480,7 +480,18 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
             attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->setText("元气");
         }
 
+        *attribute = JX3DPS::Attribute();
         attribute->SetClassType(type);
+
+        std::unordered_map<std::string, int> attributes;
+        JsonParser::ParseJsonToDefaultAttribute(m_config, type, attributes);
+
+        for (auto &[attributeName, value] : attributes) {
+            Attribute::Type type = Attribute::AttributeType(attributeName);
+
+            attribute->SetAttributeInitial(type, value);
+        }
+
         emit Signal_UpdateAttribute();
     });
 
@@ -567,10 +578,10 @@ void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
     checkBoxClassSetSkill->setFixedHeight(22);
 
     gLayout->addWidget(checkBoxEnchantWrist, 0, 0, 1, 1);
-    gLayout->addWidget(checkBoxEnchantShoes, 0, 1, 1, 1);
-    gLayout->addWidget(checkBoxEnchantBelt, 1, 0, 1, 1);
-    gLayout->addWidget(checkBoxEnchantJacket, 1, 1, 1, 1);
-    gLayout->addWidget(checkBoxEnchantHat, 2, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantShoes, 1, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantBelt, 2, 0, 1, 1);
+    gLayout->addWidget(checkBoxEnchantJacket, 0, 1, 1, 1);
+    gLayout->addWidget(checkBoxEnchantHat, 1, 1, 1, 1);
 
     gLayout->addWidget(checkBoxClassSetBuff, 2, 1, 1, 1);
     gLayout->addWidget(checkBoxClassSetSkill, 3, 1, 1, 1);
@@ -634,7 +645,8 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
         std::vector<std::list<ComboBox::ItemInfo>> talents;
-        JsonParser::ParseJsonToTalentItemInfos(m_config, type, talents);
+        std::list<std::string>                     defaults;
+        JsonParser::ParseJsonToTalentItemInfos(m_config, type, talents, defaults);
         for (int i = 0; i < 12; ++i) {
             talentsComboBoxes[i]->Clear();
             ComboBox::ItemInfo itemInfo;
@@ -643,6 +655,12 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
 
             for (const auto &itemInfo : talents[i]) {
                 talentsComboBoxes[i]->AddItem(itemInfo);
+
+                for (auto &defaultName : defaults) {
+                    if (defaultName == itemInfo.name.toStdString()) {
+                        talentsComboBoxes[i]->SetView(itemInfo);
+                    }
+                }
             }
         }
     });
@@ -660,7 +678,8 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
         stackWidget->Clear();
 
         std::unordered_map<std::string, std::list<CheckBox::ItemInfo>> recipes;
-        JsonParser::ParseJsonToRecipeItemInfos(m_config, type, recipes);
+        std::list<std::string>                                         defaults;
+        JsonParser::ParseJsonToRecipeItemInfos(m_config, type, recipes, defaults);
 
         int index = 0;
         for (const auto &[name, itemInfos] : recipes) {
@@ -672,6 +691,13 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
                 checkBoxIcon->SetItemInfo(itemInfo);
                 checkBoxIcon->setFixedSize(42, 42);
                 layout->addWidget(checkBoxIcon, idx / 4, idx % 4, 1, 1);
+
+                for (const auto &defaultName : defaults) {
+                    if (defaultName == itemInfo.name.toStdString()) {
+                        checkBoxIcon->setChecked(true);
+                    }
+                }
+                
                 idx++;
             }
             index++;
@@ -683,10 +709,15 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 {
     QGridLayout *gLayout = new QGridLayout(parent);
 
-    std::vector<ComboBox *>  permanentComboBoxes;
+    std::unordered_map<std::string, ComboBox *> permanentComboBoxes;
     std::vector<std::string> permanents = { "阵眼",     "食品增强", "食品辅助",
                                             "药品增强", "药品辅助", "家园炊事",
                                             "家园酿造", "武器磨石" };
+
+    std::vector<std::string> permanentTexts = {
+        "TeamCore",   "FoodEnhance", "FoodSupport", "MedEnhance",
+        "MedSupport", "HomeCook",    "HomeWine",    "WeaponWhetstone"
+    };
 
     for (int i = 0; i < permanents.size(); ++i) {
         ComboBox *comboBox = new ComboBox(parent);
@@ -699,7 +730,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
         itemInfo.name = permanents[i].c_str();
         comboBox->AddItem(itemInfo);
 
-        permanentComboBoxes.push_back(comboBox);
+        permanentComboBoxes.emplace(permanentTexts[i], comboBox);
     }
 
     std::vector<CheckBox *> permanentCheckBoxes;
@@ -723,6 +754,32 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     gLayout->addWidget(permanentCheckBoxes[1], 8, 1, 1, 1);
     gLayout->addWidget(permanentCheckBoxes[2], 9, 0, 1, 1);
     gLayout->addWidget(permanentCheckBoxes[3], 9, 1, 1, 1);
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+        std::unordered_map<std::string, CheckBox::ItemInfo>            permanents1;
+        std::unordered_map<std::string, std::list<ComboBox::ItemInfo>> permanents2;
+        JsonParser::ParseJsonToPermanents(m_config, type, permanents1, permanents2);
+
+        for (auto &[name, itemInfos] : permanents2) {
+            permanentComboBoxes.at(name)->Clear();
+            for (int i = 0; i < permanents.size(); ++i) {
+                if (name == permanentTexts[i]) {
+                    ComboBox::ItemInfo info;
+                    info.name = permanents[i].c_str();
+                    permanentComboBoxes.at(name)->AddItem(info);
+                }
+            }
+
+            for (const auto &itemInfo : itemInfos) {
+                permanentComboBoxes.at(name)->AddItem(itemInfo);
+            }
+        }
+
+        permanentCheckBoxes[0]->SetItemInfo(permanents1["玉笛谁家听落梅"]);
+        permanentCheckBoxes[1]->SetItemInfo(permanents1["同泽宴"]);
+        permanentCheckBoxes[2]->SetItemInfo(permanents1["炼狱水煮鱼"]);
+        permanentCheckBoxes[3]->SetItemInfo(permanents1["蒸鱼菜盘"]);
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)

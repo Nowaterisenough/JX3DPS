@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 01:10:26
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-08 13:04:08
+ * Last Modified: 2023-08-12 05:35:21
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -46,6 +46,20 @@ inline ClassType GetClassType(const std::string &className)
 {
     for (size_t i = 0; i < static_cast<size_t>(ClassType::COUNT); ++i) {
         if (className == CLASS_NAME[i]) {
+            return static_cast<ClassType>(i);
+        }
+    }
+    return ClassType::DEFAULT;
+}
+
+constexpr std::array<std::string_view, static_cast<size_t>(ClassType::COUNT)> CLASS_TEAM_CORE_NAME = {
+    "无阵", "北斗七星阵", "九宫八卦阵", "锋凌横绝阵", "万籁金弦阵",
+};
+
+inline ClassType GetClassTeamCoreType(const std::string &className)
+{
+    for (size_t i = 0; i < static_cast<size_t>(ClassType::COUNT); ++i) {
+        if (className == CLASS_TEAM_CORE_NAME[i]) {
             return static_cast<ClassType>(i);
         }
     }

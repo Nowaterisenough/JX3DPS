@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 05:07:10
+ * Last Modified: 2023-08-12 05:35:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -205,7 +205,7 @@ JX3DPS::Error_t JX3DPS::ParseJsonToTeamCore(const nlohmann::ordered_json &json, 
             attribute.AddAttribute(type, item.at("Value").get<int>());
         }
         std::string classTypeStr = json.at("TeamCore").at("Name").get<std::string>();
-        teamCore                 = GetClassType(classTypeStr);
+        teamCore                 = GetClassTeamCoreType(classTypeStr);
     } catch (const std::exception &e) {
         spdlog::error("秘籍解析失败 {}", e.what());
         return JX3DPS_ERROR_INVALID_JSON;

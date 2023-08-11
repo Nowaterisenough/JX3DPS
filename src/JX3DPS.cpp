@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 07:06:29
+ * Last Modified: 2023-08-12 05:04:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -131,7 +131,23 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         Stats temp;
         StatsInit(player.GetClassType(), temp);
 
-        player.attribute.SetGainSwitch(type, true);
+        Attribute::Type t;
+        if (type == Attribute::Type::DEFAULT) {
+            if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::STRENGTH)])
+            {
+                t = Attribute::Type::STRENGTH_BASE;
+            } else if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::SPUNK)])
+            {
+                t = Attribute::Type::SPUNK_BASE;
+            } else if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::SPIRIT)])
+            {
+                t = Attribute::Type::SPIRIT_BASE;
+            } else {
+                t = Attribute::Type::AGILITY_BASE;
+            }
+        }
+
+        player.attribute.SetGainSwitch(t, true);
 
         std::list<std::future<Stats>> results;
         for (int i = 0; i < options.simIterations; i++) {
@@ -152,9 +168,9 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             }
         }
         index++;
-        player.attribute.SetGainSwitch(type, false);
+        player.attribute.SetGainSwitch(t, false);
 
-        stats.gainStats[type] = temp.gainStats[Attribute::Type::DEFAULT];
+        stats.gainStats[t] = temp.gainStats[Attribute::Type::DEFAULT];
     }
 
     if (obj != nullptr) {

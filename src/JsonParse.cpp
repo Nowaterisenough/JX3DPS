@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-09 23:16:00
+ * Last Modified: 2023-08-12 05:07:10
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -101,6 +101,9 @@ JX3DPS::Error_t JX3DPS::ParseJsonToTotalFrames(const nlohmann::ordered_json &jso
 JX3DPS::Error_t JX3DPS::ParseJsonToTalents(const nlohmann::ordered_json &json, Talents &talents)
 {
     try {
+        if (json.find("Talents") == json.end()) {
+            return JX3DPS_SUCCESS;
+        }
         for (auto &item : json.at("Talents").items()) {
             std::string talentName        = item.value().get<std::string>();
             talents[TalentId(talentName)] = true;
@@ -115,6 +118,9 @@ JX3DPS::Error_t JX3DPS::ParseJsonToTalents(const nlohmann::ordered_json &json, T
 JX3DPS::Error_t JX3DPS::ParseJsonToRecipes(const nlohmann::ordered_json &json, Recipes &recipes)
 {
     try {
+        if (json.find("Recipes") == json.end()) {
+            return JX3DPS_SUCCESS;
+        }
         for (auto &[key, value] : json.at("Recipes").items()) {
             for (auto &secret : value) {
                 std::string secretName        = secret.get<std::string>();
@@ -131,6 +137,9 @@ JX3DPS::Error_t JX3DPS::ParseJsonToRecipes(const nlohmann::ordered_json &json, R
 JX3DPS::Error_t JX3DPS::ParseJsonToEquipEffects(const nlohmann::ordered_json &json, EquipEffects &equipEffects)
 {
     try {
+        if (json.find("EquipEffects") == json.end()) {
+            return JX3DPS_SUCCESS;
+        }
         for (auto &item : json.at("EquipEffects")) {
             Id_t equipEffectId = EquipEffectId(item.get<std::string>());
             equipEffects.emplace(equipEffectId, true);
@@ -167,6 +176,9 @@ JX3DPS::Error_t JX3DPS::ParseJsonToAttribute(const nlohmann::ordered_json &json,
 JX3DPS::Error_t JX3DPS::ParseJsonToPermanents(const nlohmann::ordered_json &json, Attribute &attribute)
 {
     try {
+        if (json.find("Permanents") == json.end()) {
+            return JX3DPS_SUCCESS;
+        }
         for (auto &items : json.at("Permanents")) {
             for (auto &item : items.at("AttributeAdditional")) {
                 std::string     name = item.at("Type").get<std::string>();
@@ -184,6 +196,9 @@ JX3DPS::Error_t JX3DPS::ParseJsonToPermanents(const nlohmann::ordered_json &json
 JX3DPS::Error_t JX3DPS::ParseJsonToTeamCore(const nlohmann::ordered_json &json, Attribute &attribute, ClassType &teamCore)
 {
     try {
+        if (json.find("TeamCore") == json.end()) {
+            return JX3DPS_SUCCESS;
+        }
         for (auto &item : json.at("TeamCore").at("AttributeAdditional")) {
             std::string     name = item.at("Type").get<std::string>();
             Attribute::Type type = Attribute::AttributeType(name);

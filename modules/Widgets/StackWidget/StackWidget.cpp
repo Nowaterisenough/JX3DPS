@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 01:05:24
+ * Last Modified: 2023-08-12 04:36:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -167,8 +167,8 @@ void StackWidget::AddTab(const QString &text)
 
     connect(tabButton, &QPushButton::toggled, [=](bool checked) {
         if (checked) {
-            for (int i = 0; i < m_tabs.size(); i++) {
-                if (m_tabs[i].first == tabButton && !m_flag) {
+            for (int i = 0; i < m_stacks.size(); i++) {
+                if (m_stacks[i].first == tabButton && !m_flag) {
                     AnimatedResize(i);
                 }
             }
@@ -181,17 +181,17 @@ void StackWidget::AddTab(const QString &text)
     tabButton->setFixedSize(QFontMetrics(tabButton->font()).horizontalAdvance(text.at(0)) + 10,
                             (QFontMetrics(tabButton->font()).height() - 2) * text.length() + 2);
     tWidget->hide();
-    if (m_tabs.empty()) {
+    if (m_stacks.empty()) {
         tabButton->setChecked(true);
     }
-    m_tabs.emplace_back(QPair<StackButton *, Stack *>(tabButton, tWidget));
+    m_stacks.emplace_back(QPair<StackButton *, Stack *>(tabButton, tWidget));
 
     update();
 }
 
 Stack *StackWidget::Widget(int index)
 {
-    return m_tabs[index].second;
+    return m_stacks[index].second;
 }
 
 void StackWidget::resizeEvent(QResizeEvent *event)
@@ -212,57 +212,57 @@ void StackWidget::paintEvent(QPaintEvent *event)
 
     int space       = 2;
     int buttonWidth = 25;
-    if (!m_tabs.empty()) {
-        buttonWidth = m_tabs[0].first->width();
+    if (!m_stacks.empty()) {
+        buttonWidth = m_stacks[0].first->width();
     }
 
     if (m_currentIndex > m_lastIndex) {
 
         for (int i = m_lastIndex + 1; i <= m_currentIndex; i++) {
-            StackButton *tabButton = m_tabs[i].first;
-            tabButton->setGeometry(this->width() - (space + buttonWidth) * (m_tabs.size() - i) + space - m_dx,
+            StackButton *tabButton = m_stacks[i].first;
+            tabButton->setGeometry(this->width() - (space + buttonWidth) * (m_stacks.size() - i) + space - m_dx,
                                    tabButton->y(),
                                    tabButton->width(),
                                    tabButton->height());
         }
-        Stack *tLastWidget    = m_tabs[m_lastIndex].second;
-        Stack *tCurrentWidget = m_tabs[m_currentIndex].second;
-        int    width          = this->width() - m_tabs.size() * (buttonWidth + space);
+        Stack *tLastWidget    = m_stacks[m_lastIndex].second;
+        Stack *tCurrentWidget = m_stacks[m_currentIndex].second;
+        int    width          = this->width() - m_stacks.size() * (buttonWidth + space);
         if (width - m_dx >= 0) {
             tLastWidget->setGeometry(tLastWidget->x(), 0, width - m_dx, this->height());
         }
         if (m_dx > space) {
-            tCurrentWidget->setGeometry(m_tabs[m_currentIndex].first->x() + buttonWidth + space,
+            tCurrentWidget->setGeometry(m_stacks[m_currentIndex].first->x() + buttonWidth + space,
                                         0,
                                         m_dx - space,
                                         this->height());
-            m_tabs[m_currentIndex].second->show();
+            m_stacks[m_currentIndex].second->show();
         }
     } else if (m_currentIndex < m_lastIndex) {
         for (int i = m_currentIndex + 1; i <= m_lastIndex; i++) {
-            StackButton *tabButton = m_tabs[i].first;
-            Stack       *tWidget   = m_tabs[i].second;
+            StackButton *tabButton = m_stacks[i].first;
+            Stack       *tWidget   = m_stacks[i].second;
             tabButton->setGeometry((space + buttonWidth) * i + m_dx,
                                    tabButton->y(),
                                    tabButton->width(),
                                    tabButton->height());
         }
-        Stack *tLastWidget    = m_tabs[m_lastIndex].second;
-        Stack *tCurrentWidget = m_tabs[m_currentIndex].second;
-        int    width          = this->width() - m_tabs.size() * (buttonWidth + space);
+        Stack *tLastWidget    = m_stacks[m_lastIndex].second;
+        Stack *tCurrentWidget = m_stacks[m_currentIndex].second;
+        int    width          = this->width() - m_stacks.size() * (buttonWidth + space);
         if (width - m_dx >= 0) {
-            tLastWidget->setGeometry(m_tabs[m_lastIndex].first->x() + buttonWidth + space,
+            tLastWidget->setGeometry(m_stacks[m_lastIndex].first->x() + buttonWidth + space,
                                      0,
                                      width - m_dx,
                                      this->height());
         }
         if (m_dx > space) {
-            tCurrentWidget->setGeometry(m_tabs[m_currentIndex].first->x() +
-                                            m_tabs[m_currentIndex].first->width() + space,
+            tCurrentWidget->setGeometry(m_stacks[m_currentIndex].first->x() +
+                                            m_stacks[m_currentIndex].first->width() + space,
                                         0,
                                         m_dx - space,
                                         this->height());
-            m_tabs[m_currentIndex].second->show();
+            m_stacks[m_currentIndex].second->show();
         }
     }
 
@@ -275,14 +275,14 @@ void StackWidget::Resize()
     int  y           = height() / 2;
     int  space       = 2;
     int  buttonWidth = 25;
-    if (!m_tabs.empty()) {
-        buttonWidth = m_tabs[0].first->width();
+    if (!m_stacks.empty()) {
+        buttonWidth = m_stacks[0].first->width();
     }
-    for (int i = 0; i < m_tabs.size(); ++i) {
-        StackButton *tabButton = m_tabs[i].first;
-        Stack       *tWidget   = m_tabs[i].second;
+    for (int i = 0; i < m_stacks.size(); ++i) {
+        StackButton *tabButton = m_stacks[i].first;
+        Stack       *tWidget   = m_stacks[i].second;
         if (checked) {
-            tabButton->setGeometry(this->width() - (space + buttonWidth) * (m_tabs.size() - i) + space,
+            tabButton->setGeometry(this->width() - (space + buttonWidth) * (m_stacks.size() - i) + space,
                                    y - tabButton->height() / 2,
                                    tabButton->width(),
                                    tabButton->height());
@@ -295,7 +295,7 @@ void StackWidget::Resize()
                 int x = (space + buttonWidth) * i;
                 tWidget->setGeometry((space + buttonWidth) * (i + 1),
                                      0,
-                                     this->width() - x - (space + buttonWidth) * (m_tabs.size() - i),
+                                     this->width() - x - (space + buttonWidth) * (m_stacks.size() - i),
                                      this->height());
                 tWidget->show();
                 checked = true;
@@ -313,17 +313,17 @@ void StackWidget::AnimatedResize(int index)
     }
     m_flag          = true;
     int space       = 2;
-    int buttonWidth = m_tabs[0].first->width();
-    int dx          = this->width() - m_tabs.size() * (buttonWidth + space) + space;
+    int buttonWidth = m_stacks[0].first->width();
+    int dx          = this->width() - m_stacks.size() * (buttonWidth + space) + space;
     m_currentIndex  = index;
-    m_tabs[m_lastIndex].first->setChecked(false);
+    m_stacks[m_lastIndex].first->setChecked(false);
 
     QPropertyAnimation *animation = new QPropertyAnimation(this, "dx");
 
     connect(animation, QOverload<>::of(&QPropertyAnimation::finished), [=, this]() {
-        for (int i = 0; i < m_tabs.size(); ++i) {
-            StackButton *tabButton = m_tabs[i].first;
-            Stack       *tWidget   = m_tabs[i].second;
+        for (int i = 0; i < m_stacks.size(); ++i) {
+            StackButton *tabButton = m_stacks[i].first;
+            Stack       *tWidget   = m_stacks[i].second;
             if (i != index) {
                 tabButton->setChecked(false);
                 tWidget->hide();
@@ -343,15 +343,20 @@ void StackWidget::AnimatedResize(int index)
 
 void StackWidget::Clear()
 {
-    for (auto &[button, widget] : m_tabs) {
+    for (auto &[button, widget] : m_stacks) {
         delete button;
         delete widget;
     }
-    m_tabs.clear();
+    m_stacks.clear();
     m_currentIndex = 0;
     m_lastIndex    = 0;
     m_dx           = 0;
     m_flag         = false;
+}
+
+QList<QPair<StackButton*,Stack*>>& StackWidget::Stacks()
+{
+    return m_stacks;
 }
 
 int StackWidget::GetDx() const

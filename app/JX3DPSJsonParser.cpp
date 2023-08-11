@@ -5,7 +5,7 @@
  * Created Date: 2023-08-10 00:05:57
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 06:25:20
+ * Last Modified: 2023-08-12 03:29:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -162,6 +162,26 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToPermanents(
                         itemInfos.emplace_back(itemInfo);
                     }
                     permanents2.emplace(key, itemInfos);
+                }
+            }
+        }
+    }
+}
+
+void JX3DPS::Simulator::JsonParser::LoadJsonPermanent(const nlohmann::ordered_json &json,
+                                                      JX3DPS::ClassType       classType,
+                                                      const std::string      &name,
+                                                      nlohmann::ordered_json &out)
+{
+    for (auto &item : json["ClassType"]) {
+        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        {
+            for (auto &[key, value] : item["Permanents"].items()) {
+                for (auto &permanent : value) {
+                    if (name == permanent["Name"].get<std::string>().c_str()) {
+                        out = permanent;
+                        return;
+                    }
                 }
             }
         }

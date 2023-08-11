@@ -26,6 +26,7 @@ if(NOT BUILD_SHARED_LIBS)
         -DIMPORT_STATIC_COMBO_BOX_LIB
         -DIMPORT_STATIC_STACK_WIDGET_LIB
         -DIMPORT_STATIC_PLAIN_TEXT_EDIT_LIB
+        -DIMPORT_STATIC_PROGRESS_BAR_LIB
     )
 endif()
 
@@ -81,6 +82,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     ComboBox
     StackWidget
     PlainTextEdit
+    ProgressBar
 )
 
 if(MSVC)

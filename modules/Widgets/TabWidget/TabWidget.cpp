@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 03:28:25
+ * Last Modified: 2023-08-12 04:30:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -165,6 +165,11 @@ Tab *TabWidget::Widget(int index)
 void TabWidget::SetAddButtonVisible(bool visible)
 {
     m_tabButton->setVisible(visible);
+}
+
+QList<QPair<TabButton *, Tab *>> &TabWidget::Tabs()
+{
+    return m_tabs;
 }
 
 int TabWidget::Count() const

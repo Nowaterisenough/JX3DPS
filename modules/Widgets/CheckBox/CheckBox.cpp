@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 05:51:38
+ * Last Modified: 2023-08-12 04:40:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -128,6 +128,11 @@ void CheckBoxIcon::SetItemInfo(const CheckBox::ItemInfo &itemInfo)
     m_itemInfo = itemInfo;
     this->setToolTip(m_itemInfo.description);
     m_pixmap = QPixmap(m_itemInfo.iconPath);
+}
+
+CheckBox::ItemInfo &CheckBoxIcon::ItemInfo()
+{
+    return m_itemInfo;
 }
 
 void CheckBoxIcon::paintEvent(QPaintEvent *event)

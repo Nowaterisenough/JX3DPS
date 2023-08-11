@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 06:38:28
+ * Last Modified: 2023-08-12 02:20:33
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -131,6 +131,11 @@ ComboBox::ComboBox(QWidget *parent) : QWidget(parent)
         update();
         emit Signal_CurrentItemChanged(itemInfo);
     });
+}
+
+ComboBox::ItemInfo ComboBox::GetItemInfo() const
+{
+    return m_subComboBox->GetItemInfo();
 }
 
 void ComboBox::Clear()

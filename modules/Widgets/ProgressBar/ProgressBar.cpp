@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 17:57:14
+ * Last Modified: 2023-08-12 01:58:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -18,8 +18,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
 
-#include "BlurImage.hpp"
-#include "ThemeColors.h"
+#include "Common/BlurImage.hpp"
+#include "Common/ThemeColors.h"
 
 ProgressBar::ProgressBar(QWidget *parent) : QDialog(parent)
 {
@@ -43,14 +43,20 @@ void ProgressBar::SetProgress(double progress)
     }
 }
 
-void ProgressBar::SetLoadMode()
-{
-    m_loadMode = true;
-}
-
 double ProgressBar::GetProgress() const
 {
     return m_progress;
+}
+
+void ProgressBar::SetProgress(double progress, const QString &text)
+{
+    if (progress == 1.0) {
+        this->close();
+    } else {
+        m_progress = progress;
+        this->update();
+    }
+    m_text = text;
 }
 
 void ProgressBar::paintEvent(QPaintEvent *event)
@@ -99,18 +105,16 @@ void ProgressBar::paintEvent(QPaintEvent *event)
     double percentage = m_progress * 100;
     QByteArray byteArray = QByteArray::number(percentage, 'f', 0); // 转换为整数形式的字符串
 
-    QString text = m_loadMode ? "心法配置加载中..." : "正在模拟中...";
-
     painter.drawText(0,
                      20,
                      this->width(),
                      this->height() - 20,
                      Qt::AlignCenter,
-                     QString("%1%  %2").arg(byteArray.constData()).arg(text));
+                     QString("%1%  %2").arg(byteArray.constData()).arg(m_text));
     painter.drawText(0,
                      20,
                      this->width(),
                      this->height() - 20,
                      Qt::AlignCenter,
-                     QString("%1%  %2").arg(byteArray.constData()).arg(text));
+                     QString("%1%  %2").arg(byteArray.constData()).arg(m_text));
 }

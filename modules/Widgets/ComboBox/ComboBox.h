@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 06:27:40
+ * Last Modified: 2023-08-12 02:20:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -90,7 +90,7 @@ public:
     void SetView(const ComboBox::ItemInfo &itemInfo);
     void AddItem(const ItemInfo &itemInfo);
     void SetItemSize(int width, int height);
-
+    ItemInfo GetItemInfo() const;
     void Clear();
 
 signals:

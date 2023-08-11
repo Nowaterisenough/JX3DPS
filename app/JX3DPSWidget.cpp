@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 06:46:26
+ * Last Modified: 2023-08-12 04:50:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -28,9 +28,11 @@
 #include "GroupBox/GroupBox.h"
 #include "LineEdit/LineEdit.h"
 #include "PlainTextEdit/PlainTextEdit.h"
+#include "ProgressBar/ProgressBar.h"
 #include "SpinBox/SpinBox.h"
 #include "Splitter/Splitter.h"
 #include "StackWidget/StackWidget.h"
+#include "ThreadPool/ThreadPool.h"
 
 #include "JX3DPS.h"
 #include "JX3DPSJsonParser.h"
@@ -127,6 +129,8 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
     InitWidgetSkills(tabWidgetSkills);
 
     InitWidgetEvents(tabWidgetEvents);
+
+    connect(buttonSimulate, &QPushButton::clicked, this, [=] { Start(); });
 }
 
 JX3DPS::Simulator::Widget::~Widget() { }
@@ -208,6 +212,17 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
         JX3DPS::ClassType type = JX3DPS::GetClassType(itemInfo.name.toStdString());
 
         emit Signal_UpdateClassType(type);
+    });
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParamsClassType, [=](nlohmann::ordered_json &params) {
+        params["ClassType"] = comboBoxClass->GetItemInfo().name.toStdString();
+    });
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        params["Options"]["SimIterations"] = lineEditSimulateCount->text().toInt();
+        params["Options"]["DelayMin"]      = lineEditDelayMin->text().toInt();
+        params["Options"]["DelayMax"]      = lineEditDelayMax->text().toInt();
+        params["Options"]["Mode"] = checkBoxDebug->isChecked() ? "debug" : "default";
     });
 }
 
@@ -520,6 +535,26 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     buttonImport->setFont(QFont(buttonImport->font().family(), 11));
 
     gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        params["Attribute"]["身法"] = attribute->GetAgility();
+        params["Attribute"]["力道"] = attribute->GetStrength();
+        params["Attribute"]["根骨"] = attribute->GetSpirit();
+        params["Attribute"]["元气"] = attribute->GetSpunk();
+        params["Attribute"]["基础武器伤害"] = attribute->GetWeaponDamageBase();
+        params["Attribute"]["浮动武器伤害"] = attribute->GetWeaponDamageRand();
+        params["Attribute"]["外功基础攻击"] = attribute->GetPhysicsAttackPowerBase();
+        params["Attribute"]["内功基础攻击"] = attribute->GetMagicAttackPowerBase();
+        params["Attribute"]["外功会心等级"] = attribute->GetPhysicsCriticalStrike();
+        params["Attribute"]["内功会心等级"] = attribute->GetMagicCriticalStrike();
+        params["Attribute"]["外功会效等级"] = attribute->GetPhysicsCriticalStrikePower();
+        params["Attribute"]["内功会效等级"] = attribute->GetMagicCriticalStrikePower();
+        params["Attribute"]["外功基础破防等级"] = attribute->GetPhysicsOvercomeBase();
+        params["Attribute"]["内功基础破防等级"] = attribute->GetMagicOvercomeBase();
+        params["Attribute"]["无双"] = attribute->GetStrainBase();
+        params["Attribute"]["破招值"] = attribute->GetSurplusValueBase();
+        params["Attribute"]["加速等级"] = attribute->GetHasteBase();
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
@@ -586,12 +621,24 @@ void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
     gLayout->addWidget(checkBoxClassSetBuff, 2, 1, 1, 1);
     gLayout->addWidget(checkBoxClassSetSkill, 3, 1, 1, 1);
     gLayout->addWidget(comboBoxWeapon, 4, 0, 1, 2);
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        for (auto &checkBox : setEffectWidgets) {
+            if (checkBox->isChecked()) {
+                params["EquipEffects"].emplace_back(checkBox->text().toStdString());
+            }
+        }
+
+        if (comboBoxWeapon->GetItemInfo().name != "武器效果") {
+            params["EquipEffects"].emplace_back(comboBoxWeapon->GetItemInfo().name.toStdString());
+        }
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
 {
     QList<JX3DPS::Attribute::Type> attributeTypes = {
-        JX3DPS::Attribute::Type::AGILITY_BASE,
+        JX3DPS::Attribute::Type::DEFAULT,
         JX3DPS::Attribute::Type::ATTACK_POWER_BASE,
         JX3DPS::Attribute::Type::CRITICAL_STRIKE,
         JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER,
@@ -620,6 +667,15 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
 
     QSpacerItem *spacerItem = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
     gLayout->addItem(spacerItem, index, 0, 1, 1);
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        params["Options"]["GainSwitch"]["默认"] =
+            attributeDataBars[JX3DPS::Attribute::Type::DEFAULT]->isEnabled();
+        params["Options"]["GainSwitch"]["会心等级"] =
+            attributeDataBars[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->isEnabled();
+        params["Options"]["GainSwitch"]["加速等级"] =
+            attributeDataBars[JX3DPS::Attribute::Type::HASTE_BASE]->isEnabled();
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
@@ -628,7 +684,7 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
     QGridLayout            *gLayout = new QGridLayout(parent);
     QVector<QString>        nums    = { "一", "二", "三", "四", "五",   "六",
                                         "七", "八", "九", "十", "十一", "十二" };
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < nums.size(); ++i) {
         ComboBox *comboBox = new ComboBox(parent);
         comboBox->SetType(ComboBox::Type::ICON_NAME);
         comboBox->setFixedSize(54, 78);
@@ -664,6 +720,14 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
             }
         }
     });
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        std::list<std::string> talents;
+        for (int i = 0; i < nums.size(); ++i) {
+            talents.emplace_back(talentsComboBoxes[i]->GetItemInfo().name.toStdString());
+        }
+        params["Talents"] = talents;
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
@@ -697,10 +761,21 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
                         checkBoxIcon->setChecked(true);
                     }
                 }
-                
+
                 idx++;
             }
             index++;
+        }
+    });
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        for (auto &[btn, stack] : stackWidget->Stacks()) {
+            for (auto &checkBox : stack->findChildren<CheckBoxIcon *>()) {
+                if (checkBox->isChecked()) {
+                    params["Recipes"][btn->text().toStdString()].emplace_back(
+                        checkBox->ItemInfo().name.toStdString());
+                }
+            }
         }
     });
 }
@@ -780,6 +855,58 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
         permanentCheckBoxes[2]->SetItemInfo(permanents1["炼狱水煮鱼"]);
         permanentCheckBoxes[3]->SetItemInfo(permanents1["蒸鱼菜盘"]);
     });
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        JX3DPS::ClassType type = JX3DPS::ClassType::MO_WEN;
+        if (permanentCheckBoxes[0]->isChecked()) {
+            QString                name = permanentCheckBoxes[0]->GetItemInfo().name;
+            nlohmann::ordered_json out;
+            JsonParser::LoadJsonPermanent(m_config, type, name.toStdString(), out);
+            if (!out.empty()) {
+                params["Permanents"].emplace_back(out);
+            }
+        }
+
+        if (permanentCheckBoxes[1]->isChecked()) {
+            QString                name = permanentCheckBoxes[1]->GetItemInfo().name;
+            nlohmann::ordered_json out;
+            JsonParser::LoadJsonPermanent(m_config, type, name.toStdString(), out);
+            if (!out.empty()) {
+                params["Permanents"].emplace_back(out);
+            }
+        }
+
+        if (permanentCheckBoxes[2]->isChecked()) {
+            QString                name = permanentCheckBoxes[2]->GetItemInfo().name;
+            nlohmann::ordered_json out;
+            JsonParser::LoadJsonPermanent(m_config, type, name.toStdString(), out);
+            if (!out.empty()) {
+                params["Permanents"].emplace_back(out);
+            }
+        }
+
+        if (permanentCheckBoxes[3]->isChecked()) {
+            QString                name = permanentCheckBoxes[3]->GetItemInfo().name;
+            nlohmann::ordered_json out;
+            JsonParser::LoadJsonPermanent(m_config, type, name.toStdString(), out);
+            if (!out.empty()) {
+                params["Permanents"].emplace_back(out);
+            }
+        }
+
+        for (auto &[n, comboBox] : permanentComboBoxes) {
+            QString                name = comboBox->GetItemInfo().name;
+            nlohmann::ordered_json out;
+            JsonParser::LoadJsonPermanent(m_config, type, name.toStdString(), out);
+            if (!out.empty()) {
+                if (n == "TeamCore") {
+                    params["TeamCore"] = out;
+                } else {
+                    params["Permanents"].emplace_back(out);
+                }
+            }
+        }
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)
@@ -799,6 +926,18 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)
             index++;
         }
     });
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        for (auto &[btn, tab] : parent->Tabs()) {
+            QString        name   = btn->text();
+            PlainTextEdit *text   = tab->findChild<PlainTextEdit *>();
+            QString        buffer = text->toPlainText();
+            QStringList    lines  = buffer.split("\n", Qt::SkipEmptyParts);
+            for (const QString &line : lines) {
+                params["SkillsExpression"][name.toStdString()].push_back(line.toStdString());
+            }
+        }
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetEvents(TabWidget *parent)
@@ -813,4 +952,35 @@ void JX3DPS::Simulator::Widget::InitWidgetEvents(TabWidget *parent)
             text->appendHtml(expr.c_str());
         }
     });
+
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+        PlainTextEdit *text   = parent->Widget(0)->findChild<PlainTextEdit *>();
+        QString        buffer = text->toPlainText();
+        QStringList    lines  = buffer.split("\n", Qt::SkipEmptyParts);
+        for (const QString &line : lines) {
+            params["EventsExpression"].push_back(line.toStdString());
+        }
+    });
+}
+
+void JX3DPS::Simulator::Widget::Start()
+{
+    nlohmann::ordered_json json;
+
+    emit Signal_UpdateParamsClassType(json);
+    emit Signal_UpdateParams(json);
+
+    qDebug() << json.dump().c_str();
+    // ThreadPool::Instance()->Enqueue([=]() {
+    //     char *buffer = new char[1024 * 1024];
+    //     JX3DPSSimulate(json.dump().c_str(), buffer, this, [](void *obj, double arg) {
+    //         static_cast<ProgressBar *>(obj)->SetProgress(arg);
+    //     });
+
+    // std::string str = buffer;
+    // delete[] buffer;
+    // nlohmann::json result = nlohmann::json::parse(str);
+
+    // QMetaObject::invokeMethod(this, [=, this] { Signal_UpdateResult(result); });
+    // });
 }

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-11 03:24:03
+ * Last Modified: 2023-08-12 04:30:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -138,6 +138,7 @@ public:
 
     void SetAddButtonVisible(bool visible);
 
+    QList<QPair<TabButton *, Tab *>> &Tabs();
     int Count() const;
     void Clear();
 

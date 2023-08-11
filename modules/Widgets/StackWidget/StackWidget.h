@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-10 22:50:55
+ * Last Modified: 2023-08-12 04:36:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -109,6 +109,8 @@ public:
     void   Resize();
     void   AnimatedResize(int index);
     void   Clear();
+    
+    QList<QPair<StackButton *, Stack *>> &Stacks();
 
     int  GetDx() const;
     void SetDx(int dx);
@@ -118,7 +120,7 @@ protected:
     virtual void paintEvent(QPaintEvent *event) override;
 
 private:
-    QList<QPair<StackButton *, Stack *>> m_tabs;
+    QList<QPair<StackButton *, Stack *>> m_stacks;
 
     int  m_dx           = 0;
     int  m_lastIndex    = 0;     // 上一个选中的索引

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 04:16:33
+ * Last Modified: 2023-08-12 09:03:36
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -126,6 +126,21 @@ void JX3DPS::MoWen::Skill::Gong::Trigger()
     }
 }
 
+bool JX3DPS::MoWen::Skill::Gong::IsReady(bool fcast)
+{
+    if (m_player->IsCast()) {
+        return false;
+    }
+    if (!m_player->IsReCast() || fcast) {
+        if (static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::YANG_CHUN_BAI_XUE)
+        {
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+
 void JX3DPS::MoWen::Skill::Gong::SubEffect()
 {
     Params params;
@@ -201,6 +216,21 @@ void JX3DPS::MoWen::Skill::BianGong::Trigger()
         static_cast<MoWen::Player *>(m_player)->AddStyleCount(3);
         SubEffect();
     }
+}
+
+bool JX3DPS::MoWen::Skill::BianGong::IsReady(bool fcast)
+{
+        if (m_player->IsCast()) {
+        return false;
+    }
+    if (!m_player->IsReCast() || fcast) {
+        if (static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::GAO_SHAN_LIU_SHUI)
+        {
+            return true;
+        }
+        return false;
+    }
+    return false;
 }
 
 void JX3DPS::MoWen::Skill::BianGong::SubEffect()

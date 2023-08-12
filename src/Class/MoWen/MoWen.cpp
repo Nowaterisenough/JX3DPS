@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 04:15:10
+ * Last Modified: 2023-08-12 09:15:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,6 +30,28 @@ Player::Player()
 
 void Player::Init()
 {
+    skills.emplace(SKILL_PO_ZHAO, new Skill::PoZhao(this, nullptr));
+    skills.emplace(SKILL_GONG, new Skill::Gong(this, nullptr));
+    skills.emplace(SKILL_BIAN_GONG, new Skill::BianGong(this, nullptr));
+    skills.emplace(SKILL_SHANG, new Skill::Shang(this, nullptr));
+    skills.emplace(SKILL_JUE, new Skill::Jue(this, nullptr));
+    skills.emplace(SKILL_ZHI, new Skill::Zhi(this, nullptr));
+    skills.emplace(SKILL_BIAN_ZHI, new Skill::BianZhi(this, nullptr));
+    skills.emplace(SKILL_YU, new Skill::Yu(this, nullptr));
+    skills.emplace(SKILL_GAO_SHAN_LIU_SHUI, new Skill::GaoShanLiuShui(this, nullptr));
+    skills.emplace(SKILL_YANG_CHUN_BAI_XUE, new Skill::YangChunBaiXue(this, nullptr));
+    skills.emplace(SKILL_SHU_YING_HENG_XIE, new Skill::ShuYingHengXie(this, nullptr));
+    skills.emplace(SKILL_SHU_YING_HUA_SHUANG, new Skill::ShuYingHuaShuang(this, nullptr));
+    skills.emplace(SKILL_ZHENG_LV_HE_MING_1, new Skill::ZhengLvHeMing1(this, nullptr));
+    skills.emplace(SKILL_ZHENG_LV_HE_MING_2, new Skill::ZhengLvHeMing2(this, nullptr));
+    skills.emplace(SKILL_ZHENG_LV_HE_MING_3, new Skill::ZhengLvHeMing3(this, nullptr));
+    skills.emplace(SKILL_YI_XING_HUAN_YING, new Skill::YiXingHuanYing(this, nullptr));
+
+    buffs.emplace(BUFF_SHANG, new Buff::Shang(this, nullptr));
+    buffs.emplace(BUFF_JUE, new Buff::Jue(this, nullptr));
+    buffs.emplace(BUFF_GAO_SHAN_LIU_SHUI, new Buff::GaoShanLiuShui(this, nullptr));
+    buffs.emplace(BUFF_YANG_CHUN_BAI_XUE, new Buff::YangChunBaiXue(this, nullptr));
+    
     if (talents[TALENT_XIAN_FENG]) {
         buffs.emplace(BUFF_XIAN_FENG, new Buff::XianFeng(this, nullptr));
         buffs.emplace(BUFF_XIAN_FENG_BIAO_JI, new Buff::XianFengBiaoJi(this, nullptr));

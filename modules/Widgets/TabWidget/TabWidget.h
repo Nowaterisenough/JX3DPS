@@ -1,11 +1,11 @@
 /**
- * Project: 
+ * Project: JX3DPS
  * File: TabWidget copy.h
  * Description:
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-21 14:39:37
+ * Last Modified: 2023-08-12 06:15:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -53,11 +53,40 @@
 #    error "Do not know how to export classes for this platform"
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
+#include <QLineEdit>
 #include <QPushButton>
 #include <QStringList>
 #include <QWidget>
 
-class Tab : public QWidget
+#include "Common/ThemeColors.h"
+#include "Widget/Widget.h"
+
+class TAB_WIDGET_API RenameLineEdit : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    RenameLineEdit(QWidget *parent = nullptr);
+};
+
+class TAB_WIDGET_API RenameWidget : public Widget
+{
+    Q_OBJECT
+
+public:
+    RenameWidget(QWidget *parent = nullptr);
+
+    void SetText(const QString &text);
+
+signals:
+    void Signal_Rename(const QString &text);
+    void Signal_Delete();
+
+private:
+    RenameLineEdit *m_lineEdit = nullptr;
+};
+
+class TAB_WIDGET_PRIVATE Tab : public QWidget
 {
     Q_OBJECT
 
@@ -68,7 +97,7 @@ protected:
     virtual void paintEvent(QPaintEvent *event) override;
 };
 
-class TabButton : public QPushButton
+class TAB_WIDGET_PRIVATE TabButton : public QPushButton
 {
     Q_OBJECT
     Q_PROPERTY(QColor color READ GetColor WRITE SetColor)
@@ -83,10 +112,14 @@ public:
     int  GetLine() const;
     void SetLine(int line);
 
+signals:
+    void Signal_Delete();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     QColor m_color;
@@ -103,11 +136,24 @@ public:
     void AddTab(const QString &text);
     Tab *Widget(int index);
 
+    void SetAddButtonVisible(bool visible);
+
+    QList<QPair<TabButton *, Tab *>> &Tabs();
+    int Count() const;
+    void Clear();
+
+signals:
+    void Signal_AddTab();
+
 protected:
-    void resizeEvent(QResizeEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     QList<QPair<TabButton *, Tab *>> m_tabs;
+
+    QWidget *m_widget = nullptr;
+
+    TabButton *m_tabButton = nullptr;
 };
 
 #endif // __TAB_WIDGET_H__

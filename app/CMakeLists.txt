@@ -10,19 +10,30 @@ set(CMAKE_AUTORCC ON)
 
 include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 
-if(NOT BUILD_SHARED_LIBS)
-    add_definitions(
-        -DIMPORT_STATIC_THREAD_POOL_LIB
-        -DIMPORT_STATIC_JX3DPS_LIB
-        -DIMPORT_STATIC_WIDGET_LIB
-    )
-endif()
+add_definitions(
+    -DIMPORT_STATIC_JX3DPS_LIB
+)
 
+# -DIMPORT_STATIC_THREAD_POOL_LIB
+# -DIMPORT_STATIC_WIDGET_LIB
+# -DIMPORT_STATIC_TAB_WIDGET_LIB
+# -DIMPORT_STATIC_GROUP_BOX_LIB
+# -DIMPORT_STATIC_BUTTON_LIB
+# -DIMPORT_STATIC_SPLITTER_LIB
+# -DIMPORT_STATIC_CHECK_BOX_LIB
+# -DIMPORT_STATIC_LINE_EDIT_LIB
+# -DIMPORT_STATIC_SPIN_BOX_LIB
+# -DIMPORT_STATIC_DATA_BAR_LIB
+# -DIMPORT_STATIC_COMBO_BOX_LIB
+# -DIMPORT_STATIC_STACK_WIDGET_LIB
+# -DIMPORT_STATIC_PLAIN_TEXT_EDIT_LIB
+# -DIMPORT_STATIC_PROGRESS_BAR_LIB
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/modules/Widgets)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h*)
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
@@ -51,18 +62,26 @@ if(${QT_VERSION_MAJOR} EQUAL 6)
     qt_finalize_executable(${PROJECT_NAME})
 endif()
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${PROJECT_NAME} PRIVATE
     JX3DPS
     ThreadPool
     spdlog
     nlohmann_json
     Qt${QT_VERSION_MAJOR}::Widgets
     Widget
+    TabWidget
+    GroupBox
+    Button
+    Splitter
+    CheckBox
+    LineEdit
+    SpinBox
+    DataBar
+    ComboBox
+    StackWidget
+    PlainTextEdit
+    ProgressBar
 )
-
-if(MSVC)
-    target_link_options(${PROJECT_NAME} PRIVATE /NODEFAULTLIB:msvcrt.lib)
-endif()
 
 set(APP_NAME "JX3DPS Simulator")
 
@@ -79,7 +98,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
     MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE # TRUE 关闭命令行窗口
+    WIN32_EXECUTABLE FALSE # TRUE 关闭命令行窗口
     FOLDER app
 )
 
@@ -118,4 +137,3 @@ if(WIN32)
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/config.json # 目标路径
     )
 endif()
-

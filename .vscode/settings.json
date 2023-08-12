@@ -1,7 +1,7 @@
 {
     "cmake.configureSettings": {
-        "BUILD_TESTS": true,
-        "BUILD_SHARED_LIBS": false,
+        "BUILD_TESTS": false,
+        "BUILD_SHARED_LIBS": true,
         "CMAKE_PREFIX_PATH": [
             "C:/Qt/6.5.1/msvc2019_64"
         ]

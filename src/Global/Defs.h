@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:40:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:16
+ * Last Modified: 2023-08-12 04:58:56
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -152,13 +152,13 @@ struct Stats
 
 inline void StatsInit(ClassType classType, Stats &stats)
 {
-    if (Attribute::MAJOR[static_cast<int>(classType)][static_cast<int>(Attribute::MajorType::STRENGTH)])
-    {
-        stats.gainStats[Attribute::Type::STRENGTH_BASE] = DamageStats();
-    } else if (Attribute::MAJOR[static_cast<int>(classType)][static_cast<int>(Attribute::MajorType::SPUNK)])
-    {
-        stats.gainStats[Attribute::Type::SPUNK_BASE] = DamageStats();
-    }
+    // if (Attribute::MAJOR[static_cast<int>(classType)][static_cast<int>(Attribute::MajorType::STRENGTH)])
+    // {
+    //     stats.gainStats[Attribute::Type::STRENGTH_BASE] = DamageStats();
+    // } else if (Attribute::MAJOR[static_cast<int>(classType)][static_cast<int>(Attribute::MajorType::SPUNK)])
+    // {
+    //     stats.gainStats[Attribute::Type::SPUNK_BASE] = DamageStats();
+    // }
     stats.gainStats[Attribute::Type::DEFAULT]               = DamageStats();
     stats.gainStats[Attribute::Type::WEAPON_DAMAGE_BASE]    = DamageStats();
     stats.gainStats[Attribute::Type::ATTACK_POWER_BASE]     = DamageStats();

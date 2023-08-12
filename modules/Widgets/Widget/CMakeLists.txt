@@ -16,12 +16,12 @@ FILE(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
 
 add_definitions(-DEXPORT_WIDGET)
 
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} SHARED
     ${HEADER_FILES}
     ${SOURCE_FILES}
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     FramelessWidget
 )

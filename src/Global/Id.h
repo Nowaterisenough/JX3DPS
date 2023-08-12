@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 04:09:23
+ * Last Modified: 2023-08-12 09:09:41
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -134,7 +134,6 @@ enum Id_t
     SKILL_BIAN_ZHI,
     SKILL_YU,
     SKILL_GAO_SHAN_LIU_SHUI,
-    SKILL_GAO_SHAN_LIU_SHUI_ACTIVE,
     SKILL_YANG_CHUN_BAI_XUE,
     SKILL_SHU_YING_HENG_XIE,
     SKILL_SHU_YING_HUA_SHUANG,
@@ -530,7 +529,10 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "阳春白雪" },
      { "疏影横斜" },
      { "疏影化双" },
-     { "正律和鸣" },
+     { "正律和鸣·1" },
+     { "正律和鸣·2" },
+     { "正律和鸣·3" },
+     { "移形换影" },
      { "----------------------技能 莫问 END----------------------" },
 
      { "----------------------技能 END----------------------" },
@@ -605,12 +607,17 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "Dot·神兵·宫" },
      { "曲风" },
      { "流照" },
+     { "破招·流照" },
      { "弦风" },
+     { "弦风·标记" },
      { "云汉" },
      { "书离" },
      { "参连" },
      { "知音妙意" },
      { "正律和鸣" },
+     { "高山流水" },
+     { "阳春白雪" },
+     { "影子" },
      { "----------------------Buff 莫问 END----------------------" },
 
      { "----------------------Buff END-----------------------" },

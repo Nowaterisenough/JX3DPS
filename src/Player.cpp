@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-01 02:04:18
+ * Last Modified: 2023-08-12 08:59:55
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -16,6 +16,7 @@
 #include "Player.h"
 
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
+#include "Class/MoWen/MoWen.h"
 
 #include "Buff.h"
 #include "Skill.h"
@@ -30,7 +31,7 @@ Player *Player::PlayerFactoryGenerate(ClassType classType)
         case ClassType::TAI_XU_JIAN_YI: return new TaiXuJianYi::Player();
         case ClassType::ZI_XIA_GONG: return nullptr;
         case ClassType::FEN_SHAN_JING: return nullptr;
-        case ClassType::MO_WEN: return nullptr;
+        case ClassType::MO_WEN: return new MoWen::Player();
         default: return nullptr;
     }
     return nullptr;

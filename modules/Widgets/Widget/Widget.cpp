@@ -13,7 +13,7 @@
 #include <QPainter>
 #include <QPropertyAnimation>
 
-#include "FramelessWidget/FramelessWidget.h"
+
 
 Title::Title(QWidget *parent) : QPushButton(parent)
 {

@@ -27,8 +27,10 @@ add_subdirectory(3rd)
 add_subdirectory(src)
 add_subdirectory(modules)
 
+set(BUILD_SHARED_LIBS true)
+
 add_definitions(-DEXPORT_JX3DPS)
-add_definitions(-DIMPORT_STATIC_THREAD_POOL_LIB)
+# add_definitions(-DIMPORT_STATIC_THREAD_POOL_LIB)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/modules)

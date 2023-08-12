@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 04:30:16
+ * Last Modified: 2023-08-12 06:15:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -61,7 +61,7 @@
 #include "Common/ThemeColors.h"
 #include "Widget/Widget.h"
 
-class RenameLineEdit : public QLineEdit
+class TAB_WIDGET_API RenameLineEdit : public QLineEdit
 {
     Q_OBJECT
 
@@ -69,7 +69,7 @@ public:
     RenameLineEdit(QWidget *parent = nullptr);
 };
 
-class RenameWidget : public Widget
+class TAB_WIDGET_API RenameWidget : public Widget
 {
     Q_OBJECT
 
@@ -86,7 +86,7 @@ private:
     RenameLineEdit *m_lineEdit = nullptr;
 };
 
-class Tab : public QWidget
+class TAB_WIDGET_PRIVATE Tab : public QWidget
 {
     Q_OBJECT
 
@@ -97,7 +97,7 @@ protected:
     virtual void paintEvent(QPaintEvent *event) override;
 };
 
-class TabButton : public QPushButton
+class TAB_WIDGET_PRIVATE TabButton : public QPushButton
 {
     Q_OBJECT
     Q_PROPERTY(QColor color READ GetColor WRITE SetColor)

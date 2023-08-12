@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 01:42:21
+ * Last Modified: 2023-08-12 06:20:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -57,10 +57,9 @@
 #include <QWidget>
 
 #include "Common/ThemeColors.h"
+#include "FramelessWidget/FramelessWidget.h"
 
-class FramelessWidget;
-
-class Title : public QPushButton
+class WIDGET_PRIVATE Title : public QPushButton
 {
     Q_OBJECT
     Q_PROPERTY(QColor color READ GetColor WRITE SetColor)
@@ -80,7 +79,7 @@ private:
     QColor m_color = QColor(COLOR_INACTIVE);
 };
 
-class CloseButton : public QPushButton
+class WIDGET_PRIVATE CloseButton : public QPushButton
 {
     Q_OBJECT
     Q_PROPERTY(QColor color READ GetColor WRITE SetColor)

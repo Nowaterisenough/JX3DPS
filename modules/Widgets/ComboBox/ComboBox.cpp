@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 02:20:33
+ * Last Modified: 2023-08-12 06:02:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -286,9 +286,10 @@ void SubComboBox::SetItemSize(int width, int height)
 
 void SubComboBox::showPopup()
 {
-    QComboBox::showPopup();
+    
     m_detailedView->SetHovered(false);
     m_icon->SetHovered(false);
+    QComboBox::showPopup();
 }
 
 ComboBox::ItemInfo SubComboBox::GetItemInfo() const

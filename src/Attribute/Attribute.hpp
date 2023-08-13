@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-10 04:24:28
+ * Last Modified: 2023-08-12 11:53:47
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -149,7 +149,7 @@ public:
 
     inline static Type AttributeType(const std::string &name)
     {
-        for (int type = static_cast<int>(Type::AGILITY_BASE); type < static_cast<int>(Type::COUNT); ++type)
+        for (int type = static_cast<int>(Type::DEFAULT); type < static_cast<int>(Type::COUNT); ++type)
         {
             if (name == ATTRIBUTE_NAME[type]) {
                 return static_cast<Type>(type);

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 08:51:47
+ * Last Modified: 2023-08-13 09:14:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -14,6 +14,8 @@
  */
 
 #include "JX3DPSWidget.h"
+
+#include <functional>
 
 #include <QLayout>
 
@@ -36,6 +38,7 @@
 
 #include "JX3DPS.h"
 #include "JX3DPSJsonParser.h"
+#include "JX3DPSStatsWidget.h"
 
 const char *const CONFIG_PATH = "./config.json";
 
@@ -249,6 +252,26 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
     gLayout->addWidget(lineEditDPS, 0, 1, 1, 1);
     gLayout->addItem(spacerItem, 1, 0, 1, 2);
     gLayout->addWidget(buttonStats, 2, 0, 1, 2);
+
+    StatsWidget *statsWidget = new StatsWidget(nullptr);
+    statsWidget->hide();
+
+    connect(buttonStats, &QPushButton::clicked, [=]() {
+        if (statsWidget->isHidden()) {
+            statsWidget->show();
+        } else {
+            statsWidget->hide();
+        }
+    });
+
+    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+        long long damage = JsonParser::GetJsonDamageSum(result["Stats"]["默认"]);
+        int       count  = result["SimIterations"].get<int>();
+        int       time   = result["Frames"].get<int>() / JX3DPS::JX3_FRAMES_PER_SECOND;
+        lineEditDPS->setText(QString::number(damage / count / time));
+
+        // emit statsWidget->Signal_UpdateStats(result);
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
@@ -537,10 +560,10 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        params["Attribute"]["身法"] = attribute->GetAgility();
-        params["Attribute"]["力道"] = attribute->GetStrength();
-        params["Attribute"]["根骨"] = attribute->GetSpirit();
-        params["Attribute"]["元气"] = attribute->GetSpunk();
+        params["Attribute"]["身法"]         = attribute->GetAgility();
+        params["Attribute"]["力道"]         = attribute->GetStrength();
+        params["Attribute"]["根骨"]         = attribute->GetSpirit();
+        params["Attribute"]["元气"]         = attribute->GetSpunk();
         params["Attribute"]["基础武器伤害"] = attribute->GetWeaponDamageBase();
         params["Attribute"]["浮动武器伤害"] = attribute->GetWeaponDamageRand();
         params["Attribute"]["外功基础攻击"] = attribute->GetPhysicsAttackPowerBase();
@@ -551,9 +574,9 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
         params["Attribute"]["内功会效等级"] = attribute->GetMagicCriticalStrikePower();
         params["Attribute"]["外功基础破防等级"] = attribute->GetPhysicsOvercomeBase();
         params["Attribute"]["内功基础破防等级"] = attribute->GetMagicOvercomeBase();
-        params["Attribute"]["无双"] = attribute->GetStrainBase();
-        params["Attribute"]["破招值"] = attribute->GetSurplusValueBase();
-        params["Attribute"]["加速等级"] = attribute->GetHasteBase();
+        params["Attribute"]["无双"]             = attribute->GetStrainBase();
+        params["Attribute"]["破招值"]           = attribute->GetSurplusValueBase();
+        params["Attribute"]["加速等级"]         = attribute->GetHasteBase();
     });
 }
 
@@ -649,7 +672,7 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
         JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE,
     };
 
-    QMap<JX3DPS::Attribute::Type, DataBar *> attributeDataBars;
+    std::map<JX3DPS::Attribute::Type, DataBar *> attributeDataBars;
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -660,7 +683,7 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
 
         gLayout->addWidget(dataBar, index, 0, 1, 1);
 
-        attributeDataBars.insert(type, dataBar);
+        attributeDataBars.emplace(type, dataBar);
 
         index++;
     }
@@ -670,11 +693,40 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
         params["Options"]["GainSwitch"]["默认"] =
-            attributeDataBars[JX3DPS::Attribute::Type::DEFAULT]->isEnabled();
+            attributeDataBars.at(JX3DPS::Attribute::Type::DEFAULT)->isEnabled();
         params["Options"]["GainSwitch"]["会心等级"] =
-            attributeDataBars[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->isEnabled();
+            attributeDataBars.at(JX3DPS::Attribute::Type::CRITICAL_STRIKE)->isEnabled();
         params["Options"]["GainSwitch"]["加速等级"] =
-            attributeDataBars[JX3DPS::Attribute::Type::HASTE_BASE]->isEnabled();
+            attributeDataBars.at(JX3DPS::Attribute::Type::HASTE_BASE)->isEnabled();
+    });
+
+    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+        long long damage = JsonParser::GetJsonDamageSum(result["Stats"]["默认"]);
+        int       count  = result["SimIterations"].get<int>();
+
+        for (auto &[type, dataBar] : attributeDataBars) {
+            if (type == JX3DPS::Attribute::Type::DEFAULT) {
+                if (result["Stats"].find("身法") != result["Stats"].end()) {
+                    long long sum = JsonParser::GetJsonDamageSum(result["Stats"]["身法"]);
+                    dataBar->SetValue(sum * 1.0 / damage - 1);
+                } else if (result["Stats"].find("根骨") != result["Stats"].end()) {
+                    long long sum = JsonParser::GetJsonDamageSum(result["Stats"]["根骨"]);
+                    dataBar->SetValue(sum * 1.0 / damage - 1);
+                } else if (result["Stats"].find("力道") != result["Stats"].end()) {
+                    long long sum = JsonParser::GetJsonDamageSum(result["Stats"]["力道"]);
+                    dataBar->SetValue(sum * 1.0 / damage - 1);
+                } else if (result["Stats"].find("元气") != result["Stats"].end()) {
+                    long long sum = JsonParser::GetJsonDamageSum(result["Stats"]["元气"]);
+                    dataBar->SetValue(sum * 1.0 / damage - 1);
+                }
+            } else if (result["Stats"].find(JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))) !=
+                       result["Stats"].end())
+            {
+                long long sum = JsonParser::GetJsonDamageSum(
+                    result["Stats"][JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))]);
+                dataBar->SetValue(sum * 1.0 / damage - 1);
+            }
+        }
     });
 }
 
@@ -971,16 +1023,22 @@ void JX3DPS::Simulator::Widget::Start()
     emit Signal_UpdateParams(json);
 
     qDebug() << json.dump().c_str();
+
+    ProgressBar *progressBar = new ProgressBar(nullptr);
+    progressBar->setAttribute(Qt::WA_DeleteOnClose);
+    progressBar->show();
+
     ThreadPool::Instance()->Enqueue([=]() {
         char *buffer = new char[1024 * 1024];
-        JX3DPSSimulate(json.dump().c_str(), buffer, this, [](void *obj, double arg) {
+        JX3DPSSimulate(json.dump().c_str(), buffer, progressBar, [](void *obj, double arg) {
             static_cast<ProgressBar *>(obj)->SetProgress(arg);
         });
 
-    std::string str = buffer;
-    delete[] buffer;
-    nlohmann::json result = nlohmann::json::parse(str);
+        std::string str = buffer;
+        delete[] buffer;
 
-    QMetaObject::invokeMethod(this, [=, this] { Signal_UpdateResult(result); });
+        nlohmann::ordered_json result = nlohmann::ordered_json::parse(str);
+
+        QMetaObject::invokeMethod(this, [=, this] { emit Signal_UpdateResult(result); });
     });
 }

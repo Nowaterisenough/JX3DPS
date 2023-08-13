@@ -5,7 +5,7 @@
  * Created Date: 2023-08-10 00:05:57
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 03:29:54
+ * Last Modified: 2023-08-13 05:33:29
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -186,6 +186,24 @@ void JX3DPS::Simulator::JsonParser::LoadJsonPermanent(const nlohmann::ordered_js
             }
         }
     }
+}
+
+long long JX3DPS::Simulator::JsonParser::GetJsonDamageSum(const nlohmann::ordered_json &json)
+{
+    long long sum = 0;
+    for (auto &[targetName, targetDamage] : json.items()) {
+        for (auto &[effectName, effectDamage] : targetDamage.items()) {
+            for (auto &[subName, subDamage] : effectDamage.items()) {
+                for (auto &[levelName, levelDamage] : subDamage.items()) {
+                    for (auto &[rollResult, info] : levelDamage.items()) {
+                        sum += info["伤害"].get<long long>();
+                        sum += info["破招伤害"].get<long long>();
+                    }
+                }
+            }
+        }
+    }
+    return sum;
 }
 
 void JX3DPS::Simulator::JsonParser::ParseJsonToClassTypeItemInfos(const nlohmann::ordered_json &json,

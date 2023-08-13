@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:46:49
+ * Last Modified: 2023-08-12 22:11:05
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -44,6 +44,7 @@ JX3DPS::Buff::Buff(const Buff &other)
     m_effectCriticalStrikePowerAdditionalPercentInt = other.m_effectCriticalStrikePowerAdditionalPercentInt;
     m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
+    m_triggerEffects = other.m_triggerEffects;
 }
 
 JX3DPS::Buff &JX3DPS::Buff::operator=(const Buff &other)
@@ -66,7 +67,7 @@ JX3DPS::Buff &JX3DPS::Buff::operator=(const Buff &other)
     m_effectCriticalStrikePowerAdditionalPercentInt = other.m_effectCriticalStrikePowerAdditionalPercentInt;
     m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
-
+    m_triggerEffects = other.m_triggerEffects;
     return *this;
 }
 

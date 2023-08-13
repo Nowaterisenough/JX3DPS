@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 08:59:55
+ * Last Modified: 2023-08-13 00:50:12
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -15,8 +15,8 @@
 
 #include "Player.h"
 
-#include "Class/TaiXuJianYi/TaiXuJianYi.h"
 #include "Class/MoWen/MoWen.h"
+#include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
 #include "Buff.h"
 #include "Skill.h"
@@ -35,6 +35,16 @@ Player *Player::PlayerFactoryGenerate(ClassType classType)
         default: return nullptr;
     }
     return nullptr;
+}
+
+Player::~Player()
+{
+    for (auto &[id, skill] : this->skills) {
+        delete skill;
+    }
+    for (auto &[id, buff] : this->buffs) {
+        delete buff;
+    }
 }
 
 JX3DPS::Player::Player(const Player &other)

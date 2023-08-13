@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-04 13:11:43
+ * Last Modified: 2023-08-13 00:49:58
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -29,7 +29,7 @@ public:
     static Player *PlayerFactoryGenerate(ClassType classType);
 
     Player();
-    virtual ~Player() = default;
+    virtual ~Player();
 
     Player(const Player &other);
     virtual Player &operator=(const Player &other);

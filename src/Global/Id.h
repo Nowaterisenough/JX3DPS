@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 09:09:41
+ * Last Modified: 2023-08-12 22:27:02
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -763,6 +763,11 @@ inline Id_t BuffId(const std::string &name)
 {
     for (int id = Id_t::BUFF_DEFAULT; id < Id_t::BUFF_END; ++id) {
         if (name == JX3DPS_NAME[id]) {
+            return static_cast<Id_t>(id);
+        }
+    }
+    for (int id = Id_t::BUFF_DEFAULT; id < Id_t::BUFF_END; ++id) {
+        if ("Dot·" + name == JX3DPS_NAME[id]) {
             return static_cast<Id_t>(id);
         }
     }

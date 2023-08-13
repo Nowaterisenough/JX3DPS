@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 23:00:24
+ * Last Modified: 2023-08-12 10:54:13
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -64,13 +64,13 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_SYMBOL_AND = "&";
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_SYMBOL_OR = "|";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CAST_SKILL =
-    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+([\u4e00-\u9fa5·0-9a-z]+)";
+    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CHANGE_TARGET =
-    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+转火·([\u4e00-\u9fa5·0-9a-z]+)";
+    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+转火·([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CHANGE_EXPRESSION =
-    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+宏·([\u4e00-\u9fa5·0-9a-z]+)";
+    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+宏·([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkill &exprSkill)
 {
@@ -258,34 +258,34 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_QIDIAN =
     "qidian([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF =
-    "buff:([\u4e00-\u9fa5·0-9a-z]+)";
+    "buff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_NO_BUFF =
-    "nobuff:([\u4e00-\u9fa5·0-9a-z]+)";
+    "nobuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF_STACK_NUM =
-    "buff_stacknum:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
+    "buff_stacknum:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF_TIME =
-    "bufftime:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)([\\d.]+)";
+    "bufftime:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF =
-    "tbuff:([\u4e00-\u9fa5·0-9a-z]+)";
+    "tbuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_NO_BUFF =
-    "tnobuff:([\u4e00-\u9fa5·0-9a-z]+)";
+    "tnobuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_STACK_NUM =
-    "tbuff_stacknum:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
+    "tbuff_stacknum:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_TIME =
-    "tbufftime:([\u4e00-\u9fa5·0-9a-z]+)(.*?)([\\d.]+)";
+    "tbufftime:([\u4e00-\u9fa5·0-9a-zA-Z]+)(.*?)([\\d.]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_CAST_SKILL =
-    "last_cast_skill(.*?)([\u4e00-\u9fa5·0-9a-z]+)";
+    "last_cast_skill(.*?)([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDONW =
-    "skill_cd:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)([\\d.]+)";
+    "skill_cd:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
 {
@@ -685,7 +685,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToSetTarget(const std::string &str, ExprEven
 }
 
 const char *const JX3DPS_REGEX_EXPRESSION_EVENT_ADD_BUFF =
-    "\\/add_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-z]+)( stack_num=(\\d{1,}))?( "
+    "\\/add_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-zA-Z]+)( stack_num=(\\d{1,}))?( "
     "duration=(\\d{1,})-(\\d{1,}))?";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToAddBuff(const std::string &str, ExprEvent &exprEvent)
@@ -749,7 +749,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToBuff3rds(const std::list<std::string> &str
 }
 
 const char *const JX3DPS_REGEX_EXPRESSION_EVENT_CLEAR_BUFF =
-    "\\/clear_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-z]+) stack_num=(\\d{1,})";
+    "\\/clear_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-zA-Z]+) stack_num=(\\d{1,})";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToClearBuff(const std::string &str, ExprEvent &exprEvent)
 {

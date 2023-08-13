@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:37:08
+ * Last Modified: 2023-08-12 22:10:51
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -48,7 +48,8 @@ JX3DPS::Skill::Skill(const Skill &other)
     m_effectCriticalStrikePowerAdditionalPercentInt = other.m_effectCriticalStrikePowerAdditionalPercentInt;
     m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
-
+    m_triggerEffects = other.m_triggerEffects;
+    
     if (other.m_globalCooldownCurrent == &(other.m_noneGlobalCooldown)) {
         m_globalCooldownCurrent = &(m_noneGlobalCooldown);
     }
@@ -77,7 +78,8 @@ JX3DPS::Skill &JX3DPS::Skill::operator=(const Skill &other)
     m_effectCriticalStrikePowerAdditionalPercentInt = other.m_effectCriticalStrikePowerAdditionalPercentInt;
     m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
-
+    m_triggerEffects = other.m_triggerEffects;
+    
     if (other.m_globalCooldownCurrent == &(other.m_noneGlobalCooldown)) {
         m_globalCooldownCurrent = &(m_noneGlobalCooldown);
     }

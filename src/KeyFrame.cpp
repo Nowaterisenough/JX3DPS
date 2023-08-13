@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:56:34
+ * Last Modified: 2023-08-12 22:58:17
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -138,11 +138,11 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
                 exprEvents.front().second(player, targets);
                 exprEvents.pop_front();
             } else if (type == KeyFrameType::SKILL) { // 技能
-                spdlog::info("{} Trigger Skill {}", now, id);
+                spdlog::debug("{} Trigger Skill {}", now, id);
                 player->skills[id]->Trigger();
                 skills.push_back(id);
             } else { // buff
-                spdlog::info("{} Trigger Buff {}", now, id);
+                spdlog::debug("{} Trigger Buff {}", now, id);
                 player->buffs[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -246,7 +246,7 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
             if (flag) {
                 Id_t id = iter->second;
                 if (id > SKILL_DEFAULT) { // 执行技能
-                    spdlog::info("Cast Skill {}", id);
+                    spdlog::debug("Cast Skill {}", id);
                     player->skills[id]->Cast();
                     if (scast) {
                         iter = exprSkills.erase(iter);

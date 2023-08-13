@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 05:04:52
+ * Last Modified: 2023-08-13 08:02:23
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,6 +30,7 @@
 #include "KeyFrame.h"
 #include "Regex.h"
 #include "Skill.h"
+#include "Target.hpp"
 
 namespace JX3DPS {
 
@@ -71,7 +72,11 @@ Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents
     Stats stats;
     SummarizeStats(*player, stats);
 
+    
     delete player;
+    for (auto target : *targets) {
+        delete target.second;
+    }
     delete targets;
 
     return stats;
@@ -131,23 +136,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         Stats temp;
         StatsInit(player.GetClassType(), temp);
 
-        Attribute::Type t;
-        if (type == Attribute::Type::DEFAULT) {
-            if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::STRENGTH)])
-            {
-                t = Attribute::Type::STRENGTH_BASE;
-            } else if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::SPUNK)])
-            {
-                t = Attribute::Type::SPUNK_BASE;
-            } else if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::SPIRIT)])
-            {
-                t = Attribute::Type::SPIRIT_BASE;
-            } else {
-                t = Attribute::Type::AGILITY_BASE;
-            }
-        }
-
-        player.attribute.SetGainSwitch(t, true);
+        player.attribute.SetGainSwitch(type, true);
 
         std::list<std::future<Stats>> results;
         for (int i = 0; i < options.simIterations; i++) {
@@ -168,9 +157,9 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             }
         }
         index++;
-        player.attribute.SetGainSwitch(t, false);
+        player.attribute.SetGainSwitch(type, false);
 
-        stats.gainStats[t] = temp.gainStats[Attribute::Type::DEFAULT];
+        stats.gainStats[type] = temp.gainStats[Attribute::Type::DEFAULT];
     }
 
     if (obj != nullptr) {
@@ -284,7 +273,9 @@ Error_t Start(const nlohmann::ordered_json &in,
     SimulatePool(exprSkillsHash, exprEvents, *player, options, stats, obj, progress);
     delete player;
 
-    return StatsToJson(stats, out);
+    out["SimIterations"] = options.simIterations;
+    out["Frames"] = options.totalFrames;
+    return StatsToJson(stats, out["Stats"]);
 }
 
 } // namespace JX3DPS
@@ -313,7 +304,7 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
         return err;
     }
 
-    // spdlog::info("{}", jsonOut.dump().c_str());
+
     strcpy(out, jsonOut.dump().data());
 
     spdlog::debug("Output: {}", out);

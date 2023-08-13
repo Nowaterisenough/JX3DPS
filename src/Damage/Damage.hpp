@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:22
+ * Last Modified: 2023-08-13 09:44:33
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -146,7 +146,8 @@ inline Value_t MagicOvercomeDamage(Value_t effectDamage, Value_t shield, Value_t
 {
     PctInt_t overcomePercentInt =
         overcome * JX3_PERCENT_INT_BASE /
-        (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST));
+            (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST)) +
+        JX3_PERCENT_INT_BASE;
     PctInt_t shieldPercentInt =
         shield * JX3_PERCENT_INT_BASE /
         (shield + JX3_MAGIC_SHIELD_PARAM * (JX3_LEVEL_PARAM * targetLevel - JX3_LEVEL_CONST));

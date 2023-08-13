@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:47:31
+ * Last Modified: 2023-08-13 13:49:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -126,8 +126,8 @@ void JX3DPS::MoWen::Buff::Shang::SubEffect(Id_t targetId)
 JX3DPS::MoWen::Buff::Jue::Jue(JX3DPS::Player *player, Targets *targets) :
     JX3DPS::Buff(player, targets)
 {
-    m_id          = BUFF_SHANG;
-    m_name        = "Dot·商";
+    m_id          = BUFF_JUE;
+    m_name        = "Dot·角";
     m_interval    = 48;
     m_effectCount = 6;
 

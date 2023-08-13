@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 08:02:23
+ * Last Modified: 2023-08-13 14:59:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -72,7 +72,6 @@ Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents
     Stats stats;
     SummarizeStats(*player, stats);
 
-    
     delete player;
     for (auto target : *targets) {
         delete target.second;
@@ -88,7 +87,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
                   Options        &options,
                   Stats          &stats,
                   void           *obj,
-                  void (*progress)(void *, double))
+                  void (*progress)(void *, double, const char *))
 {
     StatsInit(player.GetClassType(), stats);
 
@@ -99,7 +98,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         }
     }
 
-    int step = options.simIterations * count / 100;
+    int step = options.simIterations * count / 200;
     if (step == 0) {
         step = 1;
     }
@@ -121,7 +120,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             stats   += t;
             results.pop_front();
             if (i % step == 0 && obj != nullptr) {
-                progress(obj, i * 1.0 / count / options.simIterations);
+                progress(obj, i * 1.0 / (count * options.simIterations), "模拟中...");
             }
         }
     }
@@ -132,6 +131,9 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         if (!sc) {
             continue;
         }
+
+        std::string progressText =
+            std::string(Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))).append("收益模拟中...");
 
         Stats temp;
         StatsInit(player.GetClassType(), temp);
@@ -153,7 +155,9 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             temp    += t;
             results.pop_front();
             if (i % step == 0 && obj != nullptr) {
-                progress(obj, i * 1.0 / count / options.simIterations + index * 1.0 / count);
+                progress(obj,
+                         (i + index * options.simIterations) * 1.0 / (count * options.simIterations),
+                         progressText.c_str());
             }
         }
         index++;
@@ -163,7 +167,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
     }
 
     if (obj != nullptr) {
-        progress(obj, 1.0);
+        progress(obj, 1.0, "模拟完成");
     }
 }
 
@@ -257,7 +261,7 @@ Error_t InitParams(const nlohmann::ordered_json &json,
 Error_t Start(const nlohmann::ordered_json &in,
               nlohmann::ordered_json       &out,
               void                         *obj,
-              void (*progress)(void *, double))
+              void (*progress)(void *, double, const char *))
 {
     ExprSkillsHash exprSkillsHash;
     ExprEvents     exprEvents;
@@ -274,13 +278,13 @@ Error_t Start(const nlohmann::ordered_json &in,
     delete player;
 
     out["SimIterations"] = options.simIterations;
-    out["Frames"] = options.totalFrames;
+    out["Frames"]        = options.totalFrames;
     return StatsToJson(stats, out["Stats"]);
 }
 
 } // namespace JX3DPS
 
-int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(void *, double))
+int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(void *, double, const char *))
 {
     spdlog::info("{}  Version: {}", JX3DPS::NAME, JX3DPS::VERSION);
     spdlog::info("Start simulation.");
@@ -303,7 +307,6 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
         spdlog::error("Simulate error: {}", err);
         return err;
     }
-
 
     strcpy(out, jsonOut.dump().data());
 

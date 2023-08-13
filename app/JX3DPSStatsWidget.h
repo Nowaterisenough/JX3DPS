@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:40:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 03:11:54
+ * Last Modified: 2023-08-13 12:35:24
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -25,7 +25,7 @@
 namespace JX3DPS {
 
 namespace Simulator {
-    
+
 class StatsWidget : public Widget
 {
     Q_OBJECT
@@ -35,6 +35,12 @@ public:
 
 signals:
     void Signal_UpdateStats(const nlohmann::ordered_json &stats);
+    void Signal_UpdateTargetStats();
+    void Signal_UpdateTargetEffectStats(const std::string &targetName, long long targetDamage);
+    void Signal_UpdateTargetEffectRollStats(const std::string &targetName,
+                                            const std::string &effectName,
+                                            long long          effectDamage,
+                                            int                effectCount);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -43,6 +49,8 @@ private:
     // FramelessWidget *m_frameless = nullptr;
 
     nlohmann::ordered_json m_stats;
+
+    int m_simIterations = 0;
 };
 
 } // namespace Simulator

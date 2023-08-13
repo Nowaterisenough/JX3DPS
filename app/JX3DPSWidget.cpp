@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 09:14:00
+ * Last Modified: 2023-08-13 10:08:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -265,12 +265,12 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
     });
 
     connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
-        long long damage = JsonParser::GetJsonDamageSum(result["Stats"]["默认"]);
+        long long damage = JsonParser::GetTotalDamage(result["Stats"]["默认"]);
         int       count  = result["SimIterations"].get<int>();
         int       time   = result["Frames"].get<int>() / JX3DPS::JX3_FRAMES_PER_SECOND;
         lineEditDPS->setText(QString::number(damage / count / time));
 
-        // emit statsWidget->Signal_UpdateStats(result);
+        emit statsWidget->Signal_UpdateStats(result);
     });
 }
 
@@ -701,28 +701,28 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
     });
 
     connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
-        long long damage = JsonParser::GetJsonDamageSum(result["Stats"]["默认"]);
+        long long damage = JsonParser::GetTotalDamage(result["Stats"]["默认"]);
         int       count  = result["SimIterations"].get<int>();
 
         for (auto &[type, dataBar] : attributeDataBars) {
             if (type == JX3DPS::Attribute::Type::DEFAULT) {
                 if (result["Stats"].find("身法") != result["Stats"].end()) {
-                    long long sum = JsonParser::GetJsonDamageSum(result["Stats"]["身法"]);
+                    long long sum = JsonParser::GetTotalDamage(result["Stats"]["身法"]);
                     dataBar->SetValue(sum * 1.0 / damage - 1);
                 } else if (result["Stats"].find("根骨") != result["Stats"].end()) {
-                    long long sum = JsonParser::GetJsonDamageSum(result["Stats"]["根骨"]);
+                    long long sum = JsonParser::GetTotalDamage(result["Stats"]["根骨"]);
                     dataBar->SetValue(sum * 1.0 / damage - 1);
                 } else if (result["Stats"].find("力道") != result["Stats"].end()) {
-                    long long sum = JsonParser::GetJsonDamageSum(result["Stats"]["力道"]);
+                    long long sum = JsonParser::GetTotalDamage(result["Stats"]["力道"]);
                     dataBar->SetValue(sum * 1.0 / damage - 1);
                 } else if (result["Stats"].find("元气") != result["Stats"].end()) {
-                    long long sum = JsonParser::GetJsonDamageSum(result["Stats"]["元气"]);
+                    long long sum = JsonParser::GetTotalDamage(result["Stats"]["元气"]);
                     dataBar->SetValue(sum * 1.0 / damage - 1);
                 }
             } else if (result["Stats"].find(JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))) !=
                        result["Stats"].end())
             {
-                long long sum = JsonParser::GetJsonDamageSum(
+                long long sum = JsonParser::GetTotalDamage(
                     result["Stats"][JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))]);
                 dataBar->SetValue(sum * 1.0 / damage - 1);
             }

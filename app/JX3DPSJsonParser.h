@@ -5,7 +5,7 @@
  * Created Date: 2023-08-09 23:56:49
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 05:16:11
+ * Last Modified: 2023-08-13 12:38:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -63,7 +63,18 @@ void LoadJsonPermanent(const nlohmann::ordered_json &json,
                        const std::string            &name,
                        nlohmann::ordered_json       &out);
 
-long long GetJsonDamageSum(const nlohmann::ordered_json &json);
+long long GetTotalDamage(const nlohmann::ordered_json &json);
+
+std::list<std::tuple<std::string, long long>> GetTargetDamages(const nlohmann::ordered_json &json);
+
+std::unordered_map<std::string, std::tuple<int, long long>> GetTargetEffectDamages(
+    const nlohmann::ordered_json &json,
+    const std::string            &target);
+
+std::unordered_map<std::string, std::tuple<int, long long>> GetTargetEffectDamages(
+    const nlohmann::ordered_json &json,
+    const std::string            &target,
+    const std::string            &effect);
 
 } // namespace JsonParser
 

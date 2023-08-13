@@ -5,7 +5,7 @@
  * Created Date: 2023-08-10 00:05:57
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 05:33:29
+ * Last Modified: 2023-08-13 12:50:09
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -188,24 +188,6 @@ void JX3DPS::Simulator::JsonParser::LoadJsonPermanent(const nlohmann::ordered_js
     }
 }
 
-long long JX3DPS::Simulator::JsonParser::GetJsonDamageSum(const nlohmann::ordered_json &json)
-{
-    long long sum = 0;
-    for (auto &[targetName, targetDamage] : json.items()) {
-        for (auto &[effectName, effectDamage] : targetDamage.items()) {
-            for (auto &[subName, subDamage] : effectDamage.items()) {
-                for (auto &[levelName, levelDamage] : subDamage.items()) {
-                    for (auto &[rollResult, info] : levelDamage.items()) {
-                        sum += info["伤害"].get<long long>();
-                        sum += info["破招伤害"].get<long long>();
-                    }
-                }
-            }
-        }
-    }
-    return sum;
-}
-
 void JX3DPS::Simulator::JsonParser::ParseJsonToClassTypeItemInfos(const nlohmann::ordered_json &json,
                                                                   std::list<ComboBox::ItemInfo> &itemInfos)
 {
@@ -235,4 +217,119 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToDefaultAttribute(
             }
         }
     }
+}
+
+long long JX3DPS::Simulator::JsonParser::GetTotalDamage(const nlohmann::ordered_json &json)
+{
+    long long sum = 0;
+    for (auto &[targetName, targetDamage] : json.items()) {
+        for (auto &[effectName, effectDamage] : targetDamage.items()) {
+            for (auto &[subName, subDamage] : effectDamage.items()) {
+                for (auto &[levelName, levelDamage] : subDamage.items()) {
+                    for (auto &[rollResult, info] : levelDamage.items()) {
+                        sum += info["伤害"].get<long long>();
+                        sum += info["破招伤害"].get<long long>();
+                    }
+                }
+            }
+        }
+    }
+    return sum;
+}
+
+std::list<std::tuple<std::string, long long>> JX3DPS::Simulator::JsonParser::GetTargetDamages(
+    const nlohmann::ordered_json &json)
+{
+    std::list<std::tuple<std::string, long long>> targetDamages;
+    long long                                     total = 0;
+    targetDamages.emplace_back("总计", total);
+    for (auto &[targetName, targetDamage] : json.items()) {
+        long long sum = 0;
+        for (auto &[effectName, effectDamage] : targetDamage.items()) {
+            for (auto &[subName, subDamage] : effectDamage.items()) {
+                for (auto &[levelName, levelDamage] : subDamage.items()) {
+                    for (auto &[rollResult, info] : levelDamage.items()) {
+                        sum += info["伤害"].get<long long>();
+                        sum += info["破招伤害"].get<long long>();
+                    }
+                }
+            }
+        }
+        total += sum;
+        targetDamages.emplace_back(targetName, sum);
+    }
+    std::get<1>(targetDamages.front()) += total;
+    return targetDamages;
+}
+
+std::unordered_map<std::string, std::tuple<int, long long>> JX3DPS::Simulator::JsonParser::GetTargetEffectDamages(
+    const nlohmann::ordered_json &json,
+    const std::string            &target)
+{
+    std::unordered_map<std::string, std::tuple<int, long long>> targetEffectDamages;
+    for (auto &[targetName, targetDamage] : json.items()) {
+        if (target != targetName && target != "总计") {
+            continue;
+        }
+        for (auto &[effectName, effectDamage] : targetDamage.items()) {
+            int       count = 0;
+            long long sum   = 0;
+            for (auto &[subName, subDamage] : effectDamage.items()) {
+                for (auto &[levelName, levelDamage] : subDamage.items()) {
+                    for (auto &[rollResult, info] : levelDamage.items()) {
+                        sum   += info["伤害"].get<long long>();
+                        sum   += info["破招伤害"].get<long long>();
+                        count += info["数目"].get<int>();
+                    }
+                }
+            }
+            if (targetEffectDamages.find(effectName) != targetEffectDamages.end()) {
+                std::get<0>(targetEffectDamages[effectName]) += count;
+                std::get<1>(targetEffectDamages[effectName]) += sum;
+            } else {
+                targetEffectDamages.emplace(effectName, std::tuple<int, long long>(count, sum));
+            }
+        }
+    }
+    return targetEffectDamages;
+}
+
+std::unordered_map<std::string, std::tuple<int, long long>> JX3DPS::Simulator::JsonParser::GetTargetEffectDamages(
+    const nlohmann::ordered_json &json,
+    const std::string            &target,
+    const std::string            &effect)
+{
+    std::unordered_map<std::string, std::tuple<int, long long>> targetEffectRollDamages;
+    for (auto &[targetName, targetDamage] : json.items()) {
+        if (target != targetName && target != "总计") {
+            continue;
+        }
+        for (auto &[effectName, effectDamage] : targetDamage.items()) {
+            if (effect != effectName) {
+                continue;
+            }
+            for (auto &[subName, subDamage] : effectDamage.items()) {
+                for (auto &[levelName, levelDamage] : subDamage.items()) {
+                    for (auto &[rollResult, info] : levelDamage.items()) {
+                        int       count  = 0;
+                        long long sum    = 0;
+                        sum             += info["伤害"].get<long long>();
+                        sum             += info["破招伤害"].get<long long>();
+                        count           += info["数目"].get<int>();
+
+                        if (targetEffectRollDamages.find(rollResult) !=
+                            targetEffectRollDamages.end())
+                        {
+                            std::get<0>(targetEffectRollDamages[rollResult]) += count;
+                            std::get<1>(targetEffectRollDamages[rollResult]) += sum;
+                        } else {
+                            targetEffectRollDamages.emplace(rollResult,
+                                                            std::tuple<int, long long>(count, sum));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return targetEffectRollDamages;
 }

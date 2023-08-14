@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 22:10:51
+ * Last Modified: 2023-08-14 05:43:28
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -49,7 +49,7 @@ JX3DPS::Skill::Skill(const Skill &other)
     m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
     m_triggerEffects = other.m_triggerEffects;
-    
+
     if (other.m_globalCooldownCurrent == &(other.m_noneGlobalCooldown)) {
         m_globalCooldownCurrent = &(m_noneGlobalCooldown);
     }
@@ -79,7 +79,7 @@ JX3DPS::Skill &JX3DPS::Skill::operator=(const Skill &other)
     m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
     m_triggerEffects = other.m_triggerEffects;
-    
+
     if (other.m_globalCooldownCurrent == &(other.m_noneGlobalCooldown)) {
         m_globalCooldownCurrent = &(m_noneGlobalCooldown);
     }
@@ -122,7 +122,9 @@ void JX3DPS::Skill::SetTargets(Targets *targets)
 
 JX3DPS::Frame_t JX3DPS::Skill::GetNextKeyFrame() const
 {
-    if (m_energyCountCurrent > 0 && *m_globalCooldownCurrent == 0) {
+    if (m_energyCountCurrent > 0 && *m_globalCooldownCurrent == 0 &&
+        m_prepareFramesCurrent == JX3DPS_INVALID_FRAMES_SET)
+    {
         return 0;
     }
     Frame_t nextKeyFrame = std::max(m_cooldownCurrent, *m_globalCooldownCurrent);

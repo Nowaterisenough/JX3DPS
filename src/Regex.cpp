@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 10:54:13
+ * Last Modified: 2023-08-14 04:37:29
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -264,7 +264,7 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_NO_BUFF =
     "nobuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF_STACK_NUM =
-    "buff_stacknum:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)(\\d+)";
+    "buff:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF_TIME =
     "bufftime:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
@@ -276,7 +276,7 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_NO_BUFF =
     "tnobuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_STACK_NUM =
-    "tbuff_stacknum:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)(\\d+)";
+    "tbuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_TIME =
     "tbufftime:([\u4e00-\u9fa5·0-9a-zA-Z]+)(.*?)([\\d.]+)";
@@ -286,6 +286,9 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_CAST_SKILL =
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDONW =
     "skill_cd:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
+
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_ENERGY =
+    "skill_energy:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
 {
@@ -300,6 +303,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
     std::regex regTbuffTime(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_TIME);
     std::regex regLastCastSkill(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_CAST_SKILL);
     std::regex regSkillCd(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDONW);
+    std::regex regSkillEnergy(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_ENERGY);
 
     std::smatch mat;
     if (std::regex_match(str, mat, regQidian)) {
@@ -545,6 +549,45 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
                                std::stod(mat[3].str()));
         } else if (mat[2].str() == ">") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownGt,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        }
+    } else if (std::regex_match(str, mat, regSkillEnergy)) {
+        JX3DPS::Id_t id = SkillId(mat[1].str());
+        if (mat[2].str() == "<") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyLt,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == "<=") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyLe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == "=") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyEq,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == "~=") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyNe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == ">=") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyGe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == ">") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyGt,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,

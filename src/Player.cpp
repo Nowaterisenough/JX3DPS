@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 00:50:12
+ * Last Modified: 2023-08-14 09:52:00
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -14,6 +14,8 @@
  */
 
 #include "Player.h"
+
+#include <unordered_set>
 
 #include "Class/MoWen/MoWen.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
@@ -39,11 +41,19 @@ Player *Player::PlayerFactoryGenerate(ClassType classType)
 
 Player::~Player()
 {
+    std::unordered_set<Skill *> skillPtrs;
     for (auto &[id, skill] : this->skills) {
-        delete skill;
+        skillPtrs.emplace(skill);
     }
+    for (auto &ptr : skillPtrs) {
+        delete ptr;
+    }
+    std::unordered_set<Buff *> buffPtrs;
     for (auto &[id, buff] : this->buffs) {
-        delete buff;
+        buffPtrs.emplace(buff);
+    }
+    for (auto &ptr : buffPtrs) {
+        delete ptr;
     }
 }
 

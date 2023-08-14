@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 22:58:17
+ * Last Modified: 2023-08-14 09:52:10
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -125,7 +125,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         // 更新关键帧序列
         Frame_t next  = keyFrameSequence.front().first;
         now          += next;
-        if (now > options.totalFrames) {
+        if (now >= options.totalFrames) {
             return;
         }
         UpdateKeyFrameSequence(keyFrameSequence, player, next);
@@ -138,11 +138,11 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
                 exprEvents.front().second(player, targets);
                 exprEvents.pop_front();
             } else if (type == KeyFrameType::SKILL) { // 技能
-                spdlog::debug("{} Trigger Skill {}", now, id);
+                //spdlog::debug("{} Trigger Skill {}", now, id);
                 player->skills[id]->Trigger();
                 skills.push_back(id);
             } else { // buff
-                spdlog::debug("{} Trigger Buff {}", now, id);
+                //spdlog::debug("{} Trigger Buff {}", now, id);
                 player->buffs[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;

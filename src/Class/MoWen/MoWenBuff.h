@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:40:13
+ * Last Modified: 2023-08-14 04:06:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -123,6 +123,14 @@ public:
                        const GainsDamage &gainsDamage = GainsDamage(),
                        int                sub         = 0,
                        int                level       = 0);
+};
+
+class QuFeng : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(QuFeng)
+
+public:
+    void SubEffect();
 };
 
 class GaoShanLiuShui : public JX3DPS::Buff

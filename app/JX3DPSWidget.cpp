@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Project: JX3DPS
  * File: JX3DPS::Simulator::Widget.cpp
  * Description:
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 14:13:22
+ * Last Modified: 2023-08-14 04:57:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -973,7 +973,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)
             parent->AddTab(name.c_str());
             PlainTextEdit *text = parent->Widget(index)->findChild<PlainTextEdit *>();
             for (const auto &expr : exprs) {
-                text->appendHtml(expr.c_str());
+                text->appendPlainText(QString::fromStdString(expr));
             }
             index++;
         }

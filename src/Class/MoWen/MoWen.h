@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 04:11:47
+ * Last Modified: 2023-08-14 05:53:39
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -61,7 +61,7 @@ public:
         GAO_SHAN_LIU_SHUI
     };
 
-    Style style;
+    Style style = Style::GAO_SHAN_LIU_SHUI;
 
     int styleCount = 0;
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 13:49:43
+ * Last Modified: 2023-08-14 06:33:21
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -17,6 +17,7 @@
 
 #include "Damage/Damage.hpp"
 
+#include "MoWenSkill.h"
 #include "Skill.h"
 #include "Target.hpp"
 
@@ -738,6 +739,41 @@ void JX3DPS::MoWen::Buff::GaoShanLiuShui::SubEffectClear()
     m_player->attribute.AddHasteBaseAdditionalPercentInt(-205);
 }
 
+JX3DPS::MoWen::Buff::QuFeng::QuFeng(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_QU_FENG;
+    m_name     = "曲风";
+    m_duration = JX3DPS_INVALID_FRAMES_SET;
+    m_stackNum = 9;
+
+    m_snapshots[PLAYER_ID].stackNum = 0;
+    m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
+}
+
+void JX3DPS::MoWen::Buff::QuFeng::Trigger() { }
+
+void JX3DPS::MoWen::Buff::QuFeng::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    m_snapshots[PLAYER_ID].stackNum += stackNum;
+    if (m_snapshots[PLAYER_ID].stackNum == m_stackNum) {
+        SubEffect();
+    } else if (m_snapshots[PLAYER_ID].stackNum > m_stackNum) {
+        m_snapshots[PLAYER_ID].stackNum = 0;
+    }
+}
+
+void JX3DPS::MoWen::Buff::QuFeng::Clear(Id_t targetId, int stackNum)
+{
+    m_snapshots[PLAYER_ID].stackNum = 0;
+}
+
+void JX3DPS::MoWen::Buff::QuFeng::SubEffect()
+{
+    static_cast<MoWen::Skill::PoZhao *>(m_player->skills[SKILL_PO_ZHAO])
+        ->TriggerDamage(m_player->GetTargetId());
+}
+
 JX3DPS::MoWen::Buff::YangChunBaiXue::YangChunBaiXue(JX3DPS::Player *player, Targets *targets) :
     JX3DPS::Buff(player, targets)
 {
@@ -883,6 +919,7 @@ JX3DPS::MoWen::Buff::YingZi::YingZi(JX3DPS::Player *player, Targets *targets) :
     m_name     = "影子";
     m_duration = 25 * 16;
     m_stackNum = 6;
+    m_interval = 2 * 16;
 
     m_damageParams[0].emplace_back((160 + 160 + 40) / 2, 0, 277);
 
@@ -956,6 +993,7 @@ void JX3DPS::MoWen::Buff::YingZi::Clear(Id_t targetId, int stackNum)
 void JX3DPS::MoWen::Buff::YingZi::TriggerAdd(int count)
 {
     Params params;
+    params.player   = m_player;
     params.stackNum = 1;
     params.type     = Params::Type::ADD;
     for (int i = 0; i < count; ++i) {
@@ -987,6 +1025,7 @@ void JX3DPS::MoWen::Buff::YingZi::TriggerAdd(int count)
 void JX3DPS::MoWen::Buff::YingZi::TriggerClear()
 {
     Params params;
+    params.player   = m_player;
     params.stackNum = 1;
     params.type     = Params::Type::CLEAR;
     m_triggerEffects[TRIGGER_YUN_HAN](params);
@@ -997,8 +1036,8 @@ void JX3DPS::MoWen::Buff::YingZi::TriggerClear()
 void JX3DPS::MoWen::Buff::YingZi::SubEffect(Id_t id)
 {
     Id_t        targetId   = m_player->GetTargetId();
-    RollResult  rollResult = GetDotRollResult(targetId);
-    GainsDamage damage     = CalcMagicYingZiDamage(targetId, rollResult, 0, 0, 1);
+    RollResult  rollResult = GetDotRollResult(id);
+    GainsDamage damage     = CalcMagicYingZiDamage(id, rollResult, 0, 0, 1);
     RecordYingZi(targetId, rollResult, damage, 1, 0);
 }
 
@@ -1025,10 +1064,10 @@ JX3DPS::Damage JX3DPS::MoWen::Buff::YingZi::GetMagicYingZiDamage(
         effectCount *
         EffectDamageAll(attack, magicDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
 
-    int      playerLevel                = JX3_PLAYER_LEVEL;
-    int      targetLevel                = (*m_targets)[targetId]->GetLevel();
-    Value_t  shieldBase                 = (*m_targets)[targetId]->GetMagicShield();
-    Value_t  shieldAdditional           = 0;
+    int      playerLevel      = JX3_PLAYER_LEVEL;
+    int      targetLevel      = (*m_targets)[m_player->GetTargetId()]->GetLevel();
+    Value_t  shieldBase       = (*m_targets)[m_player->GetTargetId()]->GetMagicShield();
+    Value_t  shieldAdditional = 0;
     PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
     int      rollResultInt                    = static_cast<int>(rollResult);
@@ -1036,7 +1075,8 @@ JX3DPS::Damage JX3DPS::MoWen::Buff::YingZi::GetMagicYingZiDamage(
         m_snapshots.at(targetId).effectCriticalStrikePowerAdditionalPercentInt;
     PctInt_t strainPercentInt = m_snapshots.at(targetId).strainBaseAdditionalPercentInt;
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
-    PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+    PctInt_t vulnerablePercentInt =
+        (*m_targets)[m_player->GetTargetId()]->GetDamageAdditionalPercentInt();
 
     damage.damage = FinalMagicDamage(
         playerLevel,

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 04:07:15
+ * Last Modified: 2023-08-15 04:56:17
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -1209,7 +1209,7 @@ void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
-    m_energyCount--;
+    m_energyCountCurrent--;
     m_player->SetQidian(10);
 
     SubEffect();
@@ -1219,7 +1219,7 @@ void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Trigger()
 {
     if (m_cooldownCurrent == 0) {
         // 冷却结束，充能
-        m_energyCount++;
+        m_energyCountCurrent++;
         if (m_energyCountCurrent >= m_energyCount) {
             m_energyCountCurrent = m_energyCount;
             m_cooldownCurrent    = JX3DPS_INVALID_FRAMES_SET;

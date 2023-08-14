@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 04:37:29
+ * Last Modified: 2023-08-15 05:59:28
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -101,6 +101,10 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkil
     if (std::regex_match(str, mat, regChangeTarget)) {
         Id_t id = static_cast<Id_t>(std::stoi(mat[3].str()) + TARGET_PLACE_HOLDERS_DEFAULT);
         exprSkill.second = id;
+        pre.emplace_back(std::bind(&JX3DPS::Expression::IsTargetSwitchable,
+                                   std::placeholders::_1,
+                                   std::placeholders::_2,
+                                   id));
     } else if (std::regex_match(str, mat, regChangeExpression)) {
         Id_t id = static_cast<Id_t>(std::stoi(mat[3].str()) + EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT);
         exprSkill.second = id;

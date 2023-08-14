@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 09:52:10
+ * Last Modified: 2023-08-15 05:53:36
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -138,11 +138,11 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
                 exprEvents.front().second(player, targets);
                 exprEvents.pop_front();
             } else if (type == KeyFrameType::SKILL) { // 技能
-                //spdlog::debug("{} Trigger Skill {}", now, id);
+                // spdlog::debug("{} Trigger Skill {}", now, id);
                 player->skills[id]->Trigger();
                 skills.push_back(id);
             } else { // buff
-                //spdlog::debug("{} Trigger Buff {}", now, id);
+                // spdlog::debug("{} Trigger Buff {}", now, id);
                 player->buffs[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -223,7 +223,7 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
         bool scast = iter->first.front().front()(player, targets);
 
         // 先判断冷却、距离和读条条件
-        bool precondition = false;
+        bool precondition = true;
         for (auto &exprIf : *std::next(iter->first.begin())) {
             if ((precondition = exprIf(player, targets)) == false) {
                 break;
@@ -235,49 +235,45 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
         }
 
         // 判断技能施放条件
-        bool flag = true;
+        bool castSuccess = true;
         for (auto it = std::next(std::next(iter->first.begin())); it != iter->first.end(); ++it)
         {
             for (auto &exprIf : *it) {
-                if ((flag = exprIf(player, targets)) == false) {
+                if ((castSuccess = exprIf(player, targets)) == false) {
                     break;
                 }
             }
-            if (flag) {
-                Id_t id = iter->second;
-                if (id > SKILL_DEFAULT) { // 执行技能
-                    spdlog::debug("Cast Skill {}", id);
-                    player->skills[id]->Cast();
-                    if (scast) {
-                        iter = exprSkills.erase(iter);
-                    }
-                } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
-                    player->SetTargetId(id);
-                    if (scast) {
-                        iter = exprSkills.erase(iter);
-                    }
-                    // 断读条
-                    if (std::next(iter->first.front().begin()) != iter->first.front().end())
-                    {
-                        (*std::next(iter->first.front().begin()))(player, targets);
-                    }
-                    break; // 转火目标后，不再重新执行宏，避免因为一直满足转火条件导致死循环
-                } else if (id > EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
-                    exprSkills = exprSkillsHash.at(id);
-                }
-                // 断读条
-                if (std::next(iter->first.front().begin()) != iter->first.front().end()) {
-                    (*std::next(iter->first.front().begin()))(player, targets);
-                }
-
-                CastSkills(player, targets, exprSkillsHash, exprSkills);
-                return SKILL_DEFAULT;
+            if (castSuccess) {
+                break;
             }
         }
-        // scast执行失败
-        if (!flag && scast) {
+
+        if (castSuccess) {
+            Id_t id = iter->second;
+            if (id > SKILL_DEFAULT) {                                 // 执行技能
+                player->skills[id]->Cast();
+            } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) {           // 转火目标
+                player->SetTargetId(id);
+            } else if (id > EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
+                exprSkills = exprSkillsHash.at(id);
+            }
+
+            // 断读条
+            if (std::next(iter->first.front().begin()) != iter->first.front().end()) {
+                (*std::next(iter->first.front().begin()))(player, targets);
+            }
+
+            // scast执行成功
+            if (scast && id > EXPRESSION_SKILL_PLACE_HOLDERS_END) {
+                iter = exprSkills.erase(iter);
+            }
+
+            CastSkills(player, targets, exprSkillsHash, exprSkills);
+            return SKILL_DEFAULT;
+        } else if (scast) { // scast执行失败
             return SKILL_DEFAULT;
         }
+
         ++iter;
     }
     return SKILL_DEFAULT;

@@ -13,8 +13,6 @@
 #include <QPainter>
 #include <QPropertyAnimation>
 
-
-
 Title::Title(QWidget *parent) : QPushButton(parent)
 {
     this->setAttribute(Qt::WA_TranslucentBackground);
@@ -183,7 +181,10 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     CloseButton *closeButton = new CloseButton(this);
     closeButton->setFixedSize(30, 30);
     closeButton->setToolTip("关闭");
-    connect(closeButton, &QPushButton::clicked, this, &Widget::close);
+    connect(closeButton, &QPushButton::clicked, this, [=] {
+        this->close();
+        closeButton->SetColor(QColor(COLOR_BACKGROUND_BASE));
+    });
 
     centralWidget = new QWidget(this);
 

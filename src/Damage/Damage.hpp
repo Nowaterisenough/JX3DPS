@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 09:44:33
+ * Last Modified: 2023-08-15 01:23:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -122,6 +122,7 @@ inline PctInt_t ShieldPercentInt(Value_t shieldBase, Value_t shieldAdditional, P
         shieldBase - static_cast<Value_t>(shieldBase * ignoreShieldBasePercentInt / JX3_PERCENT_INT_BASE);
     shield += shieldAdditional;
     shield -= static_cast<Value_t>(shield * ignoreShieldAdditionalPercentInt / JX3_PERCENT_INT_BASE);
+    shield = shield < 0 ? 0 : shield;
     return shield;
 }
 

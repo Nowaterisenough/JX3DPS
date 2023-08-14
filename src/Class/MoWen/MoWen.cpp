@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 09:35:00
+ * Last Modified: 2023-08-14 14:10:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -32,11 +32,11 @@ void Player::Init()
 {
     skills.emplace(SKILL_PO_ZHAO, new Skill::PoZhao(this, nullptr));
     skills.emplace(SKILL_GONG, new Skill::Gong(this, nullptr));
-    skills.emplace(SKILL_BIAN_GONG, skills[SKILL_GONG]);
+    //skills.emplace(SKILL_BIAN_GONG, skills[SKILL_GONG]);
     skills.emplace(SKILL_SHANG, new Skill::Shang(this, nullptr));
     skills.emplace(SKILL_JUE, new Skill::Jue(this, nullptr));
     skills.emplace(SKILL_ZHI, new Skill::Zhi(this, nullptr));
-    skills.emplace(SKILL_BIAN_ZHI, skills[SKILL_ZHI]);
+    //skills.emplace(SKILL_BIAN_ZHI, skills[SKILL_ZHI]);
     skills.emplace(SKILL_YU, new Skill::Yu(this, nullptr));
     skills.emplace(SKILL_GAO_SHAN_LIU_SHUI, new Skill::GaoShanLiuShui(this, nullptr));
     skills.emplace(SKILL_YANG_CHUN_BAI_XUE, new Skill::YangChunBaiXue(this, nullptr));
@@ -134,13 +134,13 @@ void Player::Init()
         skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(
             TRIGGER_CAN_LIAN_ADD,
             std::bind(&TriggerCanLianAdd, std::placeholders::_1));
-        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(
+        skills[SKILL_GAO_SHAN_LIU_SHUI]->AddTriggerEffect(
             TRIGGER_CAN_LIAN_CLEAR,
             std::bind(&TriggerCanLianClear, std::placeholders::_1));
     } else {
         skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(TRIGGER_CAN_LIAN_ADD,
                                                           std::bind(&TriggerVoid, std::placeholders::_1));
-        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(TRIGGER_CAN_LIAN_CLEAR,
+        skills[SKILL_GAO_SHAN_LIU_SHUI]->AddTriggerEffect(TRIGGER_CAN_LIAN_CLEAR,
                                                           std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
@@ -205,7 +205,7 @@ void Player::TriggerXianFengDamage(const Params &params)
 
 void Player::TriggerXianFengClear(const Params &params)
 {
-    if (params.player->buffs[BUFF_XIAN_FENG]->GetDurationCurrent() > 0) {
+    if (params.player->buffs[BUFF_XIAN_FENG]->GetDurationCurrent() > 0 && params.player->buffs[BUFF_XIAN_FENG_BIAO_JI]->GetDurationCurrent() > 0) {
         static_cast<Buff::XianFeng *>(params.player->buffs[BUFF_XIAN_FENG])->TriggerClear();
     }
 }

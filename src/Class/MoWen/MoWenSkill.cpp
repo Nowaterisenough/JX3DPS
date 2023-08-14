@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 10:09:14
+ * Last Modified: 2023-08-14 23:49:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -121,6 +121,7 @@ void JX3DPS::MoWen::Skill::Gong::Cast()
 void JX3DPS::MoWen::Skill::Gong::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
+        m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
         m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 3);
         SubEffect();
     }
@@ -482,7 +483,8 @@ void JX3DPS::MoWen::Skill::GaoShanLiuShui::Cast()
         m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownGaoShanLiuShuiCurrent;
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_YANG_CHUN_BAI_XUE])->SetCooldown();
         m_prepareFramesCurrent = m_prepareFrames;
-
+        m_player->SetCast(true);
+        
         Params params;
         params.player = m_player;
         m_triggerEffects[TRIGGER_XIAN_FENG_BIAO_JI](params);
@@ -495,6 +497,7 @@ void JX3DPS::MoWen::Skill::GaoShanLiuShui::Cast()
 void JX3DPS::MoWen::Skill::GaoShanLiuShui::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
+        m_player->SetCast(false);
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
         static_cast<MoWen::Player *>(m_player)->style = MoWen::Player::Style::GAO_SHAN_LIU_SHUI;
 
@@ -537,9 +540,12 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::Cast()
     if (static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::YANG_CHUN_BAI_XUE)
     {        // 阳春主动
         m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
+        SubEffect();
     } else { // 切曲风
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_GAO_SHAN_LIU_SHUI])->SetCooldown();
         m_prepareFramesCurrent = m_prepareFrames;
+
+        m_player->SetCast(true);
 
         Params params;
         params.player = m_player;
@@ -553,6 +559,7 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::Cast()
 void JX3DPS::MoWen::Skill::YangChunBaiXue::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
+        m_player->SetCast(false);
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
         static_cast<MoWen::Player *>(m_player)->style = MoWen::Player::Style::YANG_CHUN_BAI_XUE;
 
@@ -567,14 +574,12 @@ bool JX3DPS::MoWen::Skill::YangChunBaiXue::IsReady(bool fcast)
     if (m_player->IsCast()) {
         return false;
     }
-    if (!m_player->IsReCast()) {
-        if (static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::YANG_CHUN_BAI_XUE &&
-                m_player->IsReCast() ||
-            static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::GAO_SHAN_LIU_SHUI && fcast)
-        {
+    if (m_player->IsReCast()) {
+        if (static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::YANG_CHUN_BAI_XUE || fcast) {
             return true;
         }
-        return false;
+    } else if (static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::GAO_SHAN_LIU_SHUI) {
+        return true;
     }
     return false;
 }
@@ -608,6 +613,7 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::SubEffect()
     if ((*m_targets)[m_player->GetTargetId()]->GetLifePercent() - 0.01 < 0.5) {
         m_effectDamageAdditionalPercentInt -= 410;
     }
+    static_cast<MoWen::Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerAdd();
 }
 
 JX3DPS::MoWen::Skill::ShuYingHengXie::ShuYingHengXie(JX3DPS::Player *player, Targets *targets) :

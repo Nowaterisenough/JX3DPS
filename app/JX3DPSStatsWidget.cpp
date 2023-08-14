@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 13:36:17
+ * Last Modified: 2023-08-15 01:38:58
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -37,6 +37,8 @@
 
 JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
 {
+    this->setMinimumWidth(600);
+    
     QVBoxLayout *vLayout = new QVBoxLayout(this->centralWidget);
     vLayout->setContentsMargins(10, 0, 10, 10);
     vLayout->setSpacing(10);
@@ -44,6 +46,8 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
     TableView *tableViewTarget = new TableView(this->centralWidget);
     TableView *tableViewEffect = new TableView(this->centralWidget);
     TableView *tableViewRoll   = new TableView(this->centralWidget);
+    
+    tableViewRoll->setFixedHeight(113);
 
     Splitter *splitter = new Splitter(this->centralWidget);
     splitter->setOrientation(Qt::Vertical);

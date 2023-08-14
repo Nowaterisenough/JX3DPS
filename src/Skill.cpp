@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 05:43:28
+ * Last Modified: 2023-08-15 01:12:25
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -128,6 +128,9 @@ JX3DPS::Frame_t JX3DPS::Skill::GetNextKeyFrame() const
         return 0;
     }
     Frame_t nextKeyFrame = std::max(m_cooldownCurrent, *m_globalCooldownCurrent);
+    if (nextKeyFrame == 0) {
+        return m_prepareFramesCurrent;
+    }
     return std::min(nextKeyFrame, m_prepareFramesCurrent);
 }
 

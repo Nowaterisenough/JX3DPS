@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 09:54:28
+ * Last Modified: 2023-08-15 03:55:24
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -38,7 +38,20 @@ class Gong : public JX3DPS::Skill
     SKILL_DEFAULT_FUNCTION(Gong)
 
 public:
-    void ChangeBian(bool b);
+    bool IsReady(bool fcast) override;
+    void Sync();
+    
+    void SubEffect();
+};
+
+class BianGong : public JX3DPS::Skill
+{
+    SKILL_DEFAULT_FUNCTION(BianGong)
+
+public:
+    bool IsReady(bool fcast) override;
+    void Sync();
+
     void SubEffect();
 };
 
@@ -64,7 +77,25 @@ class Zhi : public JX3DPS::Skill
 
 public:
     void Stop() override;
-    void ChangeBian(bool b);
+    bool IsReady(bool fcast) override;
+    void Sync();
+    
+    void TriggerShiXiang();
+
+    void SubEffect();
+
+    int index = 0;
+};
+
+class BianZhi : public JX3DPS::Skill
+{
+    SKILL_DEFAULT_FUNCTION(BianZhi)
+
+public:
+    void Stop() override;
+    bool IsReady(bool fcast) override;
+    void Sync();
+    
     void TriggerShiXiang();
 
     void SubEffect();

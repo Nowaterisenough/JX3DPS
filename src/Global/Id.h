@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 12:29:27
+ * Last Modified: 2023-08-15 04:09:37
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -752,12 +752,6 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
 inline Id_t SkillId(const std::string &name)
 {
     for (int id = Id_t::SKILL_DEFAULT; id < Id_t::SKILL_END; ++id) {
-        if (name == "变宫") {
-            return SKILL_GONG;
-        }
-        if (name == "变徵") {
-            return SKILL_ZHI;
-        }
         if (name == JX3DPS_NAME[id]) {
             return static_cast<Id_t>(id);
         }

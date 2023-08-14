@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 15:05:38
+ * Last Modified: 2023-08-15 04:14:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -471,11 +471,11 @@ void JX3DPS::MoWen::Buff::ShuLi::TriggerClear()
 void JX3DPS::MoWen::Buff::ShuLi::SubEffectAdd()
 {
     m_player->skills[SKILL_GONG]->AddDamageAdditionalPercentInt(205);
-    //m_player->skills[SKILL_BIAN_GONG]->AddDamageAdditionalPercentInt(205);
+    m_player->skills[SKILL_BIAN_GONG]->AddDamageAdditionalPercentInt(205);
     m_player->skills[SKILL_SHANG]->AddDamageAdditionalPercentInt(205);
     m_player->skills[SKILL_JUE]->AddDamageAdditionalPercentInt(205);
     m_player->skills[SKILL_ZHI]->AddDamageAdditionalPercentInt(205);
-    //m_player->skills[SKILL_BIAN_ZHI]->AddDamageAdditionalPercentInt(205);
+    m_player->skills[SKILL_BIAN_ZHI]->AddDamageAdditionalPercentInt(205);
     m_player->skills[SKILL_YU]->AddDamageAdditionalPercentInt(205);
 
     m_player->buffs[BUFF_SHANG]->AddDamageAdditionalPercentInt(205);
@@ -485,11 +485,11 @@ void JX3DPS::MoWen::Buff::ShuLi::SubEffectAdd()
 void JX3DPS::MoWen::Buff::ShuLi::SubEffectClear()
 {
     m_player->skills[SKILL_GONG]->AddDamageAdditionalPercentInt(-205);
-    //m_player->skills[SKILL_BIAN_GONG]->AddDamageAdditionalPercentInt(-205);
+    m_player->skills[SKILL_BIAN_GONG]->AddDamageAdditionalPercentInt(-205);
     m_player->skills[SKILL_SHANG]->AddDamageAdditionalPercentInt(-205);
     m_player->skills[SKILL_JUE]->AddDamageAdditionalPercentInt(-205);
     m_player->skills[SKILL_ZHI]->AddDamageAdditionalPercentInt(-205);
-    //m_player->skills[SKILL_BIAN_ZHI]->AddDamageAdditionalPercentInt(-205);
+    m_player->skills[SKILL_BIAN_ZHI]->AddDamageAdditionalPercentInt(-205);
     m_player->skills[SKILL_YU]->AddDamageAdditionalPercentInt(-205);
 
     m_player->buffs[BUFF_SHANG]->AddDamageAdditionalPercentInt(-205);

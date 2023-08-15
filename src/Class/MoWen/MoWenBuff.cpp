@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 09:39:00
+ * Last Modified: 2023-08-15 14:37:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -759,6 +759,7 @@ void JX3DPS::MoWen::Buff::QuFeng::Add(Id_t targetId, int stackNum, Frame_t durat
 {
     m_snapshots[PLAYER_ID].stackNum += stackNum;
     if (m_snapshots[PLAYER_ID].stackNum == m_stackNum) {
+        m_snapshots[PLAYER_ID].stackNum = 0;
         SubEffect();
     } else if (m_snapshots[PLAYER_ID].stackNum > m_stackNum) {
         m_snapshots[PLAYER_ID].stackNum = 0;

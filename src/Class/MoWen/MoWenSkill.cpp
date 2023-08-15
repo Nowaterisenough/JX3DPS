@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 13:12:00
+ * Last Modified: 2023-08-15 14:49:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -225,7 +225,7 @@ void JX3DPS::MoWen::Skill::BianGong::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
-        m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 3);
+        m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 4);
         static_cast<Gong *>(m_player->skills[SKILL_GONG])->Sync();
         SubEffect();
     }
@@ -320,7 +320,8 @@ void JX3DPS::MoWen::Skill::Shang::SubEffect()
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
-    m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 2);
+    m_player->buffs[BUFF_QU_FENG]
+        ->Add(PLAYER_ID, 2 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
 
     static_cast<Buff::Shang *>(m_player->buffs[BUFF_SHANG])->TriggerAdd(m_player->GetTargetId());
 }
@@ -355,7 +356,8 @@ void JX3DPS::MoWen::Skill::Jue::SubEffect()
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
-    m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 1);
+    m_player->buffs[BUFF_QU_FENG]
+        ->Add(PLAYER_ID, 1 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
 
     static_cast<Buff::Jue *>(m_player->buffs[BUFF_JUE])->TriggerAdd(m_player->GetTargetId());
 }
@@ -730,7 +732,7 @@ void JX3DPS::MoWen::Skill::Yu::SubEffect()
     Params params;
     params.player = m_player;
 
-    m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 4);
+    m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 4 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
 
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
 
@@ -806,7 +808,7 @@ JX3DPS::MoWen::Skill::YangChunBaiXue::YangChunBaiXue(JX3DPS::Player *player, Tar
     m_cooldown              = 3 * 16;
     m_prepareFrames         = 6;
     m_globalCooldownCurrent = &m_noneGlobalCooldown;
-    
+
     m_damageParams[0].emplace_back((77 + 77 + 7) / 2, 0, 89);
 
     if (m_player->talents[TALENT_CAN_LIAN]) {
@@ -824,7 +826,7 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::Cast()
     } else { // 切曲风
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_GAO_SHAN_LIU_SHUI])->SetCooldown();
         m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownYangChunBaiXueCurrent;
-        m_prepareFramesCurrent  = m_prepareFrames;
+        m_prepareFramesCurrent = m_prepareFrames;
 
         m_player->SetCast(true);
 

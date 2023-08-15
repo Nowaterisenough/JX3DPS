@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 13:53:45
+ * Last Modified: 2023-08-15 14:58:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -265,6 +265,9 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
         }
         if (precondition == false) {
             ++iter;
+            if (scast) {
+                return SKILL_DEFAULT;
+            }
             continue; // 前置条件不满足，跳过此技能
         }
 

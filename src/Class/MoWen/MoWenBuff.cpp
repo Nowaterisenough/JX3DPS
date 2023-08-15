@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 04:14:22
+ * Last Modified: 2023-08-15 09:39:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -670,6 +670,8 @@ JX3DPS::GainsDamage JX3DPS::MoWen::Buff::LiuZhao::CalcMagicSurplusDamage(Id_t ta
         gainsDamage[type] =
             GetMagicSurplusDamage(targetId, rollResult, sub, level, surplus, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::WEAPON_DAMAGE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
+    gainsDamage[Attribute::Type::ATTACK_POWER_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -1147,6 +1149,7 @@ JX3DPS::GainsDamage JX3DPS::MoWen::Buff::YingZi::CalcMagicYingZiDamage(
         gainsDamage[type] =
             GetMagicYingZiDamage(targetId, rollResult, sub, level, effectCount, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }

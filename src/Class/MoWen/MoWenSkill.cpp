@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 04:08:20
+ * Last Modified: 2023-08-15 09:27:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -402,6 +402,7 @@ JX3DPS::MoWen::Skill::Zhi::Zhi(JX3DPS::Player *player, Targets *targets) :
     if (m_player->talents[TALENT_LIU_ZHAO]) {
         m_energyCountCurrent = m_energyCount = 3;
         m_cooldown                           = 8 * 16;
+        m_cooldownCurrent                    = JX3DPS_INVALID_FRAMES_SET;
     }
 }
 
@@ -411,7 +412,7 @@ void JX3DPS::MoWen::Skill::Zhi::Cast()
     m_player->SetReCast(true);
     m_player->SetReCastSkill(m_id);
     m_cooldownCurrent      = m_cooldown;
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_prepareFramesCurrent = m_prepareFrames;
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     if (m_energyCount == 3) {
@@ -424,7 +425,6 @@ void JX3DPS::MoWen::Skill::Zhi::Cast()
     Params params;
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
-
     m_triggerEffects[TRIGGER_HAO_QING_ZHI](params);
 }
 
@@ -434,7 +434,7 @@ void JX3DPS::MoWen::Skill::Zhi::Trigger()
         SubEffect();
         if (index < 2) {
             index++;
-            m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+            m_prepareFramesCurrent = m_prepareFrames;
         } else {
             m_player->SetReCast(false);
 
@@ -452,7 +452,7 @@ void JX3DPS::MoWen::Skill::Zhi::Trigger()
         m_energyCountCurrent = std::min(m_energyCountCurrent, m_energyCount);
         m_cooldownCurrent    = m_cooldown;
         if (m_energyCountCurrent == m_energyCount) {
-            m_cooldownCurrent = 0;
+            m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
         }
     }
     static_cast<BianZhi *>(m_player->skills[SKILL_BIAN_ZHI])->Sync();
@@ -552,6 +552,7 @@ JX3DPS::MoWen::Skill::BianZhi::BianZhi(JX3DPS::Player *player, Targets *targets)
     if (m_player->talents[TALENT_LIU_ZHAO]) {
         m_energyCountCurrent = m_energyCount = 3;
         m_cooldown                           = 8 * 16;
+        m_cooldownCurrent                    = JX3DPS_INVALID_FRAMES_SET;
     }
 }
 
@@ -561,7 +562,7 @@ void JX3DPS::MoWen::Skill::BianZhi::Cast()
     m_player->SetReCast(true);
     m_player->SetReCastSkill(m_id);
     m_cooldownCurrent      = m_cooldown;
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_prepareFramesCurrent = m_prepareFrames;
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     static_cast<Zhi *>(m_player->skills[SKILL_ZHI])->Sync();
@@ -581,15 +582,24 @@ void JX3DPS::MoWen::Skill::BianZhi::Trigger()
         SubEffect();
         if (index < 2) {
             index++;
-            m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
-
+            m_prepareFramesCurrent = m_prepareFrames;
         } else {
+            m_player->SetReCast(false);
+
             index                  = 0;
             m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
 
             Params params;
             params.player = m_player;
             m_triggerEffects[TRIGGER_XIAN_FENG_CLEAR](params);
+        }
+    }
+    if (m_cooldownCurrent == 0 && m_energyCount == 3) {
+        m_energyCountCurrent++;
+        m_energyCountCurrent = std::min(m_energyCountCurrent, m_energyCount);
+        m_cooldownCurrent    = m_cooldown;
+        if (m_energyCountCurrent == m_energyCount) {
+            m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
         }
     }
     static_cast<Zhi *>(m_player->skills[SKILL_ZHI])->Sync();
@@ -654,6 +664,7 @@ JX3DPS::MoWen::Skill::Yu::Yu(JX3DPS::Player *player, Targets *targets) :
     m_name               = "羽";
     m_range              = 20;
     m_cooldown           = 6 * 16;
+    m_cooldownCurrent    = JX3DPS_INVALID_FRAMES_SET;
     m_energyCountCurrent = m_energyCount = 3;
 
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
@@ -701,7 +712,7 @@ void JX3DPS::MoWen::Skill::Yu::Trigger()
         m_energyCountCurrent = std::min(m_energyCountCurrent, m_energyCount);
         m_cooldownCurrent    = m_cooldown;
         if (m_energyCountCurrent == m_energyCount) {
-            m_cooldownCurrent = 0;
+            m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
         }
     }
 }
@@ -808,7 +819,7 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::Cast()
     m_player->SetLastCastSkill(m_id);
     if (static_cast<MoWen::Player *>(m_player)->style == MoWen::Player::Style::YANG_CHUN_BAI_XUE)
     { // 阳春主动
-        m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
+        m_cooldownCurrent = m_cooldown;
         SubEffect();
     } else { // 切曲风
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_GAO_SHAN_LIU_SHUI])->SetCooldown();
@@ -894,6 +905,7 @@ JX3DPS::MoWen::Skill::ShuYingHengXie::ShuYingHengXie(JX3DPS::Player *player, Tar
     m_name               = "疏影横斜";
     m_range              = 20;
     m_cooldown           = 20 * 16;
+    m_cooldownCurrent    = JX3DPS_INVALID_FRAMES_SET;
     m_energyCountCurrent = m_energyCount = 3;
 
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
@@ -913,7 +925,17 @@ void JX3DPS::MoWen::Skill::ShuYingHengXie::Cast()
     SubEffect();
 }
 
-void JX3DPS::MoWen::Skill::ShuYingHengXie::Trigger() { }
+void JX3DPS::MoWen::Skill::ShuYingHengXie::Trigger()
+{
+    if (m_cooldownCurrent == 0) {
+        m_energyCountCurrent++;
+        m_energyCountCurrent = std::min(m_energyCountCurrent, m_energyCount);
+        m_cooldownCurrent    = m_cooldown;
+        if (m_energyCountCurrent == m_energyCount) {
+            m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
+        }
+    }
+}
 
 void JX3DPS::MoWen::Skill::ShuYingHengXie::SubEffect()
 {

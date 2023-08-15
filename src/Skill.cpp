@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 01:12:25
+ * Last Modified: 2023-08-15 09:37:17
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -122,22 +122,18 @@ void JX3DPS::Skill::SetTargets(Targets *targets)
 
 JX3DPS::Frame_t JX3DPS::Skill::GetNextKeyFrame() const
 {
-    if (m_energyCountCurrent > 0 && *m_globalCooldownCurrent == 0 &&
-        m_prepareFramesCurrent == JX3DPS_INVALID_FRAMES_SET)
-    {
-        return 0;
+    if (m_energyCount > 0) { // 充能技能 取 预处理时间 和 冷却时间 最小值
+        return std::min(m_cooldownCurrent, m_prepareFramesCurrent);
     }
-    Frame_t nextKeyFrame = std::max(m_cooldownCurrent, *m_globalCooldownCurrent);
-    if (nextKeyFrame == 0) {
-        return m_prepareFramesCurrent;
-    }
-    return std::min(nextKeyFrame, m_prepareFramesCurrent);
+    return m_prepareFramesCurrent;
 }
 
 void JX3DPS::Skill::UpdateKeyFrame(Frame_t frame)
 {
-    m_cooldownCurrent -= frame;
-    m_cooldownCurrent  = std::max(m_cooldownCurrent, 0);
+    if (m_cooldownCurrent != JX3DPS_INVALID_FRAMES_SET) {
+        m_cooldownCurrent -= frame;
+    }
+    m_cooldownCurrent = std::max(m_cooldownCurrent, 0);
     if (m_prepareFramesCurrent != JX3DPS_INVALID_FRAMES_SET) { // 在蓄力时间才进行关键帧刷新
         m_prepareFramesCurrent -= frame;
     }
@@ -298,6 +294,7 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsDamage(Id_t targetId, RollResult r
         gainsDamage[type] =
             GetPhysicsDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -424,6 +421,7 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicDamage(Id_t targetId, RollResult rol
         gainsDamage[type] =
             GetMagicDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -527,6 +525,8 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsSurplusDamage(Id_t targetId, RollR
         gainsDamage[type] =
             GetPhysicsSurplusDamage(targetId, rollResult, sub, level, surplus, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::WEAPON_DAMAGE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
+    gainsDamage[Attribute::Type::ATTACK_POWER_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -630,6 +630,8 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicSurplusDamage(Id_t targetId, RollRes
         gainsDamage[type] =
             GetMagicSurplusDamage(targetId, rollResult, sub, level, surplus, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::WEAPON_DAMAGE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
+    gainsDamage[Attribute::Type::ATTACK_POWER_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }

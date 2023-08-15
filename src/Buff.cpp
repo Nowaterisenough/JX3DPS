@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 22:11:05
+ * Last Modified: 2023-08-15 09:40:34
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -255,6 +255,7 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcPhysicsDamage(Id_t targetId, RollResult ro
         gainsDamage[type] =
             GetPhysicsDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -381,6 +382,7 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcMagicDamage(Id_t targetId, RollResult roll
         gainsDamage[type] =
             GetMagicDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -498,6 +500,7 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcPhysicsDotDamage(Id_t targetId, RollResult
         gainsDamage[type] =
             GetPhysicsDotDamage(targetId, rollResult, sub, level, effectCount, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -606,6 +609,7 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcMagicDotDamage(Id_t targetId, RollResult r
         gainsDamage[type] =
             GetMagicDotDamage(targetId, rollResult, sub, level, effectCount, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }

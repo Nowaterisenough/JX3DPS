@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:26:49
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:56:36
+ * Last Modified: 2023-08-15 07:28:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -27,6 +27,7 @@ enum class KeyFrameType
     EVENT = 0,
     SKILL = 1,
     BUFF  = 2,
+    EMPTY = 3
 };
 
 using KeyFrame         = std::pair<Frame_t, std::list<std::pair<KeyFrameType, Id_t>>>;

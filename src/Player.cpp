@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 09:52:00
+ * Last Modified: 2023-08-15 06:07:01
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -41,19 +41,12 @@ Player *Player::PlayerFactoryGenerate(ClassType classType)
 
 Player::~Player()
 {
-    std::unordered_set<Skill *> skillPtrs;
     for (auto &[id, skill] : this->skills) {
-        skillPtrs.emplace(skill);
+        delete skill;
     }
-    for (auto &ptr : skillPtrs) {
-        delete ptr;
-    }
-    std::unordered_set<Buff *> buffPtrs;
+
     for (auto &[id, buff] : this->buffs) {
-        buffPtrs.emplace(buff);
-    }
-    for (auto &ptr : buffPtrs) {
-        delete ptr;
+        delete buff;
     }
 }
 

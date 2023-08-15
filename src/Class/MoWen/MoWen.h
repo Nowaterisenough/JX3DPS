@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 13:16:05
+ * Last Modified: 2023-08-15 15:37:23
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -53,7 +53,7 @@ public:
             frame = std::min(frame, cooldownStyleCurrent);
         }
         if (cooldownGaoShanLiuShuiCurrent > 0) {
-            frame = std::min(frame, cooldownStyleCurrent);
+            frame = std::min(frame, cooldownGaoShanLiuShuiCurrent);
         }
         if (cooldownYangChunBaiXueCurrent > 0) {
             frame = std::min(frame, cooldownYangChunBaiXueCurrent);

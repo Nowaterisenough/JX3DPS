@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 14:49:19
+ * Last Modified: 2023-08-15 15:18:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -113,6 +113,7 @@ JX3DPS::MoWen::Skill::Gong::Gong(JX3DPS::Player *player, Targets *targets) :
 void JX3DPS::MoWen::Skill::Gong::Cast()
 {
     m_player->SetLastCastSkill(m_id);
+    m_player->SetCast(true);
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
@@ -125,6 +126,7 @@ void JX3DPS::MoWen::Skill::Gong::Trigger()
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
         m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 3);
         static_cast<BianGong *>(m_player->skills[SKILL_BIAN_GONG])->Sync();
+        m_player->SetCast(false);
         SubEffect();
     }
 }
@@ -219,6 +221,7 @@ void JX3DPS::MoWen::Skill::BianGong::Cast()
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     static_cast<Gong *>(m_player->skills[SKILL_GONG])->Sync();
+    m_player->SetCast(true);
 }
 
 void JX3DPS::MoWen::Skill::BianGong::Trigger()
@@ -227,6 +230,7 @@ void JX3DPS::MoWen::Skill::BianGong::Trigger()
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
         m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 4);
         static_cast<Gong *>(m_player->skills[SKILL_GONG])->Sync();
+        m_player->SetCast(false);
         SubEffect();
     }
 }

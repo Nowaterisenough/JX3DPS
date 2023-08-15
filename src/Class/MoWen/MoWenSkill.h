@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 03:55:24
+ * Last Modified: 2023-08-15 10:23:47
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -85,6 +85,8 @@ public:
     void SubEffect();
 
     int index = 0;
+
+    int xianFengStackNum = 0;
 };
 
 class BianZhi : public JX3DPS::Skill
@@ -101,6 +103,8 @@ public:
     void SubEffect();
 
     int index = 0;
+
+    int xianFengStackNum = 0;
 };
 
 class Yu : public JX3DPS::Skill

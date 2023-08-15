@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:44
+ * Last Modified: 2023-08-15 09:57:50
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -107,6 +107,8 @@ void Player::Init()
     }
 
     if (talents[TALENT_JING_HUA_YING]) {
+        skills.emplace(SKILL_JING_HUA_YING,
+                       static_cast<JX3DPS::Skill *>(new Skill::JingHuaYing(this, nullptr)));
         buffs.emplace(BUFF_JING_HUA_YING,
                       static_cast<JX3DPS::Buff *>(new Buff::JingHuaYing(this, nullptr)));
         triggerEffects.emplace(TRIGGER_JING_HUA_YING,

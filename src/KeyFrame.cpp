@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 09:32:57
+ * Last Modified: 2023-08-15 13:53:45
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -21,6 +21,8 @@
 #include "Player.h"
 #include "Skill.h"
 #include "Target.hpp"
+
+// #define OLD_FRAMEWORK
 
 void JX3DPS::KeyFrame::InsertKeyFrame(KeyFrameSequence &keyFrameSequence, KeyFrame &keyFrame)
 {
@@ -97,13 +99,13 @@ void JX3DPS::KeyFrame::UpdateKeyFrameSequence(KeyFrameSequence &keyFrameSequence
         if (keyFrame.first != JX3DPS_INVALID_FRAMES_SET) {
             keyFrame.first -= next;
         }
-        
+
         for (auto &[type, id] : keyFrame.second) {
-            if (type == KeyFrameType::EVENT) {        // 强制事件
+            if (type == KeyFrameType::EVENT) { // 强制事件
                 continue;
             } else if (type == KeyFrameType::SKILL) { // 技能
                 player->skills[id]->UpdateKeyFrame(next);
-            } else if (type == KeyFrameType::BUFF) {  // buff
+            } else if (type == KeyFrameType::BUFF) { // buff
                 player->buffs[id]->UpdateKeyFrame(next);
             }
         }
@@ -124,11 +126,16 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
     KeyFrameSequence unCheckedSkillKeyFrameSequence;
     KeyFrameSequence unCheckedBuffKeyFrameSequence;
 
-    int sk = 0;
+#ifdef OLD_FRAMEWORK
+    std::list<Id_t> skills;
+#endif // OLD_FRAMEWORK
     while (true) {
         checkedKeyFrameSequence.clear();
         unCheckedSkillKeyFrameSequence.clear();
         unCheckedBuffKeyFrameSequence.clear();
+#ifdef OLD_FRAMEWORK
+        skills.clear();
+#endif // OLD_FRAMEWORK
 
         // 更新关键帧序列
         Frame_t next  = keyFrameSequence.front().first;
@@ -150,6 +157,10 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
                 keyFrame.first = 0;
                 keyFrame.second.push_back(std::make_pair(type, id));
                 unCheckedSkillKeyFrameSequence.push_back(keyFrame);
+#ifdef OLD_FRAMEWORK
+                skills.emplace_back(id);
+#endif // OLD_FRAMEWORK
+
             } else if (type == KeyFrameType::BUFF) { // buff
                 // spdlog::debug("{} Trigger Buff {}", now, id);
                 player->buffs[id]->Trigger();
@@ -170,24 +181,25 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         // 检查后序关键帧因为事件、技能施放或buff刷新等原因的状态变化
         for (auto it = keyFrameSequence.begin(); it != keyFrameSequence.end();) {
             for (auto iter = it->second.begin(); iter != it->second.end();) {
-                if (iter->first == KeyFrameType::SKILL || iter->first == KeyFrameType::BUFF)
-                {
-                    KeyFrame keyFrame;
-
-                    if (iter->first == KeyFrameType::SKILL) {
-                        keyFrame.first = player->skills[iter->second]->GetNextKeyFrame();
-                        keyFrame.second.push_back(std::make_pair(KeyFrameType::SKILL, iter->second));
-                    } else {
-                        keyFrame.first = player->buffs[iter->second]->GetNextKeyFrame();
-                        keyFrame.second.push_back(std::make_pair(KeyFrameType::BUFF, iter->second));
-                    }
-                    if (keyFrame.first != it->first) {
-                        checkedKeyFrameSequence.push_back(keyFrame);
-                        iter = it->second.erase(iter);
-                        continue;
-                    }
+                KeyFrame keyFrame;
+                keyFrame.first = it->first;
+                if (iter->first == KeyFrameType::SKILL) {
+                    keyFrame.first = player->skills[iter->second]->GetNextKeyFrame();
+                    keyFrame.second.push_back(std::make_pair(KeyFrameType::SKILL, iter->second));
+#ifdef OLD_FRAMEWORK
+                    skills.emplace_back(iter->second);
+#endif // OLD_FRAMEWORK
+                } else if (iter->first == KeyFrameType::BUFF) {
+                    keyFrame.first = player->buffs[iter->second]->GetNextKeyFrame();
+                    keyFrame.second.push_back(std::make_pair(KeyFrameType::BUFF, iter->second));
                 }
-                ++iter;
+                if (keyFrame.first != it->first) {
+                    checkedKeyFrameSequence.push_back(keyFrame);
+                    iter = it->second.erase(iter);
+                    continue;
+                } else {
+                    ++iter;
+                }
             }
             if (it->second.size() == 0) {
                 it = keyFrameSequence.erase(it);
@@ -216,22 +228,26 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
             InsertKeyFrame(keyFrameSequence, keyFrame);
         }
 
-        // for (auto &id : skills) {
-        //     if (player->skills[id]->GetCooldownCurrent() == 0) {
-        //         KeyFrame keyFrame;
-        //         if (sk < 1) {
-        //             keyFrame.first = 0;
-        //             sk++;
-        //         } else {
-        //             keyFrame.first = keyFrameSequence.front().first;
-        //             sk = 0;
-        //         }
-                
-        //         keyFrame.second.push_back(std::make_pair(KeyFrameType::EMPTY, id));
-        //         InsertKeyFrame(keyFrameSequence, keyFrame);
-        //         break;
-        //     }
-        // }
+        Frame_t nextCD = keyFrameSequence.front().first;
+#ifdef OLD_FRAMEWORK
+        for (auto &id : skills) {
+            Frame_t temp = player->skills[id]->GetCooldownCurrent();
+            if (temp != 0) {
+                nextCD = nextCD < temp ? nextCD : temp;
+            }
+        }
+        KeyFrame keyFrame;
+        keyFrame.first = nextCD;
+        keyFrame.second.push_back(std::make_pair(KeyFrameType::EMPTY, Id_t::SKILL_DEFAULT));
+        InsertKeyFrame(keyFrameSequence, keyFrame);
+#else
+        nextCD = nextCD < player->GetNextGlobalCooldown() ? nextCD : player->GetNextGlobalCooldown();
+#endif // OLD_FRAMEWORK
+
+        KeyFrame keyFrame;
+        keyFrame.first = nextCD;
+        keyFrame.second.push_back(std::make_pair(KeyFrameType::EMPTY, Id_t::SKILL_DEFAULT));
+        InsertKeyFrame(keyFrameSequence, keyFrame);
     }
 }
 
@@ -268,9 +284,9 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
 
         if (castSuccess) {
             Id_t id = iter->second;
-            if (id > SKILL_DEFAULT) {                                 // 执行技能
+            if (id > SKILL_DEFAULT) { // 执行技能
                 player->skills[id]->Cast();
-            } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) {           // 转火目标
+            } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
                 player->SetTargetId(id);
             } else if (id > EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
                 exprSkills = exprSkillsHash.at(id);

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 05:53:39
+ * Last Modified: 2023-08-15 13:16:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -43,6 +43,24 @@ public:
 
     void Init() override;
 
+    Frame_t GetNextGlobalCooldown() const override
+    {
+        Frame_t frame = JX3DPS_INVALID_FRAMES_SET;
+        if (globalCooldownCurrent > 0) {
+            frame = globalCooldownCurrent;
+        }
+        if (cooldownStyleCurrent > 0) {
+            frame = std::min(frame, cooldownStyleCurrent);
+        }
+        if (cooldownGaoShanLiuShuiCurrent > 0) {
+            frame = std::min(frame, cooldownStyleCurrent);
+        }
+        if (cooldownYangChunBaiXueCurrent > 0) {
+            frame = std::min(frame, cooldownYangChunBaiXueCurrent);
+        }
+        return frame;
+    }
+
     inline void UpdateGlobalCooldown(Frame_t next) override
     {
         globalCooldownCurrent -= next;
@@ -53,6 +71,9 @@ public:
 
         cooldownGaoShanLiuShuiCurrent -= next;
         cooldownGaoShanLiuShuiCurrent = std::max(cooldownGaoShanLiuShuiCurrent, 0);
+
+        cooldownYangChunBaiXueCurrent -= next;
+        cooldownYangChunBaiXueCurrent = std::max(cooldownYangChunBaiXueCurrent, 0);
     }
 
     enum class Style
@@ -74,6 +95,8 @@ public:
 
     Frame_t cooldownGaoShanLiuShuiCurrent = 0;
 
+    Frame_t cooldownYangChunBaiXueCurrent = 0;
+    
     static void TriggerXianFeng(const Params &params);
 
     static void TriggerXianFengBiaoJi(const Params &params);

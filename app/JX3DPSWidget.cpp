@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 04:57:00
+ * Last Modified: 2023-08-16 18:59:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -47,7 +47,7 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
     QString title = QString("%1  %3").arg(APP_NAME).arg(JX3DPSVersion());
     this->SetTitle(title);
 
-    this->setFixedHeight(814);
+    this->setFixedHeight(850);
     this->setMinimumWidth(1000);
 
     GroupBox  *groupBoxSetting         = new GroupBox("设置", this->centralWidget);
@@ -63,9 +63,9 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
 
     buttonSimulate->setText("开始模拟");
     buttonSimulate->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
-    buttonSimulate->setFixedHeight(40);
+    buttonSimulate->setFixedHeight(55);
     buttonSimulate->setFixedWidth(160);
-    buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 13));
+    buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 14));
 
     tabWidgetAttribute->AddTab("属性");
     tabWidgetAttribute->AddTab("配装");
@@ -149,6 +149,14 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     itemInfo.name = "心法";
     comboBoxClass->AddItem(itemInfo);
 
+    TextButton *textButtonFramePrecision = new TextButton(parent);
+    textButtonFramePrecision->setFixedSize(64, 28);
+    textButtonFramePrecision->setText("逻辑帧精度");
+
+    LineEdit *lineEditFramePrecision = new LineEdit(parent);
+    lineEditFramePrecision->setFixedSize(64, 28);
+    lineEditFramePrecision->setText("24");
+
     TextButton *textButtonSimulateCount = new TextButton(parent);
     textButtonSimulateCount->setFixedSize(64, 28);
     textButtonSimulateCount->setText("模拟次数");
@@ -184,13 +192,15 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
 
     QGridLayout *gLayout = new QGridLayout(parent);
     gLayout->addWidget(comboBoxClass, 0, 0, 1, 3);
-    gLayout->addWidget(textButtonSimulateCount, 1, 0, 1, 1);
-    gLayout->addWidget(lineEditSimulateCount, 1, 1, 1, 2);
-    gLayout->addWidget(textButtonDelay, 2, 0, 1, 1);
-    gLayout->addWidget(lineEditDelayMin, 2, 1, 1, 1);
-    gLayout->addWidget(lineEditDelayMax, 2, 2, 1, 1);
+    gLayout->addWidget(textButtonFramePrecision, 1, 0, 1, 1);
+    gLayout->addWidget(lineEditFramePrecision, 1, 1, 1, 1);
+    gLayout->addWidget(textButtonSimulateCount, 2, 0, 1, 1);
+    gLayout->addWidget(lineEditSimulateCount, 2, 1, 1, 1);
+    gLayout->addWidget(textButtonDelay, 3, 0, 1, 1);
+    gLayout->addWidget(lineEditDelayMin, 3, 1, 1, 1);
+    gLayout->addWidget(lineEditDelayMax, 3, 2, 1, 1);
 
-    gLayout->addWidget(checkBoxDebug, 1, 2, 1, 1);
+    gLayout->addWidget(checkBoxDebug, 2, 2, 1, 1);
 
     connect(checkBoxDebug, &QCheckBox::stateChanged, [=](int checked) {
         if (checked) {
@@ -222,9 +232,10 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        params["Options"]["SimIterations"] = lineEditSimulateCount->text().toInt();
-        params["Options"]["DelayMin"]      = lineEditDelayMin->text().toInt();
-        params["Options"]["DelayMax"]      = lineEditDelayMax->text().toInt();
+        params["Options"]["FramePrecision"] = lineEditFramePrecision->text().toInt();
+        params["Options"]["SimIterations"]  = lineEditSimulateCount->text().toInt();
+        params["Options"]["DelayMin"]       = lineEditDelayMin->text().toInt();
+        params["Options"]["DelayMax"]       = lineEditDelayMax->text().toInt();
         params["Options"]["Mode"] = checkBoxDebug->isChecked() ? "debug" : "default";
     });
 }
@@ -688,6 +699,10 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
         index++;
     }
 
+    attributeDataBars.at(JX3DPS::Attribute::Type::DEFAULT)->setEnabled(false);
+    attributeDataBars.at(JX3DPS::Attribute::Type::CRITICAL_STRIKE)->setEnabled(false);
+    attributeDataBars.at(JX3DPS::Attribute::Type::HASTE_BASE)->setEnabled(false);
+
     QSpacerItem *spacerItem = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
     gLayout->addItem(spacerItem, index, 0, 1, 1);
 
@@ -825,7 +840,7 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
             for (auto &checkBox : stack->findChildren<CheckBoxIcon *>()) {
                 if (checkBox->isChecked()) {
                     params["Recipes"][btn->text().toStdString()].emplace_back(
-                        checkBox->ItemInfo().name.toStdString());
+                        checkBox->GetItemInfo().name.toStdString());
                 }
             }
         }
@@ -851,7 +866,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
         comboBox->SetType(ComboBox::Type::DETAILED);
         comboBox->setFixedSize(200, 48);
         comboBox->SetItemSize(200, 48);
-        gLayout->addWidget(comboBox, i, 0, 1, 2);
+        gLayout->addWidget(comboBox, i, 0, 1, 1);
 
         ComboBox::ItemInfo itemInfo;
         itemInfo.name = permanents[i].c_str();
@@ -860,27 +875,36 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
         permanentComboBoxes.emplace(permanentTexts[i], comboBox);
     }
 
-    std::vector<CheckBox *> permanentCheckBoxes;
+    std::vector<CheckBoxIcon *> permanentCheckBoxes;
 
-    permanentCheckBoxes.push_back(new CheckBox(parent));
-    permanentCheckBoxes.push_back(new CheckBox(parent));
-    permanentCheckBoxes.push_back(new CheckBox(parent));
-    permanentCheckBoxes.push_back(new CheckBox(parent));
+    GroupBox    *groupBox = new GroupBox("宴席", parent);
+    QSpacerItem *spacerItem =
+        new QSpacerItem(0, 5, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+
+    gLayout->addItem(spacerItem, 8, 0, 1, 1);
+    gLayout->addWidget(groupBox, 9, 0, 1, 1);
+
+    permanentCheckBoxes.push_back(new CheckBoxIcon(groupBox));
+    permanentCheckBoxes.push_back(new CheckBoxIcon(groupBox));
+    permanentCheckBoxes.push_back(new CheckBoxIcon(groupBox));
+    permanentCheckBoxes.push_back(new CheckBoxIcon(groupBox));
 
     permanentCheckBoxes[0]->setText("玉笛谁家听落梅");
     permanentCheckBoxes[1]->setText("同泽宴");
     permanentCheckBoxes[2]->setText("炼狱水煮鱼");
     permanentCheckBoxes[3]->setText("蒸鱼菜盘");
 
-    permanentCheckBoxes[0]->setFixedHeight(22);
-    permanentCheckBoxes[1]->setFixedHeight(22);
-    permanentCheckBoxes[2]->setFixedHeight(22);
-    permanentCheckBoxes[3]->setFixedHeight(22);
+    permanentCheckBoxes[0]->setFixedSize(42, 42);
+    permanentCheckBoxes[1]->setFixedSize(42, 42);
+    permanentCheckBoxes[2]->setFixedSize(42, 42);
+    permanentCheckBoxes[3]->setFixedSize(42, 42);
 
-    gLayout->addWidget(permanentCheckBoxes[0], 8, 0, 1, 1);
-    gLayout->addWidget(permanentCheckBoxes[1], 8, 1, 1, 1);
-    gLayout->addWidget(permanentCheckBoxes[2], 9, 0, 1, 1);
-    gLayout->addWidget(permanentCheckBoxes[3], 9, 1, 1, 1);
+    QGridLayout *layout = new QGridLayout(groupBox);
+    layout->setContentsMargins(8, 8, 8, 8);
+    layout->addWidget(permanentCheckBoxes[0], 0, 0, 1, 1, Qt::AlignCenter);
+    layout->addWidget(permanentCheckBoxes[1], 0, 1, 1, 1, Qt::AlignCenter);
+    layout->addWidget(permanentCheckBoxes[2], 0, 2, 1, 1, Qt::AlignCenter);
+    layout->addWidget(permanentCheckBoxes[3], 0, 3, 1, 1, Qt::AlignCenter);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
         std::unordered_map<std::string, CheckBox::ItemInfo>            permanents1;

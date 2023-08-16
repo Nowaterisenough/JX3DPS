@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 16:16:32
+ * Last Modified: 2023-08-16 18:05:33
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -242,6 +242,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         InsertKeyFrame(keyFrameSequence, keyFrame);
 #else
         nextCD = nextCD < player->GetNextGlobalCooldown() ? nextCD : player->GetNextGlobalCooldown();
+        nextCD = nextCD > options.framePrecision ? options.framePrecision : nextCD;
 #endif // OLD_FRAMEWORK
 
         KeyFrame keyFrame;
@@ -289,7 +290,7 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
             Id_t id = iter->second;
             if (id > SKILL_DEFAULT) { // 执行技能
                 player->skills[id]->Cast();
-                // spdlog::info("{:<8} {}", now *0.0625, JX3DPS_NAME.at(static_cast<int>(id)));
+                spdlog::debug("{:<8} {}", now *0.0625, JX3DPS_NAME.at(static_cast<int>(id)));
             } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
                 player->SetTargetId(id);
             } else if (id > EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 02:12:13
+ * Last Modified: 2023-08-16 18:59:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -36,6 +36,7 @@ JX3DPS::Error_t JX3DPS::ParseJsonToClassType(const nlohmann::ordered_json &json,
 JX3DPS::Error_t JX3DPS::ParseJsonToOptions(const nlohmann::ordered_json &json, Options &options)
 {
     try {
+        json.at("Options").at("FramePrecision").get_to(options.framePrecision);
         json.at("Options").at("SimIterations").get_to(options.simIterations);
         json.at("Options").at("DelayMin").get_to(options.delayMin);
         json.at("Options").at("DelayMax").get_to(options.delayMax);

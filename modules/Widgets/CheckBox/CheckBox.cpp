@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 04:40:55
+ * Last Modified: 2023-08-16 18:51:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -118,6 +118,13 @@ CheckBoxIcon::CheckBoxIcon(QWidget *parent)
 {
     this->setAttribute(Qt::WA_TranslucentBackground);
 
+        // 创建一个阴影效果对象
+    QGraphicsDropShadowEffect *shadowEffect = new QGraphicsDropShadowEffect(this);
+    shadowEffect->setColor(Qt::black);     // 设置阴影的颜色
+    shadowEffect->setBlurRadius(4);        // 设置阴影的模糊半径
+    shadowEffect->setOffset(0, 0);         // 设置阴影的偏移量
+    this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
+
     // 设置样式表
     this->setStyleSheet(
         "QToolTip { color: white; background-color: rgb(23, 29, 37); border: none; }");
@@ -126,11 +133,11 @@ CheckBoxIcon::CheckBoxIcon(QWidget *parent)
 void CheckBoxIcon::SetItemInfo(const CheckBox::ItemInfo &itemInfo)
 {
     m_itemInfo = itemInfo;
-    this->setToolTip(m_itemInfo.description);
+    this->setToolTip(m_itemInfo.name + "\n" + m_itemInfo.description);
     m_pixmap = QPixmap(m_itemInfo.iconPath);
 }
 
-CheckBox::ItemInfo &CheckBoxIcon::ItemInfo()
+CheckBox::ItemInfo CheckBoxIcon::GetItemInfo() const
 {
     return m_itemInfo;
 }
@@ -149,6 +156,9 @@ void CheckBoxIcon::paintEvent(QPaintEvent *event)
     painter.drawRect(this->rect());
 
     // 画一个框
+    if (m_pixmap.isNull()) {
+        return;
+    }
     int border = 3;
     painter.setPen(QPen(Qt::black));
 

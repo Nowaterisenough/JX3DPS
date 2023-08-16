@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 14:05:49
+ * Last Modified: 2023-08-17 00:38:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -211,6 +211,8 @@ public:
     int level = 1;
 
     std::vector<int> randoms = { 2, 3, 5, 6 };
+
+    bool lastIsGong = false;
 };
 
 class YingZi : public JX3DPS::Buff

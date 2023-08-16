@@ -2860,7 +2860,7 @@
                     "大招": [
                         "/cast [skill_cd:正律和鸣·1~=0&nobuff:知音和鸣] 宏·常规",
                         "/cast [nobuff:孤影化双|skill_energy:疏影横斜=0] 孤影化双",
-                        "/cast [nobuff:知音和鸣] 正律和鸣·1",
+                        "/cast [nobuff:知音和鸣&skill_cd:高山流水=0] 正律和鸣·1",
                         "/cast 疏影横斜",
                         "/cast [buff:参连] 高山流水",
                         "/cast 高山流水",

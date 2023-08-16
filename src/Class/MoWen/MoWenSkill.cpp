@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 15:04:12
+ * Last Modified: 2023-08-17 00:35:09
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1034,7 +1034,6 @@ void JX3DPS::MoWen::Skill::GuYingHuaShuang::Snap()
     cooldownGaoShanLiuShuiCurrent = static_cast<MoWen::Player *>(m_player)->cooldownGaoShanLiuShuiCurrent;
     cooldownYangChunBaiXueCurrent = static_cast<MoWen::Player *>(m_player)->cooldownYangChunBaiXueCurrent;
     cooldownShuYingHengXieCurrent = static_cast<MoWen::Player *>(m_player)->cooldownShuYingHengXieCurrent;
-    cooldownGuYingHuaShuangCurrent = static_cast<MoWen::Player *>(m_player)->cooldownGuYingHuaShuangCurrent;
 }
 
 void JX3DPS::MoWen::Skill::GuYingHuaShuang::RestoreFromSnap()
@@ -1049,7 +1048,6 @@ void JX3DPS::MoWen::Skill::GuYingHuaShuang::RestoreFromSnap()
     static_cast<MoWen::Player *>(m_player)->cooldownGaoShanLiuShuiCurrent = cooldownGaoShanLiuShuiCurrent;
     static_cast<MoWen::Player *>(m_player)->cooldownYangChunBaiXueCurrent = cooldownYangChunBaiXueCurrent;
     static_cast<MoWen::Player *>(m_player)->cooldownShuYingHengXieCurrent = cooldownShuYingHengXieCurrent;
-    static_cast<MoWen::Player *>(m_player)->cooldownGuYingHuaShuangCurrent = cooldownGuYingHuaShuangCurrent;
 }
 
 void JX3DPS::MoWen::Skill::GuYingHuaShuang::Reset()

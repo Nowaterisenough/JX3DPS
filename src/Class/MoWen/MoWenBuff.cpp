@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 17:47:08
+ * Last Modified: 2023-08-17 00:40:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1122,6 +1122,9 @@ void JX3DPS::MoWen::Buff::ZhiYinHeMing::SubEffect()
         randoms.erase(randoms.begin() + index);
         static_cast<QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(stackNum);
         if (stackNum == 5) {
+            lastIsGong = true;
+        } else if (lastIsGong) {
+            lastIsGong = false;
             m_snapshots[PLAYER_ID].interval = RandomUniform(8, 16);
             m_player->SetCast(true);
         }

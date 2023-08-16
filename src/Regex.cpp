@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 13:19:48
+ * Last Modified: 2023-08-16 17:01:06
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -515,7 +515,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
                                std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         }
     } else if (std::regex_match(str, mat, regLastCastSkill)) {
-        JX3DPS::Id_t id = SkillId(mat[1].str());
+        JX3DPS::Id_t id = SkillId(mat[2].str());
         if (mat[1].str() == "=") {
             exprIf =
                 std::bind(&JX3DPS::Expression::LastCastSkill, std::placeholders::_1, std::placeholders::_2, id);

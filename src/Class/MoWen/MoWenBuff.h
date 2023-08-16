@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 00:38:43
+ * Last Modified: 2023-08-17 04:43:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -165,7 +165,7 @@ class ZhiYinMiaoYi : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(ZhiYinMiaoYi)
 
 public:
-    void TriggerAdd();
+    void TriggerAdd(int stackNum);
     void TriggerClear();
 
     void SubEffectAdd(int stackNum);

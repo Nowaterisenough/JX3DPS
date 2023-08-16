@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 18:59:55
+ * Last Modified: 2023-08-17 05:16:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -266,7 +266,7 @@ JX3DPS::Error_t JX3DPS::DamageStatsToJson(const DamageStats &damageStats, nlohma
                         auto &[count, damage] = item;
 
                         std::string_view name = JX3DPS_NAME.at(effectId);
-                        std::string targetName = std::string("目标") + std::to_string(targetId);
+                        std::string targetName = std::string("目标") + std::to_string(targetId - TARGET_PLACE_HOLDERS_DEFAULT);
                         std::string subName = std::string("词缀").append(std::to_string(sub));
                         std::string levelName = std::string("强度").append(std::to_string(level));
                         std::string_view rollName = ROLL_NAME.at(static_cast<int>(rollResult));

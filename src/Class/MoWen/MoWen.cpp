@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 14:10:21
+ * Last Modified: 2023-08-17 04:49:34
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -297,11 +297,16 @@ void Player::TriggerHaoQingBianZhi(const Params &params)
 void Player::TriggerLiuZhaoDamage(const Params &params)
 {
     int stackNum = 0;
-    if (params.player->buffs[BUFF_SHANG]->GetDurationCurrent() > 0) {
+    if (params.player->buffs[BUFF_SHANG]->GetDurationCurrent(params.player->GetTargetId()) > 0)
+    {
         stackNum++;
     }
-    if (params.player->buffs[BUFF_JUE]->GetDurationCurrent() > 0) {
+    if (params.player->buffs[BUFF_JUE]->GetDurationCurrent(params.player->GetTargetId()) > 0)
+    {
         stackNum++;
+    }
+    if (stackNum == 0) {
+        return;
     }
     static_cast<Buff::LiuZhao *>(params.player->buffs[BUFF_LIU_ZHAO])->TriggerDamage(stackNum);
     static_cast<Buff::LiuZhao *>(params.player->buffs[BUFF_LIU_ZHAO])->TriggerAdd(stackNum);
@@ -309,7 +314,9 @@ void Player::TriggerLiuZhaoDamage(const Params &params)
 
 void Player::TriggerLiuZhaoSurplusDamage(const Params &params)
 {
-    static_cast<Buff::LiuZhao *>(params.player->buffs[BUFF_LIU_ZHAO])->TriggerSurplusDamage();
+    if (params.player->buffs[BUFF_LIU_ZHAO]->GetDurationCurrent() > 0) {
+        static_cast<Buff::LiuZhao *>(params.player->buffs[BUFF_LIU_ZHAO])->TriggerSurplusDamage();
+    }
 }
 
 } // namespace MoWen

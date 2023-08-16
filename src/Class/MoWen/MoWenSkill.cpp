@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 00:35:09
+ * Last Modified: 2023-08-17 01:09:15
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -228,9 +228,11 @@ void JX3DPS::MoWen::Skill::BianGong::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
+        m_player->SetCast(false);
+        
         static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerAdd(4);
         static_cast<Gong *>(m_player->skills[SKILL_GONG])->Sync();
-        m_player->SetCast(false);
+        
         SubEffect();
     }
 }
@@ -840,10 +842,6 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::Cast()
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_GAO_SHAN_LIU_SHUI])->SetCooldown();
         m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownYangChunBaiXueCurrent;
         m_prepareFramesCurrent = m_prepareFrames;
-
-        if (m_player->buffs[BUFF_ZHENG_LV_HE_MING]->GetDurationCurrent() == 0) {
-            static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(0);
-        }
 
         m_player->SetCast(true);
 

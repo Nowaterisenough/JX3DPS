@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 04:06:28
+ * Last Modified: 2023-08-16 14:05:49
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -130,6 +130,10 @@ class QuFeng : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(QuFeng)
 
 public:
+    void TriggerAdd(int stackNum);
+    void TriggerClear();
+    void TriggerSet(int stackNum);
+
     void SubEffect();
 };
 
@@ -166,6 +170,47 @@ public:
 
     void SubEffectAdd(int stackNum);
     void SubEffectClear(int stackNum);
+};
+
+class GuYingHuaShuang : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(GuYingHuaShuang)
+
+public:
+    void TriggerAdd();
+    void TriggerClear();
+
+    void SubEffectClear();
+};
+
+class ZhengLvHeMing : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(ZhengLvHeMing)
+
+public:
+    void TriggerAdd();
+    void TriggerClear();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class ZhiYinHeMing : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(ZhiYinHeMing)
+
+public:
+    void TriggerAdd();
+    void TriggerClear();
+
+    void SubEffect();
+    void SubEffectDamage();
+
+    void RecordDamage(Id_t targetId, RollResult rollResult, const GainsDamage &gainsDamage, int sub = 0);
+    
+    int level = 1;
+
+    std::vector<int> randoms = { 2, 3, 5, 6 };
 };
 
 class YingZi : public JX3DPS::Buff

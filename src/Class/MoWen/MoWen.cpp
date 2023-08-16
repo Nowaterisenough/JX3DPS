@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 10:25:32
+ * Last Modified: 2023-08-16 14:10:21
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -41,10 +41,7 @@ void Player::Init()
     skills.emplace(SKILL_GAO_SHAN_LIU_SHUI, new Skill::GaoShanLiuShui(this, nullptr));
     skills.emplace(SKILL_YANG_CHUN_BAI_XUE, new Skill::YangChunBaiXue(this, nullptr));
     skills.emplace(SKILL_SHU_YING_HENG_XIE, new Skill::ShuYingHengXie(this, nullptr));
-    skills.emplace(SKILL_SHU_YING_HUA_SHUANG, new Skill::ShuYingHuaShuang(this, nullptr));
-    skills.emplace(SKILL_ZHENG_LV_HE_MING_1, new Skill::ZhengLvHeMing1(this, nullptr));
-    skills.emplace(SKILL_ZHENG_LV_HE_MING_2, new Skill::ZhengLvHeMing2(this, nullptr));
-    skills.emplace(SKILL_ZHENG_LV_HE_MING_3, new Skill::ZhengLvHeMing3(this, nullptr));
+    skills.emplace(SKILL_GU_YING_HUA_SHUANG, new Skill::GuYingHuaShuang(this, nullptr));
     skills.emplace(SKILL_YI_XING_HUAN_YING, new Skill::YiXingHuanYing(this, nullptr));
 
     buffs.emplace(BUFF_QU_FENG, new Buff::QuFeng(this, nullptr));
@@ -53,6 +50,7 @@ void Player::Init()
     buffs.emplace(BUFF_GAO_SHAN_LIU_SHUI, new Buff::GaoShanLiuShui(this, nullptr));
     buffs.emplace(BUFF_YANG_CHUN_BAI_XUE, new Buff::YangChunBaiXue(this, nullptr));
     buffs.emplace(BUFF_YING_ZI, new Buff::YingZi(this, nullptr));
+    buffs.emplace(BUFF_GU_YING_HUA_SHUANG, new Buff::GuYingHuaShuang(this, nullptr));
 
     if (talents[TALENT_XIAN_FENG]) {
         buffs.emplace(BUFF_XIAN_FENG, new Buff::XianFeng(this, nullptr));
@@ -204,6 +202,16 @@ void Player::Init()
                                                  std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_PO_ZHAO]->AddTriggerEffect(TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
                                                 std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
+    if (talents[TALENT_ZHENG_LV_HE_MING]) {
+        skills.emplace(SKILL_ZHENG_LV_HE_MING_1, new Skill::ZhengLvHeMing1(this, nullptr));
+        skills.emplace(SKILL_ZHENG_LV_HE_MING_2, new Skill::ZhengLvHeMing2(this, nullptr));
+        skills.emplace(SKILL_ZHENG_LV_HE_MING_3, new Skill::ZhengLvHeMing3(this, nullptr));
+
+        buffs.emplace(BUFF_ZHI_YIN_MIAO_YI, new Buff::ZhiYinMiaoYi(this, nullptr));
+        buffs.emplace(BUFF_ZHENG_LV_HE_MING, new Buff::ZhengLvHeMing(this, nullptr));
+        buffs.emplace(BUFF_ZHI_YIN_HE_MING, new Buff::ZhiYinHeMing(this, nullptr));
     }
 }
 

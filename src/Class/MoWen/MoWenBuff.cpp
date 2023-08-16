@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 14:37:19
+ * Last Modified: 2023-08-16 15:34:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -771,10 +771,34 @@ void JX3DPS::MoWen::Buff::QuFeng::Clear(Id_t targetId, int stackNum)
     m_snapshots[PLAYER_ID].stackNum = 0;
 }
 
+void JX3DPS::MoWen::Buff::QuFeng::TriggerAdd(int stackNum)
+{
+    m_snapshots[PLAYER_ID].stackNum += stackNum;
+    if (m_snapshots[PLAYER_ID].stackNum == m_stackNum) {
+        m_snapshots[PLAYER_ID].stackNum = 0;
+        SubEffect();
+    } else if (m_snapshots[PLAYER_ID].stackNum > m_stackNum) {
+        m_snapshots[PLAYER_ID].stackNum = 0;
+    }
+}
+
+void JX3DPS::MoWen::Buff::QuFeng::TriggerClear()
+{
+    m_snapshots[PLAYER_ID].stackNum = 0;
+}
+
+void JX3DPS::MoWen::Buff::QuFeng::TriggerSet(int stackNum)
+{
+    m_snapshots[PLAYER_ID].stackNum = stackNum;
+}
+
 void JX3DPS::MoWen::Buff::QuFeng::SubEffect()
 {
     static_cast<MoWen::Skill::PoZhao *>(m_player->skills[SKILL_PO_ZHAO])
         ->TriggerDamage(m_player->GetTargetId());
+    if (m_player->buffs[BUFF_ZHENG_LV_HE_MING]->GetDurationCurrent() > 0) {
+        static_cast<ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->TriggerAdd();
+    }
 }
 
 JX3DPS::MoWen::Buff::YangChunBaiXue::YangChunBaiXue(JX3DPS::Player *player, Targets *targets) :
@@ -801,7 +825,7 @@ void JX3DPS::MoWen::Buff::YangChunBaiXue::Add(Id_t targetId, int stackNum, Frame
     m_snapshots[PLAYER_ID].stackNum += stackNum;
     m_snapshots[PLAYER_ID].stackNum = std::min(m_stackNum, m_snapshots[PLAYER_ID].stackNum);
     stack = m_snapshots[PLAYER_ID].stackNum - stack;
-    SubEffectClear(stack);
+    SubEffectAdd(stack);
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[PLAYER_ID].duration = m_duration;
     } else [[unlikely]] {
@@ -871,7 +895,7 @@ void JX3DPS::MoWen::Buff::ZhiYinMiaoYi::Add(Id_t targetId, int stackNum, Frame_t
     m_snapshots[PLAYER_ID].stackNum += stackNum;
     m_snapshots[PLAYER_ID].stackNum = std::min(m_stackNum, m_snapshots[PLAYER_ID].stackNum);
     stack = m_snapshots[PLAYER_ID].stackNum - stack;
-    SubEffectClear(stack);
+    SubEffectAdd(stack);
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[PLAYER_ID].duration = m_duration;
     } else [[unlikely]] {
@@ -913,6 +937,219 @@ void JX3DPS::MoWen::Buff::ZhiYinMiaoYi::SubEffectAdd(int stackNum)
 void JX3DPS::MoWen::Buff::ZhiYinMiaoYi::SubEffectClear(int stackNum)
 {
     m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(-102.5 * stackNum);
+}
+
+JX3DPS::MoWen::Buff::GuYingHuaShuang::GuYingHuaShuang(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_GU_YING_HUA_SHUANG;
+    m_name     = "孤影化双";
+    m_duration = 7 * 16;
+}
+
+void JX3DPS::MoWen::Buff::GuYingHuaShuang::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration == 0) {
+        m_snapshots.erase(PLAYER_ID);
+        SubEffectClear();
+    }
+}
+
+void JX3DPS::MoWen::Buff::GuYingHuaShuang::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void JX3DPS::MoWen::Buff::GuYingHuaShuang::Clear(Id_t targetId, int stackNum)
+{
+    if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
+        m_snapshots.erase(PLAYER_ID);
+        SubEffectClear();
+    }
+}
+
+void JX3DPS::MoWen::Buff::GuYingHuaShuang::TriggerAdd()
+{
+    m_snapshots[PLAYER_ID].duration = m_duration;
+}
+
+void JX3DPS::MoWen::Buff::GuYingHuaShuang::TriggerClear()
+{
+    if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
+        m_snapshots.erase(PLAYER_ID);
+        SubEffectClear();
+    }
+}
+
+void JX3DPS::MoWen::Buff::GuYingHuaShuang::SubEffectClear()
+{
+    static_cast<MoWen::Skill::GuYingHuaShuang *>(m_player->skills[SKILL_GU_YING_HUA_SHUANG])->Reset();
+}
+
+JX3DPS::MoWen::Buff::ZhengLvHeMing::ZhengLvHeMing(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_ZHENG_LV_HE_MING;
+    m_name     = "正律和鸣";
+    m_duration = 20 * 16;
+}
+
+void JX3DPS::MoWen::Buff::ZhengLvHeMing::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration == 0) {
+        m_snapshots.erase(PLAYER_ID);
+        SubEffectClear();
+    }
+}
+
+void JX3DPS::MoWen::Buff::ZhengLvHeMing::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+    SubEffectAdd();
+}
+
+void JX3DPS::MoWen::Buff::ZhengLvHeMing::Clear(Id_t targetId, int stackNum)
+{
+    if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
+        m_snapshots.erase(PLAYER_ID);
+        SubEffectClear();
+    }
+}
+
+void JX3DPS::MoWen::Buff::ZhengLvHeMing::TriggerAdd()
+{
+    m_snapshots[PLAYER_ID].duration = m_duration;
+    SubEffectAdd();
+}
+
+void JX3DPS::MoWen::Buff::ZhengLvHeMing::TriggerClear()
+{
+    if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
+        m_snapshots.erase(PLAYER_ID);
+        SubEffectClear();
+    }
+}
+
+void JX3DPS::MoWen::Buff::ZhengLvHeMing::SubEffectAdd()
+{
+    static_cast<ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->TriggerAdd();
+}
+
+void JX3DPS::MoWen::Buff::ZhengLvHeMing::SubEffectClear()
+{
+    static_cast<ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->TriggerClear();
+}
+
+JX3DPS::MoWen::Buff::ZhiYinHeMing::ZhiYinHeMing(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_ZHI_YIN_HE_MING;
+    m_name     = "知音和鸣";
+    m_duration = 20 * 16;
+    m_stackNum = 5;
+    
+    m_damageParams[0].emplace_back((107 + 107 + 27) / 2, 0, 61);
+    m_damageParams[1].emplace_back((107 + 107 + 27) / 2, 0, 61);
+    m_damageParams[2].emplace_back((107 + 107 + 27) / 2, 0, 61);
+}
+
+void JX3DPS::MoWen::Buff::ZhiYinHeMing::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration == 0) {
+        m_snapshots.erase(PLAYER_ID);
+    }
+    if (m_snapshots[PLAYER_ID].interval == 0) {
+        m_snapshots[PLAYER_ID].interval = JX3DPS_INVALID_FRAMES_SET;
+        m_player->SetCast(false);
+    }
+}
+
+void JX3DPS::MoWen::Buff::ZhiYinHeMing::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    m_snapshots[PLAYER_ID].stackNum += stackNum;
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+    SubEffect();
+}
+
+void JX3DPS::MoWen::Buff::ZhiYinHeMing::Clear(Id_t targetId, int stackNum)
+{
+    if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
+        m_snapshots.erase(PLAYER_ID);
+    }
+}
+
+void JX3DPS::MoWen::Buff::ZhiYinHeMing::TriggerAdd()
+{
+    if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
+        randoms = { 2, 3, 5, 6 };
+        m_snapshots[PLAYER_ID].stackNum = 0;
+    } else {
+        m_snapshots[PLAYER_ID].stackNum++;
+    }
+    m_snapshots[PLAYER_ID].duration = m_duration;
+    SubEffect();
+}
+
+void JX3DPS::MoWen::Buff::ZhiYinHeMing::TriggerClear()
+{
+    if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
+        m_snapshots.erase(PLAYER_ID);
+    }
+}
+
+void JX3DPS::MoWen::Buff::ZhiYinHeMing::SubEffect()
+{
+    if (m_snapshots[PLAYER_ID].stackNum == 5) {
+        SubEffectDamage();
+        static_cast<ZhengLvHeMing *>(m_player->buffs[BUFF_ZHENG_LV_HE_MING])->TriggerClear();
+    } else if (m_snapshots[PLAYER_ID].stackNum == 4) {
+        static_cast<QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(4);
+    } else {
+        int index    = RandomUniform(0, static_cast<int>(randoms.size() - 1));
+        int stackNum = randoms[index];
+        randoms.erase(randoms.begin() + index);
+        static_cast<QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(stackNum);
+        if (stackNum == 5) {
+            m_snapshots[PLAYER_ID].interval = RandomUniform(8, 16);
+            m_player->SetCast(true);
+        }
+    }
+}
+
+void JX3DPS::MoWen::Buff::ZhiYinHeMing::SubEffectDamage()
+{
+    for (int i = 0; i < 5; ++i) {
+        RollResult  rollResult = GetMagicRollResult();
+        GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 1, 0);
+        RecordDamage(m_player->GetTargetId(), rollResult, damage, 0);
+    }
+}
+
+void JX3DPS::MoWen::Buff::ZhiYinHeMing::RecordDamage(
+    Id_t               targetId,
+    RollResult         rollResult,
+    const GainsDamage &gainsDamage,
+    int                sub)
+{
+    for (const auto &[type, damage] : gainsDamage) {
+        m_stats.gainStats[type][targetId][BUFF_ZHI_YIN_XING_JIN][sub][level][rollResult].first++;
+        m_stats.gainStats[type][targetId][BUFF_ZHI_YIN_XING_JIN][sub][level][rollResult]
+            .second.damage += damage.damage;
+        m_stats.gainStats[type][targetId][BUFF_ZHI_YIN_XING_JIN][sub][level][rollResult]
+            .second.surplusDamage += damage.surplusDamage;
+    }
 }
 
 JX3DPS::MoWen::Buff::YingZi::YingZi(JX3DPS::Player *player, Targets *targets) :

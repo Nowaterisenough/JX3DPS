@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 04:09:37
+ * Last Modified: 2023-08-16 13:56:43
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -136,10 +136,10 @@ enum Id_t
     SKILL_GAO_SHAN_LIU_SHUI,
     SKILL_YANG_CHUN_BAI_XUE,
     SKILL_SHU_YING_HENG_XIE,
-    SKILL_SHU_YING_HUA_SHUANG,
     SKILL_ZHENG_LV_HE_MING_1,
     SKILL_ZHENG_LV_HE_MING_2,
     SKILL_ZHENG_LV_HE_MING_3,
+    SKILL_GU_YING_HUA_SHUANG,
     SKILL_YI_XING_HUAN_YING,
     SKILL_MO_WEN_END, // ---------------------- 技能 莫问 END ----------------------
 
@@ -223,9 +223,12 @@ enum Id_t
     BUFF_CAN_LIAN,
     BUFF_ZHI_YIN_MIAO_YI,
     BUFF_ZHENG_LV_HE_MING,
+    BUFF_ZHI_YIN_HE_MING,
     BUFF_GAO_SHAN_LIU_SHUI,
     BUFF_YANG_CHUN_BAI_XUE,
     BUFF_YING_ZI,
+    BUFF_ZHI_YIN_XING_JIN,
+    BUFF_GU_YING_HUA_SHUANG,
     BUFF_MO_WEN_END, // ---------------------- Buff 莫问 END ----------------------
 
     BUFF_END,        // ---------------------- Buff END ----------------------
@@ -528,10 +531,10 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "高山流水" },
      { "阳春白雪" },
      { "疏影横斜" },
-     { "疏影化双" },
      { "正律和鸣·1" },
      { "正律和鸣·2" },
      { "正律和鸣·3" },
+     { "孤影化双" },
      { "移形换影" },
      { "----------------------技能 莫问 END----------------------" },
 
@@ -615,9 +618,12 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "参连" },
      { "知音妙意" },
      { "正律和鸣" },
+     { "知音和鸣" },
      { "高山流水" },
      { "阳春白雪" },
      { "影子" },
+     { "知音兴尽" },
+     { "孤影化双" },
      { "----------------------Buff 莫问 END----------------------" },
 
      { "----------------------Buff END-----------------------" },

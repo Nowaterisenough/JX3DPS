@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:26:49
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 07:28:11
+ * Last Modified: 2023-08-15 15:52:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -68,7 +68,7 @@ void KeyFrameAdvance(KeyFrameSequence &keyFrameSequence,
                      ExprSkillsHash   &exprSkillsHash,
                      Options          &options);
 
-Id_t CastSkills(Player *player, Targets *targets, ExprSkillsHash &exprSkillsHash, ExprSkills &exprSkills);
+Id_t CastSkills(Player *player, Targets *targets, ExprSkillsHash &exprSkillsHash, ExprSkills &exprSkills, Frame_t now);
 
 } // namespace KeyFrame
 

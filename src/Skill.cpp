@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 09:37:17
+ * Last Modified: 2023-08-16 03:16:16
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -165,6 +165,11 @@ JX3DPS::Frame_t JX3DPS::Skill::GetEnergyCooldownCurrent() const
 int JX3DPS::Skill::GetEnergyCountCurrent() const
 {
     return m_energyCountCurrent;
+}
+
+void JX3DPS::Skill::SetEnergyCountCurrent(int count)
+{
+    m_energyCountCurrent = count;
 }
 
 double JX3DPS::Skill::GetRange() const

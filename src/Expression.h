@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 13:41:19
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 06:00:09
+ * Last Modified: 2023-08-16 13:20:19
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -157,6 +157,8 @@ bool SkillCooldownNe(Player *player, Targets *targets, Id_t id, Frame_t time);
 bool SkillCooldownGe(Player *player, Targets *targets, Id_t id, Frame_t time);
 
 bool SkillCooldownGt(Player *player, Targets *targets, Id_t id, Frame_t time);
+
+bool SkillNotinCd(Player *player, Targets *targets, Id_t id);
 
 bool SkillEnergyLt(Player *player, Targets *targets, Id_t id, int energy);
 

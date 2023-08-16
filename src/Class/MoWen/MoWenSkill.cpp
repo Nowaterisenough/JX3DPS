@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 15:18:30
+ * Last Modified: 2023-08-16 15:04:12
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -124,7 +124,7 @@ void JX3DPS::MoWen::Skill::Gong::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
-        m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 3);
+        static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerAdd(3);
         static_cast<BianGong *>(m_player->skills[SKILL_BIAN_GONG])->Sync();
         m_player->SetCast(false);
         SubEffect();
@@ -228,7 +228,7 @@ void JX3DPS::MoWen::Skill::BianGong::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
         m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
-        m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 4);
+        static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerAdd(4);
         static_cast<Gong *>(m_player->skills[SKILL_GONG])->Sync();
         m_player->SetCast(false);
         SubEffect();
@@ -262,6 +262,9 @@ void JX3DPS::MoWen::Skill::BianGong::SubEffect()
     Params params;
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
+
+    params.targetId = m_player->GetTargetId();
+    m_triggerEffects[TRIGGER_ZHI_ZHI](params);
 
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
@@ -324,8 +327,8 @@ void JX3DPS::MoWen::Skill::Shang::SubEffect()
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
-    m_player->buffs[BUFF_QU_FENG]
-        ->Add(PLAYER_ID, 2 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
+    static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])
+        ->TriggerAdd(2 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
 
     static_cast<Buff::Shang *>(m_player->buffs[BUFF_SHANG])->TriggerAdd(m_player->GetTargetId());
 }
@@ -360,8 +363,8 @@ void JX3DPS::MoWen::Skill::Jue::SubEffect()
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
-    m_player->buffs[BUFF_QU_FENG]
-        ->Add(PLAYER_ID, 1 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
+    static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])
+        ->TriggerAdd(1 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
 
     static_cast<Buff::Jue *>(m_player->buffs[BUFF_JUE])->TriggerAdd(m_player->GetTargetId());
 }
@@ -426,7 +429,7 @@ void JX3DPS::MoWen::Skill::Zhi::Cast()
     }
     static_cast<BianZhi *>(m_player->skills[SKILL_BIAN_ZHI])->Sync();
 
-    m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 5);
+    static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerAdd(5);
 
     Params params;
     params.player = m_player;
@@ -572,7 +575,7 @@ void JX3DPS::MoWen::Skill::BianZhi::Cast()
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
     static_cast<Zhi *>(m_player->skills[SKILL_ZHI])->Sync();
 
-    m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 6);
+    static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerAdd(6);
 
     Params params;
     params.player = m_player;
@@ -736,7 +739,8 @@ void JX3DPS::MoWen::Skill::Yu::SubEffect()
     Params params;
     params.player = m_player;
 
-    m_player->buffs[BUFF_QU_FENG]->Add(PLAYER_ID, 4 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
+    static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])
+        ->TriggerAdd(4 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
 
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
 
@@ -770,6 +774,11 @@ void JX3DPS::MoWen::Skill::GaoShanLiuShui::Cast()
         m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownGaoShanLiuShuiCurrent;
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_YANG_CHUN_BAI_XUE])->SetCooldown();
         m_prepareFramesCurrent = m_prepareFrames;
+
+        if (m_player->buffs[BUFF_ZHENG_LV_HE_MING]->GetDurationCurrent() == 0) {
+            static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(0);
+        }
+
         m_player->SetCast(true);
 
         static_cast<BianGong *>(m_player->skills[SKILL_BIAN_GONG])->Sync();
@@ -831,6 +840,10 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::Cast()
         static_cast<YangChunBaiXue *>(m_player->skills[SKILL_GAO_SHAN_LIU_SHUI])->SetCooldown();
         m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownYangChunBaiXueCurrent;
         m_prepareFramesCurrent = m_prepareFrames;
+
+        if (m_player->buffs[BUFF_ZHENG_LV_HE_MING]->GetDurationCurrent() == 0) {
+            static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(0);
+        }
 
         m_player->SetCast(true);
 
@@ -906,26 +919,28 @@ void JX3DPS::MoWen::Skill::YangChunBaiXue::SubEffect()
 JX3DPS::MoWen::Skill::ShuYingHengXie::ShuYingHengXie(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id                 = SKILL_SHU_YING_HENG_XIE;
-    m_name               = "疏影横斜";
-    m_range              = 20;
-    m_cooldown           = 20 * 16;
-    m_cooldownCurrent    = JX3DPS_INVALID_FRAMES_SET;
+    m_id                    = SKILL_SHU_YING_HENG_XIE;
+    m_name                  = "疏影横斜";
+    m_range                 = 20;
+    m_cooldown              = 20 * 16;
+    m_cooldownCurrent       = JX3DPS_INVALID_FRAMES_SET;
+    m_globalCooldownCurrent = &m_noneGlobalCooldown;
     m_energyCountCurrent = m_energyCount = 3;
 
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
 
+    m_effectDamageAdditionalPercentInt = 20;
     if (m_player->talents[TALENT_KE_MENG]) {
-        percent = 100;
+        m_effectDamageAdditionalPercentInt = 100;
     }
 }
 
 void JX3DPS::MoWen::Skill::ShuYingHengXie::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
-    *m_globalCooldownCurrent =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+    m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownShuYingHengXieCurrent;
+    *m_globalCooldownCurrent = m_player->globalCooldown * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent = m_cooldown;
     m_energyCountCurrent--;
     SubEffect();
 }
@@ -942,49 +957,114 @@ void JX3DPS::MoWen::Skill::ShuYingHengXie::Trigger()
     }
 }
 
+bool JX3DPS::MoWen::Skill::ShuYingHengXie::IsReady(bool fcast)
+{
+    if (m_player->IsCast()) {
+        return false;
+    }
+    if (!m_player->IsReCast() || fcast) {
+        if (static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->ids.size() < 6) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void JX3DPS::MoWen::Skill::ShuYingHengXie::SubEffect()
 {
     static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->TriggerAdd();
-    if (RandomUniform(1, 100) <= percent) {
+    if (RandomUniform(1, 100) <= m_effectDamageAdditionalPercentInt) {
         static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->TriggerAdd();
     }
 }
 
-JX3DPS::MoWen::Skill::ShuYingHuaShuang::ShuYingHuaShuang(JX3DPS::Player *player, Targets *targets) :
+JX3DPS::MoWen::Skill::GuYingHuaShuang::GuYingHuaShuang(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id    = SKILL_SHU_YING_HUA_SHUANG;
-    m_name  = "疏影化双";
-    m_range = 20;
-
-    m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
+    m_id                    = SKILL_GU_YING_HUA_SHUANG;
+    m_name                  = "孤影化双";
+    m_range                 = JX3DPS_UNLIMITED_RANGE;
+    m_cooldown              = 150 * 16;
+    m_globalCooldownCurrent = &m_noneGlobalCooldown;
 }
 
-void JX3DPS::MoWen::Skill::ShuYingHuaShuang::Cast()
+void JX3DPS::MoWen::Skill::GuYingHuaShuang::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent      = m_cooldown * m_player->attribute.GetHastePercent();
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
-    *m_globalCooldownCurrent =
-        m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
-    static_cast<MoWen::Player *>(m_player)->AddStyleCount(4);
-}
-
-void JX3DPS::MoWen::Skill::ShuYingHuaShuang::Trigger()
-{
-    if (m_prepareFramesCurrent == 0) {
-        SubEffect();
+    m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownGuYingHuaShuangCurrent;
+    if (index == 0) {
+        Snap();
+        *m_globalCooldownCurrent = 16;
+        index++;
+    } else {
+        RestoreFromSnap();
     }
 }
 
-void JX3DPS::MoWen::Skill::ShuYingHuaShuang::SubEffect() { }
+void JX3DPS::MoWen::Skill::GuYingHuaShuang::Trigger() { }
+
+void JX3DPS::MoWen::Skill::GuYingHuaShuang::Snap()
+{
+    static_cast<Buff::GuYingHuaShuang *>(m_player->buffs[BUFF_GU_YING_HUA_SHUANG])->TriggerAdd();
+    for (int i = SKILL_GONG; i <= SKILL_SHU_YING_HENG_XIE; ++i) {
+        snaps[static_cast<Id_t>(i)].cooldownCurrent =
+            m_player->skills[static_cast<Id_t>(i)]->GetEnergyCooldownCurrent();
+        snaps[static_cast<Id_t>(i)].energyCountCurrent =
+            m_player->skills[static_cast<Id_t>(i)]->GetEnergyCountCurrent();
+    }
+
+    if (m_player->skills.find(SKILL_ZHENG_LV_HE_MING_1) != m_player->skills.end()) {
+        snaps[SKILL_ZHENG_LV_HE_MING_1].cooldownCurrent =
+            m_player->skills[SKILL_ZHENG_LV_HE_MING_1]->GetEnergyCooldownCurrent();
+        snaps[SKILL_ZHENG_LV_HE_MING_1].energyCountCurrent =
+            m_player->skills[SKILL_ZHENG_LV_HE_MING_1]->GetEnergyCountCurrent();
+
+        snaps[SKILL_ZHENG_LV_HE_MING_2].cooldownCurrent =
+            m_player->skills[SKILL_ZHENG_LV_HE_MING_2]->GetEnergyCooldownCurrent();
+        snaps[SKILL_ZHENG_LV_HE_MING_2].energyCountCurrent =
+            m_player->skills[SKILL_ZHENG_LV_HE_MING_2]->GetEnergyCountCurrent();
+
+        snaps[SKILL_ZHENG_LV_HE_MING_3].cooldownCurrent =
+            m_player->skills[SKILL_ZHENG_LV_HE_MING_3]->GetEnergyCooldownCurrent();
+        snaps[SKILL_ZHENG_LV_HE_MING_3].energyCountCurrent =
+            m_player->skills[SKILL_ZHENG_LV_HE_MING_3]->GetEnergyCountCurrent();
+    }
+
+    cooldownStyleCurrent = static_cast<MoWen::Player *>(m_player)->cooldownStyleCurrent;
+    cooldownGaoShanLiuShuiCurrent = static_cast<MoWen::Player *>(m_player)->cooldownGaoShanLiuShuiCurrent;
+    cooldownYangChunBaiXueCurrent = static_cast<MoWen::Player *>(m_player)->cooldownYangChunBaiXueCurrent;
+    cooldownShuYingHengXieCurrent = static_cast<MoWen::Player *>(m_player)->cooldownShuYingHengXieCurrent;
+    cooldownGuYingHuaShuangCurrent = static_cast<MoWen::Player *>(m_player)->cooldownGuYingHuaShuangCurrent;
+}
+
+void JX3DPS::MoWen::Skill::GuYingHuaShuang::RestoreFromSnap()
+{
+    static_cast<Buff::GuYingHuaShuang *>(m_player->buffs[BUFF_GU_YING_HUA_SHUANG])->TriggerClear();
+    for (auto &[id, snap] : snaps) {
+        m_player->skills[id]->SetEnergyCooldownCurrent(snap.cooldownCurrent);
+        m_player->skills[id]->SetEnergyCountCurrent(snap.energyCountCurrent);
+    }
+
+    static_cast<MoWen::Player *>(m_player)->cooldownStyleCurrent = cooldownStyleCurrent;
+    static_cast<MoWen::Player *>(m_player)->cooldownGaoShanLiuShuiCurrent = cooldownGaoShanLiuShuiCurrent;
+    static_cast<MoWen::Player *>(m_player)->cooldownYangChunBaiXueCurrent = cooldownYangChunBaiXueCurrent;
+    static_cast<MoWen::Player *>(m_player)->cooldownShuYingHengXieCurrent = cooldownShuYingHengXieCurrent;
+    static_cast<MoWen::Player *>(m_player)->cooldownGuYingHuaShuangCurrent = cooldownGuYingHuaShuangCurrent;
+}
+
+void JX3DPS::MoWen::Skill::GuYingHuaShuang::Reset()
+{
+    *m_globalCooldownCurrent = m_cooldown;
+    index                    = 0;
+}
 
 JX3DPS::MoWen::Skill::ZhengLvHeMing1::ZhengLvHeMing1(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id    = SKILL_ZHENG_LV_HE_MING_1;
-    m_name  = "正律和鸣";
-    m_range = 20;
+    m_id       = SKILL_ZHENG_LV_HE_MING_1;
+    m_name     = "正律和鸣";
+    m_range    = 20;
+    m_cooldown = 60 * 16;
 
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
 }
@@ -992,28 +1072,27 @@ JX3DPS::MoWen::Skill::ZhengLvHeMing1::ZhengLvHeMing1(JX3DPS::Player *player, Tar
 void JX3DPS::MoWen::Skill::ZhengLvHeMing1::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent      = m_cooldown * m_player->attribute.GetHastePercent();
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent = m_cooldown;
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
-    static_cast<MoWen::Player *>(m_player)->AddStyleCount(4);
+    SubEffect();
 }
 
-void JX3DPS::MoWen::Skill::ZhengLvHeMing1::Trigger()
+void JX3DPS::MoWen::Skill::ZhengLvHeMing1::Trigger() { }
+
+void JX3DPS::MoWen::Skill::ZhengLvHeMing1::SubEffect()
 {
-    if (m_prepareFramesCurrent == 0) {
-        SubEffect();
-    }
+    static_cast<MoWen::Buff::ZhengLvHeMing *>(m_player->buffs[BUFF_ZHENG_LV_HE_MING])->TriggerAdd();
+    static_cast<MoWen::Buff::ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->level = 1;
 }
-
-void JX3DPS::MoWen::Skill::ZhengLvHeMing1::SubEffect() { }
 
 JX3DPS::MoWen::Skill::ZhengLvHeMing2::ZhengLvHeMing2(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id    = SKILL_ZHENG_LV_HE_MING_2;
-    m_name  = "正律和鸣";
-    m_range = 20;
+    m_id       = SKILL_ZHENG_LV_HE_MING_2;
+    m_name     = "正律和鸣";
+    m_range    = 20;
+    m_cooldown = 60 * 16;
 
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
 }
@@ -1021,28 +1100,27 @@ JX3DPS::MoWen::Skill::ZhengLvHeMing2::ZhengLvHeMing2(JX3DPS::Player *player, Tar
 void JX3DPS::MoWen::Skill::ZhengLvHeMing2::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent      = m_cooldown * m_player->attribute.GetHastePercent();
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent = m_cooldown;
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
-    static_cast<MoWen::Player *>(m_player)->AddStyleCount(4);
+    SubEffect();
 }
 
-void JX3DPS::MoWen::Skill::ZhengLvHeMing2::Trigger()
+void JX3DPS::MoWen::Skill::ZhengLvHeMing2::Trigger() { }
+
+void JX3DPS::MoWen::Skill::ZhengLvHeMing2::SubEffect()
 {
-    if (m_prepareFramesCurrent == 0) {
-        SubEffect();
-    }
+    static_cast<MoWen::Buff::ZhengLvHeMing *>(m_player->buffs[BUFF_ZHENG_LV_HE_MING])->TriggerAdd();
+    static_cast<MoWen::Buff::ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->level = 2;
 }
-
-void JX3DPS::MoWen::Skill::ZhengLvHeMing2::SubEffect() { }
 
 JX3DPS::MoWen::Skill::ZhengLvHeMing3::ZhengLvHeMing3(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
-    m_id    = SKILL_ZHENG_LV_HE_MING_3;
-    m_name  = "正律和鸣";
-    m_range = 20;
+    m_id       = SKILL_ZHENG_LV_HE_MING_3;
+    m_name     = "正律和鸣";
+    m_range    = 20;
+    m_cooldown = 60 * 16;
 
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
 }
@@ -1050,21 +1128,19 @@ JX3DPS::MoWen::Skill::ZhengLvHeMing3::ZhengLvHeMing3(JX3DPS::Player *player, Tar
 void JX3DPS::MoWen::Skill::ZhengLvHeMing3::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent      = m_cooldown * m_player->attribute.GetHastePercent();
-    m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
+    m_cooldownCurrent = m_cooldown;
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
-    static_cast<MoWen::Player *>(m_player)->AddStyleCount(4);
+    SubEffect();
 }
 
-void JX3DPS::MoWen::Skill::ZhengLvHeMing3::Trigger()
+void JX3DPS::MoWen::Skill::ZhengLvHeMing3::Trigger() { }
+
+void JX3DPS::MoWen::Skill::ZhengLvHeMing3::SubEffect()
 {
-    if (m_prepareFramesCurrent == 0) {
-        SubEffect();
-    }
+    static_cast<MoWen::Buff::ZhengLvHeMing *>(m_player->buffs[BUFF_ZHENG_LV_HE_MING])->TriggerAdd();
+    static_cast<MoWen::Buff::ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->level = 3;
 }
-
-void JX3DPS::MoWen::Skill::ZhengLvHeMing3::SubEffect() { }
 
 JX3DPS::MoWen::Skill::YiXingHuanYing::YiXingHuanYing(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)

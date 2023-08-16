@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 15:37:23
+ * Last Modified: 2023-08-16 14:20:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -58,22 +58,34 @@ public:
         if (cooldownYangChunBaiXueCurrent > 0) {
             frame = std::min(frame, cooldownYangChunBaiXueCurrent);
         }
+        if (cooldownShuYingHengXieCurrent > 0) {
+            frame = std::min(frame, cooldownShuYingHengXieCurrent);
+        }
+        if (cooldownGuYingHuaShuangCurrent > 0) {
+            frame = std::min(frame, cooldownGuYingHuaShuangCurrent);
+        }
         return frame;
     }
 
     inline void UpdateGlobalCooldown(Frame_t next) override
     {
         globalCooldownCurrent -= next;
-        globalCooldownCurrent = std::max(globalCooldownCurrent, 0);
+        globalCooldownCurrent  = std::max(globalCooldownCurrent, 0);
 
         cooldownStyleCurrent -= next;
-        cooldownStyleCurrent = std::max(cooldownStyleCurrent, 0);
+        cooldownStyleCurrent  = std::max(cooldownStyleCurrent, 0);
 
         cooldownGaoShanLiuShuiCurrent -= next;
-        cooldownGaoShanLiuShuiCurrent = std::max(cooldownGaoShanLiuShuiCurrent, 0);
+        cooldownGaoShanLiuShuiCurrent  = std::max(cooldownGaoShanLiuShuiCurrent, 0);
 
         cooldownYangChunBaiXueCurrent -= next;
-        cooldownYangChunBaiXueCurrent = std::max(cooldownYangChunBaiXueCurrent, 0);
+        cooldownYangChunBaiXueCurrent  = std::max(cooldownYangChunBaiXueCurrent, 0);
+
+        cooldownShuYingHengXieCurrent -= next;
+        cooldownShuYingHengXieCurrent  = std::max(cooldownShuYingHengXieCurrent, 0);
+
+        cooldownGuYingHuaShuangCurrent -= next;
+        cooldownGuYingHuaShuangCurrent  = std::max(cooldownGuYingHuaShuangCurrent, 0);
     }
 
     enum class Style
@@ -84,19 +96,16 @@ public:
 
     Style style = Style::GAO_SHAN_LIU_SHUI;
 
-    int styleCount = 0;
-
-    inline void AddStyleCount(int count)
-    {
-        styleCount += (count + static_cast<int>(style));
-    }
-
     Frame_t cooldownStyleCurrent = 0;
 
     Frame_t cooldownGaoShanLiuShuiCurrent = 0;
 
     Frame_t cooldownYangChunBaiXueCurrent = 0;
-    
+
+    Frame_t cooldownShuYingHengXieCurrent = 0;
+
+    Frame_t cooldownGuYingHuaShuangCurrent = 0;
+
     static void TriggerXianFeng(const Params &params);
 
     static void TriggerXianFengBiaoJi(const Params &params);

@@ -2846,7 +2846,7 @@
             "Default": {
                 "SkillsExpression": {
                     "常规": [
-                        "/cast [skill_notin_cd:正律和鸣] 宏·大招",
+                        "/cast [skill_notin_cd:正律和鸣·1] 宏·大招",
                         "/cast 阳春白雪",
                         "/cast [tnobuff:角] 角",
                         "/cast [tnobuff:商] 商",
@@ -2858,9 +2858,9 @@
                         "/cast [skill_energy:疏影横斜=3] 疏影横斜"
                     ],
                     "大招": [
-                        "/cast [skill_cd:正律和鸣~=0&nobuff:知音和鸣] 宏·常规",
+                        "/cast [skill_cd:正律和鸣·1~=0&nobuff:知音和鸣] 宏·常规",
                         "/cast [nobuff:孤影化双|skill_energy:疏影横斜=0] 孤影化双",
-                        "/cast [nobuff:知音和鸣] 正律和鸣",
+                        "/cast [nobuff:知音和鸣] 正律和鸣·1",
                         "/cast 疏影横斜",
                         "/cast [buff:参连] 高山流水",
                         "/cast 高山流水",

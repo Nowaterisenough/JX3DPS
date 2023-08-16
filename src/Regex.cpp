@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 05:59:28
+ * Last Modified: 2023-08-16 13:19:48
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -285,11 +285,14 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_STACK_NUM 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_TIME =
     "tbufftime:([\u4e00-\u9fa5·0-9a-zA-Z]+)(.*?)([\\d.]+)";
 
-const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_CAST_SKILL =
-    "last_cast_skill(.*?)([\u4e00-\u9fa5·0-9a-zA-Z]+)";
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_SKILL =
+    "last_skill(.*?)([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
-const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDONW =
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDOWN =
     "skill_cd:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
+
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_NOTIN_COOLDOWN =
+    "skill_notin_cd:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_ENERGY =
     "skill_energy:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
@@ -305,8 +308,9 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
     std::regex regTNoBuff(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_NO_BUFF);
     std::regex regTbuffStackNum(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_STACK_NUM);
     std::regex regTbuffTime(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_TIME);
-    std::regex regLastCastSkill(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_CAST_SKILL);
-    std::regex regSkillCd(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDONW);
+    std::regex regLastCastSkill(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_SKILL);
+    std::regex regSkillCd(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDOWN);
+    std::regex regSkillNotinCd(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_NOTIN_COOLDOWN);
     std::regex regSkillEnergy(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_ENERGY);
 
     std::smatch mat;
@@ -519,6 +523,9 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
             exprIf =
                 std::bind(&JX3DPS::Expression::NotLastCastSkill, std::placeholders::_1, std::placeholders::_2, id);
         }
+    } else if (std::regex_match(str, mat, regSkillNotinCd)) {
+        JX3DPS::Id_t id = SkillId(mat[1].str());
+        exprIf = std::bind(&JX3DPS::Expression::SkillNotinCd, std::placeholders::_1, std::placeholders::_2, id);
     } else if (std::regex_match(str, mat, regSkillCd)) {
         JX3DPS::Id_t id = SkillId(mat[1].str());
         if (mat[2].str() == "<") {

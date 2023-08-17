@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 13:15:00
+ * Last Modified: 2023-08-17 15:02:12
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1194,6 +1194,7 @@ void JX3DPS::MoWen::Buff::YingZi::Trigger()
         }
         if (iter->second.duration == 0) {
             iter = m_snapshots.erase(iter);
+            ids.pop_front();
         } else {
             ++iter;
         }

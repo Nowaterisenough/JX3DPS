@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:30
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:46:22
+ * Last Modified: 2023-08-18 06:57:07
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -126,20 +126,26 @@ class Buff
 
             // 收益属性
 
-            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, true);
-            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, true);
-            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, true);
-            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, true);
+            attribute.AddPhysicsAttackPowerBaseAdditional(
+                Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE));
+            attribute.AddPhysicsCriticalStrikeAdditional(
+                Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::CRITICAL_STRIKE_POWER));
+            attribute.AddPhysicsOvercomeBaseAdditional(
+                Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::OVERCOME_BASE));
+            attribute.AddStrainBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::STRAIN_BASE));
 
             attackPowerGain         = attribute.GetPhysicsAttackPower();
             criticalStrikePowerGain = attribute.GetPhysicsCriticalStrikePower();
             overcomeGain            = attribute.GetPhysicsOvercome();
             strainBaseGain          = attribute.GetStrainBase();
 
-            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, false);
-            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, false);
-            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, false);
-            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, false);
+            attribute.AddPhysicsAttackPowerBaseAdditional(
+                -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE));
+            attribute.AddPhysicsCriticalStrikeAdditional(
+                -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::CRITICAL_STRIKE_POWER));
+            attribute.AddPhysicsOvercomeBaseAdditional(
+                -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::OVERCOME_BASE));
+            attribute.AddStrainBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::STRAIN_BASE));
         }
 
         void SnapMagic(Attribute &attribute,
@@ -162,21 +168,26 @@ class Buff
             this->effectDamageAdditionalPercentInt = effectDamageAdditionalPercentInt;
 
             // 收益属性
-
-            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, true);
-            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, true);
-            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, true);
-            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, true);
+            attribute.AddMagicAttackPowerBaseAdditional(
+                Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE));
+            attribute.AddMagicCriticalStrikeAdditional(
+                Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::CRITICAL_STRIKE_POWER));
+            attribute.AddMagicOvercomeBaseAdditional(
+                Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::OVERCOME_BASE));
+            attribute.AddStrainBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::STRAIN_BASE));
 
             attackPowerGain         = attribute.GetMagicAttackPower();
             criticalStrikePowerGain = attribute.GetMagicCriticalStrikePower();
             overcomeGain            = attribute.GetMagicOvercome();
             strainBaseGain          = attribute.GetStrainBase();
 
-            attribute.SetGainSwitch(Attribute::Type::ATTACK_POWER_BASE, false);
-            attribute.SetGainSwitch(Attribute::Type::CRITICAL_STRIKE_POWER, false);
-            attribute.SetGainSwitch(Attribute::Type::OVERCOME_BASE, false);
-            attribute.SetGainSwitch(Attribute::Type::STRAIN_BASE, false);
+            attribute.AddMagicAttackPowerBaseAdditional(
+                -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE));
+            attribute.AddMagicCriticalStrikeAdditional(
+                -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::CRITICAL_STRIKE_POWER));
+            attribute.AddMagicOvercomeBaseAdditional(
+                -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::OVERCOME_BASE));
+            attribute.AddStrainBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::STRAIN_BASE));
         }
     };
 
@@ -232,7 +243,7 @@ public:
     GainsDamage CalcPhysicsDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
     RollResult GetMagicRollResult() const;
-    
+
     Damage GetMagicDamage(Id_t       targetId,
                           RollResult rollResult,
                           int        sub,

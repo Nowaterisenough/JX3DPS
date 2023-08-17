@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 15:02:12
+ * Last Modified: 2023-08-18 06:41:48
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1366,7 +1366,6 @@ JX3DPS::GainsDamage JX3DPS::MoWen::Buff::YingZi::CalcMagicYingZiDamage(
 
     std::array<Attribute::Type, 6> types = {
         {{ Attribute::Type::DEFAULT },
-         { Attribute::Type::WEAPON_DAMAGE_BASE },
          { Attribute::Type::ATTACK_POWER_BASE },
          { Attribute::Type::CRITICAL_STRIKE_POWER },
          { Attribute::Type::OVERCOME_BASE },
@@ -1381,11 +1380,6 @@ JX3DPS::GainsDamage JX3DPS::MoWen::Buff::YingZi::CalcMagicYingZiDamage(
         Value_t weaponDamage        = m_player->attribute.GetWeaponDamage();
 
         switch (type) {
-            case Attribute::Type::WEAPON_DAMAGE_BASE:
-                m_player->attribute.AddWeaponDamageBase(Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
-                weaponDamage = m_player->attribute.GetWeaponDamage();
-                m_player->attribute.AddWeaponDamageBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
-                break;
             case Attribute::Type::ATTACK_POWER_BASE:
                 attack = m_snapshots.at(targetId).attackPowerGain;
                 break;
@@ -1404,6 +1398,7 @@ JX3DPS::GainsDamage JX3DPS::MoWen::Buff::YingZi::CalcMagicYingZiDamage(
         gainsDamage[type] =
             GetMagicYingZiDamage(targetId, rollResult, sub, level, effectCount, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::WEAPON_DAMAGE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
     gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;

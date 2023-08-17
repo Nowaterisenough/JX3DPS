@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 18:51:51
+ * Last Modified: 2023-08-18 06:27:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -152,6 +152,7 @@ void CheckBoxIcon::paintEvent(QPaintEvent *event)
         painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_BASE)));
     } else {
         painter.setBrush(QBrush(QColor(COLOR_BACKGROUND_HIGHLIGHT)));
+        painter.setOpacity(0.8);
     }
     painter.drawRect(this->rect());
 

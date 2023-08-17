@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 05:04:18
+ * Last Modified: 2023-08-17 13:15:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -730,6 +730,14 @@ void JX3DPS::MoWen::Buff::GaoShanLiuShui::TriggerAdd()
         SubEffectAdd();
     }
     m_snapshots[PLAYER_ID].duration = m_duration;
+}
+
+void JX3DPS::MoWen::Buff::GaoShanLiuShui::TriggerClear()
+{
+    if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
+        SubEffectClear();
+        m_snapshots.erase(PLAYER_ID);
+    }
 }
 
 void JX3DPS::MoWen::Buff::GaoShanLiuShui::SubEffectAdd()

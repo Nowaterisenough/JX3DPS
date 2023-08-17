@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 11:02:07
+ * Last Modified: 2023-08-17 14:35:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -303,9 +303,6 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
                               now * 0.0625,
                               exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT,
                               JX3DPS_NAME.at(static_cast<int>(id)));
-                spdlog::debug("徵充能 {} cd {}",
-                              player->skills[SKILL_ZHI]->GetEnergyCountCurrent(),
-                              player->skills[SKILL_ZHI]->GetEnergyCooldownCurrent());
             } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
                 player->SetTargetId(id);
             } else if (id > EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏

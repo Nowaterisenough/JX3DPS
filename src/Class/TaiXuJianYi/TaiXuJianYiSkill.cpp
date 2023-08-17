@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 04:56:17
+ * Last Modified: 2023-08-17 14:31:54
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -1208,7 +1208,9 @@ JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Tar
 void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Cast()
 {
     m_player->SetLastCastSkill(m_id);
-    m_cooldownCurrent = m_cooldown;
+    if (m_energyCountCurrent == m_energyCount) {
+        m_cooldownCurrent = m_cooldown;
+    }
     m_energyCountCurrent--;
     m_player->SetQidian(10);
 

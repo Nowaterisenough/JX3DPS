@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 04:43:43
+ * Last Modified: 2023-08-17 13:14:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -143,6 +143,7 @@ class GaoShanLiuShui : public JX3DPS::Buff
 
 public:
     void TriggerAdd();
+    void TriggerClear();
 
     void SubEffectAdd();
     void SubEffectClear();

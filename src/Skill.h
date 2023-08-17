@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 04:12:51
+ * Last Modified: 2023-08-17 09:36:00
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -76,6 +76,7 @@ public:
     Frame_t GetEnergyCooldownCurrent() const;     // 用于宏条件判定
     int     GetEnergyCountCurrent() const;        // 用于宏条件判定
     void    SetEnergyCountCurrent(int count);
+    Frame_t GetCooldownCurrentWithoutGlobal() const;
     double  GetRange() const; // 用于宏条件判定
 
     inline void AddCriticalStrikeAdditionalBasisPointInt(BPInt_t basisPointInt)

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 05:16:27
+ * Last Modified: 2023-08-17 11:02:07
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -126,6 +126,8 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
     KeyFrameSequence checkedKeyFrameSequence;
     KeyFrameSequence unCheckedSkillKeyFrameSequence;
     KeyFrameSequence unCheckedBuffKeyFrameSequence;
+
+    player->SetDelay(options.delayMin, options.delayMax);
 
 #ifdef OLD_FRAMEWORK
     std::list<Id_t> skills;
@@ -297,7 +299,13 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
             Id_t id = iter->second;
             if (id > SKILL_DEFAULT) { // 执行技能
                 player->skills[id]->Cast();
-                spdlog::debug("{:<8} 宏·{} {}", now * 0.0625, exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT, JX3DPS_NAME.at(static_cast<int>(id)));
+                spdlog::debug("{:<8} 宏·{} {}",
+                              now * 0.0625,
+                              exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT,
+                              JX3DPS_NAME.at(static_cast<int>(id)));
+                spdlog::debug("徵充能 {} cd {}",
+                              player->skills[SKILL_ZHI]->GetEnergyCountCurrent(),
+                              player->skills[SKILL_ZHI]->GetEnergyCooldownCurrent());
             } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
                 player->SetTargetId(id);
             } else if (id > EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏

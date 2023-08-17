@@ -2846,16 +2846,18 @@
             "Default": {
                 "SkillsExpression": {
                     "常规": [
-                        "/cast [skill_notin_cd:正律和鸣·1] 宏·大招",
+                        "/cast [skill_cd:正律和鸣·1=0] 宏·大招",
+                        "/cast [skill_energy:徵<1&buff:高山流水] 宏·补充",
+                        "/scast 高山流水",
+                        "/scast 变宫",
                         "/cast 阳春白雪",
-                        "/cast [tnobuff:角] 角",
-                        "/cast [tnobuff:商] 商",
-                        "/cast [buff:参连&buff:弦风=4] 高山流水",
-                        "/cast [buff:弦风=4] 变宫",
-                        "/cast 阳春白雪",
-                        "/cast [buff:曲风=5|skill_energy:徵<1] 羽",
-                        "/cast 徵",
-                        "/cast [skill_energy:疏影横斜=3] 疏影横斜"
+                        "/scast 徵",
+                        "/scast 羽",
+                        "/scast 徵",
+                        "/scast 羽",
+                        "/scast 徵",
+                        "/cast [skill_energy:疏影横斜=3] 疏影横斜",
+                        "/cast 宏·常规"
                     ],
                     "大招": [
                         "/cast [skill_cd:正律和鸣·1~=0&nobuff:知音和鸣] 宏·常规",
@@ -2865,12 +2867,16 @@
                         "/cast [buff:参连] 高山流水",
                         "/cast 高山流水",
                         "/cast [buff:知音和鸣=4] 阳春白雪",
-                        "/cast [buff:参连] 徵",
+                        "/cast [buff:参连&buff:弦风=5] 徵",
                         "/cast [buff:曲风=3] 变徵",
                         "/cast [buff:曲风=2] 角",
                         "/cast [buff:曲风=4] 羽",
                         "/cast [buff:曲风=5] 变宫",
                         "/cast [buff:曲风=6] 商"
+                    ],
+                    "补充": [
+                        "/scast 羽",
+                        "/cast 宏·常规"
                     ]
                 },
                 "EventsExpression": [

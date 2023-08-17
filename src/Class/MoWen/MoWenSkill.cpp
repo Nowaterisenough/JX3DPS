@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 01:09:15
+ * Last Modified: 2023-08-17 11:39:21
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -502,7 +502,14 @@ void JX3DPS::MoWen::Skill::Zhi::Sync()
 void JX3DPS::MoWen::Skill::Zhi::TriggerShiXiang()
 {
     m_cooldownCurrent -= 5 * 16;
-    m_cooldownCurrent  = std::max(m_cooldownCurrent, 0);
+    if (m_cooldownCurrent <= 0) {
+        m_energyCountCurrent++;
+        m_cooldownCurrent += m_cooldown;
+        if (m_energyCountCurrent >= m_energyCount) {
+            m_energyCountCurrent = m_energyCount;
+            m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
+        }
+    }
 }
 
 void JX3DPS::MoWen::Skill::Zhi::SubEffect()
@@ -575,6 +582,9 @@ void JX3DPS::MoWen::Skill::BianZhi::Cast()
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     *m_globalCooldownCurrent =
         m_player->globalCooldown * m_player->attribute.GetHastePercent() + m_player->DelayFrames();
+            if (m_energyCount == 3) {
+        m_energyCountCurrent--;
+    }
     static_cast<Zhi *>(m_player->skills[SKILL_ZHI])->Sync();
 
     static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerAdd(6);
@@ -652,7 +662,14 @@ void JX3DPS::MoWen::Skill::BianZhi::Sync()
 void JX3DPS::MoWen::Skill::BianZhi::TriggerShiXiang()
 {
     m_cooldownCurrent -= 5 * 16;
-    m_cooldownCurrent  = std::max(m_cooldownCurrent, 0);
+    if (m_cooldownCurrent <= 0) {
+        m_energyCountCurrent++;
+        m_cooldownCurrent += m_cooldown;
+        if (m_energyCountCurrent >= m_energyCount) {
+            m_energyCountCurrent = m_energyCount;
+            m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
+        }
+    }
 }
 
 void JX3DPS::MoWen::Skill::BianZhi::SubEffect()
@@ -733,7 +750,13 @@ void JX3DPS::MoWen::Skill::Yu::Trigger()
 void JX3DPS::MoWen::Skill::Yu::TriggerShiXiang()
 {
     m_cooldownCurrent -= 5 * 16;
-    m_cooldownCurrent  = std::max(m_cooldownCurrent, 0);
+    if (m_cooldownCurrent <= 0) {
+        m_energyCountCurrent++;
+        m_cooldownCurrent = m_cooldown;
+        if (m_energyCountCurrent >= m_energyCount) {
+            m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
+        }
+    }
 }
 
 void JX3DPS::MoWen::Skill::Yu::SubEffect()

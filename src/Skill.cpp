@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 03:16:16
+ * Last Modified: 2023-08-17 09:37:51
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -170,6 +170,14 @@ int JX3DPS::Skill::GetEnergyCountCurrent() const
 void JX3DPS::Skill::SetEnergyCountCurrent(int count)
 {
     m_energyCountCurrent = count;
+}
+
+JX3DPS::Frame_t JX3DPS::Skill::GetCooldownCurrentWithoutGlobal() const
+{
+    if (m_globalCooldownCurrent == &m_player->globalCooldownCurrent) {
+        return m_cooldownCurrent;
+    }
+    return std::max(m_cooldownCurrent, *m_globalCooldownCurrent);
 }
 
 double JX3DPS::Skill::GetRange() const

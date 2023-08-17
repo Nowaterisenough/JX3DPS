@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 13:32:18
+ * Last Modified: 2023-08-17 09:06:54
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -169,6 +169,12 @@ public:
     inline Frame_t DelayFrames() const
     {
         return RandomNormal(m_delayMin, m_delayMax + 1) / JX3DPS_DELAY;
+    }
+
+    inline void SetDelay(int delayMin, int delayMax)
+    {
+        m_delayMin = delayMin;
+        m_delayMax = delayMax;
     }
 
     inline static void TriggerVoid(const Params &params) { }

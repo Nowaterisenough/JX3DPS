@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 13:16:27
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 13:21:35
+ * Last Modified: 2023-08-17 09:41:19
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -321,32 +321,32 @@ bool JX3DPS::Expression::SkillCooldownLt(Player *player, Targets *targets, Id_t 
 
 bool JX3DPS::Expression::SkillCooldownLe(Player *player, Targets *targets, Id_t id, Frame_t time)
 {
-    return player->skills.at(id)->GetCooldownCurrent() <= time;
+    return player->skills.at(id)->GetCooldownCurrentWithoutGlobal() <= time;
 }
 
 bool JX3DPS::Expression::SkillCooldownEq(Player *player, Targets *targets, Id_t id, Frame_t time)
 {
-    return player->skills.at(id)->GetCooldownCurrent() == time;
+    return player->skills.at(id)->GetCooldownCurrentWithoutGlobal() == time;
 }
 
 bool JX3DPS::Expression::SkillCooldownNe(Player *player, Targets *targets, Id_t id, Frame_t time)
 {
-    return player->skills.at(id)->GetCooldownCurrent() != time;
+    return player->skills.at(id)->GetCooldownCurrentWithoutGlobal() != time;
 }
 
 bool JX3DPS::Expression::SkillCooldownGe(Player *player, Targets *targets, Id_t id, Frame_t time)
 {
-    return player->skills.at(id)->GetCooldownCurrent() >= time;
+    return player->skills.at(id)->GetCooldownCurrentWithoutGlobal() >= time;
 }
 
 bool JX3DPS::Expression::SkillCooldownGt(Player *player, Targets *targets, Id_t id, Frame_t time)
 {
-    return player->skills.at(id)->GetCooldownCurrent() > time;
+    return player->skills.at(id)->GetCooldownCurrentWithoutGlobal() > time;
 }
 
 bool JX3DPS::Expression::SkillNotinCd(Player *player, Targets *targets, Id_t id)
 {
-    return player->skills.at(id)->GetCooldownCurrent() == 0;
+    return player->skills.at(id)->GetCooldownCurrentWithoutGlobal() == 0;
 }
 
 bool JX3DPS::Expression::SkillEnergyLt(Player *player, Targets *targets, Id_t id, int energy)

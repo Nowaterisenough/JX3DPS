@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-18 06:41:48
+ * Last Modified: 2023-08-19 05:58:29
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -647,10 +647,10 @@ JX3DPS::GainsDamage JX3DPS::MoWen::Buff::LiuZhao::CalcMagicSurplusDamage(Id_t ta
                 m_player->attribute.AddSurplusValueBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:
@@ -1012,6 +1012,7 @@ void JX3DPS::MoWen::Buff::ZhengLvHeMing::Trigger()
 {
     if (m_snapshots[PLAYER_ID].duration == 0) {
         m_snapshots.erase(PLAYER_ID);
+        static_cast<ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->level = 3;
         SubEffectClear();
     }
 }
@@ -1068,7 +1069,7 @@ JX3DPS::MoWen::Buff::ZhiYinHeMing::ZhiYinHeMing(JX3DPS::Player *player, Targets 
 
     m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 897);
     m_damageParams[1].emplace_back((40 + 40 + 6) / 2, 0, 775);
-    m_damageParams[2].emplace_back((40 + 40 + 6) / 2, 0, 155);
+    m_damageParams[2].emplace_back((40 + 40 + 6) / 2, 0, 775);
 }
 
 void JX3DPS::MoWen::Buff::ZhiYinHeMing::Trigger()
@@ -1080,7 +1081,6 @@ void JX3DPS::MoWen::Buff::ZhiYinHeMing::Trigger()
     if (m_snapshots[PLAYER_ID].duration == 0) {
         m_snapshots.erase(PLAYER_ID);
         level = 3;
-        SubEffectDamage();
     }
 }
 
@@ -1118,13 +1118,13 @@ void JX3DPS::MoWen::Buff::ZhiYinHeMing::TriggerClear()
 {
     if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
         m_snapshots.erase(PLAYER_ID);
+        SubEffectDamage();
     }
 }
 
 void JX3DPS::MoWen::Buff::ZhiYinHeMing::SubEffect()
 {
     if (m_snapshots[PLAYER_ID].stackNum == 5) {
-        SubEffectDamage();
         static_cast<ZhengLvHeMing *>(m_player->buffs[BUFF_ZHENG_LV_HE_MING])->TriggerClear();
     } else if (m_snapshots[PLAYER_ID].stackNum == 4) {
         static_cast<QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(4);
@@ -1149,6 +1149,9 @@ void JX3DPS::MoWen::Buff::ZhiYinHeMing::SubEffectDamage()
     for (int i = 0; i < 5; ++i) {
         RollResult rollResult = GetMagicRollResult();
         GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, level - 1);
+        if (damage[Attribute::Type::DEFAULT].damage < 0) {
+            GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, level - 1);
+        }
         RecordDamage(m_player->GetTargetId(), rollResult, damage, 0);
     }
 }
@@ -1195,6 +1198,11 @@ void JX3DPS::MoWen::Buff::YingZi::Trigger()
         if (iter->second.duration == 0) {
             iter = m_snapshots.erase(iter);
             ids.pop_front();
+            Params params;
+            params.player   = m_player;
+            params.stackNum = 1;
+            params.type     = Params::Type::CLEAR;
+            m_triggerEffects[TRIGGER_YUN_HAN](params);
         } else {
             ++iter;
         }

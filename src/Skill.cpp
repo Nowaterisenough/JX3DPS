@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 09:37:51
+ * Last Modified: 2023-08-18 22:18:00
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -283,10 +283,10 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsDamage(Id_t targetId, RollResult r
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                m_player->attribute.AddPhysicsCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetPhysicsCriticalStrikePower();
-                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                m_player->attribute.AddPhysicsCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:
@@ -410,10 +410,10 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicDamage(Id_t targetId, RollResult rol
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:
@@ -514,10 +514,10 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsSurplusDamage(Id_t targetId, RollR
                 m_player->attribute.AddSurplusValueBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                m_player->attribute.AddPhysicsCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetPhysicsCriticalStrikePower();
-                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                m_player->attribute.AddPhysicsCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:
@@ -619,10 +619,10 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicSurplusDamage(Id_t targetId, RollRes
                 m_player->attribute.AddSurplusValueBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:

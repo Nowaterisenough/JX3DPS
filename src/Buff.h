@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:30
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-18 06:57:07
+ * Last Modified: 2023-08-18 22:23:16
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -128,7 +128,7 @@ class Buff
 
             attribute.AddPhysicsAttackPowerBaseAdditional(
                 Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE));
-            attribute.AddPhysicsCriticalStrikeAdditional(
+            attribute.AddPhysicsCriticalStrikePower(
                 Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::CRITICAL_STRIKE_POWER));
             attribute.AddPhysicsOvercomeBaseAdditional(
                 Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::OVERCOME_BASE));
@@ -141,7 +141,7 @@ class Buff
 
             attribute.AddPhysicsAttackPowerBaseAdditional(
                 -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE));
-            attribute.AddPhysicsCriticalStrikeAdditional(
+            attribute.AddPhysicsCriticalStrikePower(
                 -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::CRITICAL_STRIKE_POWER));
             attribute.AddPhysicsOvercomeBaseAdditional(
                 -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::OVERCOME_BASE));
@@ -170,7 +170,7 @@ class Buff
             // 收益属性
             attribute.AddMagicAttackPowerBaseAdditional(
                 Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE));
-            attribute.AddMagicCriticalStrikeAdditional(
+            attribute.AddMagicCriticalStrikePower(
                 Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::CRITICAL_STRIKE_POWER));
             attribute.AddMagicOvercomeBaseAdditional(
                 Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::OVERCOME_BASE));
@@ -183,7 +183,7 @@ class Buff
 
             attribute.AddMagicAttackPowerBaseAdditional(
                 -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE));
-            attribute.AddMagicCriticalStrikeAdditional(
+            attribute.AddMagicCriticalStrikePower(
                 -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::CRITICAL_STRIKE_POWER));
             attribute.AddMagicOvercomeBaseAdditional(
                 -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::OVERCOME_BASE));

@@ -2861,7 +2861,7 @@
                         "/cast 宏·常规"
                     ],
                     "大招": [
-                        "/cast [skill_cd:正律和鸣·1~=0&nobuff:知音和鸣] 宏·常规",
+                        "/cast [skill_cd:正律和鸣·1~=0&nobuff:正律和鸣] 宏·常规",
                         "/cast [nobuff:孤影化双|skill_energy:疏影横斜=0] 孤影化双",
                         "/cast [nobuff:知音和鸣&skill_cd:高山流水=0] 正律和鸣·1",
                         "/cast 疏影横斜",
@@ -2869,7 +2869,7 @@
                         "/cast [buff:参连] 高山流水",
                         "/cast 高山流水",
                         "/cast [buff:知音和鸣=4] 阳春白雪",
-                        "/cast [buff:参连&buff:弦风=5] 徵",
+                        "/cast [buff:参连&buff:弦风>=4] 徵",
                         "/cast [buff:曲风=3] 变徵",
                         "/cast [buff:曲风=2] 角",
                         "/cast [buff:曲风=4] 羽",

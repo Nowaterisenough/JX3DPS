@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 14:27:56
+ * Last Modified: 2023-08-18 08:38:59
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -969,7 +969,9 @@ void JX3DPS::MoWen::Skill::ShuYingHengXie::Cast()
     m_player->SetLastCastSkill(m_id);
     m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownShuYingHengXieCurrent;
     *m_globalCooldownCurrent = m_player->globalCooldown * m_player->attribute.GetHastePercent();
-    m_cooldownCurrent = m_cooldown;
+    if (m_energyCountCurrent == m_energyCount) {
+        m_cooldownCurrent = m_cooldown;
+    }
     m_energyCountCurrent--;
     SubEffect();
 }

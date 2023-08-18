@@ -2849,7 +2849,7 @@
                         "/cast [skill_cd:正律和鸣·1=0] 宏·大招",
                         "/cast [skill_energy:徵<1&buff:高山流水] 宏·补充",
                         "/cast [skill_energy:疏影横斜=3] 疏影横斜",
-                        "/cast [buff:参连] 阳春白雪",
+                        "/cast [last_skill=徵] 宏·补阳春",
                         "/scast 高山流水",
                         "/scast 变宫",
                         "/cast 阳春白雪",
@@ -2865,6 +2865,7 @@
                         "/cast [nobuff:孤影化双|skill_energy:疏影横斜=0] 孤影化双",
                         "/cast [nobuff:知音和鸣&skill_cd:高山流水=0] 正律和鸣·1",
                         "/cast 疏影横斜",
+                        "/cast [last_skill=徵] 宏·补阳春",
                         "/cast [buff:参连] 高山流水",
                         "/cast 高山流水",
                         "/cast [buff:知音和鸣=4] 阳春白雪",
@@ -2878,6 +2879,12 @@
                     "补充": [
                         "/scast 羽",
                         "/cast 宏·常规"
+                    ],
+                    "补阳春": [
+                        "/scast 阳春白雪",
+                        "/scast 阳春白雪",
+                        "/scast 阳春白雪",
+                        "/cast 宏·返回"
                     ]
                 },
                 "EventsExpression": [

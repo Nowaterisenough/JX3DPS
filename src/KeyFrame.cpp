@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 14:35:00
+ * Last Modified: 2023-08-18 08:12:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -120,9 +120,10 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
     ExprSkillsHash   &exprSkillsHash,
     Options          &options)
 {
-    Id_t             exprSkillsId = EXPRESSION_SKILL_PLACE_HOLDERS_1;
-    ExprSkills       exprSkills   = exprSkillsHash.at(exprSkillsId);
-    Frame_t          now          = 0;
+    Id_t             exprSkillsId     = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    Id_t             lastExprSkillsId = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    ExprSkills       exprSkills       = exprSkillsHash.at(exprSkillsId);
+    Frame_t          now              = 0;
     KeyFrameSequence checkedKeyFrameSequence;
     KeyFrameSequence unCheckedSkillKeyFrameSequence;
     KeyFrameSequence unCheckedBuffKeyFrameSequence;
@@ -178,7 +179,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         keyFrameSequence.pop_front();
 
         if (!player->IsStop()) {
-            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId);
+            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId);
         }
 
         // 检查后序关键帧因为事件、技能施放或buff刷新等原因的状态变化
@@ -261,7 +262,8 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
     ExprSkillsHash &exprSkillsHash,
     ExprSkills     &exprSkills,
     Frame_t         now,
-    Id_t           &exprSkillsId)
+    Id_t           &exprSkillsId,
+    Id_t           &lastExprSkillsId)
 {
     for (auto iter = exprSkills.begin(); iter != exprSkills.end();) {
         bool scast = iter->first.front().front()(player, targets);
@@ -296,6 +298,11 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
         }
 
         if (castSuccess) {
+            // 断读条
+            if (std::next(iter->first.front().begin()) != iter->first.front().end()) {
+                (*std::next(iter->first.front().begin()))(player, targets);
+            }
+
             Id_t id = iter->second;
             if (id > SKILL_DEFAULT) { // 执行技能
                 player->skills[id]->Cast();
@@ -305,14 +312,11 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
                               JX3DPS_NAME.at(static_cast<int>(id)));
             } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
                 player->SetTargetId(id);
-            } else if (id > EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
-                exprSkills   = exprSkillsHash.at(id);
-                exprSkillsId = id;
-            }
-
-            // 断读条
-            if (std::next(iter->first.front().begin()) != iter->first.front().end()) {
-                (*std::next(iter->first.front().begin()))(player, targets);
+            } else if (id >= EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
+                id = id == EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT ? lastExprSkillsId : id;
+                exprSkills       = exprSkillsHash.at(id);
+                lastExprSkillsId = exprSkillsId;
+                exprSkillsId     = id;
             }
 
             // scast执行成功
@@ -320,7 +324,7 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
                 iter = exprSkills.erase(iter);
             }
 
-            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId);
+            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId);
             return SKILL_DEFAULT;
         } else if (scast) { // scast执行失败
             return SKILL_DEFAULT;

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 17:01:06
+ * Last Modified: 2023-08-18 08:05:06
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -22,7 +22,9 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkillsHash(
     ExprSkillsHash                                                  &exprSkillsHash)
 {
     std::unordered_map<Id_t, std::string> ids;
-    Id_t                                  id = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    ids.emplace(EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT, "返回");
+    Id_t id = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+
     for (const auto &[name, macro] : strs) {
         ids.emplace(id, name);
         id = static_cast<Id_t>(id + 1);
@@ -31,12 +33,12 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkillsHash(
         ExprSkills exprSkills;
         Id_t       ii = EXPRESSION_SKILL_PLACE_HOLDERS_1;
         for (const auto &str : macro) {
+
             // 替换字符串中的name为id
             std::string temp = str;
-
             for (const auto &[i, n] : ids) {
-                std::regex reg(n);
-                temp = std::regex_replace(temp, reg, std::to_string(i - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
+                std::regex reg("宏·" + n);
+                temp = std::regex_replace(temp, reg, "宏·" + std::to_string(i - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
                 if (name == n) {
                     ii = i;
                 }

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 05:58:29
+ * Last Modified: 2023-08-19 07:21:00
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1068,8 +1068,8 @@ JX3DPS::MoWen::Buff::ZhiYinHeMing::ZhiYinHeMing(JX3DPS::Player *player, Targets 
     m_stackNum = 5;
 
     m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 897);
-    m_damageParams[1].emplace_back((40 + 40 + 6) / 2, 0, 775);
-    m_damageParams[2].emplace_back((40 + 40 + 6) / 2, 0, 775);
+    m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 775);
+    m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 775);
 }
 
 void JX3DPS::MoWen::Buff::ZhiYinHeMing::Trigger()
@@ -1149,9 +1149,6 @@ void JX3DPS::MoWen::Buff::ZhiYinHeMing::SubEffectDamage()
     for (int i = 0; i < 5; ++i) {
         RollResult rollResult = GetMagicRollResult();
         GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, level - 1);
-        if (damage[Attribute::Type::DEFAULT].damage < 0) {
-            GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, level - 1);
-        }
         RecordDamage(m_player->GetTargetId(), rollResult, damage, 0);
     }
 }

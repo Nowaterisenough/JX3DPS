@@ -1,85 +1,113 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.11)
+
+project(JX3DPS LANGUAGES CXX)
 
 include(cmake/Version.cmake)
 VERSION()
 
 # 设置项目名称&版本
 project(JX3DPS VERSION ${PROJECT_VERSION})
-message(STATUS "PROJECT_VERSION: ${PROJECT_VERSION}")
-message(STATUS "VERSION_BRANCH: ${VERSION_BRANCH}")
+message(STATUS "-------------- PROJECT_VERSION: ${PROJECT_VERSION} --------------")
+message(STATUS "-------------- VERSION_BRANCH: ${VERSION_BRANCH} --------------")
 
 add_definitions(-DVERSION_PATCH=${PROJECT_VERSION_PATCH})
 add_definitions(-DVERSION_TWEAK=${PROJECT_VERSION_TWEAK})
 add_definitions(-DVERSION_BRANCH=${VERSION_BRANCH})
 add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# install路径
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    if(NOT CMAKE_TOOLCHAIN_FILE)
-        if(WIN32)
-            set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
-        else()
-            set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation Directory" FORCE)
-        endif()
-    else()
-        set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
-    endif()
-endif()
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# CMake选项 动态库编译
-option(BUILD_SHARED_LIBS "option for build" ON)
-
-if(BUILD_SHARED_LIBS)
-    set(BUILD_LIBS_TYPE SHARED)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-else()
-    set(BUILD_LIBS_TYPE STATIC)
-endif()
-
-# if(POLICY CMP0091)
-# cmake_policy(SET CMP0091 NEW)
-# endif(POLICY CMP0091)
-
-# CMake选项 MSVC MD编译
-if(MSVC)
-    option(BUILD_MSVC_MD "option for build" ON)
-
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /permissive /utf-8")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive /utf-8")
-
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /GR- /GS- /GL /Ot /Oi /Ob2")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GR- /GS- /GL /Ot /Oi /Ob2 /Zc:__cplusplus")
-
-    if(BUILD_MSVC_MD)
-        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    else()
-        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif(BUILD_MSVC_MD)
-else()
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -fPIC -fPIE -fno-exceptions -fno-rtti")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -fPIC -fPIE -fno-exceptions -fno-rtti")
-endif(MSVC)
-
-add_subdirectory(3rd)
-add_subdirectory(modules)
+include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 
 # CMake选项 app编译
 option(BUILD_APP "option for build" ON)
 
-if(BUILD_APP)
-    add_subdirectory(apps)
-endif()
-
 # CMake选项 UT测试
-option(BUILD_TESTS "option for build" OFF)
+option(BUILD_TESTS "option for build" ON)
+
+add_subdirectory(3rd)
+add_subdirectory(src)
+add_subdirectory(modules)
+
+set(BUILD_SHARED_LIBS true)
+
+add_definitions(-DEXPORT_JX3DPS)
+# add_definitions(-DIMPORT_STATIC_THREAD_POOL_LIB)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/modules)
+include_directories(${CMAKE_SOURCE_DIR}/src)
+
+file(GLOB_RECURSE HEADER_FILES ${CMAKE_SOURCE_DIR}/src/*.h* ${CMAKE_SOURCE_DIR}/include/*.h*)
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.c*)
+
+add_library(${PROJECT_NAME} STATIC
+    ${HEADER_FILES}
+    ${SOURCE_FILES}
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    ThreadPool
+    nlohmann_json
+    spdlog
+)
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION ${PROJECT_NAME}/bin
+    BUNDLE DESTINATION ${PROJECT_NAME}/bin
+)
+
+set(HEADERS ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME}.h)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    PUBLIC_HEADER "${HEADERS}"
+    VERSION ${PROJECT_VERSION}
+    SOVERSION {PROJECT_VERSION_MAJOR}
+    FOLDER JX3DPS
+)
+
+install(TARGETS ${PROJECT_NAME}
+    ThreadPool
+    nlohmann_json
+    spdlog
+    EXPORT ${PROJECT_NAME}Targets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include
+)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+    VERSION ${PACKAGE_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(EXPORT ${PROJECT_NAME}Targets
+    FILE ${PROJECT_NAME}Targets.cmake
+    DESTINATION "lib/cmake/${PROJECT_NAME}"
+)
+
+configure_package_config_file(
+    ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in # <input>
+    ${PROJECT_NAME}Config.cmake # <output>
+    INSTALL_DESTINATION "lib/cmake/${PROJECT_NAME}"
+)
+
+if(NOT BUILD_SHARED_LIBS)
+    file(APPEND
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+        "add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)\n"
+    )
+endif(NOT BUILD_SHARED_LIBS)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+    DESTINATION "lib/cmake/${PROJECT_NAME}"
+)
+
+if(BUILD_APP)
+    add_subdirectory(app)
+endif()
 
 if(BUILD_TESTS)
     add_subdirectory(tests)

@@ -2,14 +2,13 @@
     "cmake.configureSettings": {
         "BUILD_TESTS": false,
         "BUILD_SHARED_LIBS": true,
-        "BUILD_MSVC_MD": true,
         "CMAKE_PREFIX_PATH": [
-            "C:/Qt/6.5.1/msvc2019_64"
+            "C:/Qt/6.5.2/msvc2019_64"
         ]
     },
     "C_Cpp.default.includePath": [
         "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.36.32532/include/**",
-        "C:/Qt/6.5.1/msvc2019_64/include/**"
+        "C:/Qt/6.5.2/msvc2019_64/include/**"
     ],
     "psi-header.config": {
         "forceToTop": true,
@@ -300,7 +299,8 @@
         "qwidget": "cpp",
         "qstyleditemdelegate": "cpp",
         "qevent": "cpp",
-        "qsplitterhandle": "cpp"
+        "qsplitterhandle": "cpp",
+        "qpushbutton": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

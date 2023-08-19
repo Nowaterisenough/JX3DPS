@@ -1,45 +1,85 @@
 <RCC>
   <qresource prefix="/resources">
-    <file>pics\JX3\紫霞功.png</file>
-    <file>pics\JX3\傲血战意.png</file>
-    <file>pics\JX3\北傲诀.png</file>
-    <file>pics\JX3\冰心诀.png</file>
-    <file>pics\JX3\毒经.png</file>
-    <file>pics\JX3\分山劲.png</file>
-    <file>pics\JX3\焚影圣诀.png</file>
-    <file>pics\JX3\花间游.png</file>
-    <file>pics\JX3\惊羽诀.png</file>
-    <file>pics\JX3\凌海诀.png</file>
-    <file>pics\JX3\莫问.png</file>
-    <file>pics\JX3\太虚剑意.png</file>
-    <file>pics\JX3\太玄经.png</file>
-    <file>pics\JX3\天罗诡道.png</file>
-    <file>pics\JX3\问水诀.png</file>
-    <file>pics\JX3\笑尘诀.png</file>
-    <file>pics\JX3\易筋经.png</file>
-    <file>pics\JX3\隐龙诀.png</file>
-    <file>pics\JX3\孤锋诀.png</file>
-    <file>pics\JX3\无方.png</file>
     <file>Monaco.ttf</file>
     <file>NoWatsFont.ttf</file>
-    <file>pics\JX3\Icons\8915.png</file>
-    <file>pics\JX3\Icons\9989.png</file>
-    <file>pics\JX3\Icons\9996.png</file>
-    <file>pics\JX3\Icons\9999.png</file>
-    <file>pics\JX3\Icons\10000.png</file>
-    <file>pics\JX3\Icons\10134.png</file>
+    <file>pics\JX3\Icons\18281.png</file>
+    <file>pics\JX3\Icons\18326.png</file>
+    <file>pics\JX3\Icons\237.png</file>
+    <file>pics\JX3\Icons\261.png</file>
     <file>pics\JX3\Icons\549.png</file>
     <file>pics\JX3\Icons\552.png</file>
+    <file>pics\JX3\Icons\553.png</file>
+    <file>pics\JX3\Icons\617.png</file>
+    <file>pics\JX3\Icons\1360.png</file>
     <file>pics\JX3\Icons\1396.png</file>
+    <file>pics\JX3\Icons\1440.png</file>
     <file>pics\JX3\Icons\1798.png</file>
+    <file>pics\JX3\Icons\1824.png</file>
+    <file>pics\JX3\Icons\1826.png</file>
+    <file>pics\JX3\Icons\1828.png</file>
+    <file>pics\JX3\Icons\1829.png</file>
+    <file>pics\JX3\Icons\1831.png</file>
+    <file>pics\JX3\Icons\1832.png</file>
+    <file>pics\JX3\Icons\2924.png</file>
+    <file>pics\JX3\Icons\2926.png</file>
+    <file>pics\JX3\Icons\2931.png</file>
+    <file>pics\JX3\Icons\2934.png</file>
+    <file>pics\JX3\Icons\2936.png</file>
+    <file>pics\JX3\Icons\2941.png</file>
+    <file>pics\JX3\Icons\2942.png</file>
+    <file>pics\JX3\Icons\4221.png</file>
+    <file>pics\JX3\Icons\4266.png</file>
     <file>pics\JX3\Icons\4268.png</file>
     <file>pics\JX3\Icons\4274.png</file>
     <file>pics\JX3\Icons\4275.png</file>
     <file>pics\JX3\Icons\4278.png</file>
     <file>pics\JX3\Icons\4302.png</file>
     <file>pics\JX3\Icons\4487.png</file>
+    <file>pics\JX3\Icons\4525.png</file>
+    <file>pics\JX3\Icons\7047.png</file>
+    <file>pics\JX3\Icons\7099.png</file>
+    <file>pics\JX3\Icons\7103.png</file>
+    <file>pics\JX3\Icons\7105.png</file>
+    <file>pics\JX3\Icons\7120.png</file>
+    <file>pics\JX3\Icons\7122.png</file>
+    <file>pics\JX3\Icons\7132.png</file>
+    <file>pics\JX3\Icons\7138.png</file>
+    <file>pics\JX3\Icons\7145.png</file>
+    <file>pics\JX3\Icons\7163.png</file>
+    <file>pics\JX3\Icons\7422.png</file>
+    <file>pics\JX3\Icons\7454.png</file>
+    <file>pics\JX3\Icons\7470.png</file>
+    <file>pics\JX3\Icons\7492.png</file>
     <file>pics\JX3\Icons\7531.png</file>
+    <file>pics\JX3\Icons\7595.png</file>
+    <file>pics\JX3\Icons\7614.png</file>
     <file>pics\JX3\Icons\7646.png</file>
+    <file>pics\JX3\Icons\7667.png</file>
+    <file>pics\JX3\Icons\7971.png</file>
+    <file>pics\JX3\Icons\7973.png</file>
+    <file>pics\JX3\Icons\7974.png</file>
+    <file>pics\JX3\Icons\7977.png</file>
+    <file>pics\JX3\Icons\8479.png</file>
+    <file>pics\JX3\Icons\8483.png</file>
+    <file>pics\JX3\Icons\8484.png</file>
+    <file>pics\JX3\Icons\8501.png</file>
     <file>pics\JX3\Icons\8909.png</file>
+    <file>pics\JX3\Icons\8915.png</file>
+    <file>pics\JX3\Icons\9407.png</file>
+    <file>pics\JX3\Icons\9408.png</file>
+    <file>pics\JX3\Icons\9989.png</file>
+    <file>pics\JX3\Icons\9996.png</file>
+    <file>pics\JX3\Icons\9999.png</file>
+    <file>pics\JX3\Icons\10000.png</file>
+    <file>pics\JX3\Icons\10134.png</file>
+    <file>pics\JX3\Icons\11854.png</file>
+    <file>pics\JX3\Icons\11857.png</file>
+    <file>pics\JX3\Icons\11858.png</file>
+    <file>pics\JX3\Icons\12722.png</file>
+    <file>pics\JX3\Icons\14078.png</file>
+    <file>pics\JX3\Icons\14081.png</file>
+    <file>pics\JX3\Icons\17197.png</file>
+    <file>pics\JX3\Icons\17198.png</file>
+    <file>pics\JX3\Icons\17199.png</file>
   </qresource>
 </RCC>

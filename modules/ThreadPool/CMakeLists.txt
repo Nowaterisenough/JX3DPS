@@ -7,7 +7,7 @@ FILE(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
 
 add_definitions(-DEXPORT_THREAD_POOL)
 
-add_library(${PROJECT_NAME} ${BUILD_LIBS_TYPE}
+add_library(${PROJECT_NAME} SHARED
     ${HEADER_FILES}
     ${SOURCE_FILES}
 )
@@ -41,19 +41,19 @@ install(EXPORT ${PROJECT_NAME}Targets
 )
 
 configure_package_config_file(
-    ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in       # <input>
-    ${PROJECT_NAME}Config.cmake                     # <output>
+    ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in # <input>
+    ${PROJECT_NAME}Config.cmake # <output>
     INSTALL_DESTINATION "lib/cmake/${PROJECT_NAME}"
 )
 
 if(NOT BUILD_SHARED_LIBS)
     file(APPEND
-        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake 
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
         "add_definitions(-DIMPORT_STATIC_THREAD_POOL_LIB)\n"
     )
 endif(NOT BUILD_SHARED_LIBS)
 
-install(FILES 
+install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
     DESTINATION "lib/cmake/${PROJECT_NAME}"

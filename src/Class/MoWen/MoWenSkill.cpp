@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-18 08:38:59
+ * Last Modified: 2023-08-19 14:22:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -158,6 +158,7 @@ void JX3DPS::MoWen::Skill::Gong::SubEffect()
     Params params;
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
@@ -267,6 +268,7 @@ void JX3DPS::MoWen::Skill::BianGong::SubEffect()
 
     params.targetId = m_player->GetTargetId();
     m_triggerEffects[TRIGGER_ZHI_ZHI](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
@@ -324,6 +326,7 @@ void JX3DPS::MoWen::Skill::Shang::SubEffect()
     Params params;
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
@@ -360,6 +363,7 @@ void JX3DPS::MoWen::Skill::Jue::SubEffect()
     Params params;
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
@@ -440,6 +444,7 @@ void JX3DPS::MoWen::Skill::Zhi::Cast()
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
     xianFengStackNum = m_player->buffs[BUFF_XIAN_FENG]->GetStackNumCurrent();
     m_triggerEffects[TRIGGER_HAO_QING_ZHI](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     m_triggerEffects[TRIGGER_XIAN_FENG_CLEAR](params);
 }
@@ -597,6 +602,7 @@ void JX3DPS::MoWen::Skill::BianZhi::Cast()
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
     xianFengStackNum = m_player->buffs[BUFF_XIAN_FENG]->GetStackNumCurrent();
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     m_triggerEffects[TRIGGER_HAO_QING_BIAN_ZHI](params);
 
@@ -775,6 +781,7 @@ void JX3DPS::MoWen::Skill::Yu::SubEffect()
         ->TriggerAdd(4 + static_cast<int>(static_cast<MoWen::Player *>(m_player)->style));
 
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     m_triggerEffects[TRIGGER_SHI_XIANG](params);
 

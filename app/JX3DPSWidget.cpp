@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 18:59:19
+ * Last Modified: 2023-08-19 14:37:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1045,8 +1045,6 @@ void JX3DPS::Simulator::Widget::Start()
 
     emit Signal_UpdateParamsClassType(json);
     emit Signal_UpdateParams(json);
-
-    qDebug() << json.dump().c_str();
 
     ProgressBar *progressBar = new ProgressBar(nullptr);
     progressBar->setAttribute(Qt::WA_DeleteOnClose);

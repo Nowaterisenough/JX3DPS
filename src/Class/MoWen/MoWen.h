@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 14:20:11
+ * Last Modified: 2023-08-19 13:42:49
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -133,6 +133,12 @@ public:
     static void TriggerLiuZhaoDamage(const Params &params);
 
     static void TriggerLiuZhaoSurplusDamage(const Params &params);
+
+    static void TriggerEnchantShoes(const Params &params);
+
+    static void TriggerEnchantBelt(const Params &params);
+
+    static void TriggerEnchantWrist(const Params &params);
 };
 
 } // namespace MoWen

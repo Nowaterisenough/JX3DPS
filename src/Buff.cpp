@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-18 22:19:10
+ * Last Modified: 2023-08-19 13:14:25
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -110,6 +110,11 @@ void JX3DPS::Buff::UpdateKeyFrame(Frame_t frame)
         }
     }
     m_cooldownCurrent -= frame;
+}
+
+JX3DPS::Frame_t JX3DPS::Buff::GetCooldownCurrent() const
+{
+    return m_cooldownCurrent;
 }
 
 JX3DPS::Frame_t JX3DPS::Buff::GetDurationCurrent(Id_t targetId) const

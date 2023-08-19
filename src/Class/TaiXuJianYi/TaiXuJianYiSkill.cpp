@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 14:31:54
+ * Last Modified: 2023-08-19 12:37:09
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -119,15 +119,15 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
                                    19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05 * 10);
 
     if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_2]) {
-        m_effectCriticalStrikePowerAdditionalPercentInt += 200;
+        m_effectCriticalStrikeAdditionalBasisPointInt += 200;
     }
 
     if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_3]) {
-        m_effectCriticalStrikePowerAdditionalPercentInt += 300;
+        m_effectCriticalStrikeAdditionalBasisPointInt += 300;
     }
 
     if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_4]) {
-        m_effectCriticalStrikePowerAdditionalPercentInt += 400;
+        m_effectCriticalStrikeAdditionalBasisPointInt += 400;
     }
 
     if (m_player->recipes[RECIPE_WU_WO_WU_JIAN_DAMAGE_3]) {
@@ -419,15 +419,15 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
     }
 
     if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_2]) {
-        m_effectCriticalStrikePowerAdditionalPercentInt += 200;
+        m_effectCriticalStrikeAdditionalBasisPointInt += 200;
     }
 
     if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_3]) {
-        m_effectCriticalStrikePowerAdditionalPercentInt += 300;
+        m_effectCriticalStrikeAdditionalBasisPointInt += 300;
     }
 
     if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_CRITICAL_STRIKE_4]) {
-        m_effectCriticalStrikePowerAdditionalPercentInt += 400;
+        m_effectCriticalStrikeAdditionalBasisPointInt += 400;
     }
 
     if (m_player->recipes[RECIPE_SAN_HUAN_TAO_YUE_DAMAGE_3]) {
@@ -443,7 +443,7 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
     }
 
     if (m_player->talents[TALENT_XIN_GU]) {
-        m_effectCriticalStrikePowerAdditionalPercentInt += 1000;
+        m_effectCriticalStrikeAdditionalBasisPointInt   += 1000;
         m_effectCriticalStrikePowerAdditionalPercentInt += 102;
     }
 

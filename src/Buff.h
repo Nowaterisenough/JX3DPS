@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:30
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-18 22:23:16
+ * Last Modified: 2023-08-19 13:14:12
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -215,6 +215,8 @@ public:
 
     Frame_t GetNextKeyFrame() const;
     void    UpdateKeyFrame(Frame_t frame);
+
+    Frame_t GetCooldownCurrent() const;
 
     Frame_t GetDurationCurrent(Id_t targetId = PLAYER_ID) const; // 用于宏条件判定
     int     GetStackNumCurrent(Id_t targetId = PLAYER_ID) const; // 用于宏条件判定

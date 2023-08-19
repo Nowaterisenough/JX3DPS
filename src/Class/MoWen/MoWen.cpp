@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 04:49:34
+ * Last Modified: 2023-08-19 13:46:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -15,6 +15,7 @@
 
 #include "MoWen.h"
 
+#include "Buff3rd.h"
 #include "MoWenBuff.h"
 #include "MoWenSkill.h"
 #include "Target.hpp"
@@ -213,6 +214,18 @@ void Player::Init()
         buffs.emplace(BUFF_ZHENG_LV_HE_MING, new Buff::ZhengLvHeMing(this, nullptr));
         buffs.emplace(BUFF_ZHI_YIN_HE_MING, new Buff::ZhiYinHeMing(this, nullptr));
     }
+
+    if (equipEffects[BUFF_ENCHANT_SHOES]) {
+        buffs.emplace(BUFF_ENCHANT_SHOES, new Buff3rd::EnchantShoesMagic(this, nullptr));
+    }
+
+    if (equipEffects[BUFF_ENCHANT_BELT]) {
+        buffs.emplace(BUFF_ENCHANT_BELT, new Buff3rd::EnchantBelt(this, nullptr));
+    }
+
+    if (equipEffects[BUFF_ENCHANT_WRIST]) {
+        buffs.emplace(BUFF_ENCHANT_WRIST, new Buff3rd::EnchantWristMagic(this, nullptr));
+    }
 }
 
 void Player::TriggerXianFeng(const Params &params)
@@ -317,6 +330,21 @@ void Player::TriggerLiuZhaoSurplusDamage(const Params &params)
     if (params.player->buffs[BUFF_LIU_ZHAO]->GetDurationCurrent() > 0) {
         static_cast<Buff::LiuZhao *>(params.player->buffs[BUFF_LIU_ZHAO])->TriggerSurplusDamage();
     }
+}
+
+void Player::TriggerEnchantShoes(const Params &params)
+{
+    static_cast<Buff3rd::EnchantShoesMagic *>(params.player->buffs[BUFF_ENCHANT_SHOES])->TriggerDamage();
+}
+
+void Player::TriggerEnchantBelt(const Params &params)
+{
+    static_cast<Buff3rd::EnchantBelt *>(params.player->buffs[BUFF_ENCHANT_BELT])->TriggerAdd();
+}
+
+void Player::TriggerEnchantWrist(const Params &params)
+{
+    static_cast<Buff3rd::EnchantWristMagic *>(params.player->buffs[BUFF_ENCHANT_WRIST])->TriggerDamage();
 }
 
 } // namespace MoWen

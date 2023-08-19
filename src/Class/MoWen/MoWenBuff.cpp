@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 07:21:00
+ * Last Modified: 2023-08-19 12:10:41
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -29,7 +29,7 @@ JX3DPS::MoWen::Buff::Shang::Shang(JX3DPS::Player *player, Targets *targets) :
     m_interval    = 48;
     m_effectCount = 6;
 
-    m_damageParams[0].emplace_back((14 + 14 + 5) / 2, 0, 263);
+    m_damageParams[0].emplace_back((19 + 19) / 2, 0, 263);
 
     if (m_player->recipes[RECIPE_SHANG_CRITICAL_STRIKE_2]) {
         m_effectCriticalStrikeAdditionalBasisPointInt += 200;
@@ -132,7 +132,7 @@ JX3DPS::MoWen::Buff::Jue::Jue(JX3DPS::Player *player, Targets *targets) :
     m_interval    = 48;
     m_effectCount = 6;
 
-    m_damageParams[0].emplace_back((14 + 14 + 5) / 2, 0, 256);
+    m_damageParams[0].emplace_back((19 + 19) / 2, 0, 256);
 }
 
 void JX3DPS::MoWen::Buff::Jue::Trigger()
@@ -306,8 +306,6 @@ JX3DPS::MoWen::Buff::YunHan::YunHan(JX3DPS::Player *player, Targets *targets) :
     m_name     = "云汉";
     m_stackNum = 9;
     m_duration = 100 * 16;
-
-    m_damageParams[0].emplace_back((40 + 40 + 2) / 2, 0, 40);
 }
 
 void JX3DPS::MoWen::Buff::YunHan::Trigger()
@@ -1067,8 +1065,8 @@ JX3DPS::MoWen::Buff::ZhiYinHeMing::ZhiYinHeMing(JX3DPS::Player *player, Targets 
     m_duration = 20 * 16;
     m_stackNum = 5;
 
-    m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 897);
-    m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 775);
+    m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 1786);
+    m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 1453);
     m_damageParams[0].emplace_back((40 + 40 + 6) / 2, 0, 775);
 }
 
@@ -1177,7 +1175,7 @@ JX3DPS::MoWen::Buff::YingZi::YingZi(JX3DPS::Player *player, Targets *targets) :
     m_stackNum = 6;
     m_interval = 2 * 16;
 
-    m_damageParams[0].emplace_back((160 + 160 + 40) / 2, 0, 277);
+    m_damageParams[0].emplace_back((160 + 160 + 40) / 2, 0, 61);
 
     if (m_player->talents[TALENT_KE_MENG]) {
         m_effectCriticalStrikeAdditionalBasisPointInt   += 1000;

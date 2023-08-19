@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 06:07:01
+ * Last Modified: 2023-08-19 14:52:02
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -80,8 +80,6 @@ JX3DPS::Player::Player(const Player &other)
 
     attribute = other.attribute;
 
-    triggerEffects = other.triggerEffects;
-
     for (auto &[id, buff] : other.buffs) {
         Buff *b = buff->Clone();
         b->SetPlayer(this);
@@ -136,8 +134,6 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
     effectDamageAdditionalPercentInt = other.effectDamageAdditionalPercentInt;
 
     attribute = other.attribute;
-
-    triggerEffects = other.triggerEffects;
 
     for (auto &[id, buff] : other.buffs) {
         Buff *b = buff->Clone();

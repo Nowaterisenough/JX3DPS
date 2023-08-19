@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 13:56:43
+ * Last Modified: 2023-08-19 15:14:57
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -378,6 +378,7 @@ enum Id_t
     TRIGGER_XU_JI,
     TRIGGER_XUAN_MEN,
     TRIGGER_CHANG_SHENG,
+    TRIGGER_CHI_YING,
     TRIGGER_BAI_HONG,
     TRIGGER_WU_YU,
     TRIGGER_DIE_REN,

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 09:06:54
+ * Last Modified: 2023-08-19 14:52:42
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -193,7 +193,6 @@ public:
     Skills         skills;         // 技能列表
     Buffs          buffs;          // Buff列表
     EquipEffects   equipEffects;   // 装备效果列表
-    TriggerEffects triggerEffects; // 附加效果
 
 private:
     Targets *m_targets = nullptr;

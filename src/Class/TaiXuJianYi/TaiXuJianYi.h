@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 01:36:42
+ * Last Modified: 2023-08-19 19:15:35
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -75,6 +75,8 @@ public:
 
     static void TriggerChangSheng(const Params &params);
 
+    static void TriggerChiYing(const Params &params);
+
     static void TriggerWuYu(const Params &params);
 
     static void TriggerDieRen(const Params &params);
@@ -102,6 +104,20 @@ public:
     static void TriggerYunZhongJianTunRiYue(const Params &params);
 
     static void TriggerYunZhongJianShengTaiJi(const Params &params);
+
+    static void TriggerEnchantShoes(const Params &params);
+
+    static void TriggerEnchantBelt(const Params &params);
+
+    static void TriggerEnchantWrist(const Params &params);
+
+    static void TriggerWeaponEffectCW(const Params &params);
+
+    static void TriggerWeaponEffectCWDot(const Params &params);
+
+    static void TriggerWeaponEffectCWDamage(const Params &params);
+
+    static void TriggerSetAttribute(const Params &params);
 
     static void TriggerTeamCoreTaiXuJianYiYouRen(const Params &params);
 };

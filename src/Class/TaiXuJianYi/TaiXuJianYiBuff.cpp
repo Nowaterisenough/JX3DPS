@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 19:19:16
+ * Last Modified: 2023-08-20 15:29:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -600,7 +600,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::SubEffectAdd(int stackNum)
     params.player   = m_player;
     params.stackNum = stackNum;
     params.type     = Params::Type::ADD;
-    // m_triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
+    m_triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::SubEffectClear(int stackNum)
@@ -609,7 +609,7 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::SubEffectClear(int stackNum)
     params.player   = m_player;
     params.stackNum = stackNum;
     params.type     = Params::Type::CLEAR;
-    // m_triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
+    m_triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
 }
 
 JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::FieldShengTaiJi(JX3DPS::Player *player, Targets *targets) :
@@ -1080,6 +1080,14 @@ void JX3DPS::TaiXuJianYi::Buff::FengShi::TriggerAdd()
         SubEffectAdd();
     }
     m_snapshots[PLAYER_ID].duration = m_duration;
+}
+
+void JX3DPS::TaiXuJianYi::Buff::FengShi::TriggerClear()
+{
+    if (!m_snapshots.empty()) [[likely]] { // buff不存在时，添加buff
+        m_snapshots.erase(PLAYER_ID);
+        SubEffectClear();
+    }
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FengShi::SubEffectAdd()

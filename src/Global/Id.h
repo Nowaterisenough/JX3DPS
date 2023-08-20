@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 15:14:57
+ * Last Modified: 2023-08-20 15:24:05
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -247,7 +247,6 @@ enum Id_t
     TALENT_DIE_REN,
     TALENT_QIE_YU,
     TALENT_CHANG_SHENG,
-    TALENT_LIE_XING,
     TALENT_FU_YIN,
     TALENT_RUO_SHUI,
     TALENT_LIE_YUN,
@@ -588,14 +587,14 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "玄门" },
      { "紫气东来" },
      { "气场·碎星辰" },
-     { "气场·碎星辰·期声" },
-     { "气场·生太极" },
      { "气场·吞日月" },
+     { "气场·生太极" },
+     { "气场·碎星辰·期声" },
      { "碎星辰" },
      { "吞日月" },
      { "云中剑·碎星辰" },
-     { "云中剑·生太极" },
      { "云中剑·吞日月" },
+     { "云中剑·生太极" },
      { "持盈" },
      { "期声" },
      { "风逝" },
@@ -643,7 +642,6 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "叠刃" },
      { "切玉" },
      { "长生" },
-     { "裂云" },
      { "负阴" },
      { "若水" },
      { "裂云" },

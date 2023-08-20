@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:55:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 19:17:11
+ * Last Modified: 2023-08-20 13:34:17
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -146,6 +146,8 @@ class FengShi : public JX3DPS::Buff
 
 public:
     void TriggerAdd();
+    void TriggerClear();
+    
     void SubEffectAdd();
     void SubEffectClear();
 };

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 19:15:35
+ * Last Modified: 2023-08-20 14:39:48
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -27,7 +27,7 @@ class Player : public JX3DPS::Player
 public:
     Player();
 
-    Player(const Player &other) : JX3DPS::Player(other) { }
+    Player(const Player &other);
 
     Player &operator=(const JX3DPS::Player &other) override
     {
@@ -42,6 +42,27 @@ public:
     Player *Clone() const override { return new Player(*this); }
 
     void Init() override;
+
+    Frame_t GetNextGlobalCooldown() const override
+    {
+        Frame_t frame = JX3DPS_INVALID_FRAMES_SET;
+        if (globalCooldownCurrent > 0) {
+            frame = globalCooldownCurrent;
+        }
+        if (cooldownSanChaiJianFaCurrent > 0) {
+            frame = std::min(frame, cooldownSanChaiJianFaCurrent);
+        }
+        return frame;
+    }
+
+    inline void UpdateGlobalCooldown(Frame_t next) override
+    {
+        globalCooldownCurrent -= next;
+        globalCooldownCurrent  = std::max(globalCooldownCurrent, 0);
+
+        cooldownSanChaiJianFaCurrent -= next;
+        cooldownSanChaiJianFaCurrent  = std::max(cooldownSanChaiJianFaCurrent, 0);
+    }
 
     std::list<Id_t> fields;
 
@@ -60,6 +81,8 @@ public:
             }
         }
     }
+
+    Frame_t cooldownSanChaiJianFaCurrent = 0;
 
     static void TriggerWuYi(const Params &params);
 
@@ -111,11 +134,11 @@ public:
 
     static void TriggerEnchantWrist(const Params &params);
 
-    static void TriggerWeaponEffectCW(const Params &params);
+    static void TriggerWeaponCW(const Params &params);
 
-    static void TriggerWeaponEffectCWDot(const Params &params);
+    static void TriggerWeaponCWDot(const Params &params);
 
-    static void TriggerWeaponEffectCWDamage(const Params &params);
+    static void TriggerWeaponCWDamage(const Params &params);
 
     static void TriggerSetAttribute(const Params &params);
 

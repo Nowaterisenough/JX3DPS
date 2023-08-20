@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 13:47:05
+ * Last Modified: 2023-08-20 19:39:09
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -145,7 +145,7 @@ double JX3DPS::Buff::GetRange() const
 JX3DPS::RollResult JX3DPS::Buff::GetPhysicsRollResult() const
 {
     return RandomUniform(0.0, 1.0) < m_player->attribute.GetPhysicsCriticalStrikePercent() +
-                                         m_effectCriticalStrikeAdditionalBasisPointInt / JX3_BASIS_POINT_INT_BASE
+                                         m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -272,7 +272,7 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcPhysicsDamage(Id_t targetId, RollResult ro
 JX3DPS::RollResult JX3DPS::Buff::GetMagicRollResult() const
 {
     return RandomUniform(0.0, 1.0) < m_player->attribute.GetMagicCriticalStrikePercent() +
-                                         m_effectCriticalStrikeAdditionalBasisPointInt / JX3_BASIS_POINT_INT_BASE
+                                         m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -400,7 +400,7 @@ JX3DPS::RollResult JX3DPS::Buff::GetDotRollResult(Id_t targetId) const
 {
     return RandomUniform(0.0, 1.0) <
                    m_snapshots.at(targetId).criticalStrikePercent +
-                       m_snapshots.at(targetId).effectCriticalStrikeAdditionalBasisPointInt / JX3_BASIS_POINT_INT_BASE
+                       m_snapshots.at(targetId).effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }

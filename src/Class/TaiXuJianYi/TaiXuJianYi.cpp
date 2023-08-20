@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 15:44:00
+ * Last Modified: 2023-08-20 16:15:27
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -488,34 +488,42 @@ void Player::Init()
     }
 
     if (equipEffects[EQUIP_EFFECT_WEAPON_WATER]) {
-        skills[SKILL_BA_HUANG_GUI_YUAN]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
-                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+        buffs.emplace(BUFF_WEAPON_EFFECT_WATER,
+                      static_cast<JX3DPS::Buff *>(new Buff3rd::WeaponEffectWater(this, nullptr)));
+
+        skills[SKILL_BA_HUANG_GUI_YUAN]->AddTriggerEffect(
+            TRIGGER_WEAPON_WATER,
+            std::bind(&TriggerWeaponWater, std::placeholders::_1));
         skills[SKILL_WU_WO_WU_JIAN]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
-                                                      std::bind(&TriggerVoid, std::placeholders::_1));
-        skills[SKILL_SAN_HUAN_TAO_YUE]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
-                                                         std::bind(&TriggerVoid, std::placeholders::_1));
-        skills[SKILL_WAN_JIAN_GUI_ZONG]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
-                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+                                                      std::bind(&TriggerWeaponWater, std::placeholders::_1));
+        skills[SKILL_SAN_HUAN_TAO_YUE]->AddTriggerEffect(
+            TRIGGER_WEAPON_WATER,
+            std::bind(&TriggerWeaponWater, std::placeholders::_1));
+        skills[SKILL_WAN_JIAN_GUI_ZONG]->AddTriggerEffect(
+            TRIGGER_WEAPON_WATER,
+            std::bind(&TriggerWeaponWater, std::placeholders::_1));
         skills[SKILL_REN_JIAN_HE_YI]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
-                                                       std::bind(&TriggerVoid, std::placeholders::_1));
-        skills[SKILL_SAN_CHAI_JIAN_FA]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
-                                                         std::bind(&TriggerVoid, std::placeholders::_1));
+                                                       std::bind(&TriggerWeaponWater, std::placeholders::_1));
+        skills[SKILL_SAN_CHAI_JIAN_FA]->AddTriggerEffect(
+            TRIGGER_WEAPON_WATER,
+            std::bind(&TriggerWeaponWater, std::placeholders::_1));
         if (talents[TALENT_JING_HUA_YING]) {
-            skills[SKILL_JING_HUA_YING]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
-                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+            skills[SKILL_JING_HUA_YING]->AddTriggerEffect(
+                TRIGGER_WEAPON_WATER,
+                std::bind(&TriggerWeaponWater, std::placeholders::_1));
         }
 
         skills[SKILL_REN_JIAN_HE_YI]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
-                                                       std::bind(&TriggerVoid, std::placeholders::_1));
+                                                       std::bind(&TriggerWeaponWater, std::placeholders::_1));
         skills[SKILL_REN_JIAN_HE_YI_SHENG_TAI_JI]->AddTriggerEffect(
             TRIGGER_WEAPON_WATER,
-            std::bind(&TriggerVoid, std::placeholders::_1));
+            std::bind(&TriggerWeaponWater, std::placeholders::_1));
         skills[SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN]->AddTriggerEffect(
             TRIGGER_WEAPON_WATER,
-            std::bind(&TriggerVoid, std::placeholders::_1));
+            std::bind(&TriggerWeaponWater, std::placeholders::_1));
         skills[SKILL_REN_JIAN_HE_YI_TUN_RI_YUE]->AddTriggerEffect(
             TRIGGER_WEAPON_WATER,
-            std::bind(&TriggerVoid, std::placeholders::_1));
+            std::bind(&TriggerWeaponWater, std::placeholders::_1));
     } else {
         skills[SKILL_BA_HUANG_GUI_YUAN]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
                                                           std::bind(&TriggerVoid, std::placeholders::_1));

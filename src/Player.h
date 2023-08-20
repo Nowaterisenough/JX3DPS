@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 14:52:42
+ * Last Modified: 2023-08-20 16:08:23
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -178,6 +178,8 @@ public:
     }
 
     inline static void TriggerVoid(const Params &params) { }
+
+    static void TriggerWeaponWater(const Params &params);
 
 public:
     Frame_t globalCooldown        = 24; // 冷却

@@ -643,26 +643,39 @@
             },
             "Default": {
                 "SkillsExpression": {
-                    "常规宏": [
-                        "/cast 镜花影",
-                        "/cast 三环套月",
-                        "/cast 人剑合一",
-                        "/cast [bufftime:玄门>30] 碎星辰",
-                        "/cast [qidian>5] 无我无剑",
-                        "/cast 吞日月",
-                        "/cast [bufftime:玄门<30] 万剑归宗",
-                        "/cast 三柴剑法"
+                    "循环": [
+                        "/cast 三柴剑法",
+                        "/scast 无我无剑",
+                        "/scast 三环套月",
+                        "/scast 无我无剑",
+                        "/cast [skill_cd:三环套月>2&skill_energy:紫气东来>=1] 宏·紫气宏",
+                        "/cast 宏·常规宏"
                     ],
                     "紫气宏": [
-                        "/cast 镜花影",
-                        "/cast 三环套月",
-                        "/cast 人剑合一",
-                        "/cast [bufftime:玄门>30] 碎星辰",
-                        "/cast [qidian>5] 无我无剑",
-                        "/cast 吞日月",
-                        "/cast [bufftime:玄门<30] 万剑归宗",
                         "/cast 三柴剑法",
-                        "/cast [nobuff:紫气东来] 宏·常规宏"
+                        "/scast 人剑合一",
+                        "/scast 碎星辰",
+                        "/scast 紫气东来",
+                        "/scast 无我无剑",
+                        "/scast 三环套月",
+                        "/scast 无我无剑",
+                        "/scast 八荒归元",
+                        "/scast 无我无剑",
+                        "/scast 三环套月",
+                        "/scast 无我无剑",
+                        "/scast 吞日月",
+                        "/scast 人剑合一",
+                        "/scast 宏·常规宏"
+                    ],
+                    "常规宏": [
+                        "/cast [skill_cd:三环套月>3&skill_energy:紫气东来>=1&last_skill~=人剑合一] 宏·紫气宏",
+                        "/cast 三环套月",
+                        "/cast [tbufftime:叠刃<17] 人剑合一",
+                        "/cast [bufftime:玄门>32] 碎星辰",
+                        "/cast [qidian>5] 无我无剑",
+                        "/cast 八荒归元",
+                        "/cast 吞日月",
+                        "/cast 三柴剑法"
                     ]
                 },
                 "EventsExpression": [
@@ -1554,7 +1567,7 @@
         {
             "Name": "分山劲",
             "Icon": 8479,
-            "Description": "作者: 神光毓逍遥 剑心",
+            "Description": "作者: 神光毓逍遥",
             "Talents": {
                 "1": [
                     {

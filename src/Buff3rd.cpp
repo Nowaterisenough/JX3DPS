@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:41:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 13:37:10
+ * Last Modified: 2023-08-20 16:07:24
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -14,6 +14,7 @@
  */
 
 #include "Buff3rd.h"
+
 #include "Player.h"
 
 namespace JX3DPS {
@@ -177,7 +178,7 @@ EnchantBelt::EnchantBelt(JX3DPS::Player *player, Targets *targets) :
 void EnchantBelt::Trigger()
 {
     if (m_snapshots[PLAYER_ID].duration == 0) { // buff时间结束
-        m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
+        m_snapshots.erase(PLAYER_ID);
         SubEffectClear();
     }
 }
@@ -206,11 +207,11 @@ void EnchantBelt::Clear(Id_t targetId, int stackNum)
 void EnchantBelt::TriggerAdd()
 {
     if (m_cooldownCurrent <= 0 && RandomUniform(1, 100) <= 20) {
-        m_cooldownCurrent               = m_cooldown;
-        m_snapshots[PLAYER_ID].duration = m_duration;
+        m_cooldownCurrent = m_cooldown;
         if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
             SubEffectAdd();
         }
+        m_snapshots[PLAYER_ID].duration = m_duration;
     }
 }
 
@@ -232,6 +233,77 @@ void EnchantBelt::SubEffectClear()
         m_player->effectDamageAdditionalPercentInt -= 10;
     }
     m_70 = false;
+}
+
+JX3DPS::Buff3rd::WeaponEffectWater::WeaponEffectWater(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_WEAPON_EFFECT_WATER;
+    m_name     = "水·斩流";
+    m_duration = 16 * 6;
+    m_stackNum = 10;
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::Trigger()
+{
+    int stackNum = m_snapshots[PLAYER_ID].stackNum;
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear(stackNum);
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
+        m_snapshots[PLAYER_ID].stackNum = stackNum;
+        m_snapshots[PLAYER_ID].stackNum =
+            std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        SubEffectAdd(m_snapshots[PLAYER_ID].stackNum);
+    } else {
+        int stack = m_snapshots[PLAYER_ID].stackNum;
+        m_snapshots[PLAYER_ID].stackNum += stackNum;
+        m_snapshots[PLAYER_ID].stackNum =
+            std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        stack = m_snapshots[PLAYER_ID].stackNum - stack;
+        SubEffectAdd(stack);
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::Clear(Id_t targetId, int stackNum)
+{
+    int stack = m_snapshots[PLAYER_ID].stackNum;
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear(stack);
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::TriggerAdd(int stackNum)
+{
+    if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
+        m_snapshots[PLAYER_ID].stackNum = stackNum;
+        SubEffectAdd(m_snapshots[PLAYER_ID].stackNum);
+    } else {
+        int stack = m_snapshots[PLAYER_ID].stackNum;
+        m_snapshots[PLAYER_ID].stackNum += stackNum;
+        m_snapshots[PLAYER_ID].stackNum =
+            std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        stack = m_snapshots[PLAYER_ID].stackNum - stack;
+        SubEffectAdd(stack);
+    }
+    m_snapshots[PLAYER_ID].duration = m_duration;
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::SubEffectAdd(int stackNum)
+{
+    m_player->attribute.AddPhysicsAttackPowerBaseAdditional(88 * stackNum);
+}
+
+void JX3DPS::Buff3rd::WeaponEffectWater::SubEffectClear(int stackNum)
+{
+    m_player->attribute.AddPhysicsAttackPowerBaseAdditional(-88 * stackNum);
 }
 
 } // namespace Buff3rd

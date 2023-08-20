@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:39:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 13:35:55
+ * Last Modified: 2023-08-20 16:05:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -68,6 +68,17 @@ public:
 
 private:
     bool m_70 = false;
+};
+
+class WeaponEffectWater : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(WeaponEffectWater)
+
+public:
+    void TriggerAdd(int stackNum = 1);
+
+    void SubEffectAdd(int stackNum);
+    void SubEffectClear(int stackNum);
 };
 
 } // namespace Buff3rd

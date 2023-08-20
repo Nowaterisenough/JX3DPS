@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 10:57:18
+ * Last Modified: 2023-08-20 18:45:41
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -318,6 +318,11 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
                 exprSkills       = exprSkillsHash.at(id);
                 lastExprSkillsId = exprSkillsId;
                 exprSkillsId     = id;
+                spdlog::debug("{:<8} {:<5} {}",
+                              now * 0.0625,
+                              "切换",
+                              "宏·" +
+                                  std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
             }
 
             // scast执行成功

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-18 08:05:06
+ * Last Modified: 2023-08-20 18:48:52
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -535,37 +535,37 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "<=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownLe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownEq,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "~=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownNe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownGe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownGt,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         }
     } else if (std::regex_match(str, mat, regSkillEnergy)) {
         JX3DPS::Id_t id = SkillId(mat[1].str());

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 11:14:49
+ * Last Modified: 2023-08-21 21:21:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -540,21 +540,23 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::Add(Id_t targetId, int stackNu
     stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
+
     // 清除排序靠前的气场
     for (int i = 0; i < stack; ++i) {
         Id_t id = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
         m_player->buffs[id]->Clear();
     }
 
-    int size = m_snapshots.size();
-    for (int i = size; i < size + stackNum; ++i) {
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
+    for (int i = 0; i < stackNum; ++i) {
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].interval = m_interval;
         if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
-            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = m_duration;
+            m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration = m_duration;
         } else [[unlikely]] {
-            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration =
+            m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration =
                 RandomUniform(durationMin, durationMax);
         }
+        static_cast<TaiXuJianYi::Player *>(m_player)->fieldId =
+            static_cast<Id_t>(static_cast<TaiXuJianYi::Player *>(m_player)->fieldId + 1);
         // player记录气场信息
         static_cast<TaiXuJianYi::Player *>(m_player)->fields.emplace_back(m_id);
     }
@@ -580,16 +582,18 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::TriggerAdd(int stackNum)
     stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
+
     // 清除排序靠前的气场
     for (int i = 0; i < stack; ++i) {
         Id_t id = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
         m_player->buffs[id]->Clear();
     }
 
-    int size = m_snapshots.size();
-    for (int i = size; i < size + stackNum; ++i) {
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = m_duration;
+    for (int i = 0; i < stackNum; ++i) {
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].interval = m_interval;
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration = m_duration;
+        static_cast<TaiXuJianYi::Player *>(m_player)->fieldId =
+            static_cast<Id_t>(static_cast<TaiXuJianYi::Player *>(m_player)->fieldId + 1);
 
         // player记录气场信息
         static_cast<TaiXuJianYi::Player *>(m_player)->fields.emplace_back(m_id);
@@ -678,15 +682,16 @@ void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::Add(Id_t targetId, int stackNum
         m_player->buffs[id]->Clear();
     }
 
-    int size = m_snapshots.size();
-    for (int i = size; i < size + stackNum; ++i) {
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
+    for (int i = 0; i < stackNum; ++i) {
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].interval = m_interval;
         if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
-            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = m_duration;
+            m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration = m_duration;
         } else [[unlikely]] {
-            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration =
+            m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration =
                 RandomUniform(durationMin, durationMax);
         }
+        static_cast<TaiXuJianYi::Player *>(m_player)->fieldId =
+            static_cast<Id_t>(static_cast<TaiXuJianYi::Player *>(m_player)->fieldId + 1);
         // player记录气场信息
         static_cast<TaiXuJianYi::Player *>(m_player)->fields.emplace_back(m_id);
     }
@@ -713,16 +718,18 @@ void JX3DPS::TaiXuJianYi::Buff::FieldShengTaiJi::TriggerAdd(int stackNum)
     stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
+
     // 清除排序靠前的气场
     for (int i = 0; i < stack; ++i) {
         Id_t id = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
         m_player->buffs[id]->Clear();
     }
 
-    int size = m_snapshots.size();
-    for (int i = size; i < size + stackNum; ++i) {
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = m_duration;
+    for (int i = 0; i < stackNum; ++i) {
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].interval = m_interval;
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration = m_duration;
+        static_cast<TaiXuJianYi::Player *>(m_player)->fieldId =
+            static_cast<Id_t>(static_cast<TaiXuJianYi::Player *>(m_player)->fieldId + 1);
 
         // player记录气场信息
         static_cast<TaiXuJianYi::Player *>(m_player)->fields.emplace_back(m_id);
@@ -785,22 +792,22 @@ void JX3DPS::TaiXuJianYi::Buff::FieldTunRiYue::Add(Id_t targetId, int stackNum, 
     stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
-
     // 清除排序靠前的气场
     for (int i = 0; i < stack; ++i) {
         Id_t id = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
         m_player->buffs[id]->Clear();
     }
 
-    int size = m_snapshots.size();
-    for (int i = size; i < size + stackNum; ++i) {
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
+    for (int i = 0; i < stackNum; ++i) {
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].interval = m_interval;
         if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
-            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = m_duration;
+            m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration = m_duration;
         } else [[unlikely]] {
-            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration =
+            m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration =
                 RandomUniform(durationMin, durationMax);
         }
+        static_cast<TaiXuJianYi::Player *>(m_player)->fieldId =
+            static_cast<Id_t>(static_cast<TaiXuJianYi::Player *>(m_player)->fieldId + 1);
         // player记录气场信息
         static_cast<TaiXuJianYi::Player *>(m_player)->fields.emplace_back(m_id);
     }
@@ -826,16 +833,18 @@ void JX3DPS::TaiXuJianYi::Buff::FieldTunRiYue::TriggerAdd(int stackNum)
     stackNum = std::min(stackNum, m_stackNum);
     // 计算要清除的气场数量
     int stack = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size() + stackNum - m_stackNum;
+
     // 清除排序靠前的气场
     for (int i = 0; i < stack; ++i) {
         Id_t id = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
         m_player->buffs[id]->Clear();
     }
 
-    int size = m_snapshots.size();
-    for (int i = size; i < size + stackNum; ++i) {
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = m_duration;
+    for (int i = 0; i < stackNum; ++i) {
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].interval = m_interval;
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration = m_duration;
+        static_cast<TaiXuJianYi::Player *>(m_player)->fieldId =
+            static_cast<Id_t>(static_cast<TaiXuJianYi::Player *>(m_player)->fieldId + 1);
 
         // player记录气场信息
         static_cast<TaiXuJianYi::Player *>(m_player)->fields.emplace_back(m_id);
@@ -884,10 +893,12 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::Trigger()
 
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
 {
-    int size = m_snapshots.size();
-    for (int i = size; i < stackNum + size; ++i) {
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = JX3DPS_INVALID_FRAMES_SET;
+
+    for (int i = 0; i < stackNum; ++i) {
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].interval = m_interval;
+        m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration = JX3DPS_INVALID_FRAMES_SET;
+        static_cast<TaiXuJianYi::Player *>(m_player)->fieldId =
+            static_cast<Id_t>(static_cast<TaiXuJianYi::Player *>(m_player)->fieldId + 1);
     }
     SubEffect();
 }
@@ -903,10 +914,12 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::Clear(Id_t targetId, in
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::TriggerAdd(int stackNum)
 {
     if (stackNum > 0) {
-        int size = m_snapshots.size();
-        for (int i = size; i < stackNum + size; ++i) {
-            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
-            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = JX3DPS_INVALID_FRAMES_SET;
+
+        for (int i = 0; i < stackNum; ++i) {
+            m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].interval = m_interval;
+            m_snapshots[static_cast<TaiXuJianYi::Player *>(m_player)->fieldId].duration = JX3DPS_INVALID_FRAMES_SET;
+            static_cast<TaiXuJianYi::Player *>(m_player)->fieldId =
+            static_cast<Id_t>(static_cast<TaiXuJianYi::Player *>(m_player)->fieldId + 1);
         }
         SubEffect();
     } else {

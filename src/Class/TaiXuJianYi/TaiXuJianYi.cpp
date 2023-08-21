@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 19:54:27
+ * Last Modified: 2023-08-21 21:44:16
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -1112,8 +1112,8 @@ void Player::TriggerShengTaiJiEffectCooldown(const Params &params)
 {
     for (auto &id : static_cast<TaiXuJianYi::Player *>(params.player)->fields) {
         if (id == BUFF_FIELD_SHENG_TAI_JI) {
-            static_cast<Skill::ShengTaiJi *>(params.player->skills[SKILL_SHENG_TAI_JI])
-                ->SetEnergyCooldownCurrent(16 * 8);
+            Frame_t cooldown = params.player->skills[SKILL_SHENG_TAI_JI]->GetEnergyCooldownCurrent();
+            params.player->skills[SKILL_SHENG_TAI_JI]->SetEnergyCooldownCurrent(cooldown - 2 * 16);
             break;
         }
     }

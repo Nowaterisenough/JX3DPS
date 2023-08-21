@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 10:25:02
+ * Last Modified: 2023-08-21 21:41:06
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -1209,7 +1209,7 @@ JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targe
 
     if (m_player->talents[TALENT_XUAN_MEN]) {
         m_effectCooldownAdditional  = -16 * 15;
-        m_cooldown                 += m_effectCooldownAdditional;
+        m_cooldown                 -= m_effectCooldownAdditional;
     }
 
     if (m_player->recipes[RECIPE_SHENG_TAI_JI_PREPARE_1]) {
@@ -1251,7 +1251,8 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::SubEffect()
 
     m_player->AddQidian(2);
 
-    m_player->buffs[BUFF_FIELD_SHENG_TAI_JI]->Add();
+    static_cast<TaiXuJianYi::Buff::FieldShengTaiJi *>(m_player->buffs[BUFF_FIELD_SHENG_TAI_JI])
+        ->TriggerAdd(1);
 
     Params params;
     params.player = m_player;

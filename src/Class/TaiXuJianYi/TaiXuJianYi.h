@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 14:39:48
+ * Last Modified: 2023-08-21 21:13:50
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -65,6 +65,8 @@ public:
     }
 
     std::list<Id_t> fields;
+    
+    Id_t fieldId = TARGET_PLACE_HOLDERS_END;
 
     void RemoveField(Id_t fieldId, int stackNum = 1)
     {

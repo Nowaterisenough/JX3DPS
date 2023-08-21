@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 11:58:14
+ * Last Modified: 2023-08-21 19:00:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -310,7 +310,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
 
     JX3DPS::Attribute *attribute = new JX3DPS::Attribute;
 
-    attribute->SetClassType(JX3DPS::ClassType::MO_WEN);
+    attribute->SetClassType(JX3DPS::ClassType::DEFAULT);
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -933,7 +933,8 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        JX3DPS::ClassType type = JX3DPS::ClassType::MO_WEN;
+        std::string className = params["ClassType"].get<std::string>();
+        JX3DPS::ClassType type = GetClassType(className);
         if (permanentCheckBoxes[0]->isChecked()) {
             QString                name = permanentCheckBoxes[0]->GetItemInfo().name;
             nlohmann::ordered_json out;

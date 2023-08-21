@@ -5,7 +5,7 @@
  * Created Date: 2023-08-10 00:05:57
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 11:37:29
+ * Last Modified: 2023-08-21 18:53:45
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -39,7 +39,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToTalentItemInfos(
     std::list<std::string>                     &defaults)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &talent : item["Talents"].items()) {
                 std::list<ComboBox::ItemInfo> talentItemInfos;
@@ -71,7 +71,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToRecipeItemInfos(
     std::list<std::string>                                           &defaults)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &recipe : item["Recipes"].items()) {
                 std::list<CheckBox::ItemInfo> recipeItemInfos;
@@ -104,7 +104,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToSkills(
     std::list<std::pair<std::string, std::list<std::string>>> &skills)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &item : item["Default"].items()) {
                 if (item.key() == "SkillsExpression") {
@@ -123,7 +123,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToEvents(const nlohmann::ordered_js
                                                       std::list<std::string> &events)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &item : item["Default"].items()) {
                 if (item.key() == "EventsExpression") {
@@ -141,7 +141,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToPermanents(
     std::unordered_map<std::string, std::list<ComboBox::ItemInfo>> &permanents2)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &[key, value] : item["Permanents"].items()) {
                 if (key == "Others") {
@@ -174,11 +174,12 @@ void JX3DPS::Simulator::JsonParser::LoadJsonPermanent(const nlohmann::ordered_js
                                                       nlohmann::ordered_json &out)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &[key, value] : item["Permanents"].items()) {
                 for (auto &permanent : value) {
-                    if (name == permanent["Name"].get<std::string>().c_str()) {
+                    std::string temp = permanent["Name"].get<std::string>();
+                    if (name == temp) {
                         out = permanent;
                         return;
                     }
@@ -206,7 +207,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToDefaultAttribute(
     std::unordered_map<std::string, int> &attributes)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &[key, value] : item["Default"].items()) {
                 if (key == "Attribute") {

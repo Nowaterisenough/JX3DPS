@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 11:52:19
+ * Last Modified: 2023-08-21 19:28:21
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -413,9 +413,20 @@ void Player::Init()
             std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
+    if (recipes[RECIPE_SHENG_TAI_JI_EFFECT_COOLDOWN]) {
+        skills[SKILL_SHENG_TAI_JI]->AddTriggerEffect(
+            TRIGGER_SHENG_TAI_JI_EFFECT_COOLDOWN,
+            std::bind(&TriggerShengTaiJiEffectCooldown, std::placeholders::_1));
+    } else {
+        skills[SKILL_SHENG_TAI_JI]->AddTriggerEffect(TRIGGER_SHENG_TAI_JI_EFFECT_COOLDOWN,
+                                                     std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
     if (equipEffects[EQUIP_EFFECT_WEAPON_CW]) {
         buffs.emplace(BUFF_WEAPON_EFFECT_CW,
                       static_cast<JX3DPS::Buff *>(new Buff::WeaponEffectCW(this, nullptr)));
+        buffs.emplace(BUFF_WAN_XIANG_GUI_YUAN,
+                      static_cast<JX3DPS::Buff *>(new Buff::WanXiangGuiYuan(this, nullptr)));
 
         skills[SKILL_BA_HUANG_GUI_YUAN]->AddTriggerEffect(TRIGGER_WEAPON_CW,
                                                           std::bind(&TriggerWeaponCW, std::placeholders::_1));

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 07:05:53
+ * Last Modified: 2023-08-21 10:25:23
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -969,7 +969,7 @@ void Player::Init()
 
 void Player::TriggerWuYi(const Params &params)
 {
-    if (params.player->GetQidian() >= 6) {
+    if (params.level >= 6) {
         params.player->skills[SKILL_WU_WO_WU_JIAN]->AddCriticalStrikeAdditionalBasisPointInt(
             1000 * static_cast<int>(params.type));
         params.player->skills[SKILL_WU_WO_WU_JIAN]->AddCriticalStrikePowerAdditionalPercentInt(

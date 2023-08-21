@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 08:52:23
+ * Last Modified: 2023-08-21 11:14:49
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -83,7 +83,8 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::Add(Id_t targetId, int stackNum, Frame_t
     m_snapshots[targetId].SnapPhysics(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt +
+            m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -119,7 +120,8 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::TriggerAdd(Id_t targetId, int stackNum)
     m_snapshots[targetId].SnapPhysics(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt +
+            m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =
@@ -180,7 +182,8 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffectAdd(Id_t targetId)
 {
     // 裂云
     Params params;
-    params.player = m_player;
+    params.player   = m_player;
+    params.targetId = m_player->GetTargetId();
     m_triggerEffects[TRIGGER_LIE_YUN](params);
 }
 
@@ -188,7 +191,8 @@ void JX3DPS::TaiXuJianYi::Buff::DieRen::SubEffectClear(Id_t targetId)
 {
     // 裂云
     Params params;
-    params.player = m_player;
+    params.player   = m_player;
+    params.targetId = m_player->GetTargetId();
     m_triggerEffects[TRIGGER_LIE_YUN](params);
 }
 
@@ -234,7 +238,8 @@ void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::Add(Id_t targetId, int stackNum
     m_snapshots[targetId].SnapPhysics(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt +
+            m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -267,7 +272,8 @@ void JX3DPS::TaiXuJianYi::Buff::WanXiangGuiYuan::TriggerAdd(Id_t targetId, int s
     m_snapshots[targetId].SnapPhysics(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt +
+            m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =
@@ -317,7 +323,8 @@ void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::Add(Id_t targetId, int stackNum, Fr
     m_snapshots[targetId].SnapPhysics(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt +
+            m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -343,7 +350,8 @@ void JX3DPS::TaiXuJianYi::Buff::RenJianHeYi::TriggerAdd(Id_t targetId)
     m_snapshots[targetId].SnapPhysics(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt +
+            m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     m_snapshots[targetId].duration =

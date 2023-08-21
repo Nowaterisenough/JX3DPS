@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 08:36:53
+ * Last Modified: 2023-08-21 09:04:04
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -372,6 +372,19 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicDamage(
     PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
     PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    spdlog::debug("攻击 {} 自身伤害加成 {} 技能伤害加成 {} 忽视 {} "
+                  "破防值 {} "
+                  "会效 {} 自身会效加成 {} 技能会效加成 {} 无双 {}",
+                  attack,
+                  m_player->effectDamageAdditionalPercentInt,
+                  m_effectDamageAdditionalPercentInt,
+                  ignoreShieldBasePercentInt,
+                  overcome,
+                  criticalStrikePower,
+                  m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
+                  m_effectCriticalStrikePowerAdditionalPercentInt,
+                  strain);
 
     damage.damage = FinalMagicDamage(
         playerLevel,

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 12:10:41
+ * Last Modified: 2023-08-21 11:22:47
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -81,7 +81,7 @@ void JX3DPS::MoWen::Buff::Shang::Add(Id_t targetId, int stackNum, Frame_t durati
     m_snapshots[targetId].SnapMagic(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt + m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -113,7 +113,7 @@ void JX3DPS::MoWen::Buff::Shang::TriggerAdd(Id_t targetId)
     m_snapshots[targetId].SnapMagic(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt + m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 }
 
@@ -160,7 +160,7 @@ void JX3DPS::MoWen::Buff::Jue::Add(Id_t targetId, int stackNum, Frame_t duration
     m_snapshots[targetId].SnapMagic(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt + m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -192,7 +192,7 @@ void JX3DPS::MoWen::Buff::Jue::TriggerAdd(Id_t targetId)
     m_snapshots[targetId].SnapMagic(
         m_player->attribute,
         m_effectCriticalStrikeAdditionalBasisPointInt,
-        m_effectCriticalStrikePowerAdditionalPercentInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt + m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
         m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 }
 
@@ -1219,7 +1219,7 @@ void JX3DPS::MoWen::Buff::YingZi::Add(Id_t targetId, int stackNum, Frame_t durat
         // 快照属性
         m_snapshots[id].SnapMagic(m_player->attribute,
                                   m_effectCriticalStrikeAdditionalBasisPointInt,
-                                  m_effectCriticalStrikePowerAdditionalPercentInt,
+                                  m_effectCriticalStrikePowerAdditionalPercentInt + m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
                                   m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
         if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
@@ -1267,7 +1267,7 @@ void JX3DPS::MoWen::Buff::YingZi::TriggerAdd(int count)
         // 快照属性
         m_snapshots[id].SnapMagic(m_player->attribute,
                                   m_effectCriticalStrikeAdditionalBasisPointInt,
-                                  m_effectCriticalStrikePowerAdditionalPercentInt,
+                                  m_effectCriticalStrikePowerAdditionalPercentInt + m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
                                   m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
         m_snapshots[id].duration = m_duration;

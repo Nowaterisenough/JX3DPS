@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 19:39:09
+ * Last Modified: 2023-08-21 09:04:42
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -14,6 +14,8 @@
  */
 
 #include "Buff.h"
+
+#include <spdlog/spdlog.h>
 
 #include "Damage/Damage.hpp"
 
@@ -144,8 +146,9 @@ double JX3DPS::Buff::GetRange() const
 
 JX3DPS::RollResult JX3DPS::Buff::GetPhysicsRollResult() const
 {
-    return RandomUniform(0.0, 1.0) < m_player->attribute.GetPhysicsCriticalStrikePercent() +
-                                         m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
+    return RandomUniform(0.0, 1.0) <
+                   m_player->attribute.GetPhysicsCriticalStrikePercent() +
+                       m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -271,8 +274,9 @@ JX3DPS::GainsDamage JX3DPS::Buff::CalcPhysicsDamage(Id_t targetId, RollResult ro
 
 JX3DPS::RollResult JX3DPS::Buff::GetMagicRollResult() const
 {
-    return RandomUniform(0.0, 1.0) < m_player->attribute.GetMagicCriticalStrikePercent() +
-                                         m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
+    return RandomUniform(0.0, 1.0) <
+                   m_player->attribute.GetMagicCriticalStrikePercent() +
+                       m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -400,7 +404,8 @@ JX3DPS::RollResult JX3DPS::Buff::GetDotRollResult(Id_t targetId) const
 {
     return RandomUniform(0.0, 1.0) <
                    m_snapshots.at(targetId).criticalStrikePercent +
-                       m_snapshots.at(targetId).effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
+                       m_snapshots.at(targetId).effectCriticalStrikeAdditionalBasisPointInt *
+                           JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -549,6 +554,19 @@ JX3DPS::Damage JX3DPS::Buff::GetMagicDotDamage(
     PctInt_t strainPercentInt = m_snapshots.at(targetId).strainBaseAdditionalPercentInt;
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
     PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    spdlog::debug("攻击 {} 自身伤害加成 {} 技能伤害加成 {} 忽视 {} "
+                  "破防值 {} "
+                  "会效 {} 自身会效加成 {} 技能会效加成 {} 无双 {}",
+                  attack,
+                  m_player->effectDamageAdditionalPercentInt,
+                  m_effectDamageAdditionalPercentInt,
+                  ignoreShieldBasePercentInt,
+                  overcome,
+                  criticalStrikePower,
+                  m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
+                  m_effectCriticalStrikePowerAdditionalPercentInt,
+                  strain);
 
     damage.damage = FinalMagicDamage(
         playerLevel,

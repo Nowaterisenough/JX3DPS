@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 08:55:11
+ * Last Modified: 2023-08-21 10:25:02
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -195,6 +195,7 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
 
     // 无意 3格气以上
     params.type = Params::Type::ADD;
+    params.level = qidian;
     m_triggerEffects[TRIGGER_WU_YI](params);
 
     RollResult  rollResult = GetPhysicsRollResult();

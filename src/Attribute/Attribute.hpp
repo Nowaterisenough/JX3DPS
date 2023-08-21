@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-10 04:24:28
+ * Last Modified: 2023-08-19 06:10:47
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -149,7 +149,7 @@ public:
 
     inline static Type AttributeType(const std::string &name)
     {
-        for (int type = static_cast<int>(Type::AGILITY_BASE); type < static_cast<int>(Type::COUNT); ++type)
+        for (int type = static_cast<int>(Type::DEFAULT); type < static_cast<int>(Type::COUNT); ++type)
         {
             if (name == ATTRIBUTE_NAME[type]) {
                 return static_cast<Type>(type);
@@ -1009,7 +1009,7 @@ public:
     /* 外功会效 */
     inline Value_t GetPhysicsCriticalStrikePower() const
     {
-        return m_physicsCriticalStrikePower;
+        return m_physicsCriticalStrikePowerAdditional;
     }
 
     inline void SetPhysicsCriticalStrikePower(Value_t value)
@@ -1054,7 +1054,7 @@ public:
     /* 内功会效 */
     inline Value_t GetMagicCriticalStrikePower() const
     {
-        return m_magicCriticalStrikePower;
+        return m_magicCriticalStrikePowerAdditional;
     }
 
     inline void SetMagicCriticalStrikePower(Value_t value)

@@ -81,6 +81,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     StackWidget
     PlainTextEdit
     ProgressBar
+    TableView
 )
 
 set(APP_NAME "JX3DPS Simulator")
@@ -117,14 +118,12 @@ if(WIN32)
         COMMAND ${DEPLOYQT_EXECUTABLE}
         --verbose 1
         --no-svg
-        --no-pdf
         --no-network
         --no-opengl
         --no-opengl-sw
         --no-compiler-runtime
         --no-system-d3d-compiler
         --no-translations
-        --no-virtualkeyboard
         --$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>
         $<TARGET_FILE:${PROJECT_NAME}>
     )

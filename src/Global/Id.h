@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 09:09:41
+ * Last Modified: 2023-08-20 15:24:05
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -136,10 +136,10 @@ enum Id_t
     SKILL_GAO_SHAN_LIU_SHUI,
     SKILL_YANG_CHUN_BAI_XUE,
     SKILL_SHU_YING_HENG_XIE,
-    SKILL_SHU_YING_HUA_SHUANG,
     SKILL_ZHENG_LV_HE_MING_1,
     SKILL_ZHENG_LV_HE_MING_2,
     SKILL_ZHENG_LV_HE_MING_3,
+    SKILL_GU_YING_HUA_SHUANG,
     SKILL_YI_XING_HUAN_YING,
     SKILL_MO_WEN_END, // ---------------------- 技能 莫问 END ----------------------
 
@@ -223,9 +223,12 @@ enum Id_t
     BUFF_CAN_LIAN,
     BUFF_ZHI_YIN_MIAO_YI,
     BUFF_ZHENG_LV_HE_MING,
+    BUFF_ZHI_YIN_HE_MING,
     BUFF_GAO_SHAN_LIU_SHUI,
     BUFF_YANG_CHUN_BAI_XUE,
     BUFF_YING_ZI,
+    BUFF_ZHI_YIN_XING_JIN,
+    BUFF_GU_YING_HUA_SHUANG,
     BUFF_MO_WEN_END, // ---------------------- Buff 莫问 END ----------------------
 
     BUFF_END,        // ---------------------- Buff END ----------------------
@@ -244,7 +247,6 @@ enum Id_t
     TALENT_DIE_REN,
     TALENT_QIE_YU,
     TALENT_CHANG_SHENG,
-    TALENT_LIE_XING,
     TALENT_FU_YIN,
     TALENT_RUO_SHUI,
     TALENT_LIE_YUN,
@@ -375,6 +377,7 @@ enum Id_t
     TRIGGER_XU_JI,
     TRIGGER_XUAN_MEN,
     TRIGGER_CHANG_SHENG,
+    TRIGGER_CHI_YING,
     TRIGGER_BAI_HONG,
     TRIGGER_WU_YU,
     TRIGGER_DIE_REN,
@@ -528,10 +531,10 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "高山流水" },
      { "阳春白雪" },
      { "疏影横斜" },
-     { "疏影化双" },
      { "正律和鸣·1" },
      { "正律和鸣·2" },
      { "正律和鸣·3" },
+     { "孤影化双" },
      { "移形换影" },
      { "----------------------技能 莫问 END----------------------" },
 
@@ -584,14 +587,14 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "玄门" },
      { "紫气东来" },
      { "气场·碎星辰" },
-     { "气场·碎星辰·期声" },
-     { "气场·生太极" },
      { "气场·吞日月" },
+     { "气场·生太极" },
+     { "气场·碎星辰·期声" },
      { "碎星辰" },
      { "吞日月" },
      { "云中剑·碎星辰" },
-     { "云中剑·生太极" },
      { "云中剑·吞日月" },
+     { "云中剑·生太极" },
      { "持盈" },
      { "期声" },
      { "风逝" },
@@ -615,9 +618,12 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "参连" },
      { "知音妙意" },
      { "正律和鸣" },
+     { "知音和鸣" },
      { "高山流水" },
      { "阳春白雪" },
      { "影子" },
+     { "知音兴尽" },
+     { "孤影化双" },
      { "----------------------Buff 莫问 END----------------------" },
 
      { "----------------------Buff END-----------------------" },
@@ -636,7 +642,6 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "叠刃" },
      { "切玉" },
      { "长生" },
-     { "裂云" },
      { "负阴" },
      { "若水" },
      { "裂云" },
@@ -763,6 +768,11 @@ inline Id_t BuffId(const std::string &name)
 {
     for (int id = Id_t::BUFF_DEFAULT; id < Id_t::BUFF_END; ++id) {
         if (name == JX3DPS_NAME[id]) {
+            return static_cast<Id_t>(id);
+        }
+    }
+    for (int id = Id_t::BUFF_DEFAULT; id < Id_t::BUFF_END; ++id) {
+        if ("Dot·" + name == JX3DPS_NAME[id]) {
             return static_cast<Id_t>(id);
         }
     }

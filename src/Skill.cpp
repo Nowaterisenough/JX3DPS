@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:37:08
+ * Last Modified: 2023-08-21 09:04:04
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -14,6 +14,8 @@
  */
 
 #include "Skill.h"
+
+#include <spdlog/spdlog.h>
 
 #include "Damage/Damage.hpp"
 
@@ -48,6 +50,7 @@ JX3DPS::Skill::Skill(const Skill &other)
     m_effectCriticalStrikePowerAdditionalPercentInt = other.m_effectCriticalStrikePowerAdditionalPercentInt;
     m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
+    m_triggerEffects = other.m_triggerEffects;
 
     if (other.m_globalCooldownCurrent == &(other.m_noneGlobalCooldown)) {
         m_globalCooldownCurrent = &(m_noneGlobalCooldown);
@@ -77,6 +80,7 @@ JX3DPS::Skill &JX3DPS::Skill::operator=(const Skill &other)
     m_effectCriticalStrikePowerAdditionalPercentInt = other.m_effectCriticalStrikePowerAdditionalPercentInt;
     m_effectDamageAdditionalPercentInt = other.m_effectDamageAdditionalPercentInt;
     m_effectShieldIgnoreAdditionalPercentInt = other.m_effectShieldIgnoreAdditionalPercentInt;
+    m_triggerEffects = other.m_triggerEffects;
 
     if (other.m_globalCooldownCurrent == &(other.m_noneGlobalCooldown)) {
         m_globalCooldownCurrent = &(m_noneGlobalCooldown);
@@ -120,17 +124,18 @@ void JX3DPS::Skill::SetTargets(Targets *targets)
 
 JX3DPS::Frame_t JX3DPS::Skill::GetNextKeyFrame() const
 {
-    if (m_energyCountCurrent > 0 && *m_globalCooldownCurrent == 0) {
-        return 0;
+    if (m_energyCount > 0) { // 充能技能 取 预处理时间 和 冷却时间 最小值
+        return std::min(m_cooldownCurrent, m_prepareFramesCurrent);
     }
-    Frame_t nextKeyFrame = std::max(m_cooldownCurrent, *m_globalCooldownCurrent);
-    return std::min(nextKeyFrame, m_prepareFramesCurrent);
+    return m_prepareFramesCurrent;
 }
 
 void JX3DPS::Skill::UpdateKeyFrame(Frame_t frame)
 {
-    m_cooldownCurrent -= frame;
-    m_cooldownCurrent  = std::max(m_cooldownCurrent, 0);
+    if (m_cooldownCurrent != JX3DPS_INVALID_FRAMES_SET) {
+        m_cooldownCurrent -= frame;
+    }
+    m_cooldownCurrent = std::max(m_cooldownCurrent, 0);
     if (m_prepareFramesCurrent != JX3DPS_INVALID_FRAMES_SET) { // 在蓄力时间才进行关键帧刷新
         m_prepareFramesCurrent -= frame;
     }
@@ -164,6 +169,19 @@ int JX3DPS::Skill::GetEnergyCountCurrent() const
     return m_energyCountCurrent;
 }
 
+void JX3DPS::Skill::SetEnergyCountCurrent(int count)
+{
+    m_energyCountCurrent = count;
+}
+
+JX3DPS::Frame_t JX3DPS::Skill::GetCooldownCurrentWithoutGlobal() const
+{
+    if (m_globalCooldownCurrent == &m_player->globalCooldownCurrent) {
+        return m_cooldownCurrent;
+    }
+    return std::max(m_cooldownCurrent, *m_globalCooldownCurrent);
+}
+
 double JX3DPS::Skill::GetRange() const
 {
     return m_range;
@@ -171,8 +189,9 @@ double JX3DPS::Skill::GetRange() const
 
 JX3DPS::RollResult JX3DPS::Skill::GetPhysicsRollResult() const
 {
-    return RandomUniform(0.0, 1.0) < m_player->attribute.GetPhysicsCriticalStrikePercent() +
-                                         m_effectCriticalStrikeAdditionalBasisPointInt / JX3_BASIS_POINT_INT_BASE
+    return RandomUniform(0.0, 1.0) <
+                   m_player->attribute.GetPhysicsCriticalStrikePercent() +
+                       m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -212,6 +231,19 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsDamage(
     PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
     PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    spdlog::debug("攻击 {} 自身伤害加成 {} 技能伤害加成 {} 忽视 {} "
+                  "破防值 {} "
+                  "会效 {} 自身会效加成 {} 技能会效加成 {} 无双 {}",
+                  attack,
+                  m_player->effectDamageAdditionalPercentInt,
+                  m_effectDamageAdditionalPercentInt,
+                  ignoreShieldBasePercentInt,
+                  overcome,
+                  criticalStrikePower,
+                  m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
+                  m_effectCriticalStrikePowerAdditionalPercentInt,
+                  strain);
 
     damage.damage = FinalPhysicsDamage(
         playerLevel,
@@ -267,10 +299,10 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsDamage(Id_t targetId, RollResult r
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                m_player->attribute.AddPhysicsCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetPhysicsCriticalStrikePower();
-                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                m_player->attribute.AddPhysicsCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:
@@ -291,14 +323,16 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsDamage(Id_t targetId, RollResult r
         gainsDamage[type] =
             GetPhysicsDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
 
 JX3DPS::RollResult JX3DPS::Skill::GetMagicRollResult() const
 {
-    return RandomUniform(0.0, 1.0) < m_player->attribute.GetMagicCriticalStrikePercent() +
-                                         m_effectCriticalStrikeAdditionalBasisPointInt / JX3_BASIS_POINT_INT_BASE
+    return RandomUniform(0.0, 1.0) <
+                   m_player->attribute.GetMagicCriticalStrikePercent() +
+                       m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -338,6 +372,19 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicDamage(
     PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
     PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    spdlog::debug("攻击 {} 自身伤害加成 {} 技能伤害加成 {} 忽视 {} "
+                  "破防值 {} "
+                  "会效 {} 自身会效加成 {} 技能会效加成 {} 无双 {}",
+                  attack,
+                  m_player->effectDamageAdditionalPercentInt,
+                  m_effectDamageAdditionalPercentInt,
+                  ignoreShieldBasePercentInt,
+                  overcome,
+                  criticalStrikePower,
+                  m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
+                  m_effectCriticalStrikePowerAdditionalPercentInt,
+                  strain);
 
     damage.damage = FinalMagicDamage(
         playerLevel,
@@ -393,10 +440,10 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicDamage(Id_t targetId, RollResult rol
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:
@@ -417,6 +464,7 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicDamage(Id_t targetId, RollResult rol
         gainsDamage[type] =
             GetMagicDamage(targetId, rollResult, sub, level, attack, weaponDamage, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::SURPLUS_VALUE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -496,10 +544,10 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsSurplusDamage(Id_t targetId, RollR
                 m_player->attribute.AddSurplusValueBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                m_player->attribute.AddPhysicsCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetPhysicsCriticalStrikePower();
-                m_player->attribute.AddPhysicsCriticalStrikeAdditional(
+                m_player->attribute.AddPhysicsCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:
@@ -520,6 +568,8 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsSurplusDamage(Id_t targetId, RollR
         gainsDamage[type] =
             GetPhysicsSurplusDamage(targetId, rollResult, sub, level, surplus, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::WEAPON_DAMAGE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
+    gainsDamage[Attribute::Type::ATTACK_POWER_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }
@@ -599,10 +649,10 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicSurplusDamage(Id_t targetId, RollRes
                 m_player->attribute.AddSurplusValueBase(-Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::CRITICAL_STRIKE_POWER:
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 criticalStrikePower = m_player->attribute.GetMagicCriticalStrikePower();
-                m_player->attribute.AddMagicCriticalStrikeAdditional(
+                m_player->attribute.AddMagicCriticalStrikePower(
                     -Attribute::ATTRIBUTE_GAIN_BY_BASE.at(type));
                 break;
             case Attribute::Type::OVERCOME_BASE:
@@ -623,6 +673,8 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicSurplusDamage(Id_t targetId, RollRes
         gainsDamage[type] =
             GetMagicSurplusDamage(targetId, rollResult, sub, level, surplus, criticalStrikePower, overcome, strain);
     }
+    gainsDamage[Attribute::Type::WEAPON_DAMAGE_BASE] = gainsDamage[Attribute::Type::DEFAULT];
+    gainsDamage[Attribute::Type::ATTACK_POWER_BASE] = gainsDamage[Attribute::Type::DEFAULT];
 
     return gainsDamage;
 }

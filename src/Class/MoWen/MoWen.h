@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-06 04:11:47
+ * Last Modified: 2023-08-19 13:42:49
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -43,16 +43,49 @@ public:
 
     void Init() override;
 
+    Frame_t GetNextGlobalCooldown() const override
+    {
+        Frame_t frame = JX3DPS_INVALID_FRAMES_SET;
+        if (globalCooldownCurrent > 0) {
+            frame = globalCooldownCurrent;
+        }
+        if (cooldownStyleCurrent > 0) {
+            frame = std::min(frame, cooldownStyleCurrent);
+        }
+        if (cooldownGaoShanLiuShuiCurrent > 0) {
+            frame = std::min(frame, cooldownGaoShanLiuShuiCurrent);
+        }
+        if (cooldownYangChunBaiXueCurrent > 0) {
+            frame = std::min(frame, cooldownYangChunBaiXueCurrent);
+        }
+        if (cooldownShuYingHengXieCurrent > 0) {
+            frame = std::min(frame, cooldownShuYingHengXieCurrent);
+        }
+        if (cooldownGuYingHuaShuangCurrent > 0) {
+            frame = std::min(frame, cooldownGuYingHuaShuangCurrent);
+        }
+        return frame;
+    }
+
     inline void UpdateGlobalCooldown(Frame_t next) override
     {
         globalCooldownCurrent -= next;
-        globalCooldownCurrent = std::max(globalCooldownCurrent, 0);
+        globalCooldownCurrent  = std::max(globalCooldownCurrent, 0);
 
         cooldownStyleCurrent -= next;
-        cooldownStyleCurrent = std::max(cooldownStyleCurrent, 0);
+        cooldownStyleCurrent  = std::max(cooldownStyleCurrent, 0);
 
         cooldownGaoShanLiuShuiCurrent -= next;
-        cooldownGaoShanLiuShuiCurrent = std::max(cooldownGaoShanLiuShuiCurrent, 0);
+        cooldownGaoShanLiuShuiCurrent  = std::max(cooldownGaoShanLiuShuiCurrent, 0);
+
+        cooldownYangChunBaiXueCurrent -= next;
+        cooldownYangChunBaiXueCurrent  = std::max(cooldownYangChunBaiXueCurrent, 0);
+
+        cooldownShuYingHengXieCurrent -= next;
+        cooldownShuYingHengXieCurrent  = std::max(cooldownShuYingHengXieCurrent, 0);
+
+        cooldownGuYingHuaShuangCurrent -= next;
+        cooldownGuYingHuaShuangCurrent  = std::max(cooldownGuYingHuaShuangCurrent, 0);
     }
 
     enum class Style
@@ -61,18 +94,17 @@ public:
         GAO_SHAN_LIU_SHUI
     };
 
-    Style style;
-
-    int styleCount = 0;
-
-    inline void AddStyleCount(int count)
-    {
-        styleCount += (count + static_cast<int>(style));
-    }
+    Style style = Style::GAO_SHAN_LIU_SHUI;
 
     Frame_t cooldownStyleCurrent = 0;
 
     Frame_t cooldownGaoShanLiuShuiCurrent = 0;
+
+    Frame_t cooldownYangChunBaiXueCurrent = 0;
+
+    Frame_t cooldownShuYingHengXieCurrent = 0;
+
+    Frame_t cooldownGuYingHuaShuangCurrent = 0;
 
     static void TriggerXianFeng(const Params &params);
 
@@ -101,6 +133,12 @@ public:
     static void TriggerLiuZhaoDamage(const Params &params);
 
     static void TriggerLiuZhaoSurplusDamage(const Params &params);
+
+    static void TriggerEnchantShoes(const Params &params);
+
+    static void TriggerEnchantBelt(const Params &params);
+
+    static void TriggerEnchantWrist(const Params &params);
 };
 
 } // namespace MoWen

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:56:34
+ * Last Modified: 2023-08-20 18:45:41
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -21,6 +21,8 @@
 #include "Player.h"
 #include "Skill.h"
 #include "Target.hpp"
+
+// #define OLD_FRAMEWORK
 
 void JX3DPS::KeyFrame::InsertKeyFrame(KeyFrameSequence &keyFrameSequence, KeyFrame &keyFrame)
 {
@@ -94,16 +96,16 @@ void JX3DPS::KeyFrame::UpdateKeyFrameSequence(KeyFrameSequence &keyFrameSequence
 {
     player->UpdateGlobalCooldown(next); // 更新公共冷却
     for (auto &keyFrame : keyFrameSequence) {
-        if (keyFrame.first == JX3DPS_INVALID_FRAMES_SET) {
-            continue;
+        if (keyFrame.first != JX3DPS_INVALID_FRAMES_SET) {
+            keyFrame.first -= next;
         }
-        keyFrame.first -= next;
+
         for (auto &[type, id] : keyFrame.second) {
-            if (type == KeyFrameType::EVENT) {        // 强制事件
+            if (type == KeyFrameType::EVENT) { // 强制事件
                 continue;
             } else if (type == KeyFrameType::SKILL) { // 技能
                 player->skills[id]->UpdateKeyFrame(next);
-            } else if (type == KeyFrameType::BUFF) {  // buff
+            } else if (type == KeyFrameType::BUFF) { // buff
                 player->buffs[id]->UpdateKeyFrame(next);
             }
         }
@@ -118,36 +120,59 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
     ExprSkillsHash   &exprSkillsHash,
     Options          &options)
 {
-    ExprSkills exprSkills = exprSkillsHash.at(EXPRESSION_SKILL_PLACE_HOLDERS_1);
-    Frame_t    now        = 0;
+    Id_t             exprSkillsId     = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    Id_t             lastExprSkillsId = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    ExprSkills       exprSkills       = exprSkillsHash.at(exprSkillsId);
+    Frame_t          now              = 0;
+    KeyFrameSequence checkedKeyFrameSequence;
+    KeyFrameSequence unCheckedSkillKeyFrameSequence;
+    KeyFrameSequence unCheckedBuffKeyFrameSequence;
+
+    player->SetDelay(options.delayMin, options.delayMax);
+
+#ifdef OLD_FRAMEWORK
+    std::list<Id_t> skills;
+#endif // OLD_FRAMEWORK
     while (true) {
+        checkedKeyFrameSequence.clear();
+        unCheckedSkillKeyFrameSequence.clear();
+        unCheckedBuffKeyFrameSequence.clear();
+#ifdef OLD_FRAMEWORK
+        skills.clear();
+#endif // OLD_FRAMEWORK
 
         // 更新关键帧序列
         Frame_t next  = keyFrameSequence.front().first;
         now          += next;
-        if (now > options.totalFrames) {
+        if (now >= options.totalFrames) {
             return;
         }
+
         UpdateKeyFrameSequence(keyFrameSequence, player, next);
 
         // 执行首序关键帧列
-        KeyFrameSequence releasedKeyFrameSequence;
-        std::list<Id_t>  skills;
         for (auto &[type, id] : keyFrameSequence.front().second) {
             if (type == KeyFrameType::EVENT) { // 强制事件
                 exprEvents.front().second(player, targets);
                 exprEvents.pop_front();
             } else if (type == KeyFrameType::SKILL) { // 技能
-                spdlog::info("{} Trigger Skill {}", now, id);
+                spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
                 player->skills[id]->Trigger();
-                skills.push_back(id);
-            } else { // buff
-                spdlog::info("{} Trigger Buff {}", now, id);
+                KeyFrame keyFrame;
+                keyFrame.first = 0;
+                keyFrame.second.push_back(std::make_pair(type, id));
+                unCheckedSkillKeyFrameSequence.push_back(keyFrame);
+#ifdef OLD_FRAMEWORK
+                skills.emplace_back(id);
+#endif // OLD_FRAMEWORK
+
+            } else if (type == KeyFrameType::BUFF) { // buff
+                spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
                 player->buffs[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
                 keyFrame.second.push_back(std::make_pair(type, id));
-                releasedKeyFrameSequence.push_back(keyFrame);
+                unCheckedBuffKeyFrameSequence.push_back(keyFrame);
             }
         }
 
@@ -155,31 +180,28 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         keyFrameSequence.pop_front();
 
         if (!player->IsStop()) {
-            CastSkills(player, targets, exprSkillsHash, exprSkills);
-        }
-
-        // 检查已施放buff关键帧因为事件、技能施放或buff刷新等原因的状态变化
-        for (auto &keyFrame : releasedKeyFrameSequence) {
-            keyFrame.first = player->buffs[keyFrame.second.front().second]->GetNextKeyFrame();
+            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId);
         }
 
         // 检查后序关键帧因为事件、技能施放或buff刷新等原因的状态变化
         for (auto it = keyFrameSequence.begin(); it != keyFrameSequence.end();) {
             for (auto iter = it->second.begin(); iter != it->second.end();) {
                 KeyFrame keyFrame;
-                if (iter->first == KeyFrameType::EVENT) {
-                    ++iter;
-                    continue;
-                } else if (iter->first == KeyFrameType::SKILL) {
+                keyFrame.first = it->first;
+                if (iter->first == KeyFrameType::SKILL) {
                     keyFrame.first = player->skills[iter->second]->GetNextKeyFrame();
                     keyFrame.second.push_back(std::make_pair(KeyFrameType::SKILL, iter->second));
-                } else { // buff
+#ifdef OLD_FRAMEWORK
+                    skills.emplace_back(iter->second);
+#endif // OLD_FRAMEWORK
+                } else if (iter->first == KeyFrameType::BUFF) {
                     keyFrame.first = player->buffs[iter->second]->GetNextKeyFrame();
                     keyFrame.second.push_back(std::make_pair(KeyFrameType::BUFF, iter->second));
                 }
                 if (keyFrame.first != it->first) {
-                    releasedKeyFrameSequence.push_back(keyFrame);
+                    checkedKeyFrameSequence.push_back(keyFrame);
                     iter = it->second.erase(iter);
+                    continue;
                 } else {
                     ++iter;
                 }
@@ -191,39 +213,64 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
             }
         }
 
-        // 检查已施放技能关键帧因为事件、技能施放或buff刷新等原因的状态变化，并插入关键帧序列
-        KeyFrameSequence tempKeyFrameSequence;
-        for (auto &id : skills) {
-            KeyFrame keyFrame;
-            keyFrame.first = player->skills[id]->GetNextKeyFrame();
-            keyFrame.second.push_back(std::make_pair(KeyFrameType::SKILL, id));
-            if (keyFrame.first == 0) { // 技能冷却时间为0，但因不满足条件无法施放
-                tempKeyFrameSequence.push_back(keyFrame); // 不能在此处插入关键帧序列，因为有可能会出现当前关键帧序列首位不正确的情况
-            } else {
-                releasedKeyFrameSequence.push_back(keyFrame);
-            }
+        for (auto &keyFrame : checkedKeyFrameSequence) {
+            InsertKeyFrame(keyFrameSequence, keyFrame);
         }
 
         // 插入关键帧序列
-        for (auto &keyFrame : releasedKeyFrameSequence) {
+        for (auto &[frame, key] : unCheckedSkillKeyFrameSequence) {
+            KeyFrame keyFrame;
+            keyFrame.first = player->skills[key.front().second]->GetNextKeyFrame();
+            keyFrame.second.push_back(std::make_pair(KeyFrameType::SKILL, key.front().second));
             InsertKeyFrame(keyFrameSequence, keyFrame);
         }
 
-        // 将技能冷却时间为0，但因不满足条件无法施放的技能插入到关键帧序列首位
-        for (auto &keyFrame : tempKeyFrameSequence) {
-            keyFrame.first = keyFrameSequence.front().first;
+        // 插入关键帧序列
+        for (auto &[frame, key] : unCheckedBuffKeyFrameSequence) {
+            KeyFrame keyFrame;
+            keyFrame.first = player->buffs[key.front().second]->GetNextKeyFrame();
+            keyFrame.second.push_back(std::make_pair(KeyFrameType::BUFF, key.front().second));
             InsertKeyFrame(keyFrameSequence, keyFrame);
         }
+
+        Frame_t nextCD = keyFrameSequence.front().first;
+#ifdef OLD_FRAMEWORK
+        for (auto &id : skills) {
+            Frame_t temp = player->skills[id]->GetCooldownCurrent();
+            if (temp != 0) {
+                nextCD = nextCD < temp ? nextCD : temp;
+            }
+        }
+        KeyFrame keyFrame;
+        keyFrame.first = nextCD;
+        keyFrame.second.push_back(std::make_pair(KeyFrameType::EMPTY, Id_t::SKILL_DEFAULT));
+        InsertKeyFrame(keyFrameSequence, keyFrame);
+#else
+        nextCD = nextCD < player->GetNextGlobalCooldown() ? nextCD : player->GetNextGlobalCooldown();
+        nextCD = nextCD > options.framePrecision ? options.framePrecision : nextCD;
+#endif // OLD_FRAMEWORK
+
+        KeyFrame keyFrame;
+        keyFrame.first = nextCD;
+        keyFrame.second.push_back(std::make_pair(KeyFrameType::EMPTY, Id_t::SKILL_DEFAULT));
+        InsertKeyFrame(keyFrameSequence, keyFrame);
     }
 }
 
-JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, ExprSkillsHash &exprSkillsHash, ExprSkills &exprSkills)
+JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
+    Player         *player,
+    Targets        *targets,
+    ExprSkillsHash &exprSkillsHash,
+    ExprSkills     &exprSkills,
+    Frame_t         now,
+    Id_t           &exprSkillsId,
+    Id_t           &lastExprSkillsId)
 {
     for (auto iter = exprSkills.begin(); iter != exprSkills.end();) {
         bool scast = iter->first.front().front()(player, targets);
 
         // 先判断冷却、距离和读条条件
-        bool precondition = false;
+        bool precondition = true;
         for (auto &exprIf : *std::next(iter->first.begin())) {
             if ((precondition = exprIf(player, targets)) == false) {
                 break;
@@ -231,53 +278,64 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(Player *player, Targets *targets, Expr
         }
         if (precondition == false) {
             ++iter;
+            if (scast) {
+                return SKILL_DEFAULT;
+            }
             continue; // 前置条件不满足，跳过此技能
         }
 
         // 判断技能施放条件
-        bool flag = true;
+        bool castSuccess = true;
         for (auto it = std::next(std::next(iter->first.begin())); it != iter->first.end(); ++it)
         {
             for (auto &exprIf : *it) {
-                if ((flag = exprIf(player, targets)) == false) {
+                if ((castSuccess = exprIf(player, targets)) == false) {
                     break;
                 }
             }
-            if (flag) {
-                Id_t id = iter->second;
-                if (id > SKILL_DEFAULT) { // 执行技能
-                    spdlog::info("Cast Skill {}", id);
-                    player->skills[id]->Cast();
-                    if (scast) {
-                        iter = exprSkills.erase(iter);
-                    }
-                } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
-                    player->SetTargetId(id);
-                    if (scast) {
-                        iter = exprSkills.erase(iter);
-                    }
-                    // 断读条
-                    if (std::next(iter->first.front().begin()) != iter->first.front().end())
-                    {
-                        (*std::next(iter->first.front().begin()))(player, targets);
-                    }
-                    break; // 转火目标后，不再重新执行宏，避免因为一直满足转火条件导致死循环
-                } else if (id > EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
-                    exprSkills = exprSkillsHash.at(id);
-                }
-                // 断读条
-                if (std::next(iter->first.front().begin()) != iter->first.front().end()) {
-                    (*std::next(iter->first.front().begin()))(player, targets);
-                }
-
-                CastSkills(player, targets, exprSkillsHash, exprSkills);
-                return SKILL_DEFAULT;
+            if (castSuccess) {
+                break;
             }
         }
-        // scast执行失败
-        if (!flag && scast) {
+
+        if (castSuccess) {
+            // 断读条
+            if (std::next(iter->first.front().begin()) != iter->first.front().end()) {
+                (*std::next(iter->first.front().begin()))(player, targets);
+            }
+
+            Id_t id = iter->second;
+            if (id > SKILL_DEFAULT) { // 执行技能
+                spdlog::debug("{:<8} {:<5} {}",
+                              now * 0.0625,
+                              "宏·" + std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT),
+                              JX3DPS_NAME.at(static_cast<int>(id)));
+                player->skills[id]->Cast();
+            } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
+                player->SetTargetId(id);
+            } else if (id >= EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
+                id = id == EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT ? lastExprSkillsId : id;
+                exprSkills       = exprSkillsHash.at(id);
+                lastExprSkillsId = exprSkillsId;
+                exprSkillsId     = id;
+                spdlog::debug("{:<8} {:<5} {}",
+                              now * 0.0625,
+                              "切换",
+                              "宏·" +
+                                  std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
+            }
+
+            // scast执行成功
+            if (scast && id > EXPRESSION_SKILL_PLACE_HOLDERS_END) {
+                iter = exprSkills.erase(iter);
+            }
+
+            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId);
+            return SKILL_DEFAULT;
+        } else if (scast) { // scast执行失败
             return SKILL_DEFAULT;
         }
+
         ++iter;
     }
     return SKILL_DEFAULT;

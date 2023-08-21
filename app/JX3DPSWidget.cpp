@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Project: JX3DPS
  * File: JX3DPS::Simulator::Widget.cpp
  * Description:
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 08:51:47
+ * Last Modified: 2023-08-21 11:58:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -14,6 +14,8 @@
  */
 
 #include "JX3DPSWidget.h"
+
+#include <functional>
 
 #include <QLayout>
 
@@ -36,6 +38,7 @@
 
 #include "JX3DPS.h"
 #include "JX3DPSJsonParser.h"
+#include "JX3DPSStatsWidget.h"
 
 const char *const CONFIG_PATH = "./config.json";
 
@@ -44,7 +47,7 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
     QString title = QString("%1  %3").arg(APP_NAME).arg(JX3DPSVersion());
     this->SetTitle(title);
 
-    this->setFixedHeight(814);
+    this->setFixedHeight(850);
     this->setMinimumWidth(1000);
 
     GroupBox  *groupBoxSetting         = new GroupBox("设置", this->centralWidget);
@@ -60,9 +63,9 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
 
     buttonSimulate->setText("开始模拟");
     buttonSimulate->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
-    buttonSimulate->setFixedHeight(40);
+    buttonSimulate->setFixedHeight(55);
     buttonSimulate->setFixedWidth(160);
-    buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 13));
+    buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 14));
 
     tabWidgetAttribute->AddTab("属性");
     tabWidgetAttribute->AddTab("配装");
@@ -146,6 +149,14 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     itemInfo.name = "心法";
     comboBoxClass->AddItem(itemInfo);
 
+    TextButton *textButtonFramePrecision = new TextButton(parent);
+    textButtonFramePrecision->setFixedSize(64, 28);
+    textButtonFramePrecision->setText("逻辑帧精度");
+
+    LineEdit *lineEditFramePrecision = new LineEdit(parent);
+    lineEditFramePrecision->setFixedSize(64, 28);
+    lineEditFramePrecision->setText("24");
+
     TextButton *textButtonSimulateCount = new TextButton(parent);
     textButtonSimulateCount->setFixedSize(64, 28);
     textButtonSimulateCount->setText("模拟次数");
@@ -181,13 +192,15 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
 
     QGridLayout *gLayout = new QGridLayout(parent);
     gLayout->addWidget(comboBoxClass, 0, 0, 1, 3);
-    gLayout->addWidget(textButtonSimulateCount, 1, 0, 1, 1);
-    gLayout->addWidget(lineEditSimulateCount, 1, 1, 1, 2);
-    gLayout->addWidget(textButtonDelay, 2, 0, 1, 1);
-    gLayout->addWidget(lineEditDelayMin, 2, 1, 1, 1);
-    gLayout->addWidget(lineEditDelayMax, 2, 2, 1, 1);
+    gLayout->addWidget(textButtonFramePrecision, 1, 0, 1, 1);
+    gLayout->addWidget(lineEditFramePrecision, 1, 1, 1, 1);
+    gLayout->addWidget(textButtonSimulateCount, 2, 0, 1, 1);
+    gLayout->addWidget(lineEditSimulateCount, 2, 1, 1, 1);
+    gLayout->addWidget(textButtonDelay, 3, 0, 1, 1);
+    gLayout->addWidget(lineEditDelayMin, 3, 1, 1, 1);
+    gLayout->addWidget(lineEditDelayMax, 3, 2, 1, 1);
 
-    gLayout->addWidget(checkBoxDebug, 1, 2, 1, 1);
+    gLayout->addWidget(checkBoxDebug, 2, 2, 1, 1);
 
     connect(checkBoxDebug, &QCheckBox::stateChanged, [=](int checked) {
         if (checked) {
@@ -219,9 +232,10 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        params["Options"]["SimIterations"] = lineEditSimulateCount->text().toInt();
-        params["Options"]["DelayMin"]      = lineEditDelayMin->text().toInt();
-        params["Options"]["DelayMax"]      = lineEditDelayMax->text().toInt();
+        params["Options"]["FramePrecision"] = lineEditFramePrecision->text().toInt();
+        params["Options"]["SimIterations"]  = lineEditSimulateCount->text().toInt();
+        params["Options"]["DelayMin"]       = lineEditDelayMin->text().toInt();
+        params["Options"]["DelayMax"]       = lineEditDelayMax->text().toInt();
         params["Options"]["Mode"] = checkBoxDebug->isChecked() ? "debug" : "default";
     });
 }
@@ -249,6 +263,26 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
     gLayout->addWidget(lineEditDPS, 0, 1, 1, 1);
     gLayout->addItem(spacerItem, 1, 0, 1, 2);
     gLayout->addWidget(buttonStats, 2, 0, 1, 2);
+
+    StatsWidget *statsWidget = new StatsWidget(nullptr);
+    statsWidget->hide();
+
+    connect(buttonStats, &QPushButton::clicked, [=]() {
+        if (statsWidget->isHidden()) {
+            statsWidget->show();
+        } else {
+            statsWidget->hide();
+        }
+    });
+
+    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+        long long damage = JsonParser::GetTotalDamage(result["Stats"]["默认"]);
+        int       count  = result["SimIterations"].get<int>();
+        int       time   = result["Frames"].get<int>() / JX3DPS::JX3_FRAMES_PER_SECOND;
+        lineEditDPS->setText(QString::number(damage / count / time));
+
+        emit statsWidget->Signal_UpdateStats(result);
+    });
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
@@ -537,10 +571,10 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        params["Attribute"]["身法"] = attribute->GetAgility();
-        params["Attribute"]["力道"] = attribute->GetStrength();
-        params["Attribute"]["根骨"] = attribute->GetSpirit();
-        params["Attribute"]["元气"] = attribute->GetSpunk();
+        params["Attribute"]["身法"]         = attribute->GetAgility();
+        params["Attribute"]["力道"]         = attribute->GetStrength();
+        params["Attribute"]["根骨"]         = attribute->GetSpirit();
+        params["Attribute"]["元气"]         = attribute->GetSpunk();
         params["Attribute"]["基础武器伤害"] = attribute->GetWeaponDamageBase();
         params["Attribute"]["浮动武器伤害"] = attribute->GetWeaponDamageRand();
         params["Attribute"]["外功基础攻击"] = attribute->GetPhysicsAttackPowerBase();
@@ -551,9 +585,9 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
         params["Attribute"]["内功会效等级"] = attribute->GetMagicCriticalStrikePower();
         params["Attribute"]["外功基础破防等级"] = attribute->GetPhysicsOvercomeBase();
         params["Attribute"]["内功基础破防等级"] = attribute->GetMagicOvercomeBase();
-        params["Attribute"]["无双"] = attribute->GetStrainBase();
-        params["Attribute"]["破招值"] = attribute->GetSurplusValueBase();
-        params["Attribute"]["加速等级"] = attribute->GetHasteBase();
+        params["Attribute"]["无双"]             = attribute->GetStrainBase();
+        params["Attribute"]["破招值"]           = attribute->GetSurplusValueBase();
+        params["Attribute"]["加速等级"]         = attribute->GetHasteBase();
     });
 }
 
@@ -649,7 +683,7 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
         JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE,
     };
 
-    QMap<JX3DPS::Attribute::Type, DataBar *> attributeDataBars;
+    std::map<JX3DPS::Attribute::Type, DataBar *> attributeDataBars;
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -660,21 +694,54 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
 
         gLayout->addWidget(dataBar, index, 0, 1, 1);
 
-        attributeDataBars.insert(type, dataBar);
+        attributeDataBars.emplace(type, dataBar);
 
         index++;
     }
+
+    attributeDataBars.at(JX3DPS::Attribute::Type::DEFAULT)->setEnabled(false);
+    attributeDataBars.at(JX3DPS::Attribute::Type::CRITICAL_STRIKE)->setEnabled(false);
+    attributeDataBars.at(JX3DPS::Attribute::Type::HASTE_BASE)->setEnabled(false);
 
     QSpacerItem *spacerItem = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
     gLayout->addItem(spacerItem, index, 0, 1, 1);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
         params["Options"]["GainSwitch"]["默认"] =
-            attributeDataBars[JX3DPS::Attribute::Type::DEFAULT]->isEnabled();
+            attributeDataBars.at(JX3DPS::Attribute::Type::DEFAULT)->isEnabled();
         params["Options"]["GainSwitch"]["会心等级"] =
-            attributeDataBars[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->isEnabled();
+            attributeDataBars.at(JX3DPS::Attribute::Type::CRITICAL_STRIKE)->isEnabled();
         params["Options"]["GainSwitch"]["加速等级"] =
-            attributeDataBars[JX3DPS::Attribute::Type::HASTE_BASE]->isEnabled();
+            attributeDataBars.at(JX3DPS::Attribute::Type::HASTE_BASE)->isEnabled();
+    });
+
+    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+        long long damage = JsonParser::GetTotalDamage(result["Stats"]["默认"]);
+        int       count  = result["SimIterations"].get<int>();
+
+        for (auto &[type, dataBar] : attributeDataBars) {
+            if (type == JX3DPS::Attribute::Type::DEFAULT) {
+                if (result["Stats"].find("身法") != result["Stats"].end()) {
+                    long long sum = JsonParser::GetTotalDamage(result["Stats"]["身法"]);
+                    dataBar->SetValue(sum * 1.0 / damage - 1);
+                } else if (result["Stats"].find("根骨") != result["Stats"].end()) {
+                    long long sum = JsonParser::GetTotalDamage(result["Stats"]["根骨"]);
+                    dataBar->SetValue(sum * 1.0 / damage - 1);
+                } else if (result["Stats"].find("力道") != result["Stats"].end()) {
+                    long long sum = JsonParser::GetTotalDamage(result["Stats"]["力道"]);
+                    dataBar->SetValue(sum * 1.0 / damage - 1);
+                } else if (result["Stats"].find("元气") != result["Stats"].end()) {
+                    long long sum = JsonParser::GetTotalDamage(result["Stats"]["元气"]);
+                    dataBar->SetValue(sum * 1.0 / damage - 1);
+                }
+            } else if (result["Stats"].find(JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))) !=
+                       result["Stats"].end())
+            {
+                long long sum = JsonParser::GetTotalDamage(
+                    result["Stats"][JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))]);
+                dataBar->SetValue(sum * 1.0 / damage - 1);
+            }
+        }
     });
 }
 
@@ -741,8 +808,8 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
         stackWidget->Clear();
 
-        std::unordered_map<std::string, std::list<CheckBox::ItemInfo>> recipes;
-        std::list<std::string>                                         defaults;
+        std::list<std::pair<std::string, std::list<CheckBox::ItemInfo>>> recipes;
+        std::list<std::string>                                           defaults;
         JsonParser::ParseJsonToRecipeItemInfos(m_config, type, recipes, defaults);
 
         int index = 0;
@@ -773,7 +840,7 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
             for (auto &checkBox : stack->findChildren<CheckBoxIcon *>()) {
                 if (checkBox->isChecked()) {
                     params["Recipes"][btn->text().toStdString()].emplace_back(
-                        checkBox->ItemInfo().name.toStdString());
+                        checkBox->GetItemInfo().name.toStdString());
                 }
             }
         }
@@ -799,7 +866,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
         comboBox->SetType(ComboBox::Type::DETAILED);
         comboBox->setFixedSize(200, 48);
         comboBox->SetItemSize(200, 48);
-        gLayout->addWidget(comboBox, i, 0, 1, 2);
+        gLayout->addWidget(comboBox, i, 0, 1, 1);
 
         ComboBox::ItemInfo itemInfo;
         itemInfo.name = permanents[i].c_str();
@@ -808,27 +875,36 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
         permanentComboBoxes.emplace(permanentTexts[i], comboBox);
     }
 
-    std::vector<CheckBox *> permanentCheckBoxes;
+    std::vector<CheckBoxIcon *> permanentCheckBoxes;
 
-    permanentCheckBoxes.push_back(new CheckBox(parent));
-    permanentCheckBoxes.push_back(new CheckBox(parent));
-    permanentCheckBoxes.push_back(new CheckBox(parent));
-    permanentCheckBoxes.push_back(new CheckBox(parent));
+    GroupBox    *groupBox = new GroupBox("宴席", parent);
+    QSpacerItem *spacerItem =
+        new QSpacerItem(0, 5, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+
+    gLayout->addItem(spacerItem, 8, 0, 1, 1);
+    gLayout->addWidget(groupBox, 9, 0, 1, 1);
+
+    permanentCheckBoxes.push_back(new CheckBoxIcon(groupBox));
+    permanentCheckBoxes.push_back(new CheckBoxIcon(groupBox));
+    permanentCheckBoxes.push_back(new CheckBoxIcon(groupBox));
+    permanentCheckBoxes.push_back(new CheckBoxIcon(groupBox));
 
     permanentCheckBoxes[0]->setText("玉笛谁家听落梅");
     permanentCheckBoxes[1]->setText("同泽宴");
-    permanentCheckBoxes[2]->setText("炼狱水煮鱼");
+    permanentCheckBoxes[2]->setText("百炼水煮鱼");
     permanentCheckBoxes[3]->setText("蒸鱼菜盘");
 
-    permanentCheckBoxes[0]->setFixedHeight(22);
-    permanentCheckBoxes[1]->setFixedHeight(22);
-    permanentCheckBoxes[2]->setFixedHeight(22);
-    permanentCheckBoxes[3]->setFixedHeight(22);
+    permanentCheckBoxes[0]->setFixedSize(42, 42);
+    permanentCheckBoxes[1]->setFixedSize(42, 42);
+    permanentCheckBoxes[2]->setFixedSize(42, 42);
+    permanentCheckBoxes[3]->setFixedSize(42, 42);
 
-    gLayout->addWidget(permanentCheckBoxes[0], 8, 0, 1, 1);
-    gLayout->addWidget(permanentCheckBoxes[1], 8, 1, 1, 1);
-    gLayout->addWidget(permanentCheckBoxes[2], 9, 0, 1, 1);
-    gLayout->addWidget(permanentCheckBoxes[3], 9, 1, 1, 1);
+    QGridLayout *layout = new QGridLayout(groupBox);
+    layout->setContentsMargins(8, 8, 8, 8);
+    layout->addWidget(permanentCheckBoxes[0], 0, 0, 1, 1, Qt::AlignCenter);
+    layout->addWidget(permanentCheckBoxes[1], 0, 1, 1, 1, Qt::AlignCenter);
+    layout->addWidget(permanentCheckBoxes[2], 0, 2, 1, 1, Qt::AlignCenter);
+    layout->addWidget(permanentCheckBoxes[3], 0, 3, 1, 1, Qt::AlignCenter);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
         std::unordered_map<std::string, CheckBox::ItemInfo>            permanents1;
@@ -852,7 +928,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 
         permanentCheckBoxes[0]->SetItemInfo(permanents1["玉笛谁家听落梅"]);
         permanentCheckBoxes[1]->SetItemInfo(permanents1["同泽宴"]);
-        permanentCheckBoxes[2]->SetItemInfo(permanents1["炼狱水煮鱼"]);
+        permanentCheckBoxes[2]->SetItemInfo(permanents1["百炼水煮鱼"]);
         permanentCheckBoxes[3]->SetItemInfo(permanents1["蒸鱼菜盘"]);
     });
 
@@ -921,7 +997,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)
             parent->AddTab(name.c_str());
             PlainTextEdit *text = parent->Widget(index)->findChild<PlainTextEdit *>();
             for (const auto &expr : exprs) {
-                text->appendHtml(expr.c_str());
+                text->appendPlainText(QString::fromStdString(expr));
             }
             index++;
         }
@@ -970,17 +1046,21 @@ void JX3DPS::Simulator::Widget::Start()
     emit Signal_UpdateParamsClassType(json);
     emit Signal_UpdateParams(json);
 
-    qDebug() << json.dump().c_str();
+    ProgressBar *progressBar = new ProgressBar(nullptr);
+    progressBar->setAttribute(Qt::WA_DeleteOnClose);
+    progressBar->show();
+
     ThreadPool::Instance()->Enqueue([=]() {
         char *buffer = new char[1024 * 1024];
-        JX3DPSSimulate(json.dump().c_str(), buffer, this, [](void *obj, double arg) {
-            static_cast<ProgressBar *>(obj)->SetProgress(arg);
+        JX3DPSSimulate(json.dump().c_str(), buffer, progressBar, [](void *obj, double arg, const char *text) {
+            static_cast<ProgressBar *>(obj)->SetProgress(arg, text);
         });
 
-    std::string str = buffer;
-    delete[] buffer;
-    nlohmann::json result = nlohmann::json::parse(str);
+        std::string str = buffer;
+        delete[] buffer;
 
-    QMetaObject::invokeMethod(this, [=, this] { Signal_UpdateResult(result); });
+        nlohmann::ordered_json result = nlohmann::ordered_json::parse(str);
+
+        QMetaObject::invokeMethod(this, [=, this] { emit Signal_UpdateResult(result); });
     });
 }

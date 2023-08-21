@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:22
+ * Last Modified: 2023-08-21 10:53:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -54,7 +54,7 @@ inline PctFloat_t PhysicsDotDamageCoefficient(Value_t channelInterval, int effec
     //        / JX3_DOT_DAMAGE_CONST_PARAM)) / (effectCountMax * JX3_DAMAGE_CONST_PARAM);
 
     // 优化考虑替换成下面的，当 dot持续时间小于12秒 时，请直接给 effectCountMax = 12, intervalFrames = 1
-    return channelInterval * JX3_PERCENT_FLOAT_BASE / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM *
+    return channelInterval / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM *
            static_cast<Value_t>(effectCountMax * intervalFrames / JX3_DOT_DAMAGE_CONST_PARAM) /
            (effectCountMax * JX3_DAMAGE_CONST_PARAM);
 }
@@ -66,7 +66,7 @@ inline PctFloat_t MagicDotDamageCoefficient(Value_t channelInterval, int effectC
     //        / JX3_DOT_DAMAGE_CONST_PARAM)) / (effectCountMax * JX3_DAMAGE_CONST_PARAM);
 
     // 优化考虑替换成下面的，当 dot持续时间小于12秒 时，请直接给 effectCountMax = 12, intervalFrames = 1
-    return channelInterval / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM *
+    return channelInterval / JX3_MAGIC_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM *
            static_cast<Value_t>(effectCountMax * intervalFrames / JX3_DOT_DAMAGE_CONST_PARAM) /
            (effectCountMax * JX3_DAMAGE_CONST_PARAM);
 }
@@ -122,6 +122,7 @@ inline PctInt_t ShieldPercentInt(Value_t shieldBase, Value_t shieldAdditional, P
         shieldBase - static_cast<Value_t>(shieldBase * ignoreShieldBasePercentInt / JX3_PERCENT_INT_BASE);
     shield += shieldAdditional;
     shield -= static_cast<Value_t>(shield * ignoreShieldAdditionalPercentInt / JX3_PERCENT_INT_BASE);
+    shield = shield < 0 ? 0 : shield;
     return shield;
 }
 
@@ -146,7 +147,8 @@ inline Value_t MagicOvercomeDamage(Value_t effectDamage, Value_t shield, Value_t
 {
     PctInt_t overcomePercentInt =
         overcome * JX3_PERCENT_INT_BASE /
-        (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST));
+            (JX3_OVERCOME_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST)) +
+        JX3_PERCENT_INT_BASE;
     PctInt_t shieldPercentInt =
         shield * JX3_PERCENT_INT_BASE /
         (shield + JX3_MAGIC_SHIELD_PARAM * (JX3_LEVEL_PARAM * targetLevel - JX3_LEVEL_CONST));

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 05:35:43
+ * Last Modified: 2023-08-17 05:16:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -36,11 +36,28 @@ JX3DPS::Error_t JX3DPS::ParseJsonToClassType(const nlohmann::ordered_json &json,
 JX3DPS::Error_t JX3DPS::ParseJsonToOptions(const nlohmann::ordered_json &json, Options &options)
 {
     try {
+        json.at("Options").at("FramePrecision").get_to(options.framePrecision);
         json.at("Options").at("SimIterations").get_to(options.simIterations);
         json.at("Options").at("DelayMin").get_to(options.delayMin);
         json.at("Options").at("DelayMax").get_to(options.delayMax);
         for (auto &[attributeName, s] : json.at("Options").at("GainSwitch").items()) {
-            Attribute::Type type = Attribute::AttributeType(attributeName);
+            Attribute::Type type         = Attribute::AttributeType(attributeName);
+            std::string     classTypeStr = json.at("ClassType").get<std::string>();
+            ClassType       classType    = GetClassType(classTypeStr);
+            if (type == Attribute::Type::DEFAULT) {
+                if (Attribute::MAJOR[static_cast<int>(classType)][static_cast<int>(Attribute::MajorType::STRENGTH)])
+                {
+                    type = Attribute::Type::STRENGTH_BASE;
+                } else if (Attribute::MAJOR[static_cast<int>(classType)][static_cast<int>(Attribute::MajorType::SPUNK)])
+                {
+                    type = Attribute::Type::SPUNK_BASE;
+                } else if (Attribute::MAJOR[static_cast<int>(classType)][static_cast<int>(Attribute::MajorType::SPIRIT)])
+                {
+                    type = Attribute::Type::SPIRIT_BASE;
+                } else {
+                    type = Attribute::Type::AGILITY_BASE;
+                }
+            }
             options.gainSwitch.emplace(type, s.get<bool>());
         }
         std::string mode = json.at("Options").at("Mode").get<std::string>();
@@ -249,11 +266,9 @@ JX3DPS::Error_t JX3DPS::DamageStatsToJson(const DamageStats &damageStats, nlohma
                         auto &[count, damage] = item;
 
                         std::string_view name = JX3DPS_NAME.at(effectId);
-                        std::string_view targetName =
-                            std::string("目标").append(std::to_string(targetId));
-                        std::string_view subName = std::string("词缀").append(std::to_string(sub));
-                        std::string_view levelName =
-                            std::string("强度").append(std::to_string(level));
+                        std::string targetName = std::string("目标") + std::to_string(targetId - TARGET_PLACE_HOLDERS_DEFAULT);
+                        std::string subName = std::string("词缀").append(std::to_string(sub));
+                        std::string levelName = std::string("强度").append(std::to_string(level));
                         std::string_view rollName = ROLL_NAME.at(static_cast<int>(rollResult));
 
                         json[targetName][name][subName][levelName][rollName]["数目"] = count;

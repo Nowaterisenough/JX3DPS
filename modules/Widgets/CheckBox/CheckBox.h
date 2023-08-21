@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 04:40:37
+ * Last Modified: 2023-08-16 18:32:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -96,7 +96,7 @@ public:
     CheckBoxIcon(QWidget *parent = nullptr);
 
     void SetItemInfo(const CheckBox::ItemInfo &itemInfo);
-    CheckBox::ItemInfo &ItemInfo();
+    CheckBox::ItemInfo GetItemInfo() const;
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;

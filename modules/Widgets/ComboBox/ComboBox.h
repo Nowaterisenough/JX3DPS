@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 02:20:06
+ * Last Modified: 2023-08-19 06:25:17
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -140,6 +140,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void showPopup() override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
     ItemWidget *m_detailedView = nullptr;

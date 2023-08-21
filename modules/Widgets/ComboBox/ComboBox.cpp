@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 06:02:51
+ * Last Modified: 2023-08-19 06:26:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -119,10 +119,10 @@ ComboBox::ComboBox(QWidget *parent) : QWidget(parent)
 
     // 创建一个阴影效果对象
     QGraphicsDropShadowEffect *shadowEffect = new QGraphicsDropShadowEffect(this);
-    shadowEffect->setColor(Qt::black);     // 设置阴影的颜色
-    shadowEffect->setBlurRadius(10);       // 设置阴影的模糊半径
+    shadowEffect->setColor(Qt::black); // 设置阴影的颜色
+    shadowEffect->setBlurRadius(10);   // 设置阴影的模糊半径
 
-    shadowEffect->setOffset(0, 0);         // 设置阴影的偏移量
+    shadowEffect->setOffset(0, 0); // 设置阴影的偏移量
 
     this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
 
@@ -258,7 +258,7 @@ void SubComboBox::AddItem(const ComboBox::ItemInfo &itemInfo)
     QListWidgetItem *item = new QListWidgetItem((ListWidget *)this->view());
     item->setSizeHint(QSize(m_width, m_height));
     item->setText(itemInfo.name);
-    
+
     ItemWidget *itemWidget = new ItemWidget(itemInfo, this->view());
 
     ((ListWidget *)this->view())->addItem(item);
@@ -286,10 +286,15 @@ void SubComboBox::SetItemSize(int width, int height)
 
 void SubComboBox::showPopup()
 {
-    
+
     m_detailedView->SetHovered(false);
     m_icon->SetHovered(false);
     QComboBox::showPopup();
+}
+
+void SubComboBox::mouseReleaseEvent(QMouseEvent *event)
+{
+    QWidget::mouseReleaseEvent(event);
 }
 
 ComboBox::ItemInfo SubComboBox::GetItemInfo() const

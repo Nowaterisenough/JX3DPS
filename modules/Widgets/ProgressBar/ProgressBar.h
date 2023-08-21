@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:40:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 01:59:47
+ * Last Modified: 2023-08-13 14:13:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -69,7 +69,7 @@ public:
 public slots:
     void SetProgress(double progress);
 
-    void SetProgress(double progress, const QString &text);
+    void SetProgress(double progress, const char *text);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

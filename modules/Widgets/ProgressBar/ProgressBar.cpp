@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 01:58:16
+ * Last Modified: 2023-08-13 21:37:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -48,15 +48,15 @@ double ProgressBar::GetProgress() const
     return m_progress;
 }
 
-void ProgressBar::SetProgress(double progress, const QString &text)
+void ProgressBar::SetProgress(double progress, const char *text)
 {
+    m_text = text;
     if (progress == 1.0) {
         this->close();
     } else {
         m_progress = progress;
         this->update();
     }
-    m_text = text;
 }
 
 void ProgressBar::paintEvent(QPaintEvent *event)

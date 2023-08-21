@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 22:42:31
+ * Last Modified: 2023-08-16 14:19:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -39,6 +39,8 @@ class Gong : public JX3DPS::Skill
 
 public:
     bool IsReady(bool fcast) override;
+    void Sync();
+
     void SubEffect();
 };
 
@@ -48,6 +50,8 @@ class BianGong : public JX3DPS::Skill
 
 public:
     bool IsReady(bool fcast) override;
+    void Sync();
+
     void SubEffect();
 };
 
@@ -74,11 +78,15 @@ class Zhi : public JX3DPS::Skill
 public:
     void Stop() override;
     bool IsReady(bool fcast) override;
+    void Sync();
+
     void TriggerShiXiang();
 
     void SubEffect();
 
     int index = 0;
+
+    int xianFengStackNum = 0;
 };
 
 class BianZhi : public JX3DPS::Skill
@@ -88,11 +96,15 @@ class BianZhi : public JX3DPS::Skill
 public:
     void Stop() override;
     bool IsReady(bool fcast) override;
+    void Sync();
+
     void TriggerShiXiang();
 
     void SubEffect();
 
     int index = 0;
+
+    int xianFengStackNum = 0;
 };
 
 class Yu : public JX3DPS::Skill
@@ -132,17 +144,37 @@ class ShuYingHengXie : public JX3DPS::Skill
     SKILL_DEFAULT_FUNCTION(ShuYingHengXie)
 
 public:
+    bool IsReady(bool fcast) override;
     void SubEffect();
 
     int percent = 20;
 };
 
-class ShuYingHuaShuang : public JX3DPS::Skill
+class GuYingHuaShuang : public JX3DPS::Skill
 {
-    SKILL_DEFAULT_FUNCTION(ShuYingHuaShuang)
+    SKILL_DEFAULT_FUNCTION(GuYingHuaShuang)
 
 public:
-    void SubEffect();
+
+    struct Snapshot
+    {
+        Frame_t cooldownCurrent    = 0;
+        int     energyCountCurrent = JX3DPS_INVALID_ENERGY_SET;
+    };
+
+    void Snap();
+    void RestoreFromSnap();
+    void Reset();
+
+    std::unordered_map<Id_t, Snapshot> snaps;
+
+    Frame_t cooldownStyleCurrent           = 0;
+    Frame_t cooldownGaoShanLiuShuiCurrent  = 0;
+    Frame_t cooldownYangChunBaiXueCurrent  = 0;
+    Frame_t cooldownShuYingHengXieCurrent  = 0;
+    Frame_t cooldownGuYingHuaShuangCurrent = 0;
+
+    int index = 0;
 };
 
 class ZhengLvHeMing1 : public JX3DPS::Skill

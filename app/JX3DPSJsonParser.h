@@ -5,7 +5,7 @@
  * Created Date: 2023-08-09 23:56:49
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 02:53:04
+ * Last Modified: 2023-08-21 11:37:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -42,7 +42,7 @@ void ParseJsonToTalentItemInfos(const nlohmann::ordered_json               &json
 
 void ParseJsonToRecipeItemInfos(const nlohmann::ordered_json &json,
                                 JX3DPS::ClassType             classType,
-                                std::unordered_map<std::string, std::list<CheckBox::ItemInfo>> &recipes,
+                                std::list<std::pair<std::string, std::list<CheckBox::ItemInfo>>> &recipes,
                                 std::list<std::string> &defaults);
 
 void ParseJsonToSkills(const nlohmann::ordered_json &json,
@@ -62,6 +62,19 @@ void LoadJsonPermanent(const nlohmann::ordered_json &json,
                        JX3DPS::ClassType             classType,
                        const std::string            &name,
                        nlohmann::ordered_json       &out);
+
+long long GetTotalDamage(const nlohmann::ordered_json &json);
+
+std::list<std::tuple<std::string, long long>> GetTargetDamages(const nlohmann::ordered_json &json);
+
+std::unordered_map<std::string, std::tuple<int, long long>> GetTargetEffectDamages(
+    const nlohmann::ordered_json &json,
+    const std::string            &target);
+
+std::unordered_map<std::string, std::tuple<int, long long>> GetTargetEffectDamages(
+    const nlohmann::ordered_json &json,
+    const std::string            &target,
+    const std::string            &effect);
 
 } // namespace JsonParser
 

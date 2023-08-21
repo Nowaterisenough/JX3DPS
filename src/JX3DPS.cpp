@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 05:04:52
+ * Last Modified: 2023-08-13 14:59:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,6 +30,7 @@
 #include "KeyFrame.h"
 #include "Regex.h"
 #include "Skill.h"
+#include "Target.hpp"
 
 namespace JX3DPS {
 
@@ -72,6 +73,9 @@ Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents
     SummarizeStats(*player, stats);
 
     delete player;
+    for (auto target : *targets) {
+        delete target.second;
+    }
     delete targets;
 
     return stats;
@@ -83,7 +87,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
                   Options        &options,
                   Stats          &stats,
                   void           *obj,
-                  void (*progress)(void *, double))
+                  void (*progress)(void *, double, const char *))
 {
     StatsInit(player.GetClassType(), stats);
 
@@ -94,7 +98,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         }
     }
 
-    int step = options.simIterations * count / 100;
+    int step = options.simIterations * count / 200;
     if (step == 0) {
         step = 1;
     }
@@ -116,7 +120,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             stats   += t;
             results.pop_front();
             if (i % step == 0 && obj != nullptr) {
-                progress(obj, i * 1.0 / count / options.simIterations);
+                progress(obj, i * 1.0 / (count * options.simIterations), "模拟中...");
             }
         }
     }
@@ -128,26 +132,13 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             continue;
         }
 
+        std::string progressText =
+            std::string(Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))).append("收益模拟中...");
+
         Stats temp;
         StatsInit(player.GetClassType(), temp);
 
-        Attribute::Type t;
-        if (type == Attribute::Type::DEFAULT) {
-            if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::STRENGTH)])
-            {
-                t = Attribute::Type::STRENGTH_BASE;
-            } else if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::SPUNK)])
-            {
-                t = Attribute::Type::SPUNK_BASE;
-            } else if (Attribute::MAJOR[static_cast<int>(player.GetClassType())][static_cast<int>(Attribute::MajorType::SPIRIT)])
-            {
-                t = Attribute::Type::SPIRIT_BASE;
-            } else {
-                t = Attribute::Type::AGILITY_BASE;
-            }
-        }
-
-        player.attribute.SetGainSwitch(t, true);
+        player.attribute.SetGainSwitch(type, true);
 
         std::list<std::future<Stats>> results;
         for (int i = 0; i < options.simIterations; i++) {
@@ -164,17 +155,19 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             temp    += t;
             results.pop_front();
             if (i % step == 0 && obj != nullptr) {
-                progress(obj, i * 1.0 / count / options.simIterations + index * 1.0 / count);
+                progress(obj,
+                         (i + index * options.simIterations) * 1.0 / (count * options.simIterations),
+                         progressText.c_str());
             }
         }
         index++;
-        player.attribute.SetGainSwitch(t, false);
+        player.attribute.SetGainSwitch(type, false);
 
-        stats.gainStats[t] = temp.gainStats[Attribute::Type::DEFAULT];
+        stats.gainStats[type] = temp.gainStats[Attribute::Type::DEFAULT];
     }
 
     if (obj != nullptr) {
-        progress(obj, 1.0);
+        progress(obj, 1.0, "模拟完成");
     }
 }
 
@@ -268,7 +261,7 @@ Error_t InitParams(const nlohmann::ordered_json &json,
 Error_t Start(const nlohmann::ordered_json &in,
               nlohmann::ordered_json       &out,
               void                         *obj,
-              void (*progress)(void *, double))
+              void (*progress)(void *, double, const char *))
 {
     ExprSkillsHash exprSkillsHash;
     ExprEvents     exprEvents;
@@ -284,12 +277,14 @@ Error_t Start(const nlohmann::ordered_json &in,
     SimulatePool(exprSkillsHash, exprEvents, *player, options, stats, obj, progress);
     delete player;
 
-    return StatsToJson(stats, out);
+    out["SimIterations"] = options.simIterations;
+    out["Frames"]        = options.totalFrames;
+    return StatsToJson(stats, out["Stats"]);
 }
 
 } // namespace JX3DPS
 
-int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(void *, double))
+int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(void *, double, const char *))
 {
     spdlog::info("{}  Version: {}", JX3DPS::NAME, JX3DPS::VERSION);
     spdlog::info("Start simulation.");
@@ -313,7 +308,6 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
         return err;
     }
 
-    // spdlog::info("{}", jsonOut.dump().c_str());
     strcpy(out, jsonOut.dump().data());
 
     spdlog::debug("Output: {}", out);

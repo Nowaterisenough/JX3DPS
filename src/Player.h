@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-04 13:11:43
+ * Last Modified: 2023-08-20 16:08:23
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -29,13 +29,22 @@ public:
     static Player *PlayerFactoryGenerate(ClassType classType);
 
     Player();
-    virtual ~Player() = default;
+    virtual ~Player();
 
     Player(const Player &other);
     virtual Player &operator=(const Player &other);
 
     virtual Player *Clone() const = 0;
     virtual void    Init()        = 0;
+
+    virtual Frame_t GetNextGlobalCooldown() const
+    {
+        Frame_t frame = JX3DPS_INVALID_FRAMES_SET;
+        if (globalCooldownCurrent > 0) {
+            frame = globalCooldownCurrent;
+        }
+        return frame;
+    }
 
     void SetTargets(Targets *targets);
 
@@ -162,7 +171,15 @@ public:
         return RandomNormal(m_delayMin, m_delayMax + 1) / JX3DPS_DELAY;
     }
 
+    inline void SetDelay(int delayMin, int delayMax)
+    {
+        m_delayMin = delayMin;
+        m_delayMax = delayMax;
+    }
+
     inline static void TriggerVoid(const Params &params) { }
+
+    static void TriggerWeaponWater(const Params &params);
 
 public:
     Frame_t globalCooldown        = 24; // 冷却
@@ -170,7 +187,7 @@ public:
 
     PctInt_t effectDamageAdditionalPercentInt = 0; // 一些奇穴或者秘籍效果的全局伤害加成
 
-    Attribute attribute;                           // 属性
+    Attribute attribute; // 属性
     ClassType teamCore = ClassType::DEFAULT;
 
     Talents        talents;        // 奇穴列表
@@ -178,7 +195,6 @@ public:
     Skills         skills;         // 技能列表
     Buffs          buffs;          // Buff列表
     EquipEffects   equipEffects;   // 装备效果列表
-    TriggerEffects triggerEffects; // 附加效果
 
 private:
     Targets *m_targets = nullptr;
@@ -186,27 +202,27 @@ private:
     PctFloat_t m_lifePercent = 1.0;
     PctFloat_t m_manaPercent = 1.0;
 
-    int m_qidian      = 10;                              // 气点
-    int m_qidianLimit = 10;                              // 气点上限
-    int m_rage        = 0;                               // 怒气
-    int m_rageLimit   = 100;                             // 怒气上限
-    int m_energy      = 0;                               // 元气
-    int m_energyLimit = 100;                             // 元气上限
-    int m_sun         = 0;                               // 日精
-    int m_sunLimit    = 100;                             // 日精上限
-    int m_moon        = 0;                               // 月精
-    int m_moonLimit   = 100;                             // 月精上限
+    int m_qidian      = 10;  // 气点
+    int m_qidianLimit = 10;  // 气点上限
+    int m_rage        = 0;   // 怒气
+    int m_rageLimit   = 100; // 怒气上限
+    int m_energy      = 0;   // 元气
+    int m_energyLimit = 100; // 元气上限
+    int m_sun         = 0;   // 日精
+    int m_sunLimit    = 100; // 日精上限
+    int m_moon        = 0;   // 月精
+    int m_moonLimit   = 100; // 月精上限
 
-    bool m_cast   = false;                               // 是否正在蓄力(正读条)
-    bool m_reCast = false;                               // 是否正在倒读条
-    bool m_stop   = false;                               // 是否停手
+    bool m_cast   = false; // 是否正在蓄力(正读条)
+    bool m_reCast = false; // 是否正在倒读条
+    bool m_stop   = false; // 是否停手
 
     Id_t m_targetId      = TARGET_PLACE_HOLDERS_DEFAULT; // 目标ID
     Id_t m_lastCastSkill = SKILL_DEFAULT;                // 上次施放技能ID
     Id_t m_reCastSkill   = SKILL_DEFAULT;                // 正在读条技能ID
 
-    int m_delayMin = 0;                                  // 最小延迟
-    int m_delayMax = 0;                                  // 最大延迟
+    int m_delayMin = 0; // 最小延迟
+    int m_delayMax = 0; // 最大延迟
 };
 
 } // namespace JX3DPS

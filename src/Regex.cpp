@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-05 23:00:24
+ * Last Modified: 2023-08-20 18:48:52
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -22,7 +22,9 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkillsHash(
     ExprSkillsHash                                                  &exprSkillsHash)
 {
     std::unordered_map<Id_t, std::string> ids;
-    Id_t                                  id = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    ids.emplace(EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT, "返回");
+    Id_t id = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+
     for (const auto &[name, macro] : strs) {
         ids.emplace(id, name);
         id = static_cast<Id_t>(id + 1);
@@ -31,12 +33,12 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkillsHash(
         ExprSkills exprSkills;
         Id_t       ii = EXPRESSION_SKILL_PLACE_HOLDERS_1;
         for (const auto &str : macro) {
+
             // 替换字符串中的name为id
             std::string temp = str;
-
             for (const auto &[i, n] : ids) {
-                std::regex reg(n);
-                temp = std::regex_replace(temp, reg, std::to_string(i - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
+                std::regex reg("宏·" + n);
+                temp = std::regex_replace(temp, reg, "宏·" + std::to_string(i - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
                 if (name == n) {
                     ii = i;
                 }
@@ -64,13 +66,13 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_SYMBOL_AND = "&";
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_SYMBOL_OR = "|";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CAST_SKILL =
-    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+([\u4e00-\u9fa5·0-9a-z]+)";
+    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CHANGE_TARGET =
-    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+转火·([\u4e00-\u9fa5·0-9a-z]+)";
+    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+转火·([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CHANGE_EXPRESSION =
-    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+宏·([\u4e00-\u9fa5·0-9a-z]+)";
+    "\\/(s?f?cast)\\s?[\\[]?(.*?)[\\]]?\\s+宏·([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkill &exprSkill)
 {
@@ -101,6 +103,10 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkil
     if (std::regex_match(str, mat, regChangeTarget)) {
         Id_t id = static_cast<Id_t>(std::stoi(mat[3].str()) + TARGET_PLACE_HOLDERS_DEFAULT);
         exprSkill.second = id;
+        pre.emplace_back(std::bind(&JX3DPS::Expression::IsTargetSwitchable,
+                                   std::placeholders::_1,
+                                   std::placeholders::_2,
+                                   id));
     } else if (std::regex_match(str, mat, regChangeExpression)) {
         Id_t id = static_cast<Id_t>(std::stoi(mat[3].str()) + EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT);
         exprSkill.second = id;
@@ -258,34 +264,40 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_QIDIAN =
     "qidian([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF =
-    "buff:([\u4e00-\u9fa5·0-9a-z]+)";
+    "buff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_NO_BUFF =
-    "nobuff:([\u4e00-\u9fa5·0-9a-z]+)";
+    "nobuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF_STACK_NUM =
-    "buff_stacknum:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
+    "buff:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF_TIME =
-    "bufftime:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)([\\d.]+)";
+    "bufftime:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF =
-    "tbuff:([\u4e00-\u9fa5·0-9a-z]+)";
+    "tbuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_NO_BUFF =
-    "tnobuff:([\u4e00-\u9fa5·0-9a-z]+)";
+    "tnobuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_STACK_NUM =
-    "tbuff_stacknum:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)(\\d+)";
+    "tbuff:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)(\\d+)";
 
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_TIME =
-    "tbufftime:([\u4e00-\u9fa5·0-9a-z]+)(.*?)([\\d.]+)";
+    "tbufftime:([\u4e00-\u9fa5·0-9a-zA-Z]+)(.*?)([\\d.]+)";
 
-const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_CAST_SKILL =
-    "last_cast_skill(.*?)([\u4e00-\u9fa5·0-9a-z]+)";
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_SKILL =
+    "last_skill(.*?)([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
-const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDONW =
-    "skill_cd:([\u4e00-\u9fa5·0-9a-z]+)([=~<>]+)([\\d.]+)";
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDOWN =
+    "skill_cd:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
+
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_NOTIN_COOLDOWN =
+    "skill_notin_cd:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
+
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_ENERGY =
+    "skill_energy:([\u4e00-\u9fa5·0-9a-zA-Z]+)([=~<>]+)([\\d.]+)";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
 {
@@ -298,8 +310,10 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
     std::regex regTNoBuff(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_NO_BUFF);
     std::regex regTbuffStackNum(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_STACK_NUM);
     std::regex regTbuffTime(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_BUFF_TIME);
-    std::regex regLastCastSkill(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_CAST_SKILL);
-    std::regex regSkillCd(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDONW);
+    std::regex regLastCastSkill(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_LAST_SKILL);
+    std::regex regSkillCd(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_COOLDOWN);
+    std::regex regSkillNotinCd(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_NOTIN_COOLDOWN);
+    std::regex regSkillEnergy(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_ENERGY);
 
     std::smatch mat;
     if (std::regex_match(str, mat, regQidian)) {
@@ -503,7 +517,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
                                std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         }
     } else if (std::regex_match(str, mat, regLastCastSkill)) {
-        JX3DPS::Id_t id = SkillId(mat[1].str());
+        JX3DPS::Id_t id = SkillId(mat[2].str());
         if (mat[1].str() == "=") {
             exprIf =
                 std::bind(&JX3DPS::Expression::LastCastSkill, std::placeholders::_1, std::placeholders::_2, id);
@@ -511,6 +525,9 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
             exprIf =
                 std::bind(&JX3DPS::Expression::NotLastCastSkill, std::placeholders::_1, std::placeholders::_2, id);
         }
+    } else if (std::regex_match(str, mat, regSkillNotinCd)) {
+        JX3DPS::Id_t id = SkillId(mat[1].str());
+        exprIf = std::bind(&JX3DPS::Expression::SkillNotinCd, std::placeholders::_1, std::placeholders::_2, id);
     } else if (std::regex_match(str, mat, regSkillCd)) {
         JX3DPS::Id_t id = SkillId(mat[1].str());
         if (mat[2].str() == "<") {
@@ -518,33 +535,72 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "<=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownLe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownEq,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "~=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownNe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownGe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownGt,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
+        }
+    } else if (std::regex_match(str, mat, regSkillEnergy)) {
+        JX3DPS::Id_t id = SkillId(mat[1].str());
+        if (mat[2].str() == "<") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyLt,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == "<=") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyLe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == "=") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyEq,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == "~=") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyNe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == ">=") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyGe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stod(mat[3].str()));
+        } else if (mat[2].str() == ">") {
+            exprIf = std::bind(&JX3DPS::Expression::SkillEnergyGt,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
@@ -685,7 +741,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToSetTarget(const std::string &str, ExprEven
 }
 
 const char *const JX3DPS_REGEX_EXPRESSION_EVENT_ADD_BUFF =
-    "\\/add_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-z]+)( stack_num=(\\d{1,}))?( "
+    "\\/add_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-zA-Z]+)( stack_num=(\\d{1,}))?( "
     "duration=(\\d{1,})-(\\d{1,}))?";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToAddBuff(const std::string &str, ExprEvent &exprEvent)
@@ -749,7 +805,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToBuff3rds(const std::list<std::string> &str
 }
 
 const char *const JX3DPS_REGEX_EXPRESSION_EVENT_CLEAR_BUFF =
-    "\\/clear_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-z]+) stack_num=(\\d{1,})";
+    "\\/clear_buff id=(\\d{1,2}) name=([\u4e00-\u9fa5·0-9a-zA-Z]+) stack_num=(\\d{1,})";
 
 JX3DPS::Error_t JX3DPS::Regex::ParseToClearBuff(const std::string &str, ExprEvent &exprEvent)
 {

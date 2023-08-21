@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 14:42:53
+ * Last Modified: 2023-08-21 08:55:11
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -16,6 +16,7 @@
 #include "TaiXuJianYiSkill.h"
 
 #include "Buff.h"
+#include "TaiXuJianYiBuff.h"
 #include "Target.hpp"
 
 namespace JX3DPS {
@@ -1179,7 +1180,8 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SubEffect()
 {
     m_player->AddQidian(2);
 
-    m_player->buffs[BUFF_FIELD_SUI_XING_CHEN]->Add();
+    static_cast<TaiXuJianYi::Buff::FieldSuiXingChen *>(m_player->buffs[BUFF_FIELD_SUI_XING_CHEN])
+        ->TriggerAdd(1);
 
     Params params;
     params.player = m_player;
@@ -1302,7 +1304,8 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
 {
     m_player->AddQidian(2);
 
-    m_player->buffs[BUFF_FIELD_TUN_RI_YUE]->Add();
+    static_cast<TaiXuJianYi::Buff::FieldTunRiYue *>(m_player->buffs[BUFF_FIELD_TUN_RI_YUE])
+        ->TriggerAdd(1);
 
     Params params;
     params.player = m_player;

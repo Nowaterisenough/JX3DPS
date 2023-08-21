@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 15:29:55
+ * Last Modified: 2023-08-21 08:52:23
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -601,6 +601,8 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::SubEffectAdd(int stackNum)
     params.stackNum = stackNum;
     params.type     = Params::Type::ADD;
     m_triggerEffects[TRIGGER_FIELD_QI_SHENG](params);
+
+    static_cast<TaiXuJianYi::Buff::SuiXingChen *>(m_player->buffs[BUFF_SUI_XING_CHEN])->TriggerAdd();
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChen::SubEffectClear(int stackNum)
@@ -892,12 +894,18 @@ void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::Clear(Id_t targetId, in
 
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::TriggerAdd(int stackNum)
 {
-    int size = m_snapshots.size();
-    for (int i = size; i < stackNum + size; ++i) {
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
-        m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = JX3DPS_INVALID_FRAMES_SET;
+    if (stackNum > 0) {
+        int size = m_snapshots.size();
+        for (int i = size; i < stackNum + size; ++i) {
+            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].interval = m_interval;
+            m_snapshots[static_cast<Id_t>(i + TARGET_PLACE_HOLDERS_END)].duration = JX3DPS_INVALID_FRAMES_SET;
+        }
+        SubEffect();
+    } else {
+        for (int i = 0; i < -stackNum; ++i) {
+            m_snapshots.erase(m_snapshots.begin());
+        }
     }
-    SubEffect();
 }
 
 void JX3DPS::TaiXuJianYi::Buff::FieldSuiXingChenQiSheng::SubEffect()

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 16:15:27
+ * Last Modified: 2023-08-21 07:05:53
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -1088,7 +1088,7 @@ void Player::TriggerQiSheng(const Params &params)
 void Player::TriggerFieldQiSheng(const Params &params)
 {
     static_cast<Buff::FieldSuiXingChenQiSheng *>(params.player->buffs[BUFF_FIELD_SUI_XING_CHEN_QI_SHENG])
-        ->TriggerAdd(params.stackNum);
+        ->TriggerAdd(params.stackNum * static_cast<int>(params.type));
 }
 
 void Player::TriggerRenJianHeYiDot(const Params &params)

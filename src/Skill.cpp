@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 19:39:09
+ * Last Modified: 2023-08-21 08:36:53
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -14,6 +14,8 @@
  */
 
 #include "Skill.h"
+
+#include <spdlog/spdlog.h>
 
 #include "Damage/Damage.hpp"
 
@@ -187,8 +189,9 @@ double JX3DPS::Skill::GetRange() const
 
 JX3DPS::RollResult JX3DPS::Skill::GetPhysicsRollResult() const
 {
-    return RandomUniform(0.0, 1.0) < m_player->attribute.GetPhysicsCriticalStrikePercent() +
-                                         m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
+    return RandomUniform(0.0, 1.0) <
+                   m_player->attribute.GetPhysicsCriticalStrikePercent() +
+                       m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }
@@ -228,6 +231,19 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsDamage(
     PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
     PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
+
+    spdlog::debug("攻击 {} 自身伤害加成 {} 技能伤害加成 {} 忽视 {} "
+                  "破防值 {} "
+                  "会效 {} 自身会效加成 {} 技能会效加成 {} 无双 {}",
+                  attack,
+                  m_player->effectDamageAdditionalPercentInt,
+                  m_effectDamageAdditionalPercentInt,
+                  ignoreShieldBasePercentInt,
+                  overcome,
+                  criticalStrikePower,
+                  m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
+                  m_effectCriticalStrikePowerAdditionalPercentInt,
+                  strain);
 
     damage.damage = FinalPhysicsDamage(
         playerLevel,
@@ -314,8 +330,9 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcPhysicsDamage(Id_t targetId, RollResult r
 
 JX3DPS::RollResult JX3DPS::Skill::GetMagicRollResult() const
 {
-    return RandomUniform(0.0, 1.0) < m_player->attribute.GetMagicCriticalStrikePercent() +
-                                         m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
+    return RandomUniform(0.0, 1.0) <
+                   m_player->attribute.GetMagicCriticalStrikePercent() +
+                       m_effectCriticalStrikeAdditionalBasisPointInt * JX3_PERCENT_FLOAT_BASE / JX3_BASIS_POINT_INT_BASE
                ? RollResult::DOUBLE
                : RollResult::HIT;
 }

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-10 00:05:57
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 04:48:06
+ * Last Modified: 2023-08-21 11:37:29
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -65,10 +65,10 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToTalentItemInfos(
 }
 
 void JX3DPS::Simulator::JsonParser::ParseJsonToRecipeItemInfos(
-    const nlohmann::ordered_json                                   &json,
-    JX3DPS::ClassType                                               classType,
-    std::unordered_map<std::string, std::list<CheckBox::ItemInfo>> &recipes,
-    std::list<std::string>                                         &defaults)
+    const nlohmann::ordered_json                                     &json,
+    JX3DPS::ClassType                                                 classType,
+    std::list<std::pair<std::string, std::list<CheckBox::ItemInfo>>> &recipes,
+    std::list<std::string>                                           &defaults)
 {
     for (auto &item : json["ClassType"]) {
         if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
@@ -82,7 +82,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToRecipeItemInfos(
                     itemInfo_.description = itemInfo["Description"].get<std::string>().c_str();
                     recipeItemInfos.push_back(itemInfo_);
                 }
-                recipes.emplace(recipe.key(), recipeItemInfos);
+                recipes.emplace_back(recipe.key(), recipeItemInfos);
             }
 
             for (auto &item : item["Default"].items()) {

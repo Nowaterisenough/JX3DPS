@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 14:37:27
+ * Last Modified: 2023-08-21 11:58:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -808,8 +808,8 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
         stackWidget->Clear();
 
-        std::unordered_map<std::string, std::list<CheckBox::ItemInfo>> recipes;
-        std::list<std::string>                                         defaults;
+        std::list<std::pair<std::string, std::list<CheckBox::ItemInfo>>> recipes;
+        std::list<std::string>                                           defaults;
         JsonParser::ParseJsonToRecipeItemInfos(m_config, type, recipes, defaults);
 
         int index = 0;
@@ -891,7 +891,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 
     permanentCheckBoxes[0]->setText("玉笛谁家听落梅");
     permanentCheckBoxes[1]->setText("同泽宴");
-    permanentCheckBoxes[2]->setText("炼狱水煮鱼");
+    permanentCheckBoxes[2]->setText("百炼水煮鱼");
     permanentCheckBoxes[3]->setText("蒸鱼菜盘");
 
     permanentCheckBoxes[0]->setFixedSize(42, 42);
@@ -928,7 +928,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 
         permanentCheckBoxes[0]->SetItemInfo(permanents1["玉笛谁家听落梅"]);
         permanentCheckBoxes[1]->SetItemInfo(permanents1["同泽宴"]);
-        permanentCheckBoxes[2]->SetItemInfo(permanents1["炼狱水煮鱼"]);
+        permanentCheckBoxes[2]->SetItemInfo(permanents1["百炼水煮鱼"]);
         permanentCheckBoxes[3]->SetItemInfo(permanents1["蒸鱼菜盘"]);
     });
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-24 13:57:40
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 21:41:06
+ * Last Modified: 2023-08-21 22:21:39
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -799,11 +799,15 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
     params.player = m_player;
 
     int size = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size();
-
+    bool flag = false;
     for (int i = 0; i < size; i++) {
         Id_t f = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
         if (f == JX3DPS::BUFF_FIELD_SUI_XING_CHEN) {
-            continue;
+            if (flag) {
+                continue;
+            } else {
+                flag = true;
+            }
         }
 
         m_player->buffs[f]->Clear(PLAYER_ID, 1);

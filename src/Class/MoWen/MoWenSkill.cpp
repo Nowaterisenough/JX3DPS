@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 14:22:56
+ * Last Modified: 2023-08-22 12:58:13
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -438,6 +438,8 @@ void JX3DPS::MoWen::Skill::Zhi::Cast()
     static_cast<BianZhi *>(m_player->skills[SKILL_BIAN_ZHI])->Sync();
 
     static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerAdd(5);
+
+    static_cast<MoWen::Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
 
     Params params;
     params.player = m_player;

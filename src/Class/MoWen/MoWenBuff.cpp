@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 11:22:47
+ * Last Modified: 2023-08-22 13:05:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -856,26 +856,29 @@ void JX3DPS::MoWen::Buff::YangChunBaiXue::TriggerAdd()
 {
     SubEffectAdd(1);
     m_snapshots[PLAYER_ID].duration = m_duration;
+    m_snapshots[PLAYER_ID].stackNum++;
+    m_snapshots[PLAYER_ID].stackNum = std::min(m_stackNum, m_snapshots[PLAYER_ID].stackNum);
 }
 
 void JX3DPS::MoWen::Buff::YangChunBaiXue::TriggerClear()
 {
     if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
         int stackNum = m_snapshots[PLAYER_ID].stackNum;
+        m_snapshots.erase(PLAYER_ID);
         SubEffectClear(stackNum);
     }
 }
 
 void JX3DPS::MoWen::Buff::YangChunBaiXue::SubEffectAdd(int stackNum)
 {
-    m_player->skills[SKILL_GONG]->AddShieldIgnoreAdditionalPercentInt(205 * stackNum);
-    m_player->skills[SKILL_ZHI]->AddShieldIgnoreAdditionalPercentInt(205 * stackNum);
+    m_player->skills[SKILL_GONG]->AddShieldIgnoreAdditionalPercentInt(307 * stackNum);
+    m_player->skills[SKILL_ZHI]->AddShieldIgnoreAdditionalPercentInt(307 * stackNum);
 }
 
 void JX3DPS::MoWen::Buff::YangChunBaiXue::SubEffectClear(int stackNum)
 {
-    m_player->skills[SKILL_GONG]->AddShieldIgnoreAdditionalPercentInt(-205 * stackNum);
-    m_player->skills[SKILL_ZHI]->AddShieldIgnoreAdditionalPercentInt(-205 * stackNum);
+    m_player->skills[SKILL_GONG]->AddShieldIgnoreAdditionalPercentInt(-307 * stackNum);
+    m_player->skills[SKILL_ZHI]->AddShieldIgnoreAdditionalPercentInt(-307 * stackNum);
 }
 
 JX3DPS::MoWen::Buff::ZhiYinMiaoYi::ZhiYinMiaoYi(JX3DPS::Player *player, Targets *targets) :

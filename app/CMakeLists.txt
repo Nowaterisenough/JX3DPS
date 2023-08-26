@@ -12,6 +12,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 
 add_definitions(
     -DIMPORT_STATIC_JX3DPS_LIB
+    -DQCUSTOMPLOT_COMPILE_LIBRARY
 )
 
 # -DIMPORT_STATIC_THREAD_POOL_LIB
@@ -28,8 +29,8 @@ add_definitions(
 # -DIMPORT_STATIC_STACK_WIDGET_LIB
 # -DIMPORT_STATIC_PLAIN_TEXT_EDIT_LIB
 # -DIMPORT_STATIC_PROGRESS_BAR_LIB
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/modules/Widgets)
@@ -68,6 +69,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     spdlog
     nlohmann_json
     Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::PrintSupport
     Widget
     TabWidget
     GroupBox

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:40:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 18:05:42
+ * Last Modified: 2023-08-22 22:08:04
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -216,11 +216,11 @@ struct Options
         DEBUG
     };
 
-    Mode    mode          = DEFAULT;
-    int     simIterations = 1;
-    int     delayMin      = 0;
-    int     delayMax      = 0;
-    Frame_t totalFrames   = 0;
+    Mode    mode           = DEFAULT;
+    int     simIterations  = 1;
+    int     delayMin       = 0;
+    int     delayMax       = 0;
+    Frame_t totalFrames    = 0;
     Frame_t framePrecision = 16;
 
     std::unordered_map<Attribute::Type, bool> gainSwitch;

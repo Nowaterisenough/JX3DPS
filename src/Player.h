@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 16:08:23
+ * Last Modified: 2023-08-25 21:56:31
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -103,6 +103,7 @@ public:
     {
         this->m_rage += rage;
         this->m_rage  = std::min(this->m_rage, m_rageLimit);
+        this->m_rage  = std::max(this->m_rage, 0);
     }
 
     inline int GetEnergy() const { return m_energy; }

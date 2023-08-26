@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 09:36:00
+ * Last Modified: 2023-08-25 21:57:47
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -211,6 +211,9 @@ protected:
 
     /* 技能气点加成 */
     int m_effectQidianAdditional = 0;
+
+    /* 技能怒气加成 */
+    int m_effectRageAdditional = 0;
 
     /* 伤害参数 */
     DamageParams m_damageParams;

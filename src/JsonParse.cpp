@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 05:16:53
+ * Last Modified: 2023-08-22 22:06:51
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -247,8 +247,10 @@ JX3DPS::Error_t JX3DPS::StatsToJson(const Stats &stats, nlohmann::ordered_json &
     for (auto &[type, damageStats] : stats.gainStats) {
         nlohmann::ordered_json j;
         DamageStatsToJson(damageStats, j);
-        // spdlog::info("{}", j.dump());
-        json[Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))] = j;
+        json["Stats"][Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))] = j;
+    }
+    for (auto &damage : stats.damageList) {
+        json["DamageList"].push_back(damage);
     }
     return JX3DPS_SUCCESS;
 }

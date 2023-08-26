@@ -1,16 +1,16 @@
 ﻿/**
  * Project: JX3DPS
- * File: Skill.cpp
+ * File: TaiXuJianYiSkill.cpp
  * Description:
- * Created Date: 2023-07-24 13:57:40
+ * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 22:21:39
+ * Last Modified: 2023-08-26 09:49:46
  * Modified By: 难为水
  * -----
- * CHANGELOG:
- * Date      	By     	Comments
- * ----------	-------	----------------------------------------------------------
+ * HISTORY:
+ * Date      	By   	Comments
+ * ----------	-----	----------------------------------------------------------
  */
 
 #include "TaiXuJianYiSkill.h"
@@ -23,8 +23,9 @@ namespace JX3DPS {
 
 namespace TaiXuJianYi {
 
-JX3DPS::TaiXuJianYi::Skill::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) :
-    Skill(player, targets)
+namespace Skill {
+
+PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
 {
     m_id    = SKILL_PO_ZHAO;
     m_name  = "破招";
@@ -39,19 +40,18 @@ JX3DPS::TaiXuJianYi::Skill::PoZhao::PoZhao(JX3DPS::Player *player, Targets *targ
     m_damageParams[1].emplace_back(0, 0, JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE * (0.065 - 1));
 }
 
-void JX3DPS::TaiXuJianYi::Skill::PoZhao::Cast() { }
+void PoZhao::Cast() { }
 
-void JX3DPS::TaiXuJianYi::Skill::PoZhao::Trigger() { }
+void PoZhao::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
+void PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
 {
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
     Record(targetId, rollResult, damage, sub, level);
 }
 
-JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) :
-    Skill(player, targets)
+WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
 {
     m_id    = SKILL_WU_WO_WU_JIAN;
     m_name  = "无我无剑";
@@ -160,7 +160,7 @@ JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targe
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Cast()
+void WuWoWuJian::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     *m_globalCooldownCurrent =
@@ -168,19 +168,19 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::Trigger() { }
+void WuWoWuJian::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiAdd()
+void WuWoWuJian::TriggerFengShiAdd()
 {
     m_effectDamageAdditionalPercentInt += 307;
 }
 
-void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::TriggerFengShiClear()
+void WuWoWuJian::TriggerFengShiClear()
 {
     m_effectDamageAdditionalPercentInt -= 307;
 }
 
-void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
+void WuWoWuJian::SubEffect()
 {
     int qidian = m_player->GetQidian();
     int level  = qidian - 1;
@@ -194,7 +194,7 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
     params.player = m_player;
 
     // 无意 3格气以上
-    params.type = Params::Type::ADD;
+    params.type  = Params::Type::ADD;
     params.level = qidian;
     m_triggerEffects[TRIGGER_WU_YI](params);
 
@@ -251,7 +251,7 @@ void JX3DPS::TaiXuJianYi::Skill::WuWoWuJian::SubEffect()
     m_triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *player, Targets *targets) :
+BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_BA_HUANG_GUI_YUAN;
@@ -322,7 +322,7 @@ JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *playe
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Cast()
+void BaHuangGuiYuan::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -331,7 +331,7 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::Trigger() { }
+void BaHuangGuiYuan::Trigger() { }
 
 void Skill::BaHuangGuiYuan::TriggerDamage()
 {
@@ -340,7 +340,7 @@ void Skill::BaHuangGuiYuan::TriggerDamage()
     Record(m_player->GetTargetId(), rollResult, damage, 2, 0);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
+void BaHuangGuiYuan::SubEffect()
 {
     m_player->AddQidian(2);
 
@@ -402,17 +402,17 @@ void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::SubEffect()
     m_triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::ResetCooldown()
+void BaHuangGuiYuan::ResetCooldown()
 {
     m_cooldown = 16 * 12 + m_effectCooldownAdditional;
 }
 
-void JX3DPS::TaiXuJianYi::Skill::BaHuangGuiYuan::ClearCooldown()
+void BaHuangGuiYuan::ClearCooldown()
 {
     m_cooldown = 0;
 }
 
-JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player, Targets *targets) :
+SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_SAN_HUAN_TAO_YUE;
@@ -466,7 +466,7 @@ JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player,
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Cast()
+void SanHuanTaoYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
@@ -475,9 +475,9 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::Trigger() { }
+void SanHuanTaoYue::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
+void SanHuanTaoYue::SubEffect()
 {
     m_player->AddQidian(2);
 
@@ -531,7 +531,7 @@ void JX3DPS::TaiXuJianYi::Skill::SanHuanTaoYue::SubEffect()
     m_triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *player, Targets *targets) :
+WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id          = SKILL_WAN_JIAN_GUI_ZONG;
@@ -555,7 +555,7 @@ JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *playe
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Cast()
+void WanJianGuiZong::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -564,9 +564,9 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::Trigger() { }
+void WanJianGuiZong::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
+void WanJianGuiZong::SubEffect()
 {
     Params params;
     params.player = m_player;
@@ -625,7 +625,7 @@ void JX3DPS::TaiXuJianYi::Skill::WanJianGuiZong::SubEffect()
     m_triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targets *targets) :
+RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_REN_JIAN_HE_YI;
@@ -661,7 +661,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Tar
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Cast()
+void RenJianHeYi::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -670,9 +670,9 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::Trigger() { }
+void RenJianHeYi::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
+void RenJianHeYi::SubEffect()
 {
     m_player->skills[SKILL_REN_JIAN_HE_YI_TUN_RI_YUE]->SetEnergyCooldownCurrent(m_cooldownCurrent);
     m_player->skills[SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN]->SetEnergyCooldownCurrent(m_cooldownCurrent);
@@ -740,7 +740,7 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYi::SubEffect()
     m_triggerEffects[TRIGGER_XUAN_MEN](params);
 }
 
-JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DPS::Player *player, Targets *targets) :
+RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN;
@@ -776,7 +776,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::RenJianHeYiSuiXingChen(JX3DP
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Cast()
+void RenJianHeYiSuiXingChen::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -785,9 +785,9 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::Trigger() { }
+void RenJianHeYiSuiXingChen::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
+void RenJianHeYiSuiXingChen::SubEffect()
 {
     m_player->skills[SKILL_REN_JIAN_HE_YI]->SetEnergyCooldownCurrent(m_cooldownCurrent);
     m_player->skills[SKILL_REN_JIAN_HE_YI_TUN_RI_YUE]->SetEnergyCooldownCurrent(m_cooldownCurrent);
@@ -798,7 +798,7 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
     Params params;
     params.player = m_player;
 
-    int size = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size();
+    int  size = static_cast<TaiXuJianYi::Player *>(m_player)->fields.size();
     bool flag = false;
     for (int i = 0; i < size; i++) {
         Id_t f = static_cast<TaiXuJianYi::Player *>(m_player)->fields.front();
@@ -863,7 +863,7 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiSuiXingChen::SubEffect()
     m_triggerEffects[TRIGGER_XUAN_MEN](params);
 }
 
-JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Player *player, Targets *targets) :
+RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_REN_JIAN_HE_YI_TUN_RI_YUE;
@@ -899,7 +899,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::RenJianHeYiTunRiYue(JX3DPS::Pla
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Cast()
+void RenJianHeYiTunRiYue::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -908,9 +908,9 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::Trigger() { }
+void RenJianHeYiTunRiYue::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
+void RenJianHeYiTunRiYue::SubEffect()
 {
     m_player->skills[SKILL_REN_JIAN_HE_YI]->SetEnergyCooldownCurrent(m_cooldownCurrent);
     m_player->skills[SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN]->SetEnergyCooldownCurrent(m_cooldownCurrent);
@@ -982,7 +982,7 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiTunRiYue::SubEffect()
     m_triggerEffects[TRIGGER_XUAN_MEN](params);
 }
 
-JX3DPS::TaiXuJianYi::Skill::RenJianHeYiShengTaiJi::RenJianHeYiShengTaiJi(JX3DPS::Player *player, Targets *targets) :
+RenJianHeYiShengTaiJi::RenJianHeYiShengTaiJi(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id       = SKILL_REN_JIAN_HE_YI_SHENG_TAI_JI;
@@ -1018,7 +1018,7 @@ JX3DPS::TaiXuJianYi::Skill::RenJianHeYiShengTaiJi::RenJianHeYiShengTaiJi(JX3DPS:
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiShengTaiJi::Cast()
+void RenJianHeYiShengTaiJi::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown;
@@ -1027,9 +1027,9 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiShengTaiJi::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiShengTaiJi::Trigger() { }
+void RenJianHeYiShengTaiJi::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiShengTaiJi::SubEffect()
+void RenJianHeYiShengTaiJi::SubEffect()
 {
     m_player->skills[SKILL_REN_JIAN_HE_YI]->SetEnergyCooldownCurrent(m_cooldownCurrent);
     m_player->skills[SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN]->SetEnergyCooldownCurrent(m_cooldownCurrent);
@@ -1101,7 +1101,7 @@ void JX3DPS::TaiXuJianYi::Skill::RenJianHeYiShengTaiJi::SubEffect()
     m_triggerEffects[TRIGGER_XUAN_MEN](params);
 }
 
-JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player, Targets *targets) :
+SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id                    = SKILL_SAN_CHAI_JIAN_FA;
@@ -1115,16 +1115,16 @@ JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SanChaiJianFa(JX3DPS::Player *player,
     m_effectDamageAdditionalPercentInt = 205;
 }
 
-void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Cast()
+void SanChaiJianFa::Cast()
 {
     m_globalCooldownCurrent = &static_cast<TaiXuJianYi::Player *>(m_player)->cooldownSanChaiJianFaCurrent;
     *m_globalCooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::Trigger() { }
+void SanChaiJianFa::Trigger() { }
 
-void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
+void SanChaiJianFa::SubEffect()
 {
     RollResult rollResult = GetPhysicsRollResult();
 
@@ -1148,7 +1148,7 @@ void JX3DPS::TaiXuJianYi::Skill::SanChaiJianFa::SubEffect()
     m_triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targets *targets) :
+SuiXingChen::SuiXingChen(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id            = SKILL_SUI_XING_CHEN;
@@ -1160,7 +1160,7 @@ JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SuiXingChen(JX3DPS::Player *player, Tar
     m_damageParams[0].emplace_back(0, 0, 0);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Cast()
+void SuiXingChen::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
@@ -1169,7 +1169,7 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Cast()
     m_player->SetCast(true);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Trigger()
+void SuiXingChen::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
         // 读条结束
@@ -1181,7 +1181,7 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::Trigger()
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SubEffect()
+void SuiXingChen::SubEffect()
 {
     m_player->AddQidian(2);
 
@@ -1200,8 +1200,7 @@ void JX3DPS::TaiXuJianYi::Skill::SuiXingChen::SubEffect()
     Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
-JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targets *targets) :
-    Skill(player, targets)
+ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
 {
     m_id            = SKILL_SHENG_TAI_JI;
     m_name          = "生太极";
@@ -1229,7 +1228,7 @@ JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targe
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Cast()
+void ShengTaiJi::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
@@ -1238,7 +1237,7 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Cast()
     m_player->SetCast(true);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Trigger()
+void ShengTaiJi::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
         // 读条结束
@@ -1250,7 +1249,7 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::Trigger()
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::SubEffect()
+void ShengTaiJi::SubEffect()
 {
 
     m_player->AddQidian(2);
@@ -1273,8 +1272,7 @@ void JX3DPS::TaiXuJianYi::Skill::ShengTaiJi::SubEffect()
     Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
-JX3DPS::TaiXuJianYi::Skill::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *targets) :
-    Skill(player, targets)
+TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
 {
     m_id            = SKILL_TUN_RI_YUE;
     m_name          = "吞日月";
@@ -1285,7 +1283,7 @@ JX3DPS::TaiXuJianYi::Skill::TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *
     m_damageParams[0].emplace_back(0, 0, 0);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Cast()
+void TunRiYue::Cast()
 {
     m_prepareFramesCurrent = m_prepareFrames * m_player->attribute.GetHastePercent();
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
@@ -1294,7 +1292,7 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Cast()
     m_player->SetCast(true);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Trigger()
+void TunRiYue::Trigger()
 {
     if (m_prepareFramesCurrent == 0) {
         // 读条结束
@@ -1306,7 +1304,7 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::Trigger()
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
+void TunRiYue::SubEffect()
 {
     m_player->AddQidian(2);
 
@@ -1325,7 +1323,7 @@ void JX3DPS::TaiXuJianYi::Skill::TunRiYue::SubEffect()
     Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
-JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *targets) :
+ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id                    = SKILL_ZI_QI_DONG_LAI;
@@ -1343,7 +1341,7 @@ JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Tar
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Cast()
+void ZiQiDongLai::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     if (m_energyCountCurrent == m_energyCount) {
@@ -1355,7 +1353,7 @@ void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Trigger()
+void ZiQiDongLai::Trigger()
 {
     if (m_cooldownCurrent == 0) {
         // 冷却结束，充能
@@ -1369,13 +1367,13 @@ void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::Trigger()
     }
 }
 
-void JX3DPS::TaiXuJianYi::Skill::ZiQiDongLai::SubEffect()
+void ZiQiDongLai::SubEffect()
 {
     m_player->buffs[BUFF_ZI_QI_DONG_LAI]->Add();
     Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
-JX3DPS::TaiXuJianYi::Skill::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targets *targets) :
+JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targets *targets) :
     Skill(player, targets)
 {
     m_id                   = SKILL_JING_HUA_YING;
@@ -1390,7 +1388,7 @@ JX3DPS::TaiXuJianYi::Skill::JingHuaYing::JingHuaYing(JX3DPS::Player *player, Tar
     m_damageParams[1].emplace_back(200, 0, 200 * 1.1 * 1.1);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Cast()
+void JingHuaYing::Cast()
 {
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
@@ -1400,24 +1398,24 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Cast()
     SubEffect();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::Trigger()
+void JingHuaYing::Trigger()
 {
     // 触发 镜花影·碎
     m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
     SubEffectSui();
 }
 
-void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::TriggerAddJingHuaYing()
+void JingHuaYing::TriggerAddJingHuaYing()
 {
     m_cooldownCurrent = 0;
 }
 
-void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::TriggerClearJingHuaYing()
+void JingHuaYing::TriggerClearJingHuaYing()
 {
     m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
 }
 
-void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffect()
+void JingHuaYing::SubEffect()
 {
 
     RollResult  rollResult = GetPhysicsRollResult();
@@ -1453,7 +1451,7 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffect()
     m_triggerEffects[TRIGGER_WEAPON_WATER](params);
 }
 
-void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffectSui()
+void JingHuaYing::SubEffectSui()
 {
     if (m_targets->find(m_player->GetTargetId()) == m_targets->end()) {
         return;
@@ -1463,6 +1461,8 @@ void JX3DPS::TaiXuJianYi::Skill::JingHuaYing::SubEffectSui()
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 1, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 1, 0);
 }
+
+} // namespace Skill
 
 } // namespace TaiXuJianYi
 

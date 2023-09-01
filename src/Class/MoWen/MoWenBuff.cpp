@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-26 09:55:04
+ * Last Modified: 2023-09-01 19:05:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1133,7 +1133,8 @@ void ZhiYinHeMing::SubEffect()
     } else if (m_snapshots[PLAYER_ID].stackNum == 4) {
         static_cast<QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(4);
     } else {
-        int index    = RandomUniform(0, static_cast<int>(randoms.size() - 1));
+        // int index    = RandomUniform(0, static_cast<int>(randoms.size() - 1));
+        int index = 0;
         int stackNum = randoms[index];
         randoms.erase(randoms.begin() + index);
         static_cast<QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(stackNum);

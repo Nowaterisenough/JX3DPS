@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-26 09:48:40
+ * Last Modified: 2023-09-04 18:52:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -33,6 +33,14 @@ class PoZhao : public JX3DPS::Skill
 
 public:
     void TriggerDamage(Id_t targetId);
+};
+
+class WuYinLiuLv : public JX3DPS::Skill
+{
+    SKILL_DEFAULT_FUNCTION(WuYinLiuLv)
+
+public:
+    void SubEffect();
 };
 
 class Gong : public JX3DPS::Skill

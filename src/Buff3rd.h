@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:39:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 16:05:01
+ * Last Modified: 2023-09-03 15:59:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -79,6 +79,152 @@ public:
 
     void SubEffectAdd(int stackNum);
     void SubEffectClear(int stackNum);
+};
+
+class JiaoSu : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JiaoSu)
+
+public:
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class XiuQi : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(XiuQi)
+
+public:
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class HanRuLei : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(HanRuLei)
+
+public:
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class PoFeng : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(PoFeng)
+
+public:
+    void SubEffectAdd(Id_t targetId);
+    void SubEffectClear(Id_t targetId);
+};
+
+class JingFeng : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JingFeng)
+
+public:
+    void SubEffectAdd(Id_t targetId);
+    void SubEffectClear(Id_t targetId);
+};
+
+class JieHuo : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JieHuo)
+
+public:
+    void SubEffectAdd(Id_t targetId);
+    void SubEffectClear(Id_t targetId);
+};
+
+class HaoLingSanJun : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(HaoLingSanJun)
+
+public:
+    void SubEffectAdd(Id_t targetId);
+    void SubEffectClear(Id_t targetId, int stackNum);
+};
+
+class SheShenHongFa : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(SheShenHongFa)
+
+public:
+    void SubEffectAdd(Id_t targetId, int stackNum);
+    void SubEffectClear(Id_t targetId, int stackNum);
+};
+
+class ChaoSheng : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(ChaoSheng)
+
+public:
+    void SubEffectAdd(Id_t targetId, int stackNum);
+    void SubEffectClear(Id_t targetId, int stackNum);
+};
+
+class ShengYuMingXin : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(ShengYuMingXin)
+
+public:
+    void SubEffectAdd(Id_t targetId, int stackNum);
+    void SubEffectClear(Id_t targetId, int stackNum);
+};
+
+class ZhenFen : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(ZhenFen)
+
+public:
+    void SubEffectAdd(Id_t targetId, int stackNum);
+    void SubEffectClear(Id_t targetId, int stackNum);
+};
+
+class HanXiaoQianJun : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(HanXiaoQianJun)
+
+public:
+    void SubEffectAdd(Id_t targetId);
+    void SubEffectClear(Id_t targetId);
+};
+
+class ShuKuang : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(ShuKuang)
+
+public:
+    void SubEffectAdd(Id_t targetId);
+    void SubEffectClear(Id_t targetId);
+};
+
+class HanChangLinLi : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(HanChangLinLi)
+
+public:
+    void SubEffectAdd(Id_t targetId);
+    void SubEffectClear(Id_t targetId);
+};
+
+class JiLei : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(JiLei)
+
+public:
+    void SubEffectAdd(Id_t targetId);
+    void SubEffectClear(Id_t targetId);
+};
+
+class PendantOvercome : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(PendantOvercome)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
 };
 
 } // namespace Buff3rd

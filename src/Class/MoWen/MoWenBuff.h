@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 13:14:43
+ * Last Modified: 2023-09-02 21:57:20
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -249,6 +249,17 @@ public:
                       const GainsDamage &gainsDamage = GainsDamage(),
                       int                sub         = 0,
                       int                level       = 0);
+};
+
+class SetAttribute : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(SetAttribute)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
 };
 
 } // namespace Buff

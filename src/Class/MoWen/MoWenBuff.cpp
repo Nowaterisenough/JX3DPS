@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-01 19:05:52
+ * Last Modified: 2023-09-04 20:01:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -264,7 +264,11 @@ void XianFeng::TriggerClear()
 
 void XianFeng::TriggerDamage(Id_t targetId, int stackNum)
 {
+    Params params;
+    params.player = m_player;
+
     for (int i = 0; i < stackNum; ++i) {
+        m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
         RollResult  rollResult = GetMagicRollResult();
         GainsDamage damage     = CalcMagicDamage(targetId, rollResult, 0, 0);
         Record(targetId, rollResult, damage, 0, 0);
@@ -557,7 +561,11 @@ void LiuZhao::TriggerAdd(int stackNum)
 
 void LiuZhao::TriggerDamage(int stackNum)
 {
+    Params params;
+    params.player = m_player;
+
     for (int i = 0; i < stackNum; ++i) {
+        m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
         RollResult  rollResult = GetMagicRollResult();
         GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
         Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -930,7 +938,11 @@ void ZhiYinMiaoYi::Clear(Id_t targetId, int stackNum)
 
 void ZhiYinMiaoYi::TriggerAdd(int stackNum)
 {
-    SubEffectAdd(stackNum);
+    int stack                        = m_snapshots[PLAYER_ID].stackNum;
+    m_snapshots[PLAYER_ID].stackNum += stackNum;
+    m_snapshots[PLAYER_ID].stackNum = std::min(m_stackNum, m_snapshots[PLAYER_ID].stackNum);
+    stack = m_snapshots[PLAYER_ID].stackNum - stack;
+    SubEffectAdd(stack);
     m_snapshots[PLAYER_ID].duration = m_duration;
 }
 
@@ -938,6 +950,7 @@ void ZhiYinMiaoYi::TriggerClear()
 {
     if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
         int stackNum = m_snapshots[PLAYER_ID].stackNum;
+        m_snapshots.erase(PLAYER_ID);
         SubEffectClear(stackNum);
     }
 }
@@ -1134,7 +1147,7 @@ void ZhiYinHeMing::SubEffect()
         static_cast<QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(4);
     } else {
         // int index    = RandomUniform(0, static_cast<int>(randoms.size() - 1));
-        int index = 0;
+        int index    = 0;
         int stackNum = randoms[index];
         randoms.erase(randoms.begin() + index);
         static_cast<QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerSet(stackNum);
@@ -1421,6 +1434,63 @@ void YingZi::RecordYingZi(Id_t targetId, RollResult rollResult, const GainsDamag
         m_stats.gainStats[type][targetId][SKILL_GONG][sub][level][rollResult].second.surplusDamage +=
             damage.surplusDamage;
     }
+}
+
+SetAttribute::SetAttribute(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_SET_ATTRIBUTE;
+    m_name     = "套装·挥散";
+    m_duration = 16 * 6;
+}
+
+void SetAttribute::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration != 0) {
+        return;
+    }
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear();
+}
+
+void SetAttribute::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.empty()) {
+        SubEffectAdd();
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void SetAttribute::Clear(Id_t targetId, int stackNum)
+{
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear();
+}
+
+void SetAttribute::TriggerAdd()
+{
+    if (RandomUniform(1, 100) <= 10) {
+        if (m_snapshots.empty()) {
+            SubEffectAdd();
+        }
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    }
+}
+
+void SetAttribute::SubEffectAdd()
+{
+    m_player->attribute.AddMagicCriticalStrikeAdditionalBasisPointInt(400);
+    m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(41);
+}
+
+void SetAttribute::SubEffectClear()
+{
+    m_player->attribute.AddMagicCriticalStrikeAdditionalBasisPointInt(-400);
+    m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(-41);
 }
 
 } // namespace Buff

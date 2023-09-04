@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 13:42:49
+ * Last Modified: 2023-09-04 18:38:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -64,6 +64,9 @@ public:
         if (cooldownGuYingHuaShuangCurrent > 0) {
             frame = std::min(frame, cooldownGuYingHuaShuangCurrent);
         }
+        if (cooldownWuYinLiuLvCurrent > 0) {
+            frame = std::min(frame, cooldownWuYinLiuLvCurrent);
+        }
         return frame;
     }
 
@@ -86,6 +89,9 @@ public:
 
         cooldownGuYingHuaShuangCurrent -= next;
         cooldownGuYingHuaShuangCurrent  = std::max(cooldownGuYingHuaShuangCurrent, 0);
+
+        cooldownWuYinLiuLvCurrent -= next;
+        cooldownWuYinLiuLvCurrent  = std::max(cooldownWuYinLiuLvCurrent, 0);
     }
 
     enum class Style
@@ -105,6 +111,8 @@ public:
     Frame_t cooldownShuYingHengXieCurrent = 0;
 
     Frame_t cooldownGuYingHuaShuangCurrent = 0;
+
+    Frame_t cooldownWuYinLiuLvCurrent = 0;
 
     static void TriggerXianFeng(const Params &params);
 
@@ -139,6 +147,8 @@ public:
     static void TriggerEnchantBelt(const Params &params);
 
     static void TriggerEnchantWrist(const Params &params);
+
+    static void TriggerSetAttribute(const Params &params);
 };
 
 } // namespace MoWen

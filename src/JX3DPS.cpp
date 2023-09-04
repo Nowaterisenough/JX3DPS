@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-22 22:16:12
+ * Last Modified: 2023-09-04 20:29:04
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -47,6 +47,9 @@ void SummarizeStats(Player &player, Stats &stats)
 long long Sum(const Stats &stats)
 {
     long long sum = 0;
+    if (stats.gainStats.size() == 0) {
+        return 0;
+    }
     for (auto &[targetId, targetDamage] : stats.gainStats.at(Attribute::Type::DEFAULT)) {
         for (auto &[effectId, effectDamage] : targetDamage) {
             for (auto &[sub, subDamage] : effectDamage) {

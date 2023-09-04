@@ -84,6 +84,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     PlainTextEdit
     ProgressBar
     TableView
+    QCustomPlot
 )
 
 set(APP_NAME "JX3DPS Simulator")

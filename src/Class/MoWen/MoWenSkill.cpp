@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-26 09:55:01
+ * Last Modified: 2023-09-04 19:16:19
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -67,6 +67,43 @@ void PoZhao::TriggerDamage(Id_t targetId)
     Record(targetId, rollResult, damage, 0, 2);
 }
 
+WuYinLiuLv::WuYinLiuLv(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
+{
+    m_id                    = SKILL_WU_YIN_LIU_LV;
+    m_name                  = "五音六律";
+    m_range                 = 20;
+    m_cooldown              = 16;
+    m_globalCooldownCurrent = &m_noneGlobalCooldown;
+
+    m_damageParams[0].emplace_back(0, 0, 4);
+}
+
+void WuYinLiuLv::Cast()
+{
+    m_globalCooldownCurrent = &static_cast<MoWen::Player *>(m_player)->cooldownWuYinLiuLvCurrent;
+    *m_globalCooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
+    SubEffect();
+}
+
+void WuYinLiuLv::Trigger() { }
+
+void WuYinLiuLv::SubEffect()
+{
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
+
+    RollResult rollResult = GetMagicRollResult();
+
+    params.rollResult = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+}
+
 Gong::Gong(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
 {
     m_id            = SKILL_GONG;
@@ -111,6 +148,10 @@ Gong::Gong(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
     if (m_player->talents[TALENT_HAO_ZHONG]) {
         m_effectCriticalStrikeAdditionalBasisPointInt   += 1000;
         m_effectCriticalStrikePowerAdditionalPercentInt += 102;
+    }
+
+    if (m_player->equipEffects[EQUIP_EFFECT_SET_SKILL]) {
+        m_effectDamageAdditionalPercentInt += 102;
     }
 }
 
@@ -163,9 +204,15 @@ void Gong::SubEffect()
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
     m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    RollResult rollResult = GetMagicRollResult();
+
+    params.rollResult = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     static_cast<Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
@@ -215,6 +262,10 @@ BianGong::BianGong(JX3DPS::Player *player, Targets *targets) : Skill(player, tar
     if (m_player->talents[TALENT_HAO_ZHONG]) {
         m_effectCriticalStrikeAdditionalBasisPointInt   += 1000;
         m_effectCriticalStrikePowerAdditionalPercentInt += 102;
+    }
+
+    if (m_player->equipEffects[EQUIP_EFFECT_SET_SKILL]) {
+        m_effectDamageAdditionalPercentInt += 102;
     }
 }
 
@@ -272,9 +323,14 @@ void BianGong::SubEffect()
     params.targetId = m_player->GetTargetId();
     m_triggerEffects[TRIGGER_ZHI_ZHI](params);
     m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    RollResult rollResult = GetMagicRollResult();
+    params.rollResult     = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     static_cast<Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
@@ -286,7 +342,7 @@ Shang::Shang(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
     m_name  = "商";
     m_range = 20;
 
-    m_damageParams[0].emplace_back((14 + 14 + 5) / 2, 0, 80);
+    m_damageParams[0].emplace_back((14 + 14 + 5) / 2, 0, 92);
 
     if (m_player->recipes[RECIPE_SHANG_CRITICAL_STRIKE_2]) {
         m_effectCriticalStrikeAdditionalBasisPointInt += 200;
@@ -329,9 +385,14 @@ void Shang::SubEffect()
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
     m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    RollResult rollResult = GetMagicRollResult();
+    params.rollResult     = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])
@@ -346,7 +407,7 @@ Jue::Jue(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
     m_name  = "角";
     m_range = 20;
 
-    m_damageParams[0].emplace_back((14 + 14 + 5) / 2, 0, 80);
+    m_damageParams[0].emplace_back((14 + 14 + 5) / 2, 0, 96);
 }
 
 void Jue::Cast()
@@ -365,9 +426,14 @@ void Jue::SubEffect()
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
     m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    RollResult rollResult = GetMagicRollResult();
+    params.rollResult     = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])
@@ -419,6 +485,10 @@ Zhi::Zhi(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
         m_cooldown                           = 8 * 16;
         m_cooldownCurrent                    = JX3DPS_INVALID_FRAMES_SET;
     }
+
+    if (m_player->equipEffects[EQUIP_EFFECT_SET_SKILL]) {
+        m_effectDamageAdditionalPercentInt += 102;
+    }
 }
 
 void Zhi::Cast()
@@ -446,7 +516,6 @@ void Zhi::Cast()
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
     xianFengStackNum = m_player->buffs[BUFF_XIAN_FENG]->GetStackNumCurrent();
     m_triggerEffects[TRIGGER_HAO_QING_ZHI](params);
-    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     m_triggerEffects[TRIGGER_XIAN_FENG_CLEAR](params);
 }
@@ -528,11 +597,16 @@ void Zhi::SubEffect()
     params.stackNum = xianFengStackNum;
     params.targetId = m_player->GetTargetId();
     m_triggerEffects[TRIGGER_XIAN_FENG_DAMAGE](params);
-
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
     m_triggerEffects[TRIGGER_LIU_ZHAO_DAMAGE](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    RollResult rollResult = GetMagicRollResult();
+    params.rollResult     = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
@@ -579,6 +653,10 @@ BianZhi::BianZhi(JX3DPS::Player *player, Targets *targets) : Skill(player, targe
         m_cooldown                           = 8 * 16;
         m_cooldownCurrent                    = JX3DPS_INVALID_FRAMES_SET;
     }
+
+    if (m_player->equipEffects[EQUIP_EFFECT_SET_SKILL]) {
+        m_effectDamageAdditionalPercentInt += 102;
+    }
 }
 
 void BianZhi::Cast()
@@ -603,7 +681,6 @@ void BianZhi::Cast()
     params.player = m_player;
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
     xianFengStackNum = m_player->buffs[BUFF_XIAN_FENG]->GetStackNumCurrent();
-    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
 
     m_triggerEffects[TRIGGER_HAO_QING_BIAN_ZHI](params);
 
@@ -690,11 +767,16 @@ void BianZhi::SubEffect()
     params.stackNum = xianFengStackNum;
     params.targetId = m_player->GetTargetId();
     m_triggerEffects[TRIGGER_XIAN_FENG_DAMAGE](params);
-
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
     m_triggerEffects[TRIGGER_LIU_ZHAO_DAMAGE](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    RollResult rollResult = GetMagicRollResult();
+    params.rollResult     = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
@@ -782,13 +864,17 @@ void Yu::SubEffect()
 
     m_triggerEffects[TRIGGER_XIAN_FENG](params);
     m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
-
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
     m_triggerEffects[TRIGGER_SHI_XIANG](params);
 
     m_triggerEffects[TRIGGER_SHU_LI](params);
 
-    RollResult  rollResult = GetMagicRollResult();
-    GainsDamage damage     = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
+    RollResult rollResult = GetMagicRollResult();
+    params.rollResult     = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
@@ -848,6 +934,9 @@ void GaoShanLiuShui::SetCooldown()
 
 void GaoShanLiuShui::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
     static_cast<Buff::GaoShanLiuShui *>(m_player->buffs[BUFF_GAO_SHAN_LIU_SHUI])->TriggerAdd();
 }
 
@@ -938,12 +1027,20 @@ void YangChunBaiXue::SetCooldown()
 
 void YangChunBaiXue::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
+    m_triggerEffects[TRIGGER_ENCHANT_BELT](params);
     int level = 0;
     if ((*m_targets)[m_player->GetTargetId()]->GetLifePercent() - 0.01 < 0.5) {
         m_effectDamageAdditionalPercentInt += 410;
         level                               = 1;
     }
-    RollResult  rollResult = GetMagicRollResult();
+    RollResult rollResult = GetMagicRollResult();
+    params.rollResult     = rollResult;
+    m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, level);
     Record(m_player->GetTargetId(), rollResult, damage, 0, level);
     if ((*m_targets)[m_player->GetTargetId()]->GetLifePercent() - 0.01 < 0.5) {
@@ -1010,6 +1107,9 @@ bool ShuYingHengXie::IsReady(bool fcast)
 
 void ShuYingHengXie::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
     static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->TriggerAdd();
     if (RandomUniform(1, 100) <= m_effectDamageAdditionalPercentInt) {
         static_cast<Buff::YingZi *>(m_player->buffs[BUFF_YING_ZI])->TriggerAdd();
@@ -1043,6 +1143,9 @@ void GuYingHuaShuang::Trigger() { }
 
 void GuYingHuaShuang::Snap()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
     static_cast<Buff::GuYingHuaShuang *>(m_player->buffs[BUFF_GU_YING_HUA_SHUANG])->TriggerAdd();
     for (int i = SKILL_GONG; i <= SKILL_SHU_YING_HENG_XIE; ++i) {
         snaps[static_cast<Id_t>(i)].cooldownCurrent =
@@ -1118,6 +1221,9 @@ void ZhengLvHeMing1::Trigger() { }
 
 void ZhengLvHeMing1::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
     static_cast<MoWen::Buff::ZhengLvHeMing *>(m_player->buffs[BUFF_ZHENG_LV_HE_MING])->TriggerAdd();
     static_cast<MoWen::Buff::ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->level = 1;
 }
@@ -1146,6 +1252,9 @@ void ZhengLvHeMing2::Trigger() { }
 
 void ZhengLvHeMing2::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
     static_cast<MoWen::Buff::ZhengLvHeMing *>(m_player->buffs[BUFF_ZHENG_LV_HE_MING])->TriggerAdd();
     static_cast<MoWen::Buff::ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->level = 2;
 }
@@ -1174,6 +1283,9 @@ void ZhengLvHeMing3::Trigger() { }
 
 void ZhengLvHeMing3::SubEffect()
 {
+    Params params;
+    params.player = m_player;
+    m_triggerEffects[TRIGGER_ENCHANT_WRIST](params);
     static_cast<MoWen::Buff::ZhengLvHeMing *>(m_player->buffs[BUFF_ZHENG_LV_HE_MING])->TriggerAdd();
     static_cast<MoWen::Buff::ZhiYinHeMing *>(m_player->buffs[BUFF_ZHI_YIN_HE_MING])->level = 3;
 }

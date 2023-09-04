@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-25 23:47:57
+ * Last Modified: 2023-09-04 18:35:51
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -126,6 +126,7 @@ enum Id_t
     SKILL_TAI_XU_JIAN_YI_END, // ---------------------- 技能 太虚剑意 END ----------------------
 
     SKILL_MO_WEN, // ---------------------- 技能 莫问 ----------------------
+    SKILL_WU_YIN_LIU_LV,
     SKILL_GONG,
     SKILL_BIAN_GONG,
     SKILL_SHANG,
@@ -606,6 +607,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------技能 太虚剑意 END----------------------" },
 
      { "----------------------技能 莫问----------------------" },
+     { "五音六律" },
      { "宫" },
      { "变宫" },
      { "商" },

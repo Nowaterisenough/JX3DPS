@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-22 23:27:13
+ * Last Modified: 2023-09-04 22:20:46
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -14,6 +14,8 @@
  */
 
 #include "JX3DPSStatsWidget.h"
+
+#include <qcustomplot.h>
 
 #include <unordered_set>
 
@@ -34,7 +36,23 @@
 #include "TableView/TableView.h"
 
 #include "JX3DPSJsonParser.h"
-#include "qcustomplot.h"
+
+class NoScientificDelegate : public QStyledItemDelegate
+{
+public:
+    NoScientificDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) { }
+
+    QString displayText(const QVariant &value, const QLocale &locale) const override
+    {
+        if (value.type() == QVariant::Double) {
+            double d = value.toDouble();
+            // if (d != 0.0 && (qAbs(d) < 1e-3 || qAbs(d) >= 1e7)) {
+            return QString::number(d, 'f', 0);
+            // }
+        }
+        return QStyledItemDelegate::displayText(value, locale);
+    }
+};
 
 std::vector<int> Histogram(const std::vector<int> &data, int numBins)
 {
@@ -214,6 +232,10 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
     tableViewTarget->setModel(new QStandardItemModel());
     tableViewEffect->setModel(new QStandardItemModel());
     tableViewRoll->setModel(new QStandardItemModel());
+
+    tableViewTarget->setItemDelegate(new NoScientificDelegate(tableViewTarget));
+    tableViewEffect->setItemDelegate(new NoScientificDelegate(tableViewEffect));
+    tableViewRoll->setItemDelegate(new NoScientificDelegate(tableViewRoll));
 
     QStandardItemModel *modelTarget = static_cast<QStandardItemModel *>(tableViewTarget->model());
     QStandardItemModel *modelEffect = static_cast<QStandardItemModel *>(tableViewEffect->model());

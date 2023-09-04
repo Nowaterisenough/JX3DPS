@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 07:21:20
+ * Last Modified: 2023-09-01 19:06:21
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -21,7 +21,7 @@
 #include "Player.h"
 #include "Skill.h"
 #include "Target.hpp"
-
+#include "Class/MoWen/MoWen.h"
 // #define OLD_FRAMEWORK
 
 void JX3DPS::KeyFrame::InsertKeyFrame(KeyFrameSequence &keyFrameSequence, KeyFrame &keyFrame)
@@ -156,7 +156,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
                 exprEvents.front().second(player, targets);
                 exprEvents.pop_front();
             } else if (type == KeyFrameType::SKILL) { // 技能
-                spdlog::debug("{} Trigger Skill {}", now, JX3DPS_NAME.at(static_cast<int>(id)));
+                //spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
                 player->skills[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -167,7 +167,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
 #endif // OLD_FRAMEWORK
 
             } else if (type == KeyFrameType::BUFF) { // buff
-                spdlog::debug("{} Trigger Buff {}", now, JX3DPS_NAME.at(static_cast<int>(id)));
+                //spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
                 player->buffs[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -306,11 +306,11 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
 
             Id_t id = iter->second;
             if (id > SKILL_DEFAULT) { // 执行技能
-                player->skills[id]->Cast();
-                spdlog::debug("{:<8} 宏·{} {}",
+                spdlog::debug("{:<8} {:<5} {}",
                               now * 0.0625,
-                              exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT,
+                              "宏·" + std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT),
                               JX3DPS_NAME.at(static_cast<int>(id)));
+                player->skills[id]->Cast();
             } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
                 player->SetTargetId(id);
             } else if (id >= EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
@@ -318,6 +318,11 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
                 exprSkills       = exprSkillsHash.at(id);
                 lastExprSkillsId = exprSkillsId;
                 exprSkillsId     = id;
+                spdlog::debug("{:<8} {:<5} {}",
+                              now * 0.0625,
+                              "切换",
+                              "宏·" +
+                                  std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
             }
 
             // scast执行成功

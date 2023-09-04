@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-29 11:39:59
+ * Last Modified: 2023-08-20 09:36:31
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -54,6 +54,7 @@ class BaHuangGuiYuan : public JX3DPS::Skill
     SKILL_DEFAULT_FUNCTION(BaHuangGuiYuan)
 
 public:
+void TriggerDamage();
     void SubEffect();
 
     void ResetCooldown();
@@ -97,6 +98,14 @@ public:
 class RenJianHeYiTunRiYue : public JX3DPS::Skill
 {
     SKILL_DEFAULT_FUNCTION(RenJianHeYiTunRiYue)
+
+public:
+    void SubEffect();
+};
+
+class RenJianHeYiShengTaiJi : public JX3DPS::Skill
+{
+    SKILL_DEFAULT_FUNCTION(RenJianHeYiShengTaiJi)
 
 public:
     void SubEffect();

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 09:06:54
+ * Last Modified: 2023-08-25 21:56:31
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -103,6 +103,7 @@ public:
     {
         this->m_rage += rage;
         this->m_rage  = std::min(this->m_rage, m_rageLimit);
+        this->m_rage  = std::max(this->m_rage, 0);
     }
 
     inline int GetEnergy() const { return m_energy; }
@@ -179,6 +180,8 @@ public:
 
     inline static void TriggerVoid(const Params &params) { }
 
+    static void TriggerWeaponWater(const Params &params);
+
 public:
     Frame_t globalCooldown        = 24; // 冷却
     Frame_t globalCooldownCurrent = 0;  // 当前冷却
@@ -193,7 +196,6 @@ public:
     Skills         skills;         // 技能列表
     Buffs          buffs;          // Buff列表
     EquipEffects   equipEffects;   // 装备效果列表
-    TriggerEffects triggerEffects; // 附加效果
 
 private:
     Targets *m_targets = nullptr;

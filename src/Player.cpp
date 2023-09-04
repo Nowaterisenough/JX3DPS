@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 06:07:01
+ * Last Modified: 2023-08-20 18:27:30
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -21,6 +21,7 @@
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 
 #include "Buff.h"
+#include "Buff3rd.h"
 #include "Skill.h"
 
 namespace JX3DPS {
@@ -70,6 +71,9 @@ JX3DPS::Player::Player(const Player &other)
     m_reCast = other.m_reCast;
     m_stop   = other.m_stop;
 
+    m_delayMax = other.m_delayMax;
+    m_delayMin = other.m_delayMin;
+
     m_targetId      = other.m_targetId;
     m_lastCastSkill = other.m_lastCastSkill;
 
@@ -79,8 +83,6 @@ JX3DPS::Player::Player(const Player &other)
     effectDamageAdditionalPercentInt = other.effectDamageAdditionalPercentInt;
 
     attribute = other.attribute;
-
-    triggerEffects = other.triggerEffects;
 
     for (auto &[id, buff] : other.buffs) {
         Buff *b = buff->Clone();
@@ -127,6 +129,9 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
     m_reCast = other.m_reCast;
     m_stop   = other.m_stop;
 
+    m_delayMax = other.m_delayMax;
+    m_delayMin = other.m_delayMin;
+
     m_targetId      = other.m_targetId;
     m_lastCastSkill = other.m_lastCastSkill;
 
@@ -136,8 +141,6 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
     effectDamageAdditionalPercentInt = other.effectDamageAdditionalPercentInt;
 
     attribute = other.attribute;
-
-    triggerEffects = other.triggerEffects;
 
     for (auto &[id, buff] : other.buffs) {
         Buff *b = buff->Clone();
@@ -175,6 +178,10 @@ void JX3DPS::Player::SetTargets(Targets *targets)
 
 void Player::AddBuff3rds(const std::list<Id_t> &buff3rds) { }
 
-void TriggerVoid(const Params &params) { }
+void Player::TriggerWeaponWater(const Params &params)
+{
+    static_cast<Buff3rd::WeaponEffectWater *>(params.player->buffs[BUFF_WEAPON_EFFECT_WATER])
+        ->TriggerAdd();
+}
 
 } // namespace JX3DPS

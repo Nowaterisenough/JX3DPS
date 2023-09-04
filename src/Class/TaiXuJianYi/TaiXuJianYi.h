@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 01:36:42
+ * Last Modified: 2023-08-21 21:13:50
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -27,7 +27,7 @@ class Player : public JX3DPS::Player
 public:
     Player();
 
-    Player(const Player &other) : JX3DPS::Player(other) { }
+    Player(const Player &other);
 
     Player &operator=(const JX3DPS::Player &other) override
     {
@@ -43,7 +43,30 @@ public:
 
     void Init() override;
 
+    Frame_t GetNextGlobalCooldown() const override
+    {
+        Frame_t frame = JX3DPS_INVALID_FRAMES_SET;
+        if (globalCooldownCurrent > 0) {
+            frame = globalCooldownCurrent;
+        }
+        if (cooldownSanChaiJianFaCurrent > 0) {
+            frame = std::min(frame, cooldownSanChaiJianFaCurrent);
+        }
+        return frame;
+    }
+
+    inline void UpdateGlobalCooldown(Frame_t next) override
+    {
+        globalCooldownCurrent -= next;
+        globalCooldownCurrent  = std::max(globalCooldownCurrent, 0);
+
+        cooldownSanChaiJianFaCurrent -= next;
+        cooldownSanChaiJianFaCurrent  = std::max(cooldownSanChaiJianFaCurrent, 0);
+    }
+
     std::list<Id_t> fields;
+    
+    Id_t fieldId = TARGET_PLACE_HOLDERS_END;
 
     void RemoveField(Id_t fieldId, int stackNum = 1)
     {
@@ -61,6 +84,8 @@ public:
         }
     }
 
+    Frame_t cooldownSanChaiJianFaCurrent = 0;
+
     static void TriggerWuYi(const Params &params);
 
     static void TriggerFengShiAdd(const Params &params);
@@ -74,6 +99,8 @@ public:
     static void TriggerXuanMen(const Params &params);
 
     static void TriggerChangSheng(const Params &params);
+
+    static void TriggerChiYing(const Params &params);
 
     static void TriggerWuYu(const Params &params);
 
@@ -102,6 +129,20 @@ public:
     static void TriggerYunZhongJianTunRiYue(const Params &params);
 
     static void TriggerYunZhongJianShengTaiJi(const Params &params);
+
+    static void TriggerEnchantShoes(const Params &params);
+
+    static void TriggerEnchantBelt(const Params &params);
+
+    static void TriggerEnchantWrist(const Params &params);
+
+    static void TriggerWeaponCW(const Params &params);
+
+    static void TriggerWeaponCWDot(const Params &params);
+
+    static void TriggerWeaponCWDamage(const Params &params);
+
+    static void TriggerSetAttribute(const Params &params);
 
     static void TriggerTeamCoreTaiXuJianYiYouRen(const Params &params);
 };

@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 14:59:51
+ * Last Modified: 2023-09-04 20:29:04
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -44,6 +44,27 @@ void SummarizeStats(Player &player, Stats &stats)
     }
 }
 
+long long Sum(const Stats &stats)
+{
+    long long sum = 0;
+    if (stats.gainStats.size() == 0) {
+        return 0;
+    }
+    for (auto &[targetId, targetDamage] : stats.gainStats.at(Attribute::Type::DEFAULT)) {
+        for (auto &[effectId, effectDamage] : targetDamage) {
+            for (auto &[sub, subDamage] : effectDamage) {
+                for (auto &[level, levelDamage] : subDamage) {
+                    for (auto &[roll, info] : levelDamage) {
+                        sum += info.second.SumDamage();
+                    }
+                }
+            }
+        }
+    }
+    return sum;
+}
+
+
 Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents, Options &op)
 {
     Options  options = op;
@@ -73,20 +94,20 @@ Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents
     SummarizeStats(*player, stats);
 
     delete player;
-    for (auto target : *targets) {
-        delete target.second;
+    for (auto &[id, target] : *targets) {
+        delete target;
     }
     delete targets;
 
     return stats;
 }
 
-void SimulatePool(ExprSkillsHash &exprSkillsHash,
-                  ExprEvents     &exprEvents,
-                  Player         &player,
-                  Options        &options,
-                  Stats          &stats,
-                  void           *obj,
+void SimulatePool(ExprSkillsHash       &exprSkillsHash,
+                  ExprEvents           &exprEvents,
+                  Player               &player,
+                  Options              &options,
+                  Stats                &stats,
+                  void                 *obj,
                   void (*progress)(void *, double, const char *))
 {
     StatsInit(player.GetClassType(), stats);
@@ -118,6 +139,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         for (int i = 0; i < options.simIterations; i++) {
             Stats t  = results.front().get();
             stats   += t;
+            stats.damageList.push_back(Sum(t));
             results.pop_front();
             if (i % step == 0 && obj != nullptr) {
                 progress(obj, i * 1.0 / (count * options.simIterations), "模拟中...");
@@ -279,7 +301,7 @@ Error_t Start(const nlohmann::ordered_json &in,
 
     out["SimIterations"] = options.simIterations;
     out["Frames"]        = options.totalFrames;
-    return StatsToJson(stats, out["Stats"]);
+    return StatsToJson(stats, out);
 }
 
 } // namespace JX3DPS

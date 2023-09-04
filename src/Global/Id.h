@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 13:56:43
+ * Last Modified: 2023-09-04 18:35:51
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -28,8 +28,8 @@ enum Id_t
 {
     JX3DPS_ID_DEFAULT = 0, // ---------------------- JX3DPS ID ----------------------
 
-    ERROR_CODE,            // ---------------------- 错误码 ----------------------
-    JX3DPS_SUCCESS,        // 成功
+    ERROR_CODE,     // ---------------------- 错误码 ----------------------
+    JX3DPS_SUCCESS, // 成功
     JX3DPS_ERROR_INVALID_EXPRESSION,                     // 无效语句
     JX3DPS_ERROR_INVALID_EXPRESSION_SKILL,               // 无效语句技能
     JX3DPS_ERROR_INVALID_EXPRESSION_EVENT,               // 无效语句事件
@@ -68,7 +68,7 @@ enum Id_t
     EXPRESSION_SKILL_PLACE_HOLDERS_19,
     EXPRESSION_SKILL_PLACE_HOLDERS_END, // ---------------------- 技能语句占位符 END ----------------------
 
-    PLAYER_ID,                    // ---------------------- 角色 ----------------------
+    PLAYER_ID, // ---------------------- 角色 ----------------------
 
     TARGET_PLACE_HOLDERS_DEFAULT, // ---------------------- 目标占位符 ----------------------
     TARGET_PLACE_HOLDERS_1,
@@ -102,7 +102,7 @@ enum Id_t
     TARGET_PLACE_HOLDERS_29,
     TARGET_PLACE_HOLDERS_END, // ---------------------- 目标占位符 END ----------------------
 
-    SKILL_DEFAULT,            // ---------------------- 技能 ----------------------
+    SKILL_DEFAULT, // ---------------------- 技能 ----------------------
 
     SKILL_COMMON, // ---------------------- 技能 通用 ----------------------
     SKILL_PO_ZHAO,
@@ -126,6 +126,7 @@ enum Id_t
     SKILL_TAI_XU_JIAN_YI_END, // ---------------------- 技能 太虚剑意 END ----------------------
 
     SKILL_MO_WEN, // ---------------------- 技能 莫问 ----------------------
+    SKILL_WU_YIN_LIU_LV,
     SKILL_GONG,
     SKILL_BIAN_GONG,
     SKILL_SHANG,
@@ -143,9 +144,25 @@ enum Id_t
     SKILL_YI_XING_HUAN_YING,
     SKILL_MO_WEN_END, // ---------------------- 技能 莫问 END ----------------------
 
-    SKILL_END,        // ---------------------- 技能 END ----------------------
+    SKILL_FEN_SHAN_JING, // ---------------------- 技能 分山劲 ----------------------
+    SKILL_DUN_DAO,
+    SKILL_DUN_MENG,
+    SKILL_DUN_JI,
+    SKILL_DUN_YA,
+    SKILL_JIE_DAO,
+    SKILL_ZHAN_DAO,
+    SKILL_JUE_DAO,
+    SKILL_SHAN_DAO,
+    SKILL_DUN_FEI,
+    SKILL_DUN_WU,
+    SKILL_XUE_NU,
+    SKILL_YE_HUO_LIN_GUANG,
+    SKILL_ZHEN_YUN_JIE_HUI,
+    SKILL_FEN_SHAN_JING_END, // ---------------------- 技能 分山劲 END ----------------------
 
-    BUFF_DEFAULT,     // ---------------------- Buff ----------------------
+    SKILL_END, // ---------------------- 技能 END ----------------------
+
+    BUFF_DEFAULT, // ---------------------- Buff ----------------------
 
     BUFF_COMMON_DEFAULT, // ---------------------- Buff 通用 ----------------------
     BUFF_CLASS_FEATURE,
@@ -160,7 +177,7 @@ enum Id_t
     BUFF_ENCHANT_WRIST,
     BUFF_COMMON_END, // ---------------------- Buff 通用 END ----------------------
 
-    BUFF_TEAM_CORE,  // ---------------------- Buff 阵法 ----------------------
+    BUFF_TEAM_CORE, // ---------------------- Buff 阵法 ----------------------
     BUFF_TEAM_CORE_TAI_XU_JIAN_YI_JING_MIAO,
     BUFF_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN,
 
@@ -183,7 +200,7 @@ enum Id_t
     BUFF_3RD_FIELD_PO_CANG_QIONG,
     BUFF_3RD_SUI_XING_CHEN,
     BUFF_3RD_PO_CANG_QIONG,
-    BUFF_3RD_END,        // ---------------------- Buff 3rd END ----------------------
+    BUFF_3RD_END, // ---------------------- Buff 3rd END ----------------------
 
     BUFF_TAI_XU_JIAN_YI, // ---------------------- Buff 太虚剑意 ----------------------
     BUFF_DIE_REN,
@@ -208,7 +225,7 @@ enum Id_t
     BUFF_JING_HUA_YING,
     BUFF_TAI_XU_JIAN_YI_END, // ---------------------- Buff 太虚剑意 END ----------------------
 
-    BUFF_MO_WEN,             // ---------------------- Buff 莫问 ----------------------
+    BUFF_MO_WEN, // ---------------------- Buff 莫问 ----------------------
     BUFF_SHANG,
     BUFF_JUE,
     BUFF_HUAN_YIN,
@@ -231,9 +248,9 @@ enum Id_t
     BUFF_GU_YING_HUA_SHUANG,
     BUFF_MO_WEN_END, // ---------------------- Buff 莫问 END ----------------------
 
-    BUFF_END,        // ---------------------- Buff END ----------------------
+    BUFF_END, // ---------------------- Buff END ----------------------
 
-    TALENT_DEFAULT,  // ----------------------  奇穴 ----------------------
+    TALENT_DEFAULT, // ----------------------  奇穴 ----------------------
 
     TALENT_TAI_XU_JIAN_YI, // ---------------------- 奇穴 太虚剑意 ----------------------
     TALENT_XIN_GU,
@@ -247,7 +264,6 @@ enum Id_t
     TALENT_DIE_REN,
     TALENT_QIE_YU,
     TALENT_CHANG_SHENG,
-    TALENT_LIE_XING,
     TALENT_FU_YIN,
     TALENT_RUO_SHUI,
     TALENT_LIE_YUN,
@@ -277,9 +293,27 @@ enum Id_t
     TALENT_ZHENG_LV_HE_MING,
     TALENT_MO_WEN_END, // ---------------------- 奇穴 莫问 END ----------------------
 
-    TALENT_END,        // ----------------------  奇穴 END ----------------------
+    TALENT_FENG_SHI_JING, // ---------------------- 奇穴 分山劲 ----------------------
+    TALENT_DAO_HUN,
+    TALENT_JUE_FAN,
+    TALENT_FEN_YE,
+    TALENT_XUE_PO,
+    TALENT_BEI_MO,
+    TALENT_FENG_MING,
+    TALENT_GE_LIE,
+    TALENT_XUE_SHI,
+    TALENT_YE_HUO_LIN_GUANG,
+    TALENT_XIA_HUN,
+    TALENT_LIAN_ZHAN,
+    TALENT_CONG_RONG,
+    TALENT_FEN_HEN,
+    TALENT_MIE_SHI,
+    TALENT_ZHEN_YUN_JIE_HUI,
+    TALENT_FENG_SHI_JING_END, // ---------------------- 奇穴 分山劲 END ----------------------
 
-    RECIPE_DEFAULT,    // ---------------------- 秘籍 ----------------------
+    TALENT_END, // ----------------------  奇穴 END ----------------------
+
+    RECIPE_DEFAULT, // ---------------------- 秘籍 ----------------------
 
     RECIPE_TAI_XU_JIAN_YI, // ---------------------- 秘籍 太虚剑意 ----------------------
     RECIPE_WU_WO_WU_JIAN_CRITICAL_STRIKE_2,
@@ -345,7 +379,58 @@ enum Id_t
     RECIPE_YU_DAMAGE_4,
     RECIPE_MO_WEN_END, // ---------------------- 秘籍 莫问 END ----------------------
 
-    RECIPE_END,        // ---------------------- 秘籍 END ----------------------
+    RECIPE_FEN_SHAN_JING, // ---------------------- 秘籍 分山劲 ----------------------
+    RECIPE_JUE_DAO_CRITICAL_STRIKE_3,
+    RECIPE_JUE_DAO_CRITICAL_STRIKE_4,
+    RECIPE_JUE_DAO_DAMAGE_4,
+    RECIPE_JUE_DAO_DAMAGE_5,
+    RECIPE_JUE_DAO_RAGE,
+    RECIPE_JUE_DAO_COOLDOWN_1,
+    RECIPE_JUE_DAO_COOLDOWN_2,
+    RECIPE_ZHAN_DAO_CRITICAL_STRIKE_2,
+    RECIPE_ZHAN_DAO_CRITICAL_STRIKE_3,
+    RECIPE_ZHAN_DAO_CRITICAL_STRIKE_4,
+    RECIPE_ZHAN_DAO_DAMAGE_3,
+    RECIPE_ZHAN_DAO_DAMAGE_4,
+    RECIPE_ZHAN_DAO_DAMAGE_5,
+    RECIPE_JIE_DAO_CRITICAL_STRIKE_2,
+    RECIPE_JIE_DAO_CRITICAL_STRIKE_3,
+    RECIPE_JIE_DAO_CRITICAL_STRIKE_4,
+    RECIPE_JIE_DAO_DAMAGE_3,
+    RECIPE_JIE_DAO_DAMAGE_4,
+    RECIPE_JIE_DAO_DAMAGE_5,
+    RECIPE_JIE_DAO_RAGE,
+    RECIPE_DUN_YA_CRITICAL_STRIKE_3,
+    RECIPE_DUN_YA_CRITICAL_STRIKE_4,
+    RECIPE_DUN_YA_DAMAGE_4,
+    RECIPE_DUN_YA_DAMAGE_5,
+    RECIPE_DUN_YA_COOLDOWN_1,
+    RECIPE_DUN_YA_COOLDOWN_2,
+    RECIPE_DUN_YA_EFFECT_1,
+    RECIPE_DUN_YA_EFFECT_2,
+    RECIPE_DUN_DAO_CRITICAL_STRIKE_2,
+    RECIPE_DUN_DAO_CRITICAL_STRIKE_3,
+    RECIPE_DUN_DAO_CRITICAL_STRIKE_4,
+    RECIPE_DUN_DAO_DAMAGE_3,
+    RECIPE_DUN_DAO_DAMAGE_4,
+    RECIPE_DUN_DAO_DAMAGE_5,
+    RECIPE_DUN_DAO_RAGE,
+    RECIPE_DUN_FEI_CRITICAL_STRIKE_2,
+    RECIPE_DUN_FEI_CRITICAL_STRIKE_3,
+    RECIPE_DUN_FEI_DAMAGE_3,
+    RECIPE_DUN_FEI_DAMAGE_4,
+    RECIPE_DUN_FEI_EFFECT_1,
+    RECIPE_DUN_FEI_EFFECT_2,
+    RECIPE_XUE_NU_RAGE_1,
+    RECIPE_XUE_NU_RAGE_2,
+    RECIPE_XUE_NU_RAGE_3,
+    RECIPE_XUE_NU_EFFECT_1,
+    RECIPE_XUE_NU_EFFECT_2,
+    RECIPE_XUE_NU_EFFECT_3,
+    RECIPE_XUE_NU_LIFE,
+    RECIPE_FEN_SHAN_JING_END, // ---------------------- 秘籍 分山劲 END ----------------------
+
+    RECIPE_END, // ---------------------- 秘籍 END ----------------------
 
     EQUIP_EFFECT_DEFAULT,        // ---------------------- 装备 ----------------------
     EQUIP_EFFECT_WEAPON_CW,      // 橙武
@@ -359,7 +444,7 @@ enum Id_t
     EQUIP_EFFECT_ENCHANT_WRIST,  // 大附魔·腕
     EQUIP_EFFECT_END, // ---------------------- 装备 END ----------------------
 
-    TRIGGER_DEFAULT,  // ---------------------- 触发效果 ----------------------
+    TRIGGER_DEFAULT, // ---------------------- 触发效果 ----------------------
 
     TRIGGER_ENCHANT_WRIST,
     TRIGGER_ENCHANT_BELT,
@@ -378,6 +463,7 @@ enum Id_t
     TRIGGER_XU_JI,
     TRIGGER_XUAN_MEN,
     TRIGGER_CHANG_SHENG,
+    TRIGGER_CHI_YING,
     TRIGGER_BAI_HONG,
     TRIGGER_WU_YU,
     TRIGGER_DIE_REN,
@@ -413,7 +499,7 @@ enum Id_t
     TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
     TRIGGER_MO_WEN_END, // ---------------------- 触发效果 莫问 END ----------------------
 
-    TRIGGER_END,        // ---------------------- 触发效果 END ----------------------
+    TRIGGER_END, // ---------------------- 触发效果 END ----------------------
 
     COUNT
 }
@@ -521,6 +607,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------技能 太虚剑意 END----------------------" },
 
      { "----------------------技能 莫问----------------------" },
+     { "五音六律" },
      { "宫" },
      { "变宫" },
      { "商" },
@@ -537,6 +624,22 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "孤影化双" },
      { "移形换影" },
      { "----------------------技能 莫问 END----------------------" },
+
+     { "----------------------技能 分山劲----------------------" },
+     { "盾刀" },
+     { "盾猛" },
+     { "盾击" },
+     { "盾压" },
+     { "劫刀" },
+     { "斩刀" },
+     { "绝刀" },
+     { "闪刀" },
+     { "盾飞" },
+     { "盾舞" },
+     { "血怒" },
+     { "业火麟光" },
+     { "阵云结晦" },
+     { "----------------------技能 分山劲 END----------------------" },
 
      { "----------------------技能 END----------------------" },
 
@@ -587,14 +690,14 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "玄门" },
      { "紫气东来" },
      { "气场·碎星辰" },
-     { "气场·碎星辰·期声" },
-     { "气场·生太极" },
      { "气场·吞日月" },
+     { "气场·生太极" },
+     { "气场·碎星辰·期声" },
      { "碎星辰" },
      { "吞日月" },
      { "云中剑·碎星辰" },
-     { "云中剑·生太极" },
      { "云中剑·吞日月" },
+     { "云中剑·生太极" },
      { "持盈" },
      { "期声" },
      { "风逝" },
@@ -642,7 +745,6 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "叠刃" },
      { "切玉" },
      { "长生" },
-     { "裂云" },
      { "负阴" },
      { "若水" },
      { "裂云" },
@@ -671,6 +773,24 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "参连" },
      { "正律和鸣" },
      { "----------------------奇穴 莫问 END-----------------------" },
+
+     { "----------------------奇穴 分山劲-----------------------" },
+     { "刀魂" },
+     { "绝返" },
+     { "分野" },
+     { "血魄" },
+     { "北漠" },
+     { "锋鸣" },
+     { "割裂" },
+     { "血誓" },
+     { "业火麟光" },
+     { "吓魂" },
+     { "恋战" },
+     { "从容" },
+     { "愤恨" },
+     { "蔑视" },
+     { "阵云结晦" },
+     { "----------------------奇穴 分山劲 END-----------------------" },
 
      { "----------------------奇穴 END-----------------------" },
 
@@ -739,6 +859,57 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "《音·羽》参悟残页" },
      { "《音·羽》参悟断篇" },
      { "----------------------秘籍 莫问 END-----------------------" },
+
+     { "----------------------秘籍 分山劲-----------------------" },
+     { "《苍雪刀·绝刀》秘诀残页" },
+     { "《苍雪刀·绝刀》秘诀断篇" },
+     { "《苍雪刀·绝刀》参悟残页" },
+     { "《苍雪刀·绝刀》参悟断篇" },
+     { "《苍雪刀·绝刀》人偶图残页" },
+     { "《苍雪刀·绝刀》穴位图残页" },
+     { "《苍雪刀·绝刀》穴位图断篇" },
+     { "《苍雪刀·斩刀》秘诀残页" },
+     { "《苍雪刀·斩刀》秘诀断篇" },
+     { "《苍雪刀·斩刀》秘诀绝章" },
+     { "《苍雪刀·斩刀》参悟残页" },
+     { "《苍雪刀·斩刀》参悟断篇" },
+     { "《苍雪刀·斩刀》参悟绝章" },
+     { "《苍雪刀·劫刀》秘诀残页" },
+     { "《苍雪刀·劫刀》秘诀断篇" },
+     { "《苍雪刀·劫刀》秘诀绝章" },
+     { "《苍雪刀·劫刀》参悟残页" },
+     { "《苍雪刀·劫刀》参悟断篇" },
+     { "《苍雪刀·劫刀》参悟绝章" },
+     { "《苍雪刀·劫刀》注解残页" },
+     { "《云城盾·盾压》秘诀残页" },
+     { "《云城盾·盾压》秘诀断篇" },
+     { "《云城盾·盾压》参悟残页" },
+     { "《云城盾·盾压》参悟断篇" },
+     { "《云城盾·盾压》穴位图残页" },
+     { "《云城盾·盾压》穴位图断篇" },
+     { "《云城盾·盾压》人偶图残页" },
+     { "《云城盾·盾压》人偶图断篇" },
+     { "《云城盾·盾刀》秘诀残页" },
+     { "《云城盾·盾刀》秘诀断篇" },
+     { "《云城盾·盾刀》秘诀绝章" },
+     { "《云城盾·盾刀》参悟残页" },
+     { "《云城盾·盾刀》参悟断篇" },
+     { "《云城盾·盾刀》参悟绝章" },
+     { "《云城盾·盾刀》人偶图残页" },
+     { "《破阵令·盾飞》秘诀残页" },
+     { "《破阵令·盾飞》秘诀断篇" },
+     { "《破阵令·盾飞》参悟残页" },
+     { "《破阵令·盾飞》参悟断篇" },
+     { "《破阵令·盾飞》手抄残页" },
+     { "《破阵令·盾飞》手抄断篇" },
+     { "《寒铁诀·血怒》人偶图残页" },
+     { "《寒铁诀·血怒》人偶图断篇" },
+     { "《寒铁诀·血怒》人偶图绝章" },
+     { "《寒铁诀·血怒》手抄残页" },
+     { "《寒铁诀·血怒》手抄断篇" },
+     { "《寒铁诀·血怒》手抄绝章" },
+     { "《寒铁诀·血怒》真髓图残页" },
+     { "----------------------秘籍 分山劲 END-----------------------" },
 
      { "----------------------秘籍 END-----------------------" },
 

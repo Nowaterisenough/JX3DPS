@@ -6,6 +6,7 @@ endif()
 
 add_subdirectory(json)
 add_subdirectory(spdlog)
+add_subdirectory(QCustomPlot)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(spdlog PRIVATE -w)

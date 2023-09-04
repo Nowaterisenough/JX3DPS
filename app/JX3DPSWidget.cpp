@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 14:37:27
+ * Last Modified: 2023-08-21 19:00:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -310,7 +310,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
 
     JX3DPS::Attribute *attribute = new JX3DPS::Attribute;
 
-    attribute->SetClassType(JX3DPS::ClassType::MO_WEN);
+    attribute->SetClassType(JX3DPS::ClassType::DEFAULT);
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
@@ -808,8 +808,8 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
         stackWidget->Clear();
 
-        std::unordered_map<std::string, std::list<CheckBox::ItemInfo>> recipes;
-        std::list<std::string>                                         defaults;
+        std::list<std::pair<std::string, std::list<CheckBox::ItemInfo>>> recipes;
+        std::list<std::string>                                           defaults;
         JsonParser::ParseJsonToRecipeItemInfos(m_config, type, recipes, defaults);
 
         int index = 0;
@@ -891,7 +891,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 
     permanentCheckBoxes[0]->setText("玉笛谁家听落梅");
     permanentCheckBoxes[1]->setText("同泽宴");
-    permanentCheckBoxes[2]->setText("炼狱水煮鱼");
+    permanentCheckBoxes[2]->setText("百炼水煮鱼");
     permanentCheckBoxes[3]->setText("蒸鱼菜盘");
 
     permanentCheckBoxes[0]->setFixedSize(42, 42);
@@ -928,12 +928,13 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 
         permanentCheckBoxes[0]->SetItemInfo(permanents1["玉笛谁家听落梅"]);
         permanentCheckBoxes[1]->SetItemInfo(permanents1["同泽宴"]);
-        permanentCheckBoxes[2]->SetItemInfo(permanents1["炼狱水煮鱼"]);
+        permanentCheckBoxes[2]->SetItemInfo(permanents1["百炼水煮鱼"]);
         permanentCheckBoxes[3]->SetItemInfo(permanents1["蒸鱼菜盘"]);
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        JX3DPS::ClassType type = JX3DPS::ClassType::MO_WEN;
+        std::string className = params["ClassType"].get<std::string>();
+        JX3DPS::ClassType type = GetClassType(className);
         if (permanentCheckBoxes[0]->isChecked()) {
             QString                name = permanentCheckBoxes[0]->GetItemInfo().name;
             nlohmann::ordered_json out;

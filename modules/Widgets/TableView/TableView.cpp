@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 02:50:39
+ * Last Modified: 2023-08-21 19:48:48
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -65,7 +65,7 @@ TableView::TableView(QWidget *parent) : QTableView(parent)
     // 设置表头背景颜色
     QString headerStyle =
         "QHeaderView::section { background-color: rgb(13, 19, 27); color: "
-        "rgb(230, 230, 230); height:42px;} "
+        "rgb(230, 230, 230); height:42px; border: 1px solid rgb(0, 0, 0);} "
         "QHeaderView::section:checked {"
         "  background-color: rgb(10, 115, 230);"
         "  border: none;" // 去掉边框

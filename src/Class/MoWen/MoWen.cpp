@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 14:28:28
+ * Last Modified: 2023-09-04 19:18:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -44,6 +44,7 @@ void Player::Init()
     skills.emplace(SKILL_SHU_YING_HENG_XIE, new Skill::ShuYingHengXie(this, nullptr));
     skills.emplace(SKILL_GU_YING_HUA_SHUANG, new Skill::GuYingHuaShuang(this, nullptr));
     skills.emplace(SKILL_YI_XING_HUAN_YING, new Skill::YiXingHuanYing(this, nullptr));
+    skills.emplace(SKILL_WU_YIN_LIU_LV, new Skill::WuYinLiuLv(this, nullptr));
 
     buffs.emplace(BUFF_QU_FENG, new Buff::QuFeng(this, nullptr));
     buffs.emplace(BUFF_SHANG, new Buff::Shang(this, nullptr));
@@ -232,6 +233,11 @@ void Player::Init()
                                             std::bind(&TriggerEnchantShoes, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_ENCHANT_SHOES,
                                            std::bind(&TriggerEnchantShoes, std::placeholders::_1));
+        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(
+            TRIGGER_ENCHANT_SHOES,
+            std::bind(&TriggerEnchantShoes, std::placeholders::_1));
+        skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_ENCHANT_SHOES,
+                                                      std::bind(&TriggerEnchantShoes, std::placeholders::_1));
     } else {
         skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_ENCHANT_SHOES,
                                              std::bind(&TriggerVoid, std::placeholders::_1));
@@ -247,6 +253,10 @@ void Player::Init()
                                             std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_ENCHANT_SHOES,
                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(TRIGGER_ENCHANT_SHOES,
+                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_ENCHANT_SHOES,
+                                                      std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
     if (equipEffects[EQUIP_EFFECT_ENCHANT_BELT]) {
@@ -266,6 +276,12 @@ void Player::Init()
                                             std::bind(&TriggerEnchantBelt, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_ENCHANT_BELT,
                                            std::bind(&TriggerEnchantBelt, std::placeholders::_1));
+        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(
+            TRIGGER_ENCHANT_BELT,
+            std::bind(&TriggerEnchantBelt, std::placeholders::_1));
+        skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_ENCHANT_BELT,
+                                                      std::bind(&TriggerEnchantBelt, std::placeholders::_1));
+
     } else {
         skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_ENCHANT_BELT,
                                              std::bind(&TriggerVoid, std::placeholders::_1));
@@ -281,6 +297,10 @@ void Player::Init()
                                             std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_ENCHANT_BELT,
                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(TRIGGER_ENCHANT_BELT,
+                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_ENCHANT_BELT,
+                                                      std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
     if (equipEffects[EQUIP_EFFECT_ENCHANT_WRIST]) {
@@ -300,6 +320,31 @@ void Player::Init()
                                             std::bind(&TriggerEnchantWrist, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
                                            std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(
+            TRIGGER_ENCHANT_WRIST,
+            std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+
+        skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                      std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+        skills[SKILL_SHU_YING_HENG_XIE]->AddTriggerEffect(
+            TRIGGER_ENCHANT_WRIST,
+            std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+        skills[SKILL_ZHENG_LV_HE_MING_1]->AddTriggerEffect(
+            TRIGGER_ENCHANT_WRIST,
+            std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+        skills[SKILL_ZHENG_LV_HE_MING_2]->AddTriggerEffect(
+            TRIGGER_ENCHANT_WRIST,
+            std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+        skills[SKILL_ZHENG_LV_HE_MING_3]->AddTriggerEffect(
+            TRIGGER_ENCHANT_WRIST,
+            std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+        skills[SKILL_GU_YING_HUA_SHUANG]->AddTriggerEffect(
+            TRIGGER_ENCHANT_WRIST,
+            std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+        skills[SKILL_GAO_SHAN_LIU_SHUI]->AddTriggerEffect(
+            TRIGGER_ENCHANT_WRIST,
+            std::bind(&TriggerEnchantWrist, std::placeholders::_1));
+
     } else {
         skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
                                              std::bind(&TriggerVoid, std::placeholders::_1));
@@ -315,6 +360,76 @@ void Player::Init()
                                             std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                      std::bind(&TriggerVoid, std::placeholders::_1));
+
+        skills[SKILL_SHU_YING_HENG_XIE]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_ZHENG_LV_HE_MING_1]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                           std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_ZHENG_LV_HE_MING_2]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                           std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_ZHENG_LV_HE_MING_3]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                           std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_GU_YING_HUA_SHUANG]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                           std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_GAO_SHAN_LIU_SHUI]->AddTriggerEffect(TRIGGER_ENCHANT_WRIST,
+                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
+    if (equipEffects[EQUIP_EFFECT_SET_ATTRIBUTE]) {
+        buffs.emplace(BUFF_SET_ATTRIBUTE,
+                      static_cast<JX3DPS::Buff *>(new Buff::SetAttribute(this, nullptr)));
+
+        skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                             std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        skills[SKILL_BIAN_GONG]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                  std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        skills[SKILL_SHANG]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                              std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        skills[SKILL_JUE]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                            std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                            std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                 std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        skills[SKILL_YU]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                           std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(
+            TRIGGER_SET_ATTRIBUTE,
+            std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        buffs[BUFF_LIU_ZHAO]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                               std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        buffs[BUFF_XIAN_FENG]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                std::bind(&TriggerSetAttribute, std::placeholders::_1));
+        skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                      std::bind(&TriggerSetAttribute, std::placeholders::_1));
+
+    } else {
+        skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                             std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_GONG]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                  std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_SHANG]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                              std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_JUE]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                 std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_YU]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                           std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                          std::bind(&TriggerVoid, std::placeholders::_1));
+        buffs[BUFF_LIU_ZHAO]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                               std::bind(&TriggerVoid, std::placeholders::_1));
+        buffs[BUFF_XIAN_FENG]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_SET_ATTRIBUTE,
+                                                      std::bind(&TriggerVoid, std::placeholders::_1));
     }
 }
 
@@ -424,7 +539,10 @@ void Player::TriggerLiuZhaoSurplusDamage(const Params &params)
 
 void Player::TriggerEnchantShoes(const Params &params)
 {
-    static_cast<Buff3rd::EnchantShoesMagic *>(params.player->buffs[BUFF_ENCHANT_SHOES])->TriggerDamage();
+    if (params.rollResult == RollResult::DOUBLE) {
+        static_cast<Buff3rd::EnchantShoesMagic *>(params.player->buffs[BUFF_ENCHANT_SHOES])
+            ->TriggerDamage();
+    }
 }
 
 void Player::TriggerEnchantBelt(const Params &params)
@@ -435,6 +553,11 @@ void Player::TriggerEnchantBelt(const Params &params)
 void Player::TriggerEnchantWrist(const Params &params)
 {
     static_cast<Buff3rd::EnchantWristMagic *>(params.player->buffs[BUFF_ENCHANT_WRIST])->TriggerDamage();
+}
+
+void Player::TriggerSetAttribute(const Params &params)
+{
+    static_cast<Buff::SetAttribute *>(params.player->buffs[BUFF_SET_ATTRIBUTE])->TriggerAdd();
 }
 
 } // namespace MoWen

@@ -1,17 +1,19 @@
 ﻿/**
  * Project: JX3DPS
- * File: TaiXuJianYiSkill.h
- * Description:
- * Created Date: 2023-07-28 12:49:46
+ * File: MoWenSkill.h
+ * Description: 
+ * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 14:19:46
+ * Last Modified: 2023-09-04 18:52:43
  * Modified By: 难为水
  * -----
  * HISTORY:
  * Date      	By   	Comments
  * ----------	-----	----------------------------------------------------------
  */
+
+
 
 #ifndef __JX3DPS_CLASS_MO_WEN_SKILL_H__
 #define __JX3DPS_CLASS_MO_WEN_SKILL_H__
@@ -31,6 +33,14 @@ class PoZhao : public JX3DPS::Skill
 
 public:
     void TriggerDamage(Id_t targetId);
+};
+
+class WuYinLiuLv : public JX3DPS::Skill
+{
+    SKILL_DEFAULT_FUNCTION(WuYinLiuLv)
+
+public:
+    void SubEffect();
 };
 
 class Gong : public JX3DPS::Skill

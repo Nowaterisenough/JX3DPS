@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 19:00:22
+ * Last Modified: 2023-09-05 18:26:04
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -37,6 +37,7 @@
 #include "ThreadPool/ThreadPool.h"
 
 #include "JX3DPS.h"
+#include "JX3DPSImportWidget.h"
 #include "JX3DPSJsonParser.h"
 #include "JX3DPSStatsWidget.h"
 
@@ -568,6 +569,53 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     buttonImport->setText("导入魔盒属性");
     buttonImport->setFont(QFont(buttonImport->font().family(), 11));
 
+    ImportWidget *importWidget = new ImportWidget(nullptr);
+    importWidget->hide();
+
+    connect(buttonImport, &QPushButton::clicked, [=]() {
+        if (importWidget->isHidden()) {
+            importWidget->SetClassType(attribute->GetClassType());
+            importWidget->show();
+        } else {
+            importWidget->hide();
+        }
+    });
+
+    connect(importWidget, &ImportWidget::Signal_Import, [=](nlohmann::ordered_json &json) {
+
+        attribute->SetAgilityBaseAdditional(json["Agility"].get<int>() - attribute->GetAgilityBaseByClass());
+        attribute->SetSpiritBaseAdditional(json["Spirit"].get<int>() - attribute->GetSpiritBaseByClass());
+        attribute->SetSpunkBaseAdditional(json["Spunk"].get<int>() - attribute->GetSpunkBaseByClass());
+        attribute->SetStrengthBaseAdditional(json["Strength"].get<int>() - attribute->GetStrengthBaseByClass());
+        attribute->SetSurplusValueBase(json["SurplusValue"].get<int>());
+        attribute->SetWeaponDamageBase(json["MeleeWeaponDamage"].get<int>());
+        attribute->SetWeaponDamageRand(json["MeleeWeaponDamageRand"].get<int>());
+        attribute->SetStrainBase(json["Strain"].get<int>());
+        attribute->SetHasteBase(json["Haste"].get<int>());
+
+        if (json.find("PhysicsAttackPowerBase") != json.end()) {
+            attribute->SetPhysicsAttackPowerBaseAdditional(json["PhysicsAttackPowerBase"].get<int>() -
+                                                          attribute->GetPhysicsAttackPowerBaseByClass());
+            attribute->SetPhysicsCriticalStrikeAdditional(json["PhysicsCriticalStrike"].get<int>() -
+                                                         attribute->GetPhysicsCriticalStrikeByClass());
+            attribute->SetPhysicsCriticalStrikePower(json["PhysicsCriticalDamagePower"].get<int>());
+            attribute->SetPhysicsOvercomeBaseAdditional(json["PhysicsOvercome"].get<int>() -
+                                                       attribute->GetPhysicsOvercomeBaseByClass());
+        }
+
+        if (json.find("LunarAttackPowerBase") != json.end()) {
+            attribute->SetMagicAttackPowerBaseAdditional(json["LunarAttackPowerBase"].get<int>() -
+                                                        attribute->GetMagicAttackPowerBaseByClass());
+            attribute->SetMagicCriticalStrikeAdditional(json["LunarCriticalStrike"].get<int>() -
+                                                       attribute->GetMagicCriticalStrikeByClass());
+            attribute->SetMagicCriticalStrikePower(json["LunarCriticalDamagePower"].get<int>());
+            attribute->SetMagicOvercomeBaseAdditional(json["LunarOvercome"].get<int>() -
+                                                     attribute->GetMagicOvercomeBaseByClass());
+        }
+
+        emit Signal_UpdateAttribute();
+    });
+
     gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
@@ -933,8 +981,8 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        std::string className = params["ClassType"].get<std::string>();
-        JX3DPS::ClassType type = GetClassType(className);
+        std::string       className = params["ClassType"].get<std::string>();
+        JX3DPS::ClassType type      = GetClassType(className);
         if (permanentCheckBoxes[0]->isChecked()) {
             QString                name = permanentCheckBoxes[0]->GetItemInfo().name;
             nlohmann::ordered_json out;

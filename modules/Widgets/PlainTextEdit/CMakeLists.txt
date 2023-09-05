@@ -23,6 +23,7 @@ add_library(${PROJECT_NAME} SHARED
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Widgets
+    nlohmann_json
 )
 
 set(HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h)

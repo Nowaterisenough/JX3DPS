@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-04 22:20:46
+ * Last Modified: 2023-09-05 02:55:42
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -98,7 +98,8 @@ std::vector<double> GaussianFilter(const std::vector<double> &data, double sigma
 JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
 {
     this->setMinimumWidth(1200);
-
+    this->SetTitle("详细数据统计");
+    
     QGridLayout *layout = new QGridLayout(this->centralWidget);
     layout->setContentsMargins(10, 0, 10, 10);
     layout->setSpacing(10);

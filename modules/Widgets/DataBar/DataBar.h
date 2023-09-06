@@ -5,7 +5,7 @@
  * Created Date: 2022-01-26 21:34:09
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 05:50:43
+ * Last Modified: 2023-09-05 22:04:48
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -94,9 +94,9 @@ protected:
     double m_opacity   = 0.0;
     bool   m_isPressed = false;
 
-    QColor m_color0 = QColor(192, 0, 0);
-    QColor m_color1 = QColor(240, 170, 0);
-    QColor m_color2 = QColor(54, 190, 62);
+    QColor m_color0 = QColor(188, 0, 0);
+    QColor m_color1 = QColor(208, 149, 0);
+    QColor m_color2 = QColor(39, 137, 44);
 };
 
 #endif // __DATA_BAR_H__

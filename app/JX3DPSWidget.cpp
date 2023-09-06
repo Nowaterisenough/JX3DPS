@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-05 18:26:04
+ * Last Modified: 2023-09-05 18:30:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -574,7 +574,6 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
 
     connect(buttonImport, &QPushButton::clicked, [=]() {
         if (importWidget->isHidden()) {
-            importWidget->SetClassType(attribute->GetClassType());
             importWidget->show();
         } else {
             importWidget->hide();

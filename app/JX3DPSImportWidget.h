@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:40:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-05 18:25:29
+ * Last Modified: 2023-09-05 18:30:57
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -35,16 +35,11 @@ class ImportWidget : public Widget
 public:
     ImportWidget(QWidget *parent = nullptr);
 
-    inline void SetClassType(const ClassType &classType) { m_classType = classType; }
-
 signals:
     void Signal_Import(nlohmann::ordered_json &json);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-
-private:
-    ClassType m_classType = ClassType::DEFAULT;
 };
 
 } // namespace Simulator

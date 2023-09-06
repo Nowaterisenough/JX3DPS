@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-04 18:38:40
+ * Last Modified: 2023-09-06 16:53:59
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -149,6 +149,12 @@ public:
     static void TriggerEnchantWrist(const Params &params);
 
     static void TriggerSetAttribute(const Params &params);
+
+    static void TriggerWeaponCW(const Params &params);
+
+    static void TriggerWeaponCWDot(const Params &params);
+
+    static void TriggerWeaponCWDamage(const Params &params);
 };
 
 } // namespace MoWen

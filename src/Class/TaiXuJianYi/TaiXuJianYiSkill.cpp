@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-26 09:49:46
+ * Last Modified: 2023-09-06 19:38:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -48,7 +48,7 @@ void PoZhao::TriggerDamage(Id_t targetId, int sub, int level)
 {
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsSurplusDamage(targetId, rollResult, sub, level);
-    Record(targetId, rollResult, damage, sub, level);
+    Record(m_id, targetId, rollResult, damage, sub, level);
 }
 
 WuWoWuJian::WuWoWuJian(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -200,7 +200,7 @@ void WuWoWuJian::SubEffect()
 
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, level);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, level);
 
     params.rollResult = rollResult;
 
@@ -337,7 +337,7 @@ void Skill::BaHuangGuiYuan::TriggerDamage()
 {
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 2, 0);
-    Record(m_player->GetTargetId(), rollResult, damage, 2, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 2, 0);
 }
 
 void BaHuangGuiYuan::SubEffect()
@@ -351,7 +351,7 @@ void BaHuangGuiYuan::SubEffect()
 
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, level);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, level);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, level);
 
     Params params;
     params.player     = m_player;
@@ -359,7 +359,7 @@ void BaHuangGuiYuan::SubEffect()
 
     rollResult = GetPhysicsRollResult();
     damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 1, level);
-    Record(m_player->GetTargetId(), rollResult, damage, 1, level);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 1, level);
 
     // 深埋 会心
     m_triggerEffects[TRIGGER_SHEN_MAI](params);
@@ -410,6 +410,7 @@ void BaHuangGuiYuan::ResetCooldown()
 void BaHuangGuiYuan::ClearCooldown()
 {
     m_cooldown = 0;
+    m_cooldownCurrent = 0;
 }
 
 SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player, Targets *targets) :
@@ -483,7 +484,7 @@ void SanHuanTaoYue::SubEffect()
 
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     Params params;
     params.player     = m_player;
@@ -491,11 +492,11 @@ void SanHuanTaoYue::SubEffect()
 
     rollResult = GetPhysicsRollResult();
     damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     rollResult = GetPhysicsRollResult();
     damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     // 环月
     m_triggerEffects[TRIGGER_HUAN_YUE](params);
@@ -585,7 +586,7 @@ void WanJianGuiZong::SubEffect()
 
         RollResult  rollResult = GetPhysicsRollResult();
         GainsDamage damage     = CalcPhysicsDamage(id, rollResult, 0, 0);
-        Record(id, rollResult, damage, 0, 0);
+        Record(m_id, id, rollResult, damage, 0, 0);
 
         params.rollResult = rollResult;
         params.targetId   = id;
@@ -722,7 +723,7 @@ void RenJianHeYi::SubEffect()
             m_triggerEffects[TRIGGER_REN_JIAN_HE_YI_DOT](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
-            Record(id, rollResult, damage, 0, 0);
+            Record(m_id, id, rollResult, damage, 0, 0);
         }
     }
 
@@ -845,7 +846,7 @@ void RenJianHeYiSuiXingChen::SubEffect()
             m_triggerEffects[TRIGGER_REN_JIAN_HE_YI_DOT](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
-            Record(id, rollResult, damage, 0, 0);
+            Record(m_id, id, rollResult, damage, 0, 0);
         }
     }
 
@@ -964,7 +965,7 @@ void RenJianHeYiTunRiYue::SubEffect()
             m_triggerEffects[TRIGGER_REN_JIAN_HE_YI_DOT](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
-            Record(id, rollResult, damage, 0, 0);
+            Record(m_id, id, rollResult, damage, 0, 0);
         }
     }
 
@@ -1083,7 +1084,7 @@ void RenJianHeYiShengTaiJi::SubEffect()
             m_triggerEffects[TRIGGER_REN_JIAN_HE_YI_DOT](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
-            Record(id, rollResult, damage, 0, 0);
+            Record(m_id, id, rollResult, damage, 0, 0);
         }
     }
 
@@ -1139,7 +1140,7 @@ void SanChaiJianFa::SubEffect()
     m_triggerEffects[TRIGGER_WEAPON_CW](params);
 
     GainsDamage damage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     // 门派套装效果 剑鸣 影响属性，需要在计算伤害之后
     m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
@@ -1197,7 +1198,7 @@ void SuiXingChen::SubEffect()
     // 长生
     m_triggerEffects[TRIGGER_CHANG_SHENG](params);
 
-    Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
+    Record(m_id, PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
 ShengTaiJi::ShengTaiJi(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -1269,7 +1270,7 @@ void ShengTaiJi::SubEffect()
     // 长生
     m_triggerEffects[TRIGGER_CHANG_SHENG](params);
 
-    Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
+    Record(m_id, PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
 TunRiYue::TunRiYue(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -1320,7 +1321,7 @@ void TunRiYue::SubEffect()
     // 长生
     m_triggerEffects[TRIGGER_CHANG_SHENG](params);
 
-    Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
+    Record(m_id, PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
 ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *targets) :
@@ -1370,7 +1371,7 @@ void ZiQiDongLai::Trigger()
 void ZiQiDongLai::SubEffect()
 {
     m_player->buffs[BUFF_ZI_QI_DONG_LAI]->Add();
-    Record(PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
+    Record(m_id, PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
 JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targets *targets) :
@@ -1420,7 +1421,7 @@ void JingHuaYing::SubEffect()
 
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 
     Params params;
     params.player     = m_player;
@@ -1459,7 +1460,7 @@ void JingHuaYing::SubEffectSui()
 
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 1, 0);
-    Record(m_player->GetTargetId(), rollResult, damage, 1, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 1, 0);
 }
 
 } // namespace Skill

@@ -1,19 +1,17 @@
 ﻿/**
  * Project: JX3DPS
  * File: MoWenSkill.h
- * Description: 
+ * Description:
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-04 18:52:43
+ * Last Modified: 2023-09-06 17:24:40
  * Modified By: 难为水
  * -----
  * HISTORY:
  * Date      	By   	Comments
  * ----------	-----	----------------------------------------------------------
  */
-
-
 
 #ifndef __JX3DPS_CLASS_MO_WEN_SKILL_H__
 #define __JX3DPS_CLASS_MO_WEN_SKILL_H__
@@ -52,6 +50,12 @@ public:
     void Sync();
 
     void SubEffect();
+    void SubEffectCW();
+
+    void ClearPrepareFrames();
+    void ResetPrepareFrames();
+
+    Frame_t prepareFramesTemp = 0;
 };
 
 class BianGong : public JX3DPS::Skill
@@ -63,6 +67,12 @@ public:
     void Sync();
 
     void SubEffect();
+    void SubEffectCW();
+
+    void ClearPrepareFrames();
+    void ResetPrepareFrames();
+
+    Frame_t prepareFramesTemp = 0;
 };
 
 class Shang : public JX3DPS::Skill
@@ -123,6 +133,7 @@ class Yu : public JX3DPS::Skill
 
 public:
     void TriggerShiXiang();
+    void TriggerDamage();
 
     void SubEffect();
 };

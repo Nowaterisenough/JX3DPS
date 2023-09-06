@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-26 09:50:43
+ * Last Modified: 2023-09-06 16:58:24
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -174,14 +174,14 @@ void DieRen::SubEffect(Id_t targetId, int stackNum)
 {
     RollResult  rollResult = GetDotRollResult(targetId);
     GainsDamage damage     = CalcPhysicsDotDamage(targetId, rollResult, 0, stackNum, 1);
-    Record(targetId, rollResult, damage, 0, stackNum);
+    Record(m_id, targetId, rollResult, damage, 0, stackNum);
 }
 
 void DieRen::SubEffectQieYun(Id_t targetId, int stackNum, int effectCount)
 {
     RollResult rollResult = GetDotRollResult(targetId);
     GainsDamage damage = CalcPhysicsDotDamage(targetId, rollResult, 1, stackNum, effectCount);
-    Record(targetId, rollResult, damage, 1, stackNum);
+    Record(m_id, targetId, rollResult, damage, 1, stackNum);
 }
 
 void DieRen::SubEffectAdd(Id_t targetId)
@@ -291,7 +291,7 @@ void WanXiangGuiYuan::SubEffect(Id_t targetId, int stackNum)
 {
     RollResult  rollResult = GetDotRollResult(targetId);
     GainsDamage damage     = CalcPhysicsDotDamage(targetId, rollResult, 0, stackNum, 1);
-    Record(targetId, rollResult, damage, 0, stackNum);
+    Record(m_id, targetId, rollResult, damage, 0, stackNum);
 }
 
 RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targets *targets) :
@@ -369,7 +369,7 @@ void RenJianHeYi::SubEffect(Id_t targetId)
 {
     RollResult  rollResult = GetDotRollResult(targetId);
     GainsDamage damage     = CalcPhysicsDotDamage(targetId, rollResult, 0, 0, 1);
-    Record(targetId, rollResult, damage, 0, 0);
+    Record(m_id, targetId, rollResult, damage, 0, 0);
 }
 
 ZiQiDongLai::ZiQiDongLai(JX3DPS::Player *player, Targets *targets) :
@@ -1397,7 +1397,7 @@ void ChiYing::TriggerDamage()
 {
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
     m_snapshots[PLAYER_ID].stackNum--;
     if (m_snapshots[PLAYER_ID].stackNum == 0) {
         m_snapshots.erase(PLAYER_ID);
@@ -1477,7 +1477,7 @@ void YunZhongJianShengTaiJi::SubEffect()
             m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
-            Record(id, rollResult, damage, 0, 0);
+            Record(m_id, id, rollResult, damage, 0, 0);
         }
     }
 }
@@ -1556,7 +1556,7 @@ void YunZhongJianSuiXingChen::SubEffect()
             m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
-            Record(id, rollResult, damage, 0, 0);
+            Record(m_id, id, rollResult, damage, 0, 0);
         }
     }
 }
@@ -1634,7 +1634,7 @@ void YunZhongJianTunRiYue::SubEffect()
             m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
             GainsDamage damage = CalcPhysicsDamage(id, rollResult, 0, 0);
-            Record(id, rollResult, damage, 0, 0);
+            Record(m_id, id, rollResult, damage, 0, 0);
         }
     }
 }
@@ -1712,7 +1712,7 @@ void WeaponEffectCW::Clear(Id_t targetId, int stackNum)
 
 void WeaponEffectCW::TriggerAdd()
 {
-    if (m_cooldownCurrent <= 0 && RandomUniform(1, 100) <= 3) {
+    if (m_cooldownCurrent <= 0) {
         m_snapshots[PLAYER_ID].duration = m_duration;
         m_cooldownCurrent               = m_cooldown;
         SubEffectAdd();

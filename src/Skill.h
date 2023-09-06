@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-25 21:57:47
+ * Last Modified: 2023-09-06 16:48:57
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -154,7 +154,8 @@ public:
 
     GainsDamage CalcMagicSurplusDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
-    void Record(Id_t               targetId,
+    void Record(Id_t               effectId,
+                Id_t               targetId,
                 RollResult         rollResult  = RollResult::HIT,
                 const GainsDamage &gainsDamage = GainsDamage(),
                 int                sub         = 0,

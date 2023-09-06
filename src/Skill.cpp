@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-22 13:31:48
+ * Last Modified: 2023-09-06 16:50:20
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -680,13 +680,13 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicSurplusDamage(Id_t targetId, RollRes
     return gainsDamage;
 }
 
-void JX3DPS::Skill::Record(Id_t targetId, RollResult rollResult, const GainsDamage &gainsDamage, int sub, int level)
+void JX3DPS::Skill::Record(Id_t effectId, Id_t targetId, RollResult rollResult, const GainsDamage &gainsDamage, int sub, int level)
 {
     for (const auto &[type, damage] : gainsDamage) {
-        m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].first++;
-        m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].second.damage +=
+        m_stats.gainStats[type][targetId][effectId][sub][level][rollResult].first++;
+        m_stats.gainStats[type][targetId][effectId][sub][level][rollResult].second.damage +=
             damage.damage;
-        m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].second.surplusDamage +=
+        m_stats.gainStats[type][targetId][effectId][sub][level][rollResult].second.surplusDamage +=
             damage.surplusDamage;
     }
 }

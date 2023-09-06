@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 22:52:23
+ * Last Modified: 2023-09-06 16:59:45
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -1159,20 +1159,26 @@ void Player::TriggerEnchantWrist(const Params &params)
 
 void Player::TriggerWeaponCW(const Params &params)
 {
-    static_cast<TaiXuJianYi::Buff::WeaponEffectCW *>(params.player->buffs[BUFF_WEAPON_EFFECT_CW])
-        ->TriggerAdd();
+    if (RandomUniform(1, 1024) <= 31) {
+        static_cast<TaiXuJianYi::Buff::WeaponEffectCW *>(params.player->buffs[BUFF_WEAPON_EFFECT_CW])
+            ->TriggerAdd();
+    }
 }
 
 void Player::TriggerWeaponCWDot(const Params &params)
 {
-    static_cast<TaiXuJianYi::Buff::WanXiangGuiYuan *>(params.player->buffs[BUFF_WAN_XIANG_GUI_YUAN])
-        ->TriggerAdd(params.player->GetTargetId(), 1);
+    if (params.player->buffs[BUFF_WEAPON_EFFECT_CW]->GetDurationCurrent() > 0) {
+        static_cast<TaiXuJianYi::Buff::WanXiangGuiYuan *>(params.player->buffs[BUFF_WAN_XIANG_GUI_YUAN])
+            ->TriggerAdd(params.player->GetTargetId(), 1);
+    }
 }
 
 void Player::TriggerWeaponCWDamage(const Params &params)
 {
-    static_cast<TaiXuJianYi::Skill::BaHuangGuiYuan *>(params.player->skills[SKILL_BA_HUANG_GUI_YUAN])
-        ->TriggerDamage();
+    if (RandomUniform(1, 1024) <= 307) {
+        static_cast<TaiXuJianYi::Skill::BaHuangGuiYuan *>(params.player->skills[SKILL_BA_HUANG_GUI_YUAN])
+            ->TriggerDamage();
+    }
 }
 
 void Player::TriggerSetAttribute(const Params &params)

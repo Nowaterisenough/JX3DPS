@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 08:55:14
+ * Last Modified: 2023-09-06 17:34:13
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -169,6 +169,10 @@ public:
 
     inline void SetReCastSkill(Id_t reCastSkill) { m_reCastSkill = reCastSkill; }
 
+    inline Id_t GetCastSkill() const { return m_castSkill; }
+
+    inline void SetCastSkill(Id_t castSkill) { m_castSkill = castSkill; }
+
     inline Frame_t DelayFrames() const
     {
         return RandomNormal(m_delayMin, m_delayMax + 1) / JX3DPS_DELAY;
@@ -222,7 +226,8 @@ private:
 
     Id_t m_targetId      = TARGET_PLACE_HOLDERS_DEFAULT; // 目标ID
     Id_t m_lastCastSkill = SKILL_DEFAULT;                // 上次施放技能ID
-    Id_t m_reCastSkill   = SKILL_DEFAULT;                // 正在读条技能ID
+    Id_t m_reCastSkill   = SKILL_DEFAULT;                // 正在倒读条技能ID
+    Id_t m_castSkill     = SKILL_DEFAULT;                // 正在正读条技能ID
 
     int m_delayMin = 0; // 最小延迟
     int m_delayMax = 0; // 最大延迟

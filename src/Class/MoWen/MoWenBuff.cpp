@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-04 20:01:19
+ * Last Modified: 2023-09-06 18:46:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -128,7 +128,7 @@ void Shang::SubEffect(Id_t targetId)
 {
     RollResult  rollResult = GetDotRollResult(targetId);
     GainsDamage damage     = CalcMagicDotDamage(targetId, rollResult, 0, 0, 1);
-    Record(targetId, rollResult, damage, 0, 0);
+    Record(m_id, targetId, rollResult, damage, 0, 0);
 }
 
 Jue::Jue(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
@@ -208,7 +208,7 @@ void Jue::SubEffect(Id_t targetId)
 {
     RollResult  rollResult = GetDotRollResult(targetId);
     GainsDamage damage     = CalcMagicDotDamage(targetId, rollResult, 0, 0, 1);
-    Record(targetId, rollResult, damage, 0, 0);
+    Record(m_id, targetId, rollResult, damage, 0, 0);
 }
 
 XianFeng::XianFeng(JX3DPS::Player *player, Targets *targets) :
@@ -271,7 +271,7 @@ void XianFeng::TriggerDamage(Id_t targetId, int stackNum)
         m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
         RollResult  rollResult = GetMagicRollResult();
         GainsDamage damage     = CalcMagicDamage(targetId, rollResult, 0, 0);
-        Record(targetId, rollResult, damage, 0, 0);
+        Record(m_id, targetId, rollResult, damage, 0, 0);
     }
 }
 
@@ -568,7 +568,7 @@ void LiuZhao::TriggerDamage(int stackNum)
         m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
         RollResult  rollResult = GetMagicRollResult();
         GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
-        Record(m_player->GetTargetId(), rollResult, damage, 0, 0);
+        Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
     }
 }
 
@@ -1491,6 +1491,158 @@ void SetAttribute::SubEffectClear()
 {
     m_player->attribute.AddMagicCriticalStrikeAdditionalBasisPointInt(-400);
     m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(-41);
+}
+
+WeaponEffectCW::WeaponEffectCW(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id              = BUFF_WEAPON_EFFECT_CW;
+    m_name            = "武器·橙武特效";
+    m_duration        = 16 * 6;
+    m_cooldownCurrent = m_cooldown = 16 * 30;
+}
+
+void WeaponEffectCW::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration != 0) {
+        return;
+    }
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear();
+}
+
+void WeaponEffectCW::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.empty()) {
+        SubEffectAdd();
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void WeaponEffectCW::Clear(Id_t targetId, int stackNum)
+{
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear();
+}
+
+void WeaponEffectCW::TriggerAdd()
+{
+    if (m_cooldownCurrent <= 0) {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+        m_cooldownCurrent               = m_cooldown;
+        SubEffectAdd();
+    }
+}
+
+void WeaponEffectCW::SubEffectAdd()
+{
+    static_cast<MoWen::Skill::Zhi *>(m_player->skills[SKILL_ZHI])->SetEnergyCooldownCurrent(0);
+    static_cast<MoWen::Skill::BianZhi *>(m_player->skills[SKILL_BIAN_ZHI])->SetEnergyCooldownCurrent(0);
+    static_cast<MoWen::Skill::Yu *>(m_player->skills[SKILL_YU])->SetEnergyCooldownCurrent(0);
+    static_cast<MoWen::Skill::Gong *>(m_player->skills[SKILL_GONG])->ClearPrepareFrames();
+    static_cast<MoWen::Skill::BianGong *>(m_player->skills[SKILL_BIAN_GONG])->ClearPrepareFrames();
+}
+
+void WeaponEffectCW::SubEffectClear()
+{
+    static_cast<MoWen::Skill::Gong *>(m_player->skills[SKILL_GONG])->ResetPrepareFrames();
+    static_cast<MoWen::Skill::BianGong *>(m_player->skills[SKILL_BIAN_GONG])->ResetPrepareFrames();
+}
+
+ShenBingGong::ShenBingGong(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id          = BUFF_SHEN_BING_GONG;
+    m_name        = "神兵·宫";
+    m_interval    = 16 * 3;
+    m_stackNum    = 3;
+    m_effectCount = 10;
+
+    m_damageParams[0].emplace_back(0, 0, 616 * 1);
+    m_damageParams[0].emplace_back(0, 0, 616 * 2);
+    m_damageParams[0].emplace_back(0, 0, 616 * 3);
+}
+
+void ShenBingGong::Trigger()
+{
+    for (auto iter = m_snapshots.begin(); iter != m_snapshots.end();) {
+        if (iter->second.interval == 0) {                      // 叠刃生效一次
+            int level             = iter->second.stackNum - 1; // 层数
+            iter->second.interval = m_interval * iter->second.hastePercent;
+            SubEffect(iter->first, level);
+        }
+        if (iter->second.duration == 0) { // 叠刃消失
+            iter = m_snapshots.erase(iter);
+        } else {
+            ++iter;
+        }
+    }
+}
+
+void ShenBingGong::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.find(targetId) == m_snapshots.end()) { // 不存在叠刃
+        m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
+    }
+    m_snapshots[targetId].stackNum += stackNum;
+    m_snapshots[targetId].stackNum = std::min(m_snapshots[targetId].stackNum, m_stackNum);
+
+    // 快照属性
+    m_snapshots[targetId].SnapMagic(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt +
+            m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[targetId].duration =
+            m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
+            m_snapshots[targetId].interval; // 对齐叠刃保证每次刷新都是8跳，且消失时最后一跳
+    } else [[unlikely]] {
+        m_snapshots[targetId].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void ShenBingGong::Clear(Id_t targetId, int stackNum)
+{
+    m_snapshots[targetId].stackNum -= stackNum;
+    int stack                       = m_snapshots[targetId].stackNum;
+    if (stack <= 0) [[likely]] { // 叠刃消失
+        m_snapshots.erase(targetId);
+    }
+}
+
+void ShenBingGong::TriggerAdd(Id_t targetId, int stackNum)
+{
+    if (m_snapshots.find(targetId) == m_snapshots.end()) { // 不存在叠刃
+        m_snapshots[targetId].interval = m_interval * m_player->attribute.GetHastePercent();
+    }
+    m_snapshots[targetId].stackNum += stackNum;
+    m_snapshots[targetId].stackNum = std::min(m_snapshots[targetId].stackNum, m_stackNum);
+
+    // 快照属性
+    m_snapshots[targetId].SnapMagic(
+        m_player->attribute,
+        m_effectCriticalStrikeAdditionalBasisPointInt,
+        m_effectCriticalStrikePowerAdditionalPercentInt +
+            m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
+        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+
+    m_snapshots[targetId].duration =
+        m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
+        m_snapshots[targetId].interval; // 对齐叠刃保证每次刷新都是8跳，且消失时最后一跳
+}
+
+void ShenBingGong::SubEffect(Id_t targetId, int stackNum)
+{
+    RollResult  rollResult = GetDotRollResult(targetId);
+    GainsDamage damage     = CalcMagicDotDamage(targetId, rollResult, 0, stackNum, 1);
+    Record(m_id, targetId, rollResult, damage, 0, stackNum);
 }
 
 } // namespace Buff

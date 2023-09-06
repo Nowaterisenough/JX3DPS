@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-04 18:35:51
+ * Last Modified: 2023-09-06 19:49:33
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -142,6 +142,9 @@ enum Id_t
     SKILL_ZHENG_LV_HE_MING_3,
     SKILL_GU_YING_HUA_SHUANG,
     SKILL_YI_XING_HUAN_YING,
+    SKILL_GONG_SHEN_BING,
+    SKILL_BIAN_GONG_SHEN_BING,
+    SKILL_YU_SHEN_BING,
     SKILL_MO_WEN_END, // ---------------------- 技能 莫问 END ----------------------
 
     SKILL_FEN_SHAN_JING, // ---------------------- 技能 分山劲 ----------------------
@@ -623,6 +626,9 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "正律和鸣·3" },
      { "孤影化双" },
      { "移形换影" },
+     { "宫·神兵" },
+     { "变宫·神兵" },
+     { "羽·神兵" },
      { "----------------------技能 莫问 END----------------------" },
 
      { "----------------------技能 分山劲----------------------" },
@@ -653,7 +659,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "套装·属性" },
      { "刃凌" },
      { "大附魔·衣" },
-     { "大附魔·头" },
+     { "大附魔·帽" },
      { "大附魔·腰" },
      { "昆吾·弦刃" },
      { "----------------------通用 END----------------------" },
@@ -914,8 +920,8 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------秘籍 END-----------------------" },
 
      { "----------------------装备-----------------------" },
-     { "武器效果·橙武" },
-     { "武器效果·水特效" },
+     { "武器·橙武特效" },
+     { "武器·水特效" },
      { "套装·属性" },
      { "套装·技能" },
      { "大附魔·鞋" },

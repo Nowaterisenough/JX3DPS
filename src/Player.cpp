@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 18:27:30
+ * Last Modified: 2023-09-06 08:55:18
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -15,7 +15,7 @@
 
 #include "Player.h"
 
-#include <unordered_set>
+#include <Buff3rd.h>
 
 #include "Class/MoWen/MoWen.h"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
@@ -176,7 +176,63 @@ void JX3DPS::Player::SetTargets(Targets *targets)
     }
 }
 
-void Player::AddBuff3rds(const std::list<Id_t> &buff3rds) { }
+void Player::AddBuff3rds(const std::unordered_set<Id_t> &buff3rds)
+{
+    if (buff3rds.find(BUFF_3RD_HAN_RU_LEI) != buff3rds.end()) {
+        buffs[BUFF_3RD_HAN_RU_LEI] = new Buff3rd::HanRuLei(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_XIU_QI) != buff3rds.end()) {
+        buffs[BUFF_3RD_XIU_QI] = new Buff3rd::XiuQi(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_PO_FENG) != buff3rds.end()) {
+        buffs[BUFF_3RD_PO_FENG] = new Buff3rd::PoFeng(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_JING_FENG) != buff3rds.end()) {
+        buffs[BUFF_3RD_JING_FENG] = new Buff3rd::JingFeng(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_JI_LEI) != buff3rds.end()) {
+        buffs[BUFF_3RD_JI_LEI] = new Buff3rd::JiLei(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_JIE_HUO) != buff3rds.end()) {
+        buffs[BUFF_3RD_JIE_HUO] = new Buff3rd::JieHuo(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_HAN_CHANG_LIN_LI) != buff3rds.end()) {
+        buffs[BUFF_3RD_HAN_CHANG_LIN_LI] = new Buff3rd::HanChangLinLi(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_SHU_KUANG) != buff3rds.end()) {
+        buffs[BUFF_3RD_SHU_KUANG] = new Buff3rd::ShuKuang(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_HAN_XIAO_QIAN_JUN) != buff3rds.end()) {
+        buffs[BUFF_3RD_HAN_XIAO_QIAN_JUN] = new Buff3rd::HanXiaoQianJun(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_ZHEN_FEN) != buff3rds.end()) {
+        buffs[BUFF_3RD_ZHEN_FEN] = new Buff3rd::ZhenFen(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_SHENG_YU_MING_XIN) != buff3rds.end()) {
+        buffs[BUFF_3RD_SHENG_YU_MING_XIN] = new Buff3rd::ShengYuMingXin(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_CHAO_SHENG) != buff3rds.end()) {
+        buffs[BUFF_3RD_CHAO_SHENG] = new Buff3rd::ChaoSheng(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_SHE_SHEN_HONG_FA) != buff3rds.end()) {
+        buffs[BUFF_3RD_SHE_SHEN_HONG_FA] = new Buff3rd::SheShenHongFa(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_HAO_LING_SAN_JUN) != buff3rds.end()) {
+        buffs[BUFF_3RD_HAO_LING_SAN_JUN] = new Buff3rd::HaoLingSanJun(this, nullptr);
+    }
+    // if (buff3rds.find(BUFF_3RD_FIELD_SUI_XING_CHEN) != buff3rds.end()) {
+    //     buffs[BUFF_3RD_FIELD_SUI_XING_CHEN] = new Buff3rd::FieldSuiXingChen(this, nullptr);
+    // }
+    // if (buff3rds.find(BUFF_3RD_FIELD_PO_CANG_QIONG) != buff3rds.end()) {
+    //     buffs[BUFF_3RD_FIELD_PO_CANG_QIONG] = new Buff3rd::FieldPoCangQiong(this, nullptr);
+    // }
+    // if (buff3rds.find(BUFF_3RD_SUI_XING_CHEN) != buff3rds.end()) {
+    //     buffs[BUFF_3RD_SUI_XING_CHEN] = new Buff3rd::SuiXingChen(this, nullptr);
+    // }
+    // if (buff3rds.find(BUFF_3RD_PO_CANG_QIONG) != buff3rds.end()) {
+    //     buffs[BUFF_3RD_PO_CANG_QIONG] = new Buff3rd::PoCangQiong(this, nullptr);
+    // }
+}
 
 void Player::TriggerWeaponWater(const Params &params)
 {

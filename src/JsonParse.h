@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 18:59:53
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:56:29
+ * Last Modified: 2023-09-06 08:55:43
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -15,6 +15,8 @@
 
 #ifndef __JX3DPS_JSON_PARSE_H__
 #define __JX3DPS_JSON_PARSE_H__
+
+#include <unordered_set>
 
 #include <nlohmann/json.hpp>
 
@@ -47,7 +49,7 @@ Error_t ParseJsonToPermanents(const nlohmann::ordered_json &json, Attribute &att
 
 Error_t ParseJsonToTeamCore(const nlohmann::ordered_json &json, Attribute &attribute, ClassType &teamCore);
 
-Error_t ParseJsonToBuff3rds(const nlohmann::ordered_json &json, std::list<Id_t> &buff3rds);
+Error_t ParseJsonToBuff3rds(const nlohmann::ordered_json &json, std::unordered_set<Id_t> &buff3rds);
 
 Error_t StatsToJson(const Stats &stats, nlohmann::ordered_json &json);
 

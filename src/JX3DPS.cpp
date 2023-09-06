@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-04 20:29:04
+ * Last Modified: 2023-09-06 08:48:18
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -229,7 +229,7 @@ Error_t InitPlayer(const nlohmann::ordered_json &json, Player **player)
         return err;
     }
 
-    std::list<Id_t> buff3rds;
+    std::unordered_set<Id_t> buff3rds;
     err = ParseJsonToBuff3rds(json, buff3rds);
     if (err != JX3DPS_SUCCESS) {
         return err;

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 18:48:52
+ * Last Modified: 2023-09-06 09:10:54
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -778,7 +778,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToAddBuff(const std::string &str, ExprEvent 
     return JX3DPS_SUCCESS;
 }
 
-JX3DPS::Error_t JX3DPS::Regex::ParseToBuff3rds(const std::list<std::string> &strs, std::list<Id_t> &buff3rds)
+JX3DPS::Error_t JX3DPS::Regex::ParseToBuff3rds(const std::list<std::string> &strs, std::unordered_set<Id_t> &buff3rds)
 {
     for (const auto &str : strs) {
         std::regex  reg(JX3DPS_REGEX_EXPRESSION_EVENT);
@@ -794,11 +794,12 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToBuff3rds(const std::list<std::string> &str
         if (!std::regex_match(temp, matAddbuff, regAddbuff)) {
             continue;
         }
-
-        Id_t buffId = BuffId(mat[2].str());
+        
+        std::string name = matAddbuff[2].str();
+        Id_t buffId = BuffId(name);
 
         if (buffId > BUFF_3RD_DEFAULT && buffId < BUFF_3RD_END) {
-            buff3rds.emplace_back(buffId);
+            buff3rds.emplace(buffId);
         }
     }
     return JX3DPS_SUCCESS;

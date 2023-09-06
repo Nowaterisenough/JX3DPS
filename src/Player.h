@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-25 21:56:31
+ * Last Modified: 2023-09-06 08:55:14
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -15,6 +15,8 @@
 
 #ifndef __JX3DPS_PLAYER_H__
 #define __JX3DPS_PLAYER_H__
+
+#include <unordered_set>
 
 #include "Attribute/Attribute.hpp"
 #include "Global/Defs.h"
@@ -50,7 +52,7 @@ public:
 
     inline Targets *GetTargets() const { return m_targets; }
 
-    void AddBuff3rds(const std::list<Id_t> &buff3rds);
+    void AddBuff3rds(const std::unordered_set<Id_t> &buff3rds);
 
     inline ClassType GetClassType() const { return this->attribute.GetClassType(); }
 
@@ -191,11 +193,11 @@ public:
     Attribute attribute; // 属性
     ClassType teamCore = ClassType::DEFAULT;
 
-    Talents        talents;        // 奇穴列表
-    Recipes        recipes;        // 秘籍列表
-    Skills         skills;         // 技能列表
-    Buffs          buffs;          // Buff列表
-    EquipEffects   equipEffects;   // 装备效果列表
+    Talents      talents;      // 奇穴列表
+    Recipes      recipes;      // 秘籍列表
+    Skills       skills;       // 技能列表
+    Buffs        buffs;        // Buff列表
+    EquipEffects equipEffects; // 装备效果列表
 
 private:
     Targets *m_targets = nullptr;

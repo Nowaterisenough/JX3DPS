@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 19:34:09
+ * Last Modified: 2023-09-06 20:15:39
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -660,7 +660,7 @@ void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
     comboBoxWeapon->SetType(ComboBox::Type::DETAILED);
 
     ComboBox::ItemInfo itemInfo;
-    itemInfo.name = "武器效果";
+    itemInfo.name = "武器类型";
     comboBoxWeapon->AddItem(itemInfo);
     itemInfo.name = "武器·橙武特效";
     comboBoxWeapon->AddItem(itemInfo);
@@ -710,7 +710,7 @@ void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
             }
         }
 
-        if (comboBoxWeapon->GetItemInfo().name != "武器效果") {
+        if (comboBoxWeapon->GetItemInfo().name != "武器类型") {
             params["EquipEffects"].emplace_back(comboBoxWeapon->GetItemInfo().name.toStdString());
         }
     });

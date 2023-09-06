@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 21:17:48
+ * Last Modified: 2023-09-06 22:48:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -471,15 +471,18 @@ Shang::Shang(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
     }
 
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_3]) {
-        m_effectDamageAdditionalPercentInt += 31;
+        // m_effectDamageAdditionalPercentInt += 31;
+        m_damageParams[0][0].attackDamagePercentInt * 1.03;
     }
 
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_4]) {
-        m_effectDamageAdditionalPercentInt += 41;
+        // m_effectDamageAdditionalPercentInt += 41;
+        m_damageParams[0][0].attackDamagePercentInt * 1.04;
     }
 
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_5]) {
-        m_effectDamageAdditionalPercentInt += 51;
+        // m_effectDamageAdditionalPercentInt += 51;
+        m_damageParams[0][0].attackDamagePercentInt * 1.05;
     }
 }
 

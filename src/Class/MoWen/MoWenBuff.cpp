@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 21:03:24
+ * Last Modified: 2023-09-06 22:35:58
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -47,17 +47,20 @@ Shang::Shang(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, ta
     if (m_player->recipes[RECIPE_SHANG_CRITICAL_STRIKE_4]) {
         m_effectCriticalStrikeAdditionalBasisPointInt += 400;
     }
-
+    
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_3]) {
-        m_effectDamageAdditionalPercentInt += 31;
+        // m_effectDamageAdditionalPercentInt += 31;
+        m_damageParams[0][0].attackDamagePercentInt * 1.03;
     }
 
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_4]) {
-        m_effectDamageAdditionalPercentInt += 41;
+        // m_effectDamageAdditionalPercentInt += 41;
+        m_damageParams[0][0].attackDamagePercentInt * 1.04;
     }
 
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_5]) {
-        m_effectDamageAdditionalPercentInt += 51;
+        // m_effectDamageAdditionalPercentInt += 51;
+        m_damageParams[0][0].attackDamagePercentInt * 1.05;
     }
 }
 

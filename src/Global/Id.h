@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 19:49:33
+ * Last Modified: 2023-09-06 23:29:30
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -111,6 +111,7 @@ enum Id_t
     SKILL_TAI_XU_JIAN_YI, // ---------------------- 技能 太虚剑意 ----------------------
     SKILL_WU_WO_WU_JIAN,
     SKILL_BA_HUANG_GUI_YUAN,
+    SKILL_BA_HUANG_GUI_YUAN_SHEN_BING,
     SKILL_SAN_HUAN_TAO_YUE,
     SKILL_WAN_JIAN_GUI_ZONG,
     SKILL_REN_JIAN_HE_YI,
@@ -595,6 +596,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------技能 太虚剑意----------------------" },
      { "无我无剑" },
      { "八荒归元" },
+     { "八荒归元·神兵" },
      { "三环套月" },
      { "万剑归宗" },
      { "人剑合一" },

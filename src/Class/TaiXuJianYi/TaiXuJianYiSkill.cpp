@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 19:38:27
+ * Last Modified: 2023-09-06 23:31:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -281,16 +281,16 @@ BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *player, Targets *targets) :
     m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 9) * 1.1 * 1.1 * 1.05);
     m_damageParams[1].emplace_back(0, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05);
 
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 205);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
 
     if (m_player->recipes[RECIPE_BA_HUANG_GUI_YUAN_DAMAGE_3]) {
         m_effectDamageAdditionalPercentInt += 31;
@@ -337,7 +337,7 @@ void Skill::BaHuangGuiYuan::TriggerDamage()
 {
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 2, 0);
-    Record(m_id, m_player->GetTargetId(), rollResult, damage, 2, 0);
+    Record(SKILL_BA_HUANG_GUI_YUAN_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 2, 0);
 }
 
 void BaHuangGuiYuan::SubEffect()

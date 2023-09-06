@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 09:10:54
+ * Last Modified: 2023-09-06 23:42:37
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -756,7 +756,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToAddBuff(const std::string &str, ExprEvent 
     if (std::stoi(mat[1].str()) == 0) {
         id = PLAYER_ID;
     } else {
-        id = static_cast<Id_t>(std::stoi(mat[2].str()) + TARGET_PLACE_HOLDERS_DEFAULT);
+        id = static_cast<Id_t>(std::stoi(mat[1].str()) + TARGET_PLACE_HOLDERS_DEFAULT);
     }
 
     Id_t buffId = BuffId(mat[2].str());

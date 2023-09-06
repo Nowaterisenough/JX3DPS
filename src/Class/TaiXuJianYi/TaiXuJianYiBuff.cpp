@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 16:58:24
+ * Last Modified: 2023-09-06 23:24:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -24,8 +24,7 @@ namespace TaiXuJianYi {
 
 namespace Buff {
 
-DieRen::DieRen(JX3DPS::Player *player, Targets *targets) :
-    JX3DPS::Buff(player, targets)
+DieRen::DieRen(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
 {
     m_id          = BUFF_DIE_REN;
     m_name        = "叠刃";
@@ -54,7 +53,21 @@ DieRen::DieRen(JX3DPS::Player *player, Targets *targets) :
     }
 
     if (m_player->talents[TALENT_XU_JI]) {
-        m_effectDamageAdditionalPercentInt += 102 * 2;
+        m_damageParams[0][0].attackDamagePercentInt *= 1.2;
+        m_damageParams[0][1].attackDamagePercentInt *= 1.2;
+        m_damageParams[0][2].attackDamagePercentInt *= 1.2;
+        m_damageParams[0][3].attackDamagePercentInt *= 1.2;
+        m_damageParams[0][4].attackDamagePercentInt *= 1.2;
+        m_damageParams[0][5].attackDamagePercentInt *= 1.2;
+        m_damageParams[0][6].attackDamagePercentInt *= 1.2;
+
+        m_damageParams[1][0].attackDamagePercentInt *= 1.2;
+        m_damageParams[1][1].attackDamagePercentInt *= 1.2;
+        m_damageParams[1][2].attackDamagePercentInt *= 1.2;
+        m_damageParams[1][3].attackDamagePercentInt *= 1.2;
+        m_damageParams[1][4].attackDamagePercentInt *= 1.2;
+        m_damageParams[1][5].attackDamagePercentInt *= 1.2;
+        m_damageParams[1][6].attackDamagePercentInt *= 1.2;
     }
 }
 
@@ -211,9 +224,9 @@ WanXiangGuiYuan::WanXiangGuiYuan(JX3DPS::Player *player, Targets *targets) :
     m_stackNum    = 3;
     m_effectCount = 10;
 
-    m_damageParams[0].emplace_back(10, 0, 64 * 1);
-    m_damageParams[0].emplace_back(10, 0, 64 * 2);
-    m_damageParams[0].emplace_back(10, 0, 64 * 3);
+    m_damageParams[0].emplace_back(20, 0, 205 * 1);
+    m_damageParams[0].emplace_back(20, 0, 205 * 2);
+    m_damageParams[0].emplace_back(20, 0, 205 * 3);
 }
 
 void WanXiangGuiYuan::Trigger()
@@ -437,8 +450,7 @@ void ZiQiDongLai::SubEffectClear()
     m_player->attribute.AddPhysicsCriticalStrikePowerAdditionalPercentInt(-256);
 }
 
-XuanMen::XuanMen(JX3DPS::Player *player, Targets *targets) :
-    JX3DPS::Buff(player, targets)
+XuanMen::XuanMen(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
 {
     m_id       = BUFF_XUAN_MEN;
     m_name     = "玄门";
@@ -1019,8 +1031,7 @@ void SuiXingChen::SubEffectClear()
     m_triggerEffects[TRIGGER_GU_CHANG](params);
 }
 
-QiSheng::QiSheng(JX3DPS::Player *player, Targets *targets) :
-    JX3DPS::Buff(player, targets)
+QiSheng::QiSheng(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
 {
     m_id       = BUFF_QI_SHENG;
     m_name     = "期声";
@@ -1074,8 +1085,7 @@ void QiSheng::SubEffectClear()
     m_player->attribute.AddPhysicsAttackPowerBaseAdditionalPercentInt(-102);
 }
 
-FengShi::FengShi(JX3DPS::Player *player, Targets *targets) :
-    JX3DPS::Buff(player, targets)
+FengShi::FengShi(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
 {
     m_id       = BUFF_FENG_SHI;
     m_name     = "风逝";
@@ -1293,8 +1303,7 @@ void FieldLieYun::SubEffectAdd(Id_t targetId)
     }
 }
 
-LieYun::LieYun(JX3DPS::Player *player, Targets *targets) :
-    JX3DPS::Buff(player, targets)
+LieYun::LieYun(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
 {
     m_id       = BUFF_LIE_YUN;
     m_name     = "裂云";
@@ -1348,8 +1357,7 @@ void LieYun::SubEffectClear()
     m_player->attribute.AddPhysicsCriticalStrikePowerAdditionalPercentInt(-154);
 }
 
-ChiYing::ChiYing(JX3DPS::Player *player, Targets *targets) :
-    JX3DPS::Buff(player, targets)
+ChiYing::ChiYing(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
 {
     m_id       = BUFF_CHI_YING;
     m_name     = "持盈";
@@ -1880,9 +1888,7 @@ void TeamCoreTaiXuJianYiJingMiao::Add(Id_t targetId, int stackNum, Frame_t durat
 {
 }
 
-void TeamCoreTaiXuJianYiJingMiao::Clear(Id_t targetId, int stackNum)
-{
-}
+void TeamCoreTaiXuJianYiJingMiao::Clear(Id_t targetId, int stackNum) { }
 
 void TeamCoreTaiXuJianYiJingMiao::SubEffect()
 {

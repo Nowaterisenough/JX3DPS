@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 20:15:39
+ * Last Modified: 2023-09-06 20:23:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -581,7 +581,6 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     });
 
     connect(importWidget, &ImportWidget::Signal_Import, [=](nlohmann::ordered_json &json) {
-
         attribute->SetAgilityBaseAdditional(json["Agility"].get<int>() - attribute->GetAgilityBaseByClass());
         attribute->SetSpiritBaseAdditional(json["Spirit"].get<int>() - attribute->GetSpiritBaseByClass());
         attribute->SetSpunkBaseAdditional(json["Spunk"].get<int>() - attribute->GetSpunkBaseByClass());
@@ -593,23 +592,24 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
         attribute->SetHasteBase(json["Haste"].get<int>());
 
         if (json.find("PhysicsAttackPowerBase") != json.end()) {
-            attribute->SetPhysicsAttackPowerBaseAdditional(json["PhysicsAttackPowerBase"].get<int>() -
-                                                          attribute->GetPhysicsAttackPowerBaseByClass());
+            attribute->SetPhysicsAttackPowerBaseAdditional(
+                json["PhysicsAttackPowerBase"].get<int>() -
+                attribute->GetPhysicsAttackPowerBaseByClass());
             attribute->SetPhysicsCriticalStrikeAdditional(json["PhysicsCriticalStrike"].get<int>() -
-                                                         attribute->GetPhysicsCriticalStrikeByClass());
+                                                          attribute->GetPhysicsCriticalStrikeByClass());
             attribute->SetPhysicsCriticalStrikePower(json["PhysicsCriticalDamagePower"].get<int>());
             attribute->SetPhysicsOvercomeBaseAdditional(json["PhysicsOvercome"].get<int>() -
-                                                       attribute->GetPhysicsOvercomeBaseByClass());
+                                                        attribute->GetPhysicsOvercomeBaseByClass());
         }
 
         if (json.find("LunarAttackPowerBase") != json.end()) {
             attribute->SetMagicAttackPowerBaseAdditional(json["LunarAttackPowerBase"].get<int>() -
-                                                        attribute->GetMagicAttackPowerBaseByClass());
+                                                         attribute->GetMagicAttackPowerBaseByClass());
             attribute->SetMagicCriticalStrikeAdditional(json["LunarCriticalStrike"].get<int>() -
-                                                       attribute->GetMagicCriticalStrikeByClass());
+                                                        attribute->GetMagicCriticalStrikeByClass());
             attribute->SetMagicCriticalStrikePower(json["LunarCriticalDamagePower"].get<int>());
             attribute->SetMagicOvercomeBaseAdditional(json["LunarOvercome"].get<int>() -
-                                                     attribute->GetMagicOvercomeBaseByClass());
+                                                      attribute->GetMagicOvercomeBaseByClass());
         }
 
         emit Signal_UpdateAttribute();

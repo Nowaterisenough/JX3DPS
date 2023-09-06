@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 18:22:49
+ * Last Modified: 2023-09-06 21:17:48
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -114,6 +114,7 @@ Gong::Gong(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
     m_prepareFrames = 28;
 
     m_damageParams[0].emplace_back((160 + 160 + 40) / 2, 0, 277);
+    m_damageParams[1].emplace_back(0, 0, 277);
 
     if (m_player->recipes[RECIPE_GONG_CRITICAL_STRIKE_2]) {
         m_effectCriticalStrikeAdditionalBasisPointInt += 200;
@@ -245,6 +246,11 @@ void Gong::SubEffectCW()
     static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->SubEffect();
     static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerClear();
 
+    BPInt_t  temp1 = m_effectCriticalStrikeAdditionalBasisPointInt;
+    PctInt_t temp2 = m_effectDamageAdditionalPercentInt;
+    m_effectCriticalStrikeAdditionalBasisPointInt = 0;
+    m_effectDamageAdditionalPercentInt            = 0;
+
     RollResult rollResult = GetMagicRollResult();
 
     params.rollResult = rollResult;
@@ -252,6 +258,9 @@ void Gong::SubEffectCW()
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(SKILL_GONG_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 0, 0);
+
+    m_effectCriticalStrikeAdditionalBasisPointInt = temp1;
+    m_effectDamageAdditionalPercentInt            = temp2;
 
     static_cast<Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
 }
@@ -275,6 +284,7 @@ BianGong::BianGong(JX3DPS::Player *player, Targets *targets) : Skill(player, tar
     m_prepareFrames = 28;
 
     m_damageParams[0].emplace_back((160 + 160 + 40) / 2, 0, 277);
+    m_damageParams[1].emplace_back(0, 0, 277);
 
     if (m_player->recipes[RECIPE_GONG_CRITICAL_STRIKE_2]) {
         m_effectCriticalStrikeAdditionalBasisPointInt += 200;
@@ -410,6 +420,11 @@ void BianGong::SubEffectCW()
     static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->SubEffect();
     static_cast<MoWen::Buff::QuFeng *>(m_player->buffs[BUFF_QU_FENG])->TriggerClear();
 
+    BPInt_t  temp1 = m_effectCriticalStrikeAdditionalBasisPointInt;
+    PctInt_t temp2 = m_effectDamageAdditionalPercentInt;
+    m_effectCriticalStrikeAdditionalBasisPointInt = 0;
+    m_effectDamageAdditionalPercentInt            = 0;
+
     RollResult rollResult = GetMagicRollResult();
 
     params.rollResult = rollResult;
@@ -417,6 +432,9 @@ void BianGong::SubEffectCW()
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(SKILL_BIAN_GONG_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 0, 0);
+
+    m_effectCriticalStrikeAdditionalBasisPointInt = temp1;
+    m_effectDamageAdditionalPercentInt            = temp2;
 
     static_cast<Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
 }
@@ -902,7 +920,7 @@ Yu::Yu(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
     m_energyCountCurrent = m_energyCount = 3;
 
     m_damageParams[0].emplace_back((143 + 143 + 13) / 2, 0, 208);
-    m_damageParams[1].emplace_back((143 + 143 + 13) / 2, 0, 208);
+    m_damageParams[1].emplace_back((20 + 20 + 2) / 2, 0, 50);
 
     if (m_player->recipes[RECIPE_YU_CRITICAL_STRIKE_3]) {
         m_effectCriticalStrikeAdditionalBasisPointInt += 300;
@@ -969,6 +987,11 @@ void Yu::TriggerShiXiang()
 
 void Yu::TriggerDamage()
 {
+    BPInt_t  temp1 = m_effectCriticalStrikeAdditionalBasisPointInt;
+    PctInt_t temp2 = m_effectDamageAdditionalPercentInt;
+    m_effectCriticalStrikeAdditionalBasisPointInt = 0;
+    m_effectDamageAdditionalPercentInt            = 0;
+
     Params params;
     params.player         = m_player;
     RollResult rollResult = GetMagicRollResult();
@@ -977,6 +1000,9 @@ void Yu::TriggerDamage()
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 1, 0);
     Record(SKILL_YU_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 1, 0);
+
+    m_effectCriticalStrikeAdditionalBasisPointInt = temp1;
+    m_effectDamageAdditionalPercentInt            = temp2;
 }
 
 void Yu::SubEffect()

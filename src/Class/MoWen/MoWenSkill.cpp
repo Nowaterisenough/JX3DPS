@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 22:48:02
+ * Last Modified: 2023-09-07 14:41:41
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -673,7 +673,10 @@ void Zhi::Trigger()
 
 void Zhi::Stop()
 {
+    index = 0;
+    m_player->SetReCast(false);
     m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
+    static_cast<Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
 }
 
 bool Zhi::IsReady(bool fcast)
@@ -849,7 +852,10 @@ void BianZhi::Trigger()
 
 void BianZhi::Stop()
 {
+    index = 0;
+    m_player->SetReCast(false);
     m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
+    static_cast<Buff::YangChunBaiXue *>(m_player->buffs[BUFF_YANG_CHUN_BAI_XUE])->TriggerClear();
 }
 
 bool BianZhi::IsReady(bool fcast)

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 17:34:13
+ * Last Modified: 2023-09-07 14:49:28
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -183,6 +183,9 @@ public:
         m_delayMin = delayMin;
         m_delayMax = delayMax;
     }
+
+    bool StopReCastSkill();
+    
 
     inline static void TriggerVoid(const Params &params) { }
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 06:26:28
+ * Last Modified: 2023-09-08 07:24:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -420,6 +420,7 @@ void ItemWidget::SetHovered(bool hovered)
 void ItemWidget::SetView()
 {
     m_icon->SetType(ComboBox::Type::DETAILED);
+    m_view = true;
 }
 
 void ItemWidget::SetItemInfo(const ComboBox::ItemInfo &itemInfo)
@@ -499,12 +500,14 @@ void ItemWidget::paintEvent(QPaintEvent *event)
         m_descText->show();
     }
 
+    // if (!m_view) {
     painter.setPen(QColor(COLOR_BACKGROUND_PRIMARY));
     painter.setBrush(Qt::NoBrush);
     painter.drawRect(this->rect().x(),
                      this->rect().y(),
                      this->rect().width() - 1,
                      this->rect().height() - 1);
+    //}
 
     QWidget::paintEvent(event);
 }
@@ -521,4 +524,15 @@ void ItemWidget::leaveEvent(QEvent *event)
     m_hovered = false;
     m_descText->Reset();
     QWidget::leaveEvent(event);
+}
+
+void ItemWidget::focusOutEvent(QFocusEvent *event)
+{
+    if (event->reason() == Qt::MouseFocusReason || event->reason() == Qt::TabFocusReason ||
+        event->reason() == Qt::ActiveWindowFocusReason)
+    {
+        m_hovered = false;
+        m_descText->Reset();
+    }
+    QWidget::focusOutEvent(event);
 }

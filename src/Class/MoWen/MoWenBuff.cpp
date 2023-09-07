@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 22:35:58
+ * Last Modified: 2023-09-07 16:48:16
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -272,6 +272,8 @@ void XianFeng::TriggerDamage(Id_t targetId, int stackNum)
 
     for (int i = 0; i < stackNum; ++i) {
         m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
+        m_triggerEffects[TRIGGER_WEAPON_CW](params);
+        m_triggerEffects[TRIGGER_WEAPON_WATER](params);
         RollResult  rollResult = GetMagicRollResult();
         GainsDamage damage     = CalcMagicDamage(targetId, rollResult, 0, 0);
         Record(m_id, targetId, rollResult, damage, 0, 0);
@@ -569,6 +571,8 @@ void LiuZhao::TriggerDamage(int stackNum)
 
     for (int i = 0; i < stackNum; ++i) {
         m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
+        m_triggerEffects[TRIGGER_WEAPON_CW](params);
+        m_triggerEffects[TRIGGER_WEAPON_WATER](params);
         RollResult  rollResult = GetMagicRollResult();
         GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
         Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -1209,7 +1213,7 @@ void YingZi::Trigger()
 {
     for (auto iter = m_snapshots.begin(); iter != m_snapshots.end();) {
         if (iter->second.interval == 0) {
-            iter->second.interval = m_interval * iter->second.hastePercent;
+            iter->second.interval = m_interval * m_player->attribute.GetHastePercent();
             SubEffect(iter->first);
         }
         if (iter->second.duration == 0) {

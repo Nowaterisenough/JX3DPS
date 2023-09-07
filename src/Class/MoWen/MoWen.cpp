@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 17:57:13
+ * Last Modified: 2023-09-07 16:49:33
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -462,6 +462,10 @@ void Player::Init()
 
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_WEAPON_CW_DAMAGE,
                                            std::bind(&TriggerWeaponCWDamage, std::placeholders::_1));
+        buffs[BUFF_LIU_ZHAO]->AddTriggerEffect(TRIGGER_WEAPON_CW,
+                                               std::bind(&TriggerWeaponCW, std::placeholders::_1));
+        buffs[BUFF_XIAN_FENG]->AddTriggerEffect(TRIGGER_WEAPON_CW,
+                                                std::bind(&TriggerWeaponCW, std::placeholders::_1));
     } else {
         skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_WEAPON_CW,
                                              std::bind(&TriggerVoid, std::placeholders::_1));
@@ -487,6 +491,10 @@ void Player::Init()
 
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_WEAPON_CW_DAMAGE,
                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        buffs[BUFF_LIU_ZHAO]->AddTriggerEffect(TRIGGER_WEAPON_CW,
+                                               std::bind(&TriggerVoid, std::placeholders::_1));
+        buffs[BUFF_XIAN_FENG]->AddTriggerEffect(TRIGGER_WEAPON_CW,
+                                                std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
     if (equipEffects[EQUIP_EFFECT_WEAPON_WATER]) {
@@ -510,6 +518,11 @@ void Player::Init()
         skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(
             TRIGGER_WEAPON_WATER,
             std::bind(&TriggerWeaponWater, std::placeholders::_1));
+
+        buffs[BUFF_LIU_ZHAO]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
+                                               std::bind(&TriggerWeaponWater, std::placeholders::_1));
+        buffs[BUFF_XIAN_FENG]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
+                                                std::bind(&TriggerWeaponWater, std::placeholders::_1));
     } else {
         skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
                                              std::bind(&TriggerVoid, std::placeholders::_1));
@@ -527,6 +540,11 @@ void Player::Init()
                                            std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_YANG_CHUN_BAI_XUE]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
                                                           std::bind(&TriggerVoid, std::placeholders::_1));
+
+        buffs[BUFF_LIU_ZHAO]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
+                                               std::bind(&TriggerVoid, std::placeholders::_1));
+        buffs[BUFF_XIAN_FENG]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
+                                                std::bind(&TriggerVoid, std::placeholders::_1));
     }
 }
 

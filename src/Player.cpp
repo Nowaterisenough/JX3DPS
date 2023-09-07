@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 08:55:18
+ * Last Modified: 2023-09-07 14:49:31
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -233,6 +233,15 @@ void Player::AddBuff3rds(const std::unordered_set<Id_t> &buff3rds)
     //     buffs[BUFF_3RD_PO_CANG_QIONG] = new Buff3rd::PoCangQiong(this, nullptr);
     // }
 }
+
+bool Player::StopReCastSkill()
+{
+        if (m_reCast) {
+            m_reCast = false;
+            skills[m_reCastSkill]->Stop();
+        }
+        return true;
+    }
 
 void Player::TriggerWeaponWater(const Params &params)
 {

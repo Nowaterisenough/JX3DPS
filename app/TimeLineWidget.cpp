@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-05 18:25:52
+ * Last Modified: 2023-09-08 22:25:10
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,7 +13,7 @@
  * ----------	-----	----------------------------------------------------------
  */
 
-#include "JX3DPSImportWidget.h"
+#include "TimeLineWidget.h"
 
 #include <unordered_set>
 
@@ -33,7 +33,7 @@
 #include "Common/ThemeColors.h"
 #include "PlainTextEdit/PlainTextEdit.h"
 
-JX3DPS::Simulator::ImportWidget::ImportWidget(QWidget *parent) : Widget(parent)
+JX3DPS::Simulator::TimeLineWidget::TimeLineWidget(QWidget *parent) : Widget(parent)
 {
     this->setMinimumWidth(500);
     this->setMinimumHeight(600);
@@ -65,7 +65,7 @@ JX3DPS::Simulator::ImportWidget::ImportWidget(QWidget *parent) : Widget(parent)
     });
 }
 
-void JX3DPS::Simulator::ImportWidget::paintEvent(QPaintEvent *event)
+void JX3DPS::Simulator::TimeLineWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);

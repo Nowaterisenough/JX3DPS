@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-08 07:00:04
+ * Last Modified: 2023-09-08 22:21:41
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,7 +13,7 @@
  * ----------	-----	----------------------------------------------------------
  */
 
-#include "JX3DPSWidget.h"
+#include "MainWidget.h"
 
 #include <functional>
 
@@ -37,10 +37,10 @@
 #include "TabWidget/TabWidget.h"
 #include "ThreadPool/ThreadPool.h"
 
+#include "ImportWidget.h"
 #include "JX3DPS.h"
-#include "JX3DPSImportWidget.h"
 #include "JX3DPSJsonParser.h"
-#include "JX3DPSStatsWidget.h"
+#include "StatsWidget.h"
 
 const char *const CONFIG_PATH = "./config.json";
 

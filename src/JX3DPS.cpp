@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 08:48:18
+ * Last Modified: 2023-09-13 04:35:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -31,6 +31,7 @@
 #include "Regex.h"
 #include "Skill.h"
 #include "Target.hpp"
+#include "TimeLine.hpp"
 
 namespace JX3DPS {
 
@@ -63,7 +64,6 @@ long long Sum(const Stats &stats)
     }
     return sum;
 }
-
 
 Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents, Options &op)
 {
@@ -102,12 +102,12 @@ Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents
     return stats;
 }
 
-void SimulatePool(ExprSkillsHash       &exprSkillsHash,
-                  ExprEvents           &exprEvents,
-                  Player               &player,
-                  Options              &options,
-                  Stats                &stats,
-                  void                 *obj,
+void SimulatePool(ExprSkillsHash &exprSkillsHash,
+                  ExprEvents     &exprEvents,
+                  Player         &player,
+                  Options        &options,
+                  Stats          &stats,
+                  void           *obj,
                   void (*progress)(void *, double, const char *))
 {
     StatsInit(player.GetClassType(), stats);
@@ -252,6 +252,7 @@ Error_t InitParams(const nlohmann::ordered_json &json,
     if (err != JX3DPS_SUCCESS) {
         return err;
     }
+    TimeLine::SetMode(options.mode);
 
     // 解析技能语句
     std::list<std::pair<std::string, std::list<std::string>>> skills;
@@ -301,6 +302,11 @@ Error_t Start(const nlohmann::ordered_json &in,
 
     out["SimIterations"] = options.simIterations;
     out["Frames"]        = options.totalFrames;
+    out["ClassType"]     = in["ClassType"].get<std::string>().c_str();
+
+    if (options.mode == Options::Mode::DEBUG) {
+        TimeLineToJson(TimeLine::Instance().GetInfosList(), out["TimeLine"]);
+    }
     return StatsToJson(stats, out);
 }
 

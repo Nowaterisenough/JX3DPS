@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 23:29:30
+ * Last Modified: 2023-09-13 10:05:25
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -116,8 +116,6 @@ enum Id_t
     SKILL_WAN_JIAN_GUI_ZONG,
     SKILL_REN_JIAN_HE_YI,
     SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN,
-    SKILL_REN_JIAN_HE_YI_TUN_RI_YUE,
-    SKILL_REN_JIAN_HE_YI_SHENG_TAI_JI,
     SKILL_SAN_CHAI_JIAN_FA,
     SKILL_ZI_QI_DONG_LAI,
     SKILL_SUI_XING_CHEN,
@@ -223,6 +221,7 @@ enum Id_t
     BUFF_YUN_ZHONG_JIAN_SHENG_TAI_JI,
     BUFF_CHI_YING,
     BUFF_QI_SHENG,
+    BUFF_JIAN_RU,
     BUFF_FENG_SHI,
     BUFF_HIDDEN_LIE_YUN,
     BUFF_LIE_YUN,
@@ -240,7 +239,7 @@ enum Id_t
     BUFF_XIAN_FENG,
     BUFF_XIAN_FENG_BIAO_JI,
     BUFF_YUN_HAN,
-    BUFF_SHU_LI,
+    BUFF_MING_JIN,
     BUFF_CAN_LIAN,
     BUFF_ZHI_YIN_MIAO_YI,
     BUFF_ZHENG_LV_HE_MING,
@@ -250,6 +249,7 @@ enum Id_t
     BUFF_YING_ZI,
     BUFF_ZHI_YIN_XING_JIN,
     BUFF_GU_YING_HUA_SHUANG,
+    BUFF_ZHENG_MING,
     BUFF_MO_WEN_END, // ---------------------- Buff 莫问 END ----------------------
 
     BUFF_END, // ---------------------- Buff END ----------------------
@@ -275,6 +275,7 @@ enum Id_t
     TALENT_GU_CHANG,
     TALENT_SUI_WU,
     TALENT_QI_SHENG,
+    TALENT_JIAN_RU,
     TALENT_WU_YU,
     TALENT_XU_JI,
     TALENT_XUAN_MEN,
@@ -290,7 +291,8 @@ enum Id_t
     TALENT_SHI_XIANG,
     TALENT_ZHI_ZHI,
     TALENT_KE_MENG,
-    TALENT_SHU_LI,
+    TALENT_ZHENG_MING,
+    TALENT_MING_JIN,
     TALENT_XIU_QI,
     TALENT_YUN_HAN,
     TALENT_CAN_LIAN,
@@ -484,6 +486,8 @@ enum Id_t
     TRIGGER_YUN_ZHONG_JIAN_SHENG_TAI_JI,
     TRIGGER_FIELD_QI_SHENG,
     TRIGGER_QI_SHENG,
+    TRIGGER_JIAN_RU,
+    TRIGGER_JIAN_RU_ADD,
     TRIGGER_TAI_XU_JIAN_YI_END, // ---------------------- 触发效果 太虚剑意 END ----------------------
 
     TRIGGER_MO_WEN, // ---------------------- 触发效果 莫问 ----------------------
@@ -494,13 +498,14 @@ enum Id_t
     TRIGGER_YUN_HAN,
     TRIGGER_CAN_LIAN_ADD,
     TRIGGER_CAN_LIAN_CLEAR,
-    TRIGGER_SHU_LI,
+    TRIGGER_MING_JIN,
     TRIGGER_SHI_XIANG,
     TRIGGER_ZHI_ZHI,
     TRIGGER_HAO_QING_ZHI,
     TRIGGER_HAO_QING_BIAN_ZHI,
     TRIGGER_LIU_ZHAO_DAMAGE,
     TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
+    TRIGGER_ZHENG_MING_SURPLUS_DAMAGE,
     TRIGGER_MO_WEN_END, // ---------------------- 触发效果 莫问 END ----------------------
 
     TRIGGER_END, // ---------------------- 触发效果 END ----------------------
@@ -590,7 +595,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------技能----------------------" },
 
      { "----------------------通用----------------------" },
-     { "破招" },
+     { "破" },
      { "腰坠·破防" },
 
      { "----------------------技能 太虚剑意----------------------" },
@@ -601,8 +606,6 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "万剑归宗" },
      { "人剑合一" },
      { "人剑合一·空爆·碎星辰" },
-     { "人剑合一·空爆·吞日月" },
-     { "人剑合一·空爆·生太极" },
      { "三柴剑法" },
      { "紫气东来" },
      { "碎星辰" },
@@ -708,6 +711,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "云中剑·生太极" },
      { "持盈" },
      { "期声" },
+     { "剑入" },
      { "风逝" },
      { "隐藏Buff·裂云" },
      { "裂云" },
@@ -721,11 +725,11 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "Dot·神兵·宫" },
      { "曲风" },
      { "流照" },
-     { "破招·流照" },
+     { "破·流照" },
      { "弦风" },
      { "弦风·标记" },
      { "云汉" },
-     { "书离" },
+     { "明津" },
      { "参连" },
      { "知音妙意" },
      { "正律和鸣" },
@@ -735,6 +739,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "影子" },
      { "知音兴尽" },
      { "孤影化双" },
+     { "破·争鸣" },
      { "----------------------Buff 莫问 END----------------------" },
 
      { "----------------------Buff END-----------------------" },
@@ -760,6 +765,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "故长" },
      { "随物" },
      { "期声" },
+     { "剑入" },
      { "无欲" },
      { "虚极" },
      { "玄门" },
@@ -775,7 +781,8 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "师襄" },
      { "知止" },
      { "刻梦" },
-     { "书离" },
+     { "争鸣" },
+     { "明津" },
      { "修齐" },
      { "云汉" },
      { "参连" },

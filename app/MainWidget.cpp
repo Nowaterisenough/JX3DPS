@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-08 22:21:41
+ * Last Modified: 2023-09-13 04:28:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -41,6 +41,7 @@
 #include "JX3DPS.h"
 #include "JX3DPSJsonParser.h"
 #include "StatsWidget.h"
+#include "TimeLineWidget.h"
 
 const char *const CONFIG_PATH = "./config.json";
 
@@ -324,6 +325,17 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
         }
     });
 
+    TimeLineWidget *timeLineWidget = new TimeLineWidget(nullptr);
+    timeLineWidget->hide();
+
+    connect(buttonTimeLine, &QPushButton::clicked, [=]() {
+        if (timeLineWidget->isHidden()) {
+            timeLineWidget->show();
+        } else {
+            timeLineWidget->hide();
+        }
+    });
+
     connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
         long long damage = JsonParser::GetTotalDamage(result["Stats"]["默认"]);
         int       count  = result["SimIterations"].get<int>();
@@ -338,8 +350,14 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
             buttonTimeLine->setEnabled(true);
         } else {
             buttonTimeLine->setEnabled(false);
+            timeLineWidget->close();
         }
     });
+
+    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+        emit timeLineWidget->Signal_Import(result, m_config);
+    });
+
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)

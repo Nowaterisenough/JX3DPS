@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 16:48:57
+ * Last Modified: 2023-09-13 10:00:48
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -159,7 +159,8 @@ public:
                 RollResult         rollResult  = RollResult::HIT,
                 const GainsDamage &gainsDamage = GainsDamage(),
                 int                sub         = 0,
-                int                level       = 0);
+                int                level       = 0,
+                NodeType           type        = NodeType::SKILL_INSTANT_CAST);
 
     void AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect);
 
@@ -224,6 +225,7 @@ protected:
 
     /* 附加效果 */
     TriggerEffects m_triggerEffects;
+
 };
 
 } // namespace JX3DPS

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-07 14:41:41
+ * Last Modified: 2023-09-12 10:38:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -42,6 +42,8 @@ PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) : Skill(player, targets
                                    0,
                                    JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE *
                                        (0.36 * 0.5 * 1.3 * 1.2 * 0.5 * 1.11 - 1));
+
+    m_damageParams[0].emplace_back(0, 0, JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE * (0.4 - 1));
 }
 
 void PoZhao::Cast() { }
@@ -53,6 +55,7 @@ void PoZhao::TriggerDamage(Id_t targetId)
     Params params;
     params.player = m_player;
     m_triggerEffects[TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE](params);
+    m_triggerEffects[TRIGGER_ZHENG_MING_SURPLUS_DAMAGE](params);
 
     RollResult  rollResult = GetMagicRollResult();
     GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 0);
@@ -65,6 +68,16 @@ void PoZhao::TriggerDamage(Id_t targetId)
     rollResult = GetMagicRollResult();
     damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 2);
     Record(m_id, targetId, rollResult, damage, 0, 2);
+}
+
+void PoZhao::TriggerZhengMingDamage(Id_t targetId)
+{
+    Params params;
+    params.player = m_player;
+
+    RollResult  rollResult = GetMagicRollResult();
+    GainsDamage damage     = CalcMagicSurplusDamage(targetId, rollResult, 0, 3);
+    Record(BUFF_ZHENG_MING, targetId, rollResult, damage, 0, 3);
 }
 
 WuYinLiuLv::WuYinLiuLv(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -598,7 +611,7 @@ Zhi::Zhi(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
     }
 
     if (m_player->talents[TALENT_FEI_FAN]) {
-        m_effectDamageAdditionalPercentInt += 152;
+        m_effectDamageAdditionalPercentInt += 102;
     }
 
     if (m_player->talents[TALENT_LIU_ZHAO]) {
@@ -951,7 +964,7 @@ Yu::Yu(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
         m_effectShieldIgnoreAdditionalPercentInt += 614;
     }
 
-    if (m_player->talents[TALENT_SHU_LI]) {
+    if (m_player->talents[TALENT_MING_JIN]) {
         m_cooldown += 5 * 16;
     }
 }
@@ -1031,7 +1044,7 @@ void Yu::SubEffect()
     m_triggerEffects[TRIGGER_WEAPON_CW_DAMAGE](params);
     m_triggerEffects[TRIGGER_SHI_XIANG](params);
 
-    m_triggerEffects[TRIGGER_SHU_LI](params);
+    m_triggerEffects[TRIGGER_MING_JIN](params);
 
     RollResult rollResult = GetMagicRollResult();
     params.rollResult     = rollResult;

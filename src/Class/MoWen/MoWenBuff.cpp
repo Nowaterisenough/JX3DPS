@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-07 16:48:16
+ * Last Modified: 2023-09-12 10:24:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -431,14 +431,14 @@ void CanLian::SubEffectClear()
     m_player->attribute.AddMagicAttackPowerBaseAdditionalPercentInt(-102);
 }
 
-ShuLi::ShuLi(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
+MingJin::MingJin(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
 {
-    m_id       = BUFF_SHU_LI;
+    m_id       = BUFF_MING_JIN;
     m_name     = "书离";
     m_duration = 8 * 16;
 }
 
-void ShuLi::Trigger()
+void MingJin::Trigger()
 {
     if (m_snapshots[PLAYER_ID].duration == 0) {
         m_snapshots.erase(PLAYER_ID);
@@ -446,7 +446,7 @@ void ShuLi::Trigger()
     }
 }
 
-void ShuLi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+void MingJin::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
 {
     if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
         SubEffectAdd();
@@ -458,7 +458,7 @@ void ShuLi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durati
     }
 }
 
-void ShuLi::Clear(Id_t targetId, int stackNum)
+void MingJin::Clear(Id_t targetId, int stackNum)
 {
     if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
         SubEffectClear();
@@ -466,7 +466,7 @@ void ShuLi::Clear(Id_t targetId, int stackNum)
     }
 }
 
-void ShuLi::TriggerAdd()
+void MingJin::TriggerAdd()
 {
     if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
         SubEffectAdd();
@@ -474,13 +474,13 @@ void ShuLi::TriggerAdd()
     m_snapshots[PLAYER_ID].duration += m_duration;
 }
 
-void ShuLi::TriggerClear()
+void MingJin::TriggerClear()
 {
     m_snapshots.erase(PLAYER_ID);
     SubEffectClear();
 }
 
-void ShuLi::SubEffectAdd()
+void MingJin::SubEffectAdd()
 {
     m_player->skills[SKILL_GONG]->AddDamageAdditionalPercentInt(205);
     m_player->skills[SKILL_BIAN_GONG]->AddDamageAdditionalPercentInt(205);
@@ -494,7 +494,7 @@ void ShuLi::SubEffectAdd()
     m_player->buffs[BUFF_JUE]->AddDamageAdditionalPercentInt(205);
 }
 
-void ShuLi::SubEffectClear()
+void MingJin::SubEffectClear()
 {
     m_player->skills[SKILL_GONG]->AddDamageAdditionalPercentInt(-205);
     m_player->skills[SKILL_BIAN_GONG]->AddDamageAdditionalPercentInt(-205);

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 18:59:53
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 08:55:43
+ * Last Modified: 2023-09-13 04:15:03
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -21,7 +21,7 @@
 #include <nlohmann/json.hpp>
 
 #include "Global/Defs.h"
-
+#include "TimeLine.hpp"
 namespace JX3DPS {
 
 class Attribute;
@@ -54,6 +54,8 @@ Error_t ParseJsonToBuff3rds(const nlohmann::ordered_json &json, std::unordered_s
 Error_t StatsToJson(const Stats &stats, nlohmann::ordered_json &json);
 
 Error_t DamageStatsToJson(const DamageStats &damageStats, nlohmann::ordered_json &json);
+
+Error_t TimeLineToJson(const TimeLine::InfosList &infosList, nlohmann::ordered_json &json);
 
 } // namespace JX3DPS
 

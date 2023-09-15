@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:55:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 13:34:17
+ * Last Modified: 2023-09-12 09:50:38
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -138,6 +138,15 @@ public:
     void TriggerAdd();
     void SubEffectAdd();
     void SubEffectClear();
+};
+
+class JianRu : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(JianRu)
+
+public:
+    void TriggerAdd();
+    void TriggerDamage(int index);
 };
 
 class FengShi : public JX3DPS::Buff

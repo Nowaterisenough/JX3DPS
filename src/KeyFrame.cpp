@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-07 16:03:04
+ * Last Modified: 2023-09-13 10:37:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "Skill.h"
 #include "Target.hpp"
+#include "TimeLine.hpp"
 
 // #define OLD_FRAMEWORK
 
@@ -149,6 +150,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         if (now >= options.totalFrames) {
             return;
         }
+        TimeLine::AddTimeStamp(now);
 
         UpdateKeyFrameSequence(keyFrameSequence, player, next);
 
@@ -158,7 +160,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
                 exprEvents.front().second(player, targets);
                 exprEvents.pop_front();
             } else if (type == KeyFrameType::SKILL) { // 技能
-                // spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
+                spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
                 player->skills[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -169,11 +171,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
 #endif // OLD_FRAMEWORK
 
             } else if (type == KeyFrameType::BUFF) { // buff
-                spdlog::debug(
-                    "{:<8} {:<5} {:<10}",
-                    now * 0.0625,
-                    "",
-                    JX3DPS_NAME.at(static_cast<int>(id)));
+                spdlog::debug("{:<8} {:<5} {:<10}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
                 player->buffs[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;

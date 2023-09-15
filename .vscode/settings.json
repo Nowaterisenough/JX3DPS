@@ -302,7 +302,9 @@
         "qsplitterhandle": "cpp",
         "qpushbutton": "cpp",
         "stdfloat": "cpp",
-        "qlayout": "cpp"
+        "qlayout": "cpp",
+        "qimage": "cpp",
+        "qgraphicsitem": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

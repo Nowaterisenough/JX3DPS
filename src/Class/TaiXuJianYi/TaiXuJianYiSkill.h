@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-20 09:36:31
+ * Last Modified: 2023-09-13 10:03:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -90,22 +90,6 @@ public:
 class RenJianHeYiSuiXingChen : public JX3DPS::Skill
 {
     SKILL_DEFAULT_FUNCTION(RenJianHeYiSuiXingChen)
-
-public:
-    void SubEffect();
-};
-
-class RenJianHeYiTunRiYue : public JX3DPS::Skill
-{
-    SKILL_DEFAULT_FUNCTION(RenJianHeYiTunRiYue)
-
-public:
-    void SubEffect();
-};
-
-class RenJianHeYiShengTaiJi : public JX3DPS::Skill
-{
-    SKILL_DEFAULT_FUNCTION(RenJianHeYiShengTaiJi)
 
 public:
     void SubEffect();

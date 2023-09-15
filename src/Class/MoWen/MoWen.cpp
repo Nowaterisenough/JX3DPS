@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-07 16:49:33
+ * Last Modified: 2023-09-12 10:37:13
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -164,12 +164,14 @@ void Player::Init()
                                                           std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
-    if (talents[TALENT_SHU_LI]) {
-        buffs.emplace(BUFF_SHU_LI, new Buff::ShuLi(this, nullptr));
+    if (talents[TALENT_MING_JIN]) {
+        buffs.emplace(BUFF_MING_JIN, new Buff::MingJin(this, nullptr));
 
-        skills[SKILL_YU]->AddTriggerEffect(TRIGGER_SHU_LI, std::bind(&TriggerShuLi, std::placeholders::_1));
+        skills[SKILL_YU]->AddTriggerEffect(TRIGGER_MING_JIN,
+                                           std::bind(&TriggerMingJin, std::placeholders::_1));
     } else {
-        skills[SKILL_YU]->AddTriggerEffect(TRIGGER_SHU_LI, std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_YU]->AddTriggerEffect(TRIGGER_MING_JIN,
+                                           std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
     if (talents[TALENT_SHI_XIANG]) {
@@ -203,6 +205,15 @@ void Player::Init()
         skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_LIU_ZHAO_DAMAGE,
                                                  std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_PO_ZHAO]->AddTriggerEffect(TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
+                                                std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
+    if (talents[TALENT_ZHENG_MING]) {
+        skills[SKILL_PO_ZHAO]->AddTriggerEffect(
+            TRIGGER_ZHENG_MING_SURPLUS_DAMAGE,
+            std::bind(&TriggerZhengMingSurplusDamage, std::placeholders::_1));
+    } else {
+        skills[SKILL_PO_ZHAO]->AddTriggerEffect(TRIGGER_ZHENG_MING_SURPLUS_DAMAGE,
                                                 std::bind(&TriggerVoid, std::placeholders::_1));
     }
 
@@ -593,9 +604,9 @@ void Player::TriggerCanLianClear(const Params &params)
     static_cast<Buff::CanLian *>(params.player->buffs[BUFF_CAN_LIAN])->TriggerClear();
 }
 
-void Player::TriggerShuLi(const Params &params)
+void Player::TriggerMingJin(const Params &params)
 {
-    static_cast<Buff::ShuLi *>(params.player->buffs[BUFF_SHU_LI])->TriggerAdd();
+    static_cast<Buff::MingJin *>(params.player->buffs[BUFF_MING_JIN])->TriggerAdd();
 }
 
 void Player::TriggerShiXiang(const Params &params)
@@ -615,6 +626,12 @@ void Player::TriggerZhiZhi(const Params &params)
     }
 
     static_cast<MoWen::Player *>(params.player)->cooldownStyleCurrent = 0;
+}
+
+void Player::TriggerZhengMingSurplusDamage(const Params &params)
+{
+    static_cast<Skill::PoZhao *>(params.player->skills[SKILL_PO_ZHAO])
+        ->TriggerZhengMingDamage(params.player->GetTargetId());
 }
 
 void Player::TriggerHaoQingZhi(const Params &params)

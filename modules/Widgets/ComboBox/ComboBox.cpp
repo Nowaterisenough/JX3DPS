@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-08 07:24:35
+ * Last Modified: 2023-09-15 05:30:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -202,7 +202,7 @@ SubComboBox::SubComboBox(QWidget *parent) : QComboBox(parent)
 {
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->setStyle(nullptr);
-    this->setStyleSheet("QComboBox QAbstractItemView { border: none; }");
+    this->setStyleSheet("QComboBox QAbstractItemView { border: none; } QComboBox::drop-down{border-style: none;}");
     this->setMaxVisibleItems(8);
 
     m_detailedView = new ItemWidget(this);
@@ -230,7 +230,6 @@ SubComboBox::SubComboBox(QWidget *parent) : QComboBox(parent)
         int index = listWidget->indexFromItem(current).row();
         this->setCurrentIndex(index);
         this->SetView(itemInfo);
-
         emit Signal_CurrentItemChanged(itemInfo);
     });
 }
@@ -282,14 +281,21 @@ void SubComboBox::SetItemSize(int width, int height)
     }
     QWidget *popup = this->findChild<QFrame *>();
     popup->setFixedWidth(m_width);
+    popup->setStyle(nullptr);
+    popup->setStyleSheet("QListWidget { border: none; }");
 }
 
 void SubComboBox::showPopup()
 {
+    QWidget *popup = this->findChild<QFrame *>();
 
+    //popup->setVisible(true);
     m_detailedView->SetHovered(false);
     m_icon->SetHovered(false);
+    
     QComboBox::showPopup();
+    ((ListWidget *)this->view())->doItemsLayout();
+    
 }
 
 void SubComboBox::mouseReleaseEvent(QMouseEvent *event)
@@ -308,11 +314,13 @@ void SubComboBox::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
     m_icon->setGeometry(this->rect());
     m_detailedView->setGeometry(this->rect());
+    QComboBox::paintEvent(event);
 }
 
 ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
 {
     this->setAttribute(Qt::WA_TranslucentBackground);
+    this->setFrameStyle(QFrame::NoFrame);
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 17:24:40
+ * Last Modified: 2023-09-12 10:31:47
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -31,6 +31,7 @@ class PoZhao : public JX3DPS::Skill
 
 public:
     void TriggerDamage(Id_t targetId);
+    void TriggerZhengMingDamage(Id_t targetId);
 };
 
 class WuYinLiuLv : public JX3DPS::Skill

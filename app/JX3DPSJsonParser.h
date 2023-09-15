@@ -5,7 +5,7 @@
  * Created Date: 2023-08-09 23:56:49
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 11:37:46
+ * Last Modified: 2023-09-13 01:52:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -15,16 +15,21 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include "CheckBox/CheckBox.h"
 #include "ComboBox/ComboBox.h"
 #include "Global/JX3.h"
-#include "nlohmann/json.hpp"
+
+#include "TimeLineWidget.h"
 
 namespace JX3DPS {
 
 namespace Simulator {
 
 namespace JsonParser {
+
+QString JX3IconPath(int id);
 
 void LoadConfig(const std::string &config, nlohmann::ordered_json &json);
 
@@ -62,6 +67,10 @@ void LoadJsonPermanent(const nlohmann::ordered_json &json,
                        JX3DPS::ClassType             classType,
                        const std::string            &name,
                        nlohmann::ordered_json       &out);
+
+bool LoadJsonTimeLine(const nlohmann::ordered_json &json,
+                      const nlohmann::ordered_json &config,
+                      std::list<SkillItem::Info>   &skillInfos);
 
 long long GetTotalDamage(const nlohmann::ordered_json &json);
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 16:53:59
+ * Last Modified: 2023-09-12 10:34:23
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -128,11 +128,13 @@ public:
 
     static void TriggerCanLianClear(const Params &params);
 
-    static void TriggerShuLi(const Params &params);
+    static void TriggerMingJin(const Params &params);
 
     static void TriggerShiXiang(const Params &params);
 
     static void TriggerZhiZhi(const Params &params);
+
+    static void TriggerZhengMingSurplusDamage(const Params &params);
 
     static void TriggerHaoQingZhi(const Params &params);
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-01 19:06:21
+ * Last Modified: 2023-09-13 10:37:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -17,11 +17,14 @@
 
 #include <spdlog/spdlog.h>
 
+#include "Class/MoWen/MoWen.h"
+
 #include "Buff.h"
 #include "Player.h"
 #include "Skill.h"
 #include "Target.hpp"
-#include "Class/MoWen/MoWen.h"
+#include "TimeLine.hpp"
+
 // #define OLD_FRAMEWORK
 
 void JX3DPS::KeyFrame::InsertKeyFrame(KeyFrameSequence &keyFrameSequence, KeyFrame &keyFrame)
@@ -147,6 +150,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         if (now >= options.totalFrames) {
             return;
         }
+        TimeLine::AddTimeStamp(now);
 
         UpdateKeyFrameSequence(keyFrameSequence, player, next);
 
@@ -156,7 +160,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
                 exprEvents.front().second(player, targets);
                 exprEvents.pop_front();
             } else if (type == KeyFrameType::SKILL) { // 技能
-                //spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
+                spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
                 player->skills[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -167,7 +171,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
 #endif // OLD_FRAMEWORK
 
             } else if (type == KeyFrameType::BUFF) { // buff
-                //spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
+                spdlog::debug("{:<8} {:<5} {:<10}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
                 player->buffs[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -306,7 +310,7 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
 
             Id_t id = iter->second;
             if (id > SKILL_DEFAULT) { // 执行技能
-                spdlog::debug("{:<8} {:<5} {}",
+                spdlog::debug("{:<8} {:<5} {:<10}",
                               now * 0.0625,
                               "宏·" + std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT),
                               JX3DPS_NAME.at(static_cast<int>(id)));
@@ -321,8 +325,7 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
                 spdlog::debug("{:<8} {:<5} {}",
                               now * 0.0625,
                               "切换",
-                              "宏·" +
-                                  std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
+                              "宏·" + std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT));
             }
 
             // scast执行成功

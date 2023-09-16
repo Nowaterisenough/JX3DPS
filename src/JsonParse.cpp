@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-22 22:06:51
+ * Last Modified: 2023-09-13 04:19:37
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -230,7 +230,7 @@ JX3DPS::Error_t JX3DPS::ParseJsonToTeamCore(const nlohmann::ordered_json &json, 
     return JX3DPS_SUCCESS;
 }
 
-JX3DPS::Error_t JX3DPS::ParseJsonToBuff3rds(const nlohmann::ordered_json &json, std::list<Id_t> &buff3rds)
+JX3DPS::Error_t JX3DPS::ParseJsonToBuff3rds(const nlohmann::ordered_json &json, std::unordered_set<Id_t> &buff3rds)
 {
     std::list<std::string> events;
     try {
@@ -282,6 +282,28 @@ JX3DPS::Error_t JX3DPS::DamageStatsToJson(const DamageStats &damageStats, nlohma
                 }
             }
         }
+    }
+    return JX3DPS_SUCCESS;
+}
+
+JX3DPS::Error_t JX3DPS::TimeLineToJson(const TimeLine::InfosList &infosList, nlohmann::ordered_json &json)
+{
+    for (auto &[frame, infos] : infosList) {
+        nlohmann::ordered_json j;
+        j["TimeStamp"] = frame;
+        for (auto &info : infos) {
+            nlohmann::ordered_json temp;
+            auto &name       = info.name;
+            auto &rollResult = info.rollResult;
+            auto &damage     = info.damage;
+            auto &type       = info.type;
+            temp["Name"] = name;
+            temp["RollResult"] = rollResult;
+            temp["Damage"]     = damage;
+            temp["Type"]       = type;
+            j["Skills"].push_back(temp);
+        }
+        json.push_back(j);
     }
     return JX3DPS_SUCCESS;
 }

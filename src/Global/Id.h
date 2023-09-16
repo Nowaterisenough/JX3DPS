@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-04 18:35:51
+ * Last Modified: 2023-09-13 10:05:25
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -111,12 +111,11 @@ enum Id_t
     SKILL_TAI_XU_JIAN_YI, // ---------------------- 技能 太虚剑意 ----------------------
     SKILL_WU_WO_WU_JIAN,
     SKILL_BA_HUANG_GUI_YUAN,
+    SKILL_BA_HUANG_GUI_YUAN_SHEN_BING,
     SKILL_SAN_HUAN_TAO_YUE,
     SKILL_WAN_JIAN_GUI_ZONG,
     SKILL_REN_JIAN_HE_YI,
     SKILL_REN_JIAN_HE_YI_SUI_XING_CHEN,
-    SKILL_REN_JIAN_HE_YI_TUN_RI_YUE,
-    SKILL_REN_JIAN_HE_YI_SHENG_TAI_JI,
     SKILL_SAN_CHAI_JIAN_FA,
     SKILL_ZI_QI_DONG_LAI,
     SKILL_SUI_XING_CHEN,
@@ -142,6 +141,9 @@ enum Id_t
     SKILL_ZHENG_LV_HE_MING_3,
     SKILL_GU_YING_HUA_SHUANG,
     SKILL_YI_XING_HUAN_YING,
+    SKILL_GONG_SHEN_BING,
+    SKILL_BIAN_GONG_SHEN_BING,
+    SKILL_YU_SHEN_BING,
     SKILL_MO_WEN_END, // ---------------------- 技能 莫问 END ----------------------
 
     SKILL_FEN_SHAN_JING, // ---------------------- 技能 分山劲 ----------------------
@@ -219,6 +221,7 @@ enum Id_t
     BUFF_YUN_ZHONG_JIAN_SHENG_TAI_JI,
     BUFF_CHI_YING,
     BUFF_QI_SHENG,
+    BUFF_JIAN_RU,
     BUFF_FENG_SHI,
     BUFF_HIDDEN_LIE_YUN,
     BUFF_LIE_YUN,
@@ -236,7 +239,7 @@ enum Id_t
     BUFF_XIAN_FENG,
     BUFF_XIAN_FENG_BIAO_JI,
     BUFF_YUN_HAN,
-    BUFF_SHU_LI,
+    BUFF_MING_JIN,
     BUFF_CAN_LIAN,
     BUFF_ZHI_YIN_MIAO_YI,
     BUFF_ZHENG_LV_HE_MING,
@@ -246,6 +249,7 @@ enum Id_t
     BUFF_YING_ZI,
     BUFF_ZHI_YIN_XING_JIN,
     BUFF_GU_YING_HUA_SHUANG,
+    BUFF_ZHENG_MING,
     BUFF_MO_WEN_END, // ---------------------- Buff 莫问 END ----------------------
 
     BUFF_END, // ---------------------- Buff END ----------------------
@@ -271,6 +275,7 @@ enum Id_t
     TALENT_GU_CHANG,
     TALENT_SUI_WU,
     TALENT_QI_SHENG,
+    TALENT_JIAN_RU,
     TALENT_WU_YU,
     TALENT_XU_JI,
     TALENT_XUAN_MEN,
@@ -286,7 +291,8 @@ enum Id_t
     TALENT_SHI_XIANG,
     TALENT_ZHI_ZHI,
     TALENT_KE_MENG,
-    TALENT_SHU_LI,
+    TALENT_ZHENG_MING,
+    TALENT_MING_JIN,
     TALENT_XIU_QI,
     TALENT_YUN_HAN,
     TALENT_CAN_LIAN,
@@ -480,6 +486,8 @@ enum Id_t
     TRIGGER_YUN_ZHONG_JIAN_SHENG_TAI_JI,
     TRIGGER_FIELD_QI_SHENG,
     TRIGGER_QI_SHENG,
+    TRIGGER_JIAN_RU,
+    TRIGGER_JIAN_RU_ADD,
     TRIGGER_TAI_XU_JIAN_YI_END, // ---------------------- 触发效果 太虚剑意 END ----------------------
 
     TRIGGER_MO_WEN, // ---------------------- 触发效果 莫问 ----------------------
@@ -490,13 +498,14 @@ enum Id_t
     TRIGGER_YUN_HAN,
     TRIGGER_CAN_LIAN_ADD,
     TRIGGER_CAN_LIAN_CLEAR,
-    TRIGGER_SHU_LI,
+    TRIGGER_MING_JIN,
     TRIGGER_SHI_XIANG,
     TRIGGER_ZHI_ZHI,
     TRIGGER_HAO_QING_ZHI,
     TRIGGER_HAO_QING_BIAN_ZHI,
     TRIGGER_LIU_ZHAO_DAMAGE,
     TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
+    TRIGGER_ZHENG_MING_SURPLUS_DAMAGE,
     TRIGGER_MO_WEN_END, // ---------------------- 触发效果 莫问 END ----------------------
 
     TRIGGER_END, // ---------------------- 触发效果 END ----------------------
@@ -586,18 +595,17 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------技能----------------------" },
 
      { "----------------------通用----------------------" },
-     { "破招" },
+     { "破" },
      { "腰坠·破防" },
 
      { "----------------------技能 太虚剑意----------------------" },
      { "无我无剑" },
      { "八荒归元" },
+     { "八荒归元·神兵" },
      { "三环套月" },
      { "万剑归宗" },
      { "人剑合一" },
      { "人剑合一·空爆·碎星辰" },
-     { "人剑合一·空爆·吞日月" },
-     { "人剑合一·空爆·生太极" },
      { "三柴剑法" },
      { "紫气东来" },
      { "碎星辰" },
@@ -623,6 +631,9 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "正律和鸣·3" },
      { "孤影化双" },
      { "移形换影" },
+     { "宫·神兵" },
+     { "变宫·神兵" },
+     { "羽·神兵" },
      { "----------------------技能 莫问 END----------------------" },
 
      { "----------------------技能 分山劲----------------------" },
@@ -653,7 +664,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "套装·属性" },
      { "刃凌" },
      { "大附魔·衣" },
-     { "大附魔·头" },
+     { "大附魔·帽" },
      { "大附魔·腰" },
      { "昆吾·弦刃" },
      { "----------------------通用 END----------------------" },
@@ -700,6 +711,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "云中剑·生太极" },
      { "持盈" },
      { "期声" },
+     { "剑入" },
      { "风逝" },
      { "隐藏Buff·裂云" },
      { "裂云" },
@@ -713,11 +725,11 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "Dot·神兵·宫" },
      { "曲风" },
      { "流照" },
-     { "破招·流照" },
+     { "破·流照" },
      { "弦风" },
      { "弦风·标记" },
      { "云汉" },
-     { "书离" },
+     { "明津" },
      { "参连" },
      { "知音妙意" },
      { "正律和鸣" },
@@ -727,6 +739,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "影子" },
      { "知音兴尽" },
      { "孤影化双" },
+     { "破·争鸣" },
      { "----------------------Buff 莫问 END----------------------" },
 
      { "----------------------Buff END-----------------------" },
@@ -752,6 +765,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "故长" },
      { "随物" },
      { "期声" },
+     { "剑入" },
      { "无欲" },
      { "虚极" },
      { "玄门" },
@@ -767,7 +781,8 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "师襄" },
      { "知止" },
      { "刻梦" },
-     { "书离" },
+     { "争鸣" },
+     { "明津" },
      { "修齐" },
      { "云汉" },
      { "参连" },
@@ -914,8 +929,8 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------秘籍 END-----------------------" },
 
      { "----------------------装备-----------------------" },
-     { "武器效果·橙武" },
-     { "武器效果·水特效" },
+     { "武器·橙武特效" },
+     { "武器·水特效" },
      { "套装·属性" },
      { "套装·技能" },
      { "大附魔·鞋" },

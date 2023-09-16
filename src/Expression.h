@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 13:41:19
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 13:20:19
+ * Last Modified: 2023-09-07 14:47:52
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -72,7 +72,7 @@ bool IsTargetSwitchable(Player *player, Targets *targets, Id_t id);
 
 bool IsReady(Player *player, Targets *targets, Id_t id, bool fcast);
 
-bool StopReCastSkill(Player *player, Targets *targets, Id_t id);
+bool StopReCastSkill(Player *player, Targets *targets);
 
 bool IsScast(Player *player, Targets *targets, bool scast);
 

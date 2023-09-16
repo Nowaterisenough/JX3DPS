@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 03:26:33
+ * Last Modified: 2023-09-08 05:59:24
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -101,7 +101,7 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    QColor m_textColor   = QColor(193, 255, 203);
+    QColor m_textColor   = QColor(220, 220, 220);
     QColor m_hoverColor  = QColor(COLOR_BUTTON_BLUE_HOVER);
     QColor m_normalColor = QColor(COLOR_BUTTON_BLUE_NORMAL);
     QColor m_color       = m_normalColor;

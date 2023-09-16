@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:30
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 13:14:12
+ * Last Modified: 2023-09-06 16:49:12
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -288,7 +288,8 @@ public:
 
     GainsDamage CalcMagicDotDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0, int effectCount = 1);
 
-    void Record(Id_t               targetId,
+    void Record(Id_t               effectId,
+                Id_t               targetId,
                 RollResult         rollResult  = RollResult::HIT,
                 const GainsDamage &gainsDamage = GainsDamage(),
                 int                sub         = 0,

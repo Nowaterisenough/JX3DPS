@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:41:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-03 16:03:45
+ * Last Modified: 2023-09-06 17:54:47
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -55,7 +55,7 @@ void EnchantShoesPhysics::SubEffect()
 {
     RollResult rollResult = GetPhysicsRollResult();
     GainsDamage gainsDamage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, gainsDamage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, gainsDamage, 0, 0);
 }
 
 EnchantWristPhysics::EnchantWristPhysics(JX3DPS::Player *player, Targets *targets) :
@@ -91,7 +91,7 @@ void EnchantWristPhysics::SubEffect()
 {
     RollResult rollResult = GetPhysicsRollResult();
     GainsDamage gainsDamage = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, gainsDamage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, gainsDamage, 0, 0);
 }
 
 EnchantShoesMagic::EnchantShoesMagic(JX3DPS::Player *player, Targets *targets) :
@@ -127,7 +127,7 @@ void EnchantShoesMagic::SubEffect()
 {
     RollResult  rollResult  = GetMagicRollResult();
     GainsDamage gainsDamage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, gainsDamage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, gainsDamage, 0, 0);
 }
 
 EnchantWristMagic::EnchantWristMagic(JX3DPS::Player *player, Targets *targets) :
@@ -163,7 +163,7 @@ void EnchantWristMagic::SubEffect()
 {
     RollResult  rollResult  = GetMagicRollResult();
     GainsDamage gainsDamage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_player->GetTargetId(), rollResult, gainsDamage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, gainsDamage, 0, 0);
 }
 
 EnchantBelt::EnchantBelt(JX3DPS::Player *player, Targets *targets) :

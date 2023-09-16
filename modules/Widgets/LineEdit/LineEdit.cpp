@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 04:15:42
+ * Last Modified: 2023-09-05 02:27:39
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -57,7 +57,7 @@ LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent)
             .arg(TO_STR(COLOR_BACKGROUND_HIGHLIGHT))
             .arg(TO_STR(COLOR_HIGHLIGHT)));
 
-    this->setValidator(new QIntValidator(1, 9999999, this));
+    this->setValidator(new QIntValidator(0, 9999999, this));
 }
 
 void LineEdit::UpdateValue(int value)

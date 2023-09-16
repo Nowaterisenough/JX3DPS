@@ -5,7 +5,7 @@
  * Created Date: 2023-06-07 01:15:59
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 06:20:16
+ * Last Modified: 2023-09-09 01:14:18
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -74,6 +74,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    
 
 private:
     QColor m_color = QColor(COLOR_INACTIVE);
@@ -113,6 +114,7 @@ public:
 
     void SetTitle(const QString &title);
 
+    void SetMousePressed(bool);
 protected:
     void paintEvent(QPaintEvent *event) override;
 

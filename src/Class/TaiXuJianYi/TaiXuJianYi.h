@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 21:13:50
+ * Last Modified: 2023-09-12 09:43:34
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -117,6 +117,10 @@ public:
     static void TriggerLieYun(const Params &params);
 
     static void TriggerQiSheng(const Params &params);
+
+    static void TriggerJianRuAdd(const Params &params);
+
+    static void TriggerJianRu(const Params &params);
 
     static void TriggerFieldQiSheng(const Params &params);
 

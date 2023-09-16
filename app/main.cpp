@@ -5,7 +5,7 @@
  * Created Date: 2023-07-19 03:39:15
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 07:57:26
+ * Last Modified: 2023-09-08 22:23:35
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -19,7 +19,7 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/spdlog.h>
 
-#include "JX3DPSWidget.h"
+#include "MainWidget.h"
 
 int main(int argc, char *argv[])
 {

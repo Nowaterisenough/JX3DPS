@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-21 19:00:22
+ * Last Modified: 2023-09-13 04:28:11
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,7 +13,7 @@
  * ----------	-----	----------------------------------------------------------
  */
 
-#include "JX3DPSWidget.h"
+#include "MainWidget.h"
 
 #include <functional>
 
@@ -34,58 +34,54 @@
 #include "SpinBox/SpinBox.h"
 #include "Splitter/Splitter.h"
 #include "StackWidget/StackWidget.h"
+#include "TabWidget/TabWidget.h"
 #include "ThreadPool/ThreadPool.h"
 
+#include "ImportWidget.h"
 #include "JX3DPS.h"
 #include "JX3DPSJsonParser.h"
-#include "JX3DPSStatsWidget.h"
+#include "StatsWidget.h"
+#include "TimeLineWidget.h"
 
 const char *const CONFIG_PATH = "./config.json";
 
 JX3DPS::Simulator::Widget::Widget(QWidget *parent)
 {
-    QString title = QString("%1  %3").arg(APP_NAME).arg(JX3DPSVersion());
+    QString title = QString("%1  %2").arg(APP_NAME).arg(JX3DPSVersion());
     this->SetTitle(title);
 
-    this->setFixedHeight(850);
+    this->setFixedHeight(885);
     this->setMinimumWidth(1000);
 
     GroupBox  *groupBoxSetting         = new GroupBox("设置", this->centralWidget);
     TabWidget *tabWidgetAttribute      = new TabWidget(this->centralWidget);
-    Button    *buttonSimulate          = new Button(this->centralWidget);
+    GroupBox  *groupBoxConfiguration   = new GroupBox("配置", this->centralWidget);
     GroupBox  *groupBoxOut             = new GroupBox("输出", this->centralWidget);
     TabWidget *tabWidgetGains          = new TabWidget(this->centralWidget);
     TabWidget *tabWidgetTalentsRecipes = new TabWidget(this->centralWidget);
     GroupBox  *groupBoxPermanents = new GroupBox("常驻增益", this->centralWidget);
     Splitter  *splitter           = new Splitter(this->centralWidget);
-    TabWidget *tabWidgetSkills    = new TabWidget(this->centralWidget);
-    TabWidget *tabWidgetEvents    = new TabWidget(this->centralWidget);
-
-    buttonSimulate->setText("开始模拟");
-    buttonSimulate->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
-    buttonSimulate->setFixedHeight(55);
-    buttonSimulate->setFixedWidth(160);
-    buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 14));
+    QWidget   *widgetSkills       = new QWidget(this->centralWidget);
+    QWidget   *widgetEvents       = new QWidget(this->centralWidget);
 
     tabWidgetAttribute->AddTab("属性");
     tabWidgetAttribute->AddTab("配装");
 
     tabWidgetGains->AddTab("收益");
+    tabWidgetGains->setFixedHeight(350);
 
     tabWidgetTalentsRecipes->AddTab("奇穴");
     tabWidgetTalentsRecipes->AddTab("秘籍");
 
-    tabWidgetSkills->SetAddButtonVisible(true);
-
     splitter->setOrientation(Qt::Vertical);
-    splitter->addWidget(tabWidgetSkills);
-    splitter->addWidget(tabWidgetEvents);
+    splitter->addWidget(widgetSkills);
+    splitter->addWidget(widgetEvents);
 
     QGridLayout *layout = new QGridLayout(this->centralWidget);
     layout->setSpacing(10);
     layout->addWidget(groupBoxSetting, 0, 0, 2, 1);
     layout->addWidget(tabWidgetAttribute, 2, 0, 2, 1);
-    layout->addWidget(buttonSimulate, 0, 1, 1, 2, Qt::AlignCenter);
+    layout->addWidget(groupBoxConfiguration, 0, 1, 1, 2);
     layout->addWidget(groupBoxOut, 1, 1, 1, 2);
     layout->addWidget(tabWidgetGains, 2, 1, 1, 2);
     layout->addWidget(tabWidgetTalentsRecipes, 3, 1, 1, 3);
@@ -97,25 +93,9 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
     layout->setColumnStretch(3, 0);
     layout->setColumnStretch(4, 1);
 
-    connect(tabWidgetSkills, &TabWidget::Signal_AddTab, this, [=]() {
-        QWidget *widget = tabWidgetSkills->Widget(tabWidgetSkills->Count() - 1);
-
-        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
-        QGridLayout   *layout        = new QGridLayout(widget);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(plainTextEdit);
-    });
-
-    connect(tabWidgetEvents, &TabWidget::Signal_AddTab, this, [=]() {
-        QWidget *widget = tabWidgetEvents->Widget(tabWidgetEvents->Count() - 1);
-
-        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
-        QGridLayout   *layout        = new QGridLayout(widget);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(plainTextEdit);
-    });
-
     InitWidgetSetting(groupBoxSetting);
+
+    InitWidgetConfiguration(groupBoxConfiguration);
 
     InitWidgetOut(groupBoxOut);
 
@@ -129,11 +109,9 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
 
     InitWidgetPermanents(groupBoxPermanents);
 
-    InitWidgetSkills(tabWidgetSkills);
+    InitWidgetSkills(widgetSkills);
 
-    InitWidgetEvents(tabWidgetEvents);
-
-    connect(buttonSimulate, &QPushButton::clicked, this, [=] { Start(); });
+    InitWidgetEvents(widgetEvents);
 }
 
 JX3DPS::Simulator::Widget::~Widget() { }
@@ -142,8 +120,8 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
 {
     ComboBox *comboBoxClass = new ComboBox(parent);
     comboBoxClass->SetType(ComboBox::Type::DETAILED);
-    comboBoxClass->setFixedHeight(54);
-    comboBoxClass->SetItemSize(204, 54);
+    comboBoxClass->setFixedHeight(52);
+    comboBoxClass->SetItemSize(204, 52);
 
     ComboBox::ItemInfo itemInfo;
     itemInfo.name = "心法";
@@ -190,17 +168,50 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     checkBoxDebug->setFixedHeight(22);
     checkBoxDebug->setText("调试");
 
+    CheckBox *checkBoxFrameByFrame = new CheckBox(parent);
+    checkBoxFrameByFrame->setFixedHeight(22);
+    checkBoxFrameByFrame->setText("逐帧");
+
+    Button *buttonSimulate = new Button(parent);
+    buttonSimulate->setText("开始模拟");
+    buttonSimulate->SetButtonColor(QColor(COLOR_BUTTON_GREEN_HOVER), QColor(COLOR_BUTTON_GREEN_NORMAL));
+    buttonSimulate->setFixedHeight(36);
+    // buttonSimulate->setFixedWidth(64);
+    buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 11));
+
+    connect(buttonSimulate, &QPushButton::clicked, this, [=] { Start(); });
+
+    Button *buttonAbout = new Button(parent);
+    buttonAbout->setText("关于");
+    buttonAbout->setEnabled(false);
+    buttonAbout->SetButtonColor(QColor(COLOR_BACKGROUND_PRIMARY), QColor(COLOR_BACKGROUND_HIGHLIGHT));
+    buttonAbout->setFixedHeight(36);
+    buttonAbout->setFixedWidth(64);
+    buttonAbout->setFont(QFont(buttonAbout->font().family(), 11));
+
     QGridLayout *gLayout = new QGridLayout(parent);
+    gLayout->addWidget(buttonSimulate, 4, 0, 1, 2);
+    gLayout->addWidget(buttonAbout, 4, 2, 1, 1);
     gLayout->addWidget(comboBoxClass, 0, 0, 1, 3);
     gLayout->addWidget(textButtonFramePrecision, 1, 0, 1, 1);
     gLayout->addWidget(lineEditFramePrecision, 1, 1, 1, 1);
+    gLayout->addWidget(checkBoxFrameByFrame, 1, 2, 1, 1);
     gLayout->addWidget(textButtonSimulateCount, 2, 0, 1, 1);
     gLayout->addWidget(lineEditSimulateCount, 2, 1, 1, 1);
+    gLayout->addWidget(checkBoxDebug, 2, 2, 1, 1);
     gLayout->addWidget(textButtonDelay, 3, 0, 1, 1);
     gLayout->addWidget(lineEditDelayMin, 3, 1, 1, 1);
     gLayout->addWidget(lineEditDelayMax, 3, 2, 1, 1);
 
-    gLayout->addWidget(checkBoxDebug, 2, 2, 1, 1);
+    connect(checkBoxFrameByFrame, &QCheckBox::stateChanged, [=](int checked) {
+        if (checked) {
+            lineEditFramePrecision->setText("1");
+            lineEditFramePrecision->setReadOnly(true);
+        } else {
+            lineEditFramePrecision->setText("24");
+            lineEditFramePrecision->setReadOnly(false);
+        }
+    });
 
     connect(checkBoxDebug, &QCheckBox::stateChanged, [=](int checked) {
         if (checked) {
@@ -209,12 +220,14 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
 
             lineEditSimulateCount->setText("1");
             lineEditSimulateCount->setReadOnly(true);
+            emit Signal_Debug(true);
         } else {
             spdlog::default_logger()->set_level(spdlog::level::info);
             spdlog::flush_on(spdlog::level::info);
 
             lineEditSimulateCount->setText("1000");
             lineEditSimulateCount->setReadOnly(false);
+            emit Signal_Debug(false);
         }
     });
 
@@ -240,6 +253,36 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     });
 }
 
+void JX3DPS::Simulator::Widget::InitWidgetConfiguration(QWidget *parent)
+{
+    QGridLayout *layout = new QGridLayout(parent);
+
+    ComboBox *comboBox = new ComboBox(parent);
+    comboBox->setFixedHeight(36);
+    comboBox->SetItemSize(155, 36);
+    comboBox->SetType(ComboBox::Type::DETAILED);
+
+    ComboBox::ItemInfo itemInfo;
+    itemInfo.name = "默认";
+    comboBox->AddItem(itemInfo);
+
+    Button *buttonNew = new Button(parent);
+    buttonNew->setText("新建");
+    buttonNew->SetButtonColor(QColor(COLOR_BACKGROUND_PRIMARY), QColor(COLOR_BACKGROUND_HIGHLIGHT));
+    buttonNew->setFixedHeight(32);
+    buttonNew->setFont(QFont(buttonNew->font().family(), 11));
+
+    Button *buttonSave = new Button(parent);
+    buttonSave->setText("保存");
+    buttonSave->SetButtonColor(QColor(COLOR_BACKGROUND_PRIMARY), QColor(COLOR_BACKGROUND_HIGHLIGHT));
+    buttonSave->setFixedHeight(32);
+    buttonSave->setFont(QFont(buttonSave->font().family(), 11));
+
+    layout->addWidget(comboBox, 0, 0, 1, 2);
+    layout->addWidget(buttonNew, 1, 0, 1, 1);
+    layout->addWidget(buttonSave, 1, 1, 1, 1);
+}
+
 void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
 {
     TextButton *textButtonDPS = new TextButton(parent);
@@ -253,16 +296,23 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
     QSpacerItem *spacerItem = new QSpacerItem(0, 2, QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     Button *buttonStats = new Button(parent);
-    buttonStats->setText("数据统计");
-    buttonStats->setFixedHeight(36);
+    buttonStats->setText("统计");
+    buttonStats->setFixedHeight(32);
     buttonStats->setFont(QFont(buttonStats->font().family(), 11));
+
+    Button *buttonTimeLine = new Button(parent);
+    buttonTimeLine->setText("时间轴");
+    buttonTimeLine->setFixedHeight(32);
+    buttonTimeLine->setEnabled(false);
+    buttonTimeLine->setFont(QFont(buttonStats->font().family(), 11));
 
     QGridLayout *gLayout = new QGridLayout(parent);
 
     gLayout->addWidget(textButtonDPS, 0, 0, 1, 1);
     gLayout->addWidget(lineEditDPS, 0, 1, 1, 1);
     gLayout->addItem(spacerItem, 1, 0, 1, 2);
-    gLayout->addWidget(buttonStats, 2, 0, 1, 2);
+    gLayout->addWidget(buttonStats, 2, 0, 1, 1);
+    gLayout->addWidget(buttonTimeLine, 2, 1, 1, 1);
 
     StatsWidget *statsWidget = new StatsWidget(nullptr);
     statsWidget->hide();
@@ -275,6 +325,17 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
         }
     });
 
+    TimeLineWidget *timeLineWidget = new TimeLineWidget(nullptr);
+    timeLineWidget->hide();
+
+    connect(buttonTimeLine, &QPushButton::clicked, [=]() {
+        if (timeLineWidget->isHidden()) {
+            timeLineWidget->show();
+        } else {
+            timeLineWidget->hide();
+        }
+    });
+
     connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
         long long damage = JsonParser::GetTotalDamage(result["Stats"]["默认"]);
         int       count  = result["SimIterations"].get<int>();
@@ -283,6 +344,20 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
 
         emit statsWidget->Signal_UpdateStats(result);
     });
+
+    connect(this, &Widget::Signal_Debug, this, [=](bool debug) {
+        if (debug) {
+            buttonTimeLine->setEnabled(true);
+        } else {
+            buttonTimeLine->setEnabled(false);
+            timeLineWidget->close();
+        }
+    });
+
+    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+        emit timeLineWidget->Signal_Import(result, m_config);
+    });
+
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
@@ -568,6 +643,52 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     buttonImport->setText("导入魔盒属性");
     buttonImport->setFont(QFont(buttonImport->font().family(), 11));
 
+    ImportWidget *importWidget = new ImportWidget(nullptr);
+    importWidget->hide();
+
+    connect(buttonImport, &QPushButton::clicked, [=]() {
+        if (importWidget->isHidden()) {
+            importWidget->show();
+        } else {
+            importWidget->hide();
+        }
+    });
+
+    connect(importWidget, &ImportWidget::Signal_Import, [=](nlohmann::ordered_json &json) {
+        attribute->SetAgilityBaseAdditional(json["Agility"].get<int>() - attribute->GetAgilityBaseByClass());
+        attribute->SetSpiritBaseAdditional(json["Spirit"].get<int>() - attribute->GetSpiritBaseByClass());
+        attribute->SetSpunkBaseAdditional(json["Spunk"].get<int>() - attribute->GetSpunkBaseByClass());
+        attribute->SetStrengthBaseAdditional(json["Strength"].get<int>() - attribute->GetStrengthBaseByClass());
+        attribute->SetSurplusValueBase(json["SurplusValue"].get<int>());
+        attribute->SetWeaponDamageBase(json["MeleeWeaponDamage"].get<int>());
+        attribute->SetWeaponDamageRand(json["MeleeWeaponDamageRand"].get<int>());
+        attribute->SetStrainBase(json["Strain"].get<int>());
+        attribute->SetHasteBase(json["Haste"].get<int>());
+
+        if (json.find("PhysicsAttackPowerBase") != json.end()) {
+            attribute->SetPhysicsAttackPowerBaseAdditional(
+                json["PhysicsAttackPowerBase"].get<int>() -
+                attribute->GetPhysicsAttackPowerBaseByClass());
+            attribute->SetPhysicsCriticalStrikeAdditional(json["PhysicsCriticalStrike"].get<int>() -
+                                                          attribute->GetPhysicsCriticalStrikeByClass());
+            attribute->SetPhysicsCriticalStrikePower(json["PhysicsCriticalDamagePower"].get<int>());
+            attribute->SetPhysicsOvercomeBaseAdditional(json["PhysicsOvercome"].get<int>() -
+                                                        attribute->GetPhysicsOvercomeBaseByClass());
+        }
+
+        if (json.find("LunarAttackPowerBase") != json.end()) {
+            attribute->SetMagicAttackPowerBaseAdditional(json["LunarAttackPowerBase"].get<int>() -
+                                                         attribute->GetMagicAttackPowerBaseByClass());
+            attribute->SetMagicCriticalStrikeAdditional(json["LunarCriticalStrike"].get<int>() -
+                                                        attribute->GetMagicCriticalStrikeByClass());
+            attribute->SetMagicCriticalStrikePower(json["LunarCriticalDamagePower"].get<int>());
+            attribute->SetMagicOvercomeBaseAdditional(json["LunarOvercome"].get<int>() -
+                                                      attribute->GetMagicOvercomeBaseByClass());
+        }
+
+        emit Signal_UpdateAttribute();
+    });
+
     gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
@@ -613,11 +734,11 @@ void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
     comboBoxWeapon->SetType(ComboBox::Type::DETAILED);
 
     ComboBox::ItemInfo itemInfo;
-    itemInfo.name = "武器效果";
+    itemInfo.name = "武器类型";
     comboBoxWeapon->AddItem(itemInfo);
-    itemInfo.name = "武器效果·橙武";
+    itemInfo.name = "武器·橙武特效";
     comboBoxWeapon->AddItem(itemInfo);
-    itemInfo.name = "武器效果·水特效";
+    itemInfo.name = "武器·水特效";
     comboBoxWeapon->AddItem(itemInfo);
 
     setEffectWidgets.push_back(checkBoxEnchantWrist);
@@ -663,7 +784,7 @@ void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
             }
         }
 
-        if (comboBoxWeapon->GetItemInfo().name != "武器效果") {
+        if (comboBoxWeapon->GetItemInfo().name != "武器类型") {
             params["EquipEffects"].emplace_back(comboBoxWeapon->GetItemInfo().name.toStdString());
         }
     });
@@ -864,8 +985,8 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     for (int i = 0; i < permanents.size(); ++i) {
         ComboBox *comboBox = new ComboBox(parent);
         comboBox->SetType(ComboBox::Type::DETAILED);
-        comboBox->setFixedSize(200, 48);
-        comboBox->SetItemSize(200, 48);
+        comboBox->setFixedSize(200, 52);
+        comboBox->SetItemSize(200, 52);
         gLayout->addWidget(comboBox, i, 0, 1, 1);
 
         ComboBox::ItemInfo itemInfo;
@@ -933,8 +1054,8 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        std::string className = params["ClassType"].get<std::string>();
-        JX3DPS::ClassType type = GetClassType(className);
+        std::string       className = params["ClassType"].get<std::string>();
+        JX3DPS::ClassType type      = GetClassType(className);
         if (permanentCheckBoxes[0]->isChecked()) {
             QString                name = permanentCheckBoxes[0]->GetItemInfo().name;
             nlohmann::ordered_json out;
@@ -986,17 +1107,34 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     });
 }
 
-void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
 {
-    parent->AddTab("宏");
+    QGridLayout *layout = new QGridLayout(parent);
+
+    TabWidget *tabWidgetSkills = new TabWidget(parent);
+    tabWidgetSkills->SetAddButtonVisible(true);
+
+    layout->addWidget(tabWidgetSkills, 0, 0, 1, 1);
+    layout->setContentsMargins(0, 0, 0, 0);
+
+    connect(tabWidgetSkills, &TabWidget::Signal_AddTab, this, [=]() {
+        QWidget *widget = tabWidgetSkills->Widget(tabWidgetSkills->Count() - 1);
+
+        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
+        QGridLayout   *layout        = new QGridLayout(widget);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(plainTextEdit);
+    });
+
+    tabWidgetSkills->AddTab("宏");
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
-        parent->Clear();
+        tabWidgetSkills->Clear();
         std::list<std::pair<std::string, std::list<std::string>>> skills;
         JsonParser::ParseJsonToSkills(m_config, type, skills);
         int index = 0;
         for (auto &[name, exprs] : skills) {
-            parent->AddTab(name.c_str());
-            PlainTextEdit *text = parent->Widget(index)->findChild<PlainTextEdit *>();
+            tabWidgetSkills->AddTab(name.c_str());
+            PlainTextEdit *text = tabWidgetSkills->Widget(index)->findChild<PlainTextEdit *>();
             for (const auto &expr : exprs) {
                 text->appendPlainText(QString::fromStdString(expr));
             }
@@ -1005,7 +1143,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        for (auto &[btn, tab] : parent->Tabs()) {
+        for (auto &[btn, tab] : tabWidgetSkills->Tabs()) {
             QString        name   = btn->text();
             PlainTextEdit *text   = tab->findChild<PlainTextEdit *>();
             QString        buffer = text->toPlainText();
@@ -1017,13 +1155,43 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(TabWidget *parent)
     });
 }
 
-void JX3DPS::Simulator::Widget::InitWidgetEvents(TabWidget *parent)
+void JX3DPS::Simulator::Widget::InitWidgetEvents(QWidget *parent)
 {
-    parent->AddTab("事件");
+    QGridLayout *layout = new QGridLayout(parent);
+
+    parent->setMouseTracking(true);
+
+    TabWidget *tabWidgetEvents = new TabWidget(parent);
+
+    layout->addWidget(tabWidgetEvents, 0, 0, 1, 1);
+    layout->setContentsMargins(0, 0, 0, 0);
+
+    Button *buttonEvents = new Button(parent);
+    buttonEvents->setText("可视化事件编辑");
+    buttonEvents->setEnabled(false);
+    buttonEvents->SetButtonColor(QColor(COLOR_BACKGROUND_PRIMARY), QColor(COLOR_BACKGROUND_HIGHLIGHT));
+    buttonEvents->setGeometry(45, 0, 110, 24);
+
+    Button *buttonImportJcl = new Button(parent);
+    buttonImportJcl->setText("导入JCL记录");
+    buttonImportJcl->setEnabled(false);
+    buttonImportJcl->SetButtonColor(QColor(COLOR_BACKGROUND_PRIMARY), QColor(COLOR_BACKGROUND_HIGHLIGHT));
+    buttonImportJcl->setGeometry(165, 0, 100, 24);
+
+    connect(tabWidgetEvents, &TabWidget::Signal_AddTab, this, [=]() {
+        QWidget *widget = tabWidgetEvents->Widget(tabWidgetEvents->Count() - 1);
+
+        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
+        QGridLayout   *layout        = new QGridLayout(widget);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(plainTextEdit);
+    });
+
+    tabWidgetEvents->AddTab("事件");
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
         std::list<std::string> events;
         JsonParser::ParseJsonToEvents(m_config, type, events);
-        PlainTextEdit *text = parent->Widget(0)->findChild<PlainTextEdit *>();
+        PlainTextEdit *text = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>();
         text->clear();
         for (auto &expr : events) {
             text->appendHtml(expr.c_str());
@@ -1031,7 +1199,7 @@ void JX3DPS::Simulator::Widget::InitWidgetEvents(TabWidget *parent)
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
-        PlainTextEdit *text   = parent->Widget(0)->findChild<PlainTextEdit *>();
+        PlainTextEdit *text   = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>();
         QString        buffer = text->toPlainText();
         QStringList    lines  = buffer.split("\n", Qt::SkipEmptyParts);
         for (const QString &line : lines) {

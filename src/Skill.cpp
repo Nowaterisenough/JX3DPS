@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-22 13:31:48
+ * Last Modified: 2023-09-13 13:14:11
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -21,6 +21,7 @@
 
 #include "Player.h"
 #include "Target.hpp"
+#include "TimeLine.hpp"
 
 JX3DPS::Skill::Skill(Player *player, Targets *targets)
 {
@@ -680,15 +681,23 @@ JX3DPS::GainsDamage JX3DPS::Skill::CalcMagicSurplusDamage(Id_t targetId, RollRes
     return gainsDamage;
 }
 
-void JX3DPS::Skill::Record(Id_t targetId, RollResult rollResult, const GainsDamage &gainsDamage, int sub, int level)
+void JX3DPS::Skill::Record(Id_t effectId, Id_t targetId, RollResult rollResult, const GainsDamage &gainsDamage, int sub, int level, NodeType type)
 {
     for (const auto &[type, damage] : gainsDamage) {
-        m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].first++;
-        m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].second.damage +=
+        m_stats.gainStats[type][targetId][effectId][sub][level][rollResult].first++;
+        m_stats.gainStats[type][targetId][effectId][sub][level][rollResult].second.damage +=
             damage.damage;
-        m_stats.gainStats[type][targetId][m_id][sub][level][rollResult].second.surplusDamage +=
+        m_stats.gainStats[type][targetId][effectId][sub][level][rollResult].second.surplusDamage +=
             damage.surplusDamage;
     }
+    int damage = 0;
+    if (!gainsDamage.empty()) {
+        damage = gainsDamage.at(Attribute::Type::DEFAULT).SumDamage();
+    }
+    TimeLine::RecordSkill(std::string(JX3DPS_NAME[effectId]),
+                          rollResult,
+                          damage,
+                          type);
 }
 
 void JX3DPS::Skill::AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect)

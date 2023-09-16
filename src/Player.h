@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-25 21:56:31
+ * Last Modified: 2023-09-07 14:49:28
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -15,6 +15,8 @@
 
 #ifndef __JX3DPS_PLAYER_H__
 #define __JX3DPS_PLAYER_H__
+
+#include <unordered_set>
 
 #include "Attribute/Attribute.hpp"
 #include "Global/Defs.h"
@@ -50,7 +52,7 @@ public:
 
     inline Targets *GetTargets() const { return m_targets; }
 
-    void AddBuff3rds(const std::list<Id_t> &buff3rds);
+    void AddBuff3rds(const std::unordered_set<Id_t> &buff3rds);
 
     inline ClassType GetClassType() const { return this->attribute.GetClassType(); }
 
@@ -167,6 +169,10 @@ public:
 
     inline void SetReCastSkill(Id_t reCastSkill) { m_reCastSkill = reCastSkill; }
 
+    inline Id_t GetCastSkill() const { return m_castSkill; }
+
+    inline void SetCastSkill(Id_t castSkill) { m_castSkill = castSkill; }
+
     inline Frame_t DelayFrames() const
     {
         return RandomNormal(m_delayMin, m_delayMax + 1) / JX3DPS_DELAY;
@@ -177,6 +183,9 @@ public:
         m_delayMin = delayMin;
         m_delayMax = delayMax;
     }
+
+    bool StopReCastSkill();
+    
 
     inline static void TriggerVoid(const Params &params) { }
 
@@ -191,11 +200,11 @@ public:
     Attribute attribute; // 属性
     ClassType teamCore = ClassType::DEFAULT;
 
-    Talents        talents;        // 奇穴列表
-    Recipes        recipes;        // 秘籍列表
-    Skills         skills;         // 技能列表
-    Buffs          buffs;          // Buff列表
-    EquipEffects   equipEffects;   // 装备效果列表
+    Talents      talents;      // 奇穴列表
+    Recipes      recipes;      // 秘籍列表
+    Skills       skills;       // 技能列表
+    Buffs        buffs;        // Buff列表
+    EquipEffects equipEffects; // 装备效果列表
 
 private:
     Targets *m_targets = nullptr;
@@ -220,7 +229,8 @@ private:
 
     Id_t m_targetId      = TARGET_PLACE_HOLDERS_DEFAULT; // 目标ID
     Id_t m_lastCastSkill = SKILL_DEFAULT;                // 上次施放技能ID
-    Id_t m_reCastSkill   = SKILL_DEFAULT;                // 正在读条技能ID
+    Id_t m_reCastSkill   = SKILL_DEFAULT;                // 正在倒读条技能ID
+    Id_t m_castSkill     = SKILL_DEFAULT;                // 正在正读条技能ID
 
     int m_delayMin = 0; // 最小延迟
     int m_delayMax = 0; // 最大延迟

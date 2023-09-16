@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 06:10:47
+ * Last Modified: 2023-09-12 10:26:55
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -192,7 +192,7 @@ public:
          { 41, 41, 41, 41, 3277, 0, 0, 0, 2929, 0, 0, 0, 0, 0, 184 }, // 太虚剑意
           { 41, 41, 41, 41, 0, 0, 3725, 0, 0, 1788, 0, 0, 0, 0, 205 }, // 紫霞功
           { 41, 41, 41, 41, 3449, 0, 0, 0, 0, 0, 1526, 0, 0, 0, 92 }, // 分山劲
-          { 41, 41, 41, 41, 0, 0, 3725, 0, 0, 1279, 0, 0, 0, 0, 143 }}  // 莫问
+          { 41, 41, 41, 41, 0, 0, 3725, 0, 0, 1279, 0, 0, 0, 0, 82 }}  // 莫问
     };
 
     constexpr static std::array<std::array<PctInt_t, static_cast<size_t>(TypeByClass::COUNT)>, static_cast<size_t>(ClassType::COUNT)> MAJOR_TO_OTHER_COEFFICIENT{

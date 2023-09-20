@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-18 08:05:06
+ * Last Modified: 2023-09-07 14:48:18
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -110,6 +110,12 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkil
     } else if (std::regex_match(str, mat, regChangeExpression)) {
         Id_t id = static_cast<Id_t>(std::stoi(mat[3].str()) + EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT);
         exprSkill.second = id;
+        if (cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_FCAST || cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_SFCAST)
+        {
+            exprSkill.first.front().emplace_back(std::bind(&JX3DPS::Expression::StopReCastSkill,
+                                                           std::placeholders::_1,
+                                                           std::placeholders::_2));
+        }
     } else {
         Id_t id = SkillId(name);
         if (id == JX3DPS_ID_DEFAULT) {
@@ -129,8 +135,9 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprSkill(const std::string &str, ExprSkil
         if (cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_FCAST || cast == JX3DPS_REGEX_EXPRESSION_SKILL_TYPE_SFCAST)
         {
             fcast = true;
-            exprSkill.first.front().emplace_back(
-                std::bind(&JX3DPS::Expression::StopReCastSkill, std::placeholders::_1, std::placeholders::_2, id));
+            exprSkill.first.front().emplace_back(std::bind(&JX3DPS::Expression::StopReCastSkill,
+                                                           std::placeholders::_1,
+                                                           std::placeholders::_2));
         }
         pre.emplace_back(std::bind(&JX3DPS::Expression::IsReady, std::placeholders::_1, std::placeholders::_2, id, fcast));
     }
@@ -535,37 +542,37 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "<=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownLe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownEq,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == "~=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownNe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">=") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownGe,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         } else if (mat[2].str() == ">") {
             exprIf = std::bind(&JX3DPS::Expression::SkillCooldownGt,
                                std::placeholders::_1,
                                std::placeholders::_2,
                                id,
-                               std::stod(mat[3].str()));
+                               std::stod(mat[3].str()) * JX3DPS::JX3_FRAMES_PER_SECOND);
         }
     } else if (std::regex_match(str, mat, regSkillEnergy)) {
         JX3DPS::Id_t id = SkillId(mat[1].str());
@@ -756,7 +763,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToAddBuff(const std::string &str, ExprEvent 
     if (std::stoi(mat[1].str()) == 0) {
         id = PLAYER_ID;
     } else {
-        id = static_cast<Id_t>(std::stoi(mat[2].str()) + TARGET_PLACE_HOLDERS_DEFAULT);
+        id = static_cast<Id_t>(std::stoi(mat[1].str()) + TARGET_PLACE_HOLDERS_DEFAULT);
     }
 
     Id_t buffId = BuffId(mat[2].str());
@@ -778,7 +785,8 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToAddBuff(const std::string &str, ExprEvent 
     return JX3DPS_SUCCESS;
 }
 
-JX3DPS::Error_t JX3DPS::Regex::ParseToBuff3rds(const std::list<std::string> &strs, std::list<Id_t> &buff3rds)
+JX3DPS::Error_t JX3DPS::Regex::ParseToBuff3rds(const std::list<std::string> &strs,
+                                               std::unordered_set<Id_t>     &buff3rds)
 {
     for (const auto &str : strs) {
         std::regex  reg(JX3DPS_REGEX_EXPRESSION_EVENT);
@@ -795,10 +803,11 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToBuff3rds(const std::list<std::string> &str
             continue;
         }
 
-        Id_t buffId = BuffId(mat[2].str());
+        std::string name   = matAddbuff[2].str();
+        Id_t        buffId = BuffId(name);
 
         if (buffId > BUFF_3RD_DEFAULT && buffId < BUFF_3RD_END) {
-            buff3rds.emplace_back(buffId);
+            buff3rds.emplace(buffId);
         }
     }
     return JX3DPS_SUCCESS;

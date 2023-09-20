@@ -5,7 +5,7 @@
  * Created Date: 2023-07-03 21:37:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 04:54:44
+ * Last Modified: 2023-09-05 02:12:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -57,6 +57,9 @@
 #include <QStylePainter>
 #include <QtWidgets>
 
+
+#include <LineEdit/LineEdit.h>
+
 class SPIN_BOX_API SpinBox : public QWidget
 {
     Q_OBJECT
@@ -78,7 +81,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
-    // void leaveEvent(QEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
 
 private:
     int    m_value;
@@ -86,6 +90,8 @@ private:
     int    m_max = 99999;
     bool   m_dragging;
     QPoint m_dragStartPos;
+
+    LineEdit *m_lineEdit = nullptr;
 };
 
 #endif // __SPIN_BOX_H__

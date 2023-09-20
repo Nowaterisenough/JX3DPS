@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 01:11:14
+ * Last Modified: 2023-09-20 08:57:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -134,16 +134,19 @@ namespace JX3DPS {
 /* 2023年04月27日 群侠万变 */
 #define QUN_XIA_WAN_BIAN      37
 
+/* 2023年09月27日 群侠万变 */
+#define WAN_LING_DANG_GE      38
+
 /*------------------ 版本号 ------------------*/
 
 /* 剑网3 - 等级 */
 #define JX3_LEVEL_VERSION     120
 
 /* 剑网3 - 资料片 */
-#define JX3_VERSION           QUN_XIA_WAN_BIAN
+#define JX3_VERSION           WAN_LING_DANG_GE
 
 /* JX3DPS - 主版本号 */
-#define VERSION_MAJOR         0
+#define VERSION_MAJOR         1
 
 /* JX3DPS - 次版本号 */
 #define VERSION_MINOR         JX3_VERSION

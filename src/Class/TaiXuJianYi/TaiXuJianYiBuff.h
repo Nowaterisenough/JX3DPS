@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:55:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-07-30 01:36:19
+ * Last Modified: 2023-09-12 09:50:38
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -140,12 +140,23 @@ public:
     void SubEffectClear();
 };
 
+class JianRu : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(JianRu)
+
+public:
+    void TriggerAdd();
+    void TriggerDamage(int index);
+};
+
 class FengShi : public JX3DPS::Buff
 {
     BUFF_DEFAULT_FUNCTION(FengShi)
 
 public:
     void TriggerAdd();
+    void TriggerClear();
+    
     void SubEffectAdd();
     void SubEffectClear();
 };
@@ -224,28 +235,17 @@ public:
     void SubEffect();
 };
 
-class ClassFeatureRongJin : public JX3DPS::Buff
+class ClassFeature : public JX3DPS::Buff
 {
-    BUFF_DEFAULT_FUNCTION(ClassFeatureRongJin)
+    BUFF_DEFAULT_FUNCTION(ClassFeature)
 
 public:
     void SubEffectAdd();
 };
 
-class WeaponEffectCW1 : public JX3DPS::Buff
+class WeaponEffectCW : public JX3DPS::Buff
 {
-    BUFF_DEFAULT_FUNCTION(WeaponEffectCW1)
-
-public:
-    void TriggerAdd();
-
-    void SubEffectAdd();
-    void SubEffectClear();
-};
-
-class ClassSetBuffJianMing : public JX3DPS::Buff
-{
-    BUFF_DEFAULT_FUNCTION(ClassSetBuffJianMing)
+    BUFF_DEFAULT_FUNCTION(WeaponEffectCW)
 
 public:
     void TriggerAdd();
@@ -254,9 +254,20 @@ public:
     void SubEffectClear();
 };
 
-class YouRen : public JX3DPS::Buff
+class SetAttribute : public JX3DPS::Buff
 {
-    BUFF_DEFAULT_FUNCTION(YouRen)
+    BUFF_DEFAULT_FUNCTION(SetAttribute)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class TeamCoreTaiXuJianYiYouRen : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(TeamCoreTaiXuJianYiYouRen)
 
 public:
     void TriggerAdd();
@@ -265,9 +276,9 @@ public:
     void SubEffectClear(int stackNum);
 };
 
-class JingMiao : public JX3DPS::Buff
+class TeamCoreTaiXuJianYiJingMiao : public JX3DPS::Buff
 {
-    BUFF_DEFAULT_FUNCTION(JingMiao)
+    BUFF_DEFAULT_FUNCTION(TeamCoreTaiXuJianYiJingMiao)
 
 public:
     void SubEffect();

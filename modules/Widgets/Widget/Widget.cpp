@@ -210,6 +210,11 @@ void Widget::SetTitle(const QString &title)
     m_title->update();
 }
 
+void Widget::SetMousePressed(bool press)
+{
+    m_frameless->SetMousePressed(press);
+}
+
 void Widget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);

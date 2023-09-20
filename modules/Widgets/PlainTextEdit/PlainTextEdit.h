@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 17:58:41
+ * Last Modified: 2023-09-05 03:39:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -60,6 +60,8 @@
 #include <QMenu>
 #include <QPlainTextEdit>
 
+#include <nlohmann/json.hpp>
+
 class PLAIN_TEXT_EDIT_API PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
@@ -75,14 +77,23 @@ public:
             if (keyEvent->matches(QKeySequence::Paste)) {
                 QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(watched);
                 if (plainTextEdit) {
-                    QString         clipboardText = QGuiApplication::clipboard()->text();
-                    QJsonParseError error;
-                    QJsonDocument doc = QJsonDocument::fromJson(clipboardText.toUtf8(), &error);
-                    if (error.error == QJsonParseError::NoError) {
-                        QByteArray formattedJson = doc.toJson(QJsonDocument::Indented);
-                        QString    indentedJsonString(formattedJson);
-                        plainTextEdit->insertPlainText(indentedJsonString);
+                    // QString         clipboardText = QGuiApplication::clipboard()->text();
+                    // QJsonParseError error;
+                    // QJsonDocument doc = QJsonDocument::fromJson(clipboardText.toUtf8(), &error);
+                    // if (error.error == QJsonParseError::NoError) {
+                    //     QByteArray formattedJson = doc.toJson(QJsonDocument::Indented);
+                    //     QString    indentedJsonString(formattedJson);
+                    //     plainTextEdit->insertPlainText(indentedJsonString);
+                    //     return true;
+                    // }
+
+                    nlohmann::ordered_json json;
+                    try {
+                        json = nlohmann::ordered_json::parse(QGuiApplication::clipboard()->text().toStdString());
+                        plainTextEdit->insertPlainText(QString::fromStdString(json.dump(4)));
                         return true;
+                    } catch (const std::exception &e) {
+                        return false;
                     }
                 }
             }

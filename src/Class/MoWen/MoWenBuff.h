@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 13:14:43
+ * Last Modified: 2023-09-12 10:24:54
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -85,9 +85,9 @@ public:
     void SubEffectClear();
 };
 
-class ShuLi : public JX3DPS::Buff
+class MingJin : public JX3DPS::Buff
 {
-    BUFF_DEFAULT_FUNCTION(ShuLi)
+    BUFF_DEFAULT_FUNCTION(MingJin)
 
 public:
     void TriggerAdd();
@@ -249,6 +249,56 @@ public:
                       const GainsDamage &gainsDamage = GainsDamage(),
                       int                sub         = 0,
                       int                level       = 0);
+};
+
+class SetAttribute : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(SetAttribute)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class WeaponEffectCW : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(WeaponEffectCW)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class TeamCoreMoWenYouRen : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(TeamCoreMoWenYouRen)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd(int stackNum);
+    void SubEffectClear(int stackNum);
+};
+
+class TeamCoreMoWenJingMiao : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(TeamCoreMoWenJingMiao)
+
+public:
+    void SubEffect();
+};
+
+class ShenBingGong : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(ShenBingGong)
+
+public:
+    void TriggerAdd(Id_t targetId, int stackNum);
+    void SubEffect(Id_t targetId, int stackNum);
 };
 
 } // namespace Buff

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 09:36:00
+ * Last Modified: 2023-09-13 10:00:48
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -154,11 +154,13 @@ public:
 
     GainsDamage CalcMagicSurplusDamage(Id_t targetId, RollResult rollResult, int sub = 0, int level = 0);
 
-    void Record(Id_t               targetId,
+    void Record(Id_t               effectId,
+                Id_t               targetId,
                 RollResult         rollResult  = RollResult::HIT,
                 const GainsDamage &gainsDamage = GainsDamage(),
                 int                sub         = 0,
-                int                level       = 0);
+                int                level       = 0,
+                NodeType           type        = NodeType::SKILL_INSTANT_CAST);
 
     void AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect);
 
@@ -212,6 +214,9 @@ protected:
     /* 技能气点加成 */
     int m_effectQidianAdditional = 0;
 
+    /* 技能怒气加成 */
+    int m_effectRageAdditional = 0;
+
     /* 伤害参数 */
     DamageParams m_damageParams;
 
@@ -220,6 +225,7 @@ protected:
 
     /* 附加效果 */
     TriggerEffects m_triggerEffects;
+
 };
 
 } // namespace JX3DPS

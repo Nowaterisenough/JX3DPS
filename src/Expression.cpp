@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 13:16:27
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-17 09:41:19
+ * Last Modified: 2023-09-07 14:47:33
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -71,6 +71,8 @@ JX3DPS::Id_t JX3DPS::Expression::SetTargetDistance(Player *player, Targets *targ
 
 JX3DPS::Id_t JX3DPS::Expression::SetTargetDead(Player *player, Targets *targets, Id_t targetId)
 {
+    Target *p = (*targets)[targetId];
+    delete p;
     targets->erase(targetId);
     for (auto &buff : player->buffs) {
         buff.second->Remove(targetId);
@@ -124,9 +126,9 @@ bool JX3DPS::Expression::IsReady(Player *player, Targets *targets, Id_t id, bool
     return player->skills[id]->IsReady(fcast);
 }
 
-bool JX3DPS::Expression::StopReCastSkill(Player *player, Targets *targets, Id_t id)
+bool JX3DPS::Expression::StopReCastSkill(Player *player, Targets *targets)
 {
-    return player->skills[id]->StopReCastSkill();
+    return player->StopReCastSkill();
 }
 
 bool JX3DPS::Expression::IsScast(Player *player, Targets *targets, bool scast)

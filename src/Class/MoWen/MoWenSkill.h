@@ -1,11 +1,11 @@
 ﻿/**
  * Project: JX3DPS
- * File: TaiXuJianYiSkill.h
+ * File: MoWenSkill.h
  * Description:
- * Created Date: 2023-07-28 12:49:46
+ * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 14:19:46
+ * Last Modified: 2023-09-12 10:31:47
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -31,6 +31,15 @@ class PoZhao : public JX3DPS::Skill
 
 public:
     void TriggerDamage(Id_t targetId);
+    void TriggerZhengMingDamage(Id_t targetId);
+};
+
+class WuYinLiuLv : public JX3DPS::Skill
+{
+    SKILL_DEFAULT_FUNCTION(WuYinLiuLv)
+
+public:
+    void SubEffect();
 };
 
 class Gong : public JX3DPS::Skill
@@ -42,6 +51,12 @@ public:
     void Sync();
 
     void SubEffect();
+    void SubEffectCW();
+
+    void ClearPrepareFrames();
+    void ResetPrepareFrames();
+
+    Frame_t prepareFramesTemp = 0;
 };
 
 class BianGong : public JX3DPS::Skill
@@ -53,6 +68,12 @@ public:
     void Sync();
 
     void SubEffect();
+    void SubEffectCW();
+
+    void ClearPrepareFrames();
+    void ResetPrepareFrames();
+
+    Frame_t prepareFramesTemp = 0;
 };
 
 class Shang : public JX3DPS::Skill
@@ -113,6 +134,7 @@ class Yu : public JX3DPS::Skill
 
 public:
     void TriggerShiXiang();
+    void TriggerDamage();
 
     void SubEffect();
 };

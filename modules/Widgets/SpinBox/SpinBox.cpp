@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-07 04:55:00
+ * Last Modified: 2023-09-05 16:37:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -121,7 +121,39 @@ void SpinBox::enterEvent(QEnterEvent *event)
     setCursor(Qt::SizeHorCursor);
 }
 
-// void SpinBox::leaveEvent(QEvent *event)
-// {
-//     setCursor(Qt::ArrowCursor);
-// }
+void SpinBox::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        LineEdit *m_lineEdit = new LineEdit(this);
+        m_lineEdit->setText(QString::number(m_value));
+        m_lineEdit->selectAll();
+        m_lineEdit->setGeometry(rect());
+        m_lineEdit->setAlignment(Qt::AlignCenter);
+        m_lineEdit->show();
+        m_lineEdit->setFocus();
+        m_lineEdit->setCursorPosition(m_lineEdit->text().length());
+        connect(m_lineEdit, &QLineEdit::editingFinished, this, [=]() {
+            bool ok;
+            int  value = m_lineEdit->text().toInt(&ok);
+            if (ok) {
+                setValue(value);
+                emit Signal_UpdateValue(value);
+            }
+            delete m_lineEdit;
+        });
+    }
+}
+
+void SpinBox::focusOutEvent(QFocusEvent *event)
+{
+    if (event->reason() == Qt::MouseFocusReason || event->reason() == Qt::TabFocusReason) {
+        bool ok;
+        int  value = m_lineEdit->text().toInt(&ok);
+        if (ok) {
+            setValue(value);
+            emit Signal_UpdateValue(value);
+        }
+        delete m_lineEdit;
+    }
+    QWidget::focusOutEvent(event);
+}

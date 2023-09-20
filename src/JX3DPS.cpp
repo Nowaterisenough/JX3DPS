@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-13 14:59:51
+ * Last Modified: 2023-09-13 04:35:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -31,6 +31,7 @@
 #include "Regex.h"
 #include "Skill.h"
 #include "Target.hpp"
+#include "TimeLine.hpp"
 
 namespace JX3DPS {
 
@@ -42,6 +43,26 @@ void SummarizeStats(Player &player, Stats &stats)
     for (auto &[id, buff] : player.buffs) {
         stats += buff->GetStats();
     }
+}
+
+long long Sum(const Stats &stats)
+{
+    long long sum = 0;
+    if (stats.gainStats.size() == 0) {
+        return 0;
+    }
+    for (auto &[targetId, targetDamage] : stats.gainStats.at(Attribute::Type::DEFAULT)) {
+        for (auto &[effectId, effectDamage] : targetDamage) {
+            for (auto &[sub, subDamage] : effectDamage) {
+                for (auto &[level, levelDamage] : subDamage) {
+                    for (auto &[roll, info] : levelDamage) {
+                        sum += info.second.SumDamage();
+                    }
+                }
+            }
+        }
+    }
+    return sum;
 }
 
 Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents, Options &op)
@@ -73,8 +94,8 @@ Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents
     SummarizeStats(*player, stats);
 
     delete player;
-    for (auto target : *targets) {
-        delete target.second;
+    for (auto &[id, target] : *targets) {
+        delete target;
     }
     delete targets;
 
@@ -118,6 +139,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         for (int i = 0; i < options.simIterations; i++) {
             Stats t  = results.front().get();
             stats   += t;
+            stats.damageList.push_back(Sum(t));
             results.pop_front();
             if (i % step == 0 && obj != nullptr) {
                 progress(obj, i * 1.0 / (count * options.simIterations), "模拟中...");
@@ -207,7 +229,7 @@ Error_t InitPlayer(const nlohmann::ordered_json &json, Player **player)
         return err;
     }
 
-    std::list<Id_t> buff3rds;
+    std::unordered_set<Id_t> buff3rds;
     err = ParseJsonToBuff3rds(json, buff3rds);
     if (err != JX3DPS_SUCCESS) {
         return err;
@@ -230,6 +252,7 @@ Error_t InitParams(const nlohmann::ordered_json &json,
     if (err != JX3DPS_SUCCESS) {
         return err;
     }
+    TimeLine::SetMode(options.mode);
 
     // 解析技能语句
     std::list<std::pair<std::string, std::list<std::string>>> skills;
@@ -279,7 +302,12 @@ Error_t Start(const nlohmann::ordered_json &in,
 
     out["SimIterations"] = options.simIterations;
     out["Frames"]        = options.totalFrames;
-    return StatsToJson(stats, out["Stats"]);
+    out["ClassType"]     = in["ClassType"].get<std::string>().c_str();
+
+    if (options.mode == Options::Mode::DEBUG) {
+        TimeLineToJson(TimeLine::Instance().GetInfosList(), out["TimeLine"]);
+    }
+    return StatsToJson(stats, out);
 }
 
 } // namespace JX3DPS

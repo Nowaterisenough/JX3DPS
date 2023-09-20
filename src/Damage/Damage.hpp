@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-15 01:23:55
+ * Last Modified: 2023-08-21 10:53:40
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -54,7 +54,7 @@ inline PctFloat_t PhysicsDotDamageCoefficient(Value_t channelInterval, int effec
     //        / JX3_DOT_DAMAGE_CONST_PARAM)) / (effectCountMax * JX3_DAMAGE_CONST_PARAM);
 
     // 优化考虑替换成下面的，当 dot持续时间小于12秒 时，请直接给 effectCountMax = 12, intervalFrames = 1
-    return channelInterval * JX3_PERCENT_FLOAT_BASE / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM *
+    return channelInterval / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM *
            static_cast<Value_t>(effectCountMax * intervalFrames / JX3_DOT_DAMAGE_CONST_PARAM) /
            (effectCountMax * JX3_DAMAGE_CONST_PARAM);
 }
@@ -66,7 +66,7 @@ inline PctFloat_t MagicDotDamageCoefficient(Value_t channelInterval, int effectC
     //        / JX3_DOT_DAMAGE_CONST_PARAM)) / (effectCountMax * JX3_DAMAGE_CONST_PARAM);
 
     // 优化考虑替换成下面的，当 dot持续时间小于12秒 时，请直接给 effectCountMax = 12, intervalFrames = 1
-    return channelInterval / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM *
+    return channelInterval / JX3_MAGIC_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM *
            static_cast<Value_t>(effectCountMax * intervalFrames / JX3_DOT_DAMAGE_CONST_PARAM) /
            (effectCountMax * JX3_DAMAGE_CONST_PARAM);
 }

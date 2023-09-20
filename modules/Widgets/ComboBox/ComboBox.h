@@ -5,7 +5,7 @@
  * Created Date: 2023-06-10 08:38:29
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-19 06:25:17
+ * Last Modified: 2023-09-15 03:18:09
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -168,6 +168,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
 
 private:
     ComboBox::ItemInfo m_itemInfo;
@@ -181,6 +182,8 @@ private:
 
     QHBoxLayout *m_hLayout = nullptr;
     QVBoxLayout *m_vLayout = nullptr;
+
+    bool m_view = false;
 };
 
 #endif // __COMBO_BOX_H__

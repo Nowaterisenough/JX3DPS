@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 13:41:19
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-02 00:56:44
+ * Last Modified: 2023-09-06 08:48:04
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -22,6 +22,8 @@
 
 #include "Expression.h"
 
+#include <unordered_set>
+
 namespace JX3DPS {
 
 namespace Regex {
@@ -33,7 +35,7 @@ Error_t ParseToExprSkill(const std::string &str, ExprSkill &exprSkill);
 
 Error_t ParseToExprEvents(const std::list<std::string> &strs, ExprEvents &exprEvents);
 
-Error_t ParseToBuff3rds(const std::list<std::string> &strs, std::list<Id_t> &buff3rds);
+Error_t ParseToBuff3rds(const std::list<std::string> &strs, std::unordered_set<Id_t> &buff3rds);
 
 Error_t ParseToTotalFrames(const std::list<std::string> &strs, Frame_t &totalFrames);
 

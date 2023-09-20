@@ -5,7 +5,7 @@
  * Created Date: 2023-08-10 00:05:57
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-14 04:48:06
+ * Last Modified: 2023-09-13 05:25:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -17,7 +17,7 @@
 
 #include <fstream>
 
-QString JX3IconPath(int id)
+QString JX3DPS::Simulator::JsonParser::JX3IconPath(int id)
 {
     return QString(":/resources/pics/JX3/Icons/%1.png").arg(id);
 }
@@ -39,7 +39,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToTalentItemInfos(
     std::list<std::string>                     &defaults)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &talent : item["Talents"].items()) {
                 std::list<ComboBox::ItemInfo> talentItemInfos;
@@ -65,13 +65,13 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToTalentItemInfos(
 }
 
 void JX3DPS::Simulator::JsonParser::ParseJsonToRecipeItemInfos(
-    const nlohmann::ordered_json                                   &json,
-    JX3DPS::ClassType                                               classType,
-    std::unordered_map<std::string, std::list<CheckBox::ItemInfo>> &recipes,
-    std::list<std::string>                                         &defaults)
+    const nlohmann::ordered_json                                     &json,
+    JX3DPS::ClassType                                                 classType,
+    std::list<std::pair<std::string, std::list<CheckBox::ItemInfo>>> &recipes,
+    std::list<std::string>                                           &defaults)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &recipe : item["Recipes"].items()) {
                 std::list<CheckBox::ItemInfo> recipeItemInfos;
@@ -82,7 +82,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToRecipeItemInfos(
                     itemInfo_.description = itemInfo["Description"].get<std::string>().c_str();
                     recipeItemInfos.push_back(itemInfo_);
                 }
-                recipes.emplace(recipe.key(), recipeItemInfos);
+                recipes.emplace_back(recipe.key(), recipeItemInfos);
             }
 
             for (auto &item : item["Default"].items()) {
@@ -104,7 +104,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToSkills(
     std::list<std::pair<std::string, std::list<std::string>>> &skills)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &item : item["Default"].items()) {
                 if (item.key() == "SkillsExpression") {
@@ -123,7 +123,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToEvents(const nlohmann::ordered_js
                                                       std::list<std::string> &events)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &item : item["Default"].items()) {
                 if (item.key() == "EventsExpression") {
@@ -141,7 +141,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToPermanents(
     std::unordered_map<std::string, std::list<ComboBox::ItemInfo>> &permanents2)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &[key, value] : item["Permanents"].items()) {
                 if (key == "Others") {
@@ -174,11 +174,12 @@ void JX3DPS::Simulator::JsonParser::LoadJsonPermanent(const nlohmann::ordered_js
                                                       nlohmann::ordered_json &out)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &[key, value] : item["Permanents"].items()) {
                 for (auto &permanent : value) {
-                    if (name == permanent["Name"].get<std::string>().c_str()) {
+                    std::string temp = permanent["Name"].get<std::string>();
+                    if (name == temp) {
                         out = permanent;
                         return;
                     }
@@ -186,6 +187,171 @@ void JX3DPS::Simulator::JsonParser::LoadJsonPermanent(const nlohmann::ordered_js
             }
         }
     }
+}
+
+// 计算两个颜色向量之间的欧几里得距离
+float Distance(const std::vector<float> &a, const std::vector<float> &b)
+{
+    float sum = 0;
+    for (int i = 0; i < a.size(); ++i) {
+        sum += (a[i] - b[i]) * (a[i] - b[i]);
+    }
+    return std::sqrt(sum);
+}
+
+// 将颜色向量分配到最近的聚类中心
+void AssignClusters(const std::vector<std::vector<float>> &colors,
+                    const std::vector<std::vector<float>> &centers,
+                    std::vector<int>                      &labels)
+{
+    for (int i = 0; i < colors.size(); ++i) {
+        float minDistance = std::numeric_limits<float>::max();
+        int   minIndex    = -1;
+        for (int j = 0; j < centers.size(); ++j) {
+            float d = Distance(colors[i], centers[j]);
+            if (d < minDistance) {
+                minDistance = d;
+                minIndex    = j;
+            }
+        }
+        labels[i] = minIndex;
+    }
+}
+
+// 计算聚类中心
+void ComputeCenters(const std::vector<std::vector<float>> &colors,
+                    const std::vector<int>                &labels,
+                    std::vector<std::vector<float>>       &centers)
+{
+    std::vector<int> counts(centers.size(), 0);
+    for (int i = 0; i < colors.size(); ++i) {
+        int label = labels[i];
+        for (int j = 0; j < colors[i].size(); ++j) {
+            centers[label][j] += colors[i][j];
+        }
+        ++counts[label];
+    }
+    for (int i = 0; i < centers.size(); ++i) {
+        if (counts[i] > 0) {
+            for (int j = 0; j < centers[i].size(); ++j) {
+                centers[i][j] /= counts[i];
+            }
+        }
+    }
+}
+
+// K-Means 聚类算法
+void Kmeans(const std::vector<std::vector<float>> &colors,
+            int                                    clusterCount,
+            std::vector<int>                      &labels,
+            std::vector<std::vector<float>>       &centers)
+{
+    // 随机初始化聚类中心
+    // std::random_device                 rd;
+    // std::mt19937                       gen(rd());
+    // std::uniform_int_distribution<int> dist(0, colors.size() - 1);
+    centers.resize(clusterCount);
+    for (int i = 0; i < clusterCount; ++i) {
+        centers[i] = colors[0];
+    }
+
+    // 迭代聚类过程
+    labels.resize(colors.size());
+    for (int iter = 0; iter < 10; ++iter) {
+        AssignClusters(colors, centers, labels);
+        ComputeCenters(colors, labels, centers);
+    }
+}
+
+QColor GetDominantColor(const QPixmap &pixmap)
+{
+    // 将 QPixmap 转换为 QImage
+    QImage image = pixmap.toImage();
+
+    // 将图像转换为 32 位 ARGB 格式
+    QImage argbImage = image.convertToFormat(QImage::Format_ARGB32);
+
+    // 获取图像像素数据
+    const unsigned char *pixels     = argbImage.constBits();
+    int                  pixelCount = argbImage.width() * argbImage.height();
+
+    // 将像素数据转换为颜色向量
+    std::vector<std::vector<float>> colors(pixelCount, std::vector<float>(3));
+    for (int i = 0; i < pixelCount; ++i) {
+        colors[i][0] = pixels[4 * i + 2];
+        colors[i][1] = pixels[4 * i + 1];
+        colors[i][2] = pixels[4 * i];
+    }
+
+    // 使用 K-Means 算法聚类颜色向量
+    int                             clusterCount = 5;
+    std::vector<int>                labels;
+    std::vector<std::vector<float>> centers;
+    Kmeans(colors, clusterCount, labels, centers);
+
+    // 统计每个颜色簇的像素数量
+    std::unordered_map<int, int> colorCounts;
+    for (int i = 0; i < pixelCount; ++i) {
+        ++colorCounts[labels[i]];
+    }
+
+    // 找到像素数量最多的颜色簇
+    int dominantCluster = 0;
+    int maxCount        = 0;
+    for (const auto &pair : colorCounts) {
+        if (pair.second > maxCount) {
+            dominantCluster = pair.first;
+            maxCount        = pair.second;
+        }
+    }
+
+    // 返回主色调
+    std::vector<float> dominantColor = centers[dominantCluster];
+    return QColor::fromRgb(dominantColor[0], dominantColor[1], dominantColor[2]);
+}
+
+bool JX3DPS::Simulator::JsonParser::LoadJsonTimeLine(const nlohmann::ordered_json &json,
+                                                     const nlohmann::ordered_json &config,
+                                                     std::list<SkillItem::Info> &skillInfos)
+{
+    if (json.find("TimeLine") == json.end()) {
+        return false;
+    }
+
+    std::string                          className = json["ClassType"].get<std::string>();
+    std::unordered_map<std::string, int> skillMap;
+    for (auto &item : config["ClassType"]) {
+        if (item["Name"].get<std::string>() == className) {
+            for (auto &item : item["Skills"].items()) {
+                skillMap.emplace(item.value()["Name"].get<std::string>(),
+                                 item.value()["Icon"].get<int>());
+            }
+        }
+    }
+
+    for (auto &item : json["TimeLine"]) {
+        SkillItem::Info skillInfo;
+        skillInfo.timeStamp = item["TimeStamp"].get<int>();
+        if (item.find("Skills") == item.end()) {
+            continue;
+        }
+        for (auto &skill : item["Skills"].items()) {
+            SkillItem::SkillInfo skillInfo_;
+            skillInfo_.damage     = skill.value()["Damage"].get<int>();
+            skillInfo_.rollResult = skill.value()["RollResult"].get<int>();
+            skillInfo_.name       = skill.value()["Name"].get<std::string>().c_str();
+            skillInfo_.type       = skill.value()["Type"].get<int>();
+            skillInfo_.icon       = skillMap[skillInfo_.name.toStdString()];
+            skillInfo_.pixmap     = QPixmap(JX3IconPath(skillInfo_.icon));
+            skillInfo_.color      = GetDominantColor(skillInfo_.pixmap);
+            skillInfo_.roll       = skillInfo_.rollResult == 0 ? "命中" : "会心";
+
+            skillInfo.skills.push_back(skillInfo_);
+        }
+        skillInfos.push_back(skillInfo);
+    }
+
+    return true;
 }
 
 void JX3DPS::Simulator::JsonParser::ParseJsonToClassTypeItemInfos(const nlohmann::ordered_json &json,
@@ -206,7 +372,7 @@ void JX3DPS::Simulator::JsonParser::ParseJsonToDefaultAttribute(
     std::unordered_map<std::string, int> &attributes)
 {
     for (auto &item : json["ClassType"]) {
-        if (item["Name"].get<std::string>().c_str() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
+        if (item["Name"].get<std::string>() == JX3DPS::CLASS_NAME[static_cast<int>(classType)])
         {
             for (auto &[key, value] : item["Default"].items()) {
                 if (key == "Attribute") {

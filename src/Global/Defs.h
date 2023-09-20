@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:40:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-16 18:05:42
+ * Last Modified: 2023-09-13 03:13:33
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -58,6 +58,17 @@ enum class RollResult
     DOUBLE = 1,  // 会心
     SIGHT  = 4,  // 识破
     MISS   = 62, // 偏离
+};
+
+/* 节点类型 */
+enum class NodeType
+{
+    SKILL_INSTANT_CAST,
+    SKILL_CAST_START,
+    SKILL_CAST_END,
+    SKILL_EFFECT,
+    SKILL_CHARGE_START,
+    SKILL_CHARGE_END
 };
 
 /* 伤害统计 */
@@ -216,11 +227,11 @@ struct Options
         DEBUG
     };
 
-    Mode    mode          = DEFAULT;
-    int     simIterations = 1;
-    int     delayMin      = 0;
-    int     delayMax      = 0;
-    Frame_t totalFrames   = 0;
+    Mode    mode           = DEFAULT;
+    int     simIterations  = 1;
+    int     delayMin       = 0;
+    int     delayMax       = 0;
+    Frame_t totalFrames    = 0;
     Frame_t framePrecision = 16;
 
     std::unordered_map<Attribute::Type, bool> gainSwitch;

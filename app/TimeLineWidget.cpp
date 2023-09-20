@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-15 23:30:22
+ * Last Modified: 2023-09-19 04:25:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -82,7 +82,7 @@ protected:
             QPointF posX2 = m_view->mapToScene(m_view->x() + m_view->width(), m_view->y());
             m_rect.setX(this->mapFromScene(posX1).x());
             m_rect.setWidth(this->mapFromScene(posX2).x() - m_rect.x());
-            
+
             // double rate = (m_rect.x()) * 1.0 / (this->width() - m_rect.width());
             // rate        = rate < 0.0 ? 0.0 : rate > 1.0 ? 1.0 : rate;
             // this->centerOn((this->scene()->width() -
@@ -93,8 +93,8 @@ protected:
             //                     this->mapToScene(0, 0).x()) /
             //                        2,
 
-            //                40);
-            //this->centerOn(this->mapToScene(m_rect.center().x(), m_rect.center().y()));
+            // 40);
+            // this->centerOn(this->mapToScene(m_rect.center().x(), m_rect.center().y()));
         }
     }
 
@@ -138,7 +138,7 @@ protected:
                                     this->mapToScene(0, 0).x()) /
                                        2,
 
-                80);
+                               80);
                 this->centerOn(this->mapToScene(m_rect.center().x(), m_rect.center().y()));
 
                 SyncView();
@@ -172,7 +172,7 @@ protected:
                                 this->mapToScene(0, 0).x()) /
                                    2,
 
-            80);
+                           80);
             this->centerOn(this->mapToScene(m_rect.center().x(), m_rect.center().y()));
 
             SyncView();
@@ -208,6 +208,8 @@ public:
 
     ~TimeLineItem() { }
 
+    void SetFrames(int frames) { m_frames = frames; }
+
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override
     {
@@ -223,7 +225,9 @@ protected:
         painter->drawRoundedRect(0, -2, 27000, 4, 5, 5);
     }
 
-    QRectF boundingRect() const override { return QRectF(0, -2, 27000, 4); }
+    QRectF boundingRect() const override { return QRectF(0, -2, m_frames * 5, 4); }
+
+    int m_frames = 0;
 };
 
 class BuffItem : public QGraphicsItem
@@ -650,6 +654,7 @@ TimeLineWidget::TimeLineWidget(QWidget *parent) : Widget(parent)
         std::list<SkillItem::Info> skillInfos;
         if (JsonParser::LoadJsonTimeLine(json, config, skillInfos)) {
             int frames = json["Frames"].get<int>();
+            timeLineItem->SetFrames(frames);
             m_scene->setSceneRect(-100, -450, frames * 5 + 200, 580);
             view->setScene(m_scene);
             view->centerOn(0, -160);

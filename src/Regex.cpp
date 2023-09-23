@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 15:44:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-07 14:48:18
+ * Last Modified: 2023-09-24 05:30:52
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -725,21 +725,21 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToSetTarget(const std::string &str, ExprEven
                       std::placeholders::_1,
                       std::placeholders::_2,
                       id,
-                      std::stod(mat[3].str()));
+                      std::stod(mat[4].str()));
     } else if (mat[2].str() == JX3DPS_REGEX_EXPRESSION_EVENT_TYPE_SET_TARGET_MANA) {
         exprEvent.second =
             std::bind(&JX3DPS::Expression::SetTargetMana,
                       std::placeholders::_1,
                       std::placeholders::_2,
                       id,
-                      std::stod(mat[3].str()));
+                      std::stod(mat[4].str()));
     } else if (mat[2].str() == JX3DPS_REGEX_EXPRESSION_EVENT_TYPE_SET_TARGET_DISTANCE) {
         exprEvent.second =
             std::bind(&JX3DPS::Expression::SetTargetDistance,
                       std::placeholders::_1,
                       std::placeholders::_2,
                       id,
-                      std::stod(mat[3].str()));
+                      std::stod(mat[4].str()));
     } else if (mat[2].str() == JX3DPS_REGEX_EXPRESSION_EVENT_TYPE_SET_TARGET_DEAD) {
         exprEvent.second =
             std::bind(&JX3DPS::Expression::SetTargetDead, std::placeholders::_1, std::placeholders::_2, id);

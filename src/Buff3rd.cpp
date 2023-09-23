@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:41:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 17:54:47
+ * Last Modified: 2023-09-22 09:38:01
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,7 +30,7 @@ EnchantShoesPhysics::EnchantShoesPhysics(JX3DPS::Player *player, Targets *target
     m_cooldown        = 16 * 10;
     m_cooldownCurrent = 0;
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 60);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100);
 }
 
 void EnchantShoesPhysics::Trigger() { }
@@ -102,7 +102,7 @@ EnchantShoesMagic::EnchantShoesMagic(JX3DPS::Player *player, Targets *targets) :
     m_cooldown        = 16 * 10;
     m_cooldownCurrent = 0;
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 60);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100);
 }
 
 void EnchantShoesMagic::Trigger() { }
@@ -138,7 +138,7 @@ EnchantWristMagic::EnchantWristMagic(JX3DPS::Player *player, Targets *targets) :
     m_cooldown        = 16 * 10;
     m_cooldownCurrent = 0;
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 75);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 90);
 }
 
 void EnchantWristMagic::Trigger() { }

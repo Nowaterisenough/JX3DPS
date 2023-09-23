@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-12 10:38:54
+ * Last Modified: 2023-09-22 10:08:12
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -269,8 +269,8 @@ void Gong::SubEffectCW()
     params.rollResult = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
-    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(SKILL_GONG_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 0, 0);
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 1, 0);
+    Record(SKILL_GONG_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 1, 0);
 
     m_effectCriticalStrikeAdditionalBasisPointInt = temp1;
     m_effectDamageAdditionalPercentInt            = temp2;
@@ -443,8 +443,8 @@ void BianGong::SubEffectCW()
     params.rollResult = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
 
-    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(SKILL_BIAN_GONG_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 0, 0);
+    GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 1, 0);
+    Record(SKILL_BIAN_GONG_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 1, 0);
 
     m_effectCriticalStrikeAdditionalBasisPointInt = temp1;
     m_effectDamageAdditionalPercentInt            = temp2;

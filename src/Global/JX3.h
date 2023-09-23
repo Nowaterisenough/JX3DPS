@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 01:10:26
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-12 05:35:21
+ * Last Modified: 2023-09-24 03:29:45
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -102,16 +102,16 @@ const PctFloat_t JX3_LEVEL_DAMAGE_INCREASE = 0.15;
 const int JX3_LEVEL_DAMAGE_MAX_LEVEL_DIFF = 10;
 
 /* 外功伤害系数 */
-const Cof_t JX3_PHYSICS_DAMAGE_PARAM = 10.0;
+const Value_t JX3_PHYSICS_DAMAGE_PARAM = 10.0;
 
 /* 内功伤害系数 */
-const Cof_t JX3_MAGIC_DAMAGE_PARAM = 12.0;
+const Value_t JX3_MAGIC_DAMAGE_PARAM = 12.0;
 
 /* 伤害常数 */
-const Cof_t JX3_DAMAGE_CONST_PARAM = 16.0;
+const Value_t JX3_DAMAGE_CONST_PARAM = 16.0;
 
 /* DOT伤害常数 */
-const Cof_t JX3_DOT_DAMAGE_CONST_PARAM = 12.0;
+const Value_t JX3_DOT_DAMAGE_CONST_PARAM = 12;
 
 /* 主属性转换系数 */
 const PctInt_t JX3_AGILITY_TO_CRITICAL_STRIKE    = 655;

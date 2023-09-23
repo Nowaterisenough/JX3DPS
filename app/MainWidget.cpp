@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 04:28:11
+ * Last Modified: 2023-09-24 06:24:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1220,7 +1220,7 @@ void JX3DPS::Simulator::Widget::Start()
     progressBar->show();
 
     ThreadPool::Instance()->Enqueue([=]() {
-        char *buffer = new char[1024 * 1024];
+        char *buffer = new char[1024 * 1024 * 1024];
         JX3DPSSimulate(json.dump().c_str(), buffer, progressBar, [](void *obj, double arg, const char *text) {
             static_cast<ProgressBar *>(obj)->SetProgress(arg, text);
         });

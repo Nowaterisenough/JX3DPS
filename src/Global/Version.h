@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-20 08:57:30
+ * Last Modified: 2023-09-24 05:31:38
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -146,7 +146,7 @@ namespace JX3DPS {
 #define JX3_VERSION           WAN_LING_DANG_GE
 
 /* JX3DPS - 主版本号 */
-#define VERSION_MAJOR         1
+#define VERSION_MAJOR         0
 
 /* JX3DPS - 次版本号 */
 #define VERSION_MINOR         JX3_VERSION

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 13:14:11
+ * Last Modified: 2023-09-24 05:03:12
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -593,7 +593,7 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicSurplusDamage(
 
     int      playerLevel                = JX3_PLAYER_LEVEL;
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
-    Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
+    Value_t  shieldBase                 = (*m_targets)[targetId]->GetMagicShield();
     Value_t  shieldAdditional           = 0;
     PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;

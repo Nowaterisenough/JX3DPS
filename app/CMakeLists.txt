@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.11)
 
 project(JX3DPSSimulator LANGUAGES CXX)
 
+include(${CMAKE_SOURCE_DIR}/cmake/Version.cmake)
+VERSION()
+
+# 设置项目名称&版本
+set(VERSION ${PROJECT_VERSION})
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
@@ -137,5 +143,16 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/config/config.json # 要复制的文件路径
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/config.json # 目标路径
+    )
+
+    # 添加一个自定义命令，用于将文件打包为zip格式
+    add_custom_command(
+        TARGET ${PROJECT_NAME} # 指定编译的目标名
+        POST_BUILD
+        COMMAND tar cf
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${APP_NAME} ${PROJECT_VERSION}.zip"
+        "--format=zip" 
+        "--directory=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>"
+        *.*
     )
 endif()

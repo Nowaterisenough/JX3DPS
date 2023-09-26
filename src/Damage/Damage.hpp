@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-24 03:38:41
+ * Last Modified: 2023-09-26 07:58:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -21,12 +21,12 @@
 
 namespace JX3DPS {
 
-#define JX3DPS_OPTIMIZATION_MAX(x, y)                      \
-    ((1 & (~(((x) - (y)) >> (sizeof(x) * 8 - 1)))) * (x) - \
-     (~(((y) - (x)) >> (sizeof(x) * 8 - 1))) * (y))
-#define JX3DPS_OPTIMIZATION_MIN(x, y)                      \
-    ((1 & (~(((y) - (x)) >> (sizeof(x) * 8 - 1)))) * (x) - \
-     (~(((x) - (y)) >> (sizeof(x) * 8 - 1))) * (y))
+// #define JX3DPS_OPTIMIZATION_MAX(x, y)                      \
+//     ((1 & (~(((x) - (y)) >> (sizeof(x) * 8 - 1)))) * (x) - \
+//      (~(((y) - (x)) >> (sizeof(x) * 8 - 1))) * (y))
+// #define JX3DPS_OPTIMIZATION_MIN(x, y)                      \
+//     ((1 & (~(((y) - (x)) >> (sizeof(x) * 8 - 1)))) * (x) - \
+//      (~(((x) - (y)) >> (sizeof(x) * 8 - 1))) * (y))
 
 // 负数为1，非负数为0
 #define JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(x) (((x) >> (sizeof(x) * 8 - 1)) & 1)
@@ -35,20 +35,20 @@ namespace JX3DPS {
 
 inline Cof_t PhysicsDamageCoefficient(Value_t channelInterval, Value_t prepareFrames)
 {
-    return JX3DPS_OPTIMIZATION_MAX(channelInterval + prepareFrames, JX3_DAMAGE_CONST_PARAM) *
+    return std::max(channelInterval + prepareFrames, JX3_DAMAGE_CONST_PARAM) *
            JX3_PERCENT_FLOAT_BASE / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
 }
 
 inline Cof_t MagicDamageCoefficient(Value_t channelInterval, Value_t prepareFrames)
 {
-    return JX3DPS_OPTIMIZATION_MAX(channelInterval + prepareFrames, JX3_DAMAGE_CONST_PARAM) *
+    return std::max(channelInterval + prepareFrames, JX3_DAMAGE_CONST_PARAM) *
            JX3_PERCENT_FLOAT_BASE / JX3_MAGIC_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
 }
 
 inline Cof_t PhysicsDotDamageCoefficient(Value_t channelInterval, int effectCountMax, Frame_t intervalFrames)
 {
     return channelInterval *
-           JX3DPS_OPTIMIZATION_MAX(JX3_DAMAGE_CONST_PARAM, effectCountMax * intervalFrames / JX3_DOT_DAMAGE_CONST_PARAM) *
+           std::max(JX3_DAMAGE_CONST_PARAM, effectCountMax * intervalFrames / JX3_DOT_DAMAGE_CONST_PARAM) *
            JX3_PERCENT_FLOAT_BASE / effectCountMax / JX3_PHYSICS_DAMAGE_PARAM /
            JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
 }
@@ -56,7 +56,7 @@ inline Cof_t PhysicsDotDamageCoefficient(Value_t channelInterval, int effectCoun
 inline Cof_t MagicDotDamageCoefficient(Value_t channelInterval, int effectCountMax, Frame_t intervalFrames)
 {
     return channelInterval *
-           JX3DPS_OPTIMIZATION_MAX(JX3_DAMAGE_CONST_PARAM, effectCountMax * intervalFrames / JX3_DOT_DAMAGE_CONST_PARAM) *
+           std::max(JX3_DAMAGE_CONST_PARAM, effectCountMax * intervalFrames / JX3_DOT_DAMAGE_CONST_PARAM) *
            JX3_PERCENT_FLOAT_BASE / effectCountMax / JX3_MAGIC_DAMAGE_PARAM /
            JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
 }

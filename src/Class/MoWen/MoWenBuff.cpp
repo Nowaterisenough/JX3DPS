@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-24 03:13:22
+ * Last Modified: 2023-09-26 18:33:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -50,17 +50,17 @@ Shang::Shang(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, ta
     
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_3]) {
         // m_effectDamageAdditionalPercentInt += 31;
-        m_damageParams[0][0].attackDamagePercentInt * 1.03;
+        m_damageParams[0][0].attackDamagePercentInt *= 1.03;
     }
 
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_4]) {
         // m_effectDamageAdditionalPercentInt += 41;
-        m_damageParams[0][0].attackDamagePercentInt * 1.04;
+        m_damageParams[0][0].attackDamagePercentInt *= 1.04;
     }
 
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_5]) {
         // m_effectDamageAdditionalPercentInt += 51;
-        m_damageParams[0][0].attackDamagePercentInt * 1.05;
+        m_damageParams[0][0].attackDamagePercentInt *= 1.05;
     }
 }
 
@@ -141,7 +141,7 @@ Jue::Jue(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, target
     m_interval    = 48;
     m_effectCount = 6;
 
-    m_damageParams[0].emplace_back((19 + 19) / 2, 0, 256);
+    m_damageParams[0].emplace_back((19 + 19) / 2, 0, 257);
 }
 
 void Jue::Trigger()
@@ -222,7 +222,7 @@ XianFeng::XianFeng(JX3DPS::Player *player, Targets *targets) :
     m_stackNum = 5;
     m_duration = 10 * 16;
 
-    m_damageParams[0].emplace_back((40 + 40 + 2) / 2, 0, 40);
+    m_damageParams[0].emplace_back((40 + 40 + 2) / 2, 0, 40*1.2);
 }
 
 void XianFeng::Trigger()
@@ -603,10 +603,11 @@ JX3DPS::Damage LiuZhao::GetMagicSurplusDamage(
 
     PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercentInt;
     Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
+    Value_t damageBase = EffectDamage(surplusDamage, m_player->effectDamageAdditionalPercentInt);
 
     int      playerLevel                = JX3_PLAYER_LEVEL;
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
-    Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
+    Value_t  shieldBase                 = (*m_targets)[targetId]->GetMagicShield();
     Value_t  shieldAdditional           = 0;
     PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = 0;
@@ -621,7 +622,7 @@ JX3DPS::Damage LiuZhao::GetMagicSurplusDamage(
     damage.surplusDamage = FinalMagicDamage(
         playerLevel,
         targetLevel,
-        surplusDamage,
+        damageBase,
         shieldBase,
         shieldAdditional,
         ignoreShieldBasePercentInt,
@@ -1240,7 +1241,7 @@ void YingZi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durat
         ids.push_back(id);
         m_snapshots[id].interval = m_interval * m_player->attribute.GetHastePercent();
 
-        m_triggerEffects[TRIGGER_YUN_HAN](params);
+        
 
         // 快照属性
         m_snapshots[id].SnapMagic(
@@ -1249,6 +1250,8 @@ void YingZi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durat
             m_effectCriticalStrikePowerAdditionalPercentInt +
                 m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
             m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+
+            m_triggerEffects[TRIGGER_YUN_HAN](params);
 
         if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
             m_snapshots[id].duration = m_duration;

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-06 06:46:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-24 06:24:55
+ * Last Modified: 2023-09-25 13:32:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -78,7 +78,7 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
     splitter->addWidget(widgetEvents);
 
     QGridLayout *layout = new QGridLayout(this->centralWidget);
-    layout->setSpacing(10);
+    layout->setSpacing(8);
     layout->addWidget(groupBoxSetting, 0, 0, 2, 1);
     layout->addWidget(tabWidgetAttribute, 2, 0, 2, 1);
     layout->addWidget(groupBoxConfiguration, 0, 1, 1, 2);
@@ -635,7 +635,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     gLayout->setRowStretch(index, 0);
 
     QSpacerItem *spacerItem2 =
-        new QSpacerItem(0, 5, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+        new QSpacerItem(0, 2, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
     gLayout->addItem(spacerItem2, ++index, 0, 1, 3);
 
     Button *buttonImport = new Button(parent);
@@ -875,8 +875,8 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
     for (int i = 0; i < nums.size(); ++i) {
         ComboBox *comboBox = new ComboBox(parent);
         comboBox->SetType(ComboBox::Type::ICON_NAME);
-        comboBox->setFixedSize(54, 78);
-        comboBox->SetItemSize(200, 54);
+        comboBox->setFixedSize(52, 76);
+        comboBox->SetItemSize(200, 52);
 
         ComboBox::ItemInfo itemInfo;
         itemInfo.name = QString("第%1重").arg(nums[i]);

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 13:16:27
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-07 14:47:33
+ * Last Modified: 2023-09-26 10:19:56
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -348,7 +348,10 @@ bool JX3DPS::Expression::SkillCooldownGt(Player *player, Targets *targets, Id_t 
 
 bool JX3DPS::Expression::SkillNotinCd(Player *player, Targets *targets, Id_t id)
 {
-    return player->skills.at(id)->GetCooldownCurrentWithoutGlobal() == 0;
+    if (player->skills.at(id)->GetEnergyCountCurrent() > 0) {
+        return true;
+    }
+    return player->skills.at(id)->GetCooldownCurrent() == 0;
 }
 
 bool JX3DPS::Expression::SkillEnergyLt(Player *player, Targets *targets, Id_t id, int energy)

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-24 05:03:12
+ * Last Modified: 2023-09-26 02:10:37
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -485,7 +485,8 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsSurplusDamage(
 
     PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercentInt;
     Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
-
+    Value_t damageBase = EffectDamage(surplusDamage, m_player->effectDamageAdditionalPercentInt);
+    
     int      playerLevel                = JX3_PLAYER_LEVEL;
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
     Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
@@ -503,7 +504,7 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsSurplusDamage(
     damage.surplusDamage = FinalPhysicsDamage(
         playerLevel,
         targetLevel,
-        surplusDamage,
+        damageBase,
         shieldBase,
         shieldAdditional,
         ignoreShieldBasePercentInt,
@@ -590,6 +591,7 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicSurplusDamage(
 
     PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercentInt;
     Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
+    Value_t damageBase = EffectDamage(surplusDamage, m_player->effectDamageAdditionalPercentInt);
 
     int      playerLevel                = JX3_PLAYER_LEVEL;
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
@@ -604,11 +606,11 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicSurplusDamage(
     PctInt_t strainPercentInt = m_player->attribute.GetStrainBaseAdditionalPercentInt();
     PctInt_t pveDamageAdditionalPercentInt = m_player->attribute.GetPVEDamageAdditionalPercentInt();
     PctInt_t vulnerablePercentInt = (*m_targets)[targetId]->GetDamageAdditionalPercentInt();
-
+    
     damage.surplusDamage = FinalMagicDamage(
         playerLevel,
         targetLevel,
-        surplusDamage,
+        damageBase,
         shieldBase,
         shieldAdditional,
         ignoreShieldBasePercentInt,

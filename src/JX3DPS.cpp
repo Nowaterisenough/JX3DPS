@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 04:35:53
+ * Last Modified: 2023-09-26 07:40:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -345,7 +345,7 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
     std::chrono::duration<double> elapsed = end - start;
     spdlog::info("Simulation finished.");
     spdlog::info("Total time: {:.8f} s", elapsed.count());
-
+     
     return JX3DPS::JX3DPS_SUCCESS;
 }
 

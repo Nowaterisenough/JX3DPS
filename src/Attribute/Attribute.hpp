@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-26 12:31:34
+ * Last Modified: 2023-10-03 07:04:58
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -94,6 +94,12 @@ public:
         HASTE_BASE,
         HASTE_BASE_ADDITIONAL_PERCENT_INT,
 
+        PARRY_BASE,
+        PARRY_BASE_ADDITIONAL_PERCENT_INT,
+
+        PARRY_VALUE_BASE,
+        PARRY_VALUE_BASE_ADDITIONAL_PERCENT_INT,
+
         SHIELD_IGNORE_PERCENT_INT,
 
         PVE_DAMAGE_ADDITIONAL_PERCENT_INT,
@@ -143,6 +149,10 @@ public:
          { "破招值" },
          { "加速等级" },
          { "加速加成" },
+         { "招架等级" },
+         { "招架等级加成" },
+         { "拆招值" },
+         { "拆招值加成" },
          { "忽视防御加成" },
          { "非侠士伤害加成" }}
     };
@@ -174,6 +184,10 @@ public:
         PHYSICS_OVERCOME,
         MAGIC_OVERCOME_BASE,
         MAGIC_OVERCOME,
+        PARRY_BASE,
+        PARRY,
+        PARRY_VALUE_BASE,
+        PARRY_VALUE,
         PVE_DAMAGE_ADDITIONAL_PERCENT_INT,
         COUNT
     };
@@ -188,19 +202,19 @@ public:
     };
 
     constexpr static std::array<std::array<Value_t, static_cast<size_t>(TypeByClass::COUNT)>, static_cast<size_t>(ClassType::COUNT)> ATTRIBUTE_INITIAL{
-        {{ 41, 41, 41, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-         { 41, 41, 41, 41, 3277, 0, 0, 0, 2929, 0, 0, 0, 0, 0, 184 }, // 太虚剑意
-          { 41, 41, 41, 41, 0, 0, 3725, 0, 0, 1788, 0, 0, 0, 0, 205 }, // 紫霞功
-          { 41, 41, 41, 41, 3449, 0, 0, 0, 0, 0, 1526, 0, 0, 0, 92 }, // 分山劲
-          { 41, 41, 41, 41, 0, 0, 3725, 0, 0, 1279, 0, 0, 0, 0, 61 }}  // 莫问
+        {{ 41, 41, 41, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+         { 41, 41, 41, 41, 3277, 0, 0, 0, 2929, 0, 0, 0, 0, 0, 0, 0, 0, 0, 184 }, // 太虚剑意
+          { 41, 41, 41, 41, 0, 0, 3725, 0, 0, 1788, 0, 0, 0, 0, 0, 0, 0, 0, 205 }, // 紫霞功
+          { 41, 41, 41, 41, 3449, 0, 0, 0, 0, 0, 1526, 0, 0, 0, 1220, 0, 0, 0, 92 }, // 分山劲
+          { 41, 41, 41, 41, 0, 0, 3725, 0, 0, 1279, 0, 0, 0, 0, 0, 0, 0, 0, 61 }}  // 莫问
     };
 
     constexpr static std::array<std::array<PctInt_t, static_cast<size_t>(TypeByClass::COUNT)>, static_cast<size_t>(ClassType::COUNT)> MAJOR_TO_OTHER_COEFFICIENT{
-        {{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-         { 0, 0, 0, 0, 0, 1485, 0, 0, 594, 0, 0, 0, 0, 0, 0 }, // 太虚剑意
-          { 0, 0, 0, 0, 0, 0, 0, 1792, 0, 573, 0, 0, 0, 0, 0 }, // 紫霞功
-          { 0, 0, 0, 0, 0, 1751, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 分山劲
-          { 0, 0, 0, 0, 0, 0, 0, 1895, 0, 389, 0, 0, 0, 0, 0 }}  // 莫问
+        {{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+         { 0, 0, 0, 0, 0, 1485, 0, 0, 594, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 太虚剑意
+          { 0, 0, 0, 0, 0, 0, 0, 1792, 0, 573, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 紫霞功
+          { 0, 0, 0, 0, 0, 1751, 0, 0, 0, 0, 0, 0, 0, 0, 102, 0, 1024, 0, 0 }, // 分山劲
+          { 0, 0, 0, 0, 0, 0, 0, 1895, 0, 389, 0, 0, 0, 0, 0, 0, 0, 0, 0 }}  // 莫问
     };
 
     constexpr static std::array<std::array<int, static_cast<size_t>(MajorType::COUNT)>, static_cast<size_t>(ClassType::COUNT)> MAJOR{
@@ -365,6 +379,16 @@ public:
                 this->AddHasteBaseAdditionalPercentInt(value);
                 break;
 
+            case Type::PARRY_BASE: this->AddParryBaseAdditional(value); break;
+            case Type::PARRY_BASE_ADDITIONAL_PERCENT_INT:
+                this->AddParryBaseAdditionalPercentInt(value);
+                break;
+
+            case Type::PARRY_VALUE_BASE: this->AddParryValueBaseAdditional(value); break;
+            case Type::PARRY_VALUE_BASE_ADDITIONAL_PERCENT_INT:
+                this->AddParryValueBaseAdditionalPercentInt(value);
+                break;
+
             case Type::SHIELD_IGNORE_PERCENT_INT:
                 this->AddShieldIgnorePercentInt(value);
                 break;
@@ -463,6 +487,10 @@ public:
             case Type::SURPLUS_VALUE_BASE: this->SetSurplusValueBase(value); break;
 
             case Type::HASTE_BASE: this->SetHasteBase(value); break;
+
+            case Type::PARRY_BASE: this->SetParryBaseAdditional(value); break;
+            
+            case Type::PARRY_VALUE_BASE: this->SetParryValueBaseAdditional(value); break;
 
             default: break;
         }
@@ -1338,6 +1366,143 @@ public:
 
     inline PctFloat_t GetHasteVisiblePercent() const { return m_hasteVisiblePercent; }
 
+    /* 招架 */
+    inline Value_t GetParryBaseByClass() const { return m_parryBaseByClass; }
+
+    inline void SetParryBaseByClass(Value_t value)
+    {
+        m_parryBaseByClass = value;
+        UpdateParry();
+    }
+
+    inline void AddParryBaseByClass(Value_t value)
+    {
+        m_parryBaseByClass += value;
+        UpdateParry();
+    }
+
+    inline Value_t GetParryBaseAdditional() const { return m_parryBaseAdditional; }
+
+    inline void SetParryBaseAdditional(Value_t value)
+    {
+        m_parryBaseAdditional = value;
+        UpdateParry();
+    }
+
+    inline void AddParryBaseAdditional(Value_t value)
+    {
+        m_parryBaseAdditional += value;
+        UpdateParry();
+    }
+
+    inline Value_t GetParryBaseMinimum() const { return m_parryBaseByClass; }
+
+    inline Value_t GetParryBase() const { return m_parryBase; }
+
+    inline PctInt_t GetParryBaseAdditionalPercentInt() const
+    {
+        return m_parryBaseAdditionalPercentInt;
+    }
+
+    inline void SetParryBaseAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_parryBaseAdditionalPercentInt = percentInt;
+        UpdateParry();
+    }
+
+    inline void AddParryBaseAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_parryBaseAdditionalPercentInt += percentInt;
+        UpdateParry();
+    }
+
+    inline Value_t GetParryByClass() const { return m_parryByClass; }
+
+    inline void SetParryByClass(Value_t value)
+    {
+        m_parryByClass = value;
+        UpdateParry();
+    }
+
+    inline void AddParryByClass(Value_t value)
+    {
+        m_parryByClass += value;
+        UpdateParry();
+    }
+
+    inline Value_t GetParry() const { return m_parry; }
+
+    inline PctFloat_t GetParryPercent() const { return m_parryPercent; }
+
+    /* 拆招 */
+    inline Value_t GetParryValueBaseByClass() const { return m_parryValueBaseByClass; }
+
+    inline void SetParryValueBaseByClass(Value_t value)
+    {
+        m_parryValueBaseByClass = value;
+        UpdateParryValue();
+    }
+
+    inline void AddParryValueBaseByClass(Value_t value)
+    {
+        m_parryValueBaseByClass += value;
+        UpdateParryValue();
+    }
+
+    inline Value_t GetParryValueBaseAdditional() const
+    {
+        return m_parryValueBaseAdditional;
+    }
+
+    inline void SetParryValueBaseAdditional(Value_t value)
+    {
+        m_parryValueBaseAdditional = value;
+        UpdateParryValue();
+    }
+
+    inline void AddParryValueBaseAdditional(Value_t value)
+    {
+        m_parryValueBaseAdditional += value;
+        UpdateParryValue();
+    }
+
+    inline Value_t GetParryValueBaseMinimum() const { return m_parryValueBaseByClass; }
+
+    inline Value_t GetParryValueBase() const { return m_parryValueBase; }
+
+    inline PctInt_t GetParryValueBaseAdditionalPercentInt() const
+    {
+        return m_parryValueBaseAdditionalPercentInt;
+    }
+
+    inline void SetParryValueBaseAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_parryValueBaseAdditionalPercentInt = percentInt;
+        UpdateParryValue();
+    }
+
+    inline void AddParryValueBaseAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_parryValueBaseAdditionalPercentInt += percentInt;
+        UpdateParryValue();
+    }
+
+    inline Value_t GetParryValueByClass() const { return m_parryValueByClass; }
+
+    inline void SetParryValueByClass(Value_t value)
+    {
+        m_parryValueByClass = value;
+        UpdateParryValue();
+    }
+
+    inline void AddParryValueByClass(Value_t value)
+    {
+        m_parryValueByClass += value;
+        UpdateParryValue();
+    }
+
+    inline Value_t GetParryValue() const { return m_parryValue; }
+
     /* 防御忽视 */
     inline PctInt_t GetShieldIgnorePercentInt() const { return m_shieldIgnorePercentInt; }
 
@@ -1528,6 +1693,25 @@ private:
                           m_hasteBaseAdditionalPercentInt + JX3_PERCENT_INT_BASE);
     }
 
+    /* 招架 */
+    inline void UpdateParry()
+    {
+        m_parryBase = m_parryBaseByClass + m_parryBaseAdditional;
+        m_parry = m_parryBase * (JX3_PERCENT_INT_BASE + m_parryBaseAdditionalPercentInt) / JX3_PERCENT_INT_BASE +
+                  m_parryByClass;
+        m_parryPercent =
+            m_parry / (JX3_PARRY_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
+    }
+
+    /* 拆招 */
+    inline void UpdateParryValue()
+    {
+        m_parryValueBase = m_parryValueBaseByClass + m_parryValueBaseAdditional;
+        m_parryValue =
+            m_parryValueBase * (JX3_PERCENT_INT_BASE + m_parryValueBaseAdditionalPercentInt) / JX3_PERCENT_INT_BASE +
+            m_parryValueByClass;
+    }
+
     inline void UpdateByClass()
     {
 
@@ -1540,7 +1724,7 @@ private:
         this->SetPhysicsAttackPowerBaseByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER_BASE)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PHYSICS_ATTACK_POWER_BASE)] *
-                major  / JX3_PERCENT_INT_BASE +
+                major / JX3_PERCENT_INT_BASE +
             m_strength * JX3_STRENGTH_TO_ATTACK_POWER_BASE / JX3_PERCENT_INT_BASE);
 
         this->SetMagicAttackPowerBaseByClass(
@@ -1591,6 +1775,26 @@ private:
         this->SetMagicOvercomeByClass(
             ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME)] +
             MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::MAGIC_OVERCOME)] *
+                major / JX3_PERCENT_INT_BASE);
+
+        this->SetParryBaseByClass(
+            ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PARRY_BASE)] +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PARRY_BASE)] *
+                major / JX3_PERCENT_INT_BASE);
+
+        this->SetParryByClass(
+            ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PARRY)] +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PARRY)] *
+                major / JX3_PERCENT_INT_BASE);
+
+        this->SetParryValueBaseByClass(
+            ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PARRY_VALUE_BASE)] +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PARRY_VALUE_BASE)] *
+                major / JX3_PERCENT_INT_BASE);
+
+        this->SetParryValueByClass(
+            ATTRIBUTE_INITIAL[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PARRY_VALUE)] +
+            MAJOR_TO_OTHER_COEFFICIENT[static_cast<int>(m_classType)][static_cast<int>(TypeByClass::PARRY_VALUE)] *
                 major / JX3_PERCENT_INT_BASE);
 
         this->SetPVEDamageAdditionalPercentInt(
@@ -1697,6 +1901,21 @@ private:
     PctInt_t   m_hasteBaseAdditionalPercentInt = 0;
     PctFloat_t m_hastePercent                  = 0.0;
     PctFloat_t m_hasteVisiblePercent           = 0.0;
+
+    Value_t    m_parryBaseByClass              = 0;
+    Value_t    m_parryBaseAdditional           = 0;
+    Value_t    m_parryBase                     = 0;
+    PctInt_t   m_parryBaseAdditionalPercentInt = 0;
+    Value_t    m_parryByClass                  = 0;
+    Value_t    m_parry                         = 0;
+    PctFloat_t m_parryPercent                  = 0.0;
+
+    Value_t  m_parryValueBaseByClass              = 0;
+    Value_t  m_parryValueBaseAdditional           = 0;
+    Value_t  m_parryValueBase                     = 0;
+    PctInt_t m_parryValueBaseAdditionalPercentInt = 0;
+    Value_t  m_parryValueByClass                  = 0;
+    Value_t  m_parryValue                         = 0;
 
     PctInt_t m_shieldIgnorePercentInt = 0;
 

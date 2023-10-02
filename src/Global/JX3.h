@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 01:10:26
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-24 03:29:45
+ * Last Modified: 2023-10-03 06:04:12
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -141,6 +141,7 @@ const Cof_t JX3_HASTE_RATE                  = 11.695;
 const Cof_t JX3_PHYSICS_SHIELD_PARAM        = 5.091;
 const Cof_t JX3_MAGIC_SHIELD_PARAM          = 5.091;
 const Cof_t JX3_SURPLUS_PARAM               = 13.192;
+const Cof_t JX3_PARRY_PARAM                 = 4.345;
 #elif JX3_LEVEL_VERSION == 110
 /* 等级系数 */
 const int JX3_LEVEL_PARAM = 205;
@@ -158,6 +159,7 @@ const Cof_t JX3_HASTE_RATE                  = 11.695;
 const Cof_t JX3_PHYSICS_SHIELD_PARAM        = 5.091;
 const Cof_t JX3_MAGIC_SHIELD_PARAM          = 5.091;
 const Cof_t JX3_SURPLUS_PARAM               = 2.557;
+const Cof_t JX3_PARRY_PARAM                 = 4.345;
 #elif JX3_LEVEL_VERSION == 100
 /* 等级系数 */
 const int JX3_LEVEL_PARAM = 185;
@@ -174,6 +176,7 @@ const Cof_t JX3_OVERCOME_PARAM              = 9.026;
 const Cof_t JX3_HASTE_RATE                  = 11.077;
 const Cof_t JX3_PHYSICS_SHIELD_PARAM        = 4.084;
 const Cof_t JX3_MAGIC_SHIELD_PARAM          = 4.084;
+const Cof_t JX3_PARRY_PARAM                 = 4.345;
 #endif // JX3_LEVEL_VERSION
 
 /* 熔嵌 - 主属性 */

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:20:23
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 10:00:48
+ * Last Modified: 2023-10-08 23:30:47
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -51,7 +51,7 @@ public:
     Skill(Player *player, Targets *targets);
     virtual ~Skill();
 
-    Skill(const Skill &other);
+    Skill(const Skill &other); 
     virtual Skill &operator=(const Skill &other);
 
     virtual Skill *Clone() const = 0;
@@ -165,6 +165,7 @@ public:
     void AddTriggerEffect(Id_t id, const TriggerEffect &triggerEffect);
 
 protected:
+
     Player  *m_player  = nullptr;
     Targets *m_targets = nullptr;
 

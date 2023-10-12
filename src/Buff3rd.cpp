@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:41:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-22 09:38:01
+ * Last Modified: 2023-10-05 16:41:24
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1065,14 +1065,14 @@ void PendantOvercome::TriggerAdd()
 
 void PendantOvercome::SubEffectAdd()
 {
-    m_player->attribute.AddPhysicsOvercomeBaseAdditional(6408);
-    m_player->attribute.AddMagicOvercomeBaseAdditional(6408);
+    m_player->attribute.AddPhysicsOvercomeBaseAdditional(8330);
+    m_player->attribute.AddMagicOvercomeBaseAdditional(8330);
 }
 
 void PendantOvercome::SubEffectClear()
 {
-    m_player->attribute.AddPhysicsOvercomeBaseAdditional(-6408);
-    m_player->attribute.AddMagicOvercomeBaseAdditional(-6408);
+    m_player->attribute.AddPhysicsOvercomeBaseAdditional(-8330);
+    m_player->attribute.AddMagicOvercomeBaseAdditional(-8330);
 }
 
 } // namespace Buff3rd

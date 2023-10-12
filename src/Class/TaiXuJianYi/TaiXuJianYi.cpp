@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 10:09:00
+ * Last Modified: 2023-10-10 15:14:46
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -75,6 +75,8 @@ void Player::Init()
     buffs.emplace(BUFF_TUN_RI_YUE, static_cast<JX3DPS::Buff *>(new Buff::TunRiYue(this, nullptr)));
     buffs.emplace(BUFF_CLASS_FEATURE,
                   static_cast<JX3DPS::Buff *>(new Buff::ClassFeature(this, nullptr)));
+    buffs.emplace(BUFF_PENDANT_OVERCOME,
+                  static_cast<JX3DPS::Buff *>(new Buff3rd::PendantOvercome(this, nullptr)));
 
     if (talents[TALENT_SHEN_MAI]) {
         skills[SKILL_BA_HUANG_GUI_YUAN]->AddTriggerEffect(TRIGGER_SHEN_MAI,
@@ -1035,7 +1037,7 @@ void Player::TriggerLieYun(const Params &params)
 
 void Player::TriggerGuChang(const Params &params)
 {
-    params.player->attribute.AddShieldIgnorePercentInt(614 * static_cast<int>(params.type));
+    params.player->attribute.AddPhysicsShieldIgnorePercentInt(614 * static_cast<int>(params.type));
 }
 
 void Player::TriggerQiSheng(const Params &params)
@@ -1056,7 +1058,7 @@ void Player::TriggerJianRuAdd(const Params &params)
 void Player::TriggerJianRu(const Params &params)
 {
     if (params.player->buffs[BUFF_JIAN_RU]->GetDurationCurrent() > 0) {
-        static_cast<Buff::JianRu *>(params.player->buffs[BUFF_JIAN_RU])->TriggerDamage(0);
+        static_cast<Buff::JianRu *>(params.player->buffs[BUFF_JIAN_RU])->TriggerActive();
     }
 }
 

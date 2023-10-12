@@ -5,7 +5,7 @@
  * Created Date: 2023-08-25 20:44:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-30 12:03:49
+ * Last Modified: 2023-10-03 08:17:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -155,7 +155,7 @@ void ZhanDao::SubEffect()
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 JueDao::JueDao(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -202,7 +202,7 @@ void JueDao::SubEffect()
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 ShanDao::ShanDao(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -233,7 +233,7 @@ void ShanDao::SubEffect()
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 DunYa::DunYa(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -296,7 +296,14 @@ void DunYa::SubEffect()
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
+}
+
+void DunYa::Reset()
+{
+    if (m_player->attribute.GetParryPercent() * 2 < RandomUniform(0.0, 1.0)) {
+        m_cooldownCurrent = 0;
+    }
 }
 
 DunJi::DunJi(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -325,10 +332,14 @@ void DunJi::Trigger() { }
 
 void DunJi::SubEffect()
 {
+    static_cast<DunYa *>(m_player->skills[SKILL_DUN_YA])->Reset();
+    m_player->skills[SKILL_DUN_FEI]->SetEnergyCooldownCurrent(
+        m_player->skills[SKILL_DUN_FEI]->GetEnergyCooldownCurrent());
+
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 DunMeng::DunMeng(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -357,10 +368,11 @@ void DunMeng::Trigger() { }
 
 void DunMeng::SubEffect()
 {
+    static_cast<DunYa *>(m_player->skills[SKILL_DUN_YA])->Reset();
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 DunDao::DunDao(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
@@ -417,20 +429,22 @@ void DunDao::Trigger() { }
 
 void DunDao::SubEffect()
 {
+    static_cast<DunYa *>(m_player->skills[SKILL_DUN_YA])->Reset();
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 DunFei::DunFei(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
 {
-    m_id                 = SKILL_DUN_DAO;
-    m_name               = "盾刀";
+    m_id                 = SKILL_DUN_FEI;
+    m_name               = "盾飞";
     m_range              = 4;
-    m_cooldown           = 4 * 16;
+    m_cooldown           = 18 * 16;
     m_cooldownCurrent    = 0;
     m_energyCountCurrent = m_energyCount = 3;
+    m_prepareFrames                      = 6;
     m_effectRageAdditional               = 10;
 
     m_damageParams[0].emplace_back((202 + 220) / 2, 1024, 241);
@@ -466,6 +480,8 @@ DunFei::DunFei(JX3DPS::Player *player, Targets *targets) : Skill(player, targets
 
 void DunFei::Cast()
 {
+    m_prepareFramesCurrent = m_prepareFrames;
+    index                  = 1;
     m_player->SetLastCastSkill(m_id);
     m_cooldownCurrent = m_cooldown * m_player->attribute.GetHastePercent();
     *m_globalCooldownCurrent =
@@ -473,19 +489,39 @@ void DunFei::Cast()
     SubEffect();
 }
 
-void DunFei::Trigger() { }
+void DunFei::Trigger()
+{
+    if (m_prepareFramesCurrent == 0 && index == 1) {
+        m_prepareFramesCurrent = 2;
+        index                  = 2;
+        static_cast<FenShanJing::Player *>(m_player)->style = FenShanJing::Player::Style::QING_DAO;
+    } else if (m_prepareFramesCurrent == 0 && index == 2) {
+        m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
+        index                  = 0;
+        static_cast<Buff::XuRuo *>(m_player->buffs[BUFF_XU_RUO])->TriggerAdd();
+    }
+
+    if (m_cooldownCurrent == 0) {
+        m_energyCountCurrent++;
+        m_energyCountCurrent = std::min(m_energyCountCurrent, m_energyCount);
+        m_cooldownCurrent    = m_cooldown * m_player->attribute.GetHastePercent();
+        if (m_energyCountCurrent == m_energyCount) {
+            m_cooldownCurrent = JX3DPS_INVALID_FRAMES_SET;
+        }
+    }
+}
 
 void DunFei::SubEffect()
 {
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 DunWu::DunWu(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
 {
-    m_id                 = SKILL_DUN_DAO;
+    m_id                 = SKILL_DUN_WU;
     m_name               = "盾刀";
     m_range              = 4;
     m_cooldown           = 4 * 16;
@@ -540,12 +576,12 @@ void DunWu::SubEffect()
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 XueNu::XueNu(JX3DPS::Player *player, Targets *targets) : Skill(player, targets)
 {
-    m_id                 = SKILL_DUN_DAO;
+    m_id                 = SKILL_XUE_NU;
     m_name               = "盾刀";
     m_range              = 4;
     m_cooldown           = 4 * 16;
@@ -600,7 +636,7 @@ void XueNu::SubEffect()
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 YeHuoLinGuang::YeHuoLinGuang(JX3DPS::Player *player, Targets *targets) :
@@ -633,7 +669,7 @@ void YeHuoLinGuang::SubEffect()
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 ZhenYunJieHui::ZhenYunJieHui(JX3DPS::Player *player, Targets *targets) :
@@ -666,7 +702,7 @@ void ZhenYunJieHui::SubEffect()
     m_player->AddRage(m_effectRageAdditional);
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 0, 0);
-    Record(m_id,m_player->GetTargetId(), rollResult, damage, 0, 0);
+    Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
 }
 
 } // namespace Skill

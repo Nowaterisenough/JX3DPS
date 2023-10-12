@@ -1,11 +1,11 @@
 ﻿/**
  * Project: JX3DPS
  * File: FenShanJingSkill.h
- * Description: 
+ * Description:
  * Created Date: 2023-08-25 20:44:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-26 09:43:43
+ * Last Modified: 2023-10-03 07:43:28
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,13 +13,11 @@
  * ----------	-----	----------------------------------------------------------
  */
 
-
-
 #ifndef __JX3DPS_CLASS_FEN_SHAN_JING_SKILL_H__
 #define __JX3DPS_CLASS_FEN_SHAN_JING_SKILL_H__
 
-#include "Skill.h"
 #include "FenShanJing.h"
+#include "Skill.h"
 
 namespace JX3DPS {
 
@@ -97,6 +95,8 @@ class DunYa : public JX3DPS::Skill
 
 public:
     void SubEffect();
+
+    void Reset();
 };
 
 class DunFei : public JX3DPS::Skill
@@ -105,6 +105,8 @@ class DunFei : public JX3DPS::Skill
 
 public:
     void SubEffect();
+
+    int index = 0;
 };
 
 class DunWu : public JX3DPS::Skill

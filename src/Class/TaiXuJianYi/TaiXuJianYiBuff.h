@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:55:52
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-12 09:50:38
+ * Last Modified: 2023-10-10 15:13:56
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -146,6 +146,7 @@ class JianRu : public JX3DPS::Buff
 
 public:
     void TriggerAdd();
+    void TriggerActive();
     void TriggerDamage(int index);
 };
 

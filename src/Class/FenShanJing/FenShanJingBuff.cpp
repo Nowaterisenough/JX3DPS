@@ -5,7 +5,7 @@
  * Created Date: 2023-08-25 20:44:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-26 09:48:22
+ * Last Modified: 2023-10-05 16:55:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -24,38 +24,101 @@ namespace FenShanJing {
 
 namespace Buff {
 
-DieRen::DieRen(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
+DunFei::DunFei(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
 {
-    m_id          = BUFF_DIE_REN;
-    m_name        = "叠刃";
-    m_interval    = 16 * 3;
-    m_stackNum    = 5;
-    m_effectCount = 8;
+    m_id       = BUFF_DUN_FEI;
+    m_name     = "盾飞";
+    m_interval = 16 * 3;
+    m_duration = 16 * 15;
+}
 
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
-
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
-
-    if (m_player->talents[TALENT_LIE_YUN]) {
-        m_stackNum = 7;
+void DunFei::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration != 0) {
+        return;
     }
+    // buff结束，不存在自判定，设置为无效帧避免频繁判定
+    int stackNum = m_snapshots[PLAYER_ID].stackNum;
+    m_snapshots.erase(PLAYER_ID);
+    //SubEffectClear(stackNum);
+}
 
-    if (m_player->talents[TALENT_XU_JI]) {
-        m_effectDamageAdditionalPercentInt += 102 * 2;
+void DunFei::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.empty()) {
+        m_snapshots[PLAYER_ID].stackNum = stackNum;
+        m_snapshots[PLAYER_ID].stackNum = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        //SubEffectAdd(m_snapshots[PLAYER_ID].stackNum);
+    } else {
+        int stack                        = m_snapshots[PLAYER_ID].stackNum;
+        m_snapshots[PLAYER_ID].stackNum += stackNum;
+        m_snapshots[PLAYER_ID].stackNum = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        stack = m_snapshots[PLAYER_ID].stackNum - stack;
+        //SubEffectAdd(stack);
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
     }
 }
+
+void DunFei::Clear(Id_t targetId, int stackNum)
+{
+    int stack = m_snapshots[PLAYER_ID].stackNum;
+    m_snapshots.erase(PLAYER_ID);
+    //SubEffectClear(stack);
+}
+
+void DunFei::TriggerAdd() { }
+
+XuRuo::XuRuo(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_DUN_FEI;
+    m_name     = "盾飞";
+    m_interval = 16 * 3;
+    m_duration = 16 * 15;
+}
+
+void XuRuo::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration != 0) {
+        return;
+    }
+    // buff结束，不存在自判定，设置为无效帧避免频繁判定
+    int stackNum = m_snapshots[PLAYER_ID].stackNum;
+    m_snapshots.erase(PLAYER_ID);
+    //SubEffectClear(stackNum);
+}
+
+void XuRuo::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.empty()) {
+        m_snapshots[PLAYER_ID].stackNum = stackNum;
+        m_snapshots[PLAYER_ID].stackNum = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        //SubEffectAdd(m_snapshots[PLAYER_ID].stackNum);
+    } else {
+        int stack                        = m_snapshots[PLAYER_ID].stackNum;
+        m_snapshots[PLAYER_ID].stackNum += stackNum;
+        m_snapshots[PLAYER_ID].stackNum = std::min(m_snapshots[PLAYER_ID].stackNum, m_stackNum);
+        stack = m_snapshots[PLAYER_ID].stackNum - stack;
+        //SubEffectAdd(stack);
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void XuRuo::Clear(Id_t targetId, int stackNum)
+{
+    int stack = m_snapshots[PLAYER_ID].stackNum;
+    m_snapshots.erase(PLAYER_ID);
+    //SubEffectClear(stack);
+}
+
+void XuRuo::TriggerAdd() { }
 
 } // namespace Buff
 

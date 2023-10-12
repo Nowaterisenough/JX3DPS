@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:27:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 10:37:28
+ * Last Modified: 2023-10-11 11:42:07
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -184,7 +184,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         keyFrameSequence.pop_front();
 
         if (!player->IsStop()) {
-            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId);
+            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId, 0);
         }
 
         // 检查后序关键帧因为事件、技能施放或buff刷新等原因的状态变化
@@ -268,7 +268,8 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
     ExprSkills     &exprSkills,
     Frame_t         now,
     Id_t           &exprSkillsId,
-    Id_t           &lastExprSkillsId)
+    Id_t           &lastExprSkillsId,
+    int             &&recursiveCount)
 {
     for (auto iter = exprSkills.begin(); iter != exprSkills.end();) {
         bool scast = iter->first.front().front()(player, targets);
@@ -310,14 +311,17 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
 
             Id_t id = iter->second;
             if (id > SKILL_DEFAULT) { // 执行技能
+                recursiveCount = 0;
                 spdlog::debug("{:<8} {:<5} {:<10}",
                               now * 0.0625,
                               "宏·" + std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT),
                               JX3DPS_NAME.at(static_cast<int>(id)));
                 player->skills[id]->Cast();
             } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
+                recursiveCount++;
                 player->SetTargetId(id);
             } else if (id >= EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT) { // 切换宏
+                recursiveCount++;
                 id = id == EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT ? lastExprSkillsId : id;
                 exprSkills       = exprSkillsHash.at(id);
                 lastExprSkillsId = exprSkillsId;
@@ -332,8 +336,10 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
             if (scast && id > EXPRESSION_SKILL_PLACE_HOLDERS_END) {
                 iter = exprSkills.erase(iter);
             }
-
-            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId);
+            if (recursiveCount > exprSkillsHash.size() * 2) {
+                return SKILL_DEFAULT;
+            }
+            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId, std::move(recursiveCount));
             return SKILL_DEFAULT;
         } else if (scast) { // scast执行失败
             return SKILL_DEFAULT;

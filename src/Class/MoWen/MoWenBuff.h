@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-12 10:24:54
+ * Last Modified: 2023-10-12 14:54:37
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -280,8 +280,8 @@ class TeamCoreMoWenYouRen : public JX3DPS::Buff
 public:
     void TriggerAdd();
 
-    void SubEffectAdd(int stackNum);
-    void SubEffectClear(int stackNum);
+    void SubEffectAdd();
+    void SubEffectClear();
 };
 
 class TeamCoreMoWenJingMiao : public JX3DPS::Buff
@@ -289,7 +289,8 @@ class TeamCoreMoWenJingMiao : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(TeamCoreMoWenJingMiao)
 
 public:
-    void SubEffect();
+    void SubEffectAdd();
+    void SubEffectClear();
 };
 
 class ShenBingGong : public JX3DPS::Buff

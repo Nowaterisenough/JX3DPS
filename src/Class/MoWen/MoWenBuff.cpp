@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-26 18:33:28
+ * Last Modified: 2023-10-12 14:57:55
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -47,7 +47,7 @@ Shang::Shang(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, ta
     if (m_player->recipes[RECIPE_SHANG_CRITICAL_STRIKE_4]) {
         m_effectCriticalStrikeAdditionalBasisPointInt += 400;
     }
-    
+
     if (m_player->recipes[RECIPE_SHANG_DAMAGE_3]) {
         // m_effectDamageAdditionalPercentInt += 31;
         m_damageParams[0][0].attackDamagePercentInt *= 1.03;
@@ -222,7 +222,7 @@ XianFeng::XianFeng(JX3DPS::Player *player, Targets *targets) :
     m_stackNum = 5;
     m_duration = 10 * 16;
 
-    m_damageParams[0].emplace_back((40 + 40 + 2) / 2, 0, 40*1.2);
+    m_damageParams[0].emplace_back((40 + 40 + 2) / 2, 0, 40 * 1.2);
 }
 
 void XianFeng::Trigger()
@@ -516,7 +516,7 @@ LiuZhao::LiuZhao(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player
     m_stackNum                               = 32;
     m_effectShieldIgnoreAdditionalPercentInt = 922;
 
-    m_damageParams[0].emplace_back((107 + 107 + 27) / 2, 0, 61);
+    m_damageParams[0].emplace_back((107 + 107 + 27) / 2, 0, 61 * 1.25);
 
     m_damageParams[1].emplace_back(0,
                                    0,
@@ -605,11 +605,11 @@ JX3DPS::Damage LiuZhao::GetMagicSurplusDamage(
     Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
     Value_t damageBase = EffectDamage(surplusDamage, m_player->effectDamageAdditionalPercentInt);
 
-    int      playerLevel                = JX3_PLAYER_LEVEL;
-    int      targetLevel                = (*m_targets)[targetId]->GetLevel();
-    Value_t  shieldBase                 = (*m_targets)[targetId]->GetMagicShield();
-    Value_t  shieldAdditional           = 0;
-    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    int     playerLevel      = JX3_PLAYER_LEVEL;
+    int     targetLevel      = (*m_targets)[targetId]->GetLevel();
+    Value_t shieldBase       = (*m_targets)[targetId]->GetMagicShield();
+    Value_t shieldAdditional = 0;
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetMagicShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = 0;
     int      rollResultInt                    = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
@@ -965,11 +965,13 @@ void ZhiYinMiaoYi::TriggerClear()
 
 void ZhiYinMiaoYi::SubEffectAdd(int stackNum)
 {
+    stackNum++;
     m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(102.5 * stackNum);
 }
 
 void ZhiYinMiaoYi::SubEffectClear(int stackNum)
 {
+    stackNum++;
     m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(-102.5 * stackNum);
 }
 
@@ -1241,8 +1243,6 @@ void YingZi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durat
         ids.push_back(id);
         m_snapshots[id].interval = m_interval * m_player->attribute.GetHastePercent();
 
-        
-
         // 快照属性
         m_snapshots[id].SnapMagic(
             m_player->attribute,
@@ -1251,7 +1251,7 @@ void YingZi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durat
                 m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
             m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
 
-            m_triggerEffects[TRIGGER_YUN_HAN](params);
+        m_triggerEffects[TRIGGER_YUN_HAN](params);
 
         if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
             m_snapshots[id].duration = m_duration;
@@ -1357,11 +1357,11 @@ JX3DPS::Damage YingZi::GetMagicYingZiDamage(
         effectCount *
         EffectDamageAll(attack, magicDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
 
-    int      playerLevel      = JX3_PLAYER_LEVEL;
-    int      targetLevel      = (*m_targets)[m_player->GetTargetId()]->GetLevel();
-    Value_t  shieldBase       = (*m_targets)[m_player->GetTargetId()]->GetMagicShield();
-    Value_t  shieldAdditional = 0;
-    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    int     playerLevel      = JX3_PLAYER_LEVEL;
+    int     targetLevel      = (*m_targets)[m_player->GetTargetId()]->GetLevel();
+    Value_t shieldBase       = (*m_targets)[m_player->GetTargetId()]->GetMagicShield();
+    Value_t shieldAdditional = 0;
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetMagicShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
     int      rollResultInt                    = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
@@ -1653,6 +1653,105 @@ void ShenBingGong::SubEffect(Id_t targetId, int stackNum)
     RollResult  rollResult = GetDotRollResult(targetId);
     GainsDamage damage     = CalcMagicDotDamage(targetId, rollResult, 0, stackNum, 1);
     Record(m_id, targetId, rollResult, damage, 0, stackNum);
+}
+
+TeamCoreMoWenYouRen::TeamCoreMoWenYouRen(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_TEAM_CORE_MO_WEN_YOU_REN;
+    m_name     = "游刃";
+    m_duration = 5 * 16;
+}
+
+void TeamCoreMoWenYouRen::Trigger()
+{
+    if (m_snapshots.empty()) {
+        return;
+    }
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear();
+}
+
+void TeamCoreMoWenYouRen::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.empty()) {
+        SubEffectAdd();
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void TeamCoreMoWenYouRen::Clear(Id_t targetId, int stackNum)
+{
+    if (m_snapshots.empty()) {
+        return;
+    }
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear();
+}
+
+void TeamCoreMoWenYouRen::TriggerAdd()
+{
+    if (m_snapshots.empty()) {
+        SubEffectAdd();
+    }
+    m_snapshots[PLAYER_ID].duration = m_duration;
+}
+
+void TeamCoreMoWenYouRen::SubEffectAdd()
+{
+    m_player->attribute.AddMagicCriticalStrikeAdditionalBasisPointInt(500);
+}
+
+void TeamCoreMoWenYouRen::SubEffectClear()
+{
+    m_player->attribute.AddMagicCriticalStrikeAdditionalBasisPointInt(-500);
+}
+
+TeamCoreMoWenJingMiao::TeamCoreMoWenJingMiao(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_TEAM_CORE_MO_WEN_JING_MIAO;
+    m_name     = "精妙";
+    m_duration = 5 * 16;
+    m_cooldown = 20 * 16;
+}
+
+void TeamCoreMoWenJingMiao::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration == 0) {
+        m_snapshots[PLAYER_ID].interval = m_cooldown + RandomUniform(0, 15);
+        m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
+        SubEffectClear();
+    }
+    if (m_snapshots[PLAYER_ID].interval == 0) {
+        m_snapshots[PLAYER_ID].interval = JX3DPS_INVALID_FRAMES_SET;
+        m_snapshots[PLAYER_ID].duration = m_duration;
+        SubEffectAdd();
+    }
+}
+
+void TeamCoreMoWenJingMiao::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    SubEffectAdd();
+}
+
+void TeamCoreMoWenJingMiao::Clear(Id_t targetId, int stackNum)
+{
+    SubEffectClear();
+}
+
+void TeamCoreMoWenJingMiao::SubEffectAdd()
+{
+    m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(205);
+}
+
+void TeamCoreMoWenJingMiao::SubEffectClear()
+{
+    m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(-205);
 }
 
 } // namespace Buff

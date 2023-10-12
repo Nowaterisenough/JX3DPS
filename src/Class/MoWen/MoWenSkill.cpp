@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:30:22
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-26 12:23:15
+ * Last Modified: 2023-10-12 15:06:36
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -43,7 +43,7 @@ PoZhao::PoZhao(JX3DPS::Player *player, Targets *targets) : Skill(player, targets
                                    JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE *
                                        (0.36 * 0.5 * 1.3 * 1.2 * 0.5 * 1.11 - 1));
 
-    m_damageParams[0].emplace_back(0, 0, JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE * (0.4 * 0.9 - 1));
+    m_damageParams[0].emplace_back(0, 0, JX3_PERCENT_INT_BASE * JX3_PERCENT_INT_BASE * (0.4 * 0.9 * 0.7 - 1));
 }
 
 void PoZhao::Cast() { }
@@ -238,6 +238,7 @@ void Gong::SubEffect()
 
     params.rollResult = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+    m_triggerEffects[TRIGGER_TEAM_CORE_MO_WEN_YOU_REN](params);
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -412,6 +413,7 @@ void BianGong::SubEffect()
     RollResult rollResult = GetMagicRollResult();
     params.rollResult     = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+    m_triggerEffects[TRIGGER_TEAM_CORE_MO_WEN_YOU_REN](params);
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -523,6 +525,7 @@ void Shang::SubEffect()
     RollResult rollResult = GetMagicRollResult();
     params.rollResult     = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+    m_triggerEffects[TRIGGER_TEAM_CORE_MO_WEN_YOU_REN](params);
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -566,6 +569,7 @@ void Jue::SubEffect()
     RollResult rollResult = GetMagicRollResult();
     params.rollResult     = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+    m_triggerEffects[TRIGGER_TEAM_CORE_MO_WEN_YOU_REN](params);
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -748,6 +752,7 @@ void Zhi::SubEffect()
     RollResult rollResult = GetMagicRollResult();
     params.rollResult     = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+    m_triggerEffects[TRIGGER_TEAM_CORE_MO_WEN_YOU_REN](params);
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -927,6 +932,7 @@ void BianZhi::SubEffect()
     RollResult rollResult = GetMagicRollResult();
     params.rollResult     = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+    m_triggerEffects[TRIGGER_TEAM_CORE_MO_WEN_YOU_REN](params);
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
     Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);
@@ -1019,6 +1025,7 @@ void Yu::TriggerDamage()
     RollResult rollResult = GetMagicRollResult();
     params.rollResult     = rollResult;
     m_triggerEffects[TRIGGER_ENCHANT_SHOES](params);
+    m_triggerEffects[TRIGGER_TEAM_CORE_MO_WEN_YOU_REN](params);
 
     GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 1, 0);
     Record(SKILL_YU_SHEN_BING, m_player->GetTargetId(), rollResult, damage, 1, 0);

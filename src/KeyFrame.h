@@ -5,7 +5,7 @@
  * Created Date: 2023-06-19 16:26:49
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-18 08:09:11
+ * Last Modified: 2023-10-11 11:37:30
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -74,7 +74,8 @@ Id_t CastSkills(Player         *player,
                 ExprSkills     &exprSkills,
                 Frame_t         now,
                 Id_t           &exprSkillsId,
-                Id_t           &lastExprSkillsId);
+                Id_t           &lastExprSkillsId,
+                int            &&recursiveCount);
 
 } // namespace KeyFrame
 

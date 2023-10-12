@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-26 07:58:53
+ * Last Modified: 2023-10-08 11:06:50
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -20,13 +20,6 @@
 #include "Global/Types.h"
 
 namespace JX3DPS {
-
-// #define JX3DPS_OPTIMIZATION_MAX(x, y)                      \
-//     ((1 & (~(((x) - (y)) >> (sizeof(x) * 8 - 1)))) * (x) - \
-//      (~(((y) - (x)) >> (sizeof(x) * 8 - 1))) * (y))
-// #define JX3DPS_OPTIMIZATION_MIN(x, y)                      \
-//     ((1 & (~(((y) - (x)) >> (sizeof(x) * 8 - 1)))) * (x) - \
-//      (~(((x) - (y)) >> (sizeof(x) * 8 - 1))) * (y))
 
 // 负数为1，非负数为0
 #define JX3DPS_OPTIMIZATION_CHECK_NEGATIVE(x) (((x) >> (sizeof(x) * 8 - 1)) & 1)
@@ -238,6 +231,25 @@ inline Value_t EffectDamageAll(Value_t    attack,
     return EffectDamage(initialDamage, effectDamageAdditionalPercentInt);
 }
 
+/**
+ * 计算最终外功伤害值
+ * @param playerLevel 玩家等级
+ * @param targetLevel 目标等级
+ * @param damage 基础伤害值
+ * @param shieldBase 防御基础值
+ * @param shieldAdditional 防御附加值
+ * @param ignoreShieldBasePercentInt 忽略基础防御百分比
+ * @param ignoreShieldAdditionalPercentInt 忽略最终防御百分比
+ * @param overcome 破防值
+ * @param rollResult 骰子结果
+ * @param criticalStrikePower 会效
+ * @param effectCriticalStrikePowerPercentInt 会效加成百分比
+ * @param strain 无双
+ * @param strainPercentInt 无双加成百分比
+ * @param pveDamageAdditionalPercentInt PVE伤害附加百分比
+ * @param vulnerablePercentInt 易伤百分比
+ * @return 最终外功伤害值
+ */
 inline Value_t FinalPhysicsDamage(
     int      playerLevel,
     int      targetLevel,
@@ -268,6 +280,25 @@ inline Value_t FinalPhysicsDamage(
     return VulnerableDamage(classDamage, vulnerablePercentInt);
 }
 
+/**
+ * 计算最终内功伤害值
+ * @param playerLevel 玩家等级
+ * @param targetLevel 目标等级
+ * @param damage 基础伤害值
+ * @param shieldBase 防御基础值
+ * @param shieldAdditional 防御附加值
+ * @param ignoreShieldBasePercentInt 忽略基础防御百分比
+ * @param ignoreShieldAdditionalPercentInt 忽略最终防御百分比
+ * @param overcome 破防值
+ * @param rollResult 骰子结果
+ * @param criticalStrikePower 会效
+ * @param effectCriticalStrikePowerPercentInt 会效加成百分比
+ * @param strain 无双
+ * @param strainPercentInt 无双加成百分比
+ * @param pveDamageAdditionalPercentInt PVE伤害附加百分比
+ * @param vulnerablePercentInt 易伤百分比
+ * @return 最终内功伤害值
+ */
 inline Value_t FinalMagicDamage(
     int      playerLevel,
     int      targetLevel,

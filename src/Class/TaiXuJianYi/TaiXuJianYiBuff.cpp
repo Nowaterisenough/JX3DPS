@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-12 09:53:58
+ * Last Modified: 2023-10-11 10:17:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1090,14 +1090,17 @@ JianRu::JianRu(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, 
     m_id       = BUFF_JIAN_RU;
     m_name     = "剑入";
     m_duration = 16 * 6;
+    m_interval = 16;
 
-    m_damageParams[0].emplace_back(0, 0, 84 * 1.2 * 1.1);
-    m_damageParams[1].emplace_back(0, 0, 280 * 1.1);
+    m_damageParams[0].emplace_back(0, 0, 84 * 1.2 * 1.1 * 2 * 1.6774);
+    m_damageParams[1].emplace_back(0, 0, 280 * 1.1 * 1.25558);
 }
 
 void JianRu::Trigger()
 {
-    if (m_snapshots[PLAYER_ID].duration != 0) {
+    if (m_snapshots[PLAYER_ID].interval == 0) {
+        TriggerDamage(0);
+        m_snapshots[PLAYER_ID].interval = m_interval;
         return;
     }
     m_snapshots.erase(PLAYER_ID);
@@ -1120,6 +1123,13 @@ void JianRu::Clear(Id_t targetId, int stackNum)
 void JianRu::TriggerAdd()
 {
     m_snapshots[PLAYER_ID].duration = m_duration;
+}
+
+void JianRu::TriggerActive()
+{
+    if (m_snapshots.find(PLAYER_ID) != m_snapshots.end()) {
+        m_snapshots[PLAYER_ID].interval = m_interval;
+    }
 }
 
 void JianRu::TriggerDamage(int index)
@@ -1160,8 +1170,8 @@ void JianRu::TriggerDamage(int index)
 
         GainsDamage damage = CalcPhysicsDamage(targetId, GetPhysicsRollResult(), index, 0);
         Record(m_id, targetId, GetPhysicsRollResult(), damage, index, 0);
-        index++;
-        if (index == 2) {
+        count++;
+        if (count == 2) {
             break;
         }
     }

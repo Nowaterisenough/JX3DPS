@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-03 07:04:58
+ * Last Modified: 2023-10-10 08:51:28
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -101,6 +101,8 @@ public:
         PARRY_VALUE_BASE_ADDITIONAL_PERCENT_INT,
 
         SHIELD_IGNORE_PERCENT_INT,
+        PHYSICS_SHIELD_IGNORE_PERCENT_INT,
+        MAGIC_SHIELD_IGNORE_PERCENT_INT,
 
         PVE_DAMAGE_ADDITIONAL_PERCENT_INT,
 
@@ -154,6 +156,8 @@ public:
          { "拆招值" },
          { "拆招值加成" },
          { "忽视防御加成" },
+         { "外功忽视防御加成" },
+         { "内功忽视防御加成" },
          { "非侠士伤害加成" }}
     };
 
@@ -390,7 +394,14 @@ public:
                 break;
 
             case Type::SHIELD_IGNORE_PERCENT_INT:
-                this->AddShieldIgnorePercentInt(value);
+                this->AddPhysicsShieldIgnorePercentInt(value);
+                this->AddMagicShieldIgnorePercentInt(value);
+                break;
+            case Type::PHYSICS_SHIELD_IGNORE_PERCENT_INT:
+                this->AddPhysicsShieldIgnorePercentInt(value);
+                break;
+            case Type::MAGIC_SHIELD_IGNORE_PERCENT_INT:
+                this->AddMagicShieldIgnorePercentInt(value);
                 break;
 
             case Type::PVE_DAMAGE_ADDITIONAL_PERCENT_INT:
@@ -489,7 +500,7 @@ public:
             case Type::HASTE_BASE: this->SetHasteBase(value); break;
 
             case Type::PARRY_BASE: this->SetParryBaseAdditional(value); break;
-            
+
             case Type::PARRY_VALUE_BASE: this->SetParryValueBaseAdditional(value); break;
 
             default: break;
@@ -1504,16 +1515,34 @@ public:
     inline Value_t GetParryValue() const { return m_parryValue; }
 
     /* 防御忽视 */
-    inline PctInt_t GetShieldIgnorePercentInt() const { return m_shieldIgnorePercentInt; }
-
-    inline void SetShieldIgnorePercentInt(PctInt_t percentInt)
+    inline PctInt_t GetPhysicsShieldIgnorePercentInt() const
     {
-        m_shieldIgnorePercentInt = percentInt;
+        return m_physicsShieldIgnorePercentInt;
     }
 
-    inline void AddShieldIgnorePercentInt(PctInt_t percentInt)
+    inline void SetPhysicsShieldIgnorePercentInt(PctInt_t percentInt)
     {
-        m_shieldIgnorePercentInt += percentInt;
+        m_physicsShieldIgnorePercentInt = percentInt;
+    }
+
+    inline void AddPhysicsShieldIgnorePercentInt(PctInt_t percentInt)
+    {
+        m_physicsShieldIgnorePercentInt += percentInt;
+    }
+
+    inline PctInt_t GetMagicShieldIgnorePercentInt() const
+    {
+        return m_magicShieldIgnorePercentInt;
+    }
+
+    inline void SetMagicShieldIgnorePercentInt(PctInt_t percentInt)
+    {
+        m_magicShieldIgnorePercentInt = percentInt;
+    }
+
+    inline void AddMagicShieldIgnorePercentInt(PctInt_t percentInt)
+    {
+        m_magicShieldIgnorePercentInt += percentInt;
     }
 
     /* 非侠士伤害加成 */
@@ -1620,11 +1649,10 @@ private:
     /* 外功会心效果 */
     inline void UpdatePhysicsCriticalStrikePower()
     {
-        m_physicsCriticalStrikePower =
-            m_physicsCriticalStrikePowerAdditional *
-            (JX3_PERCENT_INT_BASE + m_physicsCriticalStrikePowerAdditionalPercentInt) / JX3_PERCENT_INT_BASE;
+        m_physicsCriticalStrikePower = m_physicsCriticalStrikePowerAdditional;
         m_physicsCriticalStrikePowerPercent =
             m_physicsCriticalStrikePowerPercentBySelf +
+            m_physicsCriticalStrikePowerAdditionalPercentInt * JX3_PERCENT_FLOAT_BASE / JX3_PERCENT_INT_BASE +
             m_physicsCriticalStrikePower /
                 (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
     }
@@ -1632,11 +1660,10 @@ private:
     /* 内功会心效果 */
     inline void UpdateMagicCriticalStrikePower()
     {
-        m_magicCriticalStrikePower =
-            m_magicCriticalStrikePowerAdditional *
-            (JX3_PERCENT_INT_BASE + m_magicCriticalStrikePowerAdditionalPercentInt) / JX3_PERCENT_INT_BASE;
+        m_magicCriticalStrikePower = m_magicCriticalStrikePowerAdditional;
         m_magicCriticalStrikePowerPercent =
             m_magicCriticalStrikePowerPercentBySelf +
+            m_magicCriticalStrikePowerAdditionalPercentInt * JX3_PERCENT_FLOAT_BASE / JX3_PERCENT_INT_BASE +
             m_magicCriticalStrikePower /
                 (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * JX3_PLAYER_LEVEL - JX3_LEVEL_CONST));
     }
@@ -1917,7 +1944,8 @@ private:
     Value_t  m_parryValueByClass                  = 0;
     Value_t  m_parryValue                         = 0;
 
-    PctInt_t m_shieldIgnorePercentInt = 0;
+    PctInt_t m_physicsShieldIgnorePercentInt = 0;
+    PctInt_t m_magicShieldIgnorePercentInt   = 0;
 
     PctInt_t m_pveDamageAdditionalPercentIntByClass = 0;
 };

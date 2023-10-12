@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 12:49:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-26 07:37:03
+ * Last Modified: 2023-10-08 23:40:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -565,7 +565,7 @@ WanJianGuiZong::WanJianGuiZong(JX3DPS::Player *player, Targets *targets) :
     m_cooldown    = 16 * 12;
     m_targetLimit = 6;
 
-    m_damageParams[0].emplace_back((225 + (225 + 37)) / 2, 0, 100 * 1.1 * 1.25 * 1.05 * 1.5 * 1.1);
+    m_damageParams[0].emplace_back((1132 / 10 * 1.5 + (1132 / 10 * 1.5 + 113 / 10 * 1.5)) / 2, 0, 100 * 1.1 * 1.25 * 1.05 * 1.5 * 1.1);
 
     if (m_player->talents[TALENT_TONG_GEN]) {
         m_effectDamageAdditionalPercentInt += 102;

@@ -1,18 +1,17 @@
 ﻿/**
- * Project: 
+ * Project: JX3DPS
  * File: FenShanJing.h
- * Description: 
+ * Description:
  * Created Date: 2023-08-25 20:44:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-30 11:58:35
+ * Last Modified: 2023-10-08 22:46:17
  * Modified By: 难为水
  * -----
  * HISTORY:
  * Date      	By   	Comments
  * ----------	-----	----------------------------------------------------------
  */
-
 
 #ifndef __JX3DPS_CLASS_FEN_SHAN_JING_H__
 #define __JX3DPS_CLASS_FEN_SHAN_JING_H__
@@ -64,6 +63,15 @@ public:
         cooldownSanChaiJianFaCurrent -= next;
         cooldownSanChaiJianFaCurrent  = std::max(cooldownSanChaiJianFaCurrent, 0);
     }
+
+    enum class Style
+    {
+        QING_DUN = 0,
+        QING_DAO,
+        DUN_QIANG,
+    };
+
+    Style style = Style::QING_DUN;
 
     Frame_t cooldownSanChaiJianFaCurrent = 0;
 

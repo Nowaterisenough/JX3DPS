@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-06 16:50:23
+ * Last Modified: 2023-10-05 16:54:50
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -179,7 +179,7 @@ JX3DPS::Damage JX3DPS::Buff::GetPhysicsDamage(
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
     Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
     Value_t  shieldAdditional           = 0;
-    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetPhysicsShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
     int      rollResultInt                    = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
@@ -307,7 +307,7 @@ JX3DPS::Damage JX3DPS::Buff::GetMagicDamage(
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
     Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
     Value_t  shieldAdditional           = 0;
-    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetMagicShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
     int      rollResultInt                    = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
@@ -437,7 +437,7 @@ JX3DPS::Damage JX3DPS::Buff::GetPhysicsDotDamage(
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
     Value_t  shieldBase                 = (*m_targets)[targetId]->GetPhysicsShield();
     Value_t  shieldAdditional           = 0;
-    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetPhysicsShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
     int      rollResultInt                    = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePowerAdditionalPercentInt =
@@ -546,7 +546,7 @@ JX3DPS::Damage JX3DPS::Buff::GetMagicDotDamage(
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
     Value_t  shieldBase                 = (*m_targets)[targetId]->GetMagicShield();
     Value_t  shieldAdditional           = 0;
-    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetShieldIgnorePercentInt();
+    PctInt_t ignoreShieldBasePercentInt = m_player->attribute.GetMagicShieldIgnorePercentInt();
     PctInt_t ignoreShieldAdditionalPercentInt = m_effectShieldIgnoreAdditionalPercentInt;
     int      rollResultInt                    = static_cast<int>(rollResult);
     PctInt_t effectCriticalStrikePowerAdditionalPercentInt =

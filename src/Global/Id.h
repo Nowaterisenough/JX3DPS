@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 10:05:25
+ * Last Modified: 2023-10-12 15:04:48
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -182,6 +182,8 @@ enum Id_t
     BUFF_TEAM_CORE, // ---------------------- Buff 阵法 ----------------------
     BUFF_TEAM_CORE_TAI_XU_JIAN_YI_JING_MIAO,
     BUFF_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN,
+    BUFF_TEAM_CORE_MO_WEN_JING_MIAO,
+    BUFF_TEAM_CORE_MO_WEN_YOU_REN,
 
     BUFF_3RD_DEFAULT, // ---------------------- Buff 3rd ----------------------
     BUFF_3RD_HAN_RU_LEI,
@@ -251,6 +253,11 @@ enum Id_t
     BUFF_GU_YING_HUA_SHUANG,
     BUFF_ZHENG_MING,
     BUFF_MO_WEN_END, // ---------------------- Buff 莫问 END ----------------------
+
+    BUFF_FEN_SHAN_JING, // ---------------------- Buff 分山劲 ----------------------
+    BUFF_XU_RUO,
+    BUFF_DUN_FEI,
+    BUFF_FEN_SHAN_JING_END, // ---------------------- Buff 分山劲 END ----------------------
 
     BUFF_END, // ---------------------- Buff END ----------------------
 
@@ -506,6 +513,7 @@ enum Id_t
     TRIGGER_LIU_ZHAO_DAMAGE,
     TRIGGER_LIU_ZHAO_SURPLUS_DAMAGE,
     TRIGGER_ZHENG_MING_SURPLUS_DAMAGE,
+    TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
     TRIGGER_MO_WEN_END, // ---------------------- 触发效果 莫问 END ----------------------
 
     TRIGGER_END, // ---------------------- 触发效果 END ----------------------
@@ -672,6 +680,8 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "----------------------阵法----------------------" },
      { "北斗七星阵·精妙" },
      { "北斗七星阵·游刃" },
+     { "万籁金弦阵·精妙" },
+     { "万籁金弦阵·游刃" },
 
      { "----------------------3rd·Buff----------------------" },
      { "3rd·撼如雷" },
@@ -741,6 +751,11 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "孤影化双" },
      { "破·争鸣" },
      { "----------------------Buff 莫问 END----------------------" },
+
+     { "----------------------Buff 分山劲----------------------" },
+     { "虚弱" },
+     { "盾飞" },
+     { "----------------------Buff 分山劲 END----------------------" },
 
      { "----------------------Buff END-----------------------" },
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-12 10:34:23
+ * Last Modified: 2023-10-12 15:02:39
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -157,6 +157,8 @@ public:
     static void TriggerWeaponCWDot(const Params &params);
 
     static void TriggerWeaponCWDamage(const Params &params);
+
+    static void TriggerTeamCoreYouRen(const Params &params);
 };
 
 } // namespace MoWen

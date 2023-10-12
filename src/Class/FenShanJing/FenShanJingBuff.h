@@ -5,7 +5,7 @@
  * Created Date: 2023-08-25 20:44:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-08-26 09:44:35
+ * Last Modified: 2023-10-03 08:18:08
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -27,22 +27,21 @@ namespace FenShanJing {
 
 namespace Buff {
 
-class DieRen : public JX3DPS::Buff
+class DunFei : public JX3DPS::Buff
 {
-    BUFF_DEFAULT_FUNCTION(DieRen)
+    BUFF_DEFAULT_FUNCTION(DunFei)
 
 public:
-    void TriggerAdd(Id_t targetId, int stackNum);
-    void TriggerQieYu(Id_t targetId);
-    void TriggerHuanYue(Id_t targetId);
-
-    void SubEffect(Id_t targetId, int stackNum);
-    void SubEffectQieYun(Id_t targetId, int stackNum, int effectCount);
-    void SubEffectAdd(Id_t targetId);
-    void SubEffectClear(Id_t targetId);
+    void TriggerAdd();
 };
 
+class XuRuo : public JX3DPS::Buff
+{
+    BUFF_DEFAULT_FUNCTION(XuRuo)
 
+public:
+    void TriggerAdd();
+};
 
 } // namespace Buff
 

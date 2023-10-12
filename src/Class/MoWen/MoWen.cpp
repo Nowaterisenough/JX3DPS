@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-24 03:50:28
+ * Last Modified: 2023-10-12 15:05:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -566,6 +566,43 @@ void Player::Init()
         skills[SKILL_WU_YIN_LIU_LV]->AddTriggerEffect(TRIGGER_WEAPON_WATER,
                                                       std::bind(&TriggerVoid, std::placeholders::_1));
     }
+
+    if (teamCore == ClassType::MO_WEN) {
+        buffs.emplace(BUFF_TEAM_CORE_MO_WEN_JING_MIAO,
+                      static_cast<JX3DPS::Buff *>(new Buff::TeamCoreMoWenJingMiao(this, nullptr)));
+        buffs.emplace(BUFF_TEAM_CORE_MO_WEN_YOU_REN,
+                      static_cast<JX3DPS::Buff *>(new Buff::TeamCoreMoWenYouRen(this, nullptr)));
+
+        skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                             std::bind(&TriggerTeamCoreYouRen, std::placeholders::_1));
+        skills[SKILL_BIAN_GONG]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                                  std::bind(&TriggerTeamCoreYouRen, std::placeholders::_1));
+        skills[SKILL_SHANG]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                              std::bind(&TriggerTeamCoreYouRen, std::placeholders::_1));
+        skills[SKILL_JUE]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                            std::bind(&TriggerTeamCoreYouRen, std::placeholders::_1));
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                            std::bind(&TriggerTeamCoreYouRen, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                                 std::bind(&TriggerTeamCoreYouRen, std::placeholders::_1));
+        skills[SKILL_YU]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                           std::bind(&TriggerTeamCoreYouRen, std::placeholders::_1));
+    } else {
+        skills[SKILL_GONG]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                             std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_GONG]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                                  std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_SHANG]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                              std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_JUE]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_ZHI]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                            std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_BIAN_ZHI]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                                 std::bind(&TriggerVoid, std::placeholders::_1));
+        skills[SKILL_YU]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
+                                           std::bind(&TriggerVoid, std::placeholders::_1));
+    }
 }
 
 void Player::TriggerXianFeng(const Params &params)
@@ -720,6 +757,14 @@ void Player::TriggerWeaponCWDamage(const Params &params)
 {
     if (RandomUniform(1, 1024) <= 307) {
         static_cast<Skill::Yu *>(params.player->skills[SKILL_YU])->TriggerDamage();
+    }
+}
+
+void Player::TriggerTeamCoreYouRen(const Params &params)
+{
+    if (params.rollResult == RollResult::DOUBLE) {
+        static_cast<Buff::TeamCoreMoWenYouRen *>(params.player->buffs[BUFF_TEAM_CORE_MO_WEN_YOU_REN])
+            ->TriggerAdd();
     }
 }
 

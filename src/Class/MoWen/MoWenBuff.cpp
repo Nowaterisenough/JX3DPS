@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-12 14:57:55
+ * Last Modified: 2023-10-14 21:00:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1723,12 +1723,11 @@ TeamCoreMoWenJingMiao::TeamCoreMoWenJingMiao(JX3DPS::Player *player, Targets *ta
 void TeamCoreMoWenJingMiao::Trigger()
 {
     if (m_snapshots[PLAYER_ID].duration == 0) {
-        m_snapshots[PLAYER_ID].interval = m_cooldown + RandomUniform(0, 15);
         m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
         SubEffectClear();
     }
     if (m_snapshots[PLAYER_ID].interval == 0) {
-        m_snapshots[PLAYER_ID].interval = JX3DPS_INVALID_FRAMES_SET;
+        m_snapshots[PLAYER_ID].interval = m_cooldown + RandomUniform(0, 6);
         m_snapshots[PLAYER_ID].duration = m_duration;
         SubEffectAdd();
     }
@@ -1742,6 +1741,12 @@ void TeamCoreMoWenJingMiao::Add(Id_t targetId, int stackNum, Frame_t durationMin
 void TeamCoreMoWenJingMiao::Clear(Id_t targetId, int stackNum)
 {
     SubEffectClear();
+}
+
+void TeamCoreMoWenJingMiao::TriggerAdd()
+{
+    m_snapshots[PLAYER_ID].duration = m_duration;
+    SubEffectAdd();
 }
 
 void TeamCoreMoWenJingMiao::SubEffectAdd()

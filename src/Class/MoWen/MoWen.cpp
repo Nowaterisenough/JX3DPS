@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-12 15:05:22
+ * Last Modified: 2023-10-14 20:51:06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -14,6 +14,8 @@
  */
 
 #include "MoWen.h"
+
+#include <spdlog/spdlog.h>
 
 #include "Buff3rd.h"
 #include "MoWenBuff.h"
@@ -27,6 +29,14 @@ namespace MoWen {
 Player::Player()
 {
     attribute.SetClassType(ClassType::MO_WEN);
+}
+
+Player::Player(const Player &other) : JX3DPS::Player(other)
+{
+    if (other.teamCore == ClassType::MO_WEN) {
+        static_cast<Buff::TeamCoreMoWenJingMiao *>(this->buffs[BUFF_TEAM_CORE_MO_WEN_JING_MIAO])
+            ->TriggerAdd();
+    }
 }
 
 void Player::Init()

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-11 10:17:52
+ * Last Modified: 2023-10-14 20:52:27
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1984,12 +1984,12 @@ TeamCoreTaiXuJianYiJingMiao::TeamCoreTaiXuJianYiJingMiao(JX3DPS::Player *player,
     m_name     = "精妙";
     m_cooldown = 6 * 16;
 
-    m_snapshots[PLAYER_ID].duration = RandomUniform(0, 15);
+    m_snapshots[PLAYER_ID].duration = RandomUniform(0, 10);
 }
 
 void TeamCoreTaiXuJianYiJingMiao::Trigger()
 {
-    m_snapshots[PLAYER_ID].duration = m_cooldown + RandomUniform(0, 15);
+    m_snapshots[PLAYER_ID].duration = m_cooldown + RandomUniform(0, 10);
     SubEffect();
 }
 

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-12 15:02:39
+ * Last Modified: 2023-10-14 20:36:22
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -27,7 +27,7 @@ class Player : public JX3DPS::Player
 public:
     Player();
 
-    Player(const Player &other) : JX3DPS::Player(other) { }
+    Player(const Player &other);
 
     Player &operator=(const JX3DPS::Player &other) override
     {

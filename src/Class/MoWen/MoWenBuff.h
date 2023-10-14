@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 00:55:43
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-12 14:54:37
+ * Last Modified: 2023-10-14 20:46:52
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -289,6 +289,8 @@ class TeamCoreMoWenJingMiao : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(TeamCoreMoWenJingMiao)
 
 public:
+    void TriggerAdd();
+
     void SubEffectAdd();
     void SubEffectClear();
 };

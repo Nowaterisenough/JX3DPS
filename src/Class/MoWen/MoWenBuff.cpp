@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-14 21:00:05
+ * Last Modified: 2023-10-14 21:21:53
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1745,8 +1745,8 @@ void TeamCoreMoWenJingMiao::Clear(Id_t targetId, int stackNum)
 
 void TeamCoreMoWenJingMiao::TriggerAdd()
 {
-    m_snapshots[PLAYER_ID].duration = m_duration;
-    SubEffectAdd();
+    m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
+    m_snapshots[PLAYER_ID].interval = RandomUniform(0, 2);
 }
 
 void TeamCoreMoWenJingMiao::SubEffectAdd()

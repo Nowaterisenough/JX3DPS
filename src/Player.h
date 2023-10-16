@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:34
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-07 14:49:28
+ * Last Modified: 2023-10-16 22:25:11
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -194,8 +194,6 @@ public:
 public:
     Frame_t globalCooldown        = 24; // 冷却
     Frame_t globalCooldownCurrent = 0;  // 当前冷却
-
-    PctInt_t effectDamageAdditionalPercentInt = 0; // 一些奇穴或者秘籍效果的全局伤害加成
 
     Attribute attribute; // 属性
     ClassType teamCore = ClassType::DEFAULT;

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-14 21:21:53
+ * Last Modified: 2023-10-16 22:27:12
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -91,7 +91,7 @@ void Shang::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durati
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -124,7 +124,7 @@ void Shang::TriggerAdd(Id_t targetId)
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 }
 
 void Shang::SubEffect(Id_t targetId)
@@ -171,7 +171,7 @@ void Jue::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t duration
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -204,7 +204,7 @@ void Jue::TriggerAdd(Id_t targetId)
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 }
 
 void Jue::SubEffect(Id_t targetId)
@@ -374,7 +374,7 @@ void YunHan::TriggerAdd(int stackNum)
 
 void YunHan::SubEffectAdd(int stackNum)
 {
-    m_player->effectDamageAdditionalPercentInt += stackNum * 51;
+    m_player->attribute.AddDamageAdditionalPercentInt(stackNum * 51);
 }
 
 CanLian::CanLian(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
@@ -603,7 +603,7 @@ JX3DPS::Damage LiuZhao::GetMagicSurplusDamage(
 
     PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercentInt;
     Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
-    Value_t damageBase = EffectDamage(surplusDamage, m_player->effectDamageAdditionalPercentInt);
+    Value_t damageBase = EffectDamage(surplusDamage, m_player->attribute.GetDamageAdditionalPercentInt());
 
     int     playerLevel      = JX3_PLAYER_LEVEL;
     int     targetLevel      = (*m_targets)[targetId]->GetLevel();
@@ -1249,7 +1249,7 @@ void YingZi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durat
             m_effectCriticalStrikeAdditionalBasisPointInt,
             m_effectCriticalStrikePowerAdditionalPercentInt +
                 m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
-            m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+            m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
         m_triggerEffects[TRIGGER_YUN_HAN](params);
 
@@ -1301,7 +1301,7 @@ void YingZi::TriggerAdd(int count)
             m_effectCriticalStrikeAdditionalBasisPointInt,
             m_effectCriticalStrikePowerAdditionalPercentInt +
                 m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
-            m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+            m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
         m_snapshots[id].duration = m_duration;
     }
@@ -1607,7 +1607,7 @@ void ShenBingGong::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -1641,7 +1641,7 @@ void ShenBingGong::TriggerAdd(Id_t targetId, int stackNum)
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetMagicCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +

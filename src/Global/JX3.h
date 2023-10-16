@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 01:10:26
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-03 06:04:12
+ * Last Modified: 2023-10-16 23:26:11
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -34,12 +34,14 @@ enum class ClassType
     ZI_XIA_GONG    = 2,
     FEN_SHAN_JING  = 3,
     MO_WEN         = 4,
-
+    SHAN_HAI_XIN_JUE,
+    YIN_LONG_JUE,
+    
     COUNT
 };
 
 constexpr std::array<std::string_view, static_cast<size_t>(ClassType::COUNT)> CLASS_NAME = {
-    "侠士", "太虚剑意", "紫霞功", "分山劲", "莫问",
+    "侠士", "太虚剑意", "紫霞功", "分山劲", "莫问", "山海心诀", "隐龙诀",
 };
 
 inline ClassType GetClassType(const std::string &className)
@@ -53,7 +55,7 @@ inline ClassType GetClassType(const std::string &className)
 }
 
 constexpr std::array<std::string_view, static_cast<size_t>(ClassType::COUNT)> CLASS_TEAM_CORE_NAME = {
-    "无阵", "北斗七星阵", "九宫八卦阵", "锋凌横绝阵", "万籁金弦阵",
+    "无阵", "北斗七星阵", "九宫八卦阵", "锋凌横绝阵", "万籁金弦阵", "苍梧引灵阵", "龙皇雪风阵",
 };
 
 inline ClassType GetClassTeamCoreType(const std::string &className)

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-12 15:04:48
+ * Last Modified: 2023-10-16 23:25:38
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -184,6 +184,8 @@ enum Id_t
     BUFF_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN,
     BUFF_TEAM_CORE_MO_WEN_JING_MIAO,
     BUFF_TEAM_CORE_MO_WEN_YOU_REN,
+    BUFF_TEAM_CORE_SHAN_HAI_XIN_JUE_YOU_REN,
+    BUFF_TEAM_CORE_YIN_LONG_JUE_YOU_REN,
 
     BUFF_3RD_DEFAULT, // ---------------------- Buff 3rd ----------------------
     BUFF_3RD_HAN_RU_LEI,
@@ -682,6 +684,8 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "北斗七星阵·游刃" },
      { "万籁金弦阵·精妙" },
      { "万籁金弦阵·游刃" },
+     { "苍梧引灵阵·游刃" },
+     { "龙皇雪风阵·游刃" },
 
      { "----------------------3rd·Buff----------------------" },
      { "3rd·撼如雷" },

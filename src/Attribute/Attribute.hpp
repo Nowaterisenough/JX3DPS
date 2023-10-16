@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-10 08:51:28
+ * Last Modified: 2023-10-16 22:22:02
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -104,6 +104,8 @@ public:
         PHYSICS_SHIELD_IGNORE_PERCENT_INT,
         MAGIC_SHIELD_IGNORE_PERCENT_INT,
 
+        DAMAGE_ADDITIONAL_PERCENT_INT,
+
         PVE_DAMAGE_ADDITIONAL_PERCENT_INT,
 
         COUNT
@@ -158,6 +160,7 @@ public:
          { "忽视防御加成" },
          { "外功忽视防御加成" },
          { "内功忽视防御加成" },
+         { "伤害加成" },
          { "非侠士伤害加成" }}
     };
 
@@ -402,6 +405,10 @@ public:
                 break;
             case Type::MAGIC_SHIELD_IGNORE_PERCENT_INT:
                 this->AddMagicShieldIgnorePercentInt(value);
+                break;
+
+            case Type::DAMAGE_ADDITIONAL_PERCENT_INT:
+                this->AddDamageAdditionalPercentInt(value);
                 break;
 
             case Type::PVE_DAMAGE_ADDITIONAL_PERCENT_INT:
@@ -1545,6 +1552,22 @@ public:
         m_magicShieldIgnorePercentInt += percentInt;
     }
 
+    /* 伤害加成 */
+    inline PctInt_t GetDamageAdditionalPercentInt() const
+    {
+        return m_damageAdditionalPercentInt;
+    }
+
+    inline void SetDamageAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_damageAdditionalPercentInt = percentInt;
+    }
+
+    inline void AddDamageAdditionalPercentInt(PctInt_t percentInt)
+    {
+        m_damageAdditionalPercentInt += percentInt;
+    }
+
     /* 非侠士伤害加成 */
     inline PctInt_t GetPVEDamageAdditionalPercentInt() const
     {
@@ -1946,6 +1969,8 @@ private:
 
     PctInt_t m_physicsShieldIgnorePercentInt = 0;
     PctInt_t m_magicShieldIgnorePercentInt   = 0;
+
+    PctInt_t m_damageAdditionalPercentInt = 0;
 
     PctInt_t m_pveDamageAdditionalPercentIntByClass = 0;
 };

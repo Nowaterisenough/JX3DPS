@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-07 14:49:31
+ * Last Modified: 2023-10-16 22:25:08
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -80,8 +80,6 @@ JX3DPS::Player::Player(const Player &other)
     globalCooldown        = other.globalCooldown;
     globalCooldownCurrent = other.globalCooldownCurrent;
 
-    effectDamageAdditionalPercentInt = other.effectDamageAdditionalPercentInt;
-
     attribute = other.attribute;
 
     for (auto &[id, buff] : other.buffs) {
@@ -137,8 +135,6 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
 
     globalCooldown        = other.globalCooldown;
     globalCooldownCurrent = other.globalCooldownCurrent;
-
-    effectDamageAdditionalPercentInt = other.effectDamageAdditionalPercentInt;
 
     attribute = other.attribute;
 

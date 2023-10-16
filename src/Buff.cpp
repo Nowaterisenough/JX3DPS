@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:33:14
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-05 16:54:50
+ * Last Modified: 2023-10-16 22:24:36
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -171,7 +171,7 @@ JX3DPS::Damage JX3DPS::Buff::GetPhysicsDamage(
     PctInt_t weaponDamageCoefficientInt = m_damageParams.at(sub)[level].weaponDamagePercentInt;
     Value_t  fixedDamage = m_damageParams.at(sub)[level].fixedDamage;
     PctInt_t effectDamageAdditionalPercentInt =
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt;
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt();
     Value_t effectDamage =
         EffectDamageAll(attack, physicsDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
 
@@ -299,7 +299,7 @@ JX3DPS::Damage JX3DPS::Buff::GetMagicDamage(
     PctInt_t weaponDamageCoefficientInt = m_damageParams.at(sub)[level].weaponDamagePercentInt;
     Value_t  fixedDamage = m_damageParams.at(sub)[level].fixedDamage;
     PctInt_t effectDamageAdditionalPercentInt =
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt;
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt();
     Value_t effectDamage =
         EffectDamageAll(attack, magicDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
 
@@ -559,7 +559,7 @@ JX3DPS::Damage JX3DPS::Buff::GetMagicDotDamage(
     //               "破防值 {} "
     //               "会效 {} 技能会效加成 {} 无双 {}",
     //               attack,
-    //               m_player->effectDamageAdditionalPercentInt,
+    //               m_player->attribute.GetDamageAdditionalPercentInt(),
     //               m_effectDamageAdditionalPercentInt,
     //               ignoreShieldBasePercentInt,
     //               ignoreShieldAdditionalPercentInt,

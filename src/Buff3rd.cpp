@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:41:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-05 16:41:24
+ * Last Modified: 2023-10-16 23:30:49
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -219,19 +219,19 @@ void EnchantBelt::TriggerAdd()
 void EnchantBelt::SubEffectAdd()
 {
     if (RandomUniform(1, 100) <= 70) {
-        m_70                                        = true;
-        m_player->effectDamageAdditionalPercentInt += 51;
+        m_70 = true;
+        m_player->attribute.AddDamageAdditionalPercentInt(51);
     } else {
-        m_player->effectDamageAdditionalPercentInt += 10;
+        m_player->attribute.AddDamageAdditionalPercentInt(10);
     }
 }
 
 void EnchantBelt::SubEffectClear()
 {
     if (m_70 == true) {
-        m_player->effectDamageAdditionalPercentInt -= 51;
+        m_player->attribute.AddDamageAdditionalPercentInt(-51);
     } else {
-        m_player->effectDamageAdditionalPercentInt -= 10;
+        m_player->attribute.AddDamageAdditionalPercentInt(-10);
     }
     m_70 = false;
 }
@@ -1073,6 +1073,116 @@ void PendantOvercome::SubEffectClear()
 {
     m_player->attribute.AddPhysicsOvercomeBaseAdditional(-8330);
     m_player->attribute.AddMagicOvercomeBaseAdditional(-8330);
+}
+
+TeamCoreShanHaiXinJueYouRen::TeamCoreShanHaiXinJueYouRen(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_PENDANT_OVERCOME;
+    m_name     = "苍梧引灵阵·游刃";
+    m_duration = 6 * 16;
+}
+
+void TeamCoreShanHaiXinJueYouRen::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration == 0) {
+        m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
+        SubEffectClear();
+    }
+    if (m_snapshots[PLAYER_ID].interval == 0) {
+        m_snapshots[PLAYER_ID].interval = RandomUniform(96, 170);
+        m_snapshots[PLAYER_ID].duration = m_duration;
+        SubEffectAdd();
+    }
+}
+
+void TeamCoreShanHaiXinJueYouRen::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
+        SubEffectAdd();
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void TeamCoreShanHaiXinJueYouRen::Clear(Id_t targetId, int stackNum)
+{
+    SubEffectClear();
+}
+
+void TeamCoreShanHaiXinJueYouRen::TriggerAdd()
+{
+    m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
+    m_snapshots[PLAYER_ID].interval = RandomUniform(80, 90);
+}
+
+void TeamCoreShanHaiXinJueYouRen::SubEffectAdd()
+{
+    m_player->attribute.AddPhysicsCriticalStrikePowerAdditionalPercentInt(150);
+    m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(150);
+}
+
+void TeamCoreShanHaiXinJueYouRen::SubEffectClear()
+{
+    m_player->attribute.AddPhysicsCriticalStrikePowerAdditionalPercentInt(-150);
+    m_player->attribute.AddMagicCriticalStrikePowerAdditionalPercentInt(-150);
+}
+
+TeamCoreYinLongJueYouRen::TeamCoreYinLongJueYouRen(JX3DPS::Player *player, Targets *targets) :
+    JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_PENDANT_OVERCOME;
+    m_name     = "龙皇雪风阵·游刃";
+    m_duration = 5 * 16;
+}
+
+void TeamCoreYinLongJueYouRen::Trigger()
+{
+    if (m_snapshots[PLAYER_ID].duration == 0) {
+        m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
+        SubEffectClear();
+    }
+    if (m_snapshots[PLAYER_ID].interval == 0) {
+        m_snapshots[PLAYER_ID].interval = RandomUniform(140, 160);
+        m_snapshots[PLAYER_ID].duration = m_duration;
+        SubEffectAdd();
+    }
+}
+
+void TeamCoreYinLongJueYouRen::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
+        SubEffectAdd();
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else [[unlikely]] {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void TeamCoreYinLongJueYouRen::Clear(Id_t targetId, int stackNum)
+{
+    SubEffectClear();
+}
+
+void TeamCoreYinLongJueYouRen::TriggerAdd()
+{
+    m_snapshots[PLAYER_ID].duration = JX3DPS_INVALID_FRAMES_SET;
+    m_snapshots[PLAYER_ID].interval = RandomUniform(90, 102);
+}
+
+void TeamCoreYinLongJueYouRen::SubEffectAdd()
+{
+    m_player->attribute.AddPhysicsAttackPowerBaseAdditionalPercentInt(102);
+}
+
+void TeamCoreYinLongJueYouRen::SubEffectClear()
+{
+    m_player->attribute.AddPhysicsAttackPowerBaseAdditionalPercentInt(-102);
 }
 
 } // namespace Buff3rd

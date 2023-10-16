@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:39:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-03 15:59:05
+ * Last Modified: 2023-10-16 23:23:14
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -219,6 +219,28 @@ public:
 class PendantOvercome : public Buff
 {
     BUFF_DEFAULT_FUNCTION(PendantOvercome)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class TeamCoreShanHaiXinJueYouRen : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(TeamCoreShanHaiXinJueYouRen)
+
+public:
+    void TriggerAdd();
+
+    void SubEffectAdd();
+    void SubEffectClear();
+};
+
+class TeamCoreYinLongJueYouRen : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(TeamCoreYinLongJueYouRen)
 
 public:
     void TriggerAdd();

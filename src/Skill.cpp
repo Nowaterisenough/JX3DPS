@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 08:37:24
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-05 16:54:24
+ * Last Modified: 2023-10-16 22:24:36
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -215,7 +215,7 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsDamage(
     PctInt_t weaponDamageCoefficientInt = m_damageParams.at(sub)[level].weaponDamagePercentInt;
     Value_t  fixedDamage = m_damageParams.at(sub)[level].fixedDamage;
     PctInt_t effectDamageAdditionalPercentInt =
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt;
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt();
     Value_t effectDamage =
         EffectDamageAll(attack, physicsDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
 
@@ -237,7 +237,7 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsDamage(
     //               "破防值 {} "
     //               "会效 {} 自身会效加成 {} 技能会效加成 {} 无双 {}",
     //               attack,
-    //               m_player->effectDamageAdditionalPercentInt,
+    //               m_player->attribute.GetDamageAdditionalPercentInt(),
     //               m_effectDamageAdditionalPercentInt,
     //               ignoreShieldBasePercentInt,
     //               overcome,
@@ -356,7 +356,7 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicDamage(
     PctInt_t weaponDamageCoefficientInt = m_damageParams.at(sub)[level].weaponDamagePercentInt;
     Value_t  fixedDamage = m_damageParams.at(sub)[level].fixedDamage;
     PctInt_t effectDamageAdditionalPercentInt =
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt;
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt();
     Value_t effectDamage =
         EffectDamageAll(attack, magicDamageCoefficient, weaponDamage, weaponDamageCoefficientInt, fixedDamage, effectDamageAdditionalPercentInt);
 
@@ -378,7 +378,7 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicDamage(
     //               "破防值 {} "
     //               "会效 {} 自身会效加成 {} 技能会效加成 {} 无双 {}",
     //               attack,
-    //               m_player->effectDamageAdditionalPercentInt,
+    //               m_player->attribute.GetDamageAdditionalPercentInt(),
     //               m_effectDamageAdditionalPercentInt,
     //               ignoreShieldBasePercentInt,
     //               ignoreShieldAdditionalPercentInt,
@@ -485,7 +485,7 @@ JX3DPS::Damage JX3DPS::Skill::GetPhysicsSurplusDamage(
 
     PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercentInt;
     Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
-    Value_t damageBase = EffectDamage(surplusDamage, m_player->effectDamageAdditionalPercentInt);
+    Value_t damageBase = EffectDamage(surplusDamage, m_player->attribute.GetDamageAdditionalPercentInt());
     
     int      playerLevel                = JX3_PLAYER_LEVEL;
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();
@@ -591,7 +591,7 @@ JX3DPS::Damage JX3DPS::Skill::GetMagicSurplusDamage(
 
     PctInt_t surplusCoefficientInt = m_damageParams.at(sub)[level].attackDamagePercentInt;
     Value_t surplusDamage = SurplusDamage(surplus, surplusCoefficientInt, JX3_PLAYER_LEVEL);
-    Value_t damageBase = EffectDamage(surplusDamage, m_player->effectDamageAdditionalPercentInt);
+    Value_t damageBase = EffectDamage(surplusDamage, m_player->attribute.GetDamageAdditionalPercentInt());
 
     int      playerLevel                = JX3_PLAYER_LEVEL;
     int      targetLevel                = (*m_targets)[targetId]->GetLevel();

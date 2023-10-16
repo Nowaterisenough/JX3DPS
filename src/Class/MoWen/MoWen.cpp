@@ -5,7 +5,7 @@
  * Created Date: 2023-07-31 16:03:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-14 20:51:06
+ * Last Modified: 2023-10-16 23:15:02
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -35,6 +35,10 @@ Player::Player(const Player &other) : JX3DPS::Player(other)
 {
     if (other.teamCore == ClassType::MO_WEN) {
         static_cast<Buff::TeamCoreMoWenJingMiao *>(this->buffs[BUFF_TEAM_CORE_MO_WEN_JING_MIAO])
+            ->TriggerAdd();
+    }
+    if (other.teamCore == ClassType::SHAN_HAI_XIN_JUE) {
+        static_cast<Buff3rd::TeamCoreShanHaiXinJueYouRen *>(this->buffs[BUFF_TEAM_CORE_SHAN_HAI_XIN_JUE_YOU_REN])
             ->TriggerAdd();
     }
 }
@@ -612,6 +616,11 @@ void Player::Init()
                                                  std::bind(&TriggerVoid, std::placeholders::_1));
         skills[SKILL_YU]->AddTriggerEffect(TRIGGER_TEAM_CORE_MO_WEN_YOU_REN,
                                            std::bind(&TriggerVoid, std::placeholders::_1));
+    }
+
+    if (teamCore == ClassType::SHAN_HAI_XIN_JUE) {
+        buffs.emplace(BUFF_TEAM_CORE_SHAN_HAI_XIN_JUE_YOU_REN,
+                      static_cast<JX3DPS::Buff *>(new Buff3rd::TeamCoreShanHaiXinJueYouRen(this, nullptr)));
     }
 }
 

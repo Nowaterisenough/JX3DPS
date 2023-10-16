@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-14 20:52:27
+ * Last Modified: 2023-10-16 22:24:36
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -104,7 +104,7 @@ void DieRen::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durat
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -141,7 +141,7 @@ void DieRen::TriggerAdd(Id_t targetId, int stackNum)
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
@@ -259,7 +259,7 @@ void WanXiangGuiYuan::Add(Id_t targetId, int stackNum, Frame_t durationMin, Fram
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -293,7 +293,7 @@ void WanXiangGuiYuan::TriggerAdd(Id_t targetId, int stackNum)
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
@@ -344,7 +344,7 @@ void RenJianHeYi::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t 
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) [[likely]] {
         m_snapshots[targetId].duration =
@@ -371,7 +371,7 @@ void RenJianHeYi::TriggerAdd(Id_t targetId)
         m_effectCriticalStrikeAdditionalBasisPointInt,
         m_effectCriticalStrikePowerAdditionalPercentInt +
             m_player->attribute.GetPhysicsCriticalStrikePowerAdditionalPercentInt(),
-        m_effectDamageAdditionalPercentInt + m_player->effectDamageAdditionalPercentInt);
+        m_effectDamageAdditionalPercentInt + m_player->attribute.GetDamageAdditionalPercentInt());
 
     m_snapshots[targetId].duration =
         m_interval * m_player->attribute.GetHastePercent() * (m_effectCount - 1) +
@@ -1092,8 +1092,8 @@ JianRu::JianRu(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, 
     m_duration = 16 * 6;
     m_interval = 16;
 
-    m_damageParams[0].emplace_back(0, 0, 84 * 1.2 * 1.1 * 2 * 1.6774);
-    m_damageParams[1].emplace_back(0, 0, 280 * 1.1 * 1.25558);
+    m_damageParams[0].emplace_back((77 + 77 + 25) / 2, 0, 84 * 1.2 * 1.1 * 2 * 1.6774);
+    m_damageParams[1].emplace_back((77 + 77 + 25) / 2, 0, 280 * 1.1 * 2 * 1.6774);
 }
 
 void JianRu::Trigger()

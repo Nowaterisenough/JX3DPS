@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:40:46
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-10 15:14:46
+ * Last Modified: 2023-10-16 23:31:11
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -32,6 +32,16 @@ Player::Player() : JX3DPS::Player()
 Player::Player(const Player &other) : JX3DPS::Player(other)
 {
     this->buffs[BUFF_CLASS_FEATURE]->Add();
+
+    if (other.teamCore == ClassType::SHAN_HAI_XIN_JUE) {
+        static_cast<Buff3rd::TeamCoreShanHaiXinJueYouRen *>(this->buffs[BUFF_TEAM_CORE_SHAN_HAI_XIN_JUE_YOU_REN])
+            ->TriggerAdd();
+    }
+
+    if (other.teamCore == ClassType::YIN_LONG_JUE) {
+        static_cast<Buff3rd::TeamCoreYinLongJueYouRen *>(this->buffs[BUFF_TEAM_CORE_YIN_LONG_JUE_YOU_REN])
+            ->TriggerAdd();
+    }
 }
 
 void Player::Init()
@@ -925,6 +935,16 @@ void Player::Init()
             TRIGGER_TEAM_CORE_TAI_XU_JIAN_YI_YOU_REN,
             std::bind(&TriggerVoid, std::placeholders::_1));
     }
+
+    if (teamCore == ClassType::SHAN_HAI_XIN_JUE) {
+        buffs.emplace(BUFF_TEAM_CORE_SHAN_HAI_XIN_JUE_YOU_REN,
+                      static_cast<JX3DPS::Buff *>(new Buff3rd::TeamCoreShanHaiXinJueYouRen(this, nullptr)));
+    }
+
+    if (teamCore == ClassType::YIN_LONG_JUE) {
+        buffs.emplace(BUFF_TEAM_CORE_YIN_LONG_JUE_YOU_REN,
+                      static_cast<JX3DPS::Buff *>(new Buff3rd::TeamCoreYinLongJueYouRen(this, nullptr)));
+    }
 }
 
 void Player::TriggerWuYi(const Params &params)
@@ -1037,7 +1057,8 @@ void Player::TriggerLieYun(const Params &params)
 
 void Player::TriggerGuChang(const Params &params)
 {
-    params.player->attribute.AddPhysicsShieldIgnorePercentInt(614 * static_cast<int>(params.type));
+    params.player->attribute.AddPhysicsShieldIgnorePercentInt(614 *
+                                                              static_cast<int>(params.type));
 }
 
 void Player::TriggerQiSheng(const Params &params)

@@ -5,7 +5,7 @@
  * Created Date: 2023-07-21 10:13:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-16 23:25:38
+ * Last Modified: 2023-10-17 14:40:56
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -206,6 +206,7 @@ enum Id_t
     BUFF_3RD_FIELD_PO_CANG_QIONG,
     BUFF_3RD_SUI_XING_CHEN,
     BUFF_3RD_PO_CANG_QIONG,
+    BUFF_3RD_NONG_MEI,
     BUFF_3RD_END, // ---------------------- Buff 3rd END ----------------------
 
     BUFF_TAI_XU_JIAN_YI, // ---------------------- Buff 太虚剑意 ----------------------
@@ -706,6 +707,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "3rd·气场·破苍穹" },
      { "3rd·碎星辰" },
      { "3rd·破苍穹" },
+     { "3rd·弄梅" },
      { "----------------------3rd·Buff END----------------------" },
 
      { "----------------------Buff 太虚剑意----------------------" },

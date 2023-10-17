@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:39:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-16 23:23:14
+ * Last Modified: 2023-10-17 14:38:17
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -214,6 +214,15 @@ class JiLei : public Buff
 public:
     void SubEffectAdd(Id_t targetId);
     void SubEffectClear(Id_t targetId);
+};
+
+class NongMei : public Buff
+{
+    BUFF_DEFAULT_FUNCTION(NongMei)
+
+public:
+    void SubEffectAdd();
+    void SubEffectClear();
 };
 
 class PendantOvercome : public Buff

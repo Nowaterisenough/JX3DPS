@@ -5,7 +5,7 @@
  * Created Date: 2023-07-20 02:39:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-16 22:25:08
+ * Last Modified: 2023-10-17 17:18:31
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -215,6 +215,9 @@ void Player::AddBuff3rds(const std::unordered_set<Id_t> &buff3rds)
     }
     if (buff3rds.find(BUFF_3RD_HAO_LING_SAN_JUN) != buff3rds.end()) {
         buffs[BUFF_3RD_HAO_LING_SAN_JUN] = new Buff3rd::HaoLingSanJun(this, nullptr);
+    }
+    if (buff3rds.find(BUFF_3RD_NONG_MEI) != buff3rds.end()) {
+        buffs[BUFF_3RD_NONG_MEI] = new Buff3rd::NongMei(this, nullptr);
     }
     // if (buff3rds.find(BUFF_3RD_FIELD_SUI_XING_CHEN) != buff3rds.end()) {
     //     buffs[BUFF_3RD_FIELD_SUI_XING_CHEN] = new Buff3rd::FieldSuiXingChen(this, nullptr);

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-19 12:41:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-16 23:30:49
+ * Last Modified: 2023-10-17 14:39:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1021,6 +1021,53 @@ void JiLei::SubEffectClear(Id_t targetId)
 {
     m_player->attribute.AddPhysicsOvercomeBaseAdditionalPercentInt(-205);
     m_player->attribute.AddPhysicsAttackPowerBaseAdditionalPercentInt(-205);
+}
+
+NongMei::NongMei(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)
+{
+    m_id       = BUFF_3RD_NONG_MEI;
+    m_name     = "3rd·弄梅";
+    m_duration = 16 * 6;
+}
+
+void NongMei::Trigger()
+{
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear();
+}
+
+void NongMei::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame_t durationMax)
+{
+    if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
+        SubEffectAdd();
+    }
+    if (durationMin == JX3DPS_DEFAULT_DURATION_FRAMES) {
+        m_snapshots[PLAYER_ID].duration = m_duration;
+    } else {
+        m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
+    }
+}
+
+void NongMei::Clear(Id_t targetId, int stackNum)
+{
+    m_snapshots.erase(PLAYER_ID);
+    SubEffectClear();
+}
+
+void NongMei::SubEffectAdd()
+{
+    m_player->attribute.AddPhysicsOvercomeBaseAdditional(700);
+    m_player->attribute.AddMagicOvercomeBaseAdditional(700);
+    m_player->attribute.AddPhysicsShieldIgnorePercentInt(205);
+    m_player->attribute.AddMagicShieldIgnorePercentInt(205);
+}
+
+void NongMei::SubEffectClear()
+{
+    m_player->attribute.AddPhysicsOvercomeBaseAdditional(-700);
+    m_player->attribute.AddMagicOvercomeBaseAdditional(-700);
+    m_player->attribute.AddPhysicsShieldIgnorePercentInt(-205);
+    m_player->attribute.AddMagicShieldIgnorePercentInt(-205);
 }
 
 PendantOvercome::PendantOvercome(JX3DPS::Player *player, Targets *targets) :

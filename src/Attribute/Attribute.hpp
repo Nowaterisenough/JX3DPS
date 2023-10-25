@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-16 22:22:02
+ * Last Modified: 2023-10-23 16:37:20
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -236,7 +236,7 @@ public:
 
     ~Attribute() { }
 
-    inline static const std::unordered_map<Type, Value_t> &ATTRIBUTE_GAIN_BY_BASE = {
+    inline static std::unordered_map<Type, Value_t> ATTRIBUTE_GAIN_BY_BASE = {
         {{ Type::DEFAULT, 0 },
          { Type::AGILITY_BASE, 179 },
          { Type::STRENGTH_BASE, 179 },

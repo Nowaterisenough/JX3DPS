@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-26 09:35:07
+ * Last Modified: 2023-10-26 03:20:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -596,6 +596,8 @@ void SkillItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     static_cast<Widget *>(this->scene()->parent())->SetMousePressed(false);
 }
 
+
+
 class GraphicsView : public QGraphicsView
 {
 public:
@@ -603,6 +605,12 @@ public:
     {
         this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        
+        QOpenGLWidget *gl = new QOpenGLWidget();
+        QSurfaceFormat format;
+        format.setSamples(4);
+        gl->setFormat(format);
+        this->setViewport(gl);
     }
 
 protected:

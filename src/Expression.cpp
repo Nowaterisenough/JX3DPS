@@ -5,7 +5,7 @@
  * Created Date: 2023-07-23 13:16:27
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-27 12:24:09
+ * Last Modified: 2023-10-18 11:22:09
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -318,7 +318,7 @@ bool JX3DPS::Expression::TBuffTimeGt(Player *player, Targets *targets, Id_t id, 
 
 bool JX3DPS::Expression::SkillCooldownLt(Player *player, Targets *targets, Id_t id, Frame_t time)
 {
-    return player->skills.at(id)->GetCooldownCurrent() < time;
+    return player->skills.at(id)->GetCooldownCurrentWithoutGlobal() < time;
 }
 
 bool JX3DPS::Expression::SkillCooldownLe(Player *player, Targets *targets, Id_t id, Frame_t time)

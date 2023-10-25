@@ -3691,7 +3691,7 @@
                         "/cast [buff:参连] 阳春白雪",
                         "/scast 高山流水",
                         "/scast 变宫",
-                        "/cast 阳春白雪",
+                        "/cast [skill_notin_cd:徵&nobuff:参连] 阳春白雪",
                         "/scast 徵",
                         "/scast 羽",
                         "/scast 徵",

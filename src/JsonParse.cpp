@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 04:19:37
+ * Last Modified: 2023-10-18 10:21:44
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -26,6 +26,11 @@ JX3DPS::Error_t JX3DPS::ParseJsonToClassType(const nlohmann::ordered_json &json,
     try {
         std::string classTypeStr = json.at("ClassType").get<std::string>();
         classType                = GetClassType(classTypeStr);
+        if (static_cast<int>(classType) % 2 == 0) {
+            Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE) = 430;
+        } else {
+            Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE) = 360;
+        } 
     } catch (const std::exception &e) {
         spdlog::error("心法解析失败 {}", e.what());
         return JX3DPS_ERROR_INVALID_JSON;

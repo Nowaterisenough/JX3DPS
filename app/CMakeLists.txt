@@ -35,8 +35,8 @@ add_definitions(
 # -DIMPORT_STATIC_STACK_WIDGET_LIB
 # -DIMPORT_STATIC_PLAIN_TEXT_EDIT_LIB
 # -DIMPORT_STATIC_PROGRESS_BAR_LIB
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport OpenGLWidgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport OpenGLWidgets)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/modules/Widgets)
@@ -76,6 +76,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     nlohmann_json
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::PrintSupport
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
     Widget
     TabWidget
     GroupBox
@@ -128,7 +129,7 @@ if(WIN32)
         --verbose 1
         --no-svg
         --no-network
-        --no-opengl
+        #--no-opengl
         --no-opengl-sw
         --no-compiler-runtime
         --no-system-d3d-compiler

@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-16 22:27:12
+ * Last Modified: 2023-10-18 12:00:23
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -285,7 +285,7 @@ XianFengBiaoJi::XianFengBiaoJi(JX3DPS::Player *player, Targets *targets) :
 {
     m_id       = BUFF_XIAN_FENG_BIAO_JI;
     m_name     = "弦风标记";
-    m_duration = 3 * 16;
+    m_duration = 3 * 16 + 5;
 }
 
 void XianFengBiaoJi::Trigger()

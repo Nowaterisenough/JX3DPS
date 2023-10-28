@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-26 03:20:26
+ * Last Modified: 2023-10-26 04:01:08
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -364,7 +364,7 @@ void SkillItem::Colliding()
 
 void SkillItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Colliding();
+    //Colliding();
 
     painter->setOpacity(1);
     setZValue(2);
@@ -596,8 +596,6 @@ void SkillItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     static_cast<Widget *>(this->scene()->parent())->SetMousePressed(false);
 }
 
-
-
 class GraphicsView : public QGraphicsView
 {
 public:
@@ -605,15 +603,43 @@ public:
     {
         this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        
+
         QOpenGLWidget *gl = new QOpenGLWidget();
         QSurfaceFormat format;
         format.setSamples(4);
         gl->setFormat(format);
         this->setViewport(gl);
+
+        m_timer.start(1000); // 每秒更新一次
+        connect(&m_timer, &QTimer::timeout, this, &GraphicsView::updateFPS);
     }
 
 protected:
+    void drawForeground(QPainter *painter, const QRectF &rect) override
+    {
+        QGraphicsView::drawForeground(painter, rect);
+
+        // 在右上角绘制帧率
+        painter->setPen(Qt::black);
+        painter->drawText(rect.right() - 60, rect.top() + 20, QString("FPS: %1").arg(m_fps));
+    }
+
+    void paintEvent(QPaintEvent *event) override
+    {
+        QGraphicsView::paintEvent(event);
+        m_frameCount++;
+    }
+
+    void updateFPS()
+    {
+        m_fps        = m_frameCount;
+        m_frameCount = 0;
+    }
+
+private:
+    QTimer m_timer;
+    int    m_frameCount;
+    int    m_fps;
 };
 
 TimeLineWidget::TimeLineWidget(QWidget *parent) : Widget(parent)

@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:40:42
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-26 03:20:30
+ * Last Modified: 2023-10-26 03:44:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -20,6 +20,7 @@
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QTimer>
 #include <QtOpenGLWidgets/QOpenGLWidget>
 
 #include <nlohmann/json.hpp>

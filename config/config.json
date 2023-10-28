@@ -555,44 +555,44 @@
                     {
                         "Name": "断浪·太后饼",
                         "Icon": 7531,
-                        "Description": "攻击 + 630",
+                        "Description": "攻击 + 696",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 630
+                                "Value": 696
                             }
                         ]
                     },
                     {
                         "Name": "断浪·白肉血肠",
                         "Icon": 549,
-                        "Description": "破招 + 1399",
+                        "Description": "破招 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·红烧排骨",
                         "Icon": 9999,
-                        "Description": "破防 + 1399",
+                        "Description": "破防 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·酸菜鱼",
                         "Icon": 8909,
-                        "Description": "会心 + 1399",
+                        "Description": "会心 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     }
@@ -601,22 +601,22 @@
                     {
                         "Name": "断浪·杂锦鱼球粥",
                         "Icon": 9989,
-                        "Description": "身法 + 314",
+                        "Description": "身法 + 347",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 314
+                                "Value": 347
                             }
                         ]
                     },
                     {
                         "Name": "断浪·杂碎汤",
                         "Icon": 10000,
-                        "Description": "身法 + 157",
+                        "Description": "身法 + 173",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 157
+                                "Value": 173
                             }
                         ]
                     }
@@ -625,44 +625,44 @@
                     {
                         "Name": "断浪·上品亢龙散",
                         "Icon": 4302,
-                        "Description": "攻击 + 810",
+                        "Description": "攻击 + 895",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 810
+                                "Value": 895
                             }
                         ]
                     },
                     {
                         "Name": "断浪·上品凝神散",
                         "Icon": 4487,
-                        "Description": "破招 + 1799",
+                        "Description": "破招 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
                     {
                         "Name": "断浪·上品破秽散",
                         "Icon": 4278,
-                        "Description": "破防 + 1799",
+                        "Description": "破防 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
                     {
                         "Name": "断浪·上品玉璃散",
                         "Icon": 4268,
-                        "Description": "会心 + 1799",
+                        "Description": "会心 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     }
@@ -671,79 +671,134 @@
                     {
                         "Name": "断浪·上品轻身丹",
                         "Icon": 4274,
-                        "Description": "身法 + 403",
+                        "Description": "身法 + 446",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 403
+                                "Value": 446
                             }
                         ]
                     },
                     {
                         "Name": "断浪·中品轻身丹",
                         "Icon": 4275,
-                        "Description": "身法 + 202",
+                        "Description": "身法 + 223",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 202
+                                "Value": 223
                             }
                         ]
                     }
                 ],
                 "HomeCook": [
                     {
-                        "Name": "炸鱼干",
-                        "Icon": 8915,
-                        "Description": "会心 + 648",
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "攻击 + 866",
                         "AttributeAdditional": [
                             {
-                                "Type": "会心等级",
-                                "Value": 648
+                                "Type": "基础攻击",
+                                "Value": 866
                             }
                         ]
                     },
                     {
-                        "Name": "清蒸鲈鱼",
-                        "Icon": 8909,
-                        "Description": "破防 + 648",
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "破防 + 1934",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 648
+                                "Value": 1934
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "会心 + 1934",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "会心等级",
+                                "Value": 1934
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "破招 + 1934",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "破招值",
+                                "Value": 1934
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "无双 + 1934",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "无双",
+                                "Value": 1934
                             }
                         ]
                     },
                     {
                         "Name": "葫芦叫花鸡",
                         "Icon": 7646,
-                        "Description": "攻击 + 290",
+                        "Description": "攻击 + 320",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 290
+                                "Value": 320
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "炸鱼干",
+                        "Icon": 8915,
+                        "Description": "会心 + 716",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "会心等级",
+                                "Value": 716
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "清蒸鲈鱼",
+                        "Icon": 8909,
+                        "Description": "破防 + 716",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "基础破防等级",
+                                "Value": 716
                             }
                         ]
                     },
                     {
                         "Name": "炖豆腐",
                         "Icon": 9989,
-                        "Description": "无双 + 648",
+                        "Description": "无双 + 716",
                         "AttributeAdditional": [
                             {
                                 "Type": "无双",
-                                "Value": 648
+                                "Value": 716
                             }
                         ]
                     },
                     {
                         "Name": "煎豆腐",
                         "Icon": 552,
-                        "Description": "破招 + 648",
+                        "Description": "破招 + 716",
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 648
+                                "Value": 716
                             }
                         ]
                     }
@@ -752,22 +807,22 @@
                     {
                         "Name": "关外白酒·旬又三",
                         "Icon": 1396,
-                        "Description": "身法 + 232",
+                        "Description": "身法 + 256",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 232
+                                "Value": 256
                             }
                         ]
                     },
                     {
                         "Name": "女儿红·旬又三",
                         "Icon": 10134,
-                        "Description": "加速 + 1036",
+                        "Description": "加速 + 1144",
                         "AttributeAdditional": [
                             {
                                 "Type": "加速等级",
-                                "Value": 1036
+                                "Value": 1144
                             }
                         ]
                     }
@@ -776,11 +831,11 @@
                     {
                         "Name": "断浪·瀑沙熔锭",
                         "Icon": 7595,
-                        "Description": "攻击 + 540",
+                        "Description": "攻击 + 597",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 540
+                                "Value": 597
                             }
                         ]
                     }
@@ -789,34 +844,34 @@
                     {
                         "Name": "玉笛谁家听落梅",
                         "Icon": 9407,
-                        "Description": "攻击 + 360, 会心 + 800, 破招 + 800",
+                        "Description": "攻击 + 398, 会心 + 883, 破招 + 883",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 360
+                                "Value": 398
                             },
                             {
                                 "Type": "会心等级",
-                                "Value": 800
+                                "Value": 883
                             },
                             {
                                 "Type": "破招值",
-                                "Value": 800
+                                "Value": 883
                             }
                         ]
                     },
                     {
                         "Name": "同泽宴",
                         "Icon": 9408,
-                        "Description": "无双 + 192, 破招 + 192",
+                        "Description": "无双 + 234, 破招 + 234",
                         "AttributeAdditional": [
                             {
                                 "Type": "无双",
-                                "Value": 192
+                                "Value": 234
                             },
                             {
                                 "Type": "破招值",
-                                "Value": 192
+                                "Value": 234
                             }
                         ]
                     },
@@ -1390,44 +1445,44 @@
                     {
                         "Name": "断浪·太后饼",
                         "Icon": 7531,
-                        "Description": "攻击 + 630",
+                        "Description": "攻击 + 696",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 630
+                                "Value": 696
                             }
                         ]
                     },
                     {
                         "Name": "断浪·白肉血肠",
                         "Icon": 549,
-                        "Description": "破招 + 1399",
+                        "Description": "破招 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·红烧排骨",
                         "Icon": 9999,
-                        "Description": "破防 + 1399",
+                        "Description": "破防 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·酸菜鱼",
                         "Icon": 8909,
-                        "Description": "会心 + 1399",
+                        "Description": "会心 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     }
@@ -1436,22 +1491,22 @@
                     {
                         "Name": "断浪·杂锦鱼球粥",
                         "Icon": 9989,
-                        "Description": "身法 + 314",
+                        "Description": "身法 + 347",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 314
+                                "Value": 347
                             }
                         ]
                     },
                     {
                         "Name": "断浪·杂碎汤",
                         "Icon": 10000,
-                        "Description": "身法 + 157",
+                        "Description": "身法 + 173",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 157
+                                "Value": 173
                             }
                         ]
                     }
@@ -1471,33 +1526,33 @@
                     {
                         "Name": "断浪·上品凝神散",
                         "Icon": 4487,
-                        "Description": "破招 + 1799",
+                        "Description": "破招 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
                     {
                         "Name": "断浪·上品破秽散",
                         "Icon": 4278,
-                        "Description": "破防 + 1799",
+                        "Description": "破防 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
                     {
                         "Name": "断浪·上品玉璃散",
                         "Icon": 4268,
-                        "Description": "会心 + 1799",
+                        "Description": "会心 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     }
@@ -1506,22 +1561,22 @@
                     {
                         "Name": "断浪·上品轻身丹",
                         "Icon": 4274,
-                        "Description": "身法 + 403",
+                        "Description": "身法 + 446",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 403
+                                "Value": 446
                             }
                         ]
                     },
                     {
                         "Name": "断浪·中品轻身丹",
                         "Icon": 4275,
-                        "Description": "身法 + 202",
+                        "Description": "身法 + 223",
                         "AttributeAdditional": [
                             {
                                 "Type": "身法",
-                                "Value": 202
+                                "Value": 223
                             }
                         ]
                     }
@@ -2351,51 +2406,51 @@
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 630
+                                "Value": 696
                             }
                         ]
                     },
                     {
                         "Name": "断浪·红烧排骨",
                         "Icon": 9999,
-                        "Description": "破防 + 1399",
+                        "Description": "破防 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·白肉血肠",
                         "Icon": 549,
-                        "Description": "破招 + 1399",
+                        "Description": "破招 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·酸菜鱼",
                         "Icon": 8909,
-                        "Description": "会心 + 1399",
+                        "Description": "会心 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·红烧扣肉",
                         "Icon": 7650,
-                        "Description": "加速 + 1399",
+                        "Description": "加速 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "加速等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
@@ -2498,7 +2553,7 @@
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
@@ -2509,7 +2564,7 @@
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
@@ -2520,7 +2575,7 @@
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
@@ -2531,7 +2586,7 @@
                         "AttributeAdditional": [
                             {
                                 "Type": "加速等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
@@ -2617,7 +2672,7 @@
                 ],
                 "HomeCook": [
                     {
-                        "Name": "创意食品·盛",
+                        "Name": "创意料理·盛",
                         "Icon": 9409,
                         "Description": "攻击 + 784",
                         "AttributeAdditional": [
@@ -2628,24 +2683,24 @@
                         ]
                     },
                     {
-                        "Name": "创意食品·盛",
+                        "Name": "创意料理·盛",
                         "Icon": 9409,
                         "Description": "破防 + 1750",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1750
+                                "Value": 1934
                             }
                         ]
                     },
                     {
-                        "Name": "创意食品·盛",
+                        "Name": "创意料理·盛",
                         "Icon": 9409,
                         "Description": "会心 + 1750",
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1750
+                                "Value": 1934
                             }
                         ]
                     },
@@ -3411,44 +3466,44 @@
                     {
                         "Name": "断浪·灌汤包",
                         "Icon": 7614,
-                        "Description": "攻击 + 752",
+                        "Description": "攻击 + 831",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 752
+                                "Value": 831
                             }
                         ]
                     },
                     {
                         "Name": "断浪·白肉血肠",
                         "Icon": 549,
-                        "Description": "破招 + 1399",
+                        "Description": "破招 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·红烧排骨",
                         "Icon": 9999,
-                        "Description": "破防 + 1399",
+                        "Description": "破防 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     },
                     {
                         "Name": "断浪·酸菜鱼",
                         "Icon": 8909,
-                        "Description": "会心 + 1399",
+                        "Description": "会心 + 1545",
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1399
+                                "Value": 1545
                             }
                         ]
                     }
@@ -3457,11 +3512,11 @@
                     {
                         "Name": "断浪·咸骨粥",
                         "Icon": 261,
-                        "Description": "根骨 + 314",
+                        "Description": "根骨 + 347",
                         "AttributeAdditional": [
                             {
                                 "Type": "根骨",
-                                "Value": 314
+                                "Value": 347
                             }
                         ]
                     }
@@ -3470,44 +3525,44 @@
                     {
                         "Name": "断浪·上品展凤散",
                         "Icon": 1360,
-                        "Description": "攻击 + 967",
+                        "Description": "攻击 + 1068",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 967
+                                "Value": 1068
                             }
                         ]
                     },
                     {
                         "Name": "断浪·上品凝神散",
                         "Icon": 4487,
-                        "Description": "破招 + 1799",
+                        "Description": "破招 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "破招值",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
                     {
                         "Name": "断浪·上品破秽散",
                         "Icon": 4278,
-                        "Description": "破防 + 1799",
+                        "Description": "破防 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础破防等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     },
                     {
                         "Name": "断浪·上品玉璃散",
                         "Icon": 4268,
-                        "Description": "会心 + 1799",
+                        "Description": "会心 + 1987",
                         "AttributeAdditional": [
                             {
                                 "Type": "会心等级",
-                                "Value": 1799
+                                "Value": 1987
                             }
                         ]
                     }
@@ -3516,16 +3571,71 @@
                     {
                         "Name": "断浪·上品静心丸",
                         "Icon": 4266,
-                        "Description": "根骨 + 403",
+                        "Description": "根骨 + 446",
                         "AttributeAdditional": [
                             {
                                 "Type": "根骨",
-                                "Value": 403
+                                "Value": 446
                             }
                         ]
                     }
                 ],
                 "HomeCook": [
+                    {
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "攻击 + 1038",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "基础攻击",
+                                "Value": 1038
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "破防 + 1934",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "基础破防等级",
+                                "Value": 1934
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "会心 + 1934",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "会心等级",
+                                "Value": 1934
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "破招 + 1934",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "破招值",
+                                "Value": 1934
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "创意料理·盛",
+                        "Icon": 9409,
+                        "Description": "无双 + 1934",
+                        "AttributeAdditional": [
+                            {
+                                "Type": "无双",
+                                "Value": 1934
+                            }
+                        ]
+                    },
                     {
                         "Name": "炸鱼干",
                         "Icon": 8915,
@@ -3549,13 +3659,13 @@
                         ]
                     },
                     {
-                        "Name": "葫芦叫花鸡",
-                        "Icon": 7646,
-                        "Description": "攻击 + 290",
+                        "Name": "小炒青菜",
+                        "Icon": 7607,
+                        "Description": "攻击 + 384",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 290
+                                "Value": 384
                             }
                         ]
                     },
@@ -3586,35 +3696,35 @@
                     {
                         "Name": "高粱酒·旬又三",
                         "Icon": 237,
-                        "Description": "根骨 + 232",
+                        "Description": "根骨 + 256",
                         "AttributeAdditional": [
                             {
                                 "Type": "根骨",
-                                "Value": 232
+                                "Value": 256
                             }
                         ]
                     },
                     {
                         "Name": "女儿红·旬又三",
                         "Icon": 10134,
-                        "Description": "加速 + 1036",
+                        "Description": "加速 + 1144",
                         "AttributeAdditional": [
                             {
                                 "Type": "加速等级",
-                                "Value": 1036
+                                "Value": 1144
                             }
                         ]
                     }
                 ],
                 "WeaponWhetstone": [
                     {
-                        "Name": "断浪·瀑沙熔锭",
-                        "Icon": 7595,
-                        "Description": "攻击 + 540",
+                        "Name": "断浪·坠宵熔锭",
+                        "Icon": 7596,
+                        "Description": "攻击 + 712",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 540
+                                "Value": 712
                             }
                         ]
                     }
@@ -3623,19 +3733,19 @@
                     {
                         "Name": "玉笛谁家听落梅",
                         "Icon": 9407,
-                        "Description": "攻击 + 360, 会心 + 800, 破招 + 800",
+                        "Description": "攻击 + 475, 会心 + 883, 破招 + 883",
                         "AttributeAdditional": [
                             {
                                 "Type": "基础攻击",
-                                "Value": 360
+                                "Value": 475
                             },
                             {
                                 "Type": "会心等级",
-                                "Value": 800
+                                "Value": 883
                             },
                             {
                                 "Type": "破招值",
-                                "Value": 800
+                                "Value": 883
                             }
                         ]
                     },

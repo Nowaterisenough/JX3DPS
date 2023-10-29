@@ -5,7 +5,7 @@
  * Created Date: 2023-06-30 23:42:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-26 04:01:08
+ * Last Modified: 2023-10-29 08:57:35
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -302,11 +302,18 @@ void SkillItem::SetInfo(const Info &info)
     int minute  = second / 60;
     second      = second % 60;
     int msecond = (x() / 16.0 / 5 - second - minute * 60) * 10000;
+
     while (msecond % 10 == 0 && msecond != 0) {
         msecond /= 10;
-    }
+    }  
+
+    double ss = x() / 16.0 / 5;
+
+    // m_timeStamp =
+    //     QString("%1:%2.%3").arg(minute, 2, 10, QChar('0')).arg(second, 2, 10, QChar('0')).arg(msecond, 4, 10, QChar('0'));
+
     m_timeStamp =
-        QString("%1:%2.%3").arg(minute, 2, 10, QChar('0')).arg(second, 2, 10, QChar('0')).arg(msecond);
+         QString("%1:%2").arg(minute, 2, 10, QChar('0')).arg(ss);
 }
 
 void SkillItem::Colliding()

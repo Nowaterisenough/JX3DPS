@@ -5,7 +5,7 @@
  * Created Date: 2023-07-12 00:26:38
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-08 11:06:50
+ * Last Modified: 2023-10-30 05:01:26
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -154,13 +154,12 @@ inline Value_t RollDamage(Value_t  overcomeDamage,
         criticalStrikePower * JX3_PERCENT_INT_BASE /
         (JX3_CRITICAL_STRIKE_POWER_PARAM * (JX3_LEVEL_PARAM * playerLevel - JX3_LEVEL_CONST));
 
-    Value_t criticalStrikePowerDamage =
-        rollResult *
-        ((overcomeDamage * (JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE - JX3_PERCENT_FLOAT_BASE)) +
-         static_cast<Value_t>(overcomeDamage * (criticalStrikePowerPercentInt + effectCriticalStrikePowerPercentInt) /
-                              JX3_PERCENT_INT_BASE));
+    Value_t temp = overcomeDamage >> (rollResult / 2);
 
-    return overcomeDamage + criticalStrikePowerDamage;
+    return static_cast<Value_t>(
+        temp + temp * (rollResult & 1) * (JX3_PLAYER_CRITICAL_STRIKE_POWER_PERCENT_BASE - JX3_PERCENT_FLOAT_BASE) +
+        temp * (rollResult & 1) * (criticalStrikePowerPercentInt + effectCriticalStrikePowerPercentInt) /
+            JX3_PERCENT_INT_BASE);
 }
 
 /*-----------  等级加成伤害  -----------*/

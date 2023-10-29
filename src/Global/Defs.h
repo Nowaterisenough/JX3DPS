@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 08:40:04
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-13 03:13:33
+ * Last Modified: 2023-10-30 04:52:17
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -57,7 +57,7 @@ enum class RollResult
     HIT    = 0,  // 命中
     DOUBLE = 1,  // 会心
     SIGHT  = 4,  // 识破
-    MISS   = 62, // 偏离
+    MISS   = 126, // 偏离
 };
 
 /* 节点类型 */

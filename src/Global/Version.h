@@ -5,7 +5,7 @@
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-24 05:31:38
+ * Last Modified: 2023-11-06 02:13:05
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -134,7 +134,7 @@ namespace JX3DPS {
 /* 2023年04月27日 群侠万变 */
 #define QUN_XIA_WAN_BIAN      37
 
-/* 2023年09月27日 群侠万变 */
+/* 2023年10月26日 万灵当歌 */
 #define WAN_LING_DANG_GE      38
 
 /*------------------ 版本号 ------------------*/

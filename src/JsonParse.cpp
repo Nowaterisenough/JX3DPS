@@ -5,7 +5,7 @@
  * Created Date: 2023-06-18 19:02:20
  * Author: 难为水
  * -----
- * Last Modified: 2023-11-05 18:26:19
+ * Last Modified: 2023-11-06 02:11:04
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -30,7 +30,7 @@ JX3DPS::Error_t JX3DPS::ParseJsonToClassType(const nlohmann::ordered_json &json,
             Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE) = 475;
         } else {
             Attribute::ATTRIBUTE_GAIN_BY_BASE.at(Attribute::Type::ATTACK_POWER_BASE) = 398;
-        } 
+        }
     } catch (const std::exception &e) {
         spdlog::error("心法解析失败 {}", e.what());
         return JX3DPS_ERROR_INVALID_JSON;
@@ -235,7 +235,8 @@ JX3DPS::Error_t JX3DPS::ParseJsonToTeamCore(const nlohmann::ordered_json &json, 
     return JX3DPS_SUCCESS;
 }
 
-JX3DPS::Error_t JX3DPS::ParseJsonToBuff3rds(const nlohmann::ordered_json &json, std::unordered_set<Id_t> &buff3rds)
+JX3DPS::Error_t JX3DPS::ParseJsonToBuff3rds(const nlohmann::ordered_json &json,
+                                            std::unordered_set<Id_t>     &buff3rds)
 {
     std::list<std::string> events;
     try {
@@ -273,7 +274,8 @@ JX3DPS::Error_t JX3DPS::DamageStatsToJson(const DamageStats &damageStats, nlohma
                         auto &[count, damage] = item;
 
                         std::string_view name = JX3DPS_NAME.at(effectId);
-                        std::string targetName = std::string("目标") + std::to_string(targetId - TARGET_PLACE_HOLDERS_DEFAULT);
+                        std::string      targetName =
+                            std::string("目标") + std::to_string(targetId - TARGET_PLACE_HOLDERS_DEFAULT);
                         std::string subName = std::string("词缀").append(std::to_string(sub));
                         std::string levelName = std::string("强度").append(std::to_string(level));
                         std::string_view rollName = ROLL_NAME.at(static_cast<int>(rollResult));
@@ -298,14 +300,14 @@ JX3DPS::Error_t JX3DPS::TimeLineToJson(const TimeLine::InfosList &infosList, nlo
         j["TimeStamp"] = frame;
         for (auto &info : infos) {
             nlohmann::ordered_json temp;
-            auto &name       = info.name;
-            auto &rollResult = info.rollResult;
-            auto &damage     = info.damage;
-            auto &type       = info.type;
-            temp["Name"] = name;
-            temp["RollResult"] = rollResult;
-            temp["Damage"]     = damage;
-            temp["Type"]       = type;
+            auto                  &name       = info.name;
+            auto                  &rollResult = info.rollResult;
+            auto                  &damage     = info.damage;
+            auto                  &type       = info.type;
+            temp["Name"]                      = name;
+            temp["RollResult"]                = rollResult;
+            temp["Damage"]                    = damage;
+            temp["Type"]                      = type;
             j["Skills"].push_back(temp);
         }
         json.push_back(j);

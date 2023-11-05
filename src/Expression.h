@@ -5,7 +5,7 @@
  * Created Date: 2023-07-22 13:41:19
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-10 21:56:46
+ * Last Modified: 2023-11-06 02:10:13
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -21,20 +21,6 @@
 #include "Global/Types.h"
 
 namespace JX3DPS {
-
-// static polymorphic
-template <typename T>
-concept worker = requires(T a) {
-    {
-        a.work(int())
-    } -> std::same_as<int>;
-};
-
-template <worker T>
-int do_work(T &&w)
-{
-    return w.work(1);
-}
 
 class Player;
 

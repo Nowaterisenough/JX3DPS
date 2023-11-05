@@ -5,7 +5,7 @@
  * Created Date: 2023-07-18 15:51:36
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-23 16:37:20
+ * Last Modified: 2023-11-04 21:49:30
  * Modified By: 难为水
  * -----
  * CHANGELOG:
@@ -238,18 +238,18 @@ public:
 
     inline static std::unordered_map<Type, Value_t> ATTRIBUTE_GAIN_BY_BASE = {
         {{ Type::DEFAULT, 0 },
-         { Type::AGILITY_BASE, 179 },
-         { Type::STRENGTH_BASE, 179 },
-         { Type::SPIRIT_BASE, 179 },
-         { Type::SPUNK_BASE, 179 },
-         { Type::WEAPON_DAMAGE_BASE, 540 },
-         { Type::ATTACK_POWER_BASE, 360 },
-         { Type::CRITICAL_STRIKE, 799 },
-         { Type::CRITICAL_STRIKE_POWER, 799 },
-         { Type::OVERCOME_BASE, 799 },
-         { Type::STRAIN_BASE, 799 },
-         { Type::SURPLUS_VALUE_BASE, 799 },
-         { Type::HASTE_BASE, 799 }}
+         { Type::AGILITY_BASE, 198 },
+         { Type::STRENGTH_BASE, 198 },
+         { Type::SPIRIT_BASE, 198 },
+         { Type::SPUNK_BASE, 198 },
+         { Type::WEAPON_DAMAGE_BASE, 597 },
+         { Type::ATTACK_POWER_BASE, 398 },
+         { Type::CRITICAL_STRIKE, 883 },
+         { Type::CRITICAL_STRIKE_POWER, 883 },
+         { Type::OVERCOME_BASE, 883 },
+         { Type::STRAIN_BASE, 883 },
+         { Type::SURPLUS_VALUE_BASE, 883 },
+         { Type::HASTE_BASE, 883 }}
     };
 
     inline void SetGainSwitch(Type type, bool sc)

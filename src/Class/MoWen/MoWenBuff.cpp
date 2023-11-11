@@ -5,7 +5,7 @@
  * Created Date: 2023-08-01 23:06:41
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-18 12:00:23
+ * Last Modified: 2023-11-11 14:19:34
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -1572,9 +1572,9 @@ ShenBingGong::ShenBingGong(JX3DPS::Player *player, Targets *targets) :
     m_stackNum    = 3;
     m_effectCount = 10;
 
-    m_damageParams[0].emplace_back(0, 0, 618 * 1);
-    m_damageParams[0].emplace_back(0, 0, 618 * 2);
-    m_damageParams[0].emplace_back(0, 0, 618 * 3);
+    m_damageParams[0].emplace_back(58, 0, 618 * 1);
+    m_damageParams[0].emplace_back(58, 0, 618 * 2);
+    m_damageParams[0].emplace_back(58, 0, 618 * 3);
 }
 
 void ShenBingGong::Trigger()

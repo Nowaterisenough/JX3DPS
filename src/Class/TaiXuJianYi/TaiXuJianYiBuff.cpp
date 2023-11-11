@@ -5,7 +5,7 @@
  * Created Date: 2023-07-28 20:57:54
  * Author: 难为水
  * -----
- * Last Modified: 2023-10-18 13:34:27
+ * Last Modified: 2023-11-11 14:19:45
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -224,9 +224,9 @@ WanXiangGuiYuan::WanXiangGuiYuan(JX3DPS::Player *player, Targets *targets) :
     m_stackNum    = 3;
     m_effectCount = 10;
 
-    m_damageParams[0].emplace_back(20, 0, 205 * 1);
-    m_damageParams[0].emplace_back(20, 0, 205 * 2);
-    m_damageParams[0].emplace_back(20, 0, 205 * 3);
+    m_damageParams[0].emplace_back(10, 0, 205 * 1);
+    m_damageParams[0].emplace_back(10, 0, 205 * 2);
+    m_damageParams[0].emplace_back(10, 0, 205 * 3);
 }
 
 void WanXiangGuiYuan::Trigger()

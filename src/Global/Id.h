@@ -124,6 +124,19 @@ enum Id_t
     SKILL_JING_HUA_YING,
     SKILL_TAI_XU_JIAN_YI_END, // ---------------------- 技能 太虚剑意 END ----------------------
 
+    SKILL_ZI_XIA_GONG, // ---------------------- 技能 紫霞功 ----------------------
+    SKILL_LIANG_YI_HUA_XING,
+    SKILL_SI_XIANG_LUN_HUI,
+    SKILL_LIU_HE_DU_ZUN,
+    SKILL_SAN_CAI_HUA_SHENG,
+    SKILL_WU_FANG_XING_JIN,
+    SKILL_WAN_SHI_BU_JIE,
+    SKILL_JIU_ZHUAN_GUI_YI,
+    SKILL_TAI_JI_WU_JI,
+    SKILL_PO_CANG_QIONG,
+    SKILL_ZHEN_SHAN_HE,
+    SKILL_ZI_XIA_GONG_END, // ---------------------- 技能 紫霞功 END ----------------------
+
     SKILL_MO_WEN, // ---------------------- 技能 莫问 ----------------------
     SKILL_WU_YIN_LIU_LV,
     SKILL_GONG,
@@ -624,6 +637,19 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "生太极" },
      { "镜花影" },
      { "----------------------技能 太虚剑意 END----------------------" },
+
+     { "----------------------技能 紫霞功----------------------" },
+     { "两仪化形" },
+     { "四象轮回" },
+     { "六合独尊" },
+     { "三才化生" },
+     { "五方行尽" },
+     { "万世不竭" },
+     { "九转归一" },
+     { "太极无极" },
+     { "破苍穹" },
+     { "镇山河" },
+     { "----------------------技能 紫霞功 END----------------------" },
 
      { "----------------------技能 莫问----------------------" },
      { "五音六律" },

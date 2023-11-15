@@ -23,3 +23,7 @@ Player::Player(const Player &other) : JX3DPS::Player(other)
 void Player::Init()
 {
 }
+
+} // namespace ZiXiaGong
+
+} // namespace JX3DPS

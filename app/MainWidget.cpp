@@ -357,7 +357,6 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
     connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
         emit timeLineWidget->Signal_Import(result, m_config);
     });
-
 }
 
 void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
@@ -1107,6 +1106,9 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     });
 }
 
+
+#include "Highlighter.h"
+
 void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
 {
     QGridLayout *layout = new QGridLayout(parent);
@@ -1119,8 +1121,10 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
 
     connect(tabWidgetSkills, &TabWidget::Signal_AddTab, this, [=]() {
         QWidget *widget = tabWidgetSkills->Widget(tabWidgetSkills->Count() - 1);
-
+        
         PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
+        Highlighter *highlighter = new Highlighter(plainTextEdit->document());
+
         QGridLayout   *layout        = new QGridLayout(widget);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(plainTextEdit);

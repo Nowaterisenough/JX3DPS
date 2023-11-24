@@ -315,7 +315,7 @@ RenJianHeYi::RenJianHeYi(JX3DPS::Player *player, Targets *targets) :
     m_interval    = 16 * 3;
     m_effectCount = 4;
 
-    m_damageParams[0].emplace_back(0, 0, 40);
+    m_damageParams[0].emplace_back(16, 0, 40);
 }
 
 void RenJianHeYi::Trigger()
@@ -1819,6 +1819,7 @@ void WeaponEffectCW::Add(Id_t targetId, int stackNum, Frame_t durationMin, Frame
     } else [[unlikely]] {
         m_snapshots[PLAYER_ID].duration = RandomUniform(durationMin, durationMax);
     }
+    m_cooldownCurrent = m_cooldown;
 }
 
 void WeaponEffectCW::Clear(Id_t targetId, int stackNum)

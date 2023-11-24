@@ -305,7 +305,7 @@ IndentRequires: false
 KeepEmptyLinesAtTheStartOfBlocks: true
 
 # lambda 表达式函数体缩进
-LambdaBodyIndentation: OuterScope
+LambdaBodyIndentation: Signature
 
 # 开始一个块的宏的正则表达式
 MacroBlockBegin: "^MACRO_BEGIN|NS_TABLE_HEAD$"
@@ -385,9 +385,6 @@ PPIndentWidth: -1
 # 指针 *靠右
 PointerAlignment: Right
 
-# 总是空行分隔定义块，包括类、结构、枚举和函数
-SeparateDefinitionBlocks: Always
-
 # 修饰符对齐，由 QualifierOrder 指定
 QualifierAlignment: Custom
 
@@ -397,7 +394,6 @@ QualifierOrder: [ 'inline', 'static', 'const', 'type', 'volatile' ]
 # 将字符串格式化，与 ProtocolBuffers 配合使用
 RawStringFormats:
 - Language: Cpp
-BasedOnStyle: InheritParentConfig
 Delimiters: [ pb ]
 
 # 引用对齐，与 PointerAlignment 相同
@@ -409,7 +405,7 @@ ReflowComments: true
 # requires 位置
 RequiresClausePosition: OwnLine
 
-# 在定义块之间添加空行
+# 总是空行分隔定义块，包括类、结构、枚举和函数
 SeparateDefinitionBlocks: Always
 
 # 设置短 namespace 长度，0 表示将所有 namespace 视为 short namespace
@@ -519,9 +515,6 @@ StatementMacros:
 
 # 需要识别为宏的代码块前缀
 StatementAttributeLikeMacros: [ ]
-
-# 需要解释为完整代码段的宏
-StatementMacros: [ ]
 
 # tab 宽度
 TabWidth: 4

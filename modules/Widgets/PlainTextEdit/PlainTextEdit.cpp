@@ -33,19 +33,17 @@ PlainTextEdit::PlainTextEdit(QWidget *parent) : QPlainTextEdit(parent)
                 "color: rgb(%3);"
                 "padding: 5px;"
                 "font-size: 13px;"
-                "selection-color: rgb(%4);"
-                "selection-background-color: rgb(120, 198, 255);"
+                "selection-background-color: rgba(120, 198, 255, 80);"
                 "}"
                 "QPlainTextEdit:hover {"
-                "border: 1px solid rgb(%5);"
+                "border: 1px solid rgb(%4);"
                 "}"
                 "QPlainTextEdit:focus {"
-                "border: 1px solid rgb(%6);"
+                "border: 1px solid rgb(%5);"
                 "}")
             .arg(TO_STR(COLOR_BACKGROUND_HIGHLIGHT))
             .arg(TO_STR(COLOR_BACKGROUND_HIGHLIGHT))
             .arg(TO_STR(COLOR_HIGHLIGHT))
-            .arg(TO_STR(COLOR_BACKGROUND_PRIMARY))
             .arg(TO_STR(COLOR_ACTIVE))
             .arg(TO_STR(COLOR_ACTIVE)));
 

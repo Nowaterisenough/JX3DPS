@@ -135,6 +135,7 @@ enum Id_t
     SKILL_TAI_JI_WU_JI,
     SKILL_PO_CANG_QIONG,
     SKILL_ZHEN_SHAN_HE,
+    SKILL_SI_XIANG_LUN_HUI_SHEN_BING,
     SKILL_ZI_XIA_GONG_END, // ---------------------- 技能 紫霞功 END ----------------------
 
     SKILL_MO_WEN, // ---------------------- 技能 莫问 ----------------------
@@ -649,6 +650,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "太极无极" },
      { "破苍穹" },
      { "镇山河" },
+     { "四象轮回·神兵" },
      { "----------------------技能 紫霞功 END----------------------" },
 
      { "----------------------技能 莫问----------------------" },

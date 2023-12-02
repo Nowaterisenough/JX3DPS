@@ -1070,6 +1070,7 @@ void Player::TriggerJianRuAdd(const Params &params)
 {
     if (params.player->buffs[BUFF_JIAN_RU]->GetDurationCurrent() > 0) {
         static_cast<Buff::JianRu *>(params.player->buffs[BUFF_JIAN_RU])->TriggerDamage(1);
+        return;
     }
     if (params.player->buffs[BUFF_ZI_QI_DONG_LAI]->GetDurationCurrent() > 0) {
         static_cast<Buff::JianRu *>(params.player->buffs[BUFF_JIAN_RU])->TriggerAdd();

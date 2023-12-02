@@ -1115,7 +1115,7 @@ JingHuaYing::JingHuaYing(JX3DPS::Player *player, Targets *targets) :
     m_cooldownCurrent      = JX3DPS_INVALID_FRAMES_SET;
     m_prepareFramesCurrent = JX3DPS_INVALID_FRAMES_SET;
 
-    m_damageParams[0].emplace_back((113 + 113 + 67) / 2, 0, 620 * 1.1 * 1.1);
+    m_damageParams[0].emplace_back((113 + 113 + 67) / 2, 1024, 620 * 1.1 * 1.1);
 
     m_damageParams[1].emplace_back(200, 0, 200 * 1.1 * 1.1);
 }

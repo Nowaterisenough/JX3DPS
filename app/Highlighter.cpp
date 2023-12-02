@@ -126,8 +126,6 @@ void Highlighter::highlightBlock(const QString &text)
     // }
 
     setCurrentBlockState(0);
-
-    QPalette
     
     /******************************************************************************************************
      * 查找起始表达式的位置

@@ -1175,6 +1175,10 @@ void JianRu::TriggerDamage(int index)
             break;
         }
     }
+
+    if (index == 1) {
+        Clear(PLAYER_ID, 0);
+    }
 }
 
 FengShi::FengShi(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, targets)

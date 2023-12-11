@@ -373,12 +373,31 @@ void BaHuangGuiYuan::SubEffect()
 void BaHuangGuiYuan::ResetCooldown()
 {
     m_cooldown = 16 * 12 + m_effectCooldownAdditional;
+    
+    m_damageParams[1].clear();
+    // clang-format off
+    m_damageParams[1].emplace_back((690 / 3 / 10 + 690 / 3 / 10 + 70 / 3 / 10) / 2, 2048, (128 + 16 * 1) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 9 + 690 / 3 / 9 + 70 / 3 / 9) / 2, 2048, (128 + 16 * 2) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 8 + 690 / 3 / 8 + 70 / 3 / 8) / 2, 2048, (128 + 16 * 3) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 7 + 690 / 3 / 7 + 70 / 3 / 7) / 2, 2048, (128 + 16 * 4) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 6 + 690 / 3 / 6 + 70 / 3 / 6) / 2, 2048, (128 + 16 * 5) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 5 + 690 / 3 / 5 + 70 / 3 / 5) / 2, 2048, (128 + 16 * 6) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 4 + 690 / 3 / 4 + 70 / 3 / 4) / 2, 2048, (128 + 16 * 7) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 3 + 690 / 3 / 3 + 70 / 3 / 3) / 2, 2048, (128 + 16 * 8) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 2 + 690 / 3 / 2 + 70 / 3 / 2) / 2, 2048, (128 + 16 * 9) * 1.1 * 1.1 * 1.05);
+    m_damageParams[1].emplace_back((690 / 3 / 1 + 690 / 3 / 1 + 70 / 3 / 1) / 2, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05);
+    // clang-format on
 }
 
 void BaHuangGuiYuan::ClearCooldown()
 {
     m_cooldown        = 0;
     m_cooldownCurrent = 0;
+
+    for (auto &param : m_damageParams[1]) {
+        param.fixedDamage            = (690 / 3 / 1 + 690 / 3 / 1 + 70 / 3 / 1) / 2;
+        param.attackDamagePercentInt = (128 + 16 * 10) * 1.1 * 1.1 * 1.05;
+    }
 }
 
 SanHuanTaoYue::SanHuanTaoYue(JX3DPS::Player *player, Targets *targets) :

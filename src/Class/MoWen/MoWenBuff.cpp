@@ -271,9 +271,9 @@ void XianFeng::TriggerDamage(Id_t targetId, int stackNum)
     params.player = m_player;
 
     for (int i = 0; i < stackNum; ++i) {
-        m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
-        m_triggerEffects[TRIGGER_WEAPON_CW](params);
-        m_triggerEffects[TRIGGER_WEAPON_WATER](params);
+        // m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
+        // m_triggerEffects[TRIGGER_WEAPON_CW](params);
+        // m_triggerEffects[TRIGGER_WEAPON_WATER](params);
         RollResult  rollResult = GetMagicRollResult();
         GainsDamage damage     = CalcMagicDamage(targetId, rollResult, 0, 0);
         Record(m_id, targetId, rollResult, damage, 0, 0);
@@ -570,9 +570,9 @@ void LiuZhao::TriggerDamage(int stackNum)
     params.player = m_player;
 
     for (int i = 0; i < stackNum; ++i) {
-        m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
-        m_triggerEffects[TRIGGER_WEAPON_CW](params);
-        m_triggerEffects[TRIGGER_WEAPON_WATER](params);
+        // m_triggerEffects[TRIGGER_SET_ATTRIBUTE](params);
+        // m_triggerEffects[TRIGGER_WEAPON_CW](params);
+        // m_triggerEffects[TRIGGER_WEAPON_WATER](params);
         RollResult  rollResult = GetMagicRollResult();
         GainsDamage damage = CalcMagicDamage(m_player->GetTargetId(), rollResult, 0, 0);
         Record(m_id, m_player->GetTargetId(), rollResult, damage, 0, 0);

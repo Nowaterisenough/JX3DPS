@@ -224,9 +224,9 @@ WanXiangGuiYuan::WanXiangGuiYuan(JX3DPS::Player *player, Targets *targets) :
     m_stackNum    = 3;
     m_effectCount = 10;
 
-    m_damageParams[0].emplace_back(10, 0, 205 * 1);
-    m_damageParams[0].emplace_back(10, 0, 205 * 2);
-    m_damageParams[0].emplace_back(10, 0, 205 * 3);
+    m_damageParams[0].emplace_back(10, 0, 205 * 1 * 1.8);
+    m_damageParams[0].emplace_back(10, 0, 205 * 2 * 1.8);
+    m_damageParams[0].emplace_back(10, 0, 205 * 3 * 1.8);
 }
 
 void WanXiangGuiYuan::Trigger()
@@ -1089,7 +1089,7 @@ JianRu::JianRu(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, 
 {
     m_id       = BUFF_JIAN_RU;
     m_name     = "剑入";
-    m_duration = 16 * 6;
+    m_duration = 16 * 6 + 2;
     m_interval = 16;
 
     m_damageParams[0].emplace_back((77 + 77 + 25) / 2, 0, 84 * 1.2 * 1.1 * 2 * 1.6774);

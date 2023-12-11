@@ -131,7 +131,6 @@ if(WIN32)
         --no-network
         #--no-opengl
         --no-opengl-sw
-        --no-compiler-runtime
         --no-system-d3d-compiler
         --no-translations
         --$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>

@@ -32,21 +32,21 @@ DieRen::DieRen(JX3DPS::Player *player, Targets *targets) : JX3DPS::Buff(player, 
     m_stackNum    = 5;
     m_effectCount = 8;
 
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
-    m_damageParams[0].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
+    m_damageParams[0].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
+    m_damageParams[0].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
+    m_damageParams[0].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
+    m_damageParams[0].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
+    m_damageParams[0].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
+    m_damageParams[0].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
+    m_damageParams[0].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
 
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
-    m_damageParams[1].emplace_back(0, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
+    m_damageParams[1].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1);
+    m_damageParams[1].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2);
+    m_damageParams[1].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3);
+    m_damageParams[1].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4);
+    m_damageParams[1].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5);
+    m_damageParams[1].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6);
+    m_damageParams[1].emplace_back(10, 0, static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7);
 
     if (m_player->talents[TALENT_LIE_YUN]) {
         m_stackNum = 7;
@@ -594,6 +594,13 @@ void FieldSuiXingChen::Clear(Id_t targetId, int stackNum)
     SubEffectClear(stackNum); // 删除同步的碎星辰 期声气场
 }
 
+Frame_t FieldSuiXingChen::GetDurationCurrent(Id_t targetId) const
+{
+    for (auto &[id, snapshot] : m_snapshots) {
+        return snapshot.duration;
+    }
+}
+
 void FieldSuiXingChen::TriggerAdd(int stackNum)
 {
     // 最多三个气场
@@ -1132,8 +1139,22 @@ void JianRu::TriggerActive()
     }
 }
 
+bool JianRu::IsActived()
+{
+    if (m_snapshots.find(PLAYER_ID) == m_snapshots.end()) {
+        return false;
+    }
+    if (m_snapshots[PLAYER_ID].interval == JX3DPS_INVALID_FRAMES_SET) {
+        return false;
+    }
+    return true;
+}
+
 void JianRu::TriggerDamage(int index)
 {
+    if (index == 1 && m_snapshots[PLAYER_ID].interval == JX3DPS_INVALID_FRAMES_SET) {
+        return;
+    }
     RollResult rollResult = GetPhysicsRollResult();
 
     Params params;

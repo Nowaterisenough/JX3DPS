@@ -218,7 +218,7 @@ public:
 
     Frame_t GetCooldownCurrent() const;
 
-    Frame_t GetDurationCurrent(Id_t targetId = PLAYER_ID) const; // 用于宏条件判定
+    virtual Frame_t GetDurationCurrent(Id_t targetId = PLAYER_ID) const; // 用于宏条件判定
     int     GetStackNumCurrent(Id_t targetId = PLAYER_ID) const; // 用于宏条件判定
     double  GetRange() const;                                    // 用于宏条件判定
 

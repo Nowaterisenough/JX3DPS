@@ -30,7 +30,7 @@ EnchantShoesPhysics::EnchantShoesPhysics(JX3DPS::Player *player, Targets *target
     m_cooldown        = 16 * 10;
     m_cooldownCurrent = 0;
 
-    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 100);
+    m_damageParams[0].emplace_back((40 + 40 + 17) / 2, 0, 50);
 }
 
 void EnchantShoesPhysics::Trigger() { }

@@ -246,16 +246,16 @@ BaHuangGuiYuan::BaHuangGuiYuan(JX3DPS::Player *player, Targets *targets) :
     m_damageParams[1].emplace_back((690 / 3 / 1 + 690 / 3 / 1 + 70 / 3 / 1) / 2, 2048, (128 + 16 * 10) * 1.1 * 1.1 * 1.05);
     // clang-format on
 
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
-    m_damageParams[2].emplace_back((20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
+    m_damageParams[2].emplace_back((20 + 20 + 2) / 2, 0, 65);
 
     if (m_player->recipes[RECIPE_BA_HUANG_GUI_YUAN_DAMAGE_3]) {
         m_effectDamageAdditionalPercentInt += 31;
@@ -373,7 +373,7 @@ void BaHuangGuiYuan::SubEffect()
 void BaHuangGuiYuan::ResetCooldown()
 {
     m_cooldown = 16 * 12 + m_effectCooldownAdditional;
-    
+
     m_damageParams[1].clear();
     // clang-format off
     m_damageParams[1].emplace_back((690 / 3 / 10 + 690 / 3 / 10 + 70 / 3 / 10) / 2, 2048, (128 + 16 * 1) * 1.1 * 1.1 * 1.05);

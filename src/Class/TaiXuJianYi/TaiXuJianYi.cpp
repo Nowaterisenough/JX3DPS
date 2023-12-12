@@ -1068,7 +1068,7 @@ void Player::TriggerQiSheng(const Params &params)
 
 void Player::TriggerJianRuAdd(const Params &params)
 {
-    if (params.player->buffs[BUFF_JIAN_RU]->GetDurationCurrent() > 0) {
+    if (static_cast<Buff::JianRu *>(params.player->buffs[BUFF_JIAN_RU])->IsActived()) {
         static_cast<Buff::JianRu *>(params.player->buffs[BUFF_JIAN_RU])->TriggerDamage(1);
         return;
     }

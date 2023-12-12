@@ -83,6 +83,7 @@ class FieldSuiXingChen : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(FieldSuiXingChen)
 
 public:
+    Frame_t GetDurationCurrent(Id_t targetId = PLAYER_ID) const override;
     void TriggerAdd(int stackNum);
     void SubEffect();
     void SubEffectAdd(int stackNum = 1);
@@ -147,6 +148,7 @@ class JianRu : public JX3DPS::Buff
 public:
     void TriggerAdd();
     void TriggerActive();
+    bool IsActived();
     void TriggerDamage(int index);
 };
 

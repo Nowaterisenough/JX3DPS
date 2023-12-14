@@ -599,6 +599,7 @@ Frame_t FieldSuiXingChen::GetDurationCurrent(Id_t targetId) const
     for (auto &[id, snapshot] : m_snapshots) {
         return snapshot.duration;
     }
+    return 0;
 }
 
 void FieldSuiXingChen::TriggerAdd(int stackNum)
@@ -737,6 +738,14 @@ void FieldShengTaiJi::Clear(Id_t targetId, int stackNum)
     static_cast<TaiXuJianYi::Player *>(m_player)->RemoveField(m_id, stackNum);
 }
 
+Frame_t FieldShengTaiJi::GetDurationCurrent(Id_t targetId) const
+{
+    for (auto &[id, snapshot] : m_snapshots) {
+        return snapshot.duration;
+    }
+    return 0;
+}
+
 void FieldShengTaiJi::TriggerAdd(int stackNum)
 {
     // 最多三个气场
@@ -850,6 +859,14 @@ void FieldTunRiYue::Clear(Id_t targetId, int stackNum)
     }
     // 清除player记录的气场信息
     static_cast<TaiXuJianYi::Player *>(m_player)->RemoveField(m_id, stackNum);
+}
+
+Frame_t FieldTunRiYue::GetDurationCurrent(Id_t targetId) const
+{
+    for (auto &[id, snapshot] : m_snapshots) {
+        return snapshot.duration;
+    }
+    return 0;
 }
 
 void FieldTunRiYue::TriggerAdd(int stackNum)

@@ -84,10 +84,10 @@ class FieldSuiXingChen : public JX3DPS::Buff
 
 public:
     Frame_t GetDurationCurrent(Id_t targetId = PLAYER_ID) const override;
-    void TriggerAdd(int stackNum);
-    void SubEffect();
-    void SubEffectAdd(int stackNum = 1);
-    void SubEffectClear(int stackNum = 1);
+    void    TriggerAdd(int stackNum);
+    void    SubEffect();
+    void    SubEffectAdd(int stackNum = 1);
+    void    SubEffectClear(int stackNum = 1);
 };
 
 class FieldShengTaiJi : public JX3DPS::Buff
@@ -95,9 +95,10 @@ class FieldShengTaiJi : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(FieldShengTaiJi)
 
 public:
-    void TriggerAdd(int stackNum);
-    void SubEffect();
-    void SubEffectAdd(int stackNum = 1);
+    Frame_t GetDurationCurrent(Id_t targetId = PLAYER_ID) const override;
+    void    TriggerAdd(int stackNum);
+    void    SubEffect();
+    void    SubEffectAdd(int stackNum = 1);
 };
 
 class FieldTunRiYue : public JX3DPS::Buff
@@ -105,10 +106,11 @@ class FieldTunRiYue : public JX3DPS::Buff
     BUFF_DEFAULT_FUNCTION(FieldTunRiYue)
 
 public:
-    void TriggerAdd(int stackNum);
-    void SubEffect();
-    void SubEffectAdd(int stackNum = 1);
-    void SubEffectClear(int stackNum = 1);
+    Frame_t GetDurationCurrent(Id_t targetId = PLAYER_ID) const override;
+    void    TriggerAdd(int stackNum);
+    void    SubEffect();
+    void    SubEffectAdd(int stackNum = 1);
+    void    SubEffectClear(int stackNum = 1);
 };
 
 class FieldSuiXingChenQiSheng : public JX3DPS::Buff
@@ -159,7 +161,7 @@ class FengShi : public JX3DPS::Buff
 public:
     void TriggerAdd();
     void TriggerClear();
-    
+
     void SubEffectAdd();
     void SubEffectClear();
 };

@@ -270,6 +270,12 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprEvents(const std::list<std::string> &s
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_QIDIAN =
     "qidian([=~<>]+)(\\d+)";
 
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_LIFE =
+    "tlife:(\\d+)([=~<>]+)([\\d.]+)";
+
+const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_DISTANCE =
+    "distance:(\\d+)([=~<>]+)([\\d.]+)";
+
 const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF =
     "buff:([\u4e00-\u9fa5·0-9a-zA-Z]+)";
 
@@ -309,6 +315,8 @@ const char *const JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_SKILL_ENERGY =
 JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::ExprIf &exprIf)
 {
     std::regex regQidian(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_QIDIAN);
+    std::regex regTLife(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_TARGET_LIFE);
+    std::regex regDistance(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_DISTANCE);
     std::regex regBuff(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF);
     std::regex regNoBuff(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_NO_BUFF);
     std::regex regBuffStackNum(JX3DPS_REGEX_EXPRESSION_SKILL_CONDITION_BUFF_STACK_NUM);
@@ -354,6 +362,84 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprIf(const std::string &str, JX3DPS::Exp
                                std::placeholders::_1,
                                std::placeholders::_2,
                                std::stoi(mat[2].str()));
+        }
+    } else if (std::regex_match(str, mat, regTLife)) {
+        JX3DPS::Id_t id = BuffId(mat[1].str());
+        if (mat[2].str() == "<") {
+            exprIf = std::bind(&JX3DPS::Expression::TLifeLt,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == "<=") {
+            exprIf = std::bind(&JX3DPS::Expression::TLifeLe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == "=") {
+            exprIf = std::bind(&JX3DPS::Expression::TLifeEq,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == "~=") {
+            exprIf = std::bind(&JX3DPS::Expression::TLifeNe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == ">=") {
+            exprIf = std::bind(&JX3DPS::Expression::TLifeGe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == ">") {
+            exprIf = std::bind(&JX3DPS::Expression::TLifeGt,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        }
+    } else if (std::regex_match(str, mat, regDistance)) {
+        JX3DPS::Id_t id = BuffId(mat[1].str());
+        if (mat[2].str() == "<") {
+            exprIf = std::bind(&JX3DPS::Expression::DistanceLt,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == "<=") {
+            exprIf = std::bind(&JX3DPS::Expression::DistanceLe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == "=") {
+            exprIf = std::bind(&JX3DPS::Expression::DistanceEq,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == "~=") {
+            exprIf = std::bind(&JX3DPS::Expression::DistanceNe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == ">=") {
+            exprIf = std::bind(&JX3DPS::Expression::DistanceGe,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
+        } else if (mat[2].str() == ">") {
+            exprIf = std::bind(&JX3DPS::Expression::DistanceGt,
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               id,
+                               std::stoi(mat[3].str()));
         }
     } else if (std::regex_match(str, mat, regBuff)) {
         JX3DPS::Id_t id = BuffId(mat[1].str());

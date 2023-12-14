@@ -414,6 +414,36 @@ bool JX3DPS::Expression::TLifeGt(Player *player, Targets *targets, Id_t id, doub
     return (*targets)[player->GetTargetId()]->GetLifePercent() > ratio;
 }
 
+bool JX3DPS::Expression::DistanceLt(Player *player, Targets *targets, Id_t id, double distance)
+{
+    return (*targets)[player->GetTargetId()]->GetDistance() < distance;
+}
+
+bool JX3DPS::Expression::DistanceLe(Player *player, Targets *targets, Id_t id, double distance)
+{
+    return (*targets)[player->GetTargetId()]->GetDistance() <= distance;
+}
+
+bool JX3DPS::Expression::DistanceEq(Player *player, Targets *targets, Id_t id, double distance)
+{
+    return (*targets)[player->GetTargetId()]->GetDistance() == distance;
+}
+
+bool JX3DPS::Expression::DistanceNe(Player *player, Targets *targets, Id_t id, double distance)
+{
+    return (*targets)[player->GetTargetId()]->GetDistance() != distance;
+}
+
+bool JX3DPS::Expression::DistanceGe(Player *player, Targets *targets, Id_t id, double distance)
+{
+    return (*targets)[player->GetTargetId()]->GetDistance() > distance;
+}
+
+bool JX3DPS::Expression::DistanceGt(Player *player, Targets *targets, Id_t id, double distance)
+{
+    return (*targets)[player->GetTargetId()]->GetDistance() >= distance;
+}
+
 bool JX3DPS::Expression::ManaLt(Player *player, Targets *targets, double ratio)
 {
     return player->GetManaPercent() < ratio;

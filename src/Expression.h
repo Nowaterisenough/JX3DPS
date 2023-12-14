@@ -184,6 +184,18 @@ bool TLifeGe(Player *player, Targets *targets, Id_t id, double ratio);
 
 bool TLifeGt(Player *player, Targets *targets, Id_t id, double ratio);
 
+bool DistanceLt(Player *player, Targets *targets, Id_t id, double distance);
+
+bool DistanceLe(Player *player, Targets *targets, Id_t id, double distance);
+
+bool DistanceEq(Player *player, Targets *targets, Id_t id, double distance);
+
+bool DistanceNe(Player *player, Targets *targets, Id_t id, double distance);
+
+bool DistanceGe(Player *player, Targets *targets, Id_t id, double distance);
+
+bool DistanceGt(Player *player, Targets *targets, Id_t id, double distance);
+
 bool ManaLt(Player *player, Targets *targets, double ratio);
 
 bool ManaLe(Player *player, Targets *targets, double ratio);

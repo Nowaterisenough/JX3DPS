@@ -147,6 +147,14 @@ public:
     void SubEffectSui();
 };
 
+class PendantOvercome : public JX3DPS::Skill
+{
+    SKILL_DEFAULT_FUNCTION(PendantOvercome)
+
+public:
+    void SubEffect();
+};
+
 } // namespace Skill
 
 } // namespace TaiXuJianYi

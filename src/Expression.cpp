@@ -386,62 +386,62 @@ bool JX3DPS::Expression::SkillEnergyGt(Player *player, Targets *targets, Id_t id
 
 bool JX3DPS::Expression::TLifeLt(Player *player, Targets *targets, Id_t id, double ratio)
 {
-    return (*targets)[player->GetTargetId()]->GetLifePercent() < ratio;
+    return (*targets)[id]->GetLifePercent() < ratio;
 }
 
 bool JX3DPS::Expression::TLifeLe(Player *player, Targets *targets, Id_t id, double ratio)
 {
-    return (*targets)[player->GetTargetId()]->GetLifePercent() <= ratio;
+    return (*targets)[id]->GetLifePercent() <= ratio;
 }
 
 bool JX3DPS::Expression::TLifeEq(Player *player, Targets *targets, Id_t id, double ratio)
 {
-    return (*targets)[player->GetTargetId()]->GetLifePercent() == ratio;
+    return (*targets)[id]->GetLifePercent() == ratio;
 }
 
 bool JX3DPS::Expression::TLifeNe(Player *player, Targets *targets, Id_t id, double ratio)
 {
-    return (*targets)[player->GetTargetId()]->GetLifePercent() != ratio;
+    return (*targets)[id]->GetLifePercent() != ratio;
 }
 
 bool JX3DPS::Expression::TLifeGe(Player *player, Targets *targets, Id_t id, double ratio)
 {
-    return (*targets)[player->GetTargetId()]->GetLifePercent() >= ratio;
+    return (*targets)[id]->GetLifePercent() >= ratio;
 }
 
 bool JX3DPS::Expression::TLifeGt(Player *player, Targets *targets, Id_t id, double ratio)
 {
-    return (*targets)[player->GetTargetId()]->GetLifePercent() > ratio;
+    return (*targets)[id]->GetLifePercent() > ratio;
 }
 
 bool JX3DPS::Expression::DistanceLt(Player *player, Targets *targets, Id_t id, double distance)
 {
-    return (*targets)[player->GetTargetId()]->GetDistance() < distance;
+    return (*targets)[id]->GetDistance() < distance;
 }
 
 bool JX3DPS::Expression::DistanceLe(Player *player, Targets *targets, Id_t id, double distance)
 {
-    return (*targets)[player->GetTargetId()]->GetDistance() <= distance;
+    return (*targets)[id]->GetDistance() <= distance;
 }
 
 bool JX3DPS::Expression::DistanceEq(Player *player, Targets *targets, Id_t id, double distance)
 {
-    return (*targets)[player->GetTargetId()]->GetDistance() == distance;
+    return (*targets)[id]->GetDistance() == distance;
 }
 
 bool JX3DPS::Expression::DistanceNe(Player *player, Targets *targets, Id_t id, double distance)
 {
-    return (*targets)[player->GetTargetId()]->GetDistance() != distance;
+    return (*targets)[id]->GetDistance() != distance;
 }
 
 bool JX3DPS::Expression::DistanceGe(Player *player, Targets *targets, Id_t id, double distance)
 {
-    return (*targets)[player->GetTargetId()]->GetDistance() > distance;
+    return (*targets)[id]->GetDistance() > distance;
 }
 
 bool JX3DPS::Expression::DistanceGt(Player *player, Targets *targets, Id_t id, double distance)
 {
-    return (*targets)[player->GetTargetId()]->GetDistance() >= distance;
+    return (*targets)[id]->GetDistance() >= distance;
 }
 
 bool JX3DPS::Expression::ManaLt(Player *player, Targets *targets, double ratio)

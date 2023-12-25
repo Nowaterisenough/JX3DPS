@@ -1112,14 +1112,14 @@ void PendantOvercome::TriggerAdd()
 
 void PendantOvercome::SubEffectAdd()
 {
-    m_player->attribute.AddPhysicsOvercomeBaseAdditional(8330);
-    m_player->attribute.AddMagicOvercomeBaseAdditional(8330);
+    m_player->attribute.AddPhysicsOvercomeBaseAdditional(9291);
+    m_player->attribute.AddMagicOvercomeBaseAdditional(9291);
 }
 
 void PendantOvercome::SubEffectClear()
 {
-    m_player->attribute.AddPhysicsOvercomeBaseAdditional(-8330);
-    m_player->attribute.AddMagicOvercomeBaseAdditional(-8330);
+    m_player->attribute.AddPhysicsOvercomeBaseAdditional(-9291);
+    m_player->attribute.AddMagicOvercomeBaseAdditional(-9291);
 }
 
 TeamCoreShanHaiXinJueYouRen::TeamCoreShanHaiXinJueYouRen(JX3DPS::Player *player, Targets *targets) :
@@ -1137,7 +1137,7 @@ void TeamCoreShanHaiXinJueYouRen::Trigger()
         SubEffectClear();
     }
     if (m_snapshots[PLAYER_ID].interval == 0) {
-        m_snapshots[PLAYER_ID].interval = RandomUniform(96, 170);
+        m_snapshots[PLAYER_ID].interval = RandomUniform(96, 116);
         m_snapshots[PLAYER_ID].duration = m_duration;
         SubEffectAdd();
     }

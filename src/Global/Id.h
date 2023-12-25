@@ -699,7 +699,7 @@ constexpr std::array<std::string_view, Id_t::COUNT> JX3DPS_NAME = {
      { "心法特性" },
      { "武器·橙武特效" },
      { "武器·水特效" },
-     { "腰坠·破防" },
+     { "腰坠·破防buf" },
      { "套装·属性" },
      { "刃凌" },
      { "大附魔·衣" },
@@ -1013,6 +1013,11 @@ inline Id_t BuffId(const std::string &name)
         }
     }
     return Id_t::JX3DPS_ID_DEFAULT;
+}
+
+inline Id_t TargetId(const std::string &name)
+{
+    return static_cast<Id_t>(std::stoi(name) + TARGET_PLACE_HOLDERS_DEFAULT);
 }
 
 inline Id_t TalentId(const std::string &name)

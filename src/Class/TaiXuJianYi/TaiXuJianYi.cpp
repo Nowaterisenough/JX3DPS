@@ -70,6 +70,8 @@ void Player::Init()
                    static_cast<JX3DPS::Skill *>(new Skill::ZiQiDongLai(this, nullptr)));
     skills.emplace(SKILL_JING_HUA_YING,
                    static_cast<JX3DPS::Skill *>(new Skill::JingHuaYing(this, nullptr)));
+    skills.emplace(SKILL_PENDANT_OVERCOME,
+                   static_cast<JX3DPS::Skill *>(new Skill::PendantOvercome(this, nullptr)));
 
     buffs.emplace(BUFF_DIE_REN,
                   static_cast<JX3DPS::Buff *>(new TaiXuJianYi::Buff::DieRen(this, nullptr)));

@@ -16,6 +16,7 @@
 #include "TaiXuJianYiSkill.h"
 
 #include "Buff.h"
+#include "Buff3rd.h"
 #include "TaiXuJianYiBuff.h"
 #include "Target.hpp"
 #include "TimeLine.hpp"
@@ -1211,6 +1212,33 @@ void JingHuaYing::SubEffectSui()
     RollResult  rollResult = GetPhysicsRollResult();
     GainsDamage damage     = CalcPhysicsDamage(m_player->GetTargetId(), rollResult, 1, 0);
     Record(m_id, m_player->GetTargetId(), rollResult, damage, 1, 0);
+}
+
+PendantOvercome::PendantOvercome(JX3DPS::Player *player, Targets *targets) :
+    Skill(player, targets)
+{
+    m_id                    = SKILL_PENDANT_OVERCOME;
+    m_name                  = "腰坠·雷特效";
+    m_range                 = JX3DPS_UNLIMITED_RANGE;
+    m_cooldown              = 16 * 60 * 3;
+    m_globalCooldownCurrent = &m_noneGlobalCooldown;
+
+    m_damageParams[0].emplace_back(0, 0, 0);
+}
+
+void PendantOvercome::Cast()
+{
+    m_player->SetLastCastSkill(m_id);
+    m_cooldownCurrent = m_cooldown;
+    SubEffect();
+}
+
+void PendantOvercome::Trigger() { }
+
+void PendantOvercome::SubEffect()
+{
+    static_cast<Buff3rd::PendantOvercome *>(m_player->buffs[BUFF_PENDANT_OVERCOME])->TriggerAdd();
+    // Record(m_id, PLAYER_ID, RollResult::HIT, GainsDamage(), 0, 0);
 }
 
 } // namespace Skill

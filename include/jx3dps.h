@@ -52,6 +52,12 @@ extern "C"
     JX3DPS_API const char *jx3dps_version();
 
     /**
+     * @brief 获取JX3版本号
+     * @return 版本号
+     */
+    JX3DPS_API const char *jx3dps_jx3_version();
+
+    /**
      * @brief 模拟API
      * @param in 输入, JSON格式
      * @param ... 可变参，可以是输出的指针，也可以是进度回调函数

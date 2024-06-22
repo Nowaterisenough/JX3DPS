@@ -13,4 +13,5 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     msft_proxy
+    JX3DPS
 )

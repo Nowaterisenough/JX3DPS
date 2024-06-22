@@ -34,7 +34,7 @@
 ## For Developer
 1. git代码仓
 ```git
-git clone --recurse-submodules git@github.com:Nowaterisenough/JX3DPS.git
+git clone --recurse git@github.com:Nowaterisenough/JX3DPS.git
 ```
 2. CMake编译
 

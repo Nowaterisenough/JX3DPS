@@ -3,7 +3,6 @@ build/*
 
 # Ignore Visual Studio Code files
 .vscode/*
-.vscode/settings.json
 
 # Ignore macOS files
 .DS_Store

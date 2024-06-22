@@ -1,33 +1,43 @@
-function(VERSION)
-    file(READ "${CMAKE_SOURCE_DIR}/src/Global/Version.h" FILE_TEXT)
+function(version)
+    file(READ "${CMAKE_SOURCE_DIR}/src/version.h" FILE_TEXT)
 
+    # Extract VERSION_MAJOR
     string(REGEX MATCH "VERSION_MAJOR[ ]+([0-9]+)" _ "${FILE_TEXT}")
 
     if(NOT CMAKE_MATCH_COUNT EQUAL 1)
-        message(FATAL_ERROR "Could not extract major version number from Version.h")
+        message(FATAL_ERROR "Could not extract major version number from version.h")
     endif()
 
     set(VERSION_MAJOR ${CMAKE_MATCH_1})
 
+    # Extract VERSION_MINOR
     string(REGEX MATCH "VERSION_MINOR[ ]+([a-zA-Z0-9_]+)" _ "${FILE_TEXT}")
 
     if(NOT CMAKE_MATCH_COUNT EQUAL 1)
-        message(FATAL_ERROR "Could not extract major version number from Version.h")
+        message(FATAL_ERROR "Could not extract minor version number from version.h")
     endif()
 
     string(REGEX MATCH "${CMAKE_MATCH_1}[ ]+([a-zA-Z0-9_]+)" _ "${FILE_TEXT}")
 
     if(NOT CMAKE_MATCH_COUNT EQUAL 1)
-        message(FATAL_ERROR "Could not extract major version number from Version.h")
+        message(FATAL_ERROR "Could not extract major version number from version.h")
     endif()
 
-    string(REGEX MATCH "${CMAKE_MATCH_1}[ ]+([0-9]+)" _ "${FILE_TEXT}")
+    string(REGEX MATCH "${CMAKE_MATCH_1}[ =]+([0-9]+)" _ "${FILE_TEXT}")
 
     if(NOT CMAKE_MATCH_COUNT EQUAL 1)
-        message(FATAL_ERROR "Could not extract major version number from Version.h")
+        message(FATAL_ERROR "Could not extract major version number from version.h")
     endif()
 
     set(VERSION_MINOR ${CMAKE_MATCH_1})
+
+    # Check if VERSION_MINOR is a variable reference (e.g., JX3_VERSION)
+    string(REGEX MATCH "JX3_VERSION[ ]+([0-9]+)" _ "${FILE_TEXT}")
+
+    if(CMAKE_MATCH_COUNT EQUAL 1)
+        # If JX3_VERSION is defined, update VERSION_MINOR with its value
+        set(VERSION_MINOR ${CMAKE_MATCH_1})
+    endif()
 
     find_package(Git QUIET)
     execute_process(COMMAND ${GIT_EXECUTABLE} status
@@ -70,7 +80,7 @@ function(VERSION)
     if(CUSTOM)
         set(VERSION_BRANCH "local" PARENT_SCOPE)
         string(TIMESTAMP VERSION_PATCH "%y%m%d")
-        string(TIMESTAMP VERSION_TWEAK "%H%M" )
+        string(TIMESTAMP VERSION_TWEAK "%H%M")
     endif()
 
     set(PROJECT_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.${VERSION_TWEAK}" PARENT_SCOPE)

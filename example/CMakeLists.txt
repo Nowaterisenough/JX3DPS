@@ -11,5 +11,6 @@ file(GLOB SOURCES "*.c*" "*.h*")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} JX3DPS)
-
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    msft_proxy
+)

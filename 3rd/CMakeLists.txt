@@ -10,5 +10,4 @@ if(BUILD_BENCHMARK)
     add_subdirectory(benchmark)
 endif()
 
-add_subdirectory(QCustomPlot)
-add_subdirectory(fluentui-system-icons)
+# add_subdirectory(QCustomPlot)

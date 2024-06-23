@@ -459,13 +459,13 @@ CheckOptions:
   - key: readability-identifier-naming.PrivateMethodIgnoredRegexp
     value: "Signal_.*"
 
-  # 受保护成员变量命名规则：小写，后缀为"_"
+  # 受保护成员变量命名规则：小写，前缀为"_"
   - key: readability-identifier-naming.ProtectedMemberCase
     value: lower_case
   - key: readability-identifier-naming.ProtectedMemberPrefix
-    value: ""
-  - key: readability-identifier-naming.ProtectedMemberSuffix
     value: "_"
+  - key: readability-identifier-naming.ProtectedMemberSuffix
+    value: ""
   - key: readability-identifier-naming.ProtectedMemberIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.ProtectedMemberHungarianPrefix

@@ -6,7 +6,7 @@ if(BUILD_TESTING)
     add_subdirectory(googletest)
 endif()
 
-if(BUILD_BENCHMARK)
+if(BUILD_PERFORMANCE)
     add_subdirectory(benchmark)
 endif()
 

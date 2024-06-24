@@ -52,7 +52,7 @@ enum class JX3Version
     COUNT,
 };
 
-constexpr std::array<const char *const, static_cast<std::size_t>(JX3Version::COUNT)> JX3_VERSIONS = {
+constinit std::array<const char *const, static_cast<std::size_t>(JX3Version::COUNT)> JX3_VERSIONS = {
     "公测",     "破晓之路",   "撼世禅劫",   "藏剑山庄", "战魂劫",   "龙争虎斗", "血龙出渊",
     "巴蜀风云", "一代宗师",   "烛火燎天",   "洱海惊龙", "日月明尊", "安史之乱", "乱世长安",
     "血战天策", "逐鹿中原",   "雕琢版",     "苍雪龙城", "侠义乾坤", "剑胆琴心", "壮志凌云",

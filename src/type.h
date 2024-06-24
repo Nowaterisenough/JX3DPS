@@ -1,10 +1,10 @@
 #ifndef JX3DPS_TYPE_H
-#    define JX3DPS_TYPE_H
+#define JX3DPS_TYPE_H
 
-#    include <cstdint>
-#    include <functional>
-#    include <map>
-#    include <unordered_map>
+#include <cstdint>
+#include <functional>
+#include <map>
+#include <unordered_map>
 
 namespace JX3DPS {
 

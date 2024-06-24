@@ -22,7 +22,7 @@ add_definitions(-DVERSION_BRANCH=${VERSION_BRANCH})
 add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -36,7 +36,7 @@ add_definitions(-DEXPORT_JX3DPS)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC include src)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     nlohmann_json

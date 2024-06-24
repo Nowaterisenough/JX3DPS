@@ -6,6 +6,9 @@
 #include <map>
 #include <unordered_map>
 
+#define CONSTANT inline static thread_local constinit
+#define PROPERTY inline static thread_local
+
 namespace JX3DPS {
 
 using pctf_t = double;

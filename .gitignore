@@ -9,3 +9,5 @@ build/*
 
 # Ignore Local history files
 .history/*
+
+.cache/*

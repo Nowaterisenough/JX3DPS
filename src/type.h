@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <functional>
 #include <map>
+#include <string_view>
 #include <unordered_map>
 
 #define CONSTANT inline static thread_local constinit
@@ -25,6 +26,8 @@ using cof_t = double;
 
 using id_t = int;
 
+using str_t = std::string_view;
+
 template <typename T, int COUNT>
 using array_t = std::array<T, COUNT>;
 
@@ -39,6 +42,12 @@ using rbtree_t = std::map<Key, Value>;
 
 template <typename T>
 using func_t = std::function<T>;
+
+template <typename T>
+concept is_16bit = std::is_same_v<T, int16_t> || std::is_same_v<T, uint16_t>;
+
+template <typename T>
+concept is_32bit = std::is_same_v<T, int32_t> || std::is_same_v<T, uint32_t>;
 
 } // namespace JX3DPS
 

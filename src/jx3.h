@@ -1,9 +1,9 @@
 ﻿
-#ifndef __JX3DPS_JX3_CONST_H__
-#define __JX3DPS_JX3_CONST_H__
+#ifndef JX3DPS_JX3_CONST_H
+#define JX3DPS_JX3_CONST_H
 
-#include "type.h"
-#include "version.h"
+#include "Type.h"
+#include "Version.h"
 
 namespace JX3DPS {
 
@@ -145,4 +145,4 @@ constinit cof_t JX3_STONE_WEAPON_ATTACK = 15.525;
 
 } // namespace JX3DPS
 
-#endif // __JX3DPS_JX3_CONST_H__
+#endif // JX3DPS_JX3_CONST_H

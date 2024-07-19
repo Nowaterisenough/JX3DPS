@@ -7,6 +7,7 @@ if(BUILD_TESTING)
 endif()
 
 if(BUILD_PERFORMANCE)
+    set(BENCHMARK_ENABLE_TESTING OFF)
     add_subdirectory(benchmark)
 endif()
 

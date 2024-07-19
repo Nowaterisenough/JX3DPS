@@ -1,8 +1,8 @@
 #ifndef JX3DPS_DAMAGE_HPP
 #define JX3DPS_DAMAGE_HPP
 
-#include "jx3.h"
-#include "type.h"
+#include "JX3.h"
+#include "Type.h"
 
 namespace JX3DPS {
 
@@ -150,53 +150,84 @@ concept HasAddonShieldIgnore = requires(T t) {
 };
 
 template <typename T>
+concept IsArrayAP = requires(T t) {
+    requires std::is_array_v<decltype(T::physics_ap)> || std::is_array_v<decltype(T::neutral_ap)> ||
+                 std::is_array_v<decltype(T::poison_ap)> || std::is_array_v<decltype(T::solar_ap)> ||
+                 std::is_array_v<decltype(T::lunar_ap)> || std::is_array_v<decltype(T::solar_and_lunar_ap)>;
+};
+
+consteval 
+
+template <typename T>
 struct Coefficient
 {
     constexpr static pctn_t value(const T &t)
     {
-        if constexpr (IsPhysics<T> && IsDot<T>) {
-            if constexpr (HasAddonChannelInterval<T>) { // 运行时计算
-                return (T::channel_interval + T::addon.channel_interval * T::channel_interval / JX3_PERCENT_INT_BASE) *
-                       std::max(JX3_DAMAGE_CONST_PARAM, T::effect_count_max * T::interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
-                       JX3_PERCENT_FLOAT_BASE / T::effect_count_max / JX3_PHYSICS_DAMAGE_PARAM /
-                       JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
-            } else { // 编译时计算
-                return T::channel_interval *
-                       std::max(JX3_DAMAGE_CONST_PARAM, T::effect_count_max * T::interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
-                       JX3_PERCENT_FLOAT_BASE / T::effect_count_max / JX3_PHYSICS_DAMAGE_PARAM /
-                       JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
+        if constexpr (IsArrayAP<T>) {
+            constexpr int index = t.GetIndex();
+            if constexpr (IsPhysics<T>) {
+                return T::physics_ap[index];
+            } else if constexpr (IsNeutral<T>) {
+                return T::neutral_ap[index];
+            } else if constexpr (IsPoison<T>) {
+                return T::poison_ap[index];
+            } else if constexpr (IsSolar<T>) {
+                return T::solar_ap[index];
+            } else if constexpr (IsLunar<T>) {
+                return T::lunar_ap[index];
+            } else {
+                return T::solar_and_lunar_ap[index];
             }
-        } else if constexpr (IsPhysics<T>) {
-            if constexpr (HasAddonChannelInterval<T>) { // 运行时计算
-                return std::max(T::channel_interval + T::addon.channel_interval * T::channel_interval / JX3_PERCENT_INT_BASE +
-                                    T::prepare_frames,
-                                JX3_DAMAGE_CONST_PARAM) *
-                       JX3_PERCENT_FLOAT_BASE / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
-            } else { // 编译时计算
-                return std::max(T::channel_interval + T::prepare_frames, JX3_DAMAGE_CONST_PARAM) *
-                       JX3_PERCENT_FLOAT_BASE / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
-            }
-        } else if constexpr (IsDot<T>) {
-            if constexpr (HasAddonChannelInterval<T>) { // 运行时计算
-                return (T::channel_interval + T::addon.channel_interval * T::channel_interval / JX3_PERCENT_INT_BASE) *
-                       std::max(JX3_DAMAGE_CONST_PARAM, T::effect_count_max * T::interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
-                       JX3_PERCENT_FLOAT_BASE / T::effect_count_max / JX3_MAGIC_DAMAGE_PARAM /
-                       JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
-            } else { // 编译时计算
-                return T::channel_interval *
-                       std::max(JX3_DAMAGE_CONST_PARAM, T::effect_count_max * T::interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
-                       JX3_PERCENT_FLOAT_BASE / T::effect_count_max / JX3_MAGIC_DAMAGE_PARAM /
-                       JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
-            }
+
         } else {
-            if constexpr (HasAddonChannelInterval<T>) { // 运行时计算
-                return std::max(T::channel_interval + T::addon.channel_interval * T::channel_interval / JX3_PERCENT_INT_BASE +
-                                    T::prepare_frames,
-                                JX3_DAMAGE_CONST_PARAM) *
-                       JX3_PERCENT_FLOAT_BASE / JX3_MAGIC_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
-            } else { // 编译时计算
-                return std::max(T::channel_interval + T::prepare_frames, JX3_DAMAGE_CONST_PARAM) *
-                       JX3_PERCENT_FLOAT_BASE / JX3_MAGIC_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
+            if constexpr (IsPhysics<T> && IsDot<T>) {
+                if constexpr (HasAddonChannelInterval<T>) { // 运行时计算
+                    return (T::channel_interval + T::addon.channel_interval * T::channel_interval / JX3_PERCENT_INT_BASE) *
+                           std::max(JX3_DAMAGE_CONST_PARAM,
+                                    T::effect_count_max * T::interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
+                           JX3_PERCENT_FLOAT_BASE / T::effect_count_max / JX3_PHYSICS_DAMAGE_PARAM /
+                           JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
+                } else { // 编译时计算
+                    return T::channel_interval *
+                           std::max(JX3_DAMAGE_CONST_PARAM,
+                                    T::effect_count_max * T::interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
+                           JX3_PERCENT_FLOAT_BASE / T::effect_count_max / JX3_PHYSICS_DAMAGE_PARAM /
+                           JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
+                }
+            } else if constexpr (IsPhysics<T>) {
+                if constexpr (HasAddonChannelInterval<T>) { // 运行时计算
+                    return std::max(T::channel_interval + T::addon.channel_interval * T::channel_interval / JX3_PERCENT_INT_BASE +
+                                        T::prepare_frames,
+                                    JX3_DAMAGE_CONST_PARAM) *
+                           JX3_PERCENT_FLOAT_BASE / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
+                } else { // 编译时计算
+                    return std::max(T::channel_interval + T::prepare_frames, JX3_DAMAGE_CONST_PARAM) *
+                           JX3_PERCENT_FLOAT_BASE / JX3_PHYSICS_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
+                }
+            } else if constexpr (IsDot<T>) {
+                if constexpr (HasAddonChannelInterval<T>) { // 运行时计算
+                    return (T::channel_interval + T::addon.channel_interval * T::channel_interval / JX3_PERCENT_INT_BASE) *
+                           std::max(JX3_DAMAGE_CONST_PARAM,
+                                    T::effect_count_max * T::interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
+                           JX3_PERCENT_FLOAT_BASE / T::effect_count_max / JX3_MAGIC_DAMAGE_PARAM /
+                           JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
+                } else { // 编译时计算
+                    return T::channel_interval *
+                           std::max(JX3_DAMAGE_CONST_PARAM,
+                                    T::effect_count_max * T::interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
+                           JX3_PERCENT_FLOAT_BASE / T::effect_count_max / JX3_MAGIC_DAMAGE_PARAM /
+                           JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
+                }
+            } else {
+                if constexpr (HasAddonChannelInterval<T>) { // 运行时计算
+                    return std::max(T::channel_interval + T::addon.channel_interval * T::channel_interval / JX3_PERCENT_INT_BASE +
+                                        T::prepare_frames,
+                                    JX3_DAMAGE_CONST_PARAM) *
+                           JX3_PERCENT_FLOAT_BASE / JX3_MAGIC_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
+                } else { // 编译时计算
+                    return std::max(T::channel_interval + T::prepare_frames, JX3_DAMAGE_CONST_PARAM) *
+                           JX3_PERCENT_FLOAT_BASE / JX3_MAGIC_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
+                }
             }
         }
     }

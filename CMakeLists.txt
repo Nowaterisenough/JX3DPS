@@ -32,6 +32,8 @@ add_subdirectory(3rd)
 
 file(GLOB SOURCES "src/*.c*" "src/*.h*")
 
+include_directories(src)
+
 add_definitions(-DEXPORT_JX3DPS)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
@@ -48,8 +50,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-option(BUILD_EXAMPLE "option for build" ON)
-option(BUILD_PERFORMANCE "option for build" OFF)
+option(BUILD_EXAMPLE "option for build" OFF)
+option(BUILD_PERFORMANCE "option for build" ON)
 
 if(BUILD_EXAMPLE)
     add_subdirectory(example)

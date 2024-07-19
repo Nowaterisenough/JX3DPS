@@ -26,6 +26,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+add_compile_options(-O3 -Wall -mavx2)
+
 set(BUILD_TESTING OFF CACHE BOOL "Build tests")
 
 add_subdirectory(3rd)

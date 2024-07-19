@@ -80,7 +80,7 @@ public:
         Logger()->log(spdlog::level::critical, fmt, std::forward<Args>(args)...);
     }
 
-    void SetLogLevel(spdlog::level::level_enum level) { _logger->set_level(level); }
+    // void SetLogLevel(spdlog::level::level_enum level) { _logger->set_level(level); }
 
     inline static std::string log_file_name = "log";
 

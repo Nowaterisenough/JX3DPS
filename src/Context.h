@@ -44,16 +44,16 @@ struct Context
 };
 
 template <typename Skill>
-void BindCooldownImpl(Skill &skill, int &index) noexcept
+void BindCooldownImpl() noexcept
 {
-    skill.cooldown[skill.cd_index] = &context.frame_cache.skill_cooldown[index];
-    ++skill.cd_index;
+    Skill::cooldown[Skill::cd_index] = &context.frame_cache.skill_cooldown[context.bind_cooldown_index];
+    ++Skill::cd_index;
 }
 
 template <typename... Skills>
-void BindCooldown(frame_t cd, Skills &...skills) noexcept
+void BindCooldown(frame_t cd) noexcept
 {
-    (BindCooldownImpl(skills, context.bind_cooldown_index), ...);
+    (BindCooldownImpl<Skills>(), ...);
     context.skill_cooldown[context.bind_cooldown_index] = cd;
     ++context.bind_cooldown_index;
 }

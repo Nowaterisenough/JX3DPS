@@ -13,4 +13,4 @@ add_compile_options(-O3 -Wall -mavx2)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} benchmark::benchmark)
+target_link_libraries(${PROJECT_NAME} PRIVATE benchmark::benchmark)

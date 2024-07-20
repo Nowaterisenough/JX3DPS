@@ -21,6 +21,12 @@ public:
     int Calculate(int x) const override final { return x * 2; }
 };
 
+class Derived2 : public Base
+{
+public:
+    int Calculate(int x) const override final { return x * 2; }
+};
+
 class DerivedProxy
 {
 public:

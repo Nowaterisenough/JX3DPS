@@ -44,24 +44,17 @@ bool CheckLifeLevel(const Player *player, const Targets *, int life)
     return player->life > life;
 }
 
-ConditionFunc CreateBuffCondition(int duration)
+ConditionFunc CreateRandomBindCondition()
 {
-    return std::bind(CheckBuffDuration, std::placeholders::_1, std::placeholders::_2, duration);
-}
-
-ConditionFunc CreateCooldownCondition(int cooldown)
-{
-    return std::bind(CheckSkillCooldown, std::placeholders::_1, std::placeholders::_2, cooldown);
-}
-
-ConditionFunc CreateManaCondition(int mana)
-{
-    return std::bind(CheckManaLevel, std::placeholders::_1, std::placeholders::_2, mana);
-}
-
-ConditionFunc CreateLifeCondition(int life)
-{
-    return std::bind(CheckLifeLevel, std::placeholders::_1, std::placeholders::_2, life);
+    switch (rand() % 4) {
+        case 0:
+            return std::bind(CheckBuffDuration, std::placeholders::_1, std::placeholders::_2, 50);
+        case 1:
+            return std::bind(CheckSkillCooldown, std::placeholders::_1, std::placeholders::_2, 0);
+        case 2: return std::bind(CheckManaLevel, std::placeholders::_1, std::placeholders::_2, 30);
+        case 3: return std::bind(CheckLifeLevel, std::placeholders::_1, std::placeholders::_2, 20);
+    }
+    return nullptr;
 }
 
 // 虚函数方法
@@ -139,6 +132,7 @@ std::unique_ptr<Condition> CreateRandomCondition()
     return nullptr;
 }
 
+// Proxy方法
 class BuffConditionProxy
 {
 private:
@@ -201,18 +195,31 @@ struct Evaluatable :
 
 } // namespace spec
 
+auto CreateRandomProxyCondition()
+{
+    switch (rand() % 4) {
+        case 0: return pro::make_proxy<spec::Evaluatable>(BuffConditionProxy(50));
+        case 1: return pro::make_proxy<spec::Evaluatable>(CooldownConditionProxy(0));
+        case 2: return pro::make_proxy<spec::Evaluatable>(ManaConditionProxy(30));
+        case 3: return pro::make_proxy<spec::Evaluatable>(LifeConditionProxy(20));
+    }
+    return pro::make_proxy<spec::Evaluatable>(BuffConditionProxy(50)); // 默认返回
+}
+
 static void BM_Bind(benchmark::State &state)
 {
-    Player  player;
-    Targets targets;
-    auto    buff_condition     = CreateBuffCondition(50);
-    auto    cooldown_condition = CreateCooldownCondition(0);
-    auto    mana_condition     = CreateManaCondition(30);
-    auto    life_condition     = CreateLifeCondition(20);
+    Player                     player;
+    Targets                    targets;
+    std::vector<ConditionFunc> conditions;
+    for (int i = 0; i < 4; ++i) {
+        conditions.push_back(CreateRandomBindCondition());
+    }
 
     for (auto _ : state) {
-        bool result = buff_condition(&player, &targets) && cooldown_condition(&player, &targets) &&
-                      mana_condition(&player, &targets) && life_condition(&player, &targets);
+        bool result = true;
+        for (const auto &condition : conditions) {
+            result &= condition(&player, &targets);
+        }
         benchmark::DoNotOptimize(result);
     }
 }
@@ -237,17 +244,18 @@ static void BM_Virtual(benchmark::State &state)
 
 static void BM_Proxy(benchmark::State &state)
 {
-    Player  player;
-    Targets targets;
-    auto    buff_condition     = pro::make_proxy<spec::Evaluatable>(BuffConditionProxy(50));
-    auto    cooldown_condition = pro::make_proxy<spec::Evaluatable>(CooldownConditionProxy(0));
-    auto    mana_condition     = pro::make_proxy<spec::Evaluatable>(ManaConditionProxy(30));
-    auto    life_condition     = pro::make_proxy<spec::Evaluatable>(LifeConditionProxy(20));
+    Player                                              player;
+    Targets                                             targets;
+    std::vector<decltype(CreateRandomProxyCondition())> conditions;
+    for (int i = 0; i < 4; ++i) {
+        conditions.push_back(CreateRandomProxyCondition());
+    }
 
     for (auto _ : state) {
-        bool result =
-            life_condition->Evaluate(&player, &targets) && mana_condition->Evaluate(&player, &targets) &&
-            cooldown_condition->Evaluate(&player, &targets) && buff_condition->Evaluate(&player, &targets);
+        bool result = true;
+        for (const auto &condition : conditions) {
+            result &= condition->Evaluate(&player, &targets);
+        }
         benchmark::DoNotOptimize(result);
     }
 }

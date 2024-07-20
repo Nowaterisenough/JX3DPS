@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include <benchmark/benchmark.h>
@@ -127,6 +128,17 @@ public:
     }
 };
 
+std::unique_ptr<Condition> CreateRandomCondition()
+{
+    switch (rand() % 4) {
+        case 0: return std::make_unique<BuffCondition>(50);
+        case 1: return std::make_unique<CooldownCondition>(0);
+        case 2: return std::make_unique<ManaCondition>(30);
+        case 3: return std::make_unique<LifeCondition>(20);
+    }
+    return nullptr;
+}
+
 class BuffConditionProxy
 {
 private:
@@ -183,7 +195,7 @@ namespace spec {
 PRO_DEF_MEM_DISPATCH(MemEvaluate, Evaluate);
 
 struct Evaluatable :
-    pro::facade_builder ::add_convention<MemEvaluate, bool(const Player *, const Targets *) const>::build
+    pro::facade_builder::add_convention<MemEvaluate, bool(const Player *, const Targets *) const>::build
 {
 };
 
@@ -207,17 +219,18 @@ static void BM_Bind(benchmark::State &state)
 
 static void BM_Virtual(benchmark::State &state)
 {
-    Player            player;
-    Targets           targets;
-    BuffCondition     buff_condition(50);
-    CooldownCondition cooldown_condition(0);
-    ManaCondition     mana_condition(30);
-    LifeCondition     life_condition(20);
+    Player                                  player;
+    Targets                                 targets;
+    std::vector<std::unique_ptr<Condition>> conditions;
+    for (int i = 0; i < 4; ++i) {
+        conditions.push_back(CreateRandomCondition());
+    }
 
     for (auto _ : state) {
-        bool result =
-            buff_condition.Evaluate(&player, &targets) && cooldown_condition.Evaluate(&player, &targets) &&
-            mana_condition.Evaluate(&player, &targets) && life_condition.Evaluate(&player, &targets);
+        bool result = true;
+        for (const auto &condition : conditions) {
+            result &= condition->Evaluate(&player, &targets);
+        }
         benchmark::DoNotOptimize(result);
     }
 }

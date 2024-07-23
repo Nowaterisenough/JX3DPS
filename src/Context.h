@@ -17,10 +17,11 @@ extern thread_local JX3DPS::Context context;
 
 namespace JX3DPS {
 
+constexpr static size_t UNIT_SIZE = 8;
+constexpr static size_t TYPE_SIZE = 64;
+
 struct alignas(32) FrameCache
 {
-    constexpr static size_t UNIT_SIZE = 8;
-    constexpr static size_t TYPE_SIZE = 64;
 
     frame_t skill_cooldown[TYPE_SIZE] = {};
     frame_t skill_prepare[TYPE_SIZE]  = {};

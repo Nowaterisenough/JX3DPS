@@ -150,10 +150,11 @@ public:
 class CooldownConditionProxy
 {
 private:
+    int _id;
     int _cooldown;
 
 public:
-    CooldownConditionProxy(int cooldown) : _cooldown(cooldown) { }
+    CooldownConditionProxy(int id, int cooldown) : _id(id), _cooldown(cooldown) { }
 
     bool Evaluate(const Player *player, const Targets *) const
     {
@@ -199,7 +200,7 @@ auto CreateRandomProxyCondition()
 {
     switch (rand() % 4) {
         case 0: return pro::make_proxy<spec::Evaluatable>(BuffConditionProxy(50));
-        case 1: return pro::make_proxy<spec::Evaluatable>(CooldownConditionProxy(0));
+        case 1: return pro::make_proxy<spec::Evaluatable>(CooldownConditionProxy(50, 0));
         case 2: return pro::make_proxy<spec::Evaluatable>(ManaConditionProxy(30));
         case 3: return pro::make_proxy<spec::Evaluatable>(LifeConditionProxy(20));
     }

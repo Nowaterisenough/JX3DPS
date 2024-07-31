@@ -29,10 +29,8 @@ struct Evaluatable : pro::facade_builder::add_convention<MemEvaluate, Ret(Args..
 
 } // namespace spec
 
-
-
 auto SkillNotinCd = pro::make_proxy<spec::Evaluatable<bool, id_t>>(SkillNotinCdProxy());
-auto BuffExist = pro::make_proxy<spec::Evaluatable<bool, id_t>>(BuffExistProxy());
+auto BuffExist    = pro::make_proxy<spec::Evaluatable<bool, id_t>>(BuffExistProxy());
 
 extern decltype(pro::make_proxy<spec::Evaluatable<bool, id_t>>(SkillNotinCdProxy())) SkillNotinCd;
-extern decltype(pro::make_proxy<spec::Evaluatable<bool, id_t>>(BuffExistProxy())) BuffExist;
+extern decltype(pro::make_proxy<spec::Evaluatable<bool, id_t>>(BuffExistProxy()))    BuffExist;

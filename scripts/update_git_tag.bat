@@ -31,7 +31,7 @@ cmake -DCMAKE_BUILD_TYPE=Release .. > cmake_output.txt
 
 rem 从 CMake 输出中提取版本号
 set "version="
-for /f "tokens=2 delims==" %%a in ('findstr /C:"JX3DPS_VERSION=" cmake_output.txt') do (
+for /f "tokens=2 delims==" %%a in ('findstr /C:"VERSION=" cmake_output.txt') do (
     set "version=%%a"
 )
 

@@ -61,9 +61,3 @@ endif()
 if(BUILD_PERFORMANCE)
     add_subdirectory(performance)
 endif()
-
-add_custom_target(update_git_tag
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/update_git_tag.sh
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Updating Git tag with current project version"
-)

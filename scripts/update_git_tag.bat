@@ -12,7 +12,7 @@ rem 保存当前目录
 set "original_dir=%cd%"
 
 rem 切换到脚本所在目录的父目录（即项目根目录）
-cd /d "%~dp0\.."
+cd /d "%~dp0.."
 
 rem 检查 CMakeLists.txt 是否存在
 if not exist "CMakeLists.txt" (
@@ -55,7 +55,7 @@ rem 检查标签是否已存在
 git rev-parse "!tag_version!" >nul 2>&1
 if not errorlevel 1 (
     if %AUTO_MODE%==1 (
-        echo Tag !tag_version! already exists. Skipping tag creation.
+        echo Tag !tag_version! already exists. Skipping tag creation and push.
         goto :exit
     ) else (
         echo Tag !tag_version! already exists. Do you want to force update it? (Y/N)
@@ -70,13 +70,9 @@ if not errorlevel 1 (
 rem 创建 Git 标签
 git tag -a !force_flag! "!tag_version!" -m "Version !version!"
 
-if %AUTO_MODE%==0 (
-    rem 推送标签到远程仓库
-    git push origin "!tag_version!"
-    echo Tag !tag_version! has been created and pushed to remote.
-) else (
-    echo Tag !tag_version! has been created locally.
-)
+rem 推送标签到远程仓库（无论是否为自动模式）
+git push origin "!tag_version!"
+echo Tag !tag_version! has been created and pushed to remote.
 
 :exit
 rem 返回到原始目录

@@ -72,21 +72,6 @@ jobs:
           cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
           cmake --build ./build --target install --config Release
 
-      - name: Package
-        id: package      
-        env:
-          archiveName: win64-gcc
-        shell: pwsh
-        run: |
-          & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
-          $name = ${env:archiveName}
-          echo "packageName=$name" >> $env:GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.package.outputs.packageName }}
-          path: ${{ steps.package.outputs.packageName }}.zip
-
       - name: Get version from CMake
         if: github.ref == 'refs/heads/master'
         id: get_version
@@ -111,6 +96,11 @@ jobs:
           & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
           $name = ${env:archiveName}
           echo "packageName=$name" >> $env:GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
 
       - name: Generate Changelog
         if: github.ref == 'refs/heads/master'
@@ -163,7 +153,13 @@ jobs:
           echo "$changelog" >> $env:GITHUB_OUTPUT
           echo "EOF" >> $env:GITHUB_OUTPUT
 
-      # ... [其他步骤保持不变] ...
+      - name: Create Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag -a ${{ steps.get_version.outputs.VERSION }} -m "Release ${{ steps.get_version.outputs.VERSION }}"
+          git push origin ${{ steps.get_version.outputs.VERSION }}
 
       - name: Create Release
         if: github.ref == 'refs/heads/master'

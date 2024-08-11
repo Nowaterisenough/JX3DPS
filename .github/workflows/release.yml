@@ -103,63 +103,9 @@ jobs:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}.zip
 
-  build-linux:
-    name: Build Linux GCC
-    runs-on: ubuntu-latest
-    env:
-      targetName: libJX3DPS.so
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: 'recursive'
-          fetch-depth: 0
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: '6.5.3'
-          host: 'linux'
-          target: 'desktop'
-          arch: 'gcc_64'
-          cache: 'false'
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libgl1-mesa-dev
-
-      - name: Build
-        id: build
-        run: |
-          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release
-          cmake --build ./build --target install --config Release
-
-      - name: Get version from CMake
-        if: github.ref == 'refs/heads/master'
-        id: get_version
-        run: |
-          version=$(grep -oP 'project\(JX3DPS VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
-          echo "VERSION=$version" >> $GITHUB_OUTPUT
-
-      - name: Package
-        id: package      
-        env:
-          archiveName: JX3DPS-linux-gcc-${{ steps.get_version.outputs.VERSION }}
-        run: |
-          mkdir -p ${{ env.archiveName }}
-          cp ./build/install/lib/${{ env.targetName }} ${{ env.archiveName }}/
-          zip -r ${{ env.archiveName }}.zip ${{ env.archiveName }}
-          echo "packageName=${{ env.archiveName }}" >> $GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.package.outputs.packageName }}
-          path: ${{ steps.package.outputs.packageName }}.zip
-
   generate-changelog:
     name: Generate Changelog
-    needs: [build-mingw, build-linux]
+    needs: [build-mingw]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
@@ -233,7 +179,3 @@ jobs:
           # 下载并上传 MinGW 构建的资产
           gh run download -n JX3DPS-win64-mingw-$version
           gh release upload $version JX3DPS-win64-mingw-$version.zip
-          
-          # 下载并上传 Linux 构建的资产
-          gh run download -n JX3DPS-linux-gcc-$version
-          gh release upload $version JX3DPS-linux-gcc-$version.zip

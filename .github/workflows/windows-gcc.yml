@@ -46,6 +46,20 @@ jobs:
         with:
           platform: x64
           version: ${{ matrix.gcc_version }}
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+      - name: Verify MinGW Installation
+        shell: pwsh
+        run: |
+          $mingwPath = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+          if (Test-Path $mingwPath) {
+            Write-Host "MinGW installed successfully at $mingwPath"
+            Get-ChildItem $mingwPath | Select-Object Name
+          } else {
+            Write-Host "MinGW installation path not found at $mingwPath"
+            exit 1
+          }
 
       - name: List MinGW directory contents
         shell: pwsh
@@ -59,8 +73,11 @@ jobs:
       - name: Qt and MinGW environment configuration
         shell: pwsh
         run: |
-          Write-Output "${{ env.Qt6_DIR }}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          Write-Output "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $QtBin = "${{ env.Qt6_DIR }}/bin"
+          $MinGWBin = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+          $env:PATH = "$QtBin;$MinGWBin;$env:PATH"
+          echo "$QtBin" >> $env:GITHUB_PATH
+          echo "$MinGWBin" >> $env:GITHUB_PATH
 
       - name: Check GCC version
         shell: bash
@@ -77,6 +94,7 @@ jobs:
         id: build
         shell: bash
         run: |
+          export PATH="/c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin:$PATH"
           cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
           cmake --build ./build --target install --config Release
 

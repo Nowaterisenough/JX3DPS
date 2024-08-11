@@ -1,2 +1,1 @@
-add_subdirectory(ThreadPool)
-add_subdirectory(Widgets)
+add_subdirectory(thread_pool)

@@ -1,13 +1,14 @@
+add_subdirectory(json)
+add_subdirectory(proxy)
+add_subdirectory(spdlog)
 
-
-if(BUILD_TESTS)
+if(BUILD_TESTING)
     add_subdirectory(googletest)
 endif()
 
-add_subdirectory(json)
-add_subdirectory(spdlog)
-add_subdirectory(QCustomPlot)
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(spdlog PRIVATE -w)
+if(BUILD_PERFORMANCE)
+    set(BENCHMARK_ENABLE_TESTING OFF)
+    add_subdirectory(benchmark)
 endif()
+
+# add_subdirectory(QCustomPlot)

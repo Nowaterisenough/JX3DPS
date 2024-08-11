@@ -122,28 +122,28 @@ jobs:
           # 使用 Git 命令获取提交记录
           $commits = git log $range --pretty=format:"- %s (%h)" --reverse
 
-          # 按类型分类提交
-          $featCommits = $commits | Where-Object { $_ -match '^- feat' }
-          $fixCommits = $commits | Where-Object { $_ -match '^- fix' }
-          $otherCommits = $commits | Where-Object { $_ -notmatch '^- (feat|fix)' }
+          # 按类型分类提交并移除类型前缀
+          $featCommits = $commits | Where-Object { $_ -match '^- feat' } | ForEach-Object { $_ -replace '^- feat: ?', '- ' }
+          $fixCommits = $commits | Where-Object { $_ -match '^- fix' } | ForEach-Object { $_ -replace '^- fix: ?', '- ' }
+          $otherCommits = $commits | Where-Object { $_ -notmatch '^- (feat|fix)' } | ForEach-Object { $_ -replace '^- \w+: ?', '- ' }
 
           # 构建 changelog
           $changelogLines = @()
           
           if ($featCommits) {
-            $changelogLines += "#### Features`n"
+            $changelogLines += "#### Features"
             $changelogLines += $featCommits
             $changelogLines += ""
           }
           
           if ($fixCommits) {
-            $changelogLines += "#### Bug Fixes`n"
+            $changelogLines += "#### BugFixes"
             $changelogLines += $fixCommits
             $changelogLines += ""
           }
           
           if ($otherCommits) {
-            $changelogLines += "#### Other Changes`n"
+            $changelogLines += "#### Others"
             $changelogLines += $otherCommits
             $changelogLines += ""
           }
@@ -151,32 +151,41 @@ jobs:
           $changelog = $changelogLines -join "`n"
           $changelog = $changelog.Trim()
 
-          # 对 changelog 进行 URL 编码
-          $encodedChangelog = [System.Web.HttpUtility]::UrlEncode($changelog)
+          # 将 changelog 写入文件
+          $changelog | Out-File -FilePath changelog.md -Encoding utf8
 
-          echo "changelog=$encodedChangelog" >> $env:GITHUB_OUTPUT
-
-      - name: Create Tag
-        if: github.ref == 'refs/heads/master'
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git tag -a ${{ steps.get_version.outputs.VERSION }} -m "Release ${{ steps.get_version.outputs.VERSION }}"
-          git push origin ${{ steps.get_version.outputs.VERSION }}
+          echo "changelog_path=changelog.md" >> $env:GITHUB_OUTPUT
 
       - name: Create Release
         if: github.ref == 'refs/heads/master'
-        id: create_release
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: JX3DPS ${{ steps.get_version.outputs.VERSION }}
-          body: |
-            ${{ steps.changelog.outputs.changelog }}
-          draft: false
-          prerelease: false
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $changelogPath = "${{ steps.changelog.outputs.changelog_path }}"
+          $changelog = Get-Content -Path $changelogPath -Raw
+          
+          # 使用 GitHub CLI 创建发布
+          gh release create $version --title "Release $version" --notes-file $changelogPath
+
+      - name: Create Release
+        if: github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $changelog = [System.Web.HttpUtility]::UrlDecode("${{ steps.changelog.outputs.changelog }}")
+          $releaseUrl = "https://github.com/${{ github.repository }}/releases/new"
+          $queryParams = @{
+            tag = $version
+            title = "Release $version"
+            body = $changelog
+          }
+          $releaseUrlWithParams = $releaseUrl + "?" + ($queryParams.GetEnumerator() | ForEach-Object { "$($_.Key)=$([Uri]::EscapeDataString($_.Value))" }) -join "&"
+          echo "Release URL: $releaseUrlWithParams"
+          
+          # 使用 GitHub CLI 创建发布
+          gh release create $version --title "Release $version" --notes "$changelog"
 
       - name: Upload Release Asset
         if: github.ref == 'refs/heads/master'

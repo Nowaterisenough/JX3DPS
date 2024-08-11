@@ -1,5 +1,6 @@
-name: Windows MinGW
-on: 
+name: Build and Release
+
+on:
   push:
     branches:
       - master
@@ -28,8 +29,8 @@ on:
       - 'CMakeLists.txt'
 
 jobs:
-  build:
-    name: Build
+  build-mingw:
+    name: Build Windows MinGW
     runs-on: windows-latest
     strategy:
       matrix:
@@ -90,7 +91,7 @@ jobs:
       - name: Package
         id: package      
         env:
-          archiveName: JX3DPS-win64-gcc-${{ steps.get_version.outputs.VERSION }}
+          archiveName: JX3DPS-win64-mingw-${{ steps.get_version.outputs.VERSION }}
         shell: pwsh
         run: |
           & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
@@ -102,98 +103,206 @@ jobs:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}.zip
 
-      - name: Generate Changelog
+  build-msvc:
+    name: Build Windows MSVC
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - qt_arch: win64_msvc2019_64
+            qt_ver: 6.7.2
+    env:
+      targetName: JX3DPS.dll
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_ver }}
+          arch: ${{ matrix.qt_arch }}
+          cache: 'false'
+
+      - name: Build
+        id: build
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmake -S . -B ./build -G "Visual Studio 17 2022" -A x64
+          cmake --build ./build --target install --config Release
+
+      - name: Get version from CMake
         if: github.ref == 'refs/heads/master'
-        id: changelog
+        id: get_version
         shell: pwsh
         run: |
-          # 获取最新的两个标签
-          $tags = git tag --sort=-creatordate | Select-Object -First 2
-          $latestTag = $tags[0]
-          $previousTag = $tags[1]
-
-          if (-not $previousTag) {
-            # 如果只有一个标签，就从仓库开始到最新标签
-            $range = "$latestTag"
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          $version = (Select-String -Path cmake_output.txt -Pattern "VERSION=(.+)").Matches.Groups[1].Value
+          if ($version) {
+            echo "Extracted version: $version"
+            echo "VERSION=$version" >> $env:GITHUB_OUTPUT
           } else {
-            $range = "$previousTag..$latestTag"
+            echo "Failed to extract version from CMake output"
+            exit 1
           }
+
+      - name: Package
+        id: package      
+        env:
+          archiveName: JX3DPS-win64-msvc-${{ steps.get_version.outputs.VERSION }}
+        shell: pwsh
+        run: |
+          & .github\scripts\windows-msvc-publish.ps1 ${env:archiveName} ${env:targetName}
+          $name = ${env:archiveName}
+          echo "packageName=$name" >> $env:GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+
+  build-linux:
+    name: Build Linux GCC
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - qt_arch: gcc_64
+            qt_ver: 6.7.2
+    env:
+      targetName: libJX3DPS.so
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_ver }}
+          arch: ${{ matrix.qt_arch }}
+          cache: 'false'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgl1-mesa-dev
+
+      - name: Build
+        id: build
+        run: |
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release
+          cmake --build ./build --target install --config Release
+
+      - name: Get version from CMake
+        if: github.ref == 'refs/heads/master'
+        id: get_version
+        run: |
+          version=$(grep -oP 'project\(JX3DPS VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
+          echo "VERSION=$version" >> $GITHUB_OUTPUT
+
+      - name: Package
+        id: package      
+        env:
+          archiveName: JX3DPS-linux-gcc-${{ steps.get_version.outputs.VERSION }}
+        run: |
+          mkdir -p ${{ env.archiveName }}
+          cp ./build/install/lib/${{ env.targetName }} ${{ env.archiveName }}/
+          zip -r ${{ env.archiveName }}.zip ${{ env.archiveName }}
+          echo "packageName=${{ env.archiveName }}" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+
+  generate-changelog:
+    name: Generate Changelog
+    needs: [build-mingw, build-msvc, build-linux]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          # 获取最新的两个标签
+          tags=$(git tag --sort=-creatordate | head -n 2)
+          latestTag=$(echo "$tags" | head -n 1)
+          previousTag=$(echo "$tags" | tail -n 1)
+
+          if [ -z "$previousTag" ]; then
+            # 如果只有一个标签，就从仓库开始到最新标签
+            range="$latestTag"
+          else
+            range="$previousTag..$latestTag"
+          fi
 
           # 使用 Git 命令获取提交记录
-          $commits = git log $range --pretty=format:"- %s (%h)" --reverse
+          commits=$(git log $range --pretty=format:"- %s (%h)" --reverse)
 
           # 按类型分类提交并移除类型前缀
-          $featCommits = $commits | Where-Object { $_ -match '^- feat' } | ForEach-Object { $_ -replace '^- feat: ?', '- ' }
-          $fixCommits = $commits | Where-Object { $_ -match '^- fix' } | ForEach-Object { $_ -replace '^- fix: ?', '- ' }
-          $otherCommits = $commits | Where-Object { $_ -notmatch '^- (feat|fix)' } | ForEach-Object { $_ -replace '^- \w+: ?', '- ' }
+          featCommits=$(echo "$commits" | grep '^- feat' | sed 's/^- feat: \?/- /')
+          fixCommits=$(echo "$commits" | grep '^- fix' | sed 's/^- fix: \?/- /')
+          otherCommits=$(echo "$commits" | grep -v '^- \(feat\|fix\)' | sed 's/^- [^:]*: \?/- /')
 
           # 构建 changelog
-          $changelogLines = @()
-          
-          if ($featCommits) {
-            $changelogLines += "#### Features"
-            $changelogLines += $featCommits
-            $changelogLines += ""
-          }
-          
-          if ($fixCommits) {
-            $changelogLines += "#### BugFixes"
-            $changelogLines += $fixCommits
-            $changelogLines += ""
-          }
-          
-          if ($otherCommits) {
-            $changelogLines += "#### Others"
-            $changelogLines += $otherCommits
-            $changelogLines += ""
-          }
+          {
+            if [ -n "$featCommits" ]; then
+              echo "#### Features"
+              echo "$featCommits"
+              echo
+            fi
+            
+            if [ -n "$fixCommits" ]; then
+              echo "#### BugFixes"
+              echo "$fixCommits"
+              echo
+            fi
+            
+            if [ -n "$otherCommits" ]; then
+              echo "#### Others"
+              echo "$otherCommits"
+              echo
+            fi
+          } > changelog.md
 
-          $changelog = $changelogLines -join "`n"
-          $changelog = $changelog.Trim()
-
-          # 将 changelog 写入文件
-          $changelog | Out-File -FilePath changelog.md -Encoding utf8
-
-          echo "changelog_path=changelog.md" >> $env:GITHUB_OUTPUT
+          echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $version = "${{ steps.get_version.outputs.VERSION }}"
-          $changelogPath = "${{ steps.changelog.outputs.changelog_path }}"
-          $changelog = Get-Content -Path $changelogPath -Raw
+          version=$(grep -oP 'project\(JX3DPS VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
+          changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           # 使用 GitHub CLI 创建发布
           gh release create $version --title "Release $version" --notes-file $changelogPath
 
-      - name: Create Release
-        if: github.ref == 'refs/heads/master'
+      - name: Upload Release Assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $version = "${{ steps.get_version.outputs.VERSION }}"
-          $changelog = [System.Web.HttpUtility]::UrlDecode("${{ steps.changelog.outputs.changelog }}")
-          $releaseUrl = "https://github.com/${{ github.repository }}/releases/new"
-          $queryParams = @{
-            tag = $version
-            title = "Release $version"
-            body = $changelog
-          }
-          $releaseUrlWithParams = $releaseUrl + "?" + ($queryParams.GetEnumerator() | ForEach-Object { "$($_.Key)=$([Uri]::EscapeDataString($_.Value))" }) -join "&"
-          echo "Release URL: $releaseUrlWithParams"
+          version=$(grep -oP 'project\(JX3DPS VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
           
-          # 使用 GitHub CLI 创建发布
-          gh release create $version --title "Release $version" --notes "$changelog"
-
-      - name: Upload Release Asset
-        if: github.ref == 'refs/heads/master'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.package.outputs.packageName }}.zip
-          asset_name: ${{ steps.package.outputs.packageName }}.zip
-          asset_content_type: application/zip
+          # 下载并上传 MinGW 构建的资产
+          gh run download -n JX3DPS-win64-mingw-$version
+          gh release upload $version JX3DPS-win64-mingw-$version.zip
+          
+          # 下载并上传 MSVC 构建的资产
+          gh run download -n JX3DPS-win64-msvc-$version
+          gh release upload $version JX3DPS-win64-msvc-$version.zip
+          
+          # 下载并上传 Linux 构建的资产
+          gh run download -n JX3DPS-linux-gcc-$version
+          gh release upload $version JX3DPS-linux-gcc-$version.zip

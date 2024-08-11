@@ -107,23 +107,55 @@ jobs:
         id: changelog
         shell: pwsh
         run: |
-          npm install -g conventional-changelog-cli
-          $changelog = conventional-changelog -p angular -r 2
-          $changelog = $changelog -replace '### ', '## '
-          $changelog = $changelog -replace '\n\n+', "`n`n"
-          $changelog = $changelog -replace '(?m)^\* ', '- '
+          # 获取最新的两个标签
+          $tags = git tag --sort=-creatordate | Select-Object -First 2
+          $latestTag = $tags[0]
+          $previousTag = $tags[1]
+
+          if (-not $previousTag) {
+            # 如果只有一个标签，就从仓库开始到最新标签
+            $range = "$latestTag"
+          } else {
+            $range = "$previousTag..$latestTag"
+          }
+
+          # 使用 Git 命令获取提交记录
+          $commits = git log $range --pretty=format:"- %s (%h)" --reverse
+
+          # 按类型分类提交
+          $featCommits = $commits | Where-Object { $_ -match '^- feat' }
+          $fixCommits = $commits | Where-Object { $_ -match '^- fix' }
+          $otherCommits = $commits | Where-Object { $_ -notmatch '^- (feat|fix)' }
+
+          # 构建 changelog
+          $changelog = @"
+          ### Features
+
+          $($featCommits -join "`n")
+
+          ### Bug Fixes
+
+          $($fixCommits -join "`n")
+
+          ### Other Changes
+
+          $($otherCommits -join "`n")
+          "@
+
           $changelog = $changelog -replace '%', '%25'
           $changelog = $changelog -replace "`n", '%0A'
           $changelog = $changelog -replace "`r", '%0D'
-          echo "changelog=$changelog" >> $env:GITHUB_OUTPUT
+          echo "changelog<<EOF" >> $env:GITHUB_OUTPUT
+          echo "$changelog" >> $env:GITHUB_OUTPUT
+          echo "EOF" >> $env:GITHUB_OUTPUT
 
       - name: Create Tag
         if: github.ref == 'refs/heads/master'
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git tag -a v${{ steps.get_version.outputs.VERSION }} -m "Release v${{ steps.get_version.outputs.VERSION }}"
-          git push origin v${{ steps.get_version.outputs.VERSION }}
+          git tag -a ${{ steps.get_version.outputs.VERSION }} -m "Release ${{ steps.get_version.outputs.VERSION }}"
+          git push origin ${{ steps.get_version.outputs.VERSION }}
 
       - name: Create Release
         if: github.ref == 'refs/heads/master'
@@ -132,8 +164,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.get_version.outputs.VERSION }}
-          release_name: JX3DPS v${{ steps.get_version.outputs.VERSION }}
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: JX3DPS ${{ steps.get_version.outputs.VERSION }}
           body: |
             ${{ steps.changelog.outputs.changelog }}
           draft: false

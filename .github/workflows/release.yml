@@ -234,10 +234,6 @@ jobs:
           gh run download -n JX3DPS-win64-mingw-$version
           gh release upload $version JX3DPS-win64-mingw-$version.zip
           
-          # 下载并上传 MSVC 构建的资产
-          gh run download -n JX3DPS-win64-msvc-$version
-          gh release upload $version JX3DPS-win64-msvc-$version.zip
-          
           # 下载并上传 Linux 构建的资产
           gh run download -n JX3DPS-linux-gcc-$version
           gh release upload $version JX3DPS-linux-gcc-$version.zip

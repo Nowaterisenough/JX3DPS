@@ -24,7 +24,6 @@ add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(-O3 -Wall -mavx2)
 
@@ -52,6 +51,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     nlohmann_json
     spdlog
     msft_proxy
+)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_EXTENSIONS OFF
+    PREFIX ""
+    OUTPUT_NAME ${PROJECT_NAME}
 )
 
 if(BUILD_EXAMPLE)

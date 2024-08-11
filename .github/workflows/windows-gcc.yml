@@ -2,20 +2,25 @@ name: Windows MinGW
 on: 
   push:
     paths:
-      - '.github/workflows/windows-mingw.yml'
+      - '.github/workflows/windows-gcc.yml'
       - '3rd/*'
-      - 'app/*'
-      - 'module/*'
+      - 'include/*'
+      - 'src/*'
+      - 'modules/*'
       - 'cmake/*'
       - 'CMakeLists.txt'
+    tags:
+      - '*'  # 添加对标签的触发
   pull_request:
     paths:
-      - '.github/workflows/windows-mingw.yml'
+      - '.github/workflows/windows-gcc.yml'
       - '3rd/*'
-      - 'app/*'
-      - 'module/*'
+      - 'include/*'
+      - 'src/*'
+      - 'modules/*'
       - 'cmake/*'
       - 'CMakeLists.txt'
+
 jobs:
   build:
     name: Build
@@ -25,10 +30,10 @@ jobs:
         include:
           - qt_arch: win64_mingw
             qt_ver: 6.7.2
-            qt_tools: "tools_mingw,9.0.0-1-202111221309,qt.tools.win64_mingw900"
-            qt_tools_mingw_install: mingw900_64
+            qt_tools: "tools_mingw,13.2.0-1-202309151319,qt.tools.win64_mingw1320"
+            qt_tools_mingw_install: mingw1320_64
     env:
-      targetName: JX3DPS.exe
+      targetName: JX3DPS.dll
     steps:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
@@ -42,7 +47,6 @@ jobs:
         with:
           fetch-depth: 1
       - name: Qt 6 environment configuration
-        if: ${{ startsWith( matrix.qt_ver, 6 ) }}
         shell: pwsh
         run: |
           Write-Output "${{ env.Qt6_DIR }}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -70,12 +74,24 @@ jobs:
         with:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}
-      - name: uploadRelease
-        if: startsWith(github.event.ref, 'refs/tags/')
-        uses: svenstaro/upload-release-action@v2
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ steps.package.outputs.packageName }}.zip
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.package.outputs.packageName }}.zip
           asset_name: ${{ steps.package.outputs.packageName }}.zip
-          tag: ${{ github.ref }}
-          overwrite: true 
+          asset_content_type: application/zip

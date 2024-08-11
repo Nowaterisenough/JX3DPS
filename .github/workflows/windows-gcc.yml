@@ -75,7 +75,7 @@ jobs:
       - name: Package
         id: package      
         env:
-          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_arch }}-gcc${{ matrix.gcc_version }}
+          archiveName: win64-gcc
         shell: pwsh
         run: |
           & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
@@ -108,8 +108,13 @@ jobs:
         shell: pwsh
         run: |
           npm install -g conventional-changelog-cli
-          $changelog = (conventional-changelog -p angular -r 2) -join "`n"
-          $changelog = $changelog -replace '%', '%25' -replace "`n", '%0A' -replace "`r", '%0D'
+          $changelog = conventional-changelog -p angular -r 2
+          $changelog = $changelog -replace '### ', '## '
+          $changelog = $changelog -replace '\n\n+', "`n`n"
+          $changelog = $changelog -replace '(?m)^\* ', '- '
+          $changelog = $changelog -replace '%', '%25'
+          $changelog = $changelog -replace "`n", '%0A'
+          $changelog = $changelog -replace "`r", '%0D'
           echo "changelog=$changelog" >> $env:GITHUB_OUTPUT
 
       - name: Create Tag

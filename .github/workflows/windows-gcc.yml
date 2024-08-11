@@ -102,6 +102,16 @@ jobs:
             exit 1
           }
 
+      - name: Package
+        id: package      
+        env:
+          archiveName: JX3DPS-${{ steps.get_version.outputs.VERSION }}-win64-gcc
+        shell: pwsh
+        run: |
+          & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
+          $name = ${env:archiveName}
+          echo "packageName=$name" >> $env:GITHUB_OUTPUT
+
       - name: Generate Changelog
         if: github.ref == 'refs/heads/master'
         id: changelog
@@ -129,19 +139,23 @@ jobs:
 
           # 构建 changelog
           $changelog = @"
-          ### Features
+          #### Features
 
           $($featCommits -join "`n")
 
-          ### Bug Fixes
+          #### Bug Fixes
 
           $($fixCommits -join "`n")
 
-          ### Other Changes
+          #### Other Changes
 
           $($otherCommits -join "`n")
           "@
 
+          # 移除空的部分
+          $changelog = $changelog -replace '(?ms)#### [^\n]+\n\n(?=#### |$)', ''
+
+          $changelog = $changelog.Trim()
           $changelog = $changelog -replace '%', '%25'
           $changelog = $changelog -replace "`n", '%0A'
           $changelog = $changelog -replace "`r", '%0D'
@@ -149,13 +163,7 @@ jobs:
           echo "$changelog" >> $env:GITHUB_OUTPUT
           echo "EOF" >> $env:GITHUB_OUTPUT
 
-      - name: Create Tag
-        if: github.ref == 'refs/heads/master'
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git tag -a ${{ steps.get_version.outputs.VERSION }} -m "Release ${{ steps.get_version.outputs.VERSION }}"
-          git push origin ${{ steps.get_version.outputs.VERSION }}
+      # ... [其他步骤保持不变] ...
 
       - name: Create Release
         if: github.ref == 'refs/heads/master'

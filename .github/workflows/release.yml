@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/windows-gcc.yml'
+      - '.github/workflows/release.yml'
       - '3rd/*'
       - 'include/*'
       - 'src/*'
@@ -17,7 +17,7 @@ on:
       - 'CMakeLists.txt'
   pull_request:
     paths:
-      - '.github/workflows/windows-gcc.yml'
+      - '.github/workflows/release.yml'
       - '3rd/*'
       - 'include/*'
       - 'src/*'
@@ -159,7 +159,7 @@ jobs:
 
   generate-changelog:
     name: Generate Changelog
-    needs: [build-mingw, build-msvc, build-linux]
+    needs: [build-mingw, build-linux]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
@@ -233,10 +233,6 @@ jobs:
           # 下载并上传 MinGW 构建的资产
           gh run download -n JX3DPS-win64-mingw-$version
           gh release upload $version JX3DPS-win64-mingw-$version.zip
-          
-          # 下载并上传 MSVC 构建的资产
-          gh run download -n JX3DPS-win64-msvc-$version
-          gh release upload $version JX3DPS-win64-msvc-$version.zip
           
           # 下载并上传 Linux 构建的资产
           gh run download -n JX3DPS-linux-gcc-$version

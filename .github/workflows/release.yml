@@ -160,11 +160,24 @@ jobs:
 
           echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
 
+      - name: Get version from CMake
+        id: get_version
+        run: |
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          version=$(grep -oP 'VERSION=\K.+' cmake_output.txt)
+          if [ -n "$version" ]; then
+            echo "Extracted version: $version"
+            echo "VERSION=$version" >> $GITHUB_OUTPUT
+          else
+            echo "Failed to extract version from CMake output"
+            exit 1
+          fi
+
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(grep -oP 'project\(JX3DPS VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
+          version="${{ steps.get_version.outputs.VERSION }}"
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           # 使用 GitHub CLI 创建发布
@@ -174,7 +187,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(grep -oP 'project\(JX3DPS VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
+          version="${{ steps.get_version.outputs.VERSION }}"
           
           # 下载并上传 MinGW 构建的资产
           gh run download -n JX3DPS-win64-mingw-$version

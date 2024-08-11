@@ -1,6 +1,8 @@
 name: Windows MinGW
 on: 
   push:
+    branches:
+      - master
     paths:
       - '.github/workflows/windows-gcc.yml'
       - '3rd/*'
@@ -12,8 +14,6 @@ on:
       - 'tests/*'
       - 'cmake/*'
       - 'CMakeLists.txt'
-    tags:
-      - '*'
   pull_request:
     paths:
       - '.github/workflows/windows-gcc.yml'
@@ -87,20 +87,49 @@ jobs:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}.zip
 
+      - name: Get version from CMakeLists.txt
+        if: github.ref == 'refs/heads/master'
+        id: get_version
+        shell: bash
+        run: |
+          version=$(grep -oP 'project\(JX3DPS VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: Generate Changelog
+        if: github.ref == 'refs/heads/master'
+        id: changelog
+        run: |
+          npm install -g conventional-changelog-cli
+          changelog=$(conventional-changelog -p angular -r 2)
+          changelog="${changelog//'%'/'%25'}"
+          changelog="${changelog//$'\n'/'%0A'}"
+          changelog="${changelog//$'\r'/'%0D'}"
+          echo "changelog=$changelog" >> $GITHUB_OUTPUT
+
+      - name: Create Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag -a v${{ steps.get_version.outputs.version }} -m "Release v${{ steps.get_version.outputs.version }}"
+          git push origin v${{ steps.get_version.outputs.version }}
+
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/master'
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: JX3DPS ${{ github.ref }}
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: JX3DPS v${{ steps.get_version.outputs.version }}
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
 
       - name: Upload Release Asset
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

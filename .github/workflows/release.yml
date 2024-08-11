@@ -168,7 +168,7 @@ jobs:
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           # 使用 GitHub CLI 创建发布
-          gh release create $version --title "Release $version" --notes-file $changelogPath
+          gh release create $version --title "JX3DPS $version" --notes-file $changelogPath
 
       - name: Upload Release Assets
         env:

@@ -48,6 +48,7 @@ jobs:
           version: ${{ matrix.gcc_version }}
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+          MINGW_DISABLE_STATIC_WORKAROUND: true
 
       - name: Verify MinGW Installation
         shell: pwsh

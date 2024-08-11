@@ -30,20 +30,19 @@ jobs:
         include:
           - qt_arch: win64_mingw
             qt_ver: 6.7.2
-            qt_tools: "tools_mingw,13.2.0-1-202309151319,qt.tools.win64_mingw1320"
-            qt_tools_mingw_install: mingw1320_64
+            qt_tools: "tools_mingw,13.1.0-0-202305020005,qt.tools.win64_mingw1310"
+            qt_tools_mingw_install: mingw1310_64
     env:
       targetName: JX3DPS.dll
     steps:
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: ${{ matrix.qt_ver }}
-          aqtversion: '==2.0.5'
           arch: ${{ matrix.qt_arch }}
           tools: ${{ matrix.qt_tools }}
-          cached: 'false'
-      - uses: actions/checkout@v2
+          cache: 'false'
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Qt 6 environment configuration
@@ -69,8 +68,8 @@ jobs:
         run: |
           & .github\scripts\windows-mingw-publish.ps1 ${env:archiveName} ${env:targetName}
            $name = ${env:archiveName}
-           echo "::set-output name=packageName::$name"       
-      - uses: actions/upload-artifact@v2
+           echo "packageName=$name" >> $env:GITHUB_OUTPUT
+      - uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}

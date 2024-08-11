@@ -103,76 +103,9 @@ jobs:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}.zip
 
-  build-msvc:
-    name: Build Windows MSVC
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        include:
-          - qt_arch: win64_msvc2019_64
-            qt_ver: 6.7.2
-    env:
-      targetName: JX3DPS.dll
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: 'recursive'
-          fetch-depth: 0
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: ${{ matrix.qt_ver }}
-          arch: ${{ matrix.qt_arch }}
-          cache: 'false'
-
-      - name: Build
-        id: build
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cmake -S . -B ./build -G "Visual Studio 17 2022" -A x64
-          cmake --build ./build --target install --config Release
-
-      - name: Get version from CMake
-        if: github.ref == 'refs/heads/master'
-        id: get_version
-        shell: pwsh
-        run: |
-          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
-          $version = (Select-String -Path cmake_output.txt -Pattern "VERSION=(.+)").Matches.Groups[1].Value
-          if ($version) {
-            echo "Extracted version: $version"
-            echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-          } else {
-            echo "Failed to extract version from CMake output"
-            exit 1
-          }
-
-      - name: Package
-        id: package      
-        env:
-          archiveName: JX3DPS-win64-msvc-${{ steps.get_version.outputs.VERSION }}
-        shell: pwsh
-        run: |
-          & .github\scripts\windows-msvc-publish.ps1 ${env:archiveName} ${env:targetName}
-          $name = ${env:archiveName}
-          echo "packageName=$name" >> $env:GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.package.outputs.packageName }}
-          path: ${{ steps.package.outputs.packageName }}.zip
-
   build-linux:
     name: Build Linux GCC
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - qt_arch: gcc_64
-            qt_ver: 6.7.2
     env:
       targetName: libJX3DPS.so
     steps:
@@ -185,8 +118,10 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: ${{ matrix.qt_ver }}
-          arch: ${{ matrix.qt_arch }}
+          version: '6.5.3'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
           cache: 'false'
 
       - name: Install dependencies

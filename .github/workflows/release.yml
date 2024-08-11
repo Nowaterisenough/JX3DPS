@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/windows-gcc.yml'
+      - '.github/workflows/release.yml'
       - '3rd/*'
       - 'include/*'
       - 'src/*'
@@ -17,7 +17,7 @@ on:
       - 'CMakeLists.txt'
   pull_request:
     paths:
-      - '.github/workflows/windows-gcc.yml'
+      - '.github/workflows/release.yml'
       - '3rd/*'
       - 'include/*'
       - 'src/*'
@@ -159,7 +159,7 @@ jobs:
 
   generate-changelog:
     name: Generate Changelog
-    needs: [build-mingw, build-msvc, build-linux]
+    needs: [build-mingw, build-linux]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:

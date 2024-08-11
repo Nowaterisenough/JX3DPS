@@ -10,7 +10,7 @@ on:
       - 'cmake/*'
       - 'CMakeLists.txt'
     tags:
-      - '*'  # 添加对标签的触发
+      - '*'
   pull_request:
     paths:
       - '.github/workflows/windows-gcc.yml'
@@ -30,8 +30,7 @@ jobs:
         include:
           - qt_arch: win64_mingw
             qt_ver: 6.7.2
-            qt_tools: "tools_mingw,13.1.0-0-202305020005,qt.tools.win64_mingw1310"
-            qt_tools_mingw_install: mingw1310_64
+            gcc_version: 13.2.0
     env:
       targetName: JX3DPS.dll
     steps:
@@ -40,39 +39,57 @@ jobs:
         with:
           version: ${{ matrix.qt_ver }}
           arch: ${{ matrix.qt_arch }}
-          tools: ${{ matrix.qt_tools }}
           cache: 'false'
+      
+      - name: Install MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+          version: ${{ matrix.gcc_version }}
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: Qt 6 environment configuration
+
+      - name: Qt and MinGW environment configuration
         shell: pwsh
         run: |
           Write-Output "${{ env.Qt6_DIR }}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          Write-Output "${{ env.Qt6_DIR }}/../../Tools/${{ matrix.qt_tools_mingw_install }}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: where is qmake & where is mingw32-make
+          Write-Output "C:/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Check GCC version
+        shell: bash
+        run: gcc --version
+
+      - name: Check Qt and MinGW installation
         shell: pwsh
         run: |
+          Get-Command -Name 'qmake' | Format-List
           Get-Command -Name 'mingw32-make' | Format-List
-      - name: mingw-build
+          Get-Command -Name 'gcc' | Format-List
+
+      - name: Build
         id: build
-        shell: cmd
+        shell: bash
         run: |
-          cmake -S . -B ./build -G "MinGW Makefiles"
+          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
           cmake --build ./build --target install --config Release
-      - name: package
+
+      - name: Package
         id: package      
         env:
-          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
+          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_arch }}-gcc${{ matrix.gcc_version }}
         shell: pwsh
         run: |
           & .github\scripts\windows-mingw-publish.ps1 ${env:archiveName} ${env:targetName}
-           $name = ${env:archiveName}
-           echo "packageName=$name" >> $env:GITHUB_OUTPUT
+          $name = ${env:archiveName}
+          echo "packageName=$name" >> $env:GITHUB_OUTPUT
+
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}
+
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         id: create_release
@@ -84,6 +101,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+
       - name: Upload Release Asset
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1

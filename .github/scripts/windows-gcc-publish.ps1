@@ -25,37 +25,19 @@ function Main {
         $currentDir = Get-Location
         Write-Log "当前目录: $currentDir"
 
-        # 创建归档目录
-        if (Test-Path $archiveName) {
-            Remove-Item -Path $archiveName -Recurse -Force
-        }
-        New-Item -ItemType Directory $archiveName | Out-Null
-        Write-Log "创建目录: $archiveName"
-
-        # 拷贝构建文件
-        Write-Log "正在拷贝构建文件..."
-        Copy-Item build\* $archiveName\ -Recurse
-
-        # 运行 windeployqt
-        Write-Log "正在运行 windeployqt..."
-        $windeployqtArgs = @(
-            "--qmldir", ".",
-            "--plugindir", "$archiveName\plugins",
-            "--no-translations",
-            "--compiler-runtime",
-            "$archiveName\$targetName"
-        )
-        & windeployqt $windeployqtArgs
-        if ($LASTEXITCODE -ne 0) {
-            throw "windeployqt 执行失败"
+        # 检查 build 目录中是否存在目标文件
+        $sourcePath = "build\$targetName"
+        if (-not (Test-Path $sourcePath)) {
+            throw "错误: 在 build 目录中找不到 $targetName"
         }
 
-        # 删除不必要的文件
-        Write-Log "正在清理不必要的文件..."
-        $excludeList = @("*.qmlc", "*.ilk", "*.exp", "*.lib", "*.pdb")
-        foreach ($pattern in $excludeList) {
-            Remove-Item -Path $archiveName -Include $pattern -Recurse -Force
-        }
+        # 创建临时目录
+        $tempDir = New-Item -ItemType Directory -Path "$archiveName" -Force
+        Write-Log "创建临时目录: $tempDir"
+
+        # 复制目标文件到临时目录
+        Copy-Item $sourcePath $tempDir
+        Write-Log "复制 $targetName 到临时目录"
 
         # 打包 zip
         Write-Log "正在创建 ZIP 归档..."
@@ -63,7 +45,11 @@ function Main {
         if (Test-Path $zipPath) {
             Remove-Item -Path $zipPath -Force
         }
-        Compress-Archive -Path $archiveName -DestinationPath $zipPath
+        Compress-Archive -Path $tempDir\* -DestinationPath $zipPath
+
+        # 清理临时目录
+        Remove-Item -Path $tempDir -Recurse -Force
+        Write-Log "清理临时目录"
 
         Write-Log "打包过程完成。输出文件: $zipPath"
     }

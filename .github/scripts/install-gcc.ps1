@@ -1,5 +1,6 @@
 param (
-    [string]$Version = "13.2.0"
+    [Parameter(Mandatory=$true)]
+    [string]$Version
 )
 
 $ErrorActionPreference = "Stop"
@@ -34,26 +35,12 @@ function Set-EnvPath {
     $mingwBin = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
     Write-Log "Adding MinGW bin to PATH: $mingwBin"
     $env:PATH = "$mingwBin;$env:PATH"
-    echo $mingwBin >> $env:GITHUB_PATH
+    echo "$mingwBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 }
 
 try {
     Install-MinGW -Version $Version
     Set-EnvPath
-    
-    Write-Log "Verifying GCC installation"
-    $gccVersion = & gcc --version
-    Write-Log "Installed GCC version: $gccVersion"
-    
-    $prefix = "x86_64-w64-mingw32"
-    $gcc = "$prefix-gcc"
-    $gxx = "$prefix-g++"
-    $windres = "$prefix-windres"
-    
-    echo "prefix=$prefix" >> $env:GITHUB_OUTPUT
-    echo "gcc=$gcc" >> $env:GITHUB_OUTPUT
-    echo "gxx=$gxx" >> $env:GITHUB_OUTPUT
-    echo "windres=$windres" >> $env:GITHUB_OUTPUT
     
     Write-Log "GCC $Version installation completed successfully"
 } catch {

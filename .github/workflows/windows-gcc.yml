@@ -51,10 +51,6 @@ jobs:
         run: |
           .\.github\scripts\install-gcc.ps1 -Version ${{ matrix.gcc_version }}
 
-      - name: Check GCC version
-        shell: bash
-        run: gcc --version
-
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -66,22 +62,13 @@ jobs:
         shell: pwsh
         run: |
           $QtBin = "${{ env.Qt6_DIR }}/bin"
-          $MinGWBin = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
-          $env:PATH = "$QtBin;$MinGWBin;$env:PATH"
-          echo "$QtBin" >> $env:GITHUB_PATH
-          echo "$MinGWBin" >> $env:GITHUB_PATH
-
-      - name: Check Qt and MinGW installation
-        shell: pwsh
-        run: |
-          Get-Command -Name 'qmake' | Format-List
-          Get-Command -Name 'mingw32-make' | Format-List
-          Get-Command -Name 'gcc' | Format-List
+          echo "$QtBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Build
         id: build
         shell: bash
         run: |
+          export PATH="/c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin:$PATH"
           cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
           cmake --build ./build --target install --config Release
 
@@ -108,7 +95,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: JX3DPS ${{ github.ref }}
           draft: false
           prerelease: false
 

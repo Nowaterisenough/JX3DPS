@@ -120,38 +120,49 @@ jobs:
           }
 
           # 使用 Git 命令获取提交记录
-          $commits = git log $range --pretty=format:"- %s (%h)" --reverse
+          $commits = git log $range --pretty=format:"%s (%h)" --reverse
 
           # 按类型分类提交
-          $featCommits = $commits | Where-Object { $_ -match '^- feat' }
-          $fixCommits = $commits | Where-Object { $_ -match '^- fix' }
-          $otherCommits = $commits | Where-Object { $_ -notmatch '^- (feat|fix)' }
+          $featCommits = $commits | Where-Object { $_ -match '^feat' }
+          $fixCommits = $commits | Where-Object { $_ -match '^fix' }
+          $otherCommits = $commits | Where-Object { $_ -notmatch '^(feat|fix)' }
 
           # 构建 changelog
           $changelog = @"
-          #### Features
+          ## Features
 
-          $($featCommits -join "`n")
+          $(if ($featCommits) { $featCommits | ForEach-Object { "- $_`n" } } else { "No new features in this release.`n" })
 
-          #### Bug Fixes
+          ## Bug Fixes
 
-          $($fixCommits -join "`n")
+          $(if ($fixCommits) { $fixCommits | ForEach-Object { "- $_`n" } } else { "No bug fixes in this release.`n" })
 
-          #### Other Changes
+          ## Other Changes
 
-          $($otherCommits -join "`n")
+          $(if ($otherCommits) { $otherCommits | ForEach-Object { "- $_`n" } } else { "No other changes in this release.`n" })
           "@
 
-          # 移除空的部分
-          $changelog = $changelog -replace '(?ms)#### [^\n]+\n\n(?=#### |$)', ''
-
           $changelog = $changelog.Trim()
-          $changelog = $changelog -replace '%', '%25'
-          $changelog = $changelog -replace "`n", '%0A'
-          $changelog = $changelog -replace "`r", '%0D'
-          echo "changelog<<EOF" >> $env:GITHUB_OUTPUT
-          echo "$changelog" >> $env:GITHUB_OUTPUT
-          echo "EOF" >> $env:GITHUB_OUTPUT
+          echo "changelog=$changelog" >> $env:GITHUB_OUTPUT
+
+      - name: Create Release
+        if: github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $changelog = "${{ steps.changelog.outputs.changelog }}"
+          $releaseUrl = "https://github.com/${{ github.repository }}/releases/new"
+          $queryParams = @{
+            tag = $version
+            title = "Release $version"
+            body = $changelog
+          }
+          $releaseUrlWithParams = $releaseUrl + "?" + ($queryParams.GetEnumerator() | ForEach-Object { "$($_.Key)=$([Uri]::EscapeDataString($_.Value))" }) -join "&"
+          echo "Release URL: $releaseUrlWithParams"
+          
+          # 使用 GitHub CLI 创建发布
+          gh release create $version --title "Release $version" --notes "$changelog"
 
       - name: Create Tag
         if: github.ref == 'refs/heads/master'

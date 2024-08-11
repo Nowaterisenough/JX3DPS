@@ -30,7 +30,6 @@ jobs:
         include:
           - qt_arch: win64_mingw
             qt_ver: 6.7.2
-            gcc_version: 13.2.0
     env:
       targetName: JX3DPS.dll
     steps:
@@ -40,32 +39,18 @@ jobs:
           version: ${{ matrix.qt_ver }}
           arch: ${{ matrix.qt_arch }}
           cache: 'false'
-      
-      - name: Install MinGW
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: x64
-          version: ${{ matrix.gcc_version }}
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-          MINGW_DISABLE_STATIC_WORKAROUND: true
 
       - name: Verify MinGW Installation
         shell: pwsh
         run: |
-          $mingwPath = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+          $mingwPath = "C:\mingw64\bin"
           if (Test-Path $mingwPath) {
-            Write-Host "MinGW installed successfully at $mingwPath"
+            Write-Host "MinGW found at $mingwPath"
             Get-ChildItem $mingwPath | Select-Object Name
           } else {
             Write-Host "MinGW installation path not found at $mingwPath"
             exit 1
           }
-
-      - name: List MinGW directory contents
-        shell: pwsh
-        run: |
-          Get-ChildItem -Recurse "C:\ProgramData\chocolatey\lib\mingw\tools\install" | Select-Object FullName
 
       - uses: actions/checkout@v3
         with:
@@ -75,7 +60,7 @@ jobs:
         shell: pwsh
         run: |
           $QtBin = "${{ env.Qt6_DIR }}/bin"
-          $MinGWBin = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+          $MinGWBin = "C:\mingw64\bin"
           $env:PATH = "$QtBin;$MinGWBin;$env:PATH"
           echo "$QtBin" >> $env:GITHUB_PATH
           echo "$MinGWBin" >> $env:GITHUB_PATH
@@ -95,14 +80,13 @@ jobs:
         id: build
         shell: bash
         run: |
-          export PATH="/c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin:$PATH"
           cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
           cmake --build ./build --target install --config Release
 
       - name: Package
         id: package      
         env:
-          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_arch }}-gcc${{ matrix.gcc_version }}
+          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_arch }}-mingw
         shell: pwsh
         run: |
           & .github\scripts\windows-mingw-publish.ps1 ${env:archiveName} ${env:targetName}

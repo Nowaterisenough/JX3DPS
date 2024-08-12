@@ -5,6 +5,7 @@
 ### Others
 - 更新WindowsAction流程 by @NoWaterisEnough in 570bc0d
 - 更新太虚剑意和万剑归宗的头文件 by @NoWaterisEnough in a8fe5a5
+- 更新太虚剑意 by @NoWaterisEnough in 7aa55fe
 - 删除旧的CHANGELOG by @NoWaterisEnough in 2ad8af8
 - 更新生成CHANGELOG脚本 by @NoWaterisEnough in 0a5d4ba 1933a39 eda2568 6b2cbb2
 - 去掉action流程中获取版本号的分支要求 by @NoWaterisEnough in ba7a7d1

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# 运行 changelog 生成脚本
+./scripts/generate_changelog.sh
+
+# 如果 CHANGELOG.md 被修改，则创建一个新的提交
+if git diff --quiet CHANGELOG.md; then
+    # CHANGELOG.md 没有变化，不需要操作
+    exit 0
+else
+    # CHANGELOG.md 有变化，创建新的提交
+    git add CHANGELOG.md
+    git commit --amend -C HEAD --no-verify
+fi

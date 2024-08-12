@@ -4,18 +4,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - '.github/workflows/release.yml'
-      - '3rd/*'
-      - 'include/*'
-      - 'src/*'
-      - 'modules/*'
-      - 'performance/*'
-      - 'example/*'
-      - 'tests/*'
-      - 'assets/*'
-      - 'cmake/*'
-      - 'CMakeLists.txt'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, review_requested]
     branches:

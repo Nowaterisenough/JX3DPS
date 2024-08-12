@@ -14,6 +14,8 @@ print_table(
     "DATE" ${VERSION_DATE}
 )
 
+message(STATUS "VERSION=${PROJECT_VERSION}")
+
 add_definitions(-DVERSION_PATCH=${PROJECT_VERSION_PATCH})
 add_definitions(-DVERSION_TWEAK=${PROJECT_VERSION_TWEAK})
 add_definitions(-DVERSION_BRANCH=${VERSION_BRANCH})

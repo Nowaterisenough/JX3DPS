@@ -44,19 +44,16 @@ int jx3dps_simulate(const char *const in, ...)
     // 使用进度回调函数
     va_end(args);
     return SimulatorImpl::GetInstance()->SimulateSyncWithProgressInfo(in, out, (void (*)(double))next_arg);
-    return 0;
 }
 
 const char *jx3dps_get_result()
 {
     return SimulatorImpl::result.dump().c_str();
-    return "";
 }
 
 double jx3dps_get_progress()
 {
     return SimulatorImpl::progress;
-    return 0.0;
 }
 
 int jx3dps_debug(const char *const in, ...)
@@ -68,21 +65,18 @@ const char *jx3dps_debugger_step_in()
 {
     JX3DPS::json j;
     return j.dump().c_str();
-    return "";
 }
 
 const char *jx3dps_debugger_step_over()
 {
     JX3DPS::json j;
     return j.dump().c_str();
-    return "";
 }
 
 const char *jx3dps_debugger_continue()
 {
     JX3DPS::json j;
     return j.dump().c_str();
-    return "";
 }
 
 void jx3dps_debugger_set_breakpoint(const char *const in) { }

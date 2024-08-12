@@ -15,18 +15,7 @@ on:
       - 'tests/*'
       - 'cmake/*'
       - 'CMakeLists.txt'
-  pull_request:
-    paths:
-      - '.github/workflows/release.yml'
-      - '3rd/*'
-      - 'include/*'
-      - 'src/*'
-      - 'modules/*'
-      - 'performance/*'
-      - 'example/*'
-      - 'tests/*'
-      - 'cmake/*'
-      - 'CMakeLists.txt'
+  workflow_dispatch:
 
 jobs:
   build-mingw:

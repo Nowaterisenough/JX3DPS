@@ -70,7 +70,6 @@ jobs:
           cmake --build ./build --target install --config Release
 
       - name: Get version from CMake
-        if: github.ref == 'refs/heads/master'
         id: get_version
         shell: pwsh
         run: |

@@ -21,55 +21,82 @@ generate_changelog_for_tag() {
         range=${start_tag}..${end_tag}
     fi
 
-    local commits=$(git log $range --pretty=format:"- %s by @%an in %h" --reverse --no-merges)
+    local commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
 
-    local featCommits=$(echo "$commits" | grep '^- feat' | sed 's/^- feat: \?/- /')
-    local fixCommits=$(echo "$commits" | grep '^- fix' | sed 's/^- fix: \?/- /')
-    local docsCommits=$(echo "$commits" | grep '^- docs' | sed 's/^- docs: \?/- /')
-    local perfCommits=$(echo "$commits" | grep '^- perf' | sed 's/^- perf: \?/- /')
-    local refactorCommits=$(echo "$commits" | grep '^- refactor' | sed 's/^- refactor: \?/- /')
-    local testCommits=$(echo "$commits" | grep '^- test' | sed 's/^- test: \?/- /')
-    local otherCommits=$(echo "$commits" | grep -v '^- \(feat\|fix\|docs\|perf\|refactor\|test\)' | sed 's/^- [^:]*: \?/- /')
+    declare -A commit_map
+
+    while IFS='|' read -r message author hash; do
+        key="${message}|${author}"
+        if [[ -v commit_map[$key] ]]; then
+            commit_map[$key]="${commit_map[$key]} $hash"
+        else
+            commit_map[$key]=$hash
+        fi
+    done <<< "$commits"
+
+    local featCommits=""
+    local fixCommits=""
+    local docsCommits=""
+    local perfCommits=""
+    local refactorCommits=""
+    local testCommits=""
+    local otherCommits=""
+
+    for key in "${!commit_map[@]}"; do
+        IFS='|' read -r message author <<< "$key"
+        hashes=${commit_map[$key]}
+        formatted_commit="- $message by $author in $hashes"
+        
+        case "$message" in
+            feat:*) featCommits+="$formatted_commit"$'\n' ;;
+            fix:*) fixCommits+="$formatted_commit"$'\n' ;;
+            docs:*) docsCommits+="$formatted_commit"$'\n' ;;
+            perf:*) perfCommits+="$formatted_commit"$'\n' ;;
+            refactor:*) refactorCommits+="$formatted_commit"$'\n' ;;
+            test:*) testCommits+="$formatted_commit"$'\n' ;;
+            *) otherCommits+="$formatted_commit"$'\n' ;;
+        esac
+    done
 
     if [ -n "$featCommits" ]; then
         echo "### Features"
-        echo "$featCommits"
+        echo -n "$featCommits"
         echo
     fi
 
     if [ -n "$fixCommits" ]; then
         echo "### Bug Fixes"
-        echo "$fixCommits"
+        echo -n "$fixCommits"
         echo
     fi
 
     if [ -n "$docsCommits" ]; then
         echo "### Documentation"
-        echo "$docsCommits"
+        echo -n "$docsCommits"
         echo
     fi
 
     if [ -n "$perfCommits" ]; then
         echo "### Performance Improvements"
-        echo "$perfCommits"
+        echo -n "$perfCommits"
         echo
     fi
 
     if [ -n "$refactorCommits" ]; then
         echo "### Refactoring"
-        echo "$refactorCommits"
+        echo -n "$refactorCommits"
         echo
     fi
 
     if [ -n "$testCommits" ]; then
         echo "### Tests"
-        echo "$testCommits"
+        echo -n "$testCommits"
         echo
     fi
 
     if [ -n "$otherCommits" ]; then
         echo "### Others"
-        echo "$otherCommits"
+        echo -n "$otherCommits"
         echo
     fi
 }

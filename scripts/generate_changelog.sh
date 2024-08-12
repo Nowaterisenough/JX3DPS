@@ -31,7 +31,8 @@ generate_changelog_for_tag() {
             clean_message=${message#$type: }
         else
             type="other"
-            clean_message=$message
+            # 移除常见的前缀，包括冒号和空格
+            clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
         fi
         
         key="${clean_message}|${author}"

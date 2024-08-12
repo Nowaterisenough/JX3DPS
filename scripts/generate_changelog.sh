@@ -1,10 +1,20 @@
 #!/bin/bash
 
-generate_changelog_between_tags() {
+generate_changelog_for_tag() {
     local start_tag=$1
     local end_tag=$2
-    local range
+    local tag_date
 
+    if [ "$end_tag" = "HEAD" ]; then
+        tag_date=$(date +%Y-%m-%d)
+        echo "## Unreleased ($tag_date)"
+    else
+        tag_date=$(git log -1 --format=%ad --date=short $end_tag)
+        echo "## $end_tag ($tag_date)"
+    fi
+    echo
+
+    local range
     if [ "$start_tag" = "START" ]; then
         range=$(git rev-list --max-parents=0 HEAD)..${end_tag}
     else
@@ -20,9 +30,6 @@ generate_changelog_between_tags() {
     local refactorCommits=$(echo "$commits" | grep '^- refactor' | sed 's/^- refactor: \?/- /')
     local testCommits=$(echo "$commits" | grep '^- test' | sed 's/^- test: \?/- /')
     local otherCommits=$(echo "$commits" | grep -v '^- \(feat\|fix\|docs\|perf\|refactor\|test\)' | sed 's/^- [^:]*: \?/- /')
-
-    echo "## ${end_tag} ($(git log -1 --format=%ad --date=short ${end_tag}))"
-    echo
 
     if [ -n "$featCommits" ]; then
         echo "### Features"
@@ -71,27 +78,26 @@ generate_changelog_between_tags() {
     echo "# Changelog"
     echo
 
-    # 获取所有 tag，按版本号排序
+    # 获取所有 tag，按版本号排序（最新的在前）
     tags=$(git tag --sort=-version:refname)
 
-    # 如果没有 tag，使用 HEAD
-    if [ -z "$tags" ]; then
-        tags="HEAD"
+    # 如果有未发布的更改，先生成 Unreleased 部分
+    if [ "$(git rev-parse HEAD)" != "$(git rev-parse $(echo $tags | head -n1))" ]; then
+        generate_changelog_for_tag "$(echo $tags | head -n1)" "HEAD"
     fi
 
-    prev_tag="START"
+    # 生成每个 tag 的 changelog
+    prev_tag=""
     for tag in $tags
     do
-        generate_changelog_between_tags $prev_tag $tag
+        if [ -z "$prev_tag" ]; then
+            generate_changelog_for_tag "START" "$tag"
+        else
+            generate_changelog_for_tag "$tag" "$prev_tag"
+        fi
         prev_tag=$tag
     done
 
-    # 如果最新的 tag 不是 HEAD，添加未发布的更改
-    if [ "$(git rev-parse ${prev_tag})" != "$(git rev-parse HEAD)" ]; then
-        echo "## Unreleased ($(date +%Y-%m-%d))"
-        echo
-        generate_changelog_between_tags $prev_tag HEAD
-    fi
 } > CHANGELOG.md
 
 # 如果 changelog 不为空，则添加到暂存区

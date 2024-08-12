@@ -85,6 +85,20 @@ struct 太虚剑意
         CONSTANT int    energy_max            = 0;
         PROPERTY int    energy                = 0;
     };
+
+    class 人剑合一 : public Skill<人剑合一>
+    {
+    public:
+        PROPERTY frame_t *prepare = nullptr;
+        PROPERTY frame_t *casting = nullptr;
+
+        CONSTANT int    physics_ap            = 0;
+        CONSTANT int    physics_fixed_damage  = 0;
+        CONSTANT pctn_t weapon_damage_percent = 0;
+        CONSTANT int    limit                 = 0;
+        CONSTANT int    energy_max            = 0;
+        PROPERTY int    energy                = 0;
+    };
 };
 
 } // namespace JX3DPS

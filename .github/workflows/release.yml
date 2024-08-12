@@ -15,18 +15,7 @@ on:
       - 'tests/*'
       - 'cmake/*'
       - 'CMakeLists.txt'
-  pull_request:
-    paths:
-      - '.github/workflows/release.yml'
-      - '3rd/*'
-      - 'include/*'
-      - 'src/*'
-      - 'modules/*'
-      - 'performance/*'
-      - 'example/*'
-      - 'tests/*'
-      - 'cmake/*'
-      - 'CMakeLists.txt'
+  workflow_dispatch:
 
 jobs:
   build-mingw:
@@ -77,15 +66,20 @@ jobs:
           cmake --build ./build --target install --config Release
 
       - name: Get version from CMake
-        if: github.ref == 'refs/heads/master'
         id: get_version
         shell: pwsh
         run: |
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
-          $version = (Select-String -Path cmake_output.txt -Pattern "VERSION=(.+)").Matches.Groups[1].Value
-          if ($version) {
-            echo "Extracted version: $version"
-            echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          $versionLine = Get-Content cmake_output.txt | Select-String -Pattern "\s*VERSION\s*:\s*(\d+\.\d+\.\d+\.\d+)\s*$"
+          if ($versionLine) {
+            $version = $versionLine.Matches.Groups[1].Value.Trim()
+            if ($version -match '^\d+\.\d+\.\d+\.\d+$') {
+              echo "Extracted version: $version"
+              echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+            } else {
+              echo "Extracted version does not match expected format: $version"
+              exit 1
+            }
           } else {
             echo "Failed to extract version from CMake output"
             exit 1

@@ -1,5 +1,5 @@
-﻿#ifndef THREAD_POOL_H
-#define THREAD_POOL_H
+﻿#ifndef THREAD_POOL_HPP
+#define THREAD_POOL_HPP
 
 #include <atomic>
 #include <functional>
@@ -140,10 +140,7 @@ public:
     size_t GetThreadCount() { return _pool.size(); }
 
 private:
-    ThreadPool(unsigned short size = std::thread::hardware_concurrency())
-    {
-        AddThread(size);
-    }
+    ThreadPool(unsigned short size = std::thread::hardware_concurrency()) { AddThread(size); }
 
     /**
      * @brief 添加指定数量的线程
@@ -177,4 +174,4 @@ private:
     }
 };
 
-#endif // THREAD_POOL_H
+#endif // THREAD_POOL_HPP

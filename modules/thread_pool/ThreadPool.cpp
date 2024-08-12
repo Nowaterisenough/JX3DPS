@@ -1,4 +1,4 @@
-﻿#include "thread_pool.h"
+﻿#include "ThreadPool.hpp"
 
 ThreadPool *ThreadPool::GetInstance(unsigned short size)
 {

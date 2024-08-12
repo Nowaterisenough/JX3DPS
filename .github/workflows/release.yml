@@ -15,12 +15,18 @@ on:
       - 'tests/*'
       - 'cmake/*'
       - 'CMakeLists.txt'
+  pull_request:
+    types: [closed]
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
   build-mingw:
     name: Build Windows MinGW
     runs-on: windows-latest
+    # 只在直接推送到 master 或者 PR 被合并到 master 时运行
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     strategy:
       matrix:
         include:

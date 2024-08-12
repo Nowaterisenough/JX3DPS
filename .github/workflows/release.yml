@@ -70,7 +70,7 @@ jobs:
         shell: pwsh
         run: |
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
-          $versionLine = Get-Content cmake_output.txt | Select-String -Pattern "\s*VERSION\s*:\s*(\d+\.\d+\.\d+\.\d+)\s*$"
+          $versionLine = Get-Content cmake_output.txt | Select-String -Pattern "^\|.*VERSION.*:\s*(\d+\.\d+\.\d+\.\d+)\s*\|$"
           if ($versionLine) {
             $version = $versionLine.Matches.Groups[1].Value.Trim()
             if ($version -match '^\d+\.\d+\.\d+\.\d+$') {
@@ -82,6 +82,7 @@ jobs:
             }
           } else {
             echo "Failed to extract version from CMake output"
+            Get-Content cmake_output.txt
             exit 1
           }
 

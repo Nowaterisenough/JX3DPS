@@ -1,0 +1,232 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/release.yml'
+      - '3rd/*'
+      - 'include/*'
+      - 'src/*'
+      - 'modules/*'
+      - 'performance/*'
+      - 'example/*'
+      - 'tests/*'
+      - 'cmake/*'
+      - 'CMakeLists.txt'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, review_requested]
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-mingw:
+    name: Build Windows MinGW
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - qt_arch: win64_mingw
+            qt_ver: 6.7.2
+            gcc_version: 13.2.0
+    env:
+      targetName: JX3DPS.dll
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install GCC
+        shell: pwsh
+        run: |
+          .\.github\scripts\install-gcc.ps1 -Version ${{ matrix.gcc_version }}
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_ver }}
+          arch: ${{ matrix.qt_arch }}
+          cache: 'false'
+
+      - name: Qt and MinGW environment configuration
+        shell: pwsh
+        run: |
+          $QtBin = "${{ env.Qt6_DIR }}/bin"
+          echo "$QtBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build
+        id: build
+        shell: bash
+        run: |
+          export PATH="/c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin:$PATH"
+          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
+          cmake --build ./build --target install --config Release
+
+      - name: Get version from CMake
+        id: get_version
+        shell: pwsh
+        run: |
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          $version = (Select-String -Path cmake_output.txt -Pattern "VERSION=(.+)").Matches.Groups[1].Value
+          if ($version) {
+            echo "Extracted version: $version"
+            echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "Failed to extract version from CMake output"
+            exit 1
+          }
+
+      - name: Package
+        id: package      
+        env:
+          archiveName: JX3DPS-win64-mingw-${{ steps.get_version.outputs.VERSION }}
+        shell: pwsh
+        run: |
+          & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
+          $name = ${env:archiveName}
+          echo "packageName=$name" >> $env:GITHUB_OUTPUT
+
+      - name: Verify artifact
+        shell: pwsh
+        run: |
+          $packageName = "${{ steps.package.outputs.packageName }}"
+          if (Test-Path "${packageName}.zip") {
+            Write-Output "Artifact ${packageName}.zip created successfully"
+          } else {
+            Write-Error "Artifact ${packageName}.zip not found"
+            exit 1
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1
+          
+  generate-changelog:
+    name: Generate Changelog and Release
+    needs: [build-mingw]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          # 获取最新的标签
+          latestTag=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          
+          # 定义范围
+          range="${latestTag}..HEAD"
+      
+          # 使用 Git 命令获取提交记录，排除合并提交，包括作者信息
+          commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
+      
+          # 定义关联数组来存储合并的提交信息
+          declare -A commit_map
+      
+          # 处理每个提交
+          while IFS='|' read -r message author hash; do
+            # 移除提交消息的前缀
+            clean_message=$(echo "$message" | sed -E 's/^(feat|fix|docs|perf|refactor|test|chore|style|ci|build):\s*//I')
+            key="${clean_message}|${author}"
+            if [[ -v commit_map[$key] ]]; then
+              commit_map[$key]="${commit_map[$key]} $hash"
+            else
+              commit_map[$key]=$hash
+            fi
+          done <<< "$commits"
+      
+          # 按类型分类并格式化提交
+          format_commits() {
+            local prefix=$1
+            local title=$2
+            local formatted=""
+            for key in "${!commit_map[@]}"; do
+              IFS='|' read -r message author <<< "$key"
+              if [[ $message == $prefix* ]]; then
+                hashes=${commit_map[$key]}
+                formatted+="- ${message#$prefix} by $author in $hashes"$'\n'
+              fi
+            done
+            if [ -n "$formatted" ]; then
+              echo "### $title"
+              echo "$formatted"
+            fi
+          }
+      
+          # 构建 changelog
+          {
+            echo "## CHANGELOG"
+            echo
+            format_commits "feat" "Features"
+            format_commits "fix" "Bug Fixes"
+            format_commits "docs" "Documentation"
+            format_commits "perf" "Performance Improvements"
+            format_commits "refactor" "Refactoring"
+            format_commits "test" "Tests"
+            
+            # 处理其他类型的提交
+            other_commits=""
+            for key in "${!commit_map[@]}"; do
+              IFS='|' read -r message author <<< "$key"
+              if [[ $message != feat* && $message != fix* && $message != docs* && 
+                    $message != perf* && $message != refactor* && $message != test* ]]; then
+                hashes=${commit_map[$key]}
+                other_commits+="- $message by $author in $hashes"$'\n'
+              fi
+            done
+            if [ -n "$other_commits" ]; then
+              echo "### Others"
+              echo "$other_commits"
+            fi
+          } > changelog.md
+      
+          echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build-mingw.outputs.packageName }}
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ needs.build-mingw.outputs.version }}"
+          changelogPath="${{ steps.changelog.outputs.changelog_path }}"
+          
+          # 使用 GitHub CLI 创建发布
+          gh release create $version --title "$version" --notes-file $changelogPath
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ needs.build-mingw.outputs.version }}"
+          packageName="${{ needs.build-mingw.outputs.packageName }}"
+          
+          # 直接上传下载的zip文件
+          if [ -f "${packageName}.zip" ]; then
+            gh release upload $version "${packageName}.zip"
+            echo "Successfully uploaded ${packageName}.zip to release $version"
+          else
+            echo "Error: ${packageName}.zip not found"
+            ls -R
+            exit 1
+          fi

@@ -136,31 +136,46 @@ jobs:
           commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
       
           # 定义关联数组来存储合并的提交信息
-          declare -A commit_map
+          declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
       
           # 处理每个提交
           while IFS='|' read -r message author hash; do
-            # 移除提交消息的前缀
-            clean_message=$(echo "$message" | sed -E 's/^(feat|fix|docs|perf|refactor|test|chore|style|ci|build):\s*//I')
-            key="${clean_message}|${author}"
-            if [[ -v commit_map[$key] ]]; then
-              commit_map[$key]="${commit_map[$key]} $hash"
+            # 提取提交类型和清理后的消息
+            if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
+              type=${BASH_REMATCH[1]}
+              clean_message=${message#$type: }
             else
-              commit_map[$key]=$hash
+              type="other"
+              clean_message=$message
+            fi
+            
+            key="${clean_message}|${author}"
+            case $type in
+              feat)     array_ref="feat_commits"     ;;
+              fix)      array_ref="fix_commits"      ;;
+              docs)     array_ref="docs_commits"     ;;
+              perf)     array_ref="perf_commits"     ;;
+              refactor) array_ref="refactor_commits" ;;
+              test)     array_ref="test_commits"     ;;
+              *)        array_ref="other_commits"    ;;
+            esac
+            
+            if [[ -v ${array_ref}[$key] ]]; then
+              eval "${array_ref}[$key]+=' $hash'"
+            else
+              eval "${array_ref}[$key]='$hash'"
             fi
           done <<< "$commits"
       
-          # 按类型分类并格式化提交
+          # 格式化提交
           format_commits() {
-            local prefix=$1
+            local -n commit_array=$1
             local title=$2
             local formatted=""
-            for key in "${!commit_map[@]}"; do
+            for key in "${!commit_array[@]}"; do
               IFS='|' read -r message author <<< "$key"
-              if [[ $message == $prefix* ]]; then
-                hashes=${commit_map[$key]}
-                formatted+="- ${message#$prefix} by $author in $hashes"$'\n'
-              fi
+              hashes=${commit_array[$key]}
+              formatted+="- $message by $author in $hashes"$'\n'
             done
             if [ -n "$formatted" ]; then
               echo "### $title"
@@ -172,27 +187,13 @@ jobs:
           {
             echo "## CHANGELOG"
             echo
-            format_commits "feat" "Features"
-            format_commits "fix" "Bug Fixes"
-            format_commits "docs" "Documentation"
-            format_commits "perf" "Performance Improvements"
-            format_commits "refactor" "Refactoring"
-            format_commits "test" "Tests"
-            
-            # 处理其他类型的提交
-            other_commits=""
-            for key in "${!commit_map[@]}"; do
-              IFS='|' read -r message author <<< "$key"
-              if [[ $message != feat* && $message != fix* && $message != docs* && 
-                    $message != perf* && $message != refactor* && $message != test* ]]; then
-                hashes=${commit_map[$key]}
-                other_commits+="- $message by $author in $hashes"$'\n'
-              fi
-            done
-            if [ -n "$other_commits" ]; then
-              echo "### Others"
-              echo "$other_commits"
-            fi
+            format_commits feat_commits "Features"
+            format_commits fix_commits "Bug Fixes"
+            format_commits docs_commits "Documentation"
+            format_commits perf_commits "Performance Improvements"
+            format_commits refactor_commits "Refactoring"
+            format_commits test_commits "Tests"
+            format_commits other_commits "Others"
           } > changelog.md
       
           echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT

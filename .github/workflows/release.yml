@@ -133,20 +133,27 @@ jobs:
       - name: Generate Changelog
         id: changelog
         run: |
-          # 获取最新的两个标签
-          tags=$(git tag --sort=-creatordate | head -n 2)
-          latestTag=$(echo "$tags" | head -n 1)
-          previousTag=$(echo "$tags" | tail -n 1)
-      
-          if [ -z "$previousTag" ]; then
-            # 如果只有一个标签，就从仓库开始到最新标签
-            range="$latestTag"
+          # 获取最新的标签
+          latestTag=$(git describe --tags --abbrev=0)
+          
+          # 如果没有标签，使用初始提交
+          if [ -z "$latestTag" ]; then
+            range=$(git rev-list --max-parents=0 HEAD)
           else
-            range="$previousTag..$latestTag"
+            range="${latestTag}..HEAD"
           fi
       
           # 使用 Git 命令获取提交记录，排除合并提交
           commits=$(git log $range --pretty=format:"- %s (%h)" --reverse --no-merges)
+      
+          # 如果没有新的提交，使用最新标签到上一个标签的范围
+          if [ -z "$commits" ]; then
+            previousTag=$(git describe --tags --abbrev=0 ${latestTag}^)
+            if [ -n "$previousTag" ]; then
+              range="${previousTag}..${latestTag}"
+              commits=$(git log $range --pretty=format:"- %s (%h)" --reverse --no-merges)
+            fi
+          fi
       
           # 按类型分类提交并移除类型前缀
           featCommits=$(echo "$commits" | grep '^- feat' | sed 's/^- feat: \?/- /')
@@ -159,44 +166,46 @@ jobs:
       
           # 构建 changelog
           {
+            echo "## Changelog"
+            echo
             if [ -n "$featCommits" ]; then
-              echo "#### Features"
+              echo "### Features"
               echo "$featCommits"
               echo
             fi
             
             if [ -n "$fixCommits" ]; then
-              echo "#### Bug Fixes"
+              echo "### Bug Fixes"
               echo "$fixCommits"
               echo
             fi
             
             if [ -n "$docsCommits" ]; then
-              echo "#### Documentation"
+              echo "### Documentation"
               echo "$docsCommits"
               echo
             fi
             
             if [ -n "$perfCommits" ]; then
-              echo "#### Performance Improvements"
+              echo "### Performance Improvements"
               echo "$perfCommits"
               echo
             fi
             
             if [ -n "$refactorCommits" ]; then
-              echo "#### Refactoring"
+              echo "### Refactoring"
               echo "$refactorCommits"
               echo
             fi
             
             if [ -n "$testCommits" ]; then
-              echo "#### Tests"
+              echo "### Tests"
               echo "$testCommits"
               echo
             fi
             
             if [ -n "$otherCommits" ]; then
-              echo "#### Other Changes"
+              echo "### Other Changes"
               echo "$otherCommits"
               echo
             fi

@@ -166,7 +166,7 @@ jobs:
       
           # 构建 changelog
           {
-            echo "## Changelog"
+            echo "## CHANGELOG"
             echo
             if [ -n "$featCommits" ]; then
               echo "### Features"
@@ -205,7 +205,7 @@ jobs:
             fi
             
             if [ -n "$otherCommits" ]; then
-              echo "### Other Changes"
+              echo "### Others"
               echo "$otherCommits"
               echo
             fi

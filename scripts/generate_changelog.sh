@@ -1,5 +1,9 @@
 #!/bin/bash
 
+remove_prefix() {
+    echo "$1" | sed -E 's/^(feat|fix|docs|perf|refactor|test|chore|style|ci|build):\s*//I'
+}
+
 generate_changelog_for_tag() {
     local start_tag=$1
     local end_tag=$2
@@ -26,6 +30,7 @@ generate_changelog_for_tag() {
     declare -A commit_map
 
     while IFS='|' read -r message author hash; do
+        message=$(remove_prefix "$message")
         key="${message}|${author}"
         if [[ -v commit_map[$key] ]]; then
             commit_map[$key]="${commit_map[$key]} $hash"
@@ -48,12 +53,12 @@ generate_changelog_for_tag() {
         formatted_commit="- $message by $author in $hashes"
         
         case "$message" in
-            feat:*) featCommits+="$formatted_commit"$'\n' ;;
-            fix:*) fixCommits+="$formatted_commit"$'\n' ;;
-            docs:*) docsCommits+="$formatted_commit"$'\n' ;;
-            perf:*) perfCommits+="$formatted_commit"$'\n' ;;
-            refactor:*) refactorCommits+="$formatted_commit"$'\n' ;;
-            test:*) testCommits+="$formatted_commit"$'\n' ;;
+            feat*) featCommits+="$formatted_commit"$'\n' ;;
+            fix*) fixCommits+="$formatted_commit"$'\n' ;;
+            doc*) docsCommits+="$formatted_commit"$'\n' ;;
+            perf*) perfCommits+="$formatted_commit"$'\n' ;;
+            refactor*) refactorCommits+="$formatted_commit"$'\n' ;;
+            test*) testCommits+="$formatted_commit"$'\n' ;;
             *) otherCommits+="$formatted_commit"$'\n' ;;
         esac
     done

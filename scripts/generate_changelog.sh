@@ -1,9 +1,5 @@
 #!/bin/bash
 
-remove_prefix() {
-    echo "$1" | sed -E 's/^(feat|fix|docs|perf|refactor|test|chore|style|ci|build):\s*//I'
-}
-
 generate_changelog_for_tag() {
     local start_tag=$1
     local end_tag=$2
@@ -27,98 +23,70 @@ generate_changelog_for_tag() {
 
     local commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
 
-    declare -A commit_map
+    declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
 
     while IFS='|' read -r message author hash; do
-        message=$(remove_prefix "$message")
-        key="${message}|${author}"
-        if [[ -v commit_map[$key] ]]; then
-            commit_map[$key]="${commit_map[$key]} $hash"
+        if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
+            type=${BASH_REMATCH[1]}
+            clean_message=${message#$type: }
         else
-            commit_map[$key]=$hash
+            type="other"
+            clean_message=$message
+        fi
+        
+        key="${clean_message}|${author}"
+        case $type in
+            feat)     array_ref="feat_commits"     ;;
+            fix)      array_ref="fix_commits"      ;;
+            docs)     array_ref="docs_commits"     ;;
+            perf)     array_ref="perf_commits"     ;;
+            refactor) array_ref="refactor_commits" ;;
+            test)     array_ref="test_commits"     ;;
+            *)        array_ref="other_commits"    ;;
+        esac
+        
+        if [[ -v ${array_ref}[$key] ]]; then
+            eval "${array_ref}[$key]+=' $hash'"
+        else
+            eval "${array_ref}[$key]='$hash'"
         fi
     done <<< "$commits"
 
-    local featCommits=""
-    local fixCommits=""
-    local docsCommits=""
-    local perfCommits=""
-    local refactorCommits=""
-    local testCommits=""
-    local otherCommits=""
+    format_commits() {
+        local -n commit_array=$1
+        local title=$2
+        local formatted=""
+        for key in "${!commit_array[@]}"; do
+            IFS='|' read -r message author <<< "$key"
+            hashes=${commit_array[$key]}
+            formatted+="- $message by $author in $hashes"$'\n'
+        done
+        if [ -n "$formatted" ]; then
+            echo "### $title"
+            echo -n "$formatted"
+            echo
+        fi
+    }
 
-    for key in "${!commit_map[@]}"; do
-        IFS='|' read -r message author <<< "$key"
-        hashes=${commit_map[$key]}
-        formatted_commit="- $message by $author in $hashes"
-        
-        case "$message" in
-            feat*) featCommits+="$formatted_commit"$'\n' ;;
-            fix*) fixCommits+="$formatted_commit"$'\n' ;;
-            doc*) docsCommits+="$formatted_commit"$'\n' ;;
-            perf*) perfCommits+="$formatted_commit"$'\n' ;;
-            refactor*) refactorCommits+="$formatted_commit"$'\n' ;;
-            test*) testCommits+="$formatted_commit"$'\n' ;;
-            *) otherCommits+="$formatted_commit"$'\n' ;;
-        esac
-    done
-
-    if [ -n "$featCommits" ]; then
-        echo "### Features"
-        echo -n "$featCommits"
-        echo
-    fi
-
-    if [ -n "$fixCommits" ]; then
-        echo "### Bug Fixes"
-        echo -n "$fixCommits"
-        echo
-    fi
-
-    if [ -n "$docsCommits" ]; then
-        echo "### Documentation"
-        echo -n "$docsCommits"
-        echo
-    fi
-
-    if [ -n "$perfCommits" ]; then
-        echo "### Performance Improvements"
-        echo -n "$perfCommits"
-        echo
-    fi
-
-    if [ -n "$refactorCommits" ]; then
-        echo "### Refactoring"
-        echo -n "$refactorCommits"
-        echo
-    fi
-
-    if [ -n "$testCommits" ]; then
-        echo "### Tests"
-        echo -n "$testCommits"
-        echo
-    fi
-
-    if [ -n "$otherCommits" ]; then
-        echo "### Others"
-        echo -n "$otherCommits"
-        echo
-    fi
+    format_commits feat_commits "Features"
+    format_commits fix_commits "Bug Fixes"
+    format_commits docs_commits "Documentation"
+    format_commits perf_commits "Performance Improvements"
+    format_commits refactor_commits "Refactoring"
+    format_commits test_commits "Tests"
+    format_commits other_commits "Others"
 }
 
 {
     echo "# Changelog"
     echo
 
-    # 获取所有 tag，按版本号排序（最新的在前）
     tags=$(git tag --sort=-version:refname)
 
-    # 如果有未发布的更改，先生成 Unreleased 部分
     if [ "$(git rev-parse HEAD)" != "$(git rev-parse $(echo $tags | head -n1))" ]; then
         generate_changelog_for_tag "$(echo $tags | head -n1)" "HEAD"
     fi
 
-    # 生成每个 tag 的 changelog
     prev_tag=""
     for tag in $tags
     do
@@ -132,7 +100,6 @@ generate_changelog_for_tag() {
 
 } > CHANGELOG.md
 
-# 如果 changelog 不为空，则添加到暂存区
 if [ -s CHANGELOG.md ]; then
     git add CHANGELOG.md
 fi

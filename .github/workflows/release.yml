@@ -42,6 +42,7 @@ jobs:
       targetName: JX3DPS.dll
     outputs:
       version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -100,13 +101,26 @@ jobs:
           $name = ${env:archiveName}
           echo "packageName=$name" >> $env:GITHUB_OUTPUT
 
-      - uses: actions/upload-artifact@v3
+      - name: Verify artifact
+        shell: pwsh
+        run: |
+          $packageName = "${{ steps.package.outputs.packageName }}"
+          if (Test-Path "${packageName}.zip") {
+            Write-Output "Artifact ${packageName}.zip created successfully"
+          } else {
+            Write-Error "Artifact ${packageName}.zip not found"
+            exit 1
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1
 
   generate-changelog:
-    name: Generate Changelog
+    name: Generate Changelog and Release
     needs: [build-mingw]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
@@ -162,6 +176,14 @@ jobs:
 
           echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
 
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build-mingw.outputs.packageName }}
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -177,7 +199,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           version="${{ needs.build-mingw.outputs.version }}"
+          packageName="${{ needs.build-mingw.outputs.packageName }}"
           
-          # 下载并上传 MinGW 构建的资产
-          gh run download -n JX3DPS-win64-mingw-$version
-          gh release upload $version JX3DPS-win64-mingw-$version.zip
+          # 直接上传下载的zip文件
+          if [ -f "${packageName}.zip" ]; then
+            gh release upload $version "${packageName}.zip"
+            echo "Successfully uploaded ${packageName}.zip to release $version"
+          else
+            echo "Error: ${packageName}.zip not found"
+            ls -R
+            exit 1
+          fi

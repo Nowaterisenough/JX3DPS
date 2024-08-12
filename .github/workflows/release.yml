@@ -76,7 +76,7 @@ jobs:
         shell: pwsh
         run: |
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
-          $versionLine = Get-Content cmake_output.txt | Select-String -Pattern "^\|.*VERSION.*:\s*(\d+\.\d+\.\d+\.\d+)\s*\|$"
+          $versionLine = Get-Content cmake_output.txt | Select-String -Pattern "\|\s*VERSION\s*:\s*(\d+\.\d+\.\d+\.\d+)\s*\|"
           if ($versionLine) {
             $version = $versionLine.Matches.Groups[1].Value.Trim()
             if ($version -match '^\d+\.\d+\.\d+\.\d+$') {
@@ -84,10 +84,13 @@ jobs:
               echo "VERSION=$version" >> $env:GITHUB_OUTPUT
             } else {
               echo "Extracted version does not match expected format: $version"
+              echo "Full version line: $versionLine"
+              Get-Content cmake_output.txt
               exit 1
             }
           } else {
             echo "Failed to extract version from CMake output"
+            echo "Content of cmake_output.txt:"
             Get-Content cmake_output.txt
             exit 1
           }

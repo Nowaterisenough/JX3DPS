@@ -137,22 +137,22 @@ jobs:
           tags=$(git tag --sort=-creatordate | head -n 2)
           latestTag=$(echo "$tags" | head -n 1)
           previousTag=$(echo "$tags" | tail -n 1)
-
+      
           if [ -z "$previousTag" ]; then
             # 如果只有一个标签，就从仓库开始到最新标签
             range="$latestTag"
           else
             range="$previousTag..$latestTag"
           fi
-
-          # 使用 Git 命令获取提交记录
-          commits=$(git log $range --pretty=format:"- %s (%h)" --reverse)
-
+      
+          # 使用 Git 命令获取提交记录，排除合并提交
+          commits=$(git log $range --pretty=format:"- %s (%h)" --reverse --no-merges)
+      
           # 按类型分类提交并移除类型前缀
           featCommits=$(echo "$commits" | grep '^- feat' | sed 's/^- feat: \?/- /')
           fixCommits=$(echo "$commits" | grep '^- fix' | sed 's/^- fix: \?/- /')
           otherCommits=$(echo "$commits" | grep -v '^- \(feat\|fix\)' | sed 's/^- [^:]*: \?/- /')
-
+      
           # 构建 changelog
           {
             if [ -n "$featCommits" ]; then
@@ -173,7 +173,7 @@ jobs:
               echo
             fi
           } > changelog.md
-
+      
           echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
 
       - name: Download artifact

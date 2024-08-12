@@ -9,7 +9,7 @@
 |-----------------|-----------------|-----------------|-----------------|
 |![license-badge] |![release-badge] | ![download-badge]|![issues-badge]|
 
-[win-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3AWindows "WindowsAction"
+[win-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow:Build%20and%20Release "WindowsAction"
 [win-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/Windows/badge.svg  "Windows"
 
 [ubuntu-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3AUbuntu "UbuntuAction"

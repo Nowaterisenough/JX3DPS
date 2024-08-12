@@ -82,8 +82,9 @@ jobs:
         shell: pwsh
         run: |
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
-          $version = (Select-String -Path cmake_output.txt -Pattern "VERSION=(.+)").Matches.Groups[1].Value
-          if ($version) {
+          $versionLine = Get-Content cmake_output.txt | Select-String -Pattern "VERSION\s*:\s*(.+?)\s*$"
+          if ($versionLine) {
+            $version = $versionLine.Matches.Groups[1].Value.Trim()
             echo "Extracted version: $version"
             echo "VERSION=$version" >> $env:GITHUB_OUTPUT
           } else {

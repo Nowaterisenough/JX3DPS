@@ -151,7 +151,11 @@ jobs:
           # 按类型分类提交并移除类型前缀
           featCommits=$(echo "$commits" | grep '^- feat' | sed 's/^- feat: \?/- /')
           fixCommits=$(echo "$commits" | grep '^- fix' | sed 's/^- fix: \?/- /')
-          otherCommits=$(echo "$commits" | grep -v '^- \(feat\|fix\)' | sed 's/^- [^:]*: \?/- /')
+          docsCommits=$(echo "$commits" | grep '^- docs' | sed 's/^- docs: \?/- /')
+          perfCommits=$(echo "$commits" | grep '^- perf' | sed 's/^- perf: \?/- /')
+          refactorCommits=$(echo "$commits" | grep '^- refactor' | sed 's/^- refactor: \?/- /')
+          testCommits=$(echo "$commits" | grep '^- test' | sed 's/^- test: \?/- /')
+          otherCommits=$(echo "$commits" | grep -v '^- \(feat\|fix\|docs\|perf\|refactor\|test\)' | sed 's/^- [^:]*: \?/- /')
       
           # 构建 changelog
           {
@@ -162,13 +166,37 @@ jobs:
             fi
             
             if [ -n "$fixCommits" ]; then
-              echo "#### BugFixes"
+              echo "#### Bug Fixes"
               echo "$fixCommits"
               echo
             fi
             
+            if [ -n "$docsCommits" ]; then
+              echo "#### Documentation"
+              echo "$docsCommits"
+              echo
+            fi
+            
+            if [ -n "$perfCommits" ]; then
+              echo "#### Performance Improvements"
+              echo "$perfCommits"
+              echo
+            fi
+            
+            if [ -n "$refactorCommits" ]; then
+              echo "#### Refactoring"
+              echo "$refactorCommits"
+              echo
+            fi
+            
+            if [ -n "$testCommits" ]; then
+              echo "#### Tests"
+              echo "$testCommits"
+              echo
+            fi
+            
             if [ -n "$otherCommits" ]; then
-              echo "#### Others"
+              echo "#### Other Changes"
               echo "$otherCommits"
               echo
             fi
@@ -192,7 +220,7 @@ jobs:
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           # 使用 GitHub CLI 创建发布
-          gh release create $version --title "JX3DPS $version" --notes-file $changelogPath
+          gh release create $version --title "$version" --notes-file $changelogPath
 
       - name: Upload Release Assets
         env:

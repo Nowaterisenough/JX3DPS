@@ -1,27 +1,32 @@
 # Changelog
 
-## Unreleased (2024-08-12)
+## Unreleased (2024-08-13)
 
 ### Others
 - 更新WindowsAction流程 by @NoWaterisEnough in 570bc0d
 - 更新太虚剑意和万剑归宗的头文件 by @NoWaterisEnough in a8fe5a5
-- 更新生成CHANGELOG脚本 by @NoWaterisEnough in 0a5d4ba 1933a39 eda2568
+- 删除旧的CHANGELOG by @NoWaterisEnough in 2ad8af8
+- 更新生成CHANGELOG脚本 by @NoWaterisEnough in 0a5d4ba 1933a39 eda2568 6b2cbb2
 - 去掉action流程中获取版本号的分支要求 by @NoWaterisEnough in ba7a7d1
+- 初始化仓库，重构 by @NoWaterisEnough in a10047f
 - 更新WindowsAction链接 by @难为水 in 418e23b 6bf0300
 - 修改生成CHANGELOG脚本 by @NoWaterisEnough in 97535d2
 - 处理大小写文件问题 by @难为水 in 7c50aaf
 - 删除不再使用的头文件和常量 by @难为水 in d43ae00
+- 添加 post-commit 脚本用于生成 changelog by @NoWaterisEnough in db2fca1
+- 重构仓库，删除旧的CHANGELOG文件，添加post-commit脚本用于生成changelog by @NoWaterisEnough in a7c566a
 - 添加自动生成CHANGELOG脚本 by @NoWaterisEnough in 121b9e3
 
-## v5.39.811.1951 (2024-08-12)
+## 5.39.0812.2323 (2024-08-12)
 
 ### Bug Fixes
 - fixup! refactor: remove cmake/Version.cmake by @难为水 in 9e4248d
 
 ### Tests
-- test by @NoWats in 3afaef4 b7245a3 113ed5b 85a66ba 4e5e864 7c33740
+- test by @NoWats in 94bea6d 3afaef4 b7245a3 113ed5b 85a66ba 4e5e864 7c33740
 
 ### Others
+- 修复版本号捕获问题 by @lidi in 06dcf08
 - 新增太虚剑意破招伤害 by @NoWats in 8708b4d
 - 新 模 块 by @NoWats in 3b7e182 2b3f2cf 57da7b3 1f3bb59 6dbbef1 d809b16 222b9d5 6c6e935
 - 22222222 by @NoWats in 165d885
@@ -34,9 +39,11 @@
 - 更新自动构建脚本和CMakeLists版本号，优化Windows构建环境 by @难为水 in 1ac96b1 767abc4
 - 优化版本检测 by @NoWats in 65876e3
 - 更新小吃小药宴席 by @NoWats in a088ced
+- 更新提交记录获取命令，包括作者信息 by @lidi in cacb122
 - 修复时间轴时间显示问题 by @NoWats in 81bc056
 - 优化性能 by @NoWats in 1cbcea9
 - 修复充能bug by @NoWats in 0d399e0
+- 合并到master时也会触发action by @lidi in 4335f0a
 - 111 by @NoWats in 24fc228 4244ec6
 - 更新紫霞功技能ID by @NoWats in 3c40a02
 - 更 新 构 建 by @NoWats in 1f8a9d4
@@ -46,10 +53,12 @@
 - 修复橙武dot伤害 by @NoWats in 765ebcf
 - 调整成动态库构建 by @NoWats in 6541ee9
 - 新增返回宏语句 by @NoWats in a960954
+- 更新WindowsAction流程 by @NoWaterisEnough in 570bc0d
 - 临时加个奇穴UI方案 by @NoWats in 485f447
 - 更新CMakeLists和删除Git自动打tag功能 by @难为水 in d29e49e
 - 重构部分构建 by @难为水 in 3781220
 - 重新调整页面布局 by @NoWats in 9720416
+- 修复版本捕获 by @lidi in 7316eda
 - 格 式 by @NoWats in 412ed69
 - 新增三方buff by @NoWats in bb2d6fa
 - 修复气场回气和大附魔触发的问题 by @NoWats in b670f15
@@ -62,7 +71,9 @@
 - 修复tbuff clear闪退问题 by @NoWats in 01c2ee0
 - 修复dot伤害 by @NoWats in 88be413
 - 更新部分常量命名 by @NoWats in 90593cf
+- 更新CMake最低版本要求为3.25 by @lidi in b4a07ed
 - 新增TabWidget序号 by @NoWats in 81cf96d
+- 更新太虚剑意和万剑归宗的头文件 by @NoWaterisEnough in a8fe5a5
 - 新增CHANGLOG by @难为水 in c3b3662
 - 更新收益数值 by @NoWats in 29b3f8e
 - 界面完成 by @NoWats in 038378d
@@ -75,6 +86,7 @@
 - 3 by @NoWats in ca56562
 - 9 by @NoWats in 73c7ffc 5bfb4df
 - 同步技改 by @NoWats in 2905765
+- 调整version的捕获方式 by @lidi in c6391b4
 - 修复TabWidget为0时闪退的bug by @NoWats in 7266beb
 - 修复吞日月气场判定 by @NoWats in df16c27
 - 新增进度条UI by @NoWats in 5dccd63
@@ -83,6 +95,7 @@
 - 修正部分系数 by @NoWats in 43a4b77
 - 11 by @NoWats in 123ef16 bd277de 37d1b29 145ac2f
 - 更新构建 by @难为水 in da54736
+- 更新生成CHANGELOG脚本 by @NoWaterisEnough in 0a5d4ba 1933a39 eda2568 6b2cbb2
 - 添加gtest by @NoWats in a82b47f
 - 新增版本等信息输出 by @难为水 in c8261bc
 - 主题颜色配置 by @NoWats in 6a7eaf0
@@ -92,11 +105,17 @@
 - 新增心法 by @难为水 in 75eb46f
 - 新增部分基础界面控件 by @NoWats in 9da62e8
 - 新增spinbox by @NoWats in a746f05
+- 修复版本时间戳为北京时间 by @lidi in d47e286
 - 新增莫问部分id by @NoWats in a5f71aa
+- 更新发布流程，修复package上传失败的问题 by @lidi in 171f0fa
+- 修复没有最新一次的提交记录 by @lidi in 1ef2313
+- 更新自动构建流程，优化Windows和Linux构建，增加CMake版本提取，改进发布流程 by @难为水 in e383872
+- 去掉action流程中获取版本号的分支要求 by @NoWaterisEnough in ba7a7d1
 - gitignore修改 by @NoWats in 6e73457
 - 新增proxy实现的解释器 by @难为水 in b627f31
 - 更新CMakeLists和自动打tag脚本以统一版本号标识符 by @难为水 in 0c0c99a
 - 新增导入属性 by @NoWats in 7a66bbd
+- 更新自动构建流程，优化Windows和Linux构建，改进发布流程，移除CMake版本提取 by @难为水 in 8560906
 - 更新数据统计界面 by @NoWats in c7b0539
 - 更新ignore by @NoWats in e1faed5
 - 更新属性面板 by @NoWats in 6a68eb1
@@ -110,6 +129,7 @@
 - 新增TabWidget by @NoWats in e333027
 - 新增招架全局系数 by @NoWats in d9fdb07
 - 修复多行同样技能的宏导致的错误 by @NoWats in abb4263 ecb3f7b
+- 更新发布流程，优化Windows和Linux构建，改进发布命名，增加MSVC构建 by @难为水 in e4eea2c
 - 修改版本号 by @NoWats in d6a8f62
 - 莫问更新 by @NoWats in e6e8e15 1884c31
 - 新增三方库 by @难为水 in 01a0bbb
@@ -132,10 +152,13 @@
 - 修复部分莫问bug by @NoWats in af18113
 - 版本 by @NoWats in 218988e
 - 更新自动删除tag脚本和CMakeLists版本号 by @难为水 in d32dcda
+- 更新WindowsAction链接 by @难为水 in 418e23b 6bf0300
 - 修改为opengl方式 by @NoWats in 2e7240c
+- 去除CHANGELOG文件 by @lidi in 41bdd14
 - 新增秘籍 by @NoWats in f106b6e 657607e
 - 莫问新增cw 水特效 by @NoWats in 04edf57
 - Refactor code and update version and timestamp information by @NoWats in 922e300
+- 修改生成CHANGELOG脚本 by @NoWaterisEnough in 97535d2
 - 新增宏定义 by @lidi in 7c14932
 - 修正持盈没有生效的问题 by @NoWats in 314b331
 - 4 by @NoWats in 4b0bc87 7ee8d65
@@ -149,26 +172,33 @@
 - 新增3rd依赖 by @NoWats in c481430
 - 新增莫问大附魔护腕 by @NoWats in 5f7fb29
 - 更新版本检测 by @NoWats in 75c52cb
+- 更新自动构建流程，优化Windows和Linux构建，改进发布流程 by @难为水 in 87b9743
 - 新增伤害代码 by @难为水 in 4082b30
 - 格式 by @NoWats in dd8e6e4
 - 1 by @NoWats in 9e20c9a 0666ccd f57ccd8 053e7e4
+- 生成的changelog去除merge信息 (#42) by @NoWaterisEnough in 5a57714
 - 新增双击修改属性 by @NoWats in d55b0b2
 - 修复设置目标的事件语句 by @NoWats in e9799c6
+- 修改触发流程 by @lidi in 1c5b042
+- 修复版本号捕获 by @lidi in 5a1b0bc 6cdd888
 - 修复系数 by @NoWats in 49a4fa4
 - 调整秘籍hovered变化 by @NoWats in 913cc8e
 - 图6 by @NoWats in e2e8862
 - 新增UI模块 by @NoWats in 9529946
 - 格式化 by @NoWats in eedecbc
+- 处理大小写文件问题 by @难为水 in 7c50aaf
 - 新构建 by @NoWats in 90f3d1e
+- 优化代码结构，移除无用的返回语句和空行 by @lidi in 631f6a6
 - 调整目录结构 by @NoWats in 0639379
 - 修复剑纯碎星辰问题 by @NoWats in 6689028
 - 调整cmake by @难为水 in 300e6b7
 - 修复配置文件的图标错误 by @NoWats in 32d5d3b
 - 重构调整目录和相关文件 by @难为水 in 10650d8
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6019546 9520979 ab1b56a 134c207 1fa1e96 8a4d6c2
+- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6019546 9520979 ab1b56a 134c207 1fa1e96 8a4d6c2 27c2626 6f8164d 07c148d 949eff3 5210721 1ca7650
 - 11111 by @NoWats in ea4a244
 - 新 的 构 建 框 架 by @NoWats in 72964dd
 - 三方库更新 by @难为水 in a49d61a be25ff5 c9ffaf4
+- 删除不再使用的头文件和常量 by @难为水 in d43ae00
 - 调整格式 by @NoWats in db0f165
 - 更新Qt 6.5.2 by @NoWats in 27f6a27
 - 去除gtest by @NoWats in 4c1f596
@@ -180,6 +210,7 @@
 - 更新数据表UI by @NoWats in 5938875
 - style(格式): 格式 by @NoWats in 15d1356 a62f3fa
 - 新增紫霞功 by @NoWats in 60986e7
+- 重命名线程池文件为ThreadPool.cpp和ThreadPool.hpp by @lidi in 3094fec
 - 新增分山劲id by @NoWats in 1dc7e03
 - 框架重构 by @NoWats in 1d41720
 - 版本更新 by @NoWats in a8da521
@@ -190,6 +221,7 @@
 - add README by @NoWats in 041fe13
 - 更新自动打tag脚本和推送本地tag到远程仓库 by @难为水 in 1f33dcd
 - 修复五音六律的闪退问题 by @NoWats in 422b28e
+- 添加自动生成CHANGELOG脚本 by @NoWaterisEnough in 121b9e3
 - 修复右键拖拽bug by @NoWats in 8e689b0
 - 222 by @NoWats in 158a2e3
 - 修复宏判定条件 by @NoWats in 8e5c01e
@@ -201,6 +233,7 @@
 - 新增剑纯阵法配置 by @NoWats in 7e1fb71
 - 添加打包命令，自动打包并命名版本号 by @NoWats in b78a71a
 - 修复等级差增伤比例和快照武学增伤的问题 by @NoWats in 26256bd
+- 新增几个changelog类型 by @lidi in fbf53a7
 - 修复生太极减cd问题 by @NoWats in 5c6f0eb
 - 更新benchmark by @难为水 in 014527b
 - 更新莫问流照奇穴 by @NoWats in dd78854
@@ -216,10 +249,13 @@
 - 重 构 by @NoWats in d488f5f 1c8d96e
 - 添加性能测试 by @难为水 in 43246ed
 - 修正版本错误 by @NoWats in 43fd3c5
+- 更新构建环境和脚本，优化Windows和Linux构建，增加MSVC构建，改进发布流程 by @难为水 in e0d451a
 - 新增弄梅 by @NoWats in 05724db
 - 更新AVX指令集编译 by @难为水 in 383ef5c
+- 更新自动构建流程，优化Windows和Linux构建，增加MSVC构建，改进发布流程 by @难为水 in 573ca13
 - 33333 by @NoWats in e1bbbde
 - 太虚剑意新增效果 by @NoWats in afb1796
+- 更新自动构建流程，优化Windows和Linux构建，移除MSVC构建，改进发布流程 by @难为水 in 9bc57b6
 - 修复会心比例问题 by @NoWats in ee74f6c
 - 新增莫问部分奇穴 by @NoWats in 94b2bcd
 - 优化伤害计算算法 by @NoWats in 3b3d75a
@@ -234,6 +270,8 @@
 - 新 增 g i t h u b by @NoWats in c6eb691
 - 新增单元测试 by @难为水 in 9548392
 - 修复小吃小药不生效的问题 by @NoWats in 984b062
+- 更新自动构建流程，移除Linux GCC构建，优化Windows构建，改进发布流程 by @难为水 in 5309b43
+- 修改发布页面的CHANGELOG格式 by @lidi in cd94ee3
 - 新增曲线图 by @NoWats in 428933e
 - 新增详细统计 by @NoWats in 4a61a17
 - 调整命名 by @NoWats in f76f247
@@ -241,6 +279,7 @@
 - 新增Git自动打tag脚本 by @难为水 in 36df352
 - 修复属性bug by @NoWats in 9b76799
 -  by @NoWats in 5babddd
+- 更新`.clang-format`配置文件 by @lidi in d548dc3
 - 更新分山配置 by @NoWats in 93a8e1f
 - 更新自动打tag脚本和CMakeLists版本号 by @难为水 in d5384d8
 - 修复模拟次数过多时，json溢出问题 by @NoWats in 3368dea
@@ -258,6 +297,7 @@
 - 新增调试日志信息 by @NoWats in b2267d8
 - 统计界面更新 by @NoWats in 151f158
 - U I by @NoWats in 0648574
+- 生成的changelog去除merge信息 by @lidi in 64510ec
 - 新增界面代码 by @NoWats in 5560967
 - 修复测试的构建 by @NoWats in 3d5c3f7
 - 修复莫问大招问题 by @NoWats in f6bf9c9
@@ -266,280 +306,22 @@
 - 格式化常量名 by @NoWats in 7b45f5a
 - 修复bug by @NoWats in 26f0243 e45f959 6a7742e
 - 修复宏语句的问题 by @NoWats in ba960f7
+- 去掉master才能获取版本号的限制 by @lidi in c8cb418
 
-## v5.39.811.1951 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 8a4d6c2
-
-## v5.39.811.1941 (2024-08-12)
+## 5.39.0812.2323 (2024-08-12)
 
 ### Others
--  by  in 
-
-## 5.39.812.556 (2024-08-12)
-
-### Others
-- 更新自动构建流程，优化Windows和Linux构建，改进发布流程，移除CMake版本提取 by @难为水 in 8560906
-
-## 5.39.812.547 (2024-08-12)
-
-### Others
-- 更新自动构建流程，优化Windows和Linux构建，增加CMake版本提取，改进发布流程 by @难为水 in e383872
-
-## 5.39.812.542 (2024-08-12)
-
-### Others
-- 更新发布流程，优化Windows和Linux构建，改进发布命名，增加MSVC构建 by @难为水 in e4eea2c
-
-## 5.39.812.529 (2024-08-12)
-
-### Others
-- 更新自动构建流程，移除Linux GCC构建，优化Windows构建，改进发布流程 by @难为水 in 5309b43
-
-## 5.39.812.518 (2024-08-12)
-
-### Others
-- 更新自动构建流程，优化Windows和Linux构建，移除MSVC构建，改进发布流程 by @难为水 in 9bc57b6
-
-## 5.39.812.517 (2024-08-12)
-
-### Others
-- 更新自动构建流程，优化Windows和Linux构建，改进发布流程 by @难为水 in 87b9743
-
-## 5.39.812.513 (2024-08-12)
-
-### Others
-- 更新构建环境和脚本，优化Windows和Linux构建，增加MSVC构建，改进发布流程 by @难为水 in e0d451a
-
-## 5.39.812.504 (2024-08-12)
-
-### Others
-- 更新自动构建流程，优化Windows和Linux构建，增加MSVC构建，改进发布流程 by @难为水 in 573ca13
-
-## 5.39.812.450 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 1ca7650
-
-## 5.39.812.441 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 5210721
-
-## 5.39.812.433 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 949eff3
-
-## 5.39.812.420 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 07c148d
-
-## 5.39.812.416 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6f8164d
-
-## 5.39.812.403 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 27c2626
-
-## 5.39.812.345 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 8a4d6c2
-
-## 5.39.812.335 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 1fa1e96
-
-## 5.39.812.315 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 134c207
-
-## 5.39.812.307 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in ab1b56a
-
-## 5.39.812.255 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 9520979
-
-## 5.39.812.248 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6019546
-
-## 5.39.812.241 (2024-08-12)
-
-### Others
-- 更新自动构建脚本和CMakeLists版本号，优化Windows构建环境 by @难为水 in 767abc4
-
-## 5.39.812.233 (2024-08-12)
-
-### Others
-- Update Windows build environment and automatic build script version by @难为水 in fc286b0
-
-## 5.39.812.226 (2024-08-12)
-
-### Others
-- Update Windows build environment and automatic build script version by @难为水 in 5da3f85
-
-## 5.39.812.220 (2024-08-12)
-
-### Others
-- Update Windows build environment and automatic build script version by @难为水 in 4f13f44
-
-## 5.39.812.202 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号 by @难为水 in 8b7f313
-
-## 5.39.812.156 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号 by @难为水 in f655450
-
-## 5.39.812.151 (2024-08-12)
-
-### Others
-- 优化Windows构建环境，更新自动构建脚本和CMakeLists版本号 by @难为水 in 3ecbc29
-
-## 5.39.812.144 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号 by @难为水 in fd2bd1f
-
-## 5.39.812.139 (2024-08-12)
-
-### Others
-- 优化Windows构建环境，更新自动构建脚本和CMakeLists版本号 by @难为水 in 42f9fa3
-
-## 5.39.812.132 (2024-08-12)
-
-### Others
-- 更新自动构建脚本和CMakeLists版本号，优化Windows构建环境 by @难为水 in 1ac96b1
-
-## 5.39.812.57 (2024-08-12)
-
-### Others
--  by  in 
-
-## 5.39.811.2202 (2024-08-12)
-
-### Others
-- 更新自动构建流程，优化Windows和Linux构建，增加CMake版本提取，改进发布流程 by @难为水 in e383872
-- 更新自动构建流程，优化Windows和Linux构建，改进发布流程，移除CMake版本提取 by @难为水 in 8560906
-- 更新发布流程，优化Windows和Linux构建，改进发布命名，增加MSVC构建 by @难为水 in e4eea2c
-- 更新自动构建流程，优化Windows和Linux构建，改进发布流程 by @难为水 in 87b9743
-- 更新构建环境和脚本，优化Windows和Linux构建，增加MSVC构建，改进发布流程 by @难为水 in e0d451a
-- 更新自动构建流程，优化Windows和Linux构建，增加MSVC构建，改进发布流程 by @难为水 in 573ca13
-- 更新自动构建流程，优化Windows和Linux构建，移除MSVC构建，改进发布流程 by @难为水 in 9bc57b6
-- 更新自动构建流程，移除Linux GCC构建，优化Windows构建，改进发布流程 by @难为水 in 5309b43
-
-## 5.39.811.2057 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 1ca7650
-
-## 5.39.811.2047 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 949eff3 5210721
-
-## 5.39.811.2026 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6f8164d 07c148d
-
-## 5.39.811.2011 (2024-08-12)
-
-### Others
-- 更新Windows构建环境和自动构建脚本版本号 by @难为水 in fd2bd1f f655450 8b7f313
-- 更新自动构建脚本和CMakeLists版本号，优化Windows构建环境 by @难为水 in 1ac96b1 767abc4
-- Update Windows build environment and automatic build script version by @难为水 in 4f13f44 5da3f85 fc286b0
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6019546 9520979 ab1b56a 134c207 1fa1e96 8a4d6c2 27c2626
-- 优化Windows构建环境，更新自动构建脚本和CMakeLists版本号 by @难为水 in 42f9fa3 3ecbc29
-- 更新三方库 by @难为水 in c4a9dcd
-- 更新三方库 by @lidi in 974b2e9
-- Update third-party libraries by @lidi in ae12ab9
-- 更新proxy实现的解释器代码并新增CHANGLOG by @lidi in ed3843b
-
-## 5.39.801.631 (2024-08-01)
-
-### Others
-- 更新CMakeLists和自动打tag脚本以统一版本号标识符 by @难为水 in 0c0c99a
-
-## 5.39.801.629 (2024-08-01)
-
-### Others
-- 更新自动打tag脚本和推送本地tag到远程仓库 by @难为水 in 1f33dcd
-
-## 5.39.801.628 (2024-08-01)
-
-### Others
-- 更新CMakeLists和删除Git自动打tag功能 by @难为水 in d29e49e
-
-## 5.39.801.623 (2024-08-01)
-
-### Others
--  by  in 
+- 更新生成CHANGELOG脚本 by @NoWaterisEnough in 0a5d4ba 1933a39 eda2568 6b2cbb2
+- 修改生成CHANGELOG脚本 by @NoWaterisEnough in 97535d2
+- 添加自动生成CHANGELOG脚本 by @NoWaterisEnough in 121b9e3
 
 ## 5.39.0812.2245 (2024-08-12)
 
 ### Others
--  by  in 
-
-## 5.39.0812.2236 (2024-08-12)
-
-### Others
-- 去掉action流程中获取版本号的分支要求 by @NoWaterisEnough in ba7a7d1
-
-## 5.39.0812.2233 (2024-08-12)
-
-### Others
--  by  in 
-
-## 5.39.0812.2219 (2024-08-12)
-
-### Others
 - 更新WindowsAction流程 by @NoWaterisEnough in 570bc0d
-
-## 5.39.0812.2211 (2024-08-12)
-
-### Others
--  by  in 
-
-## 5.39.0812.2203 (2024-08-12)
-
-### Others
 - 更新太虚剑意和万剑归宗的头文件 by @NoWaterisEnough in a8fe5a5
-
-## 5.39.0812.2001 (2024-08-12)
-
-### Others
+- 去掉action流程中获取版本号的分支要求 by @NoWaterisEnough in ba7a7d1
 - 更新WindowsAction链接 by @难为水 in 418e23b 6bf0300
-
-## 5.39.0812.1952 (2024-08-12)
-
-### Others
--  by  in 
-
-## 5.39.0812.1949 (2024-08-12)
-
-### Others
-- 更新WindowsAction链接 by @难为水 in 418e23b
-
-## 5.39.0812.1945 (2024-08-12)
-
-### Others
 - 处理大小写文件问题 by @难为水 in 7c50aaf
 - 删除不再使用的头文件和常量 by @难为水 in d43ae00
 

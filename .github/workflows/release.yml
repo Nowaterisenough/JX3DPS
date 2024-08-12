@@ -143,19 +143,19 @@ jobs:
             range="${latestTag}..HEAD"
           fi
       
-          # 使用 Git 命令获取提交记录，排除合并提交
-          commits=$(git log $range --pretty=format:"- %s (%h)" --reverse --no-merges)
+          # 使用 Git 命令获取提交记录，排除合并提交，包括作者信息
+          commits=$(git log $range --pretty=format:"- %s by @%an in %h" --reverse --no-merges)
       
           # 如果没有新的提交，使用最新标签到上一个标签的范围
           if [ -z "$commits" ]; then
             previousTag=$(git describe --tags --abbrev=0 ${latestTag}^)
             if [ -n "$previousTag" ]; then
               range="${previousTag}..${latestTag}"
-              commits=$(git log $range --pretty=format:"- %s (%h)" --reverse --no-merges)
+              commits=$(git log $range --pretty=format:"- %s by @%an in %h" --reverse --no-merges)
             fi
           fi
       
-          # 按类型分类提交并移除类型前缀
+          # 按类型分类提交并移除类型前缀，保留作者信息
           featCommits=$(echo "$commits" | grep '^- feat' | sed 's/^- feat: \?/- /')
           fixCommits=$(echo "$commits" | grep '^- fix' | sed 's/^- fix: \?/- /')
           docsCommits=$(echo "$commits" | grep '^- docs' | sed 's/^- docs: \?/- /')

@@ -14,7 +14,7 @@
 - ci: 修复构建流程，区分CHANGELOG类型 by @NoWaterisEnough in 0a33329
 - chore: 添加 post-commit 脚本用于生成 changelog by @NoWaterisEnough in db2fca1
 - chore: 修改生成CHANGELOG脚本 by @NoWaterisEnough in 97535d2
-- chore: 重新添加CHANGELOG by @NoWaterisEnough in becae18
+- chore: 重新添加CHANGELOG by @NoWaterisEnough in becae18 7704d7a
 - ci: 调整action构建发布流程 by @NoWaterisEnough in 6ffd24d
 - chore: 删除不再使用的头文件和常量 by @难为水 in d43ae00
 - ci: 去掉action流程中获取版本号的分支要求 by @NoWaterisEnough in ba7a7d1

@@ -114,11 +114,13 @@ jobs:
       - name: Generate Changelog
         id: changelog
         run: |
-          # 获取最新的标签
-          latestTag=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          # 获取最新的两个标签
+          tags=$(git tag --sort=-version:refname | head -n 2)
+          latest_tag=$(echo "$tags" | head -n 1)
+          previous_tag=$(echo "$tags" | tail -n 1)
           
           # 定义范围
-          range="${latestTag}..HEAD"
+          range="${previous_tag}..${latest_tag}"
       
           # 使用 Git 命令获取提交记录，排除合并提交，包括作者信息
           commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
@@ -174,7 +176,7 @@ jobs:
       
           # 构建 changelog
           {
-            echo "## CHANGELOG"
+            echo "## $latest_tag ($(date +%Y-%m-%d))"
             echo
             format_commits feat_commits "Features"
             format_commits fix_commits "Bug Fixes"

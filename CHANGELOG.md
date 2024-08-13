@@ -3,7 +3,7 @@
 ## Unreleased (2024-08-13)
 
 ### Others
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 68565ae 5cd1563 0cd134b e39ba85 8d5783e 9a2e2bf fb2d1c8
+- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 68565ae 5cd1563 0cd134b e39ba85 8d5783e 9a2e2bf fb2d1c8 fdde890
 
 ## 5.39.0813.0934 (2024-08-13)
 

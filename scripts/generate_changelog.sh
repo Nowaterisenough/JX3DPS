@@ -21,21 +21,20 @@ generate_changelog_for_tag() {
         range=${start_tag}..${end_tag}
     fi
 
-    local commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
+    local commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
 
     declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
 
-    while IFS='|' read -r message author hash; do
+    while IFS='|' read -r timestamp message author hash; do
         if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
             type=${BASH_REMATCH[1]}
             clean_message=${message#$type: }
         else
             type="other"
-            # 移除常见的前缀，包括冒号和空格
             clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
         fi
         
-        key="${clean_message}|${author}"
+        key="${timestamp}|${clean_message}|${author}"
         case $type in
             feat)     array_ref="feat_commits"     ;;
             fix)      array_ref="fix_commits"      ;;
@@ -46,22 +45,27 @@ generate_changelog_for_tag() {
             *)        array_ref="other_commits"    ;;
         esac
         
-        if [[ -v ${array_ref}[$key] ]]; then
-            eval "${array_ref}[$key]+=' $hash'"
-        else
-            eval "${array_ref}[$key]='$hash'"
-        fi
+        eval "${array_ref}[\$key]='$hash'"
     done <<< "$commits"
 
     format_commits() {
         local -n commit_array=$1
         local title=$2
         local formatted=""
-        for key in "${!commit_array[@]}"; do
-            IFS='|' read -r message author <<< "$key"
-            hashes=${commit_array[$key]}
-            formatted+="- $message by $author in $hashes"$'\n'
+        
+        # 创建一个临时数组来存储排序后的键
+        local sorted_keys=($(
+            for key in "${!commit_array[@]}"; do
+                echo "$key"
+            done | sort -n
+        ))
+        
+        for key in "${sorted_keys[@]}"; do
+            IFS='|' read -r timestamp message author <<< "$key"
+            hash=${commit_array[$key]}
+            formatted+="- $message by $author in $hash"$'\n'
         done
+        
         if [ -n "$formatted" ]; then
             echo "### $title"
             echo -n "$formatted"

@@ -14,24 +14,21 @@ generate_changelog_for_tag() {
     fi
     echo
 
-    local range
-    if [ "$start_tag" = "START" ]; then
-        range=$(git rev-list --max-parents=0 HEAD)..${end_tag}
-    else
-        range=${start_tag}..${end_tag}
-    fi
-
-    local commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
+    local range="${start_tag}..${end_tag}"
+    local commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
 
     declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
 
-    while IFS='|' read -r message author hash; do
+    while IFS='|' read -r timestamp message author hash; do
+        if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
+            continue
+        fi
+
         if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
             type=${BASH_REMATCH[1]}
             clean_message=${message#$type: }
         else
             type="other"
-            # 移除常见的前缀，包括冒号和空格
             clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
         fi
         
@@ -57,11 +54,21 @@ generate_changelog_for_tag() {
         local -n commit_array=$1
         local title=$2
         local formatted=""
-        for key in "${!commit_array[@]}"; do
+        
+        local sorted_keys=($(
+            for key in "${!commit_array[@]}"; do
+                echo "$key"
+            done | sort
+        ))
+        
+        for key in "${sorted_keys[@]}"; do
             IFS='|' read -r message author <<< "$key"
             hashes=${commit_array[$key]}
-            formatted+="- $message by $author in $hashes"$'\n'
+            if [ -n "$message" ] && [ -n "$author" ] && [ -n "$hashes" ]; then
+                formatted+="- $message by $author in $hashes"$'\n'
+            fi
         done
+        
         if [ -n "$formatted" ]; then
             echo "### $title"
             echo -n "$formatted"
@@ -83,18 +90,21 @@ generate_changelog_for_tag() {
     echo
 
     tags=$(git tag --sort=-version:refname)
-
-    if [ "$(git rev-parse HEAD)" != "$(git rev-parse $(echo $tags | head -n1))" ]; then
-        generate_changelog_for_tag "$(echo $tags | head -n1)" "HEAD"
+    latest_tag=$(echo "$tags" | head -n 1)
+    
+    # 生成未发布的更改
+    if [ "$(git rev-parse HEAD)" != "$(git rev-parse $latest_tag)" ]; then
+        generate_changelog_for_tag "$latest_tag" "HEAD"
     fi
 
+    # 生成所有标签的更改
     prev_tag=""
     for tag in $tags
     do
         if [ -z "$prev_tag" ]; then
-            generate_changelog_for_tag "START" "$tag"
+            generate_changelog_for_tag "$(git rev-list --max-parents=0 HEAD)" "$tag"
         else
-            generate_changelog_for_tag "$tag" "$prev_tag"
+            generate_changelog_for_tag "$prev_tag" "$tag"
         fi
         prev_tag=$tag
     done

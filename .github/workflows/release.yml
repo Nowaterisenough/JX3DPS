@@ -120,14 +120,14 @@ jobs:
           # 定义范围
           range="${latestTag}..HEAD"
       
-          # 使用 Git 命令获取提交记录，排除合并提交，包括作者信息
-          commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
+          # 使用 Git 命令获取提交记录，排除合并提交，包括作者信息和提交时间戳
+          commits=$(git log $range --pretty=format:"%s|@%an|%h|%at" --reverse --no-merges)
       
           # 定义关联数组来存储合并的提交信息
           declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
       
           # 处理每个提交
-          while IFS='|' read -r message author hash; do
+          while IFS='|' read -r message author hash timestamp; do
             # 提取提交类型和清理后的消息
             if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
               type=${BASH_REMATCH[1]}
@@ -152,7 +152,7 @@ jobs:
             if [[ -v ${array_ref}[$key] ]]; then
               eval "${array_ref}[$key]+=' $hash'"
             else
-              eval "${array_ref}[$key]='$hash'"
+              eval "${array_ref}[$key]='$hash|$timestamp'"
             fi
           done <<< "$commits"
       
@@ -161,11 +161,25 @@ jobs:
             local -n commit_array=$1
             local title=$2
             local formatted=""
+            
+            # 创建一个临时数组来存储排序后的提交
+            declare -a sorted_commits
             for key in "${!commit_array[@]}"; do
               IFS='|' read -r message author <<< "$key"
-              hashes=${commit_array[$key]}
+              IFS='|' read -r hashes timestamp <<< "${commit_array[$key]}"
+              sorted_commits+=("$timestamp|$message|$author|$hashes")
+            done
+            
+            # 按时间戳排序
+            IFS=$'\n' sorted_commits=($(sort <<<"${sorted_commits[*]}"))
+            unset IFS
+            
+            # 格式化排序后的提交
+            for entry in "${sorted_commits[@]}"; do
+              IFS='|' read -r timestamp message author hashes <<< "$entry"
               formatted+="- $message by $author in $hashes"$'\n'
             done
+            
             if [ -n "$formatted" ]; then
               echo "### $title"
               echo "$formatted"

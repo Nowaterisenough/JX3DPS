@@ -1,0 +1,14 @@
+#!/bin/bash
+
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+# 定义提交消息的格式（使用正则表达式）
+commit_format="^(feat|fix|docs|style|refactor|perf|build|ci|test|chore|revert)(\(.+\))?: .{1,50}$"
+
+if ! echo "$commit_msg" | grep -qE "$commit_format"; then
+    echo "Error: Commit message format is incorrect."
+    echo "It should be: <type>(<scope>): <subject>"
+    echo "Example: feat(ui): add login button"
+    exit 1
+fi

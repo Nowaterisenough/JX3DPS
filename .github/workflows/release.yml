@@ -114,31 +114,20 @@ jobs:
       - name: Generate Changelog
         id: changelog
         run: |
-          # 获取最新的标签和前一个标签
-          latest_tag=$(git describe --tags --abbrev=0)
-          previous_tag=$(git describe --tags --abbrev=0 $latest_tag^)
-          
-          # 如果没有前一个标签，使用第一次提交
-          if [ -z "$previous_tag" ]; then
-            previous_tag=$(git rev-list --max-parents=0 HEAD)
-          fi
+          # 获取最新的标签
+          latestTag=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
           
           # 定义范围
-          range="${previous_tag}..${latest_tag}"
+          range="${latestTag}..HEAD"
       
-          # 使用 Git 命令获取提交记录，排除合并提交，包括时间戳、作者信息和哈希
-          commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --no-merges)
+          # 使用 Git 命令获取提交记录，排除合并提交，包括作者信息
+          commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
       
           # 定义关联数组来存储合并的提交信息
           declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
       
           # 处理每个提交
-          while IFS='|' read -r timestamp message author hash; do
-            # 跳过空消息
-            if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
-              continue
-            fi
-
+          while IFS='|' read -r message author hash; do
             # 提取提交类型和清理后的消息
             if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
               type=${BASH_REMATCH[1]}
@@ -149,7 +138,7 @@ jobs:
               clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
             fi
             
-            key="${timestamp}|${clean_message}|${author}"
+            key="${clean_message}|${author}"
             case $type in
               feat)     array_ref="feat_commits"     ;;
               fix)      array_ref="fix_commits"      ;;
@@ -160,7 +149,11 @@ jobs:
               *)        array_ref="other_commits"    ;;
             esac
             
-            eval "${array_ref}[\$key]='$hash'"
+            if [[ -v ${array_ref}[$key] ]]; then
+              eval "${array_ref}[$key]+=' $hash'"
+            else
+              eval "${array_ref}[$key]='$hash'"
+            fi
           done <<< "$commits"
       
           # 格式化提交
@@ -168,22 +161,11 @@ jobs:
             local -n commit_array=$1
             local title=$2
             local formatted=""
-            
-            # 创建一个临时数组来存储排序后的键
-            local sorted_keys=($(
-              for key in "${!commit_array[@]}"; do
-                echo "$key"
-              done | sort -n
-            ))
-            
-            for key in "${sorted_keys[@]}"; do
-              IFS='|' read -r timestamp clean_message author <<< "$key"
-              hash=${commit_array[$key]}
-              if [ -n "$clean_message" ] && [ -n "$author" ] && [ -n "$hash" ]; then
-                formatted+="- $clean_message by $author in $hash"$'\n'
-              fi
+            for key in "${!commit_array[@]}"; do
+              IFS='|' read -r message author <<< "$key"
+              hashes=${commit_array[$key]}
+              formatted+="- $message by $author in $hashes"$'\n'
             done
-            
             if [ -n "$formatted" ]; then
               echo "### $title"
               echo "$formatted"
@@ -192,7 +174,7 @@ jobs:
       
           # 构建 changelog
           {
-            echo "## $latest_tag ($(date +%Y-%m-%d))"
+            echo "## CHANGELOG"
             echo
             format_commits feat_commits "Features"
             format_commits fix_commits "Bug Fixes"

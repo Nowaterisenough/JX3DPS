@@ -2,6 +2,9 @@
 
 ## Unreleased (2024-08-13)
 
+### Others
+- 调整项目目录结构 by @NoWaterisEnough in 58c736b
+
 ## 5.39.0813.1130 (2024-08-13)
 
 ### Features
@@ -21,10 +24,6 @@
 - 更新第三方库版本 by @NoWaterisEnough in 0995b1c
 - 调整action构建发布流程 by @NoWaterisEnough in 6ffd24d
 - 重新添加CHANGELOG by @NoWaterisEnough in becae18 7704d7a c521564
-
-## 5.39.0813.1120 (2024-08-13)
-
-## 5.39.0813.0934 (2024-08-13)
 
 ## 5.39.0812.1439 (2024-08-12)
 

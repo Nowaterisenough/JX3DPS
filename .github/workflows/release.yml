@@ -114,22 +114,31 @@ jobs:
       - name: Generate Changelog
         id: changelog
         run: |
-          # 获取最新的两个标签
-          tags=$(git tag --sort=-version:refname | head -n 2)
-          latest_tag=$(echo "$tags" | head -n 1)
-          previous_tag=$(echo "$tags" | tail -n 1)
+          # 获取最新的标签和前一个标签
+          latest_tag=$(git describe --tags --abbrev=0)
+          previous_tag=$(git describe --tags --abbrev=0 $latest_tag^)
+          
+          # 如果没有前一个标签，使用第一次提交
+          if [ -z "$previous_tag" ]; then
+            previous_tag=$(git rev-list --max-parents=0 HEAD)
+          fi
           
           # 定义范围
           range="${previous_tag}..${latest_tag}"
       
           # 使用 Git 命令获取提交记录，排除合并提交，包括时间戳、作者信息和哈希
-          commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
+          commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --no-merges)
       
           # 定义关联数组来存储合并的提交信息
           declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
       
           # 处理每个提交
           while IFS='|' read -r timestamp message author hash; do
+            # 跳过空消息
+            if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
+              continue
+            fi
+
             # 提取提交类型和清理后的消息
             if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
               type=${BASH_REMATCH[1]}
@@ -170,7 +179,9 @@ jobs:
             for key in "${sorted_keys[@]}"; do
               IFS='|' read -r timestamp clean_message author <<< "$key"
               hash=${commit_array[$key]}
-              formatted+="- $clean_message by $author in $hash"$'\n'
+              if [ -n "$clean_message" ] && [ -n "$author" ] && [ -n "$hash" ]; then
+                formatted+="- $clean_message by $author in $hash"$'\n'
+              fi
             done
             
             if [ -n "$formatted" ]; then

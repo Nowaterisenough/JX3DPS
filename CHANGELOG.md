@@ -2,11 +2,7 @@
 
 ## Unreleased (2024-08-13)
 
-### Others
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 68565ae 5cd1563 0cd134b e39ba85 8d5783e 9a2e2bf fb2d1c8 fdde890
-- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in 4bc6169 3239a59 48c2c78 c8facf9
-
-## 5.39.0813.0934 (2024-08-13)
+## 5.39.0813.1120 (2024-08-13)
 
 ### Features
 - 新增碎星辰 by @NoWaterisEnough in f53e40b
@@ -19,10 +15,14 @@
 - 修复CHANGELOG的格式问题 by @NoWaterisEnough in 556915f
 - 修复构建流程，区分CHANGELOG类型 by @NoWaterisEnough in 0a33329
 - 修改构建流程，让其在合并PR后对master进行action by @NoWaterisEnough in fa5ffc9
+- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 68565ae 5cd1563 0cd134b e39ba85 8d5783e 9a2e2bf fb2d1c8 fdde890
+- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in 4bc6169 3239a59 48c2c78 c8facf9 80c8249
 - 删除旧的CHANGELOG by @NoWaterisEnough in 2ad8af8
 - 更新第三方库版本 by @NoWaterisEnough in 0995b1c
 - 调整action构建发布流程 by @NoWaterisEnough in 6ffd24d
 - 重新添加CHANGELOG by @NoWaterisEnough in becae18 7704d7a c521564
+
+## 5.39.0813.0934 (2024-08-13)
 
 ## 5.39.0812.1439 (2024-08-12)
 

@@ -150,7 +150,7 @@ jobs:
             esac
             
             if [[ -v ${array_ref}[$key] ]]; then
-              eval "${array_ref}[$key]+=' $hash'"
+              eval "${array_ref}[$key]+=';$hash|$timestamp'"
             else
               eval "${array_ref}[$key]='$hash|$timestamp'"
             fi
@@ -166,8 +166,12 @@ jobs:
             declare -a sorted_commits
             for key in "${!commit_array[@]}"; do
               IFS='|' read -r message author <<< "$key"
-              IFS='|' read -r hashes timestamp <<< "${commit_array[$key]}"
-              sorted_commits+=("$timestamp|$message|$author|$hashes")
+              hashes_timestamps="${commit_array[$key]}"
+              IFS=';' read -ra entries <<< "$hashes_timestamps"
+              for entry in "${entries[@]}"; do
+                IFS='|' read -r hash timestamp <<< "$entry"
+                sorted_commits+=("$timestamp|$message|$author|$hash")
+              done
             done
             
             # 按时间戳排序
@@ -175,10 +179,21 @@ jobs:
             unset IFS
             
             # 格式化排序后的提交
+            local prev_message=""
+            local hashes=""
             for entry in "${sorted_commits[@]}"; do
-              IFS='|' read -r timestamp message author hashes <<< "$entry"
-              formatted+="- $message by $author in $hashes"$'\n'
+              IFS='|' read -r timestamp message author hash <<< "$entry"
+              if [[ "$message" != "$prev_message" && -n "$prev_message" ]]; then
+                formatted+="- $prev_message by $prev_author in $hashes"$'\n'
+                hashes=""
+              fi
+              hashes+="$hash "
+              prev_message="$message"
+              prev_author="$author"
             done
+            if [[ -n "$prev_message" ]]; then
+              formatted+="- $prev_message by $prev_author in $hashes"$'\n'
+            fi
             
             if [ -n "$formatted" ]; then
               echo "### $title"

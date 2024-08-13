@@ -11,10 +11,6 @@
 - 重构仓库，删除旧的CHANGELOG文件，添加post-commit脚本用于生成changelog by @NoWaterisEnough in a7c566a
 
 ### Others
-- 添加 by  in 
--  by  in 
--  by  in 
-- @NoWaterisEnough by  in 
 - 删除旧的CHANGELOG by @NoWaterisEnough in 2ad8af8
 - 调整action构建发布流程 by @NoWaterisEnough in 6ffd24d
 - 修复构建流程，区分CHANGELOG类型 by @NoWaterisEnough in 0a33329
@@ -24,6 +20,7 @@
 - 修复CHANGELOG的格式问题 by @NoWaterisEnough in 556915f
 - 重新添加CHANGELOG by @NoWaterisEnough in c521564
 - 更新第三方库版本 by @NoWaterisEnough in 0995b1c
+- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 68565ae
 
 ## 5.39.0813.0934 (2024-08-13)
 
@@ -35,10 +32,6 @@
 - 重构仓库，删除旧的CHANGELOG文件，添加post-commit脚本用于生成changelog by @NoWaterisEnough in a7c566a
 
 ### Others
-- 添加 by  in 
--  by  in 
--  by  in 
-- @NoWaterisEnough by  in 
 - 删除旧的CHANGELOG by @NoWaterisEnough in 2ad8af8
 - 调整action构建发布流程 by @NoWaterisEnough in 6ffd24d
 - 修复构建流程，区分CHANGELOG类型 by @NoWaterisEnough in 0a33329
@@ -65,10 +58,6 @@
 - 重构仓库，删除旧的CHANGELOG文件，添加post-commit脚本用于生成changelog by @NoWaterisEnough in a7c566a
 
 ### Others
-- 添加 by  in 
--  by  in 
--  by  in 
-- @NoWaterisEnough by  in 
 - 删除旧的CHANGELOG by @NoWaterisEnough in 2ad8af8
 - 调整action构建发布流程 by @NoWaterisEnough in 6ffd24d
 - 修复构建流程，区分CHANGELOG类型 by @NoWaterisEnough in 0a33329

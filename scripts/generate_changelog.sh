@@ -26,6 +26,11 @@ generate_changelog_for_tag() {
     declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
 
     while IFS='|' read -r timestamp message author hash; do
+        # 跳过空消息
+        if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
+            continue
+        fi
+
         if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
             type=${BASH_REMATCH[1]}
             clean_message=${message#$type: }
@@ -53,7 +58,6 @@ generate_changelog_for_tag() {
         local title=$2
         local formatted=""
         
-        # 创建一个临时数组来存储排序后的键
         local sorted_keys=($(
             for key in "${!commit_array[@]}"; do
                 echo "$key"
@@ -63,7 +67,10 @@ generate_changelog_for_tag() {
         for key in "${sorted_keys[@]}"; do
             IFS='|' read -r timestamp message author <<< "$key"
             hash=${commit_array[$key]}
-            formatted+="- $message by $author in $hash"$'\n'
+            # 确保所有字段都非空
+            if [ -n "$message" ] && [ -n "$author" ] && [ -n "$hash" ]; then
+                formatted+="- $message by $author in $hash"$'\n'
+            fi
         done
         
         if [ -n "$formatted" ]; then

@@ -14,19 +14,12 @@ generate_changelog_for_tag() {
     fi
     echo
 
-    local range
-    if [ "$start_tag" = "START" ]; then
-        range=$(git rev-list --max-parents=0 HEAD)..${end_tag}
-    else
-        range=${start_tag}..${end_tag}
-    fi
-
+    local range="${start_tag}..${end_tag}"
     local commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
 
     declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
 
     while IFS='|' read -r timestamp message author hash; do
-        # 跳过空消息
         if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
             continue
         fi
@@ -67,7 +60,6 @@ generate_changelog_for_tag() {
         for key in "${sorted_keys[@]}"; do
             IFS='|' read -r timestamp message author <<< "$key"
             hash=${commit_array[$key]}
-            # 确保所有字段都非空
             if [ -n "$message" ] && [ -n "$author" ] && [ -n "$hash" ]; then
                 formatted+="- $message by $author in $hash"$'\n'
             fi
@@ -94,16 +86,18 @@ generate_changelog_for_tag() {
     echo
 
     tags=$(git tag --sort=-version:refname)
-
+    
+    # 生成未发布的更改
     if [ "$(git rev-parse HEAD)" != "$(git rev-parse $(echo $tags | head -n1))" ]; then
         generate_changelog_for_tag "$(echo $tags | head -n1)" "HEAD"
     fi
 
+    # 生成所有标签的更改
     prev_tag=""
     for tag in $tags
     do
         if [ -z "$prev_tag" ]; then
-            generate_changelog_for_tag "START" "$tag"
+            generate_changelog_for_tag "$(git rev-list --max-parents=0 HEAD)" "$tag"
         else
             generate_changelog_for_tag "$tag" "$prev_tag"
         fi

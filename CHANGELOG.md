@@ -3,7 +3,7 @@
 ## Unreleased (2024-08-13)
 
 ### Others
-- 调整项目目录结构 by @NoWaterisEnough in 58c736b
+- 调整项目目录结构 by @NoWaterisEnough in 58c736b 0dfaa13
 
 ## 5.39.0813.1130 (2024-08-13)
 

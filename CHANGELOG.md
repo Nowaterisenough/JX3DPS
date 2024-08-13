@@ -21,6 +21,7 @@
 - 重新添加CHANGELOG by @NoWaterisEnough in c521564
 - 更新第三方库版本 by @NoWaterisEnough in 0995b1c
 - 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 68565ae
+- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 5cd1563
 
 ## 5.39.0813.0934 (2024-08-13)
 

@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased (2024-08-13)
+## Unreleased (2024-08-14)
 
 ### Others
+- 移除不再使用的第三方图标库 by @NoWaterisEnough in 1c7dc38
 - 调整项目目录结构 by @NoWaterisEnough in 58c736b 0dfaa13
 
 ## 5.39.0813.1130 (2024-08-13)

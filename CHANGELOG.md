@@ -3,6 +3,7 @@
 ## Unreleased (2024-08-15)
 
 ### Others
+- 修正version的获取 by @NoWaterisEnough in 1022eec
 - 修正发布的版本号 by @NoWaterisEnough in fae6ada
 - 删除不再使用的QCustomPlot库文件 by @NoWaterisEnough in e4f5c51
 - 新增一些历史文件 by @NoWaterisEnough in 6ee799d

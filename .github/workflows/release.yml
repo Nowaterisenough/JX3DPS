@@ -58,22 +58,22 @@ jobs:
           cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
           cmake --build ./build --target install --config Release
 
-          - name: Get version from CMake
-          id: get_version
-          shell: bash
-          run: |
-            export TZ="Asia/Shanghai"
-            timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
-            cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
-            version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
-            if [ -z "$version" ]; then
-              echo "无法从 CMake 输出中提取版本号"
-              exit 1
-            fi
-            major_minor_version=$(echo $version | cut -d. -f1,2)
-            full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
-            echo "生成的版本号: $full_version"
-            echo "VERSION=$full_version" >> $GITHUB_OUTPUT
+      - name: Get version from CMake
+        id: get_version
+        shell: bash
+        run: |
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
+          fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
 
       - name: Package
         id: package      

@@ -13,6 +13,3 @@
 [submodule "3rd/proxy"]
 	path = 3rd/proxy
 	url = git@github.com:microsoft/proxy.git
-[submodule "3rd/fluentui-system-icons"]
-	path = 3rd/fluentui-system-icons
-	url = git@github.com:microsoft/fluentui-system-icons.git

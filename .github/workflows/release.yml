@@ -60,17 +60,33 @@ jobs:
 
       - name: Get version from CMake
         id: get_version
-        shell: pwsh
+        shell: bash
         run: |
+          # 设置时区为北京时间
+          export TZ="Asia/Shanghai"
+
+          # 获取最新提交的北京时间戳
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+
+          # 运行 CMake 配置命令并捕获输出
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
-          $version = (Select-String -Path cmake_output.txt -Pattern "VERSION=(.+)").Matches.Groups[1].Value
-          if ($version) {
-            echo "Extracted version: $version"
-            echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-          } else {
-            echo "Failed to extract version from CMake output"
+
+          # 从 CMake 输出中提取版本号
+          version=$(grep -oP 'VERSION=\K.+' cmake_output.txt)
+
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
             exit 1
-          }
+          fi
+
+          # 只保留主版本号和副版本号（假设格式为 X.Y.Z.W）
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+
+          # 构建完整的版本号
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
 
       - name: Package
         id: package      

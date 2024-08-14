@@ -3,6 +3,7 @@
 ## Unreleased (2024-08-15)
 
 ### Others
+- 删除不再使用的QCustomPlot库文件 by @NoWaterisEnough in e4f5c51
 - 新增一些历史文件 by @NoWaterisEnough in 6ee799d
 - 移除不再使用的第三方图标库 by @NoWaterisEnough in 1c7dc38
 - 调整项目目录结构 by @NoWaterisEnough in 58c736b 0dfaa13

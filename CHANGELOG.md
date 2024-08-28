@@ -1,10 +1,11 @@
-# Changelog
+# CHANGELOG
 
-## Unreleased (2024-08-15)
+## 5.39.0815.0154 (2024-08-15)
 
 ### Others
 - 修正version的获取 by @NoWaterisEnough in 1022eec
 - 修正发布的版本号 by @NoWaterisEnough in fae6ada
+- 修正发布页的版本号 by @NoWaterisEnough in 10ff35b
 - 删除不再使用的QCustomPlot库文件 by @NoWaterisEnough in e4f5c51
 - 新增一些历史文件 by @NoWaterisEnough in 6ee799d
 - 移除不再使用的第三方图标库 by @NoWaterisEnough in 1c7dc38
@@ -17,6 +18,7 @@
 - 更新太虚剑意 by @NoWaterisEnough in 7aa55fe
 
 ### Refactoring
+- 初始化仓库，重构 by @NoWaterisEnough in a10047f
 - 重构仓库，删除旧的CHANGELOG文件，添加post-commit脚本用于生成changelog by @NoWaterisEnough in a7c566a
 
 ### Others

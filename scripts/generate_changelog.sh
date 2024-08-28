@@ -1,25 +1,38 @@
 #!/bin/bash
 
-generate_changelog_for_tag() {
-    local start_tag=$1
-    local end_tag=$2
-    local tag_date
+# 设置 Git 配置以避免行尾符警告
+git config --local core.autocrlf input
 
-    if [ "$end_tag" = "HEAD" ]; then
-        tag_date=$(date +%Y-%m-%d)
-        echo "## Unreleased ($tag_date)"
-    else
-        tag_date=$(git log -1 --format=%ad --date=short $end_tag)
-        echo "## $end_tag ($tag_date)"
-    fi
+generate_changelog_for_tag() {
+    local current_tag=$1
+    local prev_tag=$2
+    local current_date=$(git log -1 --format=%at $current_tag)
+    local prev_date=$([ "$prev_tag" != "" ] && git log -1 --format=%at $prev_tag || echo "0")
+    local tag_date=$(git log -1 --format=%ad --date=short $current_tag)
+
+    echo "## $current_tag ($tag_date)"
     echo
 
-    local range="${start_tag}..${end_tag}"
-    local commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
+    local range
+    if [ -z "$prev_tag" ]; then
+        range="$current_tag"
+    else
+        range="$prev_tag..$current_tag"
+    fi
 
+    echo "正在处理范围: $range" >&2
+
+    local commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
+
+    process_commits "$commits"
+}
+
+process_commits() {
+    local commits="$1"
+    
     declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
 
-    while IFS='|' read -r timestamp message author hash; do
+    while IFS='|' read -r message author hash; do
         if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
             continue
         fi
@@ -50,32 +63,6 @@ generate_changelog_for_tag() {
         fi
     done <<< "$commits"
 
-    format_commits() {
-        local -n commit_array=$1
-        local title=$2
-        local formatted=""
-        
-        local sorted_keys=($(
-            for key in "${!commit_array[@]}"; do
-                echo "$key"
-            done | sort
-        ))
-        
-        for key in "${sorted_keys[@]}"; do
-            IFS='|' read -r message author <<< "$key"
-            hashes=${commit_array[$key]}
-            if [ -n "$message" ] && [ -n "$author" ] && [ -n "$hashes" ]; then
-                formatted+="- $message by $author in $hashes"$'\n'
-            fi
-        done
-        
-        if [ -n "$formatted" ]; then
-            echo "### $title"
-            echo -n "$formatted"
-            echo
-        fi
-    }
-
     format_commits feat_commits "Features"
     format_commits fix_commits "Bug Fixes"
     format_commits docs_commits "Documentation"
@@ -85,28 +72,56 @@ generate_changelog_for_tag() {
     format_commits other_commits "Others"
 }
 
+format_commits() {
+    local -n commit_array=$1
+    local title=$2
+    local formatted=""
+    
+    local sorted_keys=($(
+        for key in "${!commit_array[@]}"; do
+            echo "$key"
+        done | sort
+    ))
+    
+    for key in "${sorted_keys[@]}"; do
+        IFS='|' read -r message author <<< "$key"
+        hashes=${commit_array[$key]}
+        if [ -n "$message" ] && [ -n "$author" ] && [ -n "$hashes" ]; then
+            formatted+="- $message by $author in $hashes"$'\n'
+        fi
+    done
+    
+    if [ -n "$formatted" ]; then
+        echo "### $title"
+        echo -n "$formatted"
+        echo
+    fi
+}
+
 {
-    echo "# Changelog"
+    echo "# CHANGELOG"
     echo
 
-    tags=$(git tag --sort=-version:refname)
-    latest_tag=$(echo "$tags" | head -n 1)
+    # 按创建日期排序标签
+    tags=($(git tag --sort=-creatordate))
+    latest_tag="${tags[0]}"
     
     # 生成未发布的更改
-    if [ "$(git rev-parse HEAD)" != "$(git rev-parse $latest_tag)" ]; then
-        generate_changelog_for_tag "$latest_tag" "HEAD"
+    current_date=$(date +%s)
+    latest_tag_date=$(git log -1 --format=%at $latest_tag)
+    unreleased_commits=$(git log $latest_tag..HEAD --pretty=format:"%s|@%an|%h" --reverse --no-merges)
+    
+    if [ -n "$unreleased_commits" ]; then
+        echo "## Unreleased ($(date +%Y-%m-%d))"
+        echo
+        process_commits "$unreleased_commits"
     fi
 
     # 生成所有标签的更改
-    prev_tag=""
-    for tag in $tags
-    do
-        if [ -z "$prev_tag" ]; then
-            generate_changelog_for_tag "$(git rev-list --max-parents=0 HEAD)" "$tag"
-        else
-            generate_changelog_for_tag "$prev_tag" "$tag"
-        fi
-        prev_tag=$tag
+    for ((i=0; i<${#tags[@]}; i++)); do
+        current_tag="${tags[i]}"
+        next_tag="${tags[i+1]}"
+        generate_changelog_for_tag "$current_tag" "$next_tag"
     done
 
 } > CHANGELOG.md
@@ -114,3 +129,6 @@ generate_changelog_for_tag() {
 if [ -s CHANGELOG.md ]; then
     git add CHANGELOG.md
 fi
+
+# 重置 Git 配置
+git config --local --unset core.autocrlf

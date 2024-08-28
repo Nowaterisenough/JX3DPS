@@ -43,7 +43,7 @@ process_commits() {
             clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
         fi
         
-        key="$timestamp|${clean_message}|${author}"
+        key="${clean_message}|${author}"
         case $type in
             feat)     array_ref="feat_commits"     ;;
             fix)      array_ref="fix_commits"      ;;
@@ -54,7 +54,11 @@ process_commits() {
             *)        array_ref="other_commits"    ;;
         esac
         
-        eval "${array_ref}[$key]='$hash'"
+        if [[ -v ${array_ref}[$key] ]]; then
+            eval "${array_ref}[$key]+=' $hash'"
+        else
+            eval "${array_ref}[$key]='$timestamp $hash'"
+        fi
     done <<< "$commits"
 
     format_commits feat_commits "Features"
@@ -73,15 +77,17 @@ format_commits() {
     
     local sorted_keys=($(
         for key in "${!commit_array[@]}"; do
-            echo "$key"
-        done | sort -r
+            IFS=' ' read -r timestamp hash <<< "${commit_array[$key]}"
+            echo "$timestamp $key"
+        done | sort -rn | cut -d' ' -f2-
     ))
     
     for key in "${sorted_keys[@]}"; do
-        IFS='|' read -r timestamp clean_message author <<< "$key"
-        hash=${commit_array[$key]}
-        if [ -n "$clean_message" ] && [ -n "$author" ] && [ -n "$hash" ]; then
-            formatted+="- $clean_message by $author in $hash"$'\n'
+        IFS='|' read -r message author <<< "$key"
+        hashes=${commit_array[$key]}
+        IFS=' ' read -r timestamp hashes <<< "$hashes"
+        if [ -n "$message" ] && [ -n "$author" ] && [ -n "$hashes" ]; then
+            formatted+="- $message by $author in $hashes"$'\n'
         fi
     done
     

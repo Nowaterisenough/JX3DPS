@@ -6,8 +6,6 @@ git config --local core.autocrlf input
 generate_changelog_for_tag() {
     local current_tag=$1
     local prev_tag=$2
-    local current_date=$(git log -1 --format=%at $current_tag)
-    local prev_date=$([ "$prev_tag" != "" ] && git log -1 --format=%at $prev_tag || echo "0")
     local tag_date=$(git log -1 --format=%ad --date=short $current_tag)
 
     echo "## $current_tag ($tag_date)"
@@ -22,7 +20,7 @@ generate_changelog_for_tag() {
 
     echo "正在处理范围: $range" >&2
 
-    local commits=$(git log $range --pretty=format:"%s|@%an|%h" --reverse --no-merges)
+    local commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
 
     process_commits "$commits"
 }
@@ -32,7 +30,7 @@ process_commits() {
     
     declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
 
-    while IFS='|' read -r message author hash; do
+    while IFS='|' read -r timestamp message author hash; do
         if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
             continue
         fi
@@ -45,7 +43,7 @@ process_commits() {
             clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
         fi
         
-        key="${clean_message}|${author}"
+        key="$timestamp|${clean_message}|${author}"
         case $type in
             feat)     array_ref="feat_commits"     ;;
             fix)      array_ref="fix_commits"      ;;
@@ -56,11 +54,7 @@ process_commits() {
             *)        array_ref="other_commits"    ;;
         esac
         
-        if [[ -v ${array_ref}[$key] ]]; then
-            eval "${array_ref}[$key]+=' $hash'"
-        else
-            eval "${array_ref}[$key]='$hash'"
-        fi
+        eval "${array_ref}[$key]='$hash'"
     done <<< "$commits"
 
     format_commits feat_commits "Features"
@@ -80,14 +74,14 @@ format_commits() {
     local sorted_keys=($(
         for key in "${!commit_array[@]}"; do
             echo "$key"
-        done | sort
+        done | sort -r
     ))
     
     for key in "${sorted_keys[@]}"; do
-        IFS='|' read -r message author <<< "$key"
-        hashes=${commit_array[$key]}
-        if [ -n "$message" ] && [ -n "$author" ] && [ -n "$hashes" ]; then
-            formatted+="- $message by $author in $hashes"$'\n'
+        IFS='|' read -r timestamp clean_message author <<< "$key"
+        hash=${commit_array[$key]}
+        if [ -n "$clean_message" ] && [ -n "$author" ] && [ -n "$hash" ]; then
+            formatted+="- $clean_message by $author in $hash"$'\n'
         fi
     done
     
@@ -107,9 +101,7 @@ format_commits() {
     latest_tag="${tags[0]}"
     
     # 生成未发布的更改
-    current_date=$(date +%s)
-    latest_tag_date=$(git log -1 --format=%at $latest_tag)
-    unreleased_commits=$(git log $latest_tag..HEAD --pretty=format:"%s|@%an|%h" --reverse --no-merges)
+    unreleased_commits=$(git log $latest_tag..HEAD --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
     
     if [ -n "$unreleased_commits" ]; then
         echo "## Unreleased ($(date +%Y-%m-%d))"

@@ -2,6 +2,9 @@
 
 ## Unreleased (2024-08-28)
 
+### Features
+- 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in 9365029
+
 ### Bug Fixes
 - 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in 6471ca5
 
@@ -14,8 +17,7 @@
 - 删除不再使用的QCustomPlot库文件 by @NoWaterisEnough in e4f5c51
 - 新增一些历史文件 by @NoWaterisEnough in 6ee799d
 - 移除不再使用的第三方图标库 by @NoWaterisEnough in 1c7dc38
-- 调整项目目录结构 by @NoWaterisEnough in 0dfaa13
-- 调整项目目录结构 by @NoWaterisEnough in 58c736b
+- 调整项目目录结构 by @NoWaterisEnough in 58c736b 0dfaa13
 
 ## 5.39.0813.1130 (2024-08-13)
 
@@ -28,26 +30,12 @@
 - 初始化仓库，重构 by @NoWaterisEnough in a10047f
 
 ### Others
-- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in 2dfcd65
-- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in 80c8249
-- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in c8facf9
-- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in 48c2c78
-- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in 3239a59
-- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in 4bc6169
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in fdde890
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in fb2d1c8
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 9a2e2bf
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 8d5783e
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in e39ba85
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 0cd134b
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 5cd1563
-- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 68565ae
+- 修正发布页CHANGELOG的时间顺序 by @NoWaterisEnough in 4bc6169 3239a59 48c2c78 c8facf9 80c8249 2dfcd65
+- 修正CHANGELOG的时间顺序 by @NoWaterisEnough in 68565ae 5cd1563 0cd134b e39ba85 8d5783e 9a2e2bf fb2d1c8 fdde890
 - 更新第三方库版本 by @NoWaterisEnough in 0995b1c
-- 重新添加CHANGELOG by @NoWaterisEnough in c521564
 - 修复CHANGELOG的格式问题 by @NoWaterisEnough in 556915f
 - 修改构建流程，让其在合并PR后对master进行action by @NoWaterisEnough in fa5ffc9
-- 重新添加CHANGELOG by @NoWaterisEnough in 7704d7a
-- 重新添加CHANGELOG by @NoWaterisEnough in becae18
+- 重新添加CHANGELOG by @NoWaterisEnough in becae18 7704d7a c521564
 - 修复构建流程，区分CHANGELOG类型 by @NoWaterisEnough in 0a33329
 - 调整action构建发布流程 by @NoWaterisEnough in 6ffd24d
 - 删除旧的CHANGELOG by @NoWaterisEnough in 2ad8af8
@@ -55,8 +43,7 @@
 ## 5.39.0812.1439 (2024-08-12)
 
 ### Features
-- 更新自动构建脚本和CMakeLists版本号，优化Windows构建环境 by @难为水 in 767abc4
-- 更新自动构建脚本和CMakeLists版本号，优化Windows构建环境 by @难为水 in 1ac96b1
+- 更新自动构建脚本和CMakeLists版本号，优化Windows构建环境 by @难为水 in 1ac96b1 767abc4
 - 更新proxy实现的解释器代码并新增CHANGLOG by @lidi in ed3843b
 - 更新三方库 by @lidi in 974b2e9
 - 更新CMakeLists和自动打tag脚本以统一版本号标识符 by @难为水 in 0c0c99a
@@ -70,8 +57,7 @@
 - 更新第三方库 by @难为水 in a867dfc
 - 更新example by @lidi in e5b1120
 - 新增解释器代码 by @lidi in c982a65
-- 更新三方库 by @难为水 in 9d80e69
-- 更新三方库 by @难为水 in 3670937
+- 更新三方库 by @难为水 in 3670937 9d80e69
 - 新增宏解释器 by @难为水 in 29e826e
 - 新增proxy实现的解释器 by @难为水 in b627f31
 - 性能测试添加proxy by @难为水 in a995d6c
@@ -103,7 +89,6 @@
 - 新增时间轴 by @NoWats in 6920a09
 - 调整界面 by @NoWats in 6632716
 - 调整UI by @NoWats in b19721f
-- 新增三方增益 by @NoWats in f112f1c
 - 新增导入装备 by @NoWats in 560fdea
 - 新增导入属性 by @NoWats in 7a66bbd
 - 新增双击修改属性 by @NoWats in d55b0b2
@@ -123,16 +108,14 @@
 - 新增调试日志信息 by @NoWats in b2267d8
 - 新增逻辑帧精度 by @NoWats in 39905f9
 - 新增莫问大招 by @NoWats in 3c5b194
-- 莫问更新 by @NoWats in 1884c31
 - 更新莫问 by @NoWats in 8ca03b0
-- 莫问更新 by @NoWats in e6e8e15
+- 莫问更新 by @NoWats in e6e8e15 1884c31
 - 优化性能 by @NoWats in 1cbcea9
 - 统计界面更新 by @NoWats in 151f158
 - 更新数据统计界面 by @NoWats in c7b0539
 - 更新分山配置 by @NoWats in 93a8e1f
 - json生成 by @NoWats in 0164596
 - 界面完成 by @NoWats in 038378d
-- 新增秘籍 by @NoWats in 657607e
 - 新增奇穴界面 by @NoWats in 3a6c900
 - 重新调整页面布局 by @NoWats in 9720416
 - 新增新的基础控件 by @NoWats in 155535e
@@ -145,23 +128,21 @@
 - 新增TabWidget by @NoWats in e333027
 - 新增UI模块 by @NoWats in 9529946
 - 更新莫问流照奇穴 by @NoWats in dd78854
-- 新增莫问buff by @NoWats in 13d654b
 - 新增莫问破招 by @NoWats in 1104744
 - 新增太虚剑意破招伤害 by @NoWats in 8708b4d
 - 新增破招计算函数 by @NoWats in 4148627
-- 新增莫问buff by @NoWats in d9f77f2
+- 新增莫问buff by @NoWats in d9f77f2 13d654b
 - 新增莫问部分奇穴 by @NoWats in 94b2bcd
 - 新增莫问部分id by @NoWats in a5f71aa
 - 新增部分莫问技能和buff by @NoWats in 5a851bf
 - 新增太虚剑意技能部分 by @NoWats in 51b0fe2
-- 修复多行同样技能的宏导致的错误 by @NoWats in ecb3f7b
-- 修复多行同样技能的宏导致的错误 by @NoWats in abb4263
+- 修复多行同样技能的宏导致的错误 by @NoWats in abb4263 ecb3f7b
 - 新增常驻增益 by @NoWats in e22c6c0
 - 重构破招算法 by @NoWats in 0b7693e
 - 新增技能统计面板 by @NoWats in fc848d8
 - 进度条实时更新 by @NoWats in bd40713
 - UI调整 by @NoWats in a217e8b
-- 新增三方增益 by @NoWats in b4f2e75
+- 新增三方增益 by @NoWats in b4f2e75 f112f1c
 - 修正持盈没有生效的问题 by @NoWats in 314b331
 - 新增详细统计 by @NoWats in 4a61a17
 - 新增属性收益 by @NoWats in e0382a6
@@ -171,14 +152,13 @@
 - 新增spinbox by @NoWats in a746f05
 - 更新部分常量命名 by @NoWats in 90593cf
 - 更新数据表UI by @NoWats in 5938875
-- 新增秘籍 by @NoWats in f106b6e
+- 新增秘籍 by @NoWats in f106b6e 657607e
 - 新增进度条UI by @NoWats in 5dccd63
 - 新增临时的秘籍UI方案 by @NoWats in 0b9f5d4
 - 主题颜色配置 by @NoWats in 6a7eaf0
 - 临时加个奇穴UI方案 by @NoWats in 485f447
 - 新增三方buff by @NoWats in bb2d6fa
-- 新增大附魔 by @NoWats in 18e2a7f
-- 新增大附魔 by @NoWats in b9c6347
+- 新增大附魔 by @NoWats in b9c6347 18e2a7f
 - 版本更新 by @NoWats in a8da521
 - 新界面 by @NoWats in 36b9d87
 - 111 by @NoWats in 24fc228
@@ -187,15 +167,12 @@
 ### Bug Fixes
 - 修复版本号捕获问题 by @lidi in 06dcf08
 - 修复版本捕获 by @lidi in 7316eda
-- 修复版本号捕获 by @lidi in 6cdd888
-- 修复版本号捕获 by @lidi in 5a1b0bc
+- 修复版本号捕获 by @lidi in 5a1b0bc 6cdd888
 - 修复版本时间戳为北京时间 by @lidi in d47e286
 - 修复没有最新一次的提交记录 by @lidi in 1ef2313
-- 修改代码 by @难为水 in 33f6187
-- 修改代码 by @难为水 in 8a4504b
+- 修改代码 by @难为水 in 8a4504b 33f6187
 - 修复宏语句的问题 by @NoWats in ba960f7
 - 修复吞日月气场判定 by @NoWats in df16c27
-- 修复bug by @NoWats in 6a7742e
 - 修复镜花影武伤和剑入引爆问题 by @NoWats in 0739004
 - 修复橙武dot伤害 by @NoWats in 765ebcf
 - 修复时间轴时间显示问题 by @NoWats in 81bc056
@@ -205,10 +182,8 @@
 - 修复模拟次数过多时，json溢出问题 by @NoWats in 3368dea
 - 修复设置目标的事件语句 by @NoWats in e9799c6
 - 修复五音六律的闪退问题 by @NoWats in 422b28e
-- 修复bug by @NoWats in e45f959
 - 修复系数 by @NoWats in 49a4fa4
 - 修复莫问大招问题 by @NoWats in f6bf9c9
-- 修复莫问bug by @NoWats in ff30f55
 - 修复生太极减cd问题 by @NoWats in 5c6f0eb
 - 修复小吃小药不生效的问题 by @NoWats in 984b062
 - 修复dot伤害 by @NoWats in 88be413
@@ -219,12 +194,11 @@
 - 修复闪退问题 by @NoWats in 344b5dd
 - 修复右键拖拽bug by @NoWats in 8e689b0
 - 修复会效收益bug by @NoWats in 99601e6
-- 修复影子bug by @NoWats in bf088d6
-- 修复影子bug by @NoWats in 9b73149
+- 修复影子bug by @NoWats in 9b73149 bf088d6
 - 修复充能bug by @NoWats in 0d399e0
 - 修复变徵同步cd问题 by @NoWats in bea91b9
 - 修复宏判定条件 by @NoWats in 8e5c01e
-- 修复莫问bug by @NoWats in 18d641f
+- 修复莫问bug by @NoWats in 18d641f ff30f55
 - 修复技能序列bug by @NoWats in 411e08d
 - 修复技能序列和转火的问题 by @NoWats in 2e94cbc
 - 修复内功破防伤害错误的问题 by @NoWats in cc54ccc
@@ -232,7 +206,7 @@
 - 修复阵法解析问题 by @NoWats in 7acddca
 - 属性转换修正为1024值 by @NoWats in 03d86e0
 - 修复属性bug by @NoWats in 9b76799
-- 修复bug by @NoWats in 26f0243
+- 修复bug by @NoWats in 26f0243 e45f959 6a7742e
 - 修正部分系数 by @NoWats in 43a4b77
 - 修复等级差增伤比例和快照武学增伤的问题 by @NoWats in 26256bd
 - 修复气场回气和大附魔触发的问题 by @NoWats in b670f15
@@ -279,30 +253,14 @@
 - 更新自动构建流程，优化Windows和Linux构建，改进发布流程 by @难为水 in 87b9743
 - 更新构建环境和脚本，优化Windows和Linux构建，增加MSVC构建，改进发布流程 by @难为水 in e0d451a
 - 更新自动构建流程，优化Windows和Linux构建，增加MSVC构建，改进发布流程 by @难为水 in 573ca13
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 1ca7650
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 5210721
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 949eff3
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 07c148d
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6f8164d
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 27c2626
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 8a4d6c2
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 1fa1e96
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 134c207
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in ab1b56a
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 9520979
-- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6019546
-- 更新Windows构建环境和自动构建脚本版本号 by @难为水 in 8b7f313
-- 更新Windows构建环境和自动构建脚本版本号 by @难为水 in f655450
-- 优化Windows构建环境，更新自动构建脚本和CMakeLists版本号 by @难为水 in 3ecbc29
-- 更新Windows构建环境和自动构建脚本版本号 by @难为水 in fd2bd1f
-- 优化Windows构建环境，更新自动构建脚本和CMakeLists版本号 by @难为水 in 42f9fa3
+- 更新Windows构建环境和自动构建脚本版本号，优化构建流程 by @难为水 in 6019546 9520979 ab1b56a 134c207 1fa1e96 8a4d6c2 27c2626 6f8164d 07c148d 949eff3 5210721 1ca7650
+- 更新Windows构建环境和自动构建脚本版本号 by @难为水 in fd2bd1f f655450 8b7f313
+- 优化Windows构建环境，更新自动构建脚本和CMakeLists版本号 by @难为水 in 42f9fa3 3ecbc29
 - 更新三方库 by @难为水 in c4a9dcd
-- 三方库更新 by @难为水 in c9ffaf4
 - 更新构建 by @难为水 in da54736
 - 更新AVX指令集编译 by @难为水 in 383ef5c
-- 三方库更新 by @难为水 in be25ff5
-- 更新三方库 by @lidi in 0ae0a69
-- 更新三方库 by @lidi in f30a855
+- 三方库更新 by @难为水 in be25ff5 c9ffaf4
+- 更新三方库 by @lidi in f30a855 0ae0a69
 - 修改静态检查 by @难为水 in e731461
 - 调整version版本管理 by @难为水 in d8d2f28
 - 调整cmake by @难为水 in 300e6b7
@@ -313,75 +271,41 @@
 - 修复测试的构建 by @NoWats in 3d5c3f7
 - 整理细节 by @NoWats in 0987248
 - 更新构建脚本 by @NoWats in 35e2161
-- 更新github构建脚本 by @NoWats in 07647f5
-- 更新github构建脚本 by @NoWats in d4e2305
-- 更新github构建脚本 by @NoWats in 0dc3b07
+- 更新github构建脚本 by @NoWats in 0dc3b07 d4e2305 07647f5
 - 新增3rd依赖 by @NoWats in c481430
 - 添加vscode配置 by @NoWats in eaa7d96
 - 去除gtest by @NoWats in 4c1f596
 - 图6 by @NoWats in e2e8862
 - 45 by @NoWats in 926b871
-- 2 by @NoWats in efc3d97
-- 11 by @NoWats in 145ac2f
-- 13 by @NoWats in 87c2389
-- 12 by @NoWats in 8fade04
-- 11 by @NoWats in 37d1b29
-- 9 by @NoWats in 5bfb4df
-- 8 by @NoWats in dd32285
-- 8 by @NoWats in 2097998
-- 7 by @NoWats in d06b124
-- 6 by @NoWats in f8032e1
-- 5 by @NoWats in 914c138
-- 5 by @NoWats in b371e32
-- 4 by @NoWats in 7ee8d65
 - 33333 by @NoWats in e1bbbde
 - 22222222 by @NoWats in 165d885
 - 11111 by @NoWats in ea4a244
 - 111 by @NoWats in 4244ec6
 - 222 by @NoWats in 158a2e3
-- 1 by @NoWats in 053e7e4
 - 新构建 by @NoWats in 90f3d1e
-- 13 by @NoWats in 33b6853
-- 12 by @NoWats in 74d687e
-- 12 by @NoWats in b02786c
-- 11 by @NoWats in bd277de
-- 9 by @NoWats in 73c7ffc
-- 8 by @NoWats in cb3cce7
-- 7 by @NoWats in 10e43ca
-- 6 by @NoWats in be132b1
-- 5 by @NoWats in bb382f6
-- 4 by @NoWats in 4b0bc87
+- 13 by @NoWats in 33b6853 87c2389
+- 12 by @NoWats in b02786c 74d687e 8fade04
+- 9 by @NoWats in 73c7ffc 5bfb4df
+- 8 by @NoWats in cb3cce7 2097998 dd32285
+- 7 by @NoWats in 10e43ca d06b124
+- 6 by @NoWats in be132b1 f8032e1
+- 5 by @NoWats in bb382f6 b371e32 914c138
+- 4 by @NoWats in 4b0bc87 7ee8d65
 - 3 by @NoWats in ca56562
-- 1 by @NoWats in f57ccd8
-- 2 by @NoWats in a5c7a93
-- 1 by @NoWats in 0666ccd
-- 1 by @NoWats in 9e20c9a
-- 11 by @NoWats in 123ef16
+- 2 by @NoWats in a5c7a93 efc3d97
+- 1 by @NoWats in 9e20c9a 0666ccd f57ccd8 053e7e4
+- 11 by @NoWats in 123ef16 bd277de 37d1b29 145ac2f
+- 格式 by @NoWats in dd8e6e4
 - 格式 by @NoWats in dd8e6e4
 - 格式化 by @NoWats in eedecbc
 - gitignore修改 by @NoWats in 6e73457
-- test by @NoWats in 7c33740
-- test by @NoWats in 4e5e864
-- 更新 by @NoWats in 9ce20e6
 - 添加gtest by @NoWats in a82b47f
-- 更新 by @NoWats in 7e14ab4
-- 更新 by @NoWats in 912fb77
-- 更新 by @NoWats in 08300fc
-- 更新 by @NoWats in 7e1d7e4
 - 优化版本检测 by @NoWats in 65876e3
 - 更新版本检测 by @NoWats in 75c52cb
-- 更新 by @NoWats in 2f714dc
-- 更新 by @NoWats in 155dd46
-- 更新 by @NoWats in 19ceb89
-- 更新 by @NoWats in 776d288
-- 更新 by @NoWats in 0f8cc6e
+- 更新 by @NoWats in 0f8cc6e 776d288 19ceb89 155dd46 2f714dc 7e1d7e4 08300fc 912fb77 7e14ab4 9ce20e6
 - 调整目录结构 by @NoWats in 0639379
 - 修正版本错误 by @NoWats in 43fd3c5
 - 去除无用头文件 by @NoWats in 97ca833
 - 格式化常量名 by @NoWats in 7b45f5a
-- test by @NoWats in 85a66ba
-- test by @NoWats in 113ed5b
-- test by @NoWats in b7245a3
-- test by @NoWats in 3afaef4
-- test by @NoWats in 94bea6d
+- test by @NoWats in 94bea6d 3afaef4 b7245a3 113ed5b 85a66ba 4e5e864 7c33740
 

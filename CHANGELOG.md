@@ -6,7 +6,7 @@
 - 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in 9365029
 
 ### Bug Fixes
-- 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in 6471ca5
+- 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in 6471ca5 c6d287f
 
 ## 5.39.0815.0154 (2024-08-15)
 

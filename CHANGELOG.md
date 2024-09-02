@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Unreleased (2024-09-02)
+
+### Others
+- 修复CHANGELOG生成脚本 by @NoWaterisEnough in 93db0f7
+
 ## 5.39.0815.0154 (2024-08-15)
 
 ### Others

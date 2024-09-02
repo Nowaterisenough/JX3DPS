@@ -25,11 +25,6 @@ generate_changelog_for_tag() {
     fi
 
     local commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
-    
-    # 调试信息
-    echo "Debug: Commits for $current_tag" >&2
-    echo "$commits" >&2
-    echo "End of commits for $current_tag" >&2
 
     if [ -z "$commits" ]; then
         echo "No changes in this version."
@@ -46,7 +41,6 @@ process_commits() {
 
     while IFS='|' read -r timestamp message author hash; do
         if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
-            echo "Debug: Skipping empty commit info" >&2
             continue
         fi
 
@@ -68,8 +62,6 @@ process_commits() {
             test)     test_commits+=("$key")     ;;
             *)        other_commits+=("$key")    ;;
         esac
-        
-        echo "Debug: Added commit - Type: $type, Message: $clean_message" >&2
     done <<< "$commits"
 
     format_commits "Features" "${feat_commits[@]+"${feat_commits[@]}"}"
@@ -86,12 +78,8 @@ format_commits() {
     shift
     local commits=("$@")
     
-    echo "Debug: Formatting commits for $title" >&2
-    echo "Debug: Number of commits: ${#commits[@]}" >&2
-    
     # 如果数组为空，直接返回
     if [ ${#commits[@]} -eq 0 ]; then
-        echo "Debug: No commits for $title" >&2
         return
     fi
     
@@ -126,7 +114,6 @@ format_commits() {
         # 反转哈希顺序，使最新的哈希在前面
         hashes_reversed=$(echo $hashes | tr ' ' '\n' | tac | tr '\n' ' ' | sed 's/ $//')
         echo "- $message by $author in $hashes_reversed"
-        echo "Debug: Added entry - $message by $author in $hashes_reversed" >&2
     done
     echo
 }
@@ -160,15 +147,9 @@ format_commits() {
         echo "No changes found in the repository."
     fi
 
-        # 添加调试信息
-    echo "Debug: CHANGELOG.md content:" >&2
-    cat CHANGELOG.md >&2
-    echo "Debug: End of CHANGELOG.md content" >&2
-
 } > CHANGELOG.md
 
 if [ -s CHANGELOG.md ]; then
-    echo "Debug: CHANGELOG.md is not empty" >&2
     git add CHANGELOG.md
 else
     echo "Error: CHANGELOG.md is empty" >&2

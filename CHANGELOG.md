@@ -2,6 +2,12 @@
 
 ## Unreleased (2024-09-02)
 
+### Features
+- 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in 9365029
+
+### Bug Fixes
+- 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in cf47c79 2aa7661 c6d287f 6471ca5
+
 ### Others
 - 修复CHANGELOG生成脚本 by @NoWaterisEnough in 93db0f7
 - 去除CHANGELOG生成脚本里无用的调试信息 by @NoWaterisEnough in c446120

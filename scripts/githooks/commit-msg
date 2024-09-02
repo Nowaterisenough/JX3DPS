@@ -4,11 +4,21 @@ commit_msg_file=$1
 commit_msg=$(cat "$commit_msg_file")
 
 # 定义提交消息的格式（使用正则表达式）
-commit_format="^(feat|fix|docs|style|refactor|perf|build|ci|test|chore|revert)(\(.+\))?: .{1,50}$"
+custom_commit_format="^(feat|fix|docs|style|refactor|perf|build|ci|test|chore|revert)(\(.+\))?: .{1,50}$"
 
-if ! echo "$commit_msg" | grep -qE "$commit_format"; then
+# 定义 merge commit 消息的格式
+merge_commit_format="^Merge (branch|pull request|remote-tracking branch) '?.+'"
+
+# 检查是否为 merge commit 消息
+if echo "$commit_msg" | grep -qE "$merge_commit_format"; then
+    exit 0  # Merge commit 消息符合规范，直接通过
+fi
+
+# 检查自定义 commit 消息格式
+if ! echo "$commit_msg" | grep -qE "$custom_commit_format"; then
     echo "Error: Commit message format is incorrect."
     echo "It should be: <type>(<scope>): <subject>"
     echo "Example: feat(ui): add login button"
+    echo "Or it should be a valid merge commit message."
     exit 1
 fi

@@ -4,6 +4,7 @@
 
 ### Others
 - 修复CHANGELOG生成脚本 by @NoWaterisEnough in 93db0f7
+- 去除CHANGELOG生成脚本里无用的调试信息 by @NoWaterisEnough in c446120
 
 ## 5.39.0815.0154 (2024-08-15)
 

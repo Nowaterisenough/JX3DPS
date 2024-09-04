@@ -14,6 +14,28 @@ jobs:
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          fetch-depth: 0
+
+      - name: Wait for builds to complete
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for i in {1..30}; do
+            win_status=$(gh run list --workflow "Windows MinGW Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
+            linux_status=$(gh run list --workflow "Linux GCC Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
+            
+            if [[ "$win_status" != "null" && "$linux_status" != "null" ]]; then
+              echo "Both builds have completed."
+              break
+            fi
+            
+            echo "Waiting for builds to complete... (Attempt $i)"
+            sleep 60
+          done
+
       - name: Check build statuses
         id: check
         env:
@@ -21,6 +43,9 @@ jobs:
         run: |
           win_status=$(gh run list --workflow "Windows MinGW Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
           linux_status=$(gh run list --workflow "Linux GCC Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
+          
+          echo "Windows build status: $win_status"
+          echo "Linux build status: $linux_status"
           
           if [[ "$win_status" == "success" && "$linux_status" == "success" ]]; then
             echo "Both Windows and Linux builds are successful."

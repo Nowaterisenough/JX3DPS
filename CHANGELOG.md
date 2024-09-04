@@ -2,6 +2,9 @@
 
 ## Unreleased (2024-09-04)
 
+### Bug Fixes
+- 修复linux下时间函数 by @NoWaterisEnough in 90ec7ff
+
 ### Others
 - 修正版本号生成的BUG by @NoWaterisEnough in 8f068ac
 - 调整action脚本 by @NoWaterisEnough in 3737389

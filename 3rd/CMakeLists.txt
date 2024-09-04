@@ -1,3 +1,5 @@
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_subdirectory(json)
 add_subdirectory(proxy)
 add_subdirectory(spdlog)

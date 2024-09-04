@@ -14,6 +14,7 @@
 - 更新第三方库版本 by @NoWaterisEnough in 15e6866
 - 更新commit约束 by @NoWaterisEnough in c1e75a2
 - build(deps): bump actions/download-artifact in /.github/workflows by @dependabot[bot] in cafa12f
+- 更新三方库版本 by @NoWaterisEnough in 48f418d
 
 ## 5.39.0815.0154 (2024-08-15)
 

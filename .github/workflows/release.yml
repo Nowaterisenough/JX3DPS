@@ -27,7 +27,7 @@ jobs:
       packageName: ${{ steps.package.outputs.packageName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.7
         with:
           submodules: 'recursive'
           fetch-depth: 0
@@ -97,7 +97,7 @@ jobs:
           }
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}.zip
@@ -110,7 +110,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.7
         with:
           fetch-depth: 0
 
@@ -220,7 +220,7 @@ jobs:
           echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
 
       - name: Download artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4.1.8
         with:
           name: ${{ needs.build-mingw.outputs.packageName }}
 

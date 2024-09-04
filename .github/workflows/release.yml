@@ -9,12 +9,32 @@ on:
       - master
 
 jobs:
+  check-builds:
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+    steps:
+      - name: Check build statuses
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          win_status=$(gh run list --workflow "Windows MinGW Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
+          linux_status=$(gh run list --workflow "Linux GCC Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
+          
+          if [[ "$win_status" == "success" && "$linux_status" == "success" ]]; then
+            echo "Both Windows and Linux builds are successful."
+            echo "should_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "Not all builds are successful. Skipping release."
+            echo "should_release=false" >> $GITHUB_OUTPUT
+          fi
+
   release:
+    needs: check-builds
+    if: needs.check-builds.outputs.should_release == 'true'
     name: Create Release
     runs-on: ubuntu-latest
-    if: |
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'master'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7

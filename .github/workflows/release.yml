@@ -5,11 +5,6 @@ on:
     workflows: ["Windows MinGW Build", "Linux GCC Build"]
     types:
       - completed
-  push:
-    branches:
-      - master
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review, review_requested]
     branches:
       - master
 
@@ -67,12 +62,26 @@ jobs:
         with:
           name: JX3DPS-win64-mingw-*
           path: ./windows-artifact
+          merge-multiple: true
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: List Windows artifacts
+        run: |
+          echo "Contents of windows-artifact directory:"
+          ls -R ./windows-artifact
 
       - name: Download Linux artifact
         uses: actions/download-artifact@v4.1.8
         with:
           name: JX3DPS-linux-gcc-*
           path: ./linux-artifact
+          merge-multiple: true
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: List Linux artifacts
+        run: |
+          echo "Contents of linux-artifact directory:"
+          ls -R ./linux-artifact
 
       - name: Generate Changelog
         id: changelog
@@ -183,7 +192,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(ls ./windows-artifact/JX3DPS-win64-mingw-*.zip | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p')
+          version=$(find ./windows-artifact -name "JX3DPS-win64-mingw-*.zip" | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p' | head -n 1)
+          if [ -z "$version" ]; then
+            echo "Error: Could not find Windows artifact version"
+            exit 1
+          fi
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           # 使用 GitHub CLI 创建发布
@@ -193,12 +206,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(ls ./windows-artifact/JX3DPS-win64-mingw-*.zip | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p')
+          version=$(find ./windows-artifact -name "JX3DPS-win64-mingw-*.zip" | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p' | head -n 1)
+          if [ -z "$version" ]; then
+            echo "Error: Could not find Windows artifact version"
+            exit 1
+          fi
           
           # 上传 Windows 构建
-          gh release upload $version ./windows-artifact/*.zip
+          find ./windows-artifact -name "*.zip" -exec gh release upload $version {} \;
           
           # 上传 Linux 构建
-          gh release upload $version ./linux-artifact/*.zip
+          find ./linux-artifact -name "*.zip" -exec gh release upload $version {} \;
           
           echo "Successfully uploaded artifacts to release $version"

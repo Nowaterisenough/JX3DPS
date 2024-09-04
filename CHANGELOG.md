@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Unreleased (2024-09-04)
+
+### Others
+- 修正版本号生成的BUG by @NoWaterisEnough in 8f068ac
+
 ## 5.39.0904.1946 (2024-09-04)
 
 ### Features

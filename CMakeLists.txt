@@ -59,6 +59,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}
 )
 
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
 if(BUILD_EXAMPLE)
     add_subdirectory(example)
 endif()
@@ -66,3 +71,4 @@ endif()
 if(BUILD_PERFORMANCE)
     add_subdirectory(performance)
 endif()
+

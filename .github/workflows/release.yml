@@ -63,21 +63,23 @@ jobs:
           name: JX3DPS-win64-mingw-*
           path: ./windows-artifact
           merge-multiple: true
+          pattern: JX3DPS-win64-mingw-*
           run-id: ${{ github.event.workflow_run.id }}
-
+      
       - name: List Windows artifacts
         run: |
           echo "Contents of windows-artifact directory:"
           ls -R ./windows-artifact
-
+      
       - name: Download Linux artifact
         uses: actions/download-artifact@v4.1.8
         with:
           name: JX3DPS-linux-gcc-*
           path: ./linux-artifact
           merge-multiple: true
+          pattern: JX3DPS-linux-gcc-*
           run-id: ${{ github.event.workflow_run.id }}
-
+      
       - name: List Linux artifacts
         run: |
           echo "Contents of linux-artifact directory:"

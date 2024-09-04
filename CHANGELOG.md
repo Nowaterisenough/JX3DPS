@@ -10,7 +10,7 @@
 
 ### Others
 - 修正版本号生成的BUG by @NoWaterisEnough in 8f068ac
-- 调整action脚本 by @NoWaterisEnough in e882a73 3737389
+- 调整action脚本 by @NoWaterisEnough in 9876b6f e882a73 3737389
 
 ## 5.39.0904.1946 (2024-09-04)
 

@@ -22,8 +22,11 @@ Log::Log()
 
     // 转换为本地时间
     std::tm tm;
-    localtime_s(&tm, &time_t); // 使用localtime_s (在Windows) 或 localtime_r (在POSIX系统) 以线程安全的方式获取当前时间
-
+#ifdef _WIN32
+    localtime_s(&tm, &time_t); // Windows 系统使用 localtime_s
+#else
+    localtime_r(&time_t, &tm); // POSIX 系统使用 localtime_r
+#endif
     // 格式化时间到字符串
     std::stringstream time_stream;
     time_stream << std::put_time(&tm, "%Y-%m-%d"); // 格式化为 Year-Month-Day

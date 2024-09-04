@@ -13,73 +13,84 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     if: |
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/master') ||
-      (github.event_name == 'pull_request' && github.base_ref == 'master')
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'master'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
         with:
           fetch-depth: 0
 
-      - name: Check build status
-        if: github.event_name == 'workflow_run' || github.event_name == 'push'
+      - name: Get version from CMake
+        id: get_version
+        shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            echo "Checking both Windows and Linux build status for push event"
-            win_status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/windows-mingw-build.yml/runs?branch=master&event=push&status=completed" | \
-              jq -r '.workflow_runs[0].conclusion')
-            linux_status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/linux-gcc-build.yml/runs?branch=master&event=push&status=completed" | \
-              jq -r '.workflow_runs[0].conclusion')
-            if [[ "$win_status" != "success" || "$linux_status" != "success" ]]; then
-              echo "One or both builds are not successful. Skipping release."
-              exit 1
-            fi
-          elif [[ "${{ github.event.workflow_run.name }}" == "Windows MinGW Build" ]]; then
-            echo "Checking Linux GCC Build status"
-            linux_status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/linux-gcc-build.yml/runs?branch=master&event=push&status=completed" | \
-              jq -r '.workflow_runs[0].conclusion')
-            if [[ "$linux_status" != "success" ]]; then
-              echo "Linux GCC Build is not successful. Skipping release."
-              exit 1
-            fi
-          elif [[ "${{ github.event.workflow_run.name }}" == "Linux GCC Build" ]]; then
-            echo "Checking Windows MinGW Build status"
-            win_status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/windows-mingw-build.yml/runs?branch=master&event=push&status=completed" | \
-              jq -r '.workflow_runs[0].conclusion')
-            if [[ "$win_status" != "success" ]]; then
-              echo "Windows MinGW Build is not successful. Skipping release."
-              exit 1
-            fi
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
           fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
+
+      - name: Debug Workflow Run Info
+        run: |
+          echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
+          echo "Workflow Name: ${{ github.event.workflow_run.name }}"
+          echo "Workflow Conclusion: ${{ github.event.workflow_run.conclusion }}"
+
+      - name: List Available Artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          artifacts=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts)
+          echo "Available artifacts:"
+          echo "$artifacts" | jq -r '.artifacts[] | "\(.name) (\(.id))"'
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: JX3DPS-win64-mingw-*
-          path: ./windows-artifact
-          merge-multiple: true
-          pattern: JX3DPS-win64-mingw-*
-          run-id: ${{ github.event.workflow_run.id }}
-      
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          artifact_name="JX3DPS-win64-mingw-${{ steps.get_version.outputs.VERSION }}"
+          artifact_id=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
+            | jq -r '.artifacts[] | select(.name == "'"$artifact_name"'") | .id')
+          if [ -n "$artifact_id" ]; then
+            gh run download $artifact_id --name "$artifact_name" --dir ./windows-artifact
+          else
+            echo "Error: Could not find Windows artifact: $artifact_name"
+            exit 1
+          fi
+
+      - name: Download Linux artifact
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          artifact_name="JX3DPS-linux-gcc-${{ steps.get_version.outputs.VERSION }}"
+          artifact_id=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
+            | jq -r '.artifacts[] | select(.name == "'"$artifact_name"'") | .id')
+          if [ -n "$artifact_id" ]; then
+            gh run download $artifact_id --name "$artifact_name" --dir ./linux-artifact
+          else
+            echo "Error: Could not find Linux artifact: $artifact_name"
+            exit 1
+          fi
+
       - name: List Windows artifacts
         run: |
           echo "Contents of windows-artifact directory:"
           ls -R ./windows-artifact
-      
-      - name: Download Linux artifact
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: JX3DPS-linux-gcc-*
-          path: ./linux-artifact
-          merge-multiple: true
-          pattern: JX3DPS-linux-gcc-*
-          run-id: ${{ github.event.workflow_run.id }}
-      
+
       - name: List Linux artifacts
         run: |
           echo "Contents of linux-artifact directory:"
@@ -194,11 +205,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(find ./windows-artifact -name "JX3DPS-win64-mingw-*.zip" | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p' | head -n 1)
-          if [ -z "$version" ]; then
-            echo "Error: Could not find Windows artifact version"
-            exit 1
-          fi
+          version="${{ steps.get_version.outputs.VERSION }}"
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           # 使用 GitHub CLI 创建发布
@@ -208,16 +215,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(find ./windows-artifact -name "JX3DPS-win64-mingw-*.zip" | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p' | head -n 1)
-          if [ -z "$version" ]; then
-            echo "Error: Could not find Windows artifact version"
-            exit 1
-          fi
+          version="${{ steps.get_version.outputs.VERSION }}"
           
           # 上传 Windows 构建
-          find ./windows-artifact -name "*.zip" -exec gh release upload $version {} \;
+          gh release upload $version ./windows-artifact/*.zip
           
           # 上传 Linux 构建
-          find ./linux-artifact -name "*.zip" -exec gh release upload $version {} \;
+          gh release upload $version ./linux-artifact/*.zip
           
           echo "Successfully uploaded artifacts to release $version"

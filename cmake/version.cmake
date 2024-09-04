@@ -83,51 +83,24 @@ function(version)
     if(CUSTOM)
         set(VERSION_BRANCH "local" PARENT_SCOPE)
 
-        # 获取 UTC 时间戳
-        string(TIMESTAMP UTC_TIMESTAMP "%Y%m%d%H%M" UTC)
-
-        # 输出 UTC 时间戳以进行调试
-        message(STATUS "Generated UTC timestamp: ${UTC_TIMESTAMP}")
-
-        if(UTC_TIMESTAMP)
-            # 提取年、月、日、小时、分钟
-            string(SUBSTRING "${UTC_TIMESTAMP}" 0 4 YEAR)
-            string(SUBSTRING "${UTC_TIMESTAMP}" 4 2 MONTH)
-            string(SUBSTRING "${UTC_TIMESTAMP}" 6 2 DAY)
-            string(SUBSTRING "${UTC_TIMESTAMP}" 8 2 HOUR)
-            string(SUBSTRING "${UTC_TIMESTAMP}" 10 2 MINUTE)
-
-            # 将小时转换为整数并加 8
-            math(EXPR HOUR "${HOUR} + 8")
-
-            # 处理日期变更
-            if(HOUR GREATER_EQUAL 24)
-                math(EXPR HOUR "${HOUR} - 24")
-                math(EXPR DAY "${DAY} + 1")
-
-                # 这里可以添加更复杂的月份和年份处理逻辑，如果需要的话
-            endif()
-
-            # 格式化时间
-            if(HOUR LESS 10)
-                set(HOUR "0${HOUR}")
-            endif()
-
-            if(DAY LESS 10)
-                set(DAY "0${DAY}")
-            endif()
-
-            # 构建北京时间戳
-            set(BEIJING_TIMESTAMP "${YEAR}${MONTH}${DAY}${HOUR}${MINUTE}")
-            message(STATUS "Converted Beijing timestamp: ${BEIJING_TIMESTAMP}")
-
-            string(SUBSTRING "${BEIJING_TIMESTAMP}" 4 4 VERSION_PATCH)
-            string(SUBSTRING "${BEIJING_TIMESTAMP}" 8 4 VERSION_TWEAK)
+        # 使用命令行工具获取北京时间
+        if(WIN32)
+            # Windows 系统使用 PowerShell
+            execute_process(
+                COMMAND powershell -Command "[System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'China Standard Time').ToString('yyyyMMddHHmm')"
+                OUTPUT_VARIABLE BEIJING_TIMESTAMP
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
         else()
-            message(WARNING "Failed to generate timestamp, using default values")
-            set(VERSION_PATCH "0000")
-            set(VERSION_TWEAK "0000")
+            # Linux/macOS 系统使用 date 命令
+            execute_process(
+                COMMAND date -u "+%Y%m%d%H%M" -d "+8 hours"
+                OUTPUT_VARIABLE BEIJING_TIMESTAMP
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
         endif()
+        string(SUBSTRING "${BEIJING_TIMESTAMP}" 4 4 VERSION_PATCH)
+        string(SUBSTRING "${BEIJING_TIMESTAMP}" 8 4 VERSION_TWEAK)
     endif()
 
     set(PROJECT_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.${VERSION_TWEAK}" PARENT_SCOPE)

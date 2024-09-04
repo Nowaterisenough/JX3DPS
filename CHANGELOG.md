@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased (2024-09-04)
+## 5.39.0904.1946 (2024-09-04)
 
 ### Features
 - 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in 9365029
@@ -15,6 +15,7 @@
 - 更新commit约束 by @NoWaterisEnough in c1e75a2
 - build(deps): bump actions/download-artifact in /.github/workflows by @dependabot[bot] in cafa12f
 - 更新三方库版本 by @NoWaterisEnough in 48f418d
+- 调整action脚本 by @NoWaterisEnough in be62c36
 
 ## 5.39.0815.0154 (2024-08-15)
 

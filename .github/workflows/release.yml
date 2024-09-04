@@ -86,16 +86,46 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          artifact_id=$(gh api \
+          # 获取触发当前工作流的运行 ID
+          trigger_workflow_id=$(gh api \
             -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
-            | jq -r '.artifacts[] | select(.name | startswith("JX3DPS-win64-mingw-")) | .id')
+            /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }} \
+            --jq .workflow_id)
+          
+          echo "Trigger workflow ID: $trigger_workflow_id"
+          
+          # 获取最近的 Windows MinGW Build 运行 ID
+          win_run_id=$(gh run list --workflow "Windows MinGW Build" --branch master --limit 1 --json databaseId -q '.[0].databaseId')
+          
+          echo "Windows MinGW Build run ID: $win_run_id"
+          
+          if [ -z "$win_run_id" ]; then
+            echo "Error: Could not find recent Windows MinGW Build run"
+            exit 1
+          fi
+          
+          # 列出该运行的所有构建产物
+          artifacts=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/actions/runs/$win_run_id/artifacts)
+          
+          echo "Available artifacts:"
+          echo "$artifacts" | jq -r '.artifacts[] | "\(.name) (\(.id))"'
+          
+          # 查找并下载 Windows 构建产物
+          artifact_id=$(echo "$artifacts" | jq -r '.artifacts[] | select(.name | startswith("JX3DPS-win64-mingw-")) | .id')
+          
           if [ -n "$artifact_id" ]; then
+            echo "Downloading artifact with ID: $artifact_id"
             gh run download $artifact_id --dir ./windows-artifact
           else
             echo "Error: Could not find Windows artifact"
             exit 1
           fi
+          
+          # 列出下载的文件
+          echo "Downloaded artifacts:"
+          ls -R ./windows-artifact
 
       - name: Download Linux artifact
         env:

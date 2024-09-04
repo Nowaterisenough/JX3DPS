@@ -6,7 +6,7 @@
 - 修复linux下时间函数 by @NoWaterisEnough in 90ec7ff
 - 修复linux构建问题 by @NoWaterisEnough in 0602e75
 - 修复与linux下系统定义的冲突 by @NoWaterisEnough in 4a8f2e7
-- 修复install问题 by @NoWaterisEnough in f59baa2
+- 修复install问题 by @NoWaterisEnough in 3588c55 f59baa2
 
 ### Others
 - 修正版本号生成的BUG by @NoWaterisEnough in 8f068ac

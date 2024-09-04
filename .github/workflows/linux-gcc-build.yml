@@ -18,7 +18,7 @@ jobs:
         include:
           - gcc_version: 11
     env:
-      targetName: libJX3DPS.so
+      targetName: JX3DPS.so
     outputs:
       version: ${{ steps.get_version.outputs.VERSION }}
       packageName: ${{ steps.package.outputs.packageName }}
@@ -40,7 +40,16 @@ jobs:
         id: build
         run: |
           cmake -S . -B ./build -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DVERSION_BRANCH=release
-          cmake --build ./build --target install --config Release
+          cmake --build ./build --target install --config Release --verbose
+          echo "Build completed. Checking install directory:"
+          find ./build/install -type f
+
+      - name: Check build directory
+        run: |
+          echo "Checking build directory structure:"
+          find ./build -type d
+          echo "Checking for JX3DPS.so:"
+          find ./build -name JX3DPS.so
 
       - name: Get version from CMake
         id: get_version
@@ -64,7 +73,11 @@ jobs:
           archiveName: JX3DPS-linux-gcc-${{ steps.get_version.outputs.VERSION }}
         run: |
           mkdir -p ${{ env.archiveName }}
-          cp ./build/install/lib/${{ env.targetName }} ${{ env.archiveName }}/
+          find ./build -name JX3DPS.so -exec cp {} ${{ env.archiveName }}/ \;
+          if [ ! -f ${{ env.archiveName }}/JX3DPS.so ]; then
+            echo "Error: JX3DPS.so not found"
+            exit 1
+          fi
           zip -r ${{ env.archiveName }}.zip ${{ env.archiveName }}
           echo "packageName=${{ env.archiveName }}" >> $GITHUB_OUTPUT
 

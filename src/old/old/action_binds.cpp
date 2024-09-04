@@ -6,247 +6,247 @@ using namespace JX3DPS;
 
 using namespace Action;
 
-bool SkillNotinCd(id_t skill_id)
+bool SkillNotinCd(jx3id_t skill_id)
 {
     return Worker::player.GetSkillCooldown(skill_id) == 0;
 }
 
-bool BuffExist(id_t buff_id)
+bool BuffExist(jx3id_t buff_id)
 {
     return Worker::player.HasBuff(buff_id);
 }
 
-bool NoBuffExist(id_t buff_id)
+bool NoBuffExist(jx3id_t buff_id)
 {
     return !Worker::player.HasBuff(buff_id);
 }
 
-bool TBuffExist(id_t buff_id)
+bool TBuffExist(jx3id_t buff_id)
 {
     return Worker::target->HasBuff(buff_id);
 }
 
-bool TNoBuffExist(id_t buff_id)
+bool TNoBuffExist(jx3id_t buff_id)
 {
     return !Worker::target->HasBuff(buff_id);
 }
 
-bool LastCastSkill(id_t skill_id)
+bool LastCastSkill(jx3id_t skill_id)
 {
     return Worker::player.GetLastCastSkill() == skill_id;
 }
 
-bool NotLastCastSkill(id_t skill_id)
+bool NotLastCastSkill(jx3id_t skill_id)
 {
     return Worker::player.GetLastCastSkill() != skill_id;
 }
 
-bool BuffStackNumLt(id_t buff_id, int stack_num)
+bool BuffStackNumLt(jx3id_t buff_id, int stack_num)
 {
     return Worker::player.GetBuffStackNum(buff_id) < stack_num;
 }
 
-bool BuffStackNumLe(id_t buff_id, int stack_num)
+bool BuffStackNumLe(jx3id_t buff_id, int stack_num)
 {
     return Worker::player.GetBuffStackNum(buff_id) <= stack_num;
 }
 
-bool BuffStackNumEq(id_t buff_id, int stack_num)
+bool BuffStackNumEq(jx3id_t buff_id, int stack_num)
 {
     return Worker::player.GetBuffStackNum(buff_id) == stack_num;
 }
 
-bool BuffStackNumNe(id_t buff_id, int stack_num)
+bool BuffStackNumNe(jx3id_t buff_id, int stack_num)
 {
     return Worker::player.GetBuffStackNum(buff_id) != stack_num;
 }
 
-bool BuffStackNumGe(id_t buff_id, int stack_num)
+bool BuffStackNumGe(jx3id_t buff_id, int stack_num)
 {
     return Worker::player.GetBuffStackNum(buff_id) >= stack_num;
 }
 
-bool BuffStackNumGt(id_t buff_id, int stack_num)
+bool BuffStackNumGt(jx3id_t buff_id, int stack_num)
 {
     return Worker::player.GetBuffStackNum(buff_id) > stack_num;
 }
 
-bool TBuffStackNumLt(id_t buff_id, int stack_num)
+bool TBuffStackNumLt(jx3id_t buff_id, int stack_num)
 {
     return Worker::target->GetBuffStackNum(buff_id) < stack_num;
 }
 
-bool TBuffStackNumLe(id_t buff_id, int stack_num)
+bool TBuffStackNumLe(jx3id_t buff_id, int stack_num)
 {
     return Worker::target->GetBuffStackNum(buff_id) <= stack_num;
 }
 
-bool TBuffStackNumEq(id_t buff_id, int stack_num)
+bool TBuffStackNumEq(jx3id_t buff_id, int stack_num)
 {
     return Worker::target->GetBuffStackNum(buff_id) == stack_num;
 }
 
-bool TBuffStackNumNe(id_t buff_id, int stack_num)
+bool TBuffStackNumNe(jx3id_t buff_id, int stack_num)
 {
     return Worker::target->GetBuffStackNum(buff_id) != stack_num;
 }
 
-bool TBuffStackNumGe(id_t buff_id, int stack_num)
+bool TBuffStackNumGe(jx3id_t buff_id, int stack_num)
 {
     return Worker::target->GetBuffStackNum(buff_id) >= stack_num;
 }
 
-bool TBuffStackNumGt(id_t buff_id, int stack_num)
+bool TBuffStackNumGt(jx3id_t buff_id, int stack_num)
 {
     return Worker::target->GetBuffStackNum(buff_id) > stack_num;
 }
 
-bool BuffTimeLt(id_t buff_id, frame_t frame)
+bool BuffTimeLt(jx3id_t buff_id, frame_t frame)
 {
     return Worker::player.GetBuffTime(buff_id) < frame;
 }
 
-bool BuffTimeLe(id_t buff_id, frame_t frame)
+bool BuffTimeLe(jx3id_t buff_id, frame_t frame)
 {
     return Worker::player.GetBuffTime(buff_id) <= frame;
 }
 
-bool BuffTimeEq(id_t buff_id, frame_t frame)
+bool BuffTimeEq(jx3id_t buff_id, frame_t frame)
 {
     return Worker::player.GetBuffTime(buff_id) == frame;
 }
 
-bool BuffTimeNe(id_t buff_id, frame_t frame)
+bool BuffTimeNe(jx3id_t buff_id, frame_t frame)
 {
     return Worker::player.GetBuffTime(buff_id) != frame;
 }
 
-bool BuffTimeGe(id_t buff_id, frame_t frame)
+bool BuffTimeGe(jx3id_t buff_id, frame_t frame)
 {
     return Worker::player.GetBuffTime(buff_id) >= frame;
 }
 
-bool BuffTimeGt(id_t buff_id, frame_t frame)
+bool BuffTimeGt(jx3id_t buff_id, frame_t frame)
 {
     return Worker::player.GetBuffTime(buff_id) > frame;
 }
 
-bool TBuffTimeLt(id_t buff_id, frame_t frame)
+bool TBuffTimeLt(jx3id_t buff_id, frame_t frame)
 {
     return Worker::target->GetBuffTime(buff_id) < frame;
 }
 
-bool TBuffTimeLe(id_t buff_id, frame_t frame)
+bool TBuffTimeLe(jx3id_t buff_id, frame_t frame)
 {
     return Worker::target->GetBuffTime(buff_id) <= frame;
 }
 
-bool TBuffTimeEq(id_t buff_id, frame_t frame)
+bool TBuffTimeEq(jx3id_t buff_id, frame_t frame)
 {
     return Worker::target->GetBuffTime(buff_id) == frame;
 }
 
-bool TBuffTimeNe(id_t buff_id, frame_t frame)
+bool TBuffTimeNe(jx3id_t buff_id, frame_t frame)
 {
     return Worker::target->GetBuffTime(buff_id) != frame;
 }
 
-bool TBuffTimeGe(id_t buff_id, frame_t frame)
+bool TBuffTimeGe(jx3id_t buff_id, frame_t frame)
 {
     return Worker::target->GetBuffTime(buff_id) >= frame;
 }
 
-bool TBuffTimeGt(id_t buff_id, frame_t frame)
+bool TBuffTimeGt(jx3id_t buff_id, frame_t frame)
 {
     return Worker::target->GetBuffTime(buff_id) > frame;
 }
 
-bool SkillCooldownLt(id_t skill_id, frame_t frame)
+bool SkillCooldownLt(jx3id_t skill_id, frame_t frame)
 {
     return Worker::player.GetSkillCooldown(skill_id) < frame;
 }
 
-bool SkillCooldownLe(id_t skill_id, frame_t frame)
+bool SkillCooldownLe(jx3id_t skill_id, frame_t frame)
 {
     return Worker::player.GetSkillCooldown(skill_id) <= frame;
 }
 
-bool SkillCooldownEq(id_t skill_id, frame_t frame)
+bool SkillCooldownEq(jx3id_t skill_id, frame_t frame)
 {
     return Worker::player.GetSkillCooldown(skill_id) == frame;
 }
 
-bool SkillCooldownNe(id_t skill_id, frame_t frame)
+bool SkillCooldownNe(jx3id_t skill_id, frame_t frame)
 {
     return Worker::player.GetSkillCooldown(skill_id) != frame;
 }
 
-bool SkillCooldownGe(id_t skill_id, frame_t frame)
+bool SkillCooldownGe(jx3id_t skill_id, frame_t frame)
 {
     return Worker::player.GetSkillCooldown(skill_id) >= frame;
 }
 
-bool SkillCooldownGt(id_t skill_id, frame_t frame)
+bool SkillCooldownGt(jx3id_t skill_id, frame_t frame)
 {
     return Worker::player.GetSkillCooldown(skill_id) > frame;
 }
 
-bool SkillEnergyLt(id_t skill_id, int energy)
+bool SkillEnergyLt(jx3id_t skill_id, int energy)
 {
     return Worker::player.GetSkillEnergy(skill_id) < energy;
 }
 
-bool SkillEnergyLe(id_t skill_id, int energy)
+bool SkillEnergyLe(jx3id_t skill_id, int energy)
 {
     return Worker::player.GetSkillEnergy(skill_id) <= energy;
 }
 
-bool SkillEnergyEq(id_t skill_id, int energy)
+bool SkillEnergyEq(jx3id_t skill_id, int energy)
 {
     return Worker::player.GetSkillEnergy(skill_id) == energy;
 }
 
-bool SkillEnergyNe(id_t skill_id, int energy)
+bool SkillEnergyNe(jx3id_t skill_id, int energy)
 {
     return Worker::player.GetSkillEnergy(skill_id) != energy;
 }
 
-bool SkillEnergyGe(id_t skill_id, int energy)
+bool SkillEnergyGe(jx3id_t skill_id, int energy)
 {
     return Worker::player.GetSkillEnergy(skill_id) >= energy;
 }
 
-bool SkillEnergyGt(id_t skill_id, int energy)
+bool SkillEnergyGt(jx3id_t skill_id, int energy)
 {
     return Worker::player.GetSkillEnergy(skill_id) > energy;
 }
 
-bool TLifeLt(id_t target_id, double ratio)
+bool TLifeLt(jx3id_t target_id, double ratio)
 {
     return Worker::targets[target_id].GetLifePercent() < ratio;
 }
 
-bool TLifeLe(id_t target_id, double ratio)
+bool TLifeLe(jx3id_t target_id, double ratio)
 {
     return Worker::targets[target_id].GetLifePercent() <= ratio;
 }
 
-bool TLifeEq(id_t target_id, double ratio)
+bool TLifeEq(jx3id_t target_id, double ratio)
 {
     return Worker::targets[target_id].GetLifePercent() == ratio;
 }
 
-bool TLifeNe(id_t target_id, double ratio)
+bool TLifeNe(jx3id_t target_id, double ratio)
 {
     return Worker::targets[target_id].GetLifePercent() != ratio;
 }
 
-bool TLifeGe(id_t target_id, double ratio)
+bool TLifeGe(jx3id_t target_id, double ratio)
 {
     return Worker::targets[target_id].GetLifePercent() >= ratio;
 }
 
-bool TLifeGt(id_t target_id, double ratio)
+bool TLifeGt(jx3id_t target_id, double ratio)
 {
     return Worker::targets[target_id].GetLifePercent() > ratio;
 }
@@ -281,32 +281,32 @@ bool TLifeGt(double ratio)
     return Worker::target->GetLifePercent() > ratio;
 }
 
-bool DistanceLt(id_t target_id, double distance)
+bool DistanceLt(jx3id_t target_id, double distance)
 {
     return Worker::targets[target_id].GetDistance() < distance;
 }
 
-bool DistanceLe(id_t target_id, double distance)
+bool DistanceLe(jx3id_t target_id, double distance)
 {
     return Worker::targets[target_id].GetDistance() <= distance;
 }
 
-bool DistanceEq(id_t target_id, double distance)
+bool DistanceEq(jx3id_t target_id, double distance)
 {
     return Worker::targets[target_id].GetDistance() == distance;
 }
 
-bool DistanceNe(id_t target_id, double distance)
+bool DistanceNe(jx3id_t target_id, double distance)
 {
     return Worker::targets[target_id].GetDistance() != distance;
 }
 
-bool DistanceGe(id_t target_id, double distance)
+bool DistanceGe(jx3id_t target_id, double distance)
 {
     return Worker::targets[target_id].GetDistance() >= distance;
 }
 
-bool DistanceGt(id_t target_id, double distance)
+bool DistanceGt(jx3id_t target_id, double distance)
 {
     return Worker::targets[target_id].GetDistance() > distance;
 }

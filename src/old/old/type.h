@@ -20,7 +20,7 @@ using value_t = int;
 
 using cof_t = double;
 
-using id_t = int;
+using jx3id_t = int;
 
 template <typename T, int COUNT>
 using array_t = std::array<T, COUNT>;

@@ -1,0 +1,89 @@
+name: Linux GCC Build
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  build-gcc:
+    name: Build Linux GCC
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - gcc_version: 11
+    env:
+      targetName: JX3DPS.so
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install GCC
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-${{ matrix.gcc_version }}
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc_version }} 100
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc_version }} 100
+
+      - name: Build
+        id: build
+        run: |
+          cmake -S . -B ./build -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DVERSION_BRANCH=release
+          cmake --build ./build --target install --config Release --verbose
+          echo "Build completed. Checking install directory:"
+          find ./build/install -type f
+
+      - name: Check build directory
+        run: |
+          echo "Checking build directory structure:"
+          find ./build -type d
+          echo "Checking for JX3DPS.so:"
+          find ./build -name JX3DPS.so
+
+      - name: Get version from CMake
+        id: get_version
+        run: |
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DVERSION_BRANCH=release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
+          fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
+
+      - name: Package
+        id: package
+        env:
+          archiveName: JX3DPS-linux-gcc-${{ steps.get_version.outputs.VERSION }}
+        run: |
+          mkdir -p ${{ env.archiveName }}
+          find ./build -name JX3DPS.so -exec cp {} ${{ env.archiveName }}/ \;
+          if [ ! -f ${{ env.archiveName }}/JX3DPS.so ]; then
+            echo "Error: JX3DPS.so not found"
+            exit 1
+          fi
+          zip -r ${{ env.archiveName }}.zip ${{ env.archiveName }}
+          echo "packageName=${{ env.archiveName }}" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1

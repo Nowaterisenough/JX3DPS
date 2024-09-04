@@ -82,7 +82,7 @@ public:
         }
     }
 
-    inline void ResetInterval(id_t id)
+    inline void ResetInterval(jx3id_t id)
     {
         auto &&snapshot = T::snapshots[id];
         if constexpr (IsHasted<T>) {
@@ -205,7 +205,7 @@ protected:
     using effects_t = array_t<vector_t<func_t<void()>>, COUNT>;
 
     effects_t               _effects;
-    hash_t<id_t, effects_t> _effects_pool;
+    hash_t<jx3id_t, effects_t> _effects_pool;
 };
 
 using Buffs = vector_t<Buff>;

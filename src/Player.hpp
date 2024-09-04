@@ -12,11 +12,11 @@ public:
 
     ~Player() = default;
 
-    void AddBuff(id_t id) { }
+    void AddBuff(jx3id_t id) { }
 
-    bool HasBuff(id_t id) { return false; }
+    bool HasBuff(jx3id_t id) { return false; }
 
-    void CastSkill(id_t id) { }
+    void CastSkill(jx3id_t id) { }
 
     T *AsDerived() { return static_cast<T *>(this); }
 };

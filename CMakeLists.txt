@@ -24,7 +24,7 @@ add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
 add_compile_options(-O3 -Wall -mavx2)
 
 set(BUILD_TESTING OFF CACHE BOOL "Build tests")
@@ -59,6 +59,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}
 )
 
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
 if(BUILD_EXAMPLE)
     add_subdirectory(example)
 endif()
@@ -66,3 +71,4 @@ endif()
 if(BUILD_PERFORMANCE)
     add_subdirectory(performance)
 endif()
+

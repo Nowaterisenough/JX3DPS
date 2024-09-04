@@ -24,7 +24,7 @@ using value_t = int;
 
 using cof_t = double;
 
-using id_t = int;
+using jx3id_t = int;
 
 using str_t = std::string_view;
 

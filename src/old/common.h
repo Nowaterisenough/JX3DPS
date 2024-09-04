@@ -67,8 +67,8 @@ enum Tag
     CUSTOM = 1 << 14,
 };
 
-thread_local array_t<std::tuple<id_t, bool>, 100> talents;
-thread_local array_t<std::tuple<id_t, bool>, 100> recipes;
+thread_local array_t<std::tuple<jx3id_t, bool>, 100> talents;
+thread_local array_t<std::tuple<jx3id_t, bool>, 100> recipes;
 
 constexpr pctn_t PCT_5   = 51;
 constexpr pctn_t PCT_10  = 102;

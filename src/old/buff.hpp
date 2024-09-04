@@ -190,7 +190,7 @@ protected:
     using effects_t = array_t<vector_t<func_t<void()>>, COUNT>;
 
     effects_t               effects_;
-    hash_t<id_t, effects_t> effects_pool_;
+    hash_t<jx3id_t, effects_t> effects_pool_;
 };
 
 class Buff

@@ -8,12 +8,12 @@ namespace JX3DPS {
 class Player
 {
 public:
-    frame_t GetSkillCooldown(id_t skill_id);
-    bool    HasBuff(id_t buff_id);
-    id_t    GetLastCastSkill();
-    int     GetBuffStackNum(id_t buff_id);
-    frame_t GetBuffTime(id_t buff_id);
-    int     GetSkillEnergy(id_t skill_id);
+    frame_t GetSkillCooldown(jx3id_t skill_id);
+    bool    HasBuff(jx3id_t buff_id);
+    jx3id_t    GetLastCastSkill();
+    int     GetBuffStackNum(jx3id_t buff_id);
+    frame_t GetBuffTime(jx3id_t buff_id);
+    int     GetSkillEnergy(jx3id_t skill_id);
 };
 
 } // namespace JX3DPS

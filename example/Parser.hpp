@@ -191,7 +191,7 @@ private:
             const std::string &op,
             int                value)
         {
-            id_t id = (type == "buff" || type == "tbuff") ? GetBuffId(name) : GetSkillId(name);
+            jx3id_t id = (type == "buff" || type == "tbuff") ? GetBuffId(name) : GetSkillId(name);
             if (type == "buff") {
                 return ParseComparisonCondition<BuffStacksProxy>(id, op, value);
             }
@@ -211,7 +211,7 @@ private:
                                                                                const std::string &name)
         {
             std::cout << "name: " << name << std::endl;
-            id_t id = GetBuffId(name);
+            jx3id_t id = GetBuffId(name);
             if (type == "buff") {
                 return std::make_pair(MakeConditionNode<BuffExistsProxy<Exists>>(id), ParserError::SUCCESS);
             }
@@ -235,7 +235,7 @@ private:
         }
 
         template <template <typename> class ProxyType>
-        std::pair<pro::proxy<spec::AstNode>, ParserError> ParseComparisonCondition(id_t id, const std::string &op, int value)
+        std::pair<pro::proxy<spec::AstNode>, ParserError> ParseComparisonCondition(jx3id_t id, const std::string &op, int value)
         {
             if (op == "<") {
                 return std::make_pair(MakeConditionNode<ProxyType<LessThan>>(id, value), ParserError::SUCCESS);

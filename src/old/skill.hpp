@@ -143,7 +143,7 @@ public:
 protected:
 
     skill_effects_t               effects_;
-    hash_t<id_t, skill_effects_t> effects_pool_;
+    hash_t<jx3id_t, skill_effects_t> effects_pool_;
 };
 
 class Skill

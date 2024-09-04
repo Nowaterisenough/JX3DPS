@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased (2024-09-02)
+## Unreleased (2024-09-04)
 
 ### Features
 - 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in 9365029
@@ -12,6 +12,8 @@
 - 修复CHANGELOG生成脚本 by @NoWaterisEnough in 93db0f7
 - 去除CHANGELOG生成脚本里无用的调试信息 by @NoWaterisEnough in c446120
 - 更新第三方库版本 by @NoWaterisEnough in 15e6866
+- 更新commit约束 by @NoWaterisEnough in c1e75a2
+- build(deps): bump actions/download-artifact in /.github/workflows by @dependabot[bot] in cafa12f
 
 ## 5.39.0815.0154 (2024-08-15)
 

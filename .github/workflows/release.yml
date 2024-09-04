@@ -41,23 +41,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get version from CMake
-        id: get_version
-        shell: bash
-        run: |
-          export TZ="Asia/Shanghai"
-          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
-          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
-          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
-          if [ -z "$version" ]; then
-            echo "无法从 CMake 输出中提取版本号"
-            exit 1
-          fi
-          major_minor_version=$(echo $version | cut -d. -f1,2)
-          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
-          echo "生成的版本号: $full_version"
-          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
-
       - name: Debug Workflow Run Info
         run: |
           echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
@@ -78,15 +61,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          artifact_name="JX3DPS-win64-mingw-${{ steps.get_version.outputs.VERSION }}"
           artifact_id=$(gh api \
             -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
-            | jq -r '.artifacts[] | select(.name == "'"$artifact_name"'") | .id')
+            | jq -r '.artifacts[] | select(.name | startswith("JX3DPS-win64-mingw-")) | .id')
           if [ -n "$artifact_id" ]; then
-            gh run download $artifact_id --name "$artifact_name" --dir ./windows-artifact
+            gh run download $artifact_id --dir ./windows-artifact
           else
-            echo "Error: Could not find Windows artifact: $artifact_name"
+            echo "Error: Could not find Windows artifact"
             exit 1
           fi
 
@@ -94,15 +76,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          artifact_name="JX3DPS-linux-gcc-${{ steps.get_version.outputs.VERSION }}"
           artifact_id=$(gh api \
             -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
-            | jq -r '.artifacts[] | select(.name == "'"$artifact_name"'") | .id')
+            | jq -r '.artifacts[] | select(.name | startswith("JX3DPS-linux-gcc-")) | .id')
           if [ -n "$artifact_id" ]; then
-            gh run download $artifact_id --name "$artifact_name" --dir ./linux-artifact
+            gh run download $artifact_id --dir ./linux-artifact
           else
-            echo "Error: Could not find Linux artifact: $artifact_name"
+            echo "Error: Could not find Linux artifact"
             exit 1
           fi
 
@@ -225,7 +206,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version="${{ steps.get_version.outputs.VERSION }}"
+          version=$(ls ./windows-artifact/JX3DPS-win64-mingw-*.zip | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p' | head -n 1)
+          if [ -z "$version" ]; then
+            echo "Error: Could not find Windows artifact version"
+            exit 1
+          fi
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           # 使用 GitHub CLI 创建发布
@@ -235,7 +220,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version="${{ steps.get_version.outputs.VERSION }}"
+          version=$(ls ./windows-artifact/JX3DPS-win64-mingw-*.zip | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p' | head -n 1)
+          if [ -z "$version" ]; then
+            echo "Error: Could not find Windows artifact version"
+            exit 1
+          fi
           
           # 上传 Windows 构建
           gh release upload $version ./windows-artifact/*.zip

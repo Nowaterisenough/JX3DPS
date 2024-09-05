@@ -1,156 +1,196 @@
-name: Release
+name: Windows MinGW and Linux GCC Build
 
 on:
-  workflow_run:
-    workflows: ["Windows MinGW Build", "Linux GCC Build"]
-    types:
-      - completed
+  push:
     branches:
       - master
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, review_requested]
+    branches:
+      - master
+  workflow_dispatch:
 
 jobs:
-  check-builds:
-    runs-on: ubuntu-latest
+  build-mingw:
+    name: Build Windows MinGW
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - qt_arch: win64_mingw
+            qt_ver: 6.7.2
+            gcc_version: 13.2.0
+    env:
+      targetName: JX3DPS.dll
     outputs:
-      should_release: ${{ steps.check.outputs.should_release }}
+      version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
         with:
+          submodules: 'recursive'
           fetch-depth: 0
 
-      - name: Wait for builds to complete
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install GCC
+        shell: pwsh
         run: |
-          for i in {1..30}; do
-            win_status=$(gh run list --workflow "Windows MinGW Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
-            linux_status=$(gh run list --workflow "Linux GCC Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
-            
-            if [[ "$win_status" != "null" && "$linux_status" != "null" ]]; then
-              echo "Both builds have completed."
-              break
-            fi
-            
-            echo "Waiting for builds to complete... (Attempt $i)"
-            sleep 60
-          done
+          .\.github\scripts\install-gcc.ps1 -Version ${{ matrix.gcc_version }}
 
-      - name: Check build statuses
-        id: check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_ver }}
+          arch: ${{ matrix.qt_arch }}
+          cache: 'false'
+
+      - name: Qt and MinGW environment configuration
+        shell: pwsh
         run: |
-          win_status=$(gh run list --workflow "Windows MinGW Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
-          linux_status=$(gh run list --workflow "Linux GCC Build" --branch master --limit 1 --json conclusion -q '.[0].conclusion')
-          
-          echo "Windows build status: $win_status"
-          echo "Linux build status: $linux_status"
-          
-          if [[ "$win_status" == "success" && "$linux_status" == "success" ]]; then
-            echo "Both Windows and Linux builds are successful."
-            echo "should_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "Not all builds are successful. Skipping release."
-            echo "should_release=false" >> $GITHUB_OUTPUT
+          $QtBin = "${{ env.Qt6_DIR }}/bin"
+          echo "$QtBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build
+        id: build
+        shell: bash
+        run: |
+          export PATH="/c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin:$PATH"
+          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
+          cmake --build ./build --target install --config Release
+
+      - name: Get version from CMake
+        id: get_version
+        shell: bash
+        run: |
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
           fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
 
-  release:
-    needs: check-builds
-    if: needs.check-builds.outputs.should_release == 'true'
-    name: Create Release
+      - name: Package
+        id: package      
+        env:
+          archiveName: JX3DPS-win64-mingw-${{ steps.get_version.outputs.VERSION }}
+        shell: pwsh
+        run: |
+          & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
+          $name = ${env:archiveName}
+          echo "packageName=$name" >> $env:GITHUB_OUTPUT
+
+      - name: Verify artifact
+        shell: pwsh
+        run: |
+          $packageName = "${{ steps.package.outputs.packageName }}"
+          if (Test-Path "${packageName}.zip") {
+            Write-Output "Artifact ${packageName}.zip created successfully"
+          } else {
+            Write-Error "Artifact ${packageName}.zip not found"
+            exit 1
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1
+
+  build-gcc:
+    name: Build Linux GCC
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - gcc_version: 13
+    env:
+      targetName: JX3DPS.so
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install GCC
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-${{ matrix.gcc_version }}
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc_version }} 100
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc_version }} 100
+
+      - name: Build
+        id: build
+        run: |
+          cmake -S . -B ./build -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DVERSION_BRANCH=release
+          cmake --build ./build --target install --config Release --verbose
+          echo "Build completed. Checking install directory:"
+          find ./build/install -type f
+
+      - name: Check build directory
+        run: |
+          echo "Checking build directory structure:"
+          find ./build -type d
+          echo "Checking for JX3DPS.so:"
+          find ./build -name JX3DPS.so
+
+      - name: Get version from CMake
+        id: get_version
+        run: |
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DVERSION_BRANCH=release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
+          fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
+
+      - name: Package
+        id: package
+        env:
+          archiveName: JX3DPS-linux-gcc-${{ steps.get_version.outputs.VERSION }}
+        run: |
+          mkdir -p ${{ env.archiveName }}
+          find ./build -name JX3DPS.so -exec cp {} ${{ env.archiveName }}/ \;
+          if [ ! -f ${{ env.archiveName }}/JX3DPS.so ]; then
+            echo "Error: JX3DPS.so not found"
+            exit 1
+          fi
+          zip -r ${{ env.archiveName }}.zip ${{ env.archiveName }}
+          echo "packageName=${{ env.archiveName }}" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1
+          
+  generate-changelog:
+    name: Generate Changelog and Release
+    needs: [build-mingw, build-gcc]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
         with:
           fetch-depth: 0
-
-      - name: Debug Workflow Run Info
-        run: |
-          echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
-          echo "Workflow Name: ${{ github.event.workflow_run.name }}"
-          echo "Workflow Conclusion: ${{ github.event.workflow_run.conclusion }}"
-
-      - name: List Available Artifacts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          artifacts=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts)
-          echo "Available artifacts:"
-          echo "$artifacts" | jq -r '.artifacts[] | "\(.name) (\(.id))"'
-
-      - name: Download Windows artifact
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # 获取触发当前工作流的运行 ID
-          trigger_workflow_id=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }} \
-            --jq .workflow_id)
-          
-          echo "Trigger workflow ID: $trigger_workflow_id"
-          
-          # 获取最近的 Windows MinGW Build 运行 ID
-          win_run_id=$(gh run list --workflow "Windows MinGW Build" --branch master --limit 1 --json databaseId -q '.[0].databaseId')
-          
-          echo "Windows MinGW Build run ID: $win_run_id"
-          
-          if [ -z "$win_run_id" ]; then
-            echo "Error: Could not find recent Windows MinGW Build run"
-            exit 1
-          fi
-          
-          # 列出该运行的所有构建产物
-          artifacts=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/actions/runs/$win_run_id/artifacts)
-          
-          echo "Available artifacts:"
-          echo "$artifacts" | jq -r '.artifacts[] | "\(.name) (\(.id))"'
-          
-          # 查找并下载 Windows 构建产物
-          artifact_id=$(echo "$artifacts" | jq -r '.artifacts[] | select(.name | startswith("JX3DPS-win64-mingw-")) | .id')
-          
-          if [ -n "$artifact_id" ]; then
-            echo "Downloading artifact with ID: $artifact_id"
-            gh run download $artifact_id --dir ./windows-artifact
-          else
-            echo "Error: Could not find Windows artifact"
-            exit 1
-          fi
-          
-          # 列出下载的文件
-          echo "Downloaded artifacts:"
-          ls -R ./windows-artifact
-
-      - name: Download Linux artifact
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          artifact_id=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
-            | jq -r '.artifacts[] | select(.name | startswith("JX3DPS-linux-gcc-")) | .id')
-          if [ -n "$artifact_id" ]; then
-            gh run download $artifact_id --dir ./linux-artifact
-          else
-            echo "Error: Could not find Linux artifact"
-            exit 1
-          fi
-
-      - name: List Windows artifacts
-        run: |
-          echo "Contents of windows-artifact directory:"
-          ls -R ./windows-artifact
-
-      - name: List Linux artifacts
-        run: |
-          echo "Contents of linux-artifact directory:"
-          ls -R ./linux-artifact
 
       - name: Generate Changelog
         id: changelog
@@ -257,15 +297,24 @@ jobs:
       
           echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
 
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ needs.build-mingw.outputs.packageName }}
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ needs.build-gcc.outputs.packageName }}
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(ls ./windows-artifact/JX3DPS-win64-mingw-*.zip | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p' | head -n 1)
-          if [ -z "$version" ]; then
-            echo "Error: Could not find Windows artifact version"
-            exit 1
-          fi
+          version="${{ needs.build-mingw.outputs.version }}"
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           # 使用 GitHub CLI 创建发布
@@ -275,16 +324,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(ls ./windows-artifact/JX3DPS-win64-mingw-*.zip | sed -n 's/.*JX3DPS-win64-mingw-\(.*\)\.zip/\1/p' | head -n 1)
-          if [ -z "$version" ]; then
-            echo "Error: Could not find Windows artifact version"
+          version="${{ needs.build-mingw.outputs.version }}"
+          windows_package="${{ needs.build-mingw.outputs.packageName }}"
+          linux_package="${{ needs.build-gcc.outputs.packageName }}"
+          
+          if [ -f "${windows_package}.zip" ]; then
+            gh release upload $version "${windows_package}.zip"
+            echo "Successfully uploaded ${windows_package}.zip to release $version"
+          else
+            echo "Error: ${windows_package}.zip not found"
+            ls -R
             exit 1
           fi
-          
-          # 上传 Windows 构建
-          gh release upload $version ./windows-artifact/*.zip
-          
-          # 上传 Linux 构建
-          gh release upload $version ./linux-artifact/*.zip
-          
-          echo "Successfully uploaded artifacts to release $version"
+
+          if [ -f "${linux_package}.zip" ]; then
+            gh release upload $version "${linux_package}.zip"
+            echo "Successfully uploaded ${linux_package}.zip to release $version"
+          else
+            echo "Error: ${linux_package}.zip not found"
+            ls -R
+            exit 1
+          fi

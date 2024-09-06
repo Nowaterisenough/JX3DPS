@@ -279,146 +279,50 @@ jobs:
 
           git config --local core.autocrlf input
 
-          latest_commit=$(git rev-parse HEAD)
-          latest_commit_date=$(git log -1 --format=%ad --date=short)
-
-          generate_changelog_for_tag() {
-              local current_tag=$1
-              local prev_tag=$2
-              local tag_date=$(git log -1 --format=%ad --date=short $current_tag)
-
-              echo "## $current_tag ($tag_date)"
-              echo
-
-              local range
-              if [ -z "$prev_tag" ]; then
-                  range="$current_tag"
-              else
-                  range="$prev_tag..$current_tag"
-              fi
-
-              local commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
-
-              if [ -z "$commits" ]; then
-                  echo "No changes in this version."
-                  echo
-              else
-                  process_commits "$commits"
-              fi
-          }
-
-          process_commits() {
-              local commits="$1"
-              
-              local -a feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
-
-              while IFS='|' read -r timestamp message author hash; do
-                  if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
-                      continue
-                  fi
-
-                  if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
-                      type=${BASH_REMATCH[1]}
-                      clean_message=${message#$type: }
-                  else
-                      type="other"
-                      clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
-                  fi
-                  
-                  key="${timestamp}|${clean_message}|${author}|${hash}"
-                  case $type in
-                      feat)     feat_commits+=("$key")     ;;
-                      fix)      fix_commits+=("$key")      ;;
-                      docs)     docs_commits+=("$key")     ;;
-                      perf)     perf_commits+=("$key")     ;;
-                      refactor) refactor_commits+=("$key") ;;
-                      test)     test_commits+=("$key")     ;;
-                      *)        other_commits+=("$key")    ;;
-                  esac
-              done <<< "$commits"
-
-              format_commits "Features" "${feat_commits[@]+"${feat_commits[@]}"}"
-              format_commits "Bug Fixes" "${fix_commits[@]+"${fix_commits[@]}"}"
-              format_commits "Documentation" "${docs_commits[@]+"${docs_commits[@]}"}"
-              format_commits "Performance Improvements" "${perf_commits[@]+"${perf_commits[@]}"}"
-              format_commits "Refactor" "${refactor_commits[@]+"${refactor_commits[@]}"}"
-              format_commits "Tests" "${test_commits[@]+"${test_commits[@]}"}"
-              format_commits "Others" "${other_commits[@]+"${other_commits[@]}"}"
-          }
-
-          format_commits() {
-              local title=$1
-              shift
-              local commits=("$@")
-              
-              if [ ${#commits[@]} -eq 0 ]; then
-                  return
-              fi
-              
-              echo "### $title"
-              
-              IFS=$'\n' sorted=($(sort -n <<<"${commits[*]}"))
-              unset IFS
-              
-              declare -A merged_commits
-              
-              for commit in "${sorted[@]}"; do
-                  IFS='|' read -r timestamp message author hash <<< "$commit"
-                  key="${message}|${author}"
-                  if [[ -v merged_commits[$key] ]]; then
-                      merged_commits[$key]+=" $hash"
-                  else
-                      merged_commits[$key]="$timestamp|$hash"
-                  fi
-              done
-              
-              IFS=$'\n' sorted_keys=($(
-                  for key in "${!merged_commits[@]}"; do
-                      echo "${merged_commits[$key]}|$key"
-                  done | sort -n
-              ))
-              unset IFS
-              
-              for entry in "${sorted_keys[@]}"; do
-                  IFS='|' read -r timestamp hashes message author <<< "$entry"
-                  hashes_reversed=$(echo $hashes | tr ' ' '\n' | tac | tr '\n' ' ' | sed 's/ $//')
-                  echo "- $message by $author in $hashes_reversed"
-              done
-              echo
-          }
-
+          latest_tag=$(git describe --tags --abbrev=0)
+          
           {
-              echo "# CHANGELOG"
-              echo
+            echo "CHANGELOG"
+            echo
 
-              tags=($(git tag --sort=-creatordate))
-              latest_tag="${tags[0]}"
-              
-              unreleased_commits=$(git log $latest_tag..$latest_commit --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
-              
-              if [ -n "$unreleased_commits" ]; then
-                  echo "## Unreleased ($latest_commit_date)"
-                  echo
-                  process_commits "$unreleased_commits"
+            git log ${latest_tag}..HEAD --no-merges --pretty=format:"%s" | 
+            while read -r commit; do
+              if [[ "$commit" =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
+                type="${BASH_REMATCH[1]}"
+                message="${commit#*: }"
+              else
+                type="Others"
+                message="$commit"
               fi
 
-              for ((i=0; i<${#tags[@]}; i++)); do
-                  current_tag="${tags[i]}"
-                  next_tag="${tags[i+1]}"
-                  generate_changelog_for_tag "$current_tag" "$next_tag"
-              done
+              author=$(git log -1 --format="%an" --grep="$commit")
+              hash=$(git log -1 --format="%h" --grep="$commit")
 
-              if [ $(wc -l < changelog.md) -le 3 ]; then
-                  echo "No changes found in the repository."
-              fi
+              echo "$type"
+              echo "- $message by @$author in $hash"
+            done | awk '
+            BEGIN {
+              current_type = ""
+            }
+            /^(feat|fix|docs|perf|refactor|test|Others)$/ {
+              if ($0 != current_type) {
+                if (current_type != "") print ""
+                print "###", $0
+                current_type = $0
+              }
+              next
+            }
+            {
+              print $0
+            }'
 
           } > changelog.md
 
           if [ -s changelog.md ]; then
-              echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
+            echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
           else
-              echo "Error: changelog.md is empty" >&2
-              exit 1
+            echo "No changes since last release." > changelog.md
+            echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
           fi
 
           git config --local --unset core.autocrlf

@@ -4,6 +4,7 @@
 
 ### Others
 - 调整action脚本 by @NoWaterisEnough in 1f8365a
+- 更新三方库版本 by @NoWaterisEnough in 2fd1e4e
 
 ## 5.39.0905.2252 (2024-09-05)
 

@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 5.39.0906.2331 (2024-09-06)
+## Unreleased (2024-09-06)
 
 ### Bug Fixes
 - 修复linux下时间函数 by @NoWaterisEnough in 90ec7ff
@@ -15,7 +15,7 @@
 
 ### Others
 - 修正版本号生成的BUG by @NoWaterisEnough in 8f068ac
-- 调整action脚本 by @NoWaterisEnough in 17808d2 258ae3f 1f8365a 8df05ad 1797089 f63d5c3 0b3e26a cea6ebd 33dea1f d9f9dfb e091d44 9876b6f e882a73 3737389
+- 调整action脚本 by @NoWaterisEnough in 3de70e3 17808d2 258ae3f 1f8365a 8df05ad 1797089 f63d5c3 0b3e26a cea6ebd 33dea1f d9f9dfb e091d44 9876b6f e882a73 3737389
 - 更新三方库版本 by @NoWaterisEnough in 2fd1e4e 20d75b5 2fde08f
 
 ## 5.39.0904.1946 (2024-09-04)

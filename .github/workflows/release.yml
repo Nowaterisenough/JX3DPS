@@ -282,39 +282,73 @@ jobs:
           latest_tag=$(git describe --tags --abbrev=0)
           
           {
-            echo "CHANGELOG"
+            echo "## CHANGELOG"
             echo
 
-            git log ${latest_tag}..HEAD --no-merges --pretty=format:"%s" | 
-            while read -r commit; do
-              if [[ "$commit" =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
-                type="${BASH_REMATCH[1]}"
-                message="${commit#*: }"
-              else
-                type="Others"
-                message="$commit"
+            # 获取最新提交的哈希和日期
+            latest_commit=$(git rev-parse HEAD)
+            latest_commit_date=$(git log -1 --format=%ad --date=short)
+
+            echo
+
+            commits=$(git log $latest_tag..$latest_commit --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
+            
+            declare -A commit_types
+            declare -A merged_commits
+
+            while IFS='|' read -r timestamp message author hash; do
+              if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
+                continue
               fi
 
-              author=$(git log -1 --format="%an" --grep="$commit")
-              hash=$(git log -1 --format="%h" --grep="$commit")
+              if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
+                type=${BASH_REMATCH[1]}
+                clean_message=${message#$type: }
+              else
+                type="other"
+                clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
+              fi
+              
+              key="${clean_message}|${author}"
+              if [[ -v merged_commits[$key] ]]; then
+                merged_commits[$key]+=" $hash"
+              else
+                merged_commits[$key]="$timestamp|$hash"
+                commit_types[$key]=$type
+              fi
+            done <<< "$commits"
 
-              echo "$type"
-              echo "- $message by @$author in $hash"
-            done | awk '
-            BEGIN {
-              current_type = ""
-            }
-            /^(feat|fix|docs|perf|refactor|test|Others)$/ {
-              if ($0 != current_type) {
-                if (current_type != "") print ""
-                print "###", $0
-                current_type = $0
-              }
-              next
-            }
-            {
-              print $0
-            }'
+            for type in "feat" "fix" "docs" "perf" "refactor" "test" "other"; do
+              type_commits=()
+              for key in "${!merged_commits[@]}"; do
+                if [[ ${commit_types[$key]} == $type ]]; then
+                  type_commits+=("${merged_commits[$key]}|$key")
+                fi
+              done
+
+              if [ ${#type_commits[@]} -gt 0 ]; then
+                case $type in
+                  feat) echo "### Features" ;;
+                  fix) echo "### Bug Fixes" ;;
+                  docs) echo "### Documentation" ;;
+                  perf) echo "### Performance Improvements" ;;
+                  refactor) echo "### Refactor" ;;
+                  test) echo "### Tests" ;;
+                  other) echo "### Others" ;;
+                esac
+                echo
+
+                IFS=$'\n' sorted=($(sort -n <<<"${type_commits[*]}"))
+                unset IFS
+
+                for entry in "${sorted[@]}"; do
+                  IFS='|' read -r timestamp hashes message author <<< "$entry"
+                  hashes_reversed=$(echo $hashes | tr ' ' '\n' | tac | tr '\n' ' ' | sed 's/ $//')
+                  echo "- $message by $author in $hashes_reversed"
+                done
+                echo
+              fi
+            done
 
           } > changelog.md
 

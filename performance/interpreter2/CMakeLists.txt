@@ -9,7 +9,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 file(GLOB SOURCES "*.c*" "*.h*")
 
-add_compile_options(-O3 -Wall -mavx2)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+    add_compile_options(-O3 -Wall -mavx2)
+else()
+    add_compile_options(-O3 -Wall)
+endif()
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

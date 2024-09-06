@@ -9,14 +9,14 @@
 |-----------------|-----------------|-----------------|-----------------|
 |![license-badge] |![release-badge] | ![download-badge]|![issues-badge]|
 
-[win-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow:Windows%20MinGW%20Build "WindowsAction"
-[win-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/Windows%20MinGW%20Build/badge.svg  "Windows"
+[win-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3A%22Build+and+Release%22 "WindowsAction"
+[win-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/Build%20and%20Release/badge.svg  "Windows"
 
-[ubuntu-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow:Linux%20GCC%20Build "LinuxAction"
-[ubuntu-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/Linux%20GCC%20Build/badge.svg "Linux"
+[ubuntu-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3A%22Build+and+Release%22 "LinuxAction"
+[ubuntu-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/Build%20and%20Release/badge.svg "Linux"
 
-[macos-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3AMacOS "MacOSAction"
-[macos-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/MacOS/badge.svg "MacOS"
+[macos-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3A%22Build+and+Release%22 "MacOSAction"
+[macos-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/Build%20and%20Release/badge.svg "MacOS"
 
 [release-link]: https://github.com/Nowaterisenough/JX3DPS/releases "Release status"
 [release-badge]: https://img.shields.io/github/release/Nowaterisenough/JX3DPS.svg?style=flat-square "Release status"
@@ -34,7 +34,4 @@
 ## For Developer
 1. git代码仓
 ```git
-git clone --recurse git@github.com:Nowaterisenough/JX3DPS.git
-```
-2. CMake编译
-
+git clone --recurse-submodules git@github.com:Nowaterisenough/JX3DPS.git

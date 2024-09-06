@@ -1,8 +1,12 @@
 # CHANGELOG
 
-## 5.39.0906.2243 (2024-09-06)
+## Unreleased (2024-09-06)
 
 ### Bug Fixes
+- 修复linux下时间函数 by @NoWaterisEnough in 90ec7ff
+- 修复linux构建问题 by @NoWaterisEnough in 0602e75
+- 修复与linux下系统定义的冲突 by @NoWaterisEnough in 4a8f2e7
+- 修复install问题 by @NoWaterisEnough in 3588c55 f59baa2
 - 修复mac下的cmake错误 by @NoWaterisEnough in dc9c95e
 - 修复mac下编译问题 by @NoWaterisEnough in fb08f41 9c38562 4ac8b41
 
@@ -10,21 +14,9 @@
 - 修正README链接 by @NoWaterisEnough in bb5ce86
 
 ### Others
-- 更新三方库版本 by @NoWaterisEnough in 2fd1e4e 20d75b5
-- 调整action脚本 by @NoWaterisEnough in 1f8365a
-
-## 5.39.0905.2252 (2024-09-05)
-
-### Bug Fixes
-- 修复linux下时间函数 by @NoWaterisEnough in 90ec7ff
-- 修复linux构建问题 by @NoWaterisEnough in 0602e75
-- 修复与linux下系统定义的冲突 by @NoWaterisEnough in 4a8f2e7
-- 修复install问题 by @NoWaterisEnough in 3588c55 f59baa2
-
-### Others
 - 修正版本号生成的BUG by @NoWaterisEnough in 8f068ac
-- 调整action脚本 by @NoWaterisEnough in 8df05ad 1797089 f63d5c3 0b3e26a cea6ebd 33dea1f d9f9dfb e091d44 9876b6f e882a73 3737389
-- 更新三方库版本 by @NoWaterisEnough in 2fde08f
+- 调整action脚本 by @NoWaterisEnough in 258ae3f 1f8365a 8df05ad 1797089 f63d5c3 0b3e26a cea6ebd 33dea1f d9f9dfb e091d44 9876b6f e882a73 3737389
+- 更新三方库版本 by @NoWaterisEnough in 2fd1e4e 20d75b5 2fde08f
 
 ## 5.39.0904.1946 (2024-09-04)
 

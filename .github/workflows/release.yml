@@ -1,9 +1,9 @@
-name: Windows MinGW and Linux GCC Build
+name: Build and Release
 
 on:
   push:
     branches:
-      - master
+      - '**'  # 匹配所有分支
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, review_requested]
     branches:
@@ -185,12 +185,87 @@ jobs:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ steps.package.outputs.packageName }}.zip
           retention-days: 1
+
+  build-mac:
+    name: Build macOS
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - qt_ver: 6.7.2
+    env:
+      targetName: JX3DPS.dylib
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_ver }}
+          cache: 'false'
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install cmake
+
+      - name: Build
+        id: build
+        run: |
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release
+          cmake --build ./build --target install --config Release --verbose
+          echo "Build completed. Checking install directory:"
+          find ./build/install -type f
+
+      - name: Get version from CMake
+        id: get_version
+        run: |
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
+          fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
+
+      - name: Package
+        id: package
+        env:
+          archiveName: JX3DPS-macos-${{ steps.get_version.outputs.VERSION }}
+        run: |
+          mkdir -p ${{ env.archiveName }}
+          find ./build -name JX3DPS.dylib -exec cp {} ${{ env.archiveName }}/ \;
+          if [ ! -f ${{ env.archiveName }}/JX3DPS.dylib ]; then
+            echo "Error: JX3DPS.dylib not found"
+            exit 1
+          fi
+          zip -r ${{ env.archiveName }}.zip ${{ env.archiveName }}
+          echo "packageName=${{ env.archiveName }}" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1
           
   generate-changelog:
     name: Generate Changelog and Release
-    needs: [build-mingw, build-gcc]
+    needs: [build-mingw, build-gcc, build-mac]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -312,6 +387,11 @@ jobs:
         with:
           name: ${{ needs.build-gcc.outputs.packageName }}
 
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ needs.build-mac.outputs.packageName }}
+
       - name: Display structure of downloaded files
         run: ls -R
 
@@ -332,6 +412,7 @@ jobs:
           version="${{ needs.build-mingw.outputs.version }}"
           windows_package="${{ needs.build-mingw.outputs.packageName }}"
           linux_package="${{ needs.build-gcc.outputs.packageName }}"
+          macos_package="${{ needs.build-mac.outputs.packageName }}"
           
           if [ -f "${windows_package}.zip" ]; then
             gh release upload $version "${windows_package}.zip"
@@ -347,6 +428,15 @@ jobs:
             echo "Successfully uploaded ${linux_package}.zip to release $version"
           else
             echo "Error: ${linux_package}.zip not found"
+            ls -R
+            exit 1
+          fi
+
+          if [ -f "${macos_package}.zip" ]; then
+            gh release upload $version "${macos_package}.zip"
+            echo "Successfully uploaded ${macos_package}.zip to release $version"
+          else
+            echo "Error: ${macos_package}.zip not found"
             ls -R
             exit 1
           fi

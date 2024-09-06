@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Unreleased (2024-09-06)
+
+### Others
+- 调整action脚本 by @NoWaterisEnough in 1f8365a
+
 ## 5.39.0905.2252 (2024-09-05)
 
 ### Bug Fixes

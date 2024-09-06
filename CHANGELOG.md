@@ -1,10 +1,13 @@
 # CHANGELOG
 
-## Unreleased (2024-09-06)
+## 5.39.0906.2243 (2024-09-06)
 
 ### Bug Fixes
 - 修复mac下的cmake错误 by @NoWaterisEnough in dc9c95e
 - 修复mac下编译问题 by @NoWaterisEnough in fb08f41 9c38562 4ac8b41
+
+### Documentation
+- 修正README链接 by @NoWaterisEnough in bb5ce86
 
 ### Others
 - 更新三方库版本 by @NoWaterisEnough in 2fd1e4e 20d75b5

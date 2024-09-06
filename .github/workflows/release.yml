@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-mingw:
+  build-win:
     name: Build Windows MinGW
     runs-on: windows-latest
     strategy:
@@ -78,7 +78,7 @@ jobs:
       - name: Package
         id: package      
         env:
-          archiveName: JX3DPS-win64-mingw-${{ steps.get_version.outputs.VERSION }}
+          archiveName: JX3DPS-win-${{ steps.get_version.outputs.VERSION }}
         shell: pwsh
         run: |
           & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
@@ -103,7 +103,7 @@ jobs:
           path: ${{ steps.package.outputs.packageName }}.zip
           retention-days: 1
 
-  build-gcc:
+  build-linux:
     name: Build Linux GCC
     runs-on: ubuntu-latest
     strategy:
@@ -168,7 +168,7 @@ jobs:
       - name: Package
         id: package
         env:
-          archiveName: JX3DPS-linux-gcc-${{ steps.get_version.outputs.VERSION }}
+          archiveName: JX3DPS-linux-${{ steps.get_version.outputs.VERSION }}
         run: |
           mkdir -p ${{ env.archiveName }}
           find ./build -name JX3DPS.so -exec cp {} ${{ env.archiveName }}/ \;
@@ -261,9 +261,9 @@ jobs:
           path: ${{ steps.package.outputs.packageName }}.zip
           retention-days: 1
           
-  generate-changelog:
+  release:
     name: Generate Changelog and Release
-    needs: [build-mingw, build-gcc, build-mac]
+    needs: [build-win, build-linux, build-mac]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     steps:
@@ -275,107 +275,153 @@ jobs:
       - name: Generate Changelog
         id: changelog
         run: |
-          # 获取最新的标签
-          latestTag=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
-          
-          # 定义范围
-          range="${latestTag}..HEAD"
-      
-          # 使用 Git 命令获取提交记录，排除合并提交，包括作者信息和提交时间戳
-          commits=$(git log $range --pretty=format:"%s|@%an|%h|%at" --reverse --no-merges)
-      
-          # 定义关联数组来存储合并的提交信息
-          declare -A feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
-      
-          # 处理每个提交
-          while IFS='|' read -r message author hash timestamp; do
-            # 提取提交类型和清理后的消息
-            if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
-              type=${BASH_REMATCH[1]}
-              clean_message=${message#$type: }
-            else
-              type="other"
-              # 移除常见的前缀
-              clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
-            fi
-            
-            key="${clean_message}|${author}"
-            case $type in
-              feat)     array_ref="feat_commits"     ;;
-              fix)      array_ref="fix_commits"      ;;
-              docs)     array_ref="docs_commits"     ;;
-              perf)     array_ref="perf_commits"     ;;
-              refactor) array_ref="refactor_commits" ;;
-              test)     array_ref="test_commits"     ;;
-              *)        array_ref="other_commits"    ;;
-            esac
-            
-            if [[ -v ${array_ref}[$key] ]]; then
-              eval "${array_ref}[$key]+=';$hash|$timestamp'"
-            else
-              eval "${array_ref}[$key]='$hash|$timestamp'"
-            fi
-          done <<< "$commits"
-      
-          # 格式化提交
-          format_commits() {
-            local -n commit_array=$1
-            local title=$2
-            local formatted=""
-            
-            # 创建一个临时数组来存储排序后的提交
-            declare -a sorted_commits
-            for key in "${!commit_array[@]}"; do
-              IFS='|' read -r message author <<< "$key"
-              hashes_timestamps="${commit_array[$key]}"
-              IFS=';' read -ra entries <<< "$hashes_timestamps"
-              for entry in "${entries[@]}"; do
-                IFS='|' read -r hash timestamp <<< "$entry"
-                sorted_commits+=("$timestamp|$message|$author|$hash")
-              done
-            done
-            
-            # 按时间戳排序
-            IFS=$'\n' sorted_commits=($(sort <<<"${sorted_commits[*]}"))
-            unset IFS
-            
-            # 格式化排序后的提交
-            local prev_message=""
-            local hashes=""
-            for entry in "${sorted_commits[@]}"; do
-              IFS='|' read -r timestamp message author hash <<< "$entry"
-              if [[ "$message" != "$prev_message" && -n "$prev_message" ]]; then
-                formatted+="- $prev_message by $prev_author in $hashes"$'\n'
-                hashes=""
+          set -e
+
+          git config --local core.autocrlf input
+
+          latest_commit=$(git rev-parse HEAD)
+          latest_commit_date=$(git log -1 --format=%ad --date=short)
+
+          generate_changelog_for_tag() {
+              local current_tag=$1
+              local prev_tag=$2
+              local tag_date=$(git log -1 --format=%ad --date=short $current_tag)
+
+              echo "## $current_tag ($tag_date)"
+              echo
+
+              local range
+              if [ -z "$prev_tag" ]; then
+                  range="$current_tag"
+              else
+                  range="$prev_tag..$current_tag"
               fi
-              hashes+="$hash "
-              prev_message="$message"
-              prev_author="$author"
-            done
-            if [[ -n "$prev_message" ]]; then
-              formatted+="- $prev_message by $prev_author in $hashes"$'\n'
-            fi
-            
-            if [ -n "$formatted" ]; then
-              echo "### $title"
-              echo "$formatted"
-            fi
+
+              local commits=$(git log $range --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
+
+              if [ -z "$commits" ]; then
+                  echo "No changes in this version."
+                  echo
+              else
+                  process_commits "$commits"
+              fi
           }
-      
-          # 构建 changelog
+
+          process_commits() {
+              local commits="$1"
+              
+              local -a feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
+
+              while IFS='|' read -r timestamp message author hash; do
+                  if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
+                      continue
+                  fi
+
+                  if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
+                      type=${BASH_REMATCH[1]}
+                      clean_message=${message#$type: }
+                  else
+                      type="other"
+                      clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
+                  fi
+                  
+                  key="${timestamp}|${clean_message}|${author}|${hash}"
+                  case $type in
+                      feat)     feat_commits+=("$key")     ;;
+                      fix)      fix_commits+=("$key")      ;;
+                      docs)     docs_commits+=("$key")     ;;
+                      perf)     perf_commits+=("$key")     ;;
+                      refactor) refactor_commits+=("$key") ;;
+                      test)     test_commits+=("$key")     ;;
+                      *)        other_commits+=("$key")    ;;
+                  esac
+              done <<< "$commits"
+
+              format_commits "Features" "${feat_commits[@]+"${feat_commits[@]}"}"
+              format_commits "Bug Fixes" "${fix_commits[@]+"${fix_commits[@]}"}"
+              format_commits "Documentation" "${docs_commits[@]+"${docs_commits[@]}"}"
+              format_commits "Performance Improvements" "${perf_commits[@]+"${perf_commits[@]}"}"
+              format_commits "Refactor" "${refactor_commits[@]+"${refactor_commits[@]}"}"
+              format_commits "Tests" "${test_commits[@]+"${test_commits[@]}"}"
+              format_commits "Others" "${other_commits[@]+"${other_commits[@]}"}"
+          }
+
+          format_commits() {
+              local title=$1
+              shift
+              local commits=("$@")
+              
+              if [ ${#commits[@]} -eq 0 ]; then
+                  return
+              fi
+              
+              echo "### $title"
+              
+              IFS=$'\n' sorted=($(sort -n <<<"${commits[*]}"))
+              unset IFS
+              
+              declare -A merged_commits
+              
+              for commit in "${sorted[@]}"; do
+                  IFS='|' read -r timestamp message author hash <<< "$commit"
+                  key="${message}|${author}"
+                  if [[ -v merged_commits[$key] ]]; then
+                      merged_commits[$key]+=" $hash"
+                  else
+                      merged_commits[$key]="$timestamp|$hash"
+                  fi
+              done
+              
+              IFS=$'\n' sorted_keys=($(
+                  for key in "${!merged_commits[@]}"; do
+                      echo "${merged_commits[$key]}|$key"
+                  done | sort -n
+              ))
+              unset IFS
+              
+              for entry in "${sorted_keys[@]}"; do
+                  IFS='|' read -r timestamp hashes message author <<< "$entry"
+                  hashes_reversed=$(echo $hashes | tr ' ' '\n' | tac | tr '\n' ' ' | sed 's/ $//')
+                  echo "- $message by $author in $hashes_reversed"
+              done
+              echo
+          }
+
           {
-            echo "## CHANGELOG"
-            echo
-            format_commits feat_commits "Features"
-            format_commits fix_commits "Bug Fixes"
-            format_commits docs_commits "Documentation"
-            format_commits perf_commits "Performance Improvements"
-            format_commits refactor_commits "Refactoring"
-            format_commits test_commits "Tests"
-            format_commits other_commits "Others"
+              echo "# CHANGELOG"
+              echo
+
+              tags=($(git tag --sort=-creatordate))
+              latest_tag="${tags[0]}"
+              
+              unreleased_commits=$(git log $latest_tag..$latest_commit --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
+              
+              if [ -n "$unreleased_commits" ]; then
+                  echo "## Unreleased ($latest_commit_date)"
+                  echo
+                  process_commits "$unreleased_commits"
+              fi
+
+              for ((i=0; i<${#tags[@]}; i++)); do
+                  current_tag="${tags[i]}"
+                  next_tag="${tags[i+1]}"
+                  generate_changelog_for_tag "$current_tag" "$next_tag"
+              done
+
+              if [ $(wc -l < changelog.md) -le 3 ]; then
+                  echo "No changes found in the repository."
+              fi
+
           } > changelog.md
-      
-          echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
+
+          if [ -s changelog.md ]; then
+              echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
+          else
+              echo "Error: changelog.md is empty" >&2
+              exit 1
+          fi
+
+          git config --local --unset core.autocrlf
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v4.1.8
@@ -402,7 +448,6 @@ jobs:
           version="${{ needs.build-mingw.outputs.version }}"
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
-          # 使用 GitHub CLI 创建发布
           gh release create $version --title "$version" --notes-file $changelogPath
 
       - name: Upload Release Assets

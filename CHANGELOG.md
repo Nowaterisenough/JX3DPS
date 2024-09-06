@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Unreleased (2024-09-07)
+
+### Others
+- 整合action脚本 by @NoWaterisEnough in d269ea2
+
 ## 5.39.0907.0044 (2024-09-07)
 
 ### Features

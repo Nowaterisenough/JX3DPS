@@ -19,7 +19,7 @@ jobs:
         include:
           - qt_arch: win64_mingw
             qt_ver: 6.7.2
-            gcc_version: 14.2.0
+            gcc_version: 13.2.0
     env:
       targetName: JX3DPS.dll
     outputs:
@@ -339,13 +339,13 @@ jobs:
               fi
               
               clean_message=$(echo "$clean_message" | sed -e 's/^[[:space:]]*//')
-              key="${clean_message}|${author}"
+              key="${type}|${clean_message}|${author}"
               if [[ -v merged_commits[$key] ]]; then
                 merged_commits[$key]+=" $hash"
               else
                 merged_commits[$key]="$timestamp|$hash"
-                commit_types[$key]=$type
               fi
+              commit_types[$key]=$type
             done <<< "$commits"
 
             for type in "feat" "fix" "docs" "perf" "refactor" "test" "build" "other"; do
@@ -373,9 +373,9 @@ jobs:
                 unset IFS
 
                 for entry in "${sorted[@]}"; do
-                  IFS='|' read -r timestamp hashes message author <<< "$entry"
+                  IFS='|' read -r timestamp hashes type clean_message author <<< "$entry"
                   hashes_reversed=$(echo $hashes | tr ' ' '\n' | tac | tr '\n' ' ' | sed 's/ $//')
-                  echo "- $message by $author in $hashes_reversed"
+                  echo "- $clean_message by $author in $hashes_reversed"
                 done
                 echo
               fi

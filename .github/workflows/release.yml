@@ -426,12 +426,12 @@ jobs:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4.1.8
         with:
-          name: ${{ needs.build-mingw.outputs.packageName }}
+          name: ${{ needs.build-win.outputs.packageName }}
 
       - name: Download Linux artifact
         uses: actions/download-artifact@v4.1.8
         with:
-          name: ${{ needs.build-gcc.outputs.packageName }}
+          name: ${{ needs.build-linux.outputs.packageName }}
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4.1.8
@@ -445,7 +445,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version="${{ needs.build-mingw.outputs.version }}"
+          version="${{ needs.build-win.outputs.version }}"
           changelogPath="${{ steps.changelog.outputs.changelog_path }}"
           
           gh release create $version --title "$version" --notes-file $changelogPath
@@ -454,9 +454,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version="${{ needs.build-mingw.outputs.version }}"
-          windows_package="${{ needs.build-mingw.outputs.packageName }}"
-          linux_package="${{ needs.build-gcc.outputs.packageName }}"
+          version="${{ needs.build-win.outputs.version }}"
+          windows_package="${{ needs.build-win.outputs.packageName }}"
+          linux_package="${{ needs.build-linux.outputs.packageName }}"
           macos_package="${{ needs.build-mac.outputs.packageName }}"
           
           if [ -f "${windows_package}.zip" ]; then

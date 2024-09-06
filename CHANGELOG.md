@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased (2024-09-06)
+## 5.39.0907.0017 (2024-09-07)
 
 ### Bug Fixes
 - 修复linux下时间函数 by @NoWaterisEnough in 90ec7ff
@@ -13,10 +13,12 @@
 ### Documentation
 - 修正README链接 by @NoWaterisEnough in bb5ce86
 
+### Build System
+- 更新三方库版本 by @NoWaterisEnough in 2fd1e4e 20d75b5 2fde08f
+
 ### Others
 - 修正版本号生成的BUG by @NoWaterisEnough in 8f068ac
-- 调整action脚本 by @NoWaterisEnough in 3de70e3 17808d2 258ae3f 1f8365a 8df05ad 1797089 f63d5c3 0b3e26a cea6ebd 33dea1f d9f9dfb e091d44 9876b6f e882a73 3737389
-- 更新三方库版本 by @NoWaterisEnough in 2fd1e4e 20d75b5 2fde08f
+- 调整action脚本 by @NoWaterisEnough in 437ce7c 3de70e3 17808d2 258ae3f 1f8365a 8df05ad 1797089 f63d5c3 0b3e26a cea6ebd 33dea1f d9f9dfb e091d44 9876b6f e882a73 3737389
 
 ## 5.39.0904.1946 (2024-09-04)
 
@@ -26,22 +28,26 @@
 ### Bug Fixes
 - 修复部分场景下，CHANGELOG生成错误的问题 by @NoWaterisEnough in cf47c79 2aa7661 c6d287f 6471ca5
 
+### Build System
+- 更新第三方库版本 by @NoWaterisEnough in 15e6866
+- bump actions/download-artifact in /.github/workflows by @dependabot[bot] in cafa12f
+- 更新三方库版本 by @NoWaterisEnough in 48f418d
+
 ### Others
 - 修复CHANGELOG生成脚本 by @NoWaterisEnough in 93db0f7
 - 去除CHANGELOG生成脚本里无用的调试信息 by @NoWaterisEnough in c446120
-- 更新第三方库版本 by @NoWaterisEnough in 15e6866
 - 更新commit约束 by @NoWaterisEnough in c1e75a2
-- build(deps): bump actions/download-artifact in /.github/workflows by @dependabot[bot] in cafa12f
-- 更新三方库版本 by @NoWaterisEnough in 48f418d
 - 调整action脚本 by @NoWaterisEnough in be62c36
 
 ## 5.39.0815.0154 (2024-08-15)
+
+### Build System
+- 删除不再使用的QCustomPlot库文件 by @NoWaterisEnough in e4f5c51
 
 ### Others
 - 调整项目目录结构 by @NoWaterisEnough in 0dfaa13 58c736b
 - 移除不再使用的第三方图标库 by @NoWaterisEnough in 1c7dc38
 - 新增一些历史文件 by @NoWaterisEnough in 6ee799d
-- 删除不再使用的QCustomPlot库文件 by @NoWaterisEnough in e4f5c51
 - 修正发布的版本号 by @NoWaterisEnough in fae6ada
 - 修正version的获取 by @NoWaterisEnough in 1022eec
 - 修正发布页的版本号 by @NoWaterisEnough in 10ff35b
@@ -245,6 +251,7 @@
 - 修复镜花影武伤和剑入引爆问题 by @NoWats in 0739004
 - 修复吞日月气场判定 by @NoWats in df16c27
 - 修复宏语句的问题 by @NoWats in ba960f7
+- remove cmake/Version.cmake by @难为水 in 9e4248d
 - 修改代码 by @难为水 in 33f6187 8a4504b
 - 修复没有最新一次的提交记录 by @lidi in 1ef2313
 - 修复版本时间戳为北京时间 by @lidi in d47e286
@@ -274,6 +281,26 @@
 ### Tests
 - 新增单元测试 by @难为水 in 9548392
 
+### Build System
+- 更 新 构 建 by @NoWats in 1f8a9d4
+- 新 构 建 by @NoWats in 2ccf9e7 36896bc
+- 新构建 by @NoWats in 90f3d1e
+- 去除gtest by @NoWats in 4c1f596
+- 添加vscode配置 by @NoWats in eaa7d96
+- 新增3rd依赖 by @NoWats in c481430
+- 更新github构建脚本 by @NoWats in 07647f5 d4e2305 0dc3b07
+- 更新构建脚本 by @NoWats in 35e2161
+- 修复测试的构建 by @NoWats in 3d5c3f7
+- 调整成动态库构建 by @NoWats in 6541ee9
+- 重构调整目录和相关文件 by @难为水 in 10650d8
+- 调整cmake by @难为水 in 300e6b7
+- 调整version版本管理 by @难为水 in d8d2f28
+- 更新三方库 by @lidi in 0ae0a69
+- 三方库更新 by @难为水 in c9ffaf4 be25ff5
+- 更新AVX指令集编译 by @难为水 in 383ef5c
+- 更新构建 by @难为水 in da54736
+- 更新三方库 by @难为水 in c4a9dcd
+
 ### Others
 - test by @NoWats in 7c33740 4e5e864 85a66ba 113ed5b b7245a3 3afaef4 94bea6d
 - add README by @NoWats in 041fe13
@@ -285,13 +312,11 @@
 - 更新版本检测 by @NoWats in 75c52cb
 - 优化版本检测 by @NoWats in 65876e3
 - 添加gtest by @NoWats in a82b47f
-- style(main.cpp): 时间更新 by @NoWats in b06bbca
+- 时间更新 by @NoWats in b06bbca
 - gitignore修改 by @NoWats in 6e73457
 - 格式化 by @NoWats in eedecbc
-- style(格式): 格式 by @NoWats in a62f3fa 15d1356
-- 格式 by @NoWats in dd8e6e4
+- 格式 by @NoWats in dd8e6e4 a62f3fa 15d1356
 - 格 式 by @NoWats in 412ed69
-- 更 新 构 建 by @NoWats in 1f8a9d4
 - 11 by @NoWats in 145ac2f 37d1b29 bd277de 123ef16
 - 1 by @NoWats in 053e7e4 f57ccd8 0666ccd 9e20c9a
 - 2 by @NoWats in efc3d97 a5c7a93
@@ -304,8 +329,6 @@
 - 9 by @NoWats in 5bfb4df 73c7ffc
 - 12 by @NoWats in 8fade04 74d687e b02786c
 - 13 by @NoWats in 87c2389 33b6853
-- 新 构 建 by @NoWats in 2ccf9e7 36896bc
-- 新构建 by @NoWats in 90f3d1e
 - 222 by @NoWats in 158a2e3
 - 111 by @NoWats in 4244ec6
 - 11111 by @NoWats in ea4a244
@@ -313,26 +336,11 @@
 - 33333 by @NoWats in e1bbbde
 - 45 by @NoWats in 926b871
 - 图6 by @NoWats in e2e8862
-- 去除gtest by @NoWats in 4c1f596
-- 添加vscode配置 by @NoWats in eaa7d96
-- 新增3rd依赖 by @NoWats in c481430
-- 更新github构建脚本 by @NoWats in 07647f5 d4e2305 0dc3b07
-- 更新构建脚本 by @NoWats in 35e2161
 - 整理细节 by @NoWats in 0987248
-- 修复测试的构建 by @NoWats in 3d5c3f7
-- 调整成动态库构建 by @NoWats in 6541ee9
 - 调整命名 by @NoWats in f76f247
 - 调整格式 by @NoWats in db0f165
-- 重构调整目录和相关文件 by @难为水 in 10650d8
-- 调整cmake by @难为水 in 300e6b7
-- fixup! refactor: remove cmake/Version.cmake by @难为水 in 9e4248d
-- 调整version版本管理 by @难为水 in d8d2f28
 - 修改静态检查 by @难为水 in e731461
-- 更新三方库 by @lidi in 0ae0a69 f30a855
-- 三方库更新 by @难为水 in c9ffaf4 be25ff5
-- 更新AVX指令集编译 by @难为水 in 383ef5c
-- 更新构建 by @难为水 in da54736
-- 更新三方库 by @难为水 in c4a9dcd
+- 更新三方库 by @lidi in f30a855
 - 优化Windows构建环境，更新自动构建脚本和CMakeLists版本号 by @难为水 in 3ecbc29 42f9fa3
 - 更新Windows构建环境和自动构建脚本版本号 by @难为水 in 8b7f313 f655450 fd2bd1f
 - Update Windows build environment and automatic build script version by @难为水 in fc286b0 5da3f85 4f13f44

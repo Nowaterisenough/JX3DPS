@@ -301,14 +301,16 @@ jobs:
                 continue
               fi
 
-              if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
+              if [[ $message =~ ^(feat|fix|docs|perf|refactor|test|build)([^:]*):(.*) ]]; then
                 type=${BASH_REMATCH[1]}
-                clean_message=${message#$type: }
+                scope=${BASH_REMATCH[2]}
+                clean_message=${BASH_REMATCH[3]}
               else
                 type="other"
-                clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
+                clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|revert)([^:]*):\s*//')
               fi
               
+              clean_message=$(echo "$clean_message" | sed -e 's/^[[:space:]]*//')
               key="${clean_message}|${author}"
               if [[ -v merged_commits[$key] ]]; then
                 merged_commits[$key]+=" $hash"
@@ -318,7 +320,7 @@ jobs:
               fi
             done <<< "$commits"
 
-            for type in "feat" "fix" "docs" "perf" "refactor" "test" "other"; do
+            for type in "feat" "fix" "docs" "perf" "refactor" "test" "build" "other"; do
               type_commits=()
               for key in "${!merged_commits[@]}"; do
                 if [[ ${commit_types[$key]} == $type ]]; then
@@ -334,6 +336,7 @@ jobs:
                   perf) echo "### Performance Improvements" ;;
                   refactor) echo "### Refactor" ;;
                   test) echo "### Tests" ;;
+                  build) echo "### Build System" ;;
                   other) echo "### Others" ;;
                 esac
                 echo

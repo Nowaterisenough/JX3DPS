@@ -37,19 +37,20 @@ generate_changelog_for_tag() {
 process_commits() {
     local commits="$1"
     
-    local -a feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits other_commits
+    local -a feat_commits fix_commits docs_commits perf_commits refactor_commits test_commits build_commits other_commits
 
     while IFS='|' read -r timestamp message author hash; do
         if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
             continue
         fi
 
-        if [[ $message =~ ^(feat|fix|docs|perf|refactor|test): ]]; then
+        if [[ $message =~ ^(feat|fix|docs|perf|refactor|test|build)([^:]*): ]]; then
             type=${BASH_REMATCH[1]}
-            clean_message=${message#$type: }
+            clean_message=${message#${BASH_REMATCH[0]}}
+            clean_message=$(echo "$clean_message" | sed -e 's/^[[:space:]]*//')
         else
             type="other"
-            clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|build|revert):\s*//')
+            clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|revert)([^:]*):\s*//')
         fi
         
         key="${timestamp}|${clean_message}|${author}|${hash}"
@@ -60,6 +61,7 @@ process_commits() {
             perf)     perf_commits+=("$key")     ;;
             refactor) refactor_commits+=("$key") ;;
             test)     test_commits+=("$key")     ;;
+            build)    build_commits+=("$key")    ;;
             *)        other_commits+=("$key")    ;;
         esac
     done <<< "$commits"
@@ -70,6 +72,7 @@ process_commits() {
     format_commits "Performance Improvements" "${perf_commits[@]+"${perf_commits[@]}"}"
     format_commits "Refactor" "${refactor_commits[@]+"${refactor_commits[@]}"}"
     format_commits "Tests" "${test_commits[@]+"${test_commits[@]}"}"
+    format_commits "Build System" "${build_commits[@]+"${build_commits[@]}"}"
     format_commits "Others" "${other_commits[@]+"${other_commits[@]}"}"
 }
 

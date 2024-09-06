@@ -7,7 +7,12 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_options(-Wall -mavx2)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+    add_compile_options(-O3 -Wall -mavx2)
+else()
+    add_compile_options(-O3 -Wall)
+endif()
+
 
 file(GLOB SOURCES "*.c*" "*.h*")
 

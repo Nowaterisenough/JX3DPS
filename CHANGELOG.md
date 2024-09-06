@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 - 修复mac下的cmake错误 by @NoWaterisEnough in dc9c95e
+- 修复mac下编译问题 by @NoWaterisEnough in 4ac8b41
 
 ### Others
 - 更新三方库版本 by @NoWaterisEnough in 2fd1e4e 20d75b5

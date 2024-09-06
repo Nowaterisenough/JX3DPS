@@ -61,46 +61,43 @@ function(version)
         set(CUSTOM TRUE)
     endif()
 
-    # 使用 TZ 环境变量设置北京时间
-    set(ENV{TZ} "Asia/Shanghai")
-
-    execute_process(COMMAND ${GIT_EXECUTABLE} log ${REMOTE_BRANCH} -1 --format=%cd --date=format-local:%m%d
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        OUTPUT_VARIABLE GIT_REPO_DATE
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        RESULT_VARIABLE RET
-    )
-    set(VERSION_PATCH ${GIT_REPO_DATE})
-
-    execute_process(COMMAND ${GIT_EXECUTABLE} log ${REMOTE_BRANCH} -1 --date=format-local:%H%M --format=%cd
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        OUTPUT_VARIABLE GIT_REPO_TIME
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        RESULT_VARIABLE RET
-    )
-    set(VERSION_TWEAK ${GIT_REPO_TIME})
+    # 统一时间戳获取方法
+    if(APPLE)
+        execute_process(
+            COMMAND date -u "+%Y%m%d%H%M"
+            OUTPUT_VARIABLE TIMESTAMP
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    elseif(WIN32)
+        execute_process(
+            COMMAND powershell -Command "[System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'China Standard Time').ToString('yyyyMMddHHmm')"
+            OUTPUT_VARIABLE TIMESTAMP
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        execute_process(
+            COMMAND date -u "+%Y%m%d%H%M" -d "+8 hours"
+            OUTPUT_VARIABLE TIMESTAMP
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif()
 
     if(CUSTOM)
         set(VERSION_BRANCH "local" PARENT_SCOPE)
-
-        # 使用命令行工具获取北京时间
-        if(WIN32)
-            # Windows 系统使用 PowerShell
-            execute_process(
-                COMMAND powershell -Command "[System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'China Standard Time').ToString('yyyyMMddHHmm')"
-                OUTPUT_VARIABLE BEIJING_TIMESTAMP
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-            )
-        else()
-            # Linux/macOS 系统使用 date 命令
-            execute_process(
-                COMMAND date -u "+%Y%m%d%H%M" -d "+8 hours"
-                OUTPUT_VARIABLE BEIJING_TIMESTAMP
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-            )
-        endif()
-        string(SUBSTRING "${BEIJING_TIMESTAMP}" 4 4 VERSION_PATCH)
-        string(SUBSTRING "${BEIJING_TIMESTAMP}" 8 4 VERSION_TWEAK)
+        string(SUBSTRING "${TIMESTAMP}" 4 4 VERSION_PATCH)
+        string(SUBSTRING "${TIMESTAMP}" 8 4 VERSION_TWEAK)
+    else()
+        # 使用 Git 日志获取时间戳（保持不变）
+        execute_process(COMMAND ${GIT_EXECUTABLE} log ${REMOTE_BRANCH} -1 --format=%cd --date=format-local:%m%d
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE VERSION_PATCH
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        execute_process(COMMAND ${GIT_EXECUTABLE} log ${REMOTE_BRANCH} -1 --date=format-local:%H%M --format=%cd
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE VERSION_TWEAK
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
     endif()
 
     set(PROJECT_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.${VERSION_TWEAK}" PARENT_SCOPE)

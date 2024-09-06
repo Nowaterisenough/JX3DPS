@@ -19,7 +19,7 @@ jobs:
         include:
           - qt_arch: win64_mingw
             qt_ver: 6.7.2
-            gcc_version: 13.2.0
+            gcc_version: 14.2.0
     env:
       targetName: JX3DPS.dll
     outputs:
@@ -76,14 +76,42 @@ jobs:
           echo "VERSION=$full_version" >> $GITHUB_OUTPUT
 
       - name: Package
-        id: package      
-        env:
-          archiveName: JX3DPS-win-${{ steps.get_version.outputs.VERSION }}
+        id: package
         shell: pwsh
         run: |
-          & .github\scripts\windows-gcc-publish.ps1 ${env:archiveName} ${env:targetName}
-          $name = ${env:archiveName}
-          echo "packageName=$name" >> $env:GITHUB_OUTPUT
+          $ErrorActionPreference = "Stop"
+          $archiveName = "JX3DPS-win-${{ steps.get_version.outputs.VERSION }}"
+          $targetName = "${{ env.targetName }}"
+
+          Write-Host "开始打包过程..."
+          Write-Host "Archive Name: $archiveName"
+          Write-Host "Target Name: $targetName"
+
+          $currentDir = Get-Location
+          Write-Host "当前目录: $currentDir"
+
+          $sourcePath = "build\$targetName"
+          if (-not (Test-Path $sourcePath)) {
+              throw "错误: 在 build 目录中找不到 $targetName"
+          }
+
+          $tempDir = New-Item -ItemType Directory -Path "$archiveName" -Force
+          Write-Host "创建临时目录: $tempDir"
+
+          Copy-Item $sourcePath $tempDir
+          Write-Host "复制 $targetName 到临时目录"
+
+          $zipPath = "$archiveName.zip"
+          if (Test-Path $zipPath) {
+              Remove-Item -Path $zipPath -Force
+          }
+          Compress-Archive -Path $tempDir\* -DestinationPath $zipPath
+
+          Remove-Item -Path $tempDir -Recurse -Force
+          Write-Host "清理临时目录"
+
+          Write-Host "打包过程完成。输出文件: $zipPath"
+          echo "packageName=$archiveName" >> $env:GITHUB_OUTPUT
 
       - name: Verify artifact
         shell: pwsh

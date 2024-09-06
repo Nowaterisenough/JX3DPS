@@ -1,6 +1,10 @@
 #include "Context.h"
 
-#include <immintrin.h>
+#if defined(__x86_64__) || defined(_M_X64)
+#    include <immintrin.h>
+#elif defined(__aarch64__) || defined(_M_ARM64)
+#    include <arm_neon.h>
+#endif
 
 using namespace JX3DPS;
 
@@ -9,6 +13,7 @@ thread_local Context context = Context();
 
 void Context::Update(frame_t frame) noexcept
 {
+#if defined(__x86_64__) || defined(_M_X64)
     constexpr int    AVX_VECTOR_WIDTH = 256;
     constexpr size_t INCREMENT        = AVX_VECTOR_WIDTH / sizeof(frame_t);
     constexpr size_t TOTAL_ELEMENTS   = sizeof(FrameCache) / sizeof(frame_t);
@@ -22,13 +27,54 @@ void Context::Update(frame_t frame) noexcept
     __m256i zero_vec = _mm256_setzero_si256();
 
     for (size_t i = 0; i < TOTAL_ELEMENTS; i += INCREMENT) {
-        __m256i data = _mm256_loadu_si256(
-            reinterpret_cast<const __m256i *>(&reinterpret_cast<frame_t *>(&frame_cache)[i]));
+        __m256i data =
+            _mm256_loadu_si256(reinterpret_cast<const __m256i *>(&reinterpret_cast<frame_t *>(&frame_cache)[i]));
         __m256i result = _mm256_sub_epi16(data, frame_vec);
         __m256i mask   = _mm256_cmpgt_epi16(result, zero_vec);
         result         = _mm256_and_si256(result, mask);
         _mm256_storeu_si256(reinterpret_cast<__m256i *>(&reinterpret_cast<frame_t *>(&frame_cache)[i]), result);
     }
+#elif defined(__aarch64__) || defined(_M_ARM64)
+    constexpr int    NEON_VECTOR_WIDTH = 128;
+    constexpr size_t INCREMENT         = NEON_VECTOR_WIDTH / sizeof(frame_t);
+    constexpr size_t TOTAL_ELEMENTS    = sizeof(FrameCache) / sizeof(frame_t);
+
+    if constexpr (is_16bit<frame_t>) {
+        uint16x8_t frame_vec = vdupq_n_u16(frame);
+        uint16x8_t zero_vec  = vdupq_n_u16(0);
+
+        for (size_t i = 0; i < TOTAL_ELEMENTS; i += INCREMENT) {
+            uint16x8_t data =
+                vld1q_u16(reinterpret_cast<const uint16_t *>(&reinterpret_cast<frame_t *>(&frame_cache)[i]));
+            uint16x8_t result = vsubq_u16(data, frame_vec);
+            uint16x8_t mask   = vcgtq_u16(result, zero_vec);
+            result            = vandq_u16(result, mask);
+            vst1q_u16(reinterpret_cast<uint16_t *>(&reinterpret_cast<frame_t *>(&frame_cache)[i]), result);
+        }
+    } else if constexpr (is_32bit<frame_t>) {
+        uint32x4_t frame_vec = vdupq_n_u32(frame);
+        uint32x4_t zero_vec  = vdupq_n_u32(0);
+
+        for (size_t i = 0; i < TOTAL_ELEMENTS; i += INCREMENT) {
+            uint32x4_t data =
+                vld1q_u32(reinterpret_cast<const uint32_t *>(&reinterpret_cast<frame_t *>(&frame_cache)[i]));
+            uint32x4_t result = vsubq_u32(data, frame_vec);
+            uint32x4_t mask   = vcgtq_u32(result, zero_vec);
+            result            = vandq_u32(result, mask);
+            vst1q_u32(reinterpret_cast<uint32_t *>(&reinterpret_cast<frame_t *>(&frame_cache)[i]), result);
+        }
+    }
+#else
+    // 通用实现，不使用 SIMD 指令
+    for (size_t i = 0; i < sizeof(FrameCache) / sizeof(frame_t); ++i) {
+        frame_t &value = reinterpret_cast<frame_t *>(&frame_cache)[i];
+        if (value > frame) {
+            value -= frame;
+        } else {
+            value = 0;
+        }
+    }
+#endif
 }
 
 void Context::Reset() noexcept

@@ -1,4 +1,8 @@
-#include <immintrin.h>
+#if defined(__x86_64__) || defined(_M_X64)
+#    include <immintrin.h>
+#elif defined(__aarch64__) || defined(_M_ARM64)
+#    include <arm_neon.h>
+#endif
 
 #include <limits>
 #include <vector>
@@ -15,7 +19,8 @@ struct FrameCache
     FrameCache(size_t size) : data(size, 0xFFFF) { }
 };
 
-// 向量化实现
+#if defined(__x86_64__) || defined(_M_X64)
+// x86_64 向量化实现
 void update_vectorized(FrameCache &frame_cache, frame_t frame)
 {
     constexpr int    AVX_VECTOR_WIDTH = 256;
@@ -41,6 +46,36 @@ void update_vectorized(FrameCache &frame_cache, frame_t frame)
         _mm256_storeu_si256(reinterpret_cast<__m256i *>(&frame_cache.data[i]), result);
     }
 }
+#elif defined(__aarch64__) || defined(_M_ARM64)
+// ARM64 向量化实现
+void update_vectorized(FrameCache &frame_cache, frame_t frame)
+{
+    constexpr int    NEON_VECTOR_WIDTH = 128;
+    constexpr size_t INCREMENT         = NEON_VECTOR_WIDTH / sizeof(frame_t);
+    const size_t     TOTAL_ELEMENTS    = frame_cache.data.size();
+
+    uint16x8_t frame_vec = vdupq_n_u16(frame);
+    uint16x8_t zero_vec  = vdupq_n_u16(0);
+    uint16x8_t max_vec   = vdupq_n_u16(std::numeric_limits<frame_t>::max());
+
+    // 计算能够被向量化处理的元素数量
+    size_t vectorized_size = (TOTAL_ELEMENTS / INCREMENT) * INCREMENT;
+
+    for (size_t i = 0; i < vectorized_size; i += INCREMENT) {
+        uint16x8_t data       = vld1q_u16(&frame_cache.data[i]);
+        uint16x8_t is_max     = vceqq_u16(data, max_vec);
+        uint16x8_t is_not_max = vmvnq_u16(is_max);
+        uint16x8_t result     = vsubq_u16(data, frame_vec);
+        uint16x8_t mask       = vandq_u16(vcgtq_u16(result, zero_vec), is_not_max);
+        result                = vbslq_u16(mask, result, zero_vec);
+        result                = vbslq_u16(is_not_max, result, data);
+        vst1q_u16(&frame_cache.data[i], result);
+    }
+}
+#else
+// 对于不支持 SIMD 的架构，使用普通实现
+#    define update_vectorized update_normal
+#endif
 
 // 普通实现
 void update_normal(FrameCache &frame_cache, frame_t frame)

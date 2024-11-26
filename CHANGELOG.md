@@ -1,9 +1,9 @@
 # CHANGELOG
 
-## Unreleased (2024-10-19)
+## Unreleased (2024-11-07)
 
 ### Build System
-- 更新三方库版本 by @NoWaterisEnough in 2a5924d 8497a8b 2d65c25
+- 更新三方库版本 by @NoWaterisEnough in 18d1a44 2a5924d 8497a8b 2d65c25
 
 ## 5.39.0907.0139 (2024-09-07)
 

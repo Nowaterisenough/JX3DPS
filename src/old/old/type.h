@@ -14,7 +14,7 @@ using pctn_t = int;
 
 using bpn_t = int;
 
-using frame_t = uint16_t;
+using tick_t = uint16_t;
 
 using value_t = int;
 

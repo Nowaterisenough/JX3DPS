@@ -12,7 +12,7 @@ class Skill
 {
 public:
     PROPERTY int      cd_index    = 0;
-    PROPERTY frame_t *cooldown[4] = { nullptr };
+    PROPERTY tick_t *cooldown[4] = { nullptr };
 
     void Cast() noexcept;
 

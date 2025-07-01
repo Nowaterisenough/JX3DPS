@@ -1,5 +1,3 @@
-#include <proxy.h>
-
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -10,249 +8,225 @@
 #include <unordered_map>
 #include <vector>
 
+#include <proxy/proxy.h>
+
 #include "Type.h"
 
 using namespace JX3DPS;
 
 struct alignas(32) FrameCache
 {
-    constexpr static size_t UNIT_SIZE = 8;
-    constexpr static size_t TYPE_SIZE = 64;
+    static constexpr size_t UNIT_SIZE = 8;
+    static constexpr size_t TYPE_SIZE = 64;
 
-    frame_t skill_cooldown[TYPE_SIZE] = {};
-    frame_t skill_prepare[TYPE_SIZE]  = {};
-    frame_t skill_casting[TYPE_SIZE]  = {};
+    tick_t skill_cooldown[TYPE_SIZE] = {};
+    tick_t skill_prepare[TYPE_SIZE]  = {};
+    tick_t skill_casting[TYPE_SIZE]  = {};
 
-    frame_t buff_cooldown[UNIT_SIZE][TYPE_SIZE] = {};
-    frame_t buff_duration[UNIT_SIZE][TYPE_SIZE] = {};
-    frame_t buff_interval[UNIT_SIZE][TYPE_SIZE] = {};
+    tick_t buff_cooldown[UNIT_SIZE][TYPE_SIZE] = {};
+    tick_t buff_duration[UNIT_SIZE][TYPE_SIZE] = {};
+    tick_t buff_interval[UNIT_SIZE][TYPE_SIZE] = {};
 };
 
 constexpr int PLAYER = 0;
 
 struct Context
 {
-    int  bind_cooldown_index = 0;
+    int     bind_cooldown_index = 0;
     jx3id_t target_id           = 0;
 
     FrameCache frame_cache;
 
-    frame_t skill_cooldown[64] = {};
+    tick_t skill_cooldown[64] = {};
     int     skill_energy[64]   = {};
     int     buff_stacks[8][64] = {};
 
-    void Update(frame_t frame) noexcept;
+    void Update(tick_t tick) noexcept;
     void Reset() noexcept;
 };
 
 Context context;
 
-jx3id_t GetBuffId(const std::string &buff)
-{
-    return 0;
+jx3id_t GetBuffId(const std::string &buff) { return 0; }
+jx3id_t GetSkillId(const std::string &skill) { return 0; }
+
+// 比较器结构体
+struct LessThan { bool operator()(int a, int b) const { return a < b; } };
+struct LessEqual { bool operator()(int a, int b) const { return a <= b; } };
+struct Equal { bool operator()(int a, int b) const { return a == b; } };
+struct NotEqual { bool operator()(int a, int b) const { return a != b; } };
+struct GreaterThan { bool operator()(int a, int b) const { return a > b; } };
+struct GreaterEqual { bool operator()(int a, int b) const { return a >= b; } };
+struct Exists { bool operator()(int a) const { return a > 0; } };
+struct NotExists { bool operator()(int a) const { return a == 0; } };
+
+// 定义 facade（只定义一次）
+namespace spec {
+    PRO_DEF_MEM_DISPATCH(MemEvaluate, Evaluate);
+    PRO_DEF_MEM_DISPATCH(MemGetAction, GetAction);
+    
+    struct Node : pro::facade_builder::add_convention<MemEvaluate, bool() const>
+                                    ::add_convention<MemGetAction, std::string() const>::build {};
 }
 
-jx3id_t GetSkillId(const std::string &skill)
+enum class ErrorCode : uint8_t
 {
-    return 0;
-}
-
-struct LessThan
-{
-    bool operator()(int a, int b) const { return a < b; }
+    SUCCESS,
+    INVALID_CONDITION,
+    INVALID_MACRO_FORMAT,
 };
 
-struct LessEqual
-{
-    bool operator()(int a, int b) const { return a <= b; }
-};
-
-struct Equal
-{
-    bool operator()(int a, int b) const { return a == b; }
-};
-
-struct NotEqual
-{
-    bool operator()(int a, int b) const { return a != b; }
-};
-
-struct GreaterThan
-{
-    bool operator()(int a, int b) const { return a > b; }
-};
-
-struct GreaterEqual
-{
-    bool operator()(int a, int b) const { return a >= b; }
-};
-
-struct Exists
-{
-    bool operator()(int a) const { return a > 0; }
-};
-
-struct NotExists
-{
-    bool operator()(int a) const { return a == 0; }
-};
-
+// 各种条件类模板 - 直接实现 facade 的方法
 template <typename Comparator>
 class BuffExistsConditionProxy
 {
-    jx3id_t       _buff;
+    jx3id_t _buff;
     Comparator _comp;
 
 public:
-    BuffExistsConditionProxy(jx3id_t buff) noexcept : _buff(buff) { }
+    BuffExistsConditionProxy(jx3id_t buff) noexcept : _buff(buff) {}
 
     bool Evaluate() const noexcept
     {
         return _comp(context.frame_cache.buff_duration[PLAYER][_buff]);
     }
+    
+    std::string GetAction() const { return ""; }
 };
-
-template <typename Comp>
-using BuffExistsProxy = BuffExistsConditionProxy<Comp>;
 
 template <typename Comparator>
 class TBuffExistsConditionProxy
 {
-    jx3id_t       _buff;
+    jx3id_t _buff;
     Comparator _comp;
 
 public:
-    TBuffExistsConditionProxy(jx3id_t buff) noexcept : _buff(buff) { }
+    TBuffExistsConditionProxy(jx3id_t buff) noexcept : _buff(buff) {}
 
     bool Evaluate() const noexcept
     {
         return _comp(context.frame_cache.buff_duration[context.target_id][_buff]);
     }
+    
+    std::string GetAction() const { return ""; }
 };
-
-template <typename Comp>
-using TBuffExistsProxy = TBuffExistsConditionProxy<Comp>;
 
 template <typename Comparator>
 class BuffDurationConditionProxy
 {
 private:
-    jx3id_t       _buff;
-    frame_t    _duration;
+    jx3id_t _buff;
+    tick_t _duration;
     Comparator _comp;
 
 public:
-    BuffDurationConditionProxy(jx3id_t buff, frame_t duration) noexcept :
-        _buff(buff), _duration(duration)
-    {
-    }
+    BuffDurationConditionProxy(jx3id_t buff, tick_t duration) noexcept :
+        _buff(buff), _duration(duration) {}
 
     bool Evaluate() const noexcept
     {
         return _comp(context.frame_cache.buff_duration[PLAYER][_buff], _duration);
     }
+    
+    std::string GetAction() const { return ""; }
 };
-
-template <typename Comp>
-using BuffDurationProxy = BuffDurationConditionProxy<Comp>;
 
 template <typename Comparator>
 class TBuffDurationConditionProxy
 {
 private:
-    jx3id_t       _buff;
-    frame_t    _duration;
+    jx3id_t _buff;
+    tick_t _duration;
     Comparator _comp;
 
 public:
-    TBuffDurationConditionProxy(jx3id_t buff, frame_t duration) noexcept :
-        _buff(buff), _duration(duration)
-    {
-    }
+    TBuffDurationConditionProxy(jx3id_t buff, tick_t duration) noexcept :
+        _buff(buff), _duration(duration) {}
 
     bool Evaluate() const noexcept
     {
         return _comp(context.frame_cache.buff_duration[context.target_id][_buff], _duration);
     }
+    
+    std::string GetAction() const { return ""; }
 };
-
-template <typename Comp>
-using TBuffDurationProxy = TBuffDurationConditionProxy<Comp>;
 
 template <typename Comparator>
 class BuffStacksConditionProxy
 {
 private:
-    jx3id_t       _buff;
-    int        _stacks;
+    jx3id_t _buff;
+    int _stacks;
     Comparator _comp;
 
 public:
-    BuffStacksConditionProxy(jx3id_t buff, int stacks) noexcept : _buff(buff), _stacks(stacks) { }
+    BuffStacksConditionProxy(jx3id_t buff, int stacks) noexcept : _buff(buff), _stacks(stacks) {}
 
     bool Evaluate() const noexcept { return _comp(context.buff_stacks[PLAYER][_buff], _stacks); }
+    std::string GetAction() const { return ""; }
 };
-
-template <typename Comp>
-using BuffStacksProxy = BuffStacksConditionProxy<Comp>;
 
 template <typename Comparator>
 class TBuffStacksConditionProxy
 {
 private:
-    jx3id_t       _buff;
-    int        _stacks;
+    jx3id_t _buff;
+    int _stacks;
     Comparator _comp;
 
 public:
-    TBuffStacksConditionProxy(jx3id_t buff, int stacks) noexcept : _buff(buff), _stacks(stacks) { }
+    TBuffStacksConditionProxy(jx3id_t buff, int stacks) noexcept : _buff(buff), _stacks(stacks) {}
 
     bool Evaluate() const noexcept
     {
         return _comp(context.buff_stacks[context.target_id][_buff], _stacks);
     }
+    
+    std::string GetAction() const { return ""; }
 };
-
-template <typename Comp>
-using TBuffStacksProxy = TBuffStacksConditionProxy<Comp>;
 
 template <typename Comparator>
 class SkillCooldownConditionProxy
 {
 private:
-    jx3id_t       _skill;
-    frame_t    _cooldown;
+    jx3id_t _skill;
+    tick_t _cooldown;
     Comparator _comp;
 
 public:
-    SkillCooldownConditionProxy(jx3id_t skill, frame_t cooldown) noexcept :
-        _skill(skill), _cooldown(cooldown)
-    {
-    }
+    SkillCooldownConditionProxy(jx3id_t skill, tick_t cooldown) noexcept :
+        _skill(skill), _cooldown(cooldown) {}
 
     bool Evaluate() const noexcept { return _comp(context.skill_cooldown[_skill], _cooldown); }
+    std::string GetAction() const { return ""; }
 };
-
-template <typename Comp>
-using SkillCooldownProxy = SkillCooldownConditionProxy<Comp>;
 
 template <typename Comparator>
 class SkillEnergyConditionProxy
 {
 private:
-    jx3id_t       _skill;
-    int        _stacks;
+    jx3id_t _skill;
+    int _stacks;
     Comparator _comp;
 
 public:
-    SkillEnergyConditionProxy(jx3id_t skill, int stacks) noexcept : _skill(skill), _stacks(stacks) { }
+    SkillEnergyConditionProxy(jx3id_t skill, int stacks) noexcept : _skill(skill), _stacks(stacks) {}
 
     bool Evaluate() const noexcept { return _comp(context.skill_energy[_skill], _stacks); }
+    std::string GetAction() const { return ""; }
 };
 
-template <typename Comp>
-using SkillEnergyProxy = SkillEnergyConditionProxy<Comp>;
+// 类型别名
+template <typename Comp> using BuffExistsProxy = BuffExistsConditionProxy<Comp>;
+template <typename Comp> using TBuffExistsProxy = TBuffExistsConditionProxy<Comp>;
+template <typename Comp> using BuffDurationProxy = BuffDurationConditionProxy<Comp>;
+template <typename Comp> using TBuffDurationProxy = TBuffDurationConditionProxy<Comp>;
+template <typename Comp> using BuffStacksProxy = BuffStacksConditionProxy<Comp>;
+template <typename Comp> using TBuffStacksProxy = TBuffStacksConditionProxy<Comp>;
+template <typename Comp> using SkillCooldownProxy = SkillCooldownConditionProxy<Comp>;
+template <typename Comp> using SkillEnergyProxy = SkillEnergyConditionProxy<Comp>;
 
+// 具体类型别名
 using BuffExists      = BuffExistsProxy<Exists>;
 using BuffNotExists   = BuffExistsProxy<NotExists>;
 using TBuffExists     = TBuffExistsProxy<Exists>;
@@ -294,68 +268,27 @@ using SkillEnergyNe   = SkillEnergyProxy<NotEqual>;
 using SkillEnergyGt   = SkillEnergyProxy<GreaterThan>;
 using SkillEnergyGe   = SkillEnergyProxy<GreaterEqual>;
 
-namespace spec {
-
-PRO_DEF_MEM_DISPATCH(MemEvaluate, Evaluate);
-
-struct Evaluator : pro::facade_builder::add_convention<MemEvaluate, bool() const>::build
-{
-};
-
-PRO_DEF_MEM_DISPATCH(MemGetAction, GetAction);
-
-struct Node :
-    pro::facade_builder::add_convention<MemEvaluate, bool() const>::add_convention<MemGetAction, std::string() const>::build
-{
-};
-
-} // namespace spec
-
-enum class ErrorCode : uint8_t
-{
-    SUCCESS,
-    INVALID_CONDITION,
-    INVALID_MACRO_FORMAT,
-};
-
-class ConditionProxy
-{
-private:
-    pro::proxy<spec::Evaluator> _proxy;
-
-public:
-    explicit ConditionProxy(pro::proxy<spec::Evaluator> proxy) : _proxy(std::move(proxy)) { }
-
-    bool Evaluate() const noexcept { return _proxy->Evaluate(); }
-
-    std::string GetAction() const { return ""; }
-};
-
-class ActionProxy
-{
+// 动作和逻辑节点类
+class ActionNode {
 private:
     std::string _action;
 
 public:
-    explicit ActionProxy(std::string action) : _action(std::move(action)) { }
-
+    explicit ActionNode(std::string action) : _action(std::move(action)) {}
+    
     bool Evaluate() const noexcept { return true; }
-
     std::string GetAction() const { return _action; }
 };
 
-class AndProxy
-{
+class AndNode {
 private:
     std::vector<pro::proxy<spec::Node>> _children;
 
 public:
-    explicit AndProxy(std::vector<pro::proxy<spec::Node>> children) : _children(std::move(children))
-    {
-    }
+    explicit AndNode(std::vector<pro::proxy<spec::Node>> children) 
+        : _children(std::move(children)) {}
 
-    bool Evaluate() const noexcept
-    {
+    bool Evaluate() const noexcept {
         for (const auto &child : _children) {
             if (!child->Evaluate()) {
                 return false;
@@ -367,18 +300,15 @@ public:
     std::string GetAction() const { return ""; }
 };
 
-class OrProxy
-{
+class OrNode {
 private:
     std::vector<pro::proxy<spec::Node>> _children;
 
 public:
-    explicit OrProxy(std::vector<pro::proxy<spec::Node>> children) : _children(std::move(children))
-    {
-    }
+    explicit OrNode(std::vector<pro::proxy<spec::Node>> children) 
+        : _children(std::move(children)) {}
 
-    bool Evaluate() const noexcept
-    {
+    bool Evaluate() const noexcept {
         for (const auto &child : _children) {
             if (child->Evaluate()) {
                 return true;
@@ -390,25 +320,26 @@ public:
     std::string GetAction() const { return ""; }
 };
 
+// MacroInterpreter 类
 class MacroInterpreter
 {
 private:
-    inline static const std::regex BUFF_EXISTS{ R"(buff:(\w+))" };
-    inline static const std::regex NOBUFF_EXISTS{ R"(nobuff:(\w+))" };
-    inline static const std::regex BUFF_DURATION{ R"(bufftime:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex BUFF_STACKS{ R"(buff:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex TBUFF_EXISTS{ R"(tbuff:(\w+))" };
-    inline static const std::regex TNOBUFF_EXISTS{ R"(tnobuff:(\w+))" };
-    inline static const std::regex TBUFF_DURATION{ R"(tbufftime:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex TBUFF_STACKS{ R"(tbuff:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex SKILL_CD{ R"(cd:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex SKILL_ENERGY{ R"(skill_energy:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex BUFF_EXISTS{ R"(buff:(\w+))" };
+    static inline const std::regex NOBUFF_EXISTS{ R"(nobuff:(\w+))" };
+    static inline const std::regex BUFF_DURATION{ R"(bufftime:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex BUFF_STACKS{ R"(buff:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex TBUFF_EXISTS{ R"(tbuff:(\w+))" };
+    static inline const std::regex TNOBUFF_EXISTS{ R"(tnobuff:(\w+))" };
+    static inline const std::regex TBUFF_DURATION{ R"(tbufftime:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex TBUFF_STACKS{ R"(tbuff:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex SKILL_CD{ R"(cd:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex SKILL_ENERGY{ R"(skill_energy:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
 
+    // 直接创建条件节点，避免包装
     template <typename ProxyType, typename... Args>
     pro::proxy<spec::Node> MakeConditionProxy(Args... args)
     {
-        auto &&proxy = ConditionProxy(pro::make_proxy<spec::Evaluator>(ProxyType(args...)));
-        return pro::make_proxy<spec::Node>(std::move(proxy));
+        return pro::make_proxy<spec::Node>(ProxyType(args...));
     }
 
     template <template <typename> class ProxyType>
@@ -448,7 +379,7 @@ public:
         std::string action    = match[2].str();
 
         if (condition.empty()) {
-            return { pro::make_proxy<spec::Node>(ActionProxy(action)), ErrorCode::SUCCESS };
+            return { pro::make_proxy<spec::Node>(ActionNode(action)), ErrorCode::SUCCESS };
         }
 
         auto [conditionNode, error] = ParseCondition(condition);
@@ -458,8 +389,8 @@ public:
 
         std::vector<pro::proxy<spec::Node>> children;
         children.push_back(std::move(conditionNode));
-        children.push_back(pro::make_proxy<spec::Node>(ActionProxy(action)));
-        return { pro::make_proxy<spec::Node>(AndProxy(std::move(children))), ErrorCode::SUCCESS };
+        children.push_back(pro::make_proxy<spec::Node>(ActionNode(action)));
+        return { pro::make_proxy<spec::Node>(AndNode(std::move(children))), ErrorCode::SUCCESS };
     }
 
     std::pair<pro::proxy<spec::Node>, ErrorCode> ParseCondition(const std::string &condition)
@@ -477,7 +408,7 @@ public:
             }
             children.push_back(std::move(leftChild));
             children.push_back(std::move(rightChild));
-            return { pro::make_proxy<spec::Node>(OrProxy(std::move(children))), ErrorCode::SUCCESS };
+            return { pro::make_proxy<spec::Node>(OrNode(std::move(children))), ErrorCode::SUCCESS };
         }
 
         size_t andPos = condition.find('&');
@@ -493,7 +424,7 @@ public:
             }
             children.push_back(std::move(leftChild));
             children.push_back(std::move(rightChild));
-            return { pro::make_proxy<spec::Node>(AndProxy(std::move(children))), ErrorCode::SUCCESS };
+            return { pro::make_proxy<spec::Node>(AndNode(std::move(children))), ErrorCode::SUCCESS };
         }
 
         return ParseSingleCondition(condition);

@@ -197,7 +197,7 @@ public:
 
     inline void Expire() { self.stack_num = T::stack_num; }
 
-    frame_t GetDuration() const { return T::duration; }
+    tick_t GetDuration() const { return T::duration; }
 
     int GetStackNum() const { return T::stack_num; }
 

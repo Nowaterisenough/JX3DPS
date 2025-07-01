@@ -99,94 +99,94 @@ bool TBuffStackNumGt(jx3id_t buff_id, int stack_num)
     return tls_sim.target->GetBuffStackNum(buff_id) > stack_num;
 }
 
-bool BuffTimeLt(jx3id_t buff_id, frame_t frame)
+bool BuffTimeLt(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.player.GetBuffTime(buff_id) < frame;
+    return tls_sim.player.GetBuffTime(buff_id) < tick;
 }
 
-bool BuffTimeLe(jx3id_t buff_id, frame_t frame)
+bool BuffTimeLe(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.player.GetBuffTime(buff_id) <= frame;
+    return tls_sim.player.GetBuffTime(buff_id) <= tick;
 }
 
-bool BuffTimeEq(jx3id_t buff_id, frame_t frame)
+bool BuffTimeEq(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.player.GetBuffTime(buff_id) == frame;
+    return tls_sim.player.GetBuffTime(buff_id) == tick;
 }
 
-bool BuffTimeNe(jx3id_t buff_id, frame_t frame)
+bool BuffTimeNe(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.player.GetBuffTime(buff_id) != frame;
+    return tls_sim.player.GetBuffTime(buff_id) != tick;
 }
 
-bool BuffTimeGe(jx3id_t buff_id, frame_t frame)
+bool BuffTimeGe(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.player.GetBuffTime(buff_id) >= frame;
+    return tls_sim.player.GetBuffTime(buff_id) >= tick;
 }
 
-bool BuffTimeGt(jx3id_t buff_id, frame_t frame)
+bool BuffTimeGt(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.player.GetBuffTime(buff_id) > frame;
+    return tls_sim.player.GetBuffTime(buff_id) > tick;
 }
 
-bool TBuffTimeLt(jx3id_t buff_id, frame_t frame)
+bool TBuffTimeLt(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.target->GetBuffTime(buff_id) < frame;
+    return tls_sim.target->GetBuffTime(buff_id) < tick;
 }
 
-bool TBuffTimeLe(jx3id_t buff_id, frame_t frame)
+bool TBuffTimeLe(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.target->GetBuffTime(buff_id) <= frame;
+    return tls_sim.target->GetBuffTime(buff_id) <= tick;
 }
 
-bool TBuffTimeEq(jx3id_t buff_id, frame_t frame)
+bool TBuffTimeEq(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.target->GetBuffTime(buff_id) == frame;
+    return tls_sim.target->GetBuffTime(buff_id) == tick;
 }
 
-bool TBuffTimeNe(jx3id_t buff_id, frame_t frame)
+bool TBuffTimeNe(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.target->GetBuffTime(buff_id) != frame;
+    return tls_sim.target->GetBuffTime(buff_id) != tick;
 }
 
-bool TBuffTimeGe(jx3id_t buff_id, frame_t frame)
+bool TBuffTimeGe(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.target->GetBuffTime(buff_id) >= frame;
+    return tls_sim.target->GetBuffTime(buff_id) >= tick;
 }
 
-bool TBuffTimeGt(jx3id_t buff_id, frame_t frame)
+bool TBuffTimeGt(jx3id_t buff_id, tick_t tick)
 {
-    return tls_sim.target->GetBuffTime(buff_id) > frame;
+    return tls_sim.target->GetBuffTime(buff_id) > tick;
 }
 
-bool SkillCooldownLt(jx3id_t skill_id, frame_t frame)
+bool SkillCooldownLt(jx3id_t skill_id, tick_t tick)
 {
-    return tls_sim.player.GetSkillCooldown(skill_id) < frame;
+    return tls_sim.player.GetSkillCooldown(skill_id) < tick;
 }
 
-bool SkillCooldownLe(jx3id_t skill_id, frame_t frame)
+bool SkillCooldownLe(jx3id_t skill_id, tick_t tick)
 {
-    return tls_sim.player.GetSkillCooldown(skill_id) <= frame;
+    return tls_sim.player.GetSkillCooldown(skill_id) <= tick;
 }
 
-bool SkillCooldownEq(jx3id_t skill_id, frame_t frame)
+bool SkillCooldownEq(jx3id_t skill_id, tick_t tick)
 {
-    return tls_sim.player.GetSkillCooldown(skill_id) == frame;
+    return tls_sim.player.GetSkillCooldown(skill_id) == tick;
 }
 
-bool SkillCooldownNe(jx3id_t skill_id, frame_t frame)
+bool SkillCooldownNe(jx3id_t skill_id, tick_t tick)
 {
-    return tls_sim.player.GetSkillCooldown(skill_id) != frame;
+    return tls_sim.player.GetSkillCooldown(skill_id) != tick;
 }
 
-bool SkillCooldownGe(jx3id_t skill_id, frame_t frame)
+bool SkillCooldownGe(jx3id_t skill_id, tick_t tick)
 {
-    return tls_sim.player.GetSkillCooldown(skill_id) >= frame;
+    return tls_sim.player.GetSkillCooldown(skill_id) >= tick;
 }
 
-bool SkillCooldownGt(jx3id_t skill_id, frame_t frame)
+bool SkillCooldownGt(jx3id_t skill_id, tick_t tick)
 {
-    return tls_sim.player.GetSkillCooldown(skill_id) > frame;
+    return tls_sim.player.GetSkillCooldown(skill_id) > tick;
 }
 
 bool SkillEnergyLt(jx3id_t skill_id, int energy)

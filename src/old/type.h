@@ -13,7 +13,7 @@ using pctn_t = int;
 
 using bpn_t = int;
 
-using frame_t = int;
+using tick_t = int;
 
 using value_t = int;
 

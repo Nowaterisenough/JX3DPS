@@ -19,13 +19,13 @@ constinit pctf_t JX3_PERCENT_FLOAT_BASE = 1.0;
 constinit bpn_t JX3_BASIS_POINT_INT_BASE = 10000;
 
 /* 每秒帧数 */
-constinit frame_t JX3_FRAMES_PER_SECOND = 16;
+constinit tick_t JX3_FRAMES_PER_SECOND = 16;
 
 /* 分钟秒数 */
-constinit frame_t JX3_SECONDS_PER_MINUTE = 60;
+constinit tick_t JX3_SECONDS_PER_MINUTE = 60;
 
 /* 公共冷却 */
-constinit frame_t JX3_GLOBAL_COOLDOWN = 24;
+constinit tick_t JX3_GLOBAL_COOLDOWN = 24;
 
 /* 角色基础命中 */
 constinit pctf_t JX3_PLAYER_HIT_VALUE_PERCENT_BASE = 0.9;

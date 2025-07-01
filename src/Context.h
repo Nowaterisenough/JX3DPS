@@ -23,13 +23,13 @@ constexpr static size_t TYPE_SIZE = 64;
 struct alignas(32) FrameCache
 {
 
-    frame_t skill_cooldown[TYPE_SIZE] = {};
-    frame_t skill_prepare[TYPE_SIZE]  = {};
-    frame_t skill_casting[TYPE_SIZE]  = {};
+    tick_t skill_cooldown[TYPE_SIZE] = {};
+    tick_t skill_prepare[TYPE_SIZE]  = {};
+    tick_t skill_casting[TYPE_SIZE]  = {};
 
-    frame_t buff_cooldown[UNIT_SIZE][TYPE_SIZE] = {};
-    frame_t buff_duration[UNIT_SIZE][TYPE_SIZE] = {};
-    frame_t buff_interval[UNIT_SIZE][TYPE_SIZE] = {};
+    tick_t buff_cooldown[UNIT_SIZE][TYPE_SIZE] = {};
+    tick_t buff_duration[UNIT_SIZE][TYPE_SIZE] = {};
+    tick_t buff_interval[UNIT_SIZE][TYPE_SIZE] = {};
 };
 
 struct Context
@@ -38,9 +38,9 @@ struct Context
 
     FrameCache frame_cache;
 
-    frame_t skill_cooldown[64] = {};
+    tick_t skill_cooldown[64] = {};
 
-    void Update(frame_t frame) noexcept;
+    void Update(tick_t tick) noexcept;
     void Reset() noexcept;
 };
 
@@ -52,7 +52,7 @@ void BindCooldownImpl() noexcept
 }
 
 template <typename... Skills>
-void BindCooldown(frame_t cd) noexcept
+void BindCooldown(tick_t cd) noexcept
 {
     (BindCooldownImpl<Skills>(), ...);
     context.skill_cooldown[context.bind_cooldown_index] = cd;

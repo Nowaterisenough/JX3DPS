@@ -13,9 +13,9 @@ public:
     ~Skill() = default;
 
 protected:
-    frame_t *_cooldown[4]       = { nullptr };
-    frame_t *_check_cooldown[4] = { nullptr };
-    frame_t *_prepare           = nullptr;
+    tick_t *_cooldown[4]       = { nullptr };
+    tick_t *_check_cooldown[4] = { nullptr };
+    tick_t *_prepare           = nullptr;
 
     struct Addon
     {
@@ -27,7 +27,7 @@ protected:
         pctn_t  fixed_damage          = 0; // 固定伤害加成
         pctn_t  global_damage_factor  = 0; // 全局伤害加成
         pctn_t  shield_ignore         = 0; // 无视防御加成
-        frame_t cooldown              = 0; // 冷却减免
+        tick_t cooldown              = 0; // 冷却减免
 
         int qidian     = 0;
         int rage       = 0;

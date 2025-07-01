@@ -48,5 +48,5 @@ Log::Log()
     // 设置日志记录级别
     _logger->set_level(spdlog::level::info);
 
-    spdlog::set_default_logger(_logger);
+    spdlog::set_global_logger(_logger);
 }

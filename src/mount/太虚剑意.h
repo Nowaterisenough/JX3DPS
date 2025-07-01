@@ -36,8 +36,8 @@ struct 太虚剑意
 
         CONSTANT pctn_t weapon_damage_percent = 0;
 
-        PROPERTY frame_t *prepare = nullptr;
-        PROPERTY frame_t *casting = nullptr;
+        PROPERTY tick_t *prepare = nullptr;
+        PROPERTY tick_t *casting = nullptr;
 
         CONSTANT int limit      = 0;
         CONSTANT int energy_max = 0;
@@ -47,8 +47,8 @@ struct 太虚剑意
     class 三环套月 : public Skill<三环套月>
     {
     public:
-        PROPERTY frame_t *prepare = nullptr;
-        PROPERTY frame_t *casting = nullptr;
+        PROPERTY tick_t *prepare = nullptr;
+        PROPERTY tick_t *casting = nullptr;
 
         CONSTANT int    physics_ap            = 0;
         CONSTANT int    physics_fixed_damage  = 0;
@@ -61,8 +61,8 @@ struct 太虚剑意
     class 八荒归元 : public Skill<八荒归元>
     {
     public:
-        PROPERTY frame_t *prepare = nullptr;
-        PROPERTY frame_t *casting = nullptr;
+        PROPERTY tick_t *prepare = nullptr;
+        PROPERTY tick_t *casting = nullptr;
 
         CONSTANT int    physics_ap            = 0;
         CONSTANT int    physics_fixed_damage  = 0;
@@ -75,8 +75,8 @@ struct 太虚剑意
     class 万剑归宗 : public Skill<万剑归宗>
     {
     public:
-        PROPERTY frame_t *prepare = nullptr;
-        PROPERTY frame_t *casting = nullptr;
+        PROPERTY tick_t *prepare = nullptr;
+        PROPERTY tick_t *casting = nullptr;
 
         CONSTANT int    physics_ap            = 0;
         CONSTANT int    physics_fixed_damage  = 0;
@@ -89,8 +89,8 @@ struct 太虚剑意
     class 人剑合一 : public Skill<人剑合一>
     {
     public:
-        PROPERTY frame_t *prepare = nullptr;
-        PROPERTY frame_t *casting = nullptr;
+        PROPERTY tick_t *prepare = nullptr;
+        PROPERTY tick_t *casting = nullptr;
 
         CONSTANT int    physics_ap            = 0;
         CONSTANT int    physics_fixed_damage  = 0;
@@ -103,8 +103,8 @@ struct 太虚剑意
     class 碎星辰 : public Skill<碎星辰>
     {
     public:
-        PROPERTY frame_t *prepare = nullptr;
-        PROPERTY frame_t *casting = nullptr;
+        PROPERTY tick_t *prepare = nullptr;
+        PROPERTY tick_t *casting = nullptr;
 
         CONSTANT int    physics_ap            = 0;
         CONSTANT int    physics_fixed_damage  = 0;

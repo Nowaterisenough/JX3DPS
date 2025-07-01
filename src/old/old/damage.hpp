@@ -23,7 +23,7 @@ cof_t MagicDamageCoefficient(value_t channel_interval, value_t prepare_frames)
            JX3_PERCENT_FLOAT_BASE / JX3_MAGIC_DAMAGE_PARAM / JX3_DAMAGE_CONST_PARAM;
 }
 
-cof_t PhysicsDotDamageCoefficient(value_t channel_interval, int effect_count_max, frame_t interval_frames)
+cof_t PhysicsDotDamageCoefficient(value_t channel_interval, int effect_count_max, tick_t interval_frames)
 {
     return channel_interval *
            std::max(JX3_DAMAGE_CONST_PARAM, effect_count_max * interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *
@@ -31,7 +31,7 @@ cof_t PhysicsDotDamageCoefficient(value_t channel_interval, int effect_count_max
            JX3_DAMAGE_CONST_PARAM / JX3_DAMAGE_CONST_PARAM;
 }
 
-cof_t MagicDotDamageCoefficient(value_t channel_interval, int effect_count_max, frame_t interval_frames)
+cof_t MagicDotDamageCoefficient(value_t channel_interval, int effect_count_max, tick_t interval_frames)
 {
     return channel_interval *
            std::max(JX3_DAMAGE_CONST_PARAM, effect_count_max * interval_frames / JX3_DOT_DAMAGE_CONST_PARAM) *

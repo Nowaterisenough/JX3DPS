@@ -33,32 +33,32 @@ public:
         constexpr static size_t UNIT_SIZE = 8;
         constexpr static size_t TYPE_SIZE = 64;
 
-        frame_t skill_cooldown[TYPE_SIZE]           = { std::numeric_limits<frame_t>::max() };
-        frame_t skill_prepare[TYPE_SIZE]            = { std::numeric_limits<frame_t>::max() };
-        frame_t buff_cooldown[TYPE_SIZE][UNIT_SIZE] = { std::numeric_limits<frame_t>::max() };
-        frame_t buff_duration[TYPE_SIZE][UNIT_SIZE] = { std::numeric_limits<frame_t>::max() };
-        frame_t buff_interval[TYPE_SIZE][UNIT_SIZE] = { std::numeric_limits<frame_t>::max() };
+        tick_t skill_cooldown[TYPE_SIZE]           = { std::numeric_limits<tick_t>::max() };
+        tick_t skill_prepare[TYPE_SIZE]            = { std::numeric_limits<tick_t>::max() };
+        tick_t buff_cooldown[TYPE_SIZE][UNIT_SIZE] = { std::numeric_limits<tick_t>::max() };
+        tick_t buff_duration[TYPE_SIZE][UNIT_SIZE] = { std::numeric_limits<tick_t>::max() };
+        tick_t buff_interval[TYPE_SIZE][UNIT_SIZE] = { std::numeric_limits<tick_t>::max() };
 
         // AVX256命令快速更新帧缓存
-        void Update(frame_t frame) noexcept
+        void Update(tick_t tick) noexcept
         {
-            constexpr size_t TOTAL_ELEMENTS   = sizeof(FrameCache) / sizeof(frame);
+            constexpr size_t TOTAL_ELEMENTS   = sizeof(FrameCache) / sizeof(tick);
             constexpr int    AVX_VECTOR_WIDTH = 256; // 定义256位的常量
-            constexpr size_t INCREMENT        = AVX_VECTOR_WIDTH / sizeof(frame_t);
+            constexpr size_t INCREMENT        = AVX_VECTOR_WIDTH / sizeof(tick_t);
 
             __m256i frame_vec;
-            if constexpr (is_16bit<frame_t>) {
-                frame_vec = _mm256_set1_epi16(frame);
-            } else if constexpr (is_32bit<frame_t>) {
-                frame_vec = _mm256_set1_epi32(frame);
+            if constexpr (is_16bit<tick_t>) {
+                frame_vec = _mm256_set1_epi16(tick);
+            } else if constexpr (is_32bit<tick_t>) {
+                frame_vec = _mm256_set1_epi32(tick);
             }
 
             for (size_t idx = 0; idx < TOTAL_ELEMENTS; idx += INCREMENT) {
                 auto *ptr  = reinterpret_cast<__m256i *>(skill_cooldown) + idx;
                 auto  data = _mm256_loadu_si256(ptr);
-                if constexpr (is_16bit<frame_t>) {
+                if constexpr (is_16bit<tick_t>) {
                     data = _mm256_sub_epi16(data, frame_vec);
-                } else if constexpr (is_32bit<frame_t>) {
+                } else if constexpr (is_32bit<tick_t>) {
                     data = _mm256_sub_epi32(data, frame_vec);
                 }
                 _mm256_storeu_si256(ptr, data);

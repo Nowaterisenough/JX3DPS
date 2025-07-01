@@ -1,4 +1,4 @@
-#include <proxy.h>
+#include <proxy/proxy.h>
 
 #include "Ast.hpp"
 #include "Lexer.hpp"
@@ -70,12 +70,12 @@ private:
                 case TokenType::CAST:
                 case TokenType::FCAST:
                     return std::make_pair(
-                        pro::make_proxy<spec::AstNode, AndNodeImpl>(std::move(condition), std::move(action)),
+                        pro::make_proxy<spec::AstNode>(AndNodeImpl(std::move(condition), std::move(action))),
                         ParserError::SUCCESS);
                 case TokenType::SWITCH:
                 case TokenType::USE:
                     return std::make_pair(
-                        pro::make_proxy<spec::AstNode, AndNodeImpl>(std::move(condition), std::move(action)),
+                        pro::make_proxy<spec::AstNode>(AndNodeImpl(std::move(condition), std::move(action))),
                         ParserError::SUCCESS);
                 default: return std::make_pair(nullptr, ParserError::UNEXPECTED_TOKEN);
             }
@@ -113,9 +113,9 @@ private:
                 }
 
                 if (op == TokenType::AND) {
-                    left = pro::make_proxy<spec::AstNode, AndNodeImpl>(std::move(left), std::move(right));
+                    left = pro::make_proxy<spec::AstNode>(AndNodeImpl(std::move(left), std::move(right)));
                 } else {
-                    left = pro::make_proxy<spec::AstNode, OrNodeImpl>(std::move(left), std::move(right));
+                    left = pro::make_proxy<spec::AstNode>(OrNodeImpl(std::move(left), std::move(right)));
                 }
             }
             return std::make_pair(std::move(left), ParserError::SUCCESS);
@@ -181,7 +181,7 @@ private:
                 return std::make_pair(nullptr, error);
             }
 
-            return std::make_pair(pro::make_proxy<spec::AstNode, ActionNodeImpl>(std::move(name)),
+            return std::make_pair(pro::make_proxy<spec::AstNode>(ActionNodeImpl(std::move(name))),
                                   ParserError::SUCCESS);
         }
 
@@ -227,11 +227,11 @@ private:
             return std::make_pair(nullptr, ParserError::INVALID_CONDITION_TYPE);
         }
 
+        // 直接创建条件节点，避免包装
         template <typename ProxyType, typename... Args>
-        pro::proxy<spec::AstNode> MakeConditionNode(Args &&...args)
+        pro::proxy<spec::AstNode> MakeConditionNode(Args&&... args)
         {
-            return pro::make_proxy<spec::AstNode, ConditionNodeImpl>(
-                pro::make_proxy<spec::Evaluator>(ProxyType(std::forward<Args>(args)...)));
+            return pro::make_proxy<spec::AstNode>(ProxyType(std::forward<Args>(args)...));
         }
 
         template <template <typename> class ProxyType>

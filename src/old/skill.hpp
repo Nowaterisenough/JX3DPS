@@ -17,7 +17,7 @@ class SkillImpl
 public:
     using skill_effects_t = array_t<vector_t<func_t<void()>>, COUNT>;
 
-    PROPERTY frame_t* global_cooldown[32] = { nullptr };
+    PROPERTY tick_t* global_cooldown[32] = { nullptr };
 
     struct Self
     {

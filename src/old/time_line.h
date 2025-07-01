@@ -18,7 +18,7 @@ public:
 private:
     TimeLine() = default;
 
-    frame_t _frame = 0;
+    tick_t _tick = 0;
 };
 
 } // namespace JX3DPS

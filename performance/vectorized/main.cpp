@@ -9,27 +9,27 @@
 
 #include <benchmark/benchmark.h>
 
-using frame_t = uint16_t;
+using tick_t = uint16_t;
 
 // 假设的 FrameCache 结构体
 struct FrameCache
 {
-    std::vector<frame_t> data;
+    std::vector<tick_t> data;
 
     FrameCache(size_t size) : data(size, 0xFFFF) { }
 };
 
 #if defined(__x86_64__) || defined(_M_X64)
 // x86_64 向量化实现
-void update_vectorized(FrameCache &frame_cache, frame_t frame)
+void update_vectorized(FrameCache &frame_cache, tick_t tick)
 {
     constexpr int    AVX_VECTOR_WIDTH = 256;
-    constexpr size_t INCREMENT        = AVX_VECTOR_WIDTH / sizeof(frame_t);
+    constexpr size_t INCREMENT        = AVX_VECTOR_WIDTH / sizeof(tick_t);
     const size_t     TOTAL_ELEMENTS   = frame_cache.data.size();
 
-    __m256i frame_vec = _mm256_set1_epi16(frame);
+    __m256i frame_vec = _mm256_set1_epi16(tick);
     __m256i zero_vec  = _mm256_setzero_si256();
-    __m256i max_vec   = _mm256_set1_epi16(std::numeric_limits<frame_t>::max());
+    __m256i max_vec   = _mm256_set1_epi16(std::numeric_limits<tick_t>::max());
     __m256i all_ones  = _mm256_set1_epi32(-1);
 
     // 计算能够被向量化处理的元素数量
@@ -48,15 +48,15 @@ void update_vectorized(FrameCache &frame_cache, frame_t frame)
 }
 #elif defined(__aarch64__) || defined(_M_ARM64)
 // ARM64 向量化实现
-void update_vectorized(FrameCache &frame_cache, frame_t frame)
+void update_vectorized(FrameCache &frame_cache, tick_t tick)
 {
     constexpr int    NEON_VECTOR_WIDTH = 128;
-    constexpr size_t INCREMENT         = NEON_VECTOR_WIDTH / sizeof(frame_t);
+    constexpr size_t INCREMENT         = NEON_VECTOR_WIDTH / sizeof(tick_t);
     const size_t     TOTAL_ELEMENTS    = frame_cache.data.size();
 
-    uint16x8_t frame_vec = vdupq_n_u16(frame);
+    uint16x8_t frame_vec = vdupq_n_u16(tick);
     uint16x8_t zero_vec  = vdupq_n_u16(0);
-    uint16x8_t max_vec   = vdupq_n_u16(std::numeric_limits<frame_t>::max());
+    uint16x8_t max_vec   = vdupq_n_u16(std::numeric_limits<tick_t>::max());
 
     // 计算能够被向量化处理的元素数量
     size_t vectorized_size = (TOTAL_ELEMENTS / INCREMENT) * INCREMENT;
@@ -78,12 +78,12 @@ void update_vectorized(FrameCache &frame_cache, frame_t frame)
 #endif
 
 // 普通实现
-void update_normal(FrameCache &frame_cache, frame_t frame)
+void update_normal(FrameCache &frame_cache, tick_t tick)
 {
     for (auto &value : frame_cache.data) {
-        if (value != std::numeric_limits<frame_t>::max()) {
-            if (value > frame) {
-                value -= frame;
+        if (value != std::numeric_limits<tick_t>::max()) {
+            if (value > tick) {
+                value -= tick;
             } else {
                 value = 0;
             }
@@ -95,10 +95,10 @@ static void BM_UpdateVectorized(benchmark::State &state)
 {
     const size_t  cache_size = state.range(0);
     FrameCache    frame_cache(cache_size);
-    const frame_t frame = 100;
+    const tick_t tick = 100;
 
     for (auto _ : state) {
-        update_vectorized(frame_cache, frame);
+        update_vectorized(frame_cache, tick);
         benchmark::DoNotOptimize(frame_cache);
         benchmark::ClobberMemory();
     }
@@ -109,10 +109,10 @@ static void BM_UpdateNormal(benchmark::State &state)
 {
     const size_t  cache_size = state.range(0);
     FrameCache    frame_cache(cache_size);
-    const frame_t frame = 100;
+    const tick_t tick = 100;
 
     for (auto _ : state) {
-        update_normal(frame_cache, frame);
+        update_normal(frame_cache, tick);
         benchmark::DoNotOptimize(frame_cache);
         benchmark::ClobberMemory();
     }

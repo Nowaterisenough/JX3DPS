@@ -68,12 +68,12 @@ struct 太虚剑意
             CONSTANT int LEVEL = 10;
             CONSTANT int SUB   = 1;
 
-            PROPERTY frame_t cooldown = 24; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[0]; // 当前冷却时间
-            // PROPERTY frame_t  prepare         = 0;                      // 预读条时间
-            // PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = 24; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[0]; // 当前冷却时间
+            // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
+            // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -148,12 +148,12 @@ struct 太虚剑意
             CONSTANT int SUB   = 2;
             CONSTANT int LIMIT = 1;
 
-            PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 8; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
-            // PROPERTY frame_t  prepare         = 0;                      // 预读条时间
-            // PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 8; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
+            // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -178,12 +178,12 @@ struct 太虚剑意
             CONSTANT int SUB   = 3;
             CONSTANT int LIMIT = 1;
 
-            PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
-            // PROPERTY frame_t  prepare         = 0;                      // 预读条时间
-            // PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
+            // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -208,12 +208,12 @@ struct 太虚剑意
             CONSTANT int SUB   = 1;
             CONSTANT int LIMIT = 5;
 
-            PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
-            // PROPERTY frame_t  prepare         = 0;                      // 预读条时间
-            // PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
+            // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -238,12 +238,12 @@ struct 太虚剑意
             CONSTANT int SUB   = 1;
             CONSTANT int LIMIT = 5;
 
-            PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
-            // PROPERTY frame_t  prepare         = 0;                      // 预读条时间
-            // PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
+            // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -268,12 +268,12 @@ struct 太虚剑意
             CONSTANT int SUB   = 1;
             CONSTANT int LIMIT = 5;
 
-            PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
-            // PROPERTY frame_t  prepare         = 0;                      // 预读条时间
-            // PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
+            // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -298,12 +298,12 @@ struct 太虚剑意
             CONSTANT int SUB   = 1;
             CONSTANT int LIMIT = 5;
 
-            PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
-            PROPERTY frame_t  prepare         = 0;       // 预读条时间
-            PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t  prepare         = 0;       // 预读条时间
+            PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -328,12 +328,12 @@ struct 太虚剑意
             CONSTANT int SUB   = 1;
             CONSTANT int LIMIT = 5;
 
-            PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
-            PROPERTY frame_t  prepare         = 0;       // 预读条时间
-            PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t  prepare         = 0;       // 预读条时间
+            PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -358,12 +358,12 @@ struct 太虚剑意
             CONSTANT int SUB   = 1;
             CONSTANT int LIMIT = 5;
 
-            PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
-            PROPERTY frame_t  prepare         = 0;       // 预读条时间
-            PROPERTY frame_t *current_prepare = nullptr; // 当前预读条时间
-            // PROPERTY frame_t  casting         = 0;       // 读条时间
-            // PROPERTY frame_t *current_casting = nullptr; // 当前读条时间
+            PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
+            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t  prepare         = 0;       // 预读条时间
+            PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
+            // PROPERTY tick_t  casting         = 0;       // 读条时间
+            // PROPERTY tick_t *current_casting = nullptr; // 当前读条时间
 
             // PROPERTY int energy_count = 0; // 充能数
             // PROPERTY int energy_max   = 0; // 最大充能数
@@ -384,8 +384,8 @@ struct 太虚剑意
         class 紫气东来 : public SkillImpl<紫气东来>
         {
         public:
-            // PROPERTY frame_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            // PROPERTY frame_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            // PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
+            // PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
 
             PROPERTY int energy_count = 2; // 充能数
             PROPERTY int energy_max   = 2; // 最大充能数
@@ -407,10 +407,10 @@ struct 太虚剑意
         public:
             CONSTANT Tag TAG = Tag::SELF;
 
-            PROPERTY frame_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
-            PROPERTY frame_t *current_duration = nullptr;            // 当前持续时间
-            PROPERTY frame_t  interval         = JX3_FRAMES_PER_SECOND; // 间隔时间
-            PROPERTY frame_t *current_interval = nullptr; // 当前间隔时间
+            PROPERTY tick_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
+            PROPERTY tick_t *current_duration = nullptr;            // 当前持续时间
+            PROPERTY tick_t  interval         = JX3_FRAMES_PER_SECOND; // 间隔时间
+            PROPERTY tick_t *current_interval = nullptr; // 当前间隔时间
 
             紫气东来()
             {
@@ -433,10 +433,10 @@ struct 太虚剑意
         public:
             CONSTANT Tag TAG = Tag(Tag::THIRD | Tag::AOE);
 
-            PROPERTY frame_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
-            PROPERTY frame_t *current_duration = nullptr;            // 当前持续时间
-            PROPERTY frame_t  interval         = JX3_FRAMES_PER_SECOND; // 间隔时间
-            PROPERTY frame_t *current_interval = nullptr; // 当前间隔时间
+            PROPERTY tick_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
+            PROPERTY tick_t *current_duration = nullptr;            // 当前持续时间
+            PROPERTY tick_t  interval         = JX3_FRAMES_PER_SECOND; // 间隔时间
+            PROPERTY tick_t *current_interval = nullptr; // 当前间隔时间
 
             气场·碎星辰()
             {
@@ -451,8 +451,8 @@ struct 太虚剑意
         public:
             CONSTANT Tag TAG = Tag::SELF;
 
-            PROPERTY frame_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
-            PROPERTY frame_t *current_duration = nullptr;            // 当前持续时间
+            PROPERTY tick_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
+            PROPERTY tick_t *current_duration = nullptr;            // 当前持续时间
 
             碎星辰()
             {
@@ -471,10 +471,10 @@ struct 太虚剑意
         public:
             CONSTANT Tag TAG = Tag::DOT;
 
-            PROPERTY frame_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
-            PROPERTY frame_t *current_duration = nullptr;            // 当前持续时间
-            PROPERTY frame_t  interval         = JX3_FRAMES_PER_SECOND; // 间隔时间
-            PROPERTY frame_t *current_interval = nullptr; // 当前间隔时间
+            PROPERTY tick_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
+            PROPERTY tick_t *current_duration = nullptr;            // 当前持续时间
+            PROPERTY tick_t  interval         = JX3_FRAMES_PER_SECOND; // 间隔时间
+            PROPERTY tick_t *current_interval = nullptr; // 当前间隔时间
 
             PROPERTY int stack_num = 5; // 叠刃层数
 
@@ -499,10 +499,10 @@ struct 太虚剑意
         public:
             CONSTANT Tag TAG = Tag(Tag::SELF | Tag::AOE | Tag::DAMAGE);
 
-            PROPERTY frame_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
-            PROPERTY frame_t *current_duration = nullptr;            // 当前持续时间
-            PROPERTY frame_t  interval         = JX3_FRAMES_PER_SECOND; // 间隔时间
-            PROPERTY frame_t *current_interval = nullptr; // 当前间隔时间
+            PROPERTY tick_t  duration = JX3_FRAMES_PER_SECOND * 10; // 持续时间
+            PROPERTY tick_t *current_duration = nullptr;            // 当前持续时间
+            PROPERTY tick_t  interval         = JX3_FRAMES_PER_SECOND; // 间隔时间
+            PROPERTY tick_t *current_interval = nullptr; // 当前间隔时间
 
             PROPERTY int limit = 5; // 限制目标数目
             PROPERTY int range = 4; // 施法距离

@@ -3,6 +3,7 @@ build/*
 
 # Ignore Visual Studio Code files
 .vscode/*
+.cache/*
 
 # Ignore macOS files
 .DS_Store

@@ -1,6 +1,3 @@
-[submodule "3rd/json"]
-	path = 3rd/json
-	url = git@github.com:nlohmann/json.git
 [submodule "3rd/googletest"]
 	path = 3rd/googletest
 	url = git@github.com:google/googletest.git
@@ -13,3 +10,6 @@
 [submodule "3rd/proxy"]
 	path = 3rd/proxy
 	url = git@github.com:microsoft/proxy.git
+[submodule "3rd/mINI"]
+	path = 3rd/mINI
+	url = git@github.com:metayeti/mINI.git

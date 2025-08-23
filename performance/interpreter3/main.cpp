@@ -1,14 +1,9 @@
-#include <proxy/v4/proxy.h>
-
-#include <functional>
 #include <iostream>
-#include <memory>
-#include <random>
 #include <regex>
-#include <sstream>
 #include <string>
-#include <unordered_map>
 #include <vector>
+
+#include <proxy/v4/proxy.h>
 
 #include "Type.h"
 
@@ -16,8 +11,8 @@ using namespace JX3DPS;
 
 struct alignas(32) FrameCache
 {
-    constexpr static size_t UNIT_SIZE = 8;
-    constexpr static size_t TYPE_SIZE = 64;
+    static constexpr size_t UNIT_SIZE = 8;
+    static constexpr size_t TYPE_SIZE = 64;
 
     frame_t skill_cooldown[TYPE_SIZE] = {};
     frame_t skill_prepare[TYPE_SIZE]  = {};
@@ -32,7 +27,7 @@ constexpr int PLAYER = 0;
 
 struct Context
 {
-    int  bind_cooldown_index = 0;
+    int     bind_cooldown_index = 0;
     jx3id_t target_id           = 0;
 
     FrameCache frame_cache;
@@ -100,7 +95,7 @@ struct NotExists
 template <typename Comparator>
 class BuffExistsConditionProxy
 {
-    jx3id_t       _buff;
+    jx3id_t    _buff;
     Comparator _comp;
 
 public:
@@ -118,7 +113,7 @@ using BuffExistsProxy = BuffExistsConditionProxy<Comp>;
 template <typename Comparator>
 class TBuffExistsConditionProxy
 {
-    jx3id_t       _buff;
+    jx3id_t    _buff;
     Comparator _comp;
 
 public:
@@ -137,7 +132,7 @@ template <typename Comparator>
 class BuffDurationConditionProxy
 {
 private:
-    jx3id_t       _buff;
+    jx3id_t    _buff;
     frame_t    _duration;
     Comparator _comp;
 
@@ -160,7 +155,7 @@ template <typename Comparator>
 class TBuffDurationConditionProxy
 {
 private:
-    jx3id_t       _buff;
+    jx3id_t    _buff;
     frame_t    _duration;
     Comparator _comp;
 
@@ -183,7 +178,7 @@ template <typename Comparator>
 class BuffStacksConditionProxy
 {
 private:
-    jx3id_t       _buff;
+    jx3id_t    _buff;
     int        _stacks;
     Comparator _comp;
 
@@ -200,7 +195,7 @@ template <typename Comparator>
 class TBuffStacksConditionProxy
 {
 private:
-    jx3id_t       _buff;
+    jx3id_t    _buff;
     int        _stacks;
     Comparator _comp;
 
@@ -220,7 +215,7 @@ template <typename Comparator>
 class SkillCooldownConditionProxy
 {
 private:
-    jx3id_t       _skill;
+    jx3id_t    _skill;
     frame_t    _cooldown;
     Comparator _comp;
 
@@ -240,12 +235,14 @@ template <typename Comparator>
 class SkillEnergyConditionProxy
 {
 private:
-    jx3id_t       _skill;
+    jx3id_t    _skill;
     int        _stacks;
     Comparator _comp;
 
 public:
-    SkillEnergyConditionProxy(jx3id_t skill, int stacks) noexcept : _skill(skill), _stacks(stacks) { }
+    SkillEnergyConditionProxy(jx3id_t skill, int stacks) noexcept : _skill(skill), _stacks(stacks)
+    {
+    }
 
     bool Evaluate() const noexcept { return _comp(context.skill_energy[_skill], _stacks); }
 };
@@ -305,7 +302,8 @@ struct Evaluator : pro::facade_builder::add_convention<MemEvaluate, bool() const
 PRO_DEF_MEM_DISPATCH(MemGetAction, GetAction);
 
 struct Node :
-    pro::facade_builder::add_convention<MemEvaluate, bool() const>::add_convention<MemGetAction, std::string() const>::build
+    pro::facade_builder::add_convention<MemEvaluate, bool() const>::
+        add_convention<MemGetAction, std::string() const>::build
 {
 };
 
@@ -393,16 +391,16 @@ public:
 class MacroInterpreter
 {
 private:
-    inline static const std::regex BUFF_EXISTS{ R"(buff:(\w+))" };
-    inline static const std::regex NOBUFF_EXISTS{ R"(nobuff:(\w+))" };
-    inline static const std::regex BUFF_DURATION{ R"(bufftime:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex BUFF_STACKS{ R"(buff:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex TBUFF_EXISTS{ R"(tbuff:(\w+))" };
-    inline static const std::regex TNOBUFF_EXISTS{ R"(tnobuff:(\w+))" };
-    inline static const std::regex TBUFF_DURATION{ R"(tbufftime:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex TBUFF_STACKS{ R"(tbuff:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex SKILL_CD{ R"(cd:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
-    inline static const std::regex SKILL_ENERGY{ R"(skill_energy:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex BUFF_EXISTS{ R"(buff:(\w+))" };
+    static inline const std::regex NOBUFF_EXISTS{ R"(nobuff:(\w+))" };
+    static inline const std::regex BUFF_DURATION{ R"(bufftime:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex BUFF_STACKS{ R"(buff:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex TBUFF_EXISTS{ R"(tbuff:(\w+))" };
+    static inline const std::regex TNOBUFF_EXISTS{ R"(tnobuff:(\w+))" };
+    static inline const std::regex TBUFF_DURATION{ R"(tbufftime:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex TBUFF_STACKS{ R"(tbuff:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex SKILL_CD{ R"(cd:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
+    static inline const std::regex SKILL_ENERGY{ R"(skill_energy:(\w+)(>|>=|<|<=|==|!=)(\d+))" };
 
     template <typename ProxyType, typename... Args>
     pro::proxy<spec::Node> MakeConditionProxy(Args... args)

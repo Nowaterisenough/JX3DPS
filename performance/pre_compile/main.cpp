@@ -374,9 +374,9 @@ struct Parser
             auto r  = parseAnd();
             auto p  = make_unique<Node>();
             p->kind = NodeKind::Or;
-            p->l    = move(n);
-            p->r    = move(r);
-            n       = move(p);
+            p->l    = std::move(n);
+            p->r    = std::move(r);
+            n       = std::move(p);
         }
         return n;
     }
@@ -388,9 +388,9 @@ struct Parser
             auto r  = parseUnary();
             auto p  = make_unique<Node>();
             p->kind = NodeKind::And;
-            p->l    = move(n);
-            p->r    = move(r);
-            n       = move(p);
+            p->l    = std::move(n);
+            p->r    = std::move(r);
+            n       = std::move(p);
         }
         return n;
     }
@@ -401,7 +401,7 @@ struct Parser
             auto u  = parseUnary();
             auto n  = make_unique<Node>();
             n->kind = NodeKind::Not;
-            n->l    = move(u);
+            n->l    = std::move(u);
             return n;
         }
         auto lhs = parsePrimary();
@@ -434,8 +434,8 @@ struct Parser
             } else {
                 err("unknown comparator " + op);
             }
-            n->l = move(lhs);
-            n->r = move(rhs);
+            n->l = std::move(lhs);
+            n->r = std::move(rhs);
             return n;
         }
         return lhs;
@@ -490,7 +490,7 @@ struct Parser
                     n->a       = it->second;
                     auto notn  = make_unique<Node>();
                     notn->kind = NodeKind::Not;
-                    notn->l    = move(n);
+                    notn->l    = std::move(n);
                     return notn;
                 } else {
                     auto n  = make_unique<Node>();
@@ -604,7 +604,6 @@ struct RuleSrc
 static Program compileRulesToProgram(const std::vector<RuleSrc> &rules)
 {
     Program prog;
-    int     pc = 0;
     for (const auto &r : rules) {
         vector<Instr> condCode;
         if (r.cond.empty()) {
@@ -616,12 +615,10 @@ static Program compileRulesToProgram(const std::vector<RuleSrc> &rules)
         }
         for (auto &ins : condCode) {
             prog.code.push_back(ins);
-            pc++;
         }
         Instr testEnd{ Op::RULE_TEST_END };
         testEnd.a = 2;
         prog.code.push_back(testEnd);
-        pc++;
         int skillId = -1;
         if (auto it = kSkill.find(r.skill); it != kSkill.end()) {
             skillId = it->second;
@@ -632,7 +629,6 @@ static Program compileRulesToProgram(const std::vector<RuleSrc> &rules)
         Instr sel{ r.forced ? Op::SELECT_FORCED : Op::SELECT };
         sel.a = skillId;
         prog.code.push_back(sel);
-        pc++;
     }
     prog.code.push_back({ Op::END });
     return prog;

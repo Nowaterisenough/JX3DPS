@@ -54,7 +54,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PUBLIC
     nlohmann_json
     spdlog
-    msft_proxy
+    msft_proxy4
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

@@ -1,82 +1,80 @@
-Checks: "clang-diagnostic-*, # Clang 诊断
-  clang-analyzer-*, # Clang 静态分析器
-  performance-*, # 性能
-  bugprone-branch-clone,  # 检查相同分支合并
-  bugprone-copy-constructor-init, # 检查初始化列表
-  bugprone-exception-escape, # 检查不抛出异常
-  bugprone-fold-init-type, # 检查初始化列表
-  bugprone-forward-declaration-namespace, # 检查前向声明
-  bugprone-incorrect-roundings, # 检查正确的舍入
-  bugprone-infinite-loop, # 检查无限循环
-  bugprone-macro-parentheses, # 检查宏参数括号
-  bugprone-integer-division, # 检查整数除法
-  bugprone-misplaced-operator-in-strlen-in-alloc, # 检查 strlen 在分配中
-  bugprone-misplaced-pointer-arithmetic-in-alloc, # 检查指针算术在分配中
-  bugprone-misplaced-widening-cast, # 检查宽化转换
-  bugprone-move-forwarding-reference, # 检查移动转发引用
-  bugprone-multiple-statement-macro, # 检查多语句宏
-  bugprone-parent-virtual-call, # 检查父虚拟调用
-  bugprone-posix-return, # 检查 POSIX 返回
-  bugprone-unused-local-non-trivial-variable, # 检查未使用的本地非平凡变量
-  bugprone-unused-raii, # 检查未使用的 RAII
-  bugprone-unused-variable, # 检查未使用的变量
-  bugprone-reserved-identifier, # 检查保留标识符
-  bugprone-signal-handler, # 检查信号处理程序
-  bugprone-redundant-branch-condition, # 检查冗余分支条件
-  bugprone-sizeof-container, # 检查容器大小
-  bugprone-sizeof-expression, # 检查 sizeof 表达式
-  bugprone-spuriously-wake-up-functions, # 检查虚假唤醒函数
-  bugprone-string-constructor, # 检查字符串构造函数
-  bugprone-string-integer-assignment, # 检查字符串整数赋值
-  bugprone-string-literal-with-embedded-nul, # 检查字符串文字嵌入 NUL
-  bugprone-suspicious-enum-usage, # 检查可疑枚举用法
-  bugprone-suspicious-memset-usage, # 检查可疑 memset 用法
-  bugprone-suspicious-missing-comma, # 检查可疑缺少逗号
-  bugprone-suspicious-semicolon, # 检查可疑分号
-  bugprone-suspicious-string-compare, # 检查可疑字符串比较
-  bugprone-suspicious-include, # 检查可疑包含
-  cppcoreguidelines-avoid-goto, # 检查避免 goto
-  cppcoreguidelines-avoid-magic-numbers, # 检查避免魔术数字
-  modernize-make-shared, # 检查 make_shared
-  modernize-make-unique, # 检查 make_unique
-  modernize-pass-by-value, # 检查传值
-  modernize-use-equals-default, # 检查使用 = default
-  modernize-use-equals-delete, # 检查使用 = delete
-  modernize-deprecated-headers, # 检查使用新头文件
-  modernize-loop-convert, # 检查循环转换
-  modernize-use-auto, # 检查使用 auto
-  modernize-use-emplace,  # 检查使用 emplace
-  modernize-use-nullptr, # 检查使用 nullptr
-  modernize-use-override, # 检查使用 override
-  modernize-use-transparent-functors, # 检查使用透明函数对象
-  modernize-use-uncaught-exceptions, # 检查使用未捕获的异常
-  modernize-use-using, # 检查使用 using
-  modernize-use-starts-ends-with, # 检查使用 starts_with/ends_with
-  modernize-use-std-numbers, # 检查使用 std::numbers
-  readability-convert-member-functions-to-static, # 检查将成员函数转换为静态
-  readability-else-after-retur, # 检查 return 后的 else
-  readability-make-member-function-const, # 检查成员函数 const
-  readability-non-const-parameter, # 检查非 const 参数
-  readability-qualified-auto, # 检查限定的 auto
-  readability-redundant-access-specifiers, # 检查冗余访问说明符
-  readability-redundant-control-flow, # 检查冗余控制流
-  readability-redundant-declaration, # 检查冗余声明
-  readability-redundant-function-ptr-dereference, # 检查冗余函数指针解引用
-  readability-redundant-member-init, # 检查冗余成员初始化
-  readability-redundant-preprocessor, # 检查冗余预处理器
-  readability-redundant-smartptr-get, # 检查冗余智能指针 get
-  readability-static-accessed-through-instance, # 检查通过实例访问静态
-  readability-static-definition-in-anonymous-namespace, # 检查匿名命名空间中的静态定义
-  readability-uniqueptr-delete-release, # 检查 unique_ptr delete release
-  readability-identifier-naming, # 检查标识符命名
-  readability-function-size, # 检查函数大小
-  readability-magic-numbers" # 检查魔术数字
+Checks: "clang-diagnostic-*,
+  clang-analyzer-*,
+  performance-*,
+  bugprone-branch-clone,
+  bugprone-copy-constructor-init,
+  bugprone-exception-escape,
+  bugprone-fold-init-type,
+  bugprone-forward-declaration-namespace,
+  bugprone-incorrect-roundings,
+  bugprone-infinite-loop,
+  bugprone-macro-parentheses,
+  bugprone-integer-division,
+  bugprone-misplaced-operator-in-strlen-in-alloc,
+  bugprone-misplaced-pointer-arithmetic-in-alloc,
+  bugprone-misplaced-widening-cast,
+  bugprone-move-forwarding-reference,
+  bugprone-multiple-statement-macro,
+  bugprone-parent-virtual-call,
+  bugprone-posix-return,
+  bugprone-unused-local-non-trivial-variable,
+  bugprone-unused-raii,
+  bugprone-unused-variable,
+  bugprone-reserved-identifier,
+  bugprone-signal-handler,
+  bugprone-redundant-branch-condition,
+  bugprone-sizeof-container,
+  bugprone-sizeof-expression,
+  bugprone-spuriously-wake-up-functions,
+  bugprone-string-constructor,
+  bugprone-string-integer-assignment,
+  bugprone-string-literal-with-embedded-nul,
+  bugprone-suspicious-enum-usage,
+  bugprone-suspicious-memset-usage,
+  bugprone-suspicious-missing-comma,
+  bugprone-suspicious-semicolon,
+  bugprone-suspicious-string-compare,
+  bugprone-suspicious-include,
+  cppcoreguidelines-avoid-goto,
+  cppcoreguidelines-avoid-magic-numbers,
+  modernize-make-shared,
+  modernize-make-unique,
+  modernize-pass-by-value,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-deprecated-headers,
+  modernize-loop-convert,
+  modernize-use-auto,
+  modernize-use-emplace,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-transparent-functors,
+  modernize-use-uncaught-exceptions,
+  modernize-use-using,
+  modernize-use-starts-ends-with,
+  modernize-use-std-numbers,
+  readability-convert-member-functions-to-static,
+  readability-else-after-return,
+  readability-make-member-function-const,
+  readability-non-const-parameter,
+  readability-qualified-auto,
+  readability-redundant-access-specifiers,
+  readability-redundant-control-flow,
+  readability-redundant-declaration,
+  readability-redundant-function-ptr-dereference,
+  readability-redundant-member-init,
+  readability-redundant-preprocessor,
+  readability-redundant-smartptr-get,
+  readability-static-accessed-through-instance,
+  readability-static-definition-in-anonymous-namespace,
+  readability-uniqueptr-delete-release,
+  readability-identifier-naming,
+  readability-function-size,
+  readability-magic-numbers
 
 WarningsAsErrors: ""
 
 HeaderFilterRegex: '.*\.h*'
-
-AnalyzeTemporaryDtors: false
 
 FormatStyle: file
 

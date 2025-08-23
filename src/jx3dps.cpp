@@ -2,9 +2,10 @@
 
 #include <cstdarg>
 
+#include <proxy/v4/proxy.h>
+
 #include "Error.h"
 #include "Log.h"
-#include "proxy.h"
 #include "SimulatorImpl.h"
 #include "Version.h"
 

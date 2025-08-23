@@ -1,0 +1,7 @@
+/cast [nobuff:神门] 破穴
+/cast 骤风令
+/cast [bufftime:令聘骤风<14] 抟风令
+/cast [sun>87&moon>87] 引窍
+/fcast 劈风令
+/cast [sun>moon] 截阳
+/cast 断脉

@@ -1,4 +1,4 @@
-#include <proxy.h>
+#include <proxy/v4/proxy.h>
 
 #include "Ast.hpp"
 #include "Lexer.hpp"
@@ -69,14 +69,14 @@ private:
             switch (macro_type) {
                 case TokenType::CAST:
                 case TokenType::FCAST:
-                    return std::make_pair(
-                        pro::make_proxy<spec::AstNode, AndNodeImpl>(std::move(condition), std::move(action)),
-                        ParserError::SUCCESS);
+                    return std::
+                        make_pair(pro::make_proxy<spec::AstNode, AndNodeImpl>(std::move(condition), std::move(action)),
+                                  ParserError::SUCCESS);
                 case TokenType::SWITCH:
                 case TokenType::USE:
-                    return std::make_pair(
-                        pro::make_proxy<spec::AstNode, AndNodeImpl>(std::move(condition), std::move(action)),
-                        ParserError::SUCCESS);
+                    return std::
+                        make_pair(pro::make_proxy<spec::AstNode, AndNodeImpl>(std::move(condition), std::move(action)),
+                                  ParserError::SUCCESS);
                 default: return std::make_pair(nullptr, ParserError::UNEXPECTED_TOKEN);
             }
         }
@@ -126,8 +126,8 @@ private:
             if (_current_token.type != TokenType::IDENTIFIER) {
                 return std::make_pair(nullptr, ParserError::UNEXPECTED_TOKEN);
             }
-            std::string type  = _current_token.value;
-            auto        error = ConsumeToken(TokenType::IDENTIFIER);
+            std::string type = _current_token.value;
+            auto error       = ConsumeToken(TokenType::IDENTIFIER);
             if (error != ParserError::SUCCESS) {
                 return std::make_pair(nullptr, error);
             }
@@ -162,7 +162,7 @@ private:
                 error     = ConsumeToken(TokenType::NUMBER);
                 if (error != ParserError::SUCCESS) {
                     return std::make_pair(nullptr, error);
-                } 
+                }
 
                 return ParseComparisonCondition(type, name, op, value);
             }
@@ -186,10 +186,7 @@ private:
         }
 
         std::pair<pro::proxy<spec::AstNode>, ParserError> ParseComparisonCondition(
-            const std::string &type,
-            const std::string &name,
-            const std::string &op,
-            int                value)
+            const std::string &type, const std::string &name, const std::string &op, int value)
         {
             jx3id_t id = (type == "buff" || type == "tbuff") ? GetBuffId(name) : GetSkillId(name);
             if (type == "buff") {

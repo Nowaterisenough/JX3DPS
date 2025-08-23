@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <random>
 #include <sstream>
 #include <stdexcept>
@@ -45,6 +46,13 @@ struct Decision
 {
     int  skillID = -1;
     bool forced  = false;
+
+    bool operator==(const Decision &o) const noexcept
+    {
+        return skillID == o.skillID && forced == o.forced;
+    }
+
+    bool operator!=(const Decision &o) const noexcept { return !(*this == o); }
 };
 
 // 防优化汇总
@@ -66,8 +74,12 @@ enum class Op : uint8_t
     EQ_FF,
     NE_FF,
     NOT_B,
+    // 原短路指令，保留但不再使用，避免误用
     AND_SHORT,
     OR_SHORT,
+    // 新增显式布尔与/或，避免短路跳转带来的栈错乱
+    AND_BB,
+    OR_BB,
     JUMP,
     RULE_TEST_END,
     SELECT,
@@ -178,6 +190,8 @@ struct VM
                     pushB(!a);
                     pc++;
                 } break;
+
+                // 保留但不使用
                 case Op::AND_SHORT:
                 {
                     bool a = popB();
@@ -198,6 +212,21 @@ struct VM
                         pc++;
                     }
                 } break;
+
+                // 新的显式布尔与/或
+                case Op::AND_BB:
+                {
+                    bool b = popB(), a = popB();
+                    pushB(a && b);
+                    pc++;
+                } break;
+                case Op::OR_BB:
+                {
+                    bool b = popB(), a = popB();
+                    pushB(a || b);
+                    pc++;
+                } break;
+
                 case Op::JUMP: pc += ins.a; break;
                 case Op::RULE_TEST_END:
                 {
@@ -274,6 +303,7 @@ struct Lexer
         return { TokKind::Sym, string(1, c) };
     }
 };
+
 enum class NodeKind
 {
     Sun,
@@ -423,14 +453,14 @@ struct Parser
                 n->kind = NodeKind::GT;
             } else if (op == "<=") {
                 n->kind = NodeKind::LE;
-            } else if (op == "%3E=") {
-                n->kind = NodeKind::GE; // HTML-escaped safety if pasted; correct below if needed
+            } else if (op == ">=") { // 优先正常形式
+                n->kind = NodeKind::GE;
+            } else if (op == "%3E=") { // 兼容 HTML 粘贴
+                n->kind = NodeKind::GE;
             } else if (op == "==") {
                 n->kind = NodeKind::EQ;
             } else if (op == "!=") {
                 n->kind = NodeKind::NE;
-            } else if (op == ">=") {
-                n->kind = NodeKind::GE; // fix potential paste issue
             } else {
                 err("unknown comparator " + op);
             }
@@ -568,27 +598,17 @@ static void compileNodeToInstr(const Node *n, std::vector<Instr> &out)
         } break;
         case NodeKind::And:
         {
+            // 显式布尔与：编译左右，再发 AND_BB
             compileNodeToInstr(n->l.get(), out);
-            Instr andi{ Op::AND_SHORT };
-            andi.a      = 0;
-            int and_pos = (int)out.size();
-            out.push_back(andi);
-            int b_start = (int)out.size();
             compileNodeToInstr(n->r.get(), out);
-            int b_len      = (int)out.size() - b_start;
-            out[and_pos].a = b_len + 0;
+            out.push_back({ Op::AND_BB });
         } break;
         case NodeKind::Or:
         {
+            // 显式布尔或：编译左右，再发 OR_BB
             compileNodeToInstr(n->l.get(), out);
-            Instr ori{ Op::OR_SHORT };
-            ori.a      = 0;
-            int or_pos = (int)out.size();
-            out.push_back(ori);
-            int b_start = (int)out.size();
             compileNodeToInstr(n->r.get(), out);
-            int b_len     = (int)out.size() - b_start;
-            out[or_pos].a = b_len + 0;
+            out.push_back({ Op::OR_BB });
         } break;
     }
 }
@@ -601,38 +621,10 @@ struct RuleSrc
     int    srcLine = -1;
 };
 
-static Program compileRulesToProgram(const std::vector<RuleSrc> &rules)
-{
-    Program prog;
-    for (const auto &r : rules) {
-        vector<Instr> condCode;
-        if (r.cond.empty()) {
-            condCode.push_back({ Op::PUSH_CONST_B, 0.0f, 1 });
-        } else {
-            Parser ps(r.cond);
-            auto   ast = ps.parse();
-            compileNodeToInstr(ast.get(), condCode);
-        }
-        for (auto &ins : condCode) {
-            prog.code.push_back(ins);
-        }
-        Instr testEnd{ Op::RULE_TEST_END };
-        testEnd.a = 2;
-        prog.code.push_back(testEnd);
-        int skillId = -1;
-        if (auto it = kSkill.find(r.skill); it != kSkill.end()) {
-            skillId = it->second;
-        }
-        if (skillId < 0) {
-            throw runtime_error("Unknown skill: " + r.skill);
-        }
-        Instr sel{ r.forced ? Op::SELECT_FORCED : Op::SELECT };
-        sel.a = skillId;
-        prog.code.push_back(sel);
-    }
-    prog.code.push_back({ Op::END });
-    return prog;
-}
+// 前向声明（供后文使用位置早于定义）
+static Program              compileRulesToProgram(const std::vector<RuleSrc> &rules);
+static std::vector<RuleSrc> parseMacroLines(const std::string &src);
+static std::string          readFileAll(const std::string &path);
 
 // ========================== FlatFunc（扁平+递归求值） ==========================
 enum class FCOp : uint8_t
@@ -655,7 +647,7 @@ enum class FCCmp2 : uint8_t
     EQ,
     NE
 };
-enum class FCField2 : uint8_t
+enum class FCField2Tag : uint8_t
 {
     Sun,
     Moon
@@ -755,47 +747,6 @@ static FCNode mkHasBuff(int id)
     return n;
 }
 
-static FCNode mkBuffTimeCmp(int id, FCCmp2 c, float rhs)
-{
-    FCNode n{};
-    n.op                    = FCOp::BuffTimeCmp;
-    n.data.uBuffTimeCmp.id  = id;
-    n.data.uBuffTimeCmp.cmp = (uint8_t)c;
-    n.data.uBuffTimeCmp.rhs = rhs;
-    return n;
-}
-
-static FCNode mkFieldCmpConst(FCField2 f, FCCmp2 c, float v)
-{
-    FCNode n{};
-    n.op                     = FCOp::FieldCmpConst;
-    n.data.uFieldConst.field = (uint8_t)f;
-    n.data.uFieldConst.cmp   = (uint8_t)c;
-    n.data.uFieldConst.cval  = v;
-    return n;
-}
-
-static FCNode mkFieldCmpField(FCField2 f, FCCmp2 c, FCField2 of)
-{
-    FCNode n{};
-    n.op                      = FCOp::FieldCmpField;
-    n.data.uFieldField.field  = (uint8_t)f;
-    n.data.uFieldField.cmp    = (uint8_t)c;
-    n.data.uFieldField.ofield = (uint8_t)of;
-    return n;
-}
-
-static optional<FCField2> asField2(const Node *n)
-{
-    if (n->kind == NodeKind::Sun) {
-        return FCField2::Sun;
-    }
-    if (n->kind == NodeKind::Moon) {
-        return FCField2::Moon;
-    }
-    return nullopt;
-}
-
 static FCCmp2 toCmp2(NodeKind k)
 {
     switch (k) {
@@ -807,6 +758,60 @@ static FCCmp2 toCmp2(NodeKind k)
         case NodeKind::NE: return FCCmp2::NE;
         default: return FCCmp2::EQ;
     }
+}
+
+static FCCmp2 flipCmp(FCCmp2 c)
+{
+    switch (c) {
+        case FCCmp2::LT: return FCCmp2::GT;
+        case FCCmp2::GT: return FCCmp2::LT;
+        case FCCmp2::LE: return FCCmp2::GE;
+        case FCCmp2::GE: return FCCmp2::LE;
+        case FCCmp2::EQ: return FCCmp2::EQ;
+        case FCCmp2::NE: return FCCmp2::NE;
+    }
+    return c;
+}
+
+static optional<FCField2Tag> asField2(const Node *n)
+{
+    if (n->kind == NodeKind::Sun) {
+        return FCField2Tag::Sun;
+    }
+    if (n->kind == NodeKind::Moon) {
+        return FCField2Tag::Moon;
+    }
+    return nullopt;
+}
+
+static FCNode mkBuffTimeCmp(int id, FCCmp2 c, float rhs)
+{
+    FCNode n{};
+    n.op                    = FCOp::BuffTimeCmp;
+    n.data.uBuffTimeCmp.id  = id;
+    n.data.uBuffTimeCmp.cmp = (uint8_t)c;
+    n.data.uBuffTimeCmp.rhs = rhs;
+    return n;
+}
+
+static FCNode mkFieldCmpConst(FCField2Tag f, FCCmp2 c, float v)
+{
+    FCNode n{};
+    n.op                     = FCOp::FieldCmpConst;
+    n.data.uFieldConst.field = (uint8_t)f;
+    n.data.uFieldConst.cmp   = (uint8_t)c;
+    n.data.uFieldConst.cval  = v;
+    return n;
+}
+
+static FCNode mkFieldCmpField(FCField2Tag f, FCCmp2 c, FCField2Tag of)
+{
+    FCNode n{};
+    n.op                      = FCOp::FieldCmpField;
+    n.data.uFieldField.field  = (uint8_t)f;
+    n.data.uFieldField.cmp    = (uint8_t)c;
+    n.data.uFieldField.ofield = (uint8_t)of;
+    return n;
 }
 
 static int buildFlatRec(const Node *n, vector<FCNode> &out)
@@ -831,10 +836,12 @@ static int buildFlatRec(const Node *n, vector<FCNode> &out)
             return pushNode(out, mkOr(l, r));
         }
         case NodeKind::HasBuff: return pushNode(out, mkHasBuff(n->a));
-        case NodeKind::BuffTime: return pushNode(out, mkConstB(true));
+
+        case NodeKind::BuffTime:
         case NodeKind::Sun:
         case NodeKind::Moon:
         case NodeKind::ConstF: return pushNode(out, mkConstB(false));
+
         case NodeKind::LT:
         case NodeKind::GT:
         case NodeKind::LE:
@@ -842,17 +849,35 @@ static int buildFlatRec(const Node *n, vector<FCNode> &out)
         case NodeKind::EQ:
         case NodeKind::NE:
         {
+            auto cmp = toCmp2(n->kind);
+
+            // BuffTime(id) OP ConstF
             if (n->l->kind == NodeKind::BuffTime && n->r->kind == NodeKind::ConstF) {
-                return pushNode(out, mkBuffTimeCmp(n->l->a, toCmp2(n->kind), n->r->f));
+                return pushNode(out, mkBuffTimeCmp(n->l->a, cmp, n->r->f));
             }
+            // ConstF OP BuffTime(id) -> flip
+            if (n->l->kind == NodeKind::ConstF && n->r->kind == NodeKind::BuffTime) {
+                return pushNode(out, mkBuffTimeCmp(n->r->a, flipCmp(cmp), n->l->f));
+            }
+
+            // Field OP ConstF
             if (auto lf = asField2(n->l.get()); lf && n->r->kind == NodeKind::ConstF) {
-                return pushNode(out, mkFieldCmpConst(*lf, toCmp2(n->kind), n->r->f));
+                return pushNode(out, mkFieldCmpConst(*lf, cmp, n->r->f));
             }
-            if (auto lf = asField2(n->l.get())) {
+            // ConstF OP Field -> flip
+            if (n->l->kind == NodeKind::ConstF) {
                 if (auto rf = asField2(n->r.get())) {
-                    return pushNode(out, mkFieldCmpField(*lf, toCmp2(n->kind), *rf));
+                    return pushNode(out, mkFieldCmpConst(*rf, flipCmp(cmp), n->l->f));
                 }
             }
+
+            // Field OP Field
+            if (auto lf = asField2(n->l.get())) {
+                if (auto rf = asField2(n->r.get())) {
+                    return pushNode(out, mkFieldCmpField(*lf, cmp, *rf));
+                }
+            }
+
             return pushNode(out, mkConstB(false));
         }
     }
@@ -927,7 +952,7 @@ static inline bool evalFC(const FlatCond &c, int idx, const Snapshot &s) noexcep
         }
         case FCOp::FieldCmpConst:
         {
-            float lhs = (nd.data.uFieldConst.field == (uint8_t)FCField2::Sun) ? s.sun : s.moon,
+            float lhs = (nd.data.uFieldConst.field == (uint8_t)FCField2Tag::Sun) ? s.sun : s.moon,
                   rhs = nd.data.uFieldConst.cval;
             switch ((FCCmp2)nd.data.uFieldConst.cmp) {
                 case FCCmp2::LT: return lhs < rhs;
@@ -941,8 +966,8 @@ static inline bool evalFC(const FlatCond &c, int idx, const Snapshot &s) noexcep
         }
         case FCOp::FieldCmpField:
         {
-            float lhs = (nd.data.uFieldField.field == (uint8_t)FCField2::Sun) ? s.sun : s.moon;
-            float rhs = (nd.data.uFieldField.ofield == (uint8_t)FCField2::Sun) ? s.sun : s.moon;
+            float lhs = (nd.data.uFieldField.field == (uint8_t)FCField2Tag::Sun) ? s.sun : s.moon;
+            float rhs = (nd.data.uFieldField.ofield == (uint8_t)FCField2Tag::Sun) ? s.sun : s.moon;
             switch ((FCCmp2)nd.data.uFieldField.cmp) {
                 case FCCmp2::LT: return lhs < rhs;
                 case FCCmp2::GT: return lhs > rhs;
@@ -967,8 +992,7 @@ static Decision executeFlat(const vector<FlatRule> &rules, const Snapshot &s)
     return {};
 }
 
-// ========================== Macro parsing from file ==========================
-
+// ========================== Macro parsing (single / suites) ==========================
 static std::vector<RuleSrc> parseMacroLines(const string &src)
 {
     std::vector<RuleSrc> out;
@@ -1027,6 +1051,142 @@ static string readFileAll(const string &path)
     stringstream ss;
     ss << ifs.rdbuf();
     return ss.str();
+}
+
+// ========================== Bytecode compiler (VM) program build ==========================
+static Program compileRulesToProgram(const std::vector<RuleSrc> &rules)
+{
+    Program prog;
+    for (const auto &r : rules) {
+        vector<Instr> condCode;
+        if (r.cond.empty()) {
+            condCode.push_back({ Op::PUSH_CONST_B, 0.0f, 1 });
+        } else {
+            Parser ps(r.cond);
+            auto   ast = ps.parse();
+            compileNodeToInstr(ast.get(), condCode);
+        }
+        for (auto &ins : condCode) {
+            prog.code.push_back(ins);
+        }
+        Instr testEnd{ Op::RULE_TEST_END };
+        testEnd.a = 2;
+        prog.code.push_back(testEnd);
+        int skillId = -1;
+        if (auto it = kSkill.find(r.skill); it != kSkill.end()) {
+            skillId = it->second;
+        }
+        if (skillId < 0) {
+            throw runtime_error("Unknown skill: " + r.skill);
+        }
+        Instr sel{ r.forced ? Op::SELECT_FORCED : Op::SELECT };
+        sel.a = skillId;
+        prog.code.push_back(sel);
+    }
+    prog.code.push_back({ Op::END });
+    return prog;
+}
+
+static std::vector<std::vector<RuleSrc>> parseMacroSuites(const string &all)
+{
+    auto isBlankLine = [](const string &s) {
+        for (char c : s) {
+            if (!isspace((unsigned char)c)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    auto isDivider = [](const string &s) {
+        size_t l = 0, r = s.size();
+        while (l < r && isspace((unsigned char)s[l])) {
+            ++l;
+        }
+        while (r > l && isspace((unsigned char)s[r - 1])) {
+            --r;
+        }
+        if (r - l >= 3) {
+            bool allDash = true, allHash = true;
+            for (size_t i = l; i < r; ++i) {
+                if (s[i] != '-') {
+                    allDash = false;
+                }
+                if (s[i] != '#') {
+                    allHash = false;
+                }
+            }
+            return allDash || allHash;
+        }
+        return false;
+    };
+    auto trimAll = [](string &s) {
+        size_t pos       = 0;
+        auto   isBlankSV = [](string_view r) {
+            for (char c : r) {
+                if (!isspace((unsigned char)c)) {
+                    return false;
+                }
+            }
+            return true;
+        };
+        while (pos < s.size()) {
+            size_t      nl = s.find('\n', pos);
+            string_view row =
+                (nl == string::npos) ? string_view(s).substr(pos) : string_view(s).substr(pos, nl - pos);
+            if (!isBlankSV(row)) {
+                break;
+            }
+            pos = (nl == string::npos) ? s.size() : nl + 1;
+        }
+        s.erase(0, pos);
+        while (!s.empty()) {
+            size_t      p    = s.find_last_of('\n');
+            string_view tail = (p == string::npos) ? string_view(s) : string_view(s).substr(p + 1);
+            bool        allSpace = true;
+            for (char c : tail) {
+                if (!isspace((unsigned char)c)) {
+                    allSpace = false;
+                    break;
+                }
+            }
+            if (allSpace) {
+                if (p == string::npos) {
+                    s.clear();
+                    break;
+                }
+                s.erase(p);
+            } else {
+                break;
+            }
+        }
+    };
+
+    vector<vector<RuleSrc>> suites;
+    istringstream           iss(all);
+    string                  line, current;
+
+    auto flush = [&]() {
+        trimAll(current);
+        if (current.empty()) {
+            return;
+        }
+        auto rules = parseMacroLines(current);
+        if (!rules.empty()) {
+            suites.push_back(std::move(rules));
+        }
+        current.clear();
+    };
+
+    while (getline(iss, line)) {
+        if (isBlankLine(line) || isDivider(line)) {
+            flush();
+        } else {
+            current += line;
+            current.push_back('\n');
+        }
+    }
+    flush();
+    return suites;
 }
 
 // ========================== Bench & util ==========================
@@ -1099,6 +1259,102 @@ static vector<Snapshot> makeRandomInputs(size_t N, uint32_t seed = 42)
     return v;
 }
 
+// ========================== Consistency then Benchmark (per suite) ==========================
+static bool runConsistencyThenBench(const vector<RuleSrc> &rules, const string &suiteName)
+{
+    cout << "=== Suite: " << suiteName << " ===\n";
+    auto prog      = compileRulesToProgram(rules);
+    auto flatRules = compileRulesToFlat(rules);
+
+    const size_t   inputN = 5000;
+    const uint32_t seed   = 777;
+    auto           inputs = makeRandomInputs(inputN, seed);
+
+    size_t   mismatch = 0;
+    Decision firstVM{}, firstFlat{};
+    bool     firstCaptured = false;
+
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        auto d1 = VM::execute(prog, inputs[i]);
+        auto d2 = executeFlat(flatRules, inputs[i]);
+        if (!firstCaptured) {
+            firstVM       = d1;
+            firstFlat     = d2;
+            firstCaptured = true;
+        }
+        if (d1 != d2) {
+            cerr << "Mismatch at idx=" << i << " VM(skill=" << d1.skillID << ",forced=" << d1.forced
+                 << ") vs Flat(skill=" << d2.skillID << ",forced=" << d2.forced << ")\n";
+            cerr << " Snapshot: sun=" << inputs[i].sun << " moon=" << inputs[i].moon
+                 << " hasBuff[神门]=" << (int)inputs[i].hasBuff[BF_神门]
+                 << " buffTime[令聘骤风]=" << inputs[i].buffTime[BF_令聘骤风] << "\n";
+
+            // 逐条打印每条规则 VM/Flat 的布尔结果，定位分歧
+            cerr << " Rule-by-rule condition results:\n";
+            for (size_t r = 0; r < rules.size(); ++r) {
+                bool flatOk = evalFC(flatRules[r].cond, flatRules[r].cond.root, inputs[i]);
+
+                // VM 端：为单条规则重编译一个 probe 程序来评估布尔
+                Program probe;
+                {
+                    vector<Instr> condCode;
+                    if (rules[r].cond.empty()) {
+                        condCode.push_back({ Op::PUSH_CONST_B, 0.0f, 1 });
+                    } else {
+                        Parser ps(rules[r].cond);
+                        auto   ast = ps.parse();
+                        compileNodeToInstr(ast.get(), condCode);
+                    }
+                    for (auto &ins : condCode) {
+                        probe.code.push_back(ins);
+                    }
+                    // RULE_TEST_END + SELECT + END 作为探针
+                    probe.code.push_back({ Op::RULE_TEST_END, 0.0f, 2 });
+                    probe.code.push_back({ Op::SELECT, 0.0f, 1 }); // 命中则 skill=1
+                    probe.code.push_back({ Op::END });
+                }
+                auto vmDec = VM::execute(probe, inputs[i]);
+                bool vmOk  = (vmDec.skillID == 1);
+
+                cerr << "  - Rule#" << (r + 1) << " [" << (rules[r].forced ? "fcast " : "cast ")
+                     << (rules[r].cond.empty() ? "<empty>" : rules[r].cond) << " -> " << rules[r].skill << "]"
+                     << " VM=" << (vmOk ? "true" : "false")
+                     << " Flat=" << (flatOk ? "true" : "false") << "\n";
+            }
+
+            mismatch++;
+            break;
+        }
+        consumeDecision(d1);
+        consumeDecision(d2);
+    }
+
+    if (mismatch == 0) {
+        cout << "Consistency OK. Example decision (VM==Flat): "
+             << "skill=" << firstVM.skillID << ", forced=" << (firstVM.forced ? "true" : "false") << "\n";
+        cout << "Benchmarking...\n";
+        const size_t benchN  = 20000;
+        const int    rounds  = 40;
+        auto         inputs2 = makeRandomInputs(benchN, 42);
+        auto         rVM     = benchVM(prog, inputs2, rounds);
+        auto         rFlat   = benchFlat(flatRules, inputs2, rounds);
+        cout << fixed << setprecision(3);
+        cout << "VM:       total " << rVM.total_ms << " ms, ns/decision " << rVM.ns_per_decision
+             << ", decisions " << rVM.decisions << "\n";
+        cout << "FlatFunc: total " << rFlat.total_ms << " ms, ns/decision " << rFlat.ns_per_decision
+             << ", decisions " << rFlat.decisions << "\n";
+        cout << "Speedup VM/Flat: "
+             << (rFlat.ns_per_decision > 0 ? rVM.ns_per_decision / rFlat.ns_per_decision : 0)
+             << "x ( >1 => VM slower )\n";
+        cout << "g_sink=" << (unsigned long long)g_sink << "\n";
+        cout << "=== Done: " << suiteName << " ===\n\n";
+        return true;
+    } else {
+        cerr << "Consistency FAILED for suite: " << suiteName << ". Abort benchmark.\n";
+        return false;
+    }
+}
+
 // ========================== Main ==========================
 int main(int argc, char **argv)
 {
@@ -1109,58 +1365,29 @@ int main(int argc, char **argv)
     try {
         string macroPath = (argc >= 2) ? string(argv[1]) : string("macro.txt");
         cout << "Reading macro from: " << macroPath << "\n";
-        string macroText = readFileAll(macroPath);
+        string allText = readFileAll(macroPath);
 
-        auto rules = parseMacroLines(macroText);
-        if (rules.empty()) {
-            cerr << "No rules parsed. Ensure macro.txt has /cast or /fcast lines.\n";
+        auto suites = parseMacroSuites(allText);
+        if (suites.empty()) {
+            cerr << "No suites parsed. Ensure macro.txt has /cast or /fcast lines, and separate "
+                    "suites by blank lines.\n";
             return 1;
         }
-        cout << "Rules parsed: " << rules.size() << "\n";
+        cout << "Suites parsed: " << suites.size() << "\n";
 
-        // Compile two backends
-        auto prog      = compileRulesToProgram(rules);
-        auto flatRules = compileRulesToFlat(rules);
-        cout << "Program size: " << prog.code.size()
-             << " instructions, Flat rules: " << flatRules.size() << "\n";
-
-        // Sanity
-        {
-            Snapshot s;
-            s.sun  = 50;
-            s.moon = 50;
-            s.hasBuff.resize(300, 0);
-            s.buffTime.resize(300, -1.0f);
-            s.hasBuff[BF_神门] = 0;
-            auto d1            = VM::execute(prog, s);
-            auto d2            = executeFlat(flatRules, s);
-            cout << "Sanity -> VM:" << d1.skillID << " Flat:" << d2.skillID << "\n";
-            consumeDecision(d1);
-            consumeDecision(d2);
+        for (size_t i = 0; i < suites.size(); ++i) {
+            string suiteName = "Suite#" + to_string(i + 1);
+            if (!runConsistencyThenBench(suites[i], suiteName)) {
+                return 2;
+            }
         }
 
-        // Bench
-        size_t inputN = 20000;
-        int    rounds = 50;
-        auto   inputs = makeRandomInputs(inputN, 42);
-
-        cout << "\nBenchmarking...\n";
-        auto rVM   = benchVM(prog, inputs, rounds);
-        auto rFlat = benchFlat(flatRules, inputs, rounds);
-
-        cout << fixed << setprecision(3);
-        cout << "VM:       total " << rVM.total_ms << " ms, ns/decision " << rVM.ns_per_decision
-             << ", decisions " << rVM.decisions << "\n";
-        cout << "FlatFunc: total " << rFlat.total_ms << " ms, ns/decision " << rFlat.ns_per_decision
-             << ", decisions " << rFlat.decisions << "\n";
-        cout << "Speedup VM/Flat: "
-             << (rFlat.ns_per_decision > 0 ? rVM.ns_per_decision / rFlat.ns_per_decision : 0)
-             << "x ( >1 => VM slower )\n";
+        cout << "All suites passed consistency and finished benchmarking.\n";
         cout << "g_sink=" << (unsigned long long)g_sink << "\n";
+        return 0;
 
     } catch (const exception &e) {
         cerr << "Error: " << e.what() << "\n";
         return 1;
     }
-    return 0;
 }

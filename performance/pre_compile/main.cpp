@@ -58,9 +58,10 @@ struct Decision
 // 防优化汇总
 static uint64_t volatile g_sink = 0;
 
-// ========================== Bytecode VM ==========================
+// ========================== Optimized Bytecode VM ==========================
 enum class Op : uint8_t
 {
+    // 原有基础指令
     PUSH_CONST_F,
     PUSH_CONST_B,
     LOAD_SUN,
@@ -74,17 +75,30 @@ enum class Op : uint8_t
     EQ_FF,
     NE_FF,
     NOT_B,
-    // 原短路指令，保留但不再使用，避免误用
+    // 原短路指令，保留但不再使用
     AND_SHORT,
     OR_SHORT,
-    // 新增显式布尔与/或，避免短路跳转带来的栈错乱
+    // 新增显式布尔与/或
     AND_BB,
     OR_BB,
     JUMP,
     RULE_TEST_END,
     SELECT,
     SELECT_FORCED,
-    END
+    END,
+    
+    // 新增特化指令
+    CMP_SUN_CONST,   // 比较 sun 与常量
+    CMP_MOON_CONST,  // 比较 moon 与常量
+    CMP_SUN_MOON,    // 比较 sun 与 moon
+    CMP_BUFTIME_CONST, // 比较 buffTime 与常量
+    TEST_HASBUFF,    // 测试是否有 buff
+    TEST_NOBUFF,     // 测试是否没有 buff
+};
+
+enum class CmpOp : uint8_t
+{
+    LT, GT, LE, GE, EQ, NE
 };
 
 struct Instr
@@ -92,6 +106,7 @@ struct Instr
     Op    op{};
     float f = 0.0f;
     int   a = 0;
+    CmpOp cmp = CmpOp::LT;
 };
 
 struct Program
@@ -118,6 +133,19 @@ struct VM
         auto pushB = [&](bool v) {
             bstack[++bp] = v;
         };
+        
+        auto doCmp = [](float a, float b, CmpOp cmp) noexcept -> bool {
+            switch (cmp) {
+                case CmpOp::LT: return a < b;
+                case CmpOp::GT: return a > b;
+                case CmpOp::LE: return a <= b;
+                case CmpOp::GE: return a >= b;
+                case CmpOp::EQ: return a == b;
+                case CmpOp::NE: return a != b;
+            }
+            return false;
+        };
+        
         Decision  out{};
         int       pc = 0;
         const int N  = (int)p.code.size();
@@ -213,7 +241,6 @@ struct VM
                     }
                 } break;
 
-                // 新的显式布尔与/或
                 case Op::AND_BB:
                 {
                     bool b = popB(), a = popB();
@@ -226,7 +253,33 @@ struct VM
                     pushB(a || b);
                     pc++;
                 } break;
-
+                    
+                // 新增特化指令处理
+                case Op::CMP_SUN_CONST:
+                    pushB(doCmp(s.sun, ins.f, ins.cmp));
+                    pc++;
+                    break;
+                case Op::CMP_MOON_CONST:
+                    pushB(doCmp(s.moon, ins.f, ins.cmp));
+                    pc++;
+                    break;
+                case Op::CMP_SUN_MOON:
+                    pushB(doCmp(s.sun, s.moon, ins.cmp));
+                    pc++;
+                    break;
+                case Op::CMP_BUFTIME_CONST:
+                    pushB(doCmp(s.buffTimeId(ins.a), ins.f, ins.cmp));
+                    pc++;
+                    break;
+                case Op::TEST_HASBUFF:
+                    pushB(s.hasBuffId(ins.a));
+                    pc++;
+                    break;
+                case Op::TEST_NOBUFF:
+                    pushB(!s.hasBuffId(ins.a));
+                    pc++;
+                    break;
+                    
                 case Op::JUMP: pc += ins.a; break;
                 case Op::RULE_TEST_END:
                 {
@@ -540,7 +593,33 @@ struct Parser
     }
 };
 
-// ========================== Bytecode compiler (VM) ==========================
+// ========================== Optimized Bytecode compiler (VM) ==========================
+static CmpOp nodeToCmpOp(NodeKind k)
+{
+    switch (k) {
+        case NodeKind::LT: return CmpOp::LT;
+        case NodeKind::GT: return CmpOp::GT;
+        case NodeKind::LE: return CmpOp::LE;
+        case NodeKind::GE: return CmpOp::GE;
+        case NodeKind::EQ: return CmpOp::EQ;
+        case NodeKind::NE: return CmpOp::NE;
+        default: return CmpOp::EQ;
+    }
+}
+
+static CmpOp flipCmpOp(CmpOp c)
+{
+    switch (c) {
+        case CmpOp::LT: return CmpOp::GT;
+        case CmpOp::GT: return CmpOp::LT;
+        case CmpOp::LE: return CmpOp::GE;
+        case CmpOp::GE: return CmpOp::LE;
+        case CmpOp::EQ: return CmpOp::EQ;
+        case CmpOp::NE: return CmpOp::NE;
+    }
+    return c;
+}
+
 static void compileNodeToInstr(const Node *n, std::vector<Instr> &out)
 {
     switch (n->kind) {
@@ -548,7 +627,7 @@ static void compileNodeToInstr(const Node *n, std::vector<Instr> &out)
         case NodeKind::Moon: out.push_back({ Op::LOAD_MOON }); break;
         case NodeKind::HasBuff:
         {
-            Instr ins{ Op::LOAD_HASBUFF };
+            Instr ins{ Op::TEST_HASBUFF };
             ins.a = n->a;
             out.push_back(ins);
         } break;
@@ -572,8 +651,15 @@ static void compileNodeToInstr(const Node *n, std::vector<Instr> &out)
         } break;
         case NodeKind::Not:
         {
-            compileNodeToInstr(n->l.get(), out);
-            out.push_back({ Op::NOT_B });
+            // 特殊处理 nobuff 模式
+            if (n->l && n->l->kind == NodeKind::HasBuff) {
+                Instr ins{ Op::TEST_NOBUFF };
+                ins.a = n->l->a;
+                out.push_back(ins);
+            } else {
+                compileNodeToInstr(n->l.get(), out);
+                out.push_back({ Op::NOT_B });
+            }
         } break;
         case NodeKind::LT:
         case NodeKind::GT:
@@ -582,6 +668,78 @@ static void compileNodeToInstr(const Node *n, std::vector<Instr> &out)
         case NodeKind::EQ:
         case NodeKind::NE:
         {
+            CmpOp cmp = nodeToCmpOp(n->kind);
+            
+            // 尝试使用特化指令
+            // sun vs const
+            if (n->l->kind == NodeKind::Sun && n->r->kind == NodeKind::ConstF) {
+                Instr ins{ Op::CMP_SUN_CONST };
+                ins.f = n->r->f;
+                ins.cmp = cmp;
+                out.push_back(ins);
+                break;
+            }
+            // const vs sun
+            if (n->l->kind == NodeKind::ConstF && n->r->kind == NodeKind::Sun) {
+                Instr ins{ Op::CMP_SUN_CONST };
+                ins.f = n->l->f;
+                ins.cmp = flipCmpOp(cmp);
+                out.push_back(ins);
+                break;
+            }
+            
+            // moon vs const
+            if (n->l->kind == NodeKind::Moon && n->r->kind == NodeKind::ConstF) {
+                Instr ins{ Op::CMP_MOON_CONST };
+                ins.f = n->r->f;
+                ins.cmp = cmp;
+                out.push_back(ins);
+                break;
+            }
+            // const vs moon
+            if (n->l->kind == NodeKind::ConstF && n->r->kind == NodeKind::Moon) {
+                Instr ins{ Op::CMP_MOON_CONST };
+                ins.f = n->l->f;
+                ins.cmp = flipCmpOp(cmp);
+                out.push_back(ins);
+                break;
+            }
+            
+            // sun vs moon
+            if (n->l->kind == NodeKind::Sun && n->r->kind == NodeKind::Moon) {
+                Instr ins{ Op::CMP_SUN_MOON };
+                ins.cmp = cmp;
+                out.push_back(ins);
+                break;
+            }
+            // moon vs sun
+            if (n->l->kind == NodeKind::Moon && n->r->kind == NodeKind::Sun) {
+                Instr ins{ Op::CMP_SUN_MOON };
+                ins.cmp = flipCmpOp(cmp);
+                out.push_back(ins);
+                break;
+            }
+            
+            // bufftime vs const
+            if (n->l->kind == NodeKind::BuffTime && n->r->kind == NodeKind::ConstF) {
+                Instr ins{ Op::CMP_BUFTIME_CONST };
+                ins.a = n->l->a;
+                ins.f = n->r->f;
+                ins.cmp = cmp;
+                out.push_back(ins);
+                break;
+            }
+            // const vs bufftime
+            if (n->l->kind == NodeKind::ConstF && n->r->kind == NodeKind::BuffTime) {
+                Instr ins{ Op::CMP_BUFTIME_CONST };
+                ins.a = n->r->a;
+                ins.f = n->l->f;
+                ins.cmp = flipCmpOp(cmp);
+                out.push_back(ins);
+                break;
+            }
+            
+            // 默认使用原有方式
             compileNodeToInstr(n->l.get(), out);
             compileNodeToInstr(n->r.get(), out);
             Op op = Op::LT_FF;
@@ -598,14 +756,12 @@ static void compileNodeToInstr(const Node *n, std::vector<Instr> &out)
         } break;
         case NodeKind::And:
         {
-            // 显式布尔与：编译左右，再发 AND_BB
             compileNodeToInstr(n->l.get(), out);
             compileNodeToInstr(n->r.get(), out);
             out.push_back({ Op::AND_BB });
         } break;
         case NodeKind::Or:
         {
-            // 显式布尔或：编译左右，再发 OR_BB
             compileNodeToInstr(n->l.get(), out);
             compileNodeToInstr(n->r.get(), out);
             out.push_back({ Op::OR_BB });
@@ -992,6 +1148,303 @@ static Decision executeFlat(const vector<FlatRule> &rules, const Snapshot &s)
     return {};
 }
 
+// ========================== Runtime Closures（运行时闭包组合执行） ==========================
+enum class RCmp : uint8_t { LT, GT, LE, GE, EQ, NE };
+enum class RField : uint8_t { Sun=0, Moon=1 };
+
+struct BoolPred
+{
+    using Fn = bool(*)(const void*, const Snapshot&) noexcept;
+    const void* ptr = nullptr;
+    Fn          call = nullptr;
+};
+
+template<typename T>
+static inline BoolPred makePred(const T* p)
+{
+    return BoolPred{
+        p,
+        [](const void* vp, const Snapshot& s) noexcept {
+            return (*reinterpret_cast<const T*>(vp))(s);
+        }
+    };
+}
+
+// 原子谓词
+struct ConstPred
+{
+    bool v;
+    bool operator()(const Snapshot&) const noexcept { return v; }
+};
+
+struct HasBuffPred
+{
+    int id;
+    bool operator()(const Snapshot& s) const noexcept { return s.hasBuffId(id); }
+};
+
+struct BuffTimeCmpPred
+{
+    int   id;
+    RCmp  cmp;
+    float rhs;
+    bool operator()(const Snapshot& s) const noexcept
+    {
+        float a = s.buffTimeId(id);
+        switch (cmp) {
+            case RCmp::LT: return a < rhs;
+            case RCmp::GT: return a > rhs;
+            case RCmp::LE: return a <= rhs;
+            case RCmp::GE: return a >= rhs;
+            case RCmp::EQ: return a == rhs;
+            case RCmp::NE: return a != rhs;
+        }
+        return false;
+    }
+};
+
+struct FieldCmpConstPred
+{
+    RField f;
+    RCmp   cmp;
+    float  c;
+    bool operator()(const Snapshot& s) const noexcept
+    {
+        float a = (f == RField::Sun) ? s.sun : s.moon;
+        switch (cmp) {
+            case RCmp::LT: return a < c;
+            case RCmp::GT: return a > c;
+            case RCmp::LE: return a <= c;
+            case RCmp::GE: return a >= c;
+            case RCmp::EQ: return a == c;
+            case RCmp::NE: return a != c;
+        }
+        return false;
+    }
+};
+
+struct FieldCmpFieldPred
+{
+    RField a, b;
+    RCmp   cmp;
+    bool operator()(const Snapshot& s) const noexcept
+    {
+        float lhs = (a == RField::Sun) ? s.sun : s.moon;
+        float rhs = (b == RField::Sun) ? s.sun : s.moon;
+        switch (cmp) {
+            case RCmp::LT: return lhs < rhs;
+            case RCmp::GT: return lhs > rhs;
+            case RCmp::LE: return lhs <= rhs;
+            case RCmp::GE: return lhs >= rhs;
+            case RCmp::EQ: return lhs == rhs;
+            case RCmp::NE: return lhs != rhs;
+        }
+        return false;
+    }
+};
+
+// 组合器
+struct NotPred
+{
+    BoolPred p;
+    bool operator()(const Snapshot& s) const noexcept { return !p.call(p.ptr, s); }
+};
+
+struct AndPred
+{
+    BoolPred a, b;
+    bool operator()(const Snapshot& s) const noexcept
+    {
+        if (!a.call(a.ptr, s)) return false;
+        return b.call(b.ptr, s);
+    }
+};
+
+struct OrPred
+{
+    BoolPred a, b;
+    bool operator()(const Snapshot& s) const noexcept
+    {
+        if (a.call(a.ptr, s)) return true;
+        return b.call(b.ptr, s);
+    }
+};
+
+// 运行时闭包规则：每条规则一个 BoolPred 与 skillId/forced
+struct RCRule
+{
+    vector<unique_ptr<void, void(*)(void*)>> arena;
+    BoolPred pred;
+    int      skillId = -1;
+    bool     forced  = false;
+};
+
+static inline RCmp toRCmp(NodeKind k)
+{
+    switch (k) {
+        case NodeKind::LT: return RCmp::LT;
+        case NodeKind::GT: return RCmp::GT;
+        case NodeKind::LE: return RCmp::LE;
+        case NodeKind::GE: return RCmp::GE;
+        case NodeKind::EQ: return RCmp::EQ;
+        case NodeKind::NE: return RCmp::NE;
+        default: return RCmp::EQ;
+    }
+}
+static inline RCmp flipRCmp(RCmp c)
+{
+    switch (c) {
+        case RCmp::LT: return RCmp::GT;
+        case RCmp::GT: return RCmp::LT;
+        case RCmp::LE: return RCmp::GE;
+        case RCmp::GE: return RCmp::LE;
+        case RCmp::EQ: return RCmp::EQ;
+        case RCmp::NE: return RCmp::NE;
+    }
+    return c;
+}
+static inline optional<RField> asRField(const Node* n)
+{
+    if (n->kind == NodeKind::Sun)  return RField::Sun;
+    if (n->kind == NodeKind::Moon) return RField::Moon;
+    return nullopt;
+}
+
+template<typename T, typename... Args>
+static inline T* rcNew(vector<unique_ptr<void, void(*)(void*)>>& arena, Args&&... args)
+{
+    T* p = new T{ std::forward<Args>(args)... };
+    arena.emplace_back(p, +[](void* vp){ delete reinterpret_cast<T*>(vp); });
+    return p;
+}
+
+static BoolPred buildClosureFromAST(const Node* n, vector<unique_ptr<void, void(*)(void*)>>& arena)
+{
+    switch (n->kind) {
+        case NodeKind::ConstB:
+        {
+            auto* p = rcNew<ConstPred>(arena, ConstPred{ n->a != 0 });
+            return makePred(p);
+        }
+        case NodeKind::HasBuff:
+        {
+            auto* p = rcNew<HasBuffPred>(arena, HasBuffPred{ n->a });
+            return makePred(p);
+        }
+        case NodeKind::BuffTime:
+        case NodeKind::Sun:
+        case NodeKind::Moon:
+        case NodeKind::ConstF:
+        {
+            auto* p = rcNew<ConstPred>(arena, ConstPred{ false });
+            return makePred(p);
+        }
+        case NodeKind::Not:
+        {
+            auto child = buildClosureFromAST(n->l.get(), arena);
+            auto* p = rcNew<NotPred>(arena, NotPred{ child });
+            return makePred(p);
+        }
+        case NodeKind::And:
+        {
+            auto L = buildClosureFromAST(n->l.get(), arena);
+            auto R = buildClosureFromAST(n->r.get(), arena);
+            auto* p = rcNew<AndPred>(arena, AndPred{ L, R });
+            return makePred(p);
+        }
+        case NodeKind::Or:
+        {
+            auto L = buildClosureFromAST(n->l.get(), arena);
+            auto R = buildClosureFromAST(n->r.get(), arena);
+            auto* p = rcNew<OrPred>(arena, OrPred{ L, R });
+            return makePred(p);
+        }
+        case NodeKind::LT:
+        case NodeKind::GT:
+        case NodeKind::LE:
+        case NodeKind::GE:
+        case NodeKind::EQ:
+        case NodeKind::NE:
+        {
+            RCmp c = toRCmp(n->kind);
+
+            // bufftime(id) vs const
+            if (n->l->kind == NodeKind::BuffTime && n->r->kind == NodeKind::ConstF) {
+                auto* p = rcNew<BuffTimeCmpPred>(arena, BuffTimeCmpPred{ n->l->a, c, n->r->f });
+                return makePred(p);
+            }
+            if (n->l->kind == NodeKind::ConstF && n->r->kind == NodeKind::BuffTime) {
+                auto* p = rcNew<BuffTimeCmpPred>(arena, BuffTimeCmpPred{ n->r->a, flipRCmp(c), n->l->f });
+                return makePred(p);
+            }
+
+            // field vs const
+            if (auto lf = asRField(n->l.get()); lf && n->r->kind == NodeKind::ConstF) {
+                auto* p = rcNew<FieldCmpConstPred>(arena, FieldCmpConstPred{ *lf, c, n->r->f });
+                return makePred(p);
+            }
+            if (n->l->kind == NodeKind::ConstF) {
+                if (auto rf = asRField(n->r.get())) {
+                    auto* p = rcNew<FieldCmpConstPred>(arena, FieldCmpConstPred{ *rf, flipRCmp(c), n->l->f });
+                    return makePred(p);
+                }
+            }
+
+            // field vs field
+            if (auto lf = asRField(n->l.get())) {
+                if (auto rf = asRField(n->r.get())) {
+                    auto* p = rcNew<FieldCmpFieldPred>(arena, FieldCmpFieldPred{ *lf, *rf, c });
+                    return makePred(p);
+                }
+            }
+
+            // 兜底：不可识别，恒 false
+            auto* p = rcNew<ConstPred>(arena, ConstPred{ false });
+            return makePred(p);
+        }
+    }
+    auto* p = rcNew<ConstPred>(arena, ConstPred{ false });
+    return makePred(p);
+}
+
+struct RCCompiled
+{
+    vector<RCRule> rules;
+};
+
+static RCCompiled compileRulesToClosures(const vector<RuleSrc>& rules)
+{
+    RCCompiled out;
+    out.rules.reserve(rules.size());
+    for (auto &r : rules) {
+        RCRule rr;
+        if (r.cond.empty()) {
+            auto* p = rcNew<ConstPred>(rr.arena, ConstPred{ true });
+            rr.pred = makePred(p);
+        } else {
+            Parser ps(r.cond);
+            auto   ast = ps.parse();
+            rr.pred = buildClosureFromAST(ast.get(), rr.arena);
+        }
+        auto it = kSkill.find(r.skill);
+        if (it == kSkill.end()) throw runtime_error("Unknown skill: " + r.skill);
+        rr.skillId = it->second;
+        rr.forced  = r.forced;
+        out.rules.push_back(std::move(rr));
+    }
+    return out;
+}
+
+static Decision executeClosures(const RCCompiled& rc, const Snapshot& s) noexcept
+{
+    for (auto &r : rc.rules) {
+        if (r.pred.call(r.pred.ptr, s)) {
+            return { r.skillId, r.forced };
+        }
+    }
+    return {};
+}
+
 // ========================== Macro parsing (single / suites) ==========================
 static std::vector<RuleSrc> parseMacroLines(const string &src)
 {
@@ -1236,6 +1689,23 @@ static BenchResult benchFlat(const vector<FlatRule> &rules, const vector<Snapsho
     return { ms, ns, cnt };
 }
 
+static BenchResult benchClosures(const struct RCCompiled& rc, const vector<Snapshot>& inputs, int rounds)
+{
+    auto   t0  = chrono::high_resolution_clock::now();
+    size_t cnt = 0;
+    for (int r = 0; r < rounds; ++r) {
+        for (const auto &s : inputs) {
+            auto d = executeClosures(rc, s);
+            consumeDecision(d);
+            cnt++;
+        }
+    }
+    auto   t1 = chrono::high_resolution_clock::now();
+    double ms = chrono::duration<double, milli>(t1 - t0).count();
+    double ns = (ms * 1e6) / cnt;
+    return { ms, ns, cnt };
+}
+
 static vector<Snapshot> makeRandomInputs(size_t N, uint32_t seed = 42)
 {
     vector<Snapshot> v;
@@ -1265,6 +1735,7 @@ static bool runConsistencyThenBench(const vector<RuleSrc> &rules, const string &
     cout << "=== Suite: " << suiteName << " ===\n";
     auto prog      = compileRulesToProgram(rules);
     auto flatRules = compileRulesToFlat(rules);
+    auto rc        = compileRulesToClosures(rules);
 
     const size_t   inputN = 5000;
     const uint32_t seed   = 777;
@@ -1277,24 +1748,28 @@ static bool runConsistencyThenBench(const vector<RuleSrc> &rules, const string &
     for (size_t i = 0; i < inputs.size(); ++i) {
         auto d1 = VM::execute(prog, inputs[i]);
         auto d2 = executeFlat(flatRules, inputs[i]);
+        auto d3 = executeClosures(rc, inputs[i]);
         if (!firstCaptured) {
             firstVM       = d1;
             firstFlat     = d2;
             firstCaptured = true;
         }
-        if (d1 != d2) {
-            cerr << "Mismatch at idx=" << i << " VM(skill=" << d1.skillID << ",forced=" << d1.forced
-                 << ") vs Flat(skill=" << d2.skillID << ",forced=" << d2.forced << ")\n";
+        if (!(d1 == d2 && d2 == d3)) {
+            cerr << "Mismatch at idx=" << i
+                 << " VM(skill=" << d1.skillID << ",forced=" << d1.forced << ")"
+                 << " Flat(skill=" << d2.skillID << ",forced=" << d2.forced << ")"
+                 << " Closures(skill=" << d3.skillID << ",forced=" << d3.forced << ")"
+                 << "\n";
             cerr << " Snapshot: sun=" << inputs[i].sun << " moon=" << inputs[i].moon
                  << " hasBuff[神门]=" << (int)inputs[i].hasBuff[BF_神门]
                  << " buffTime[令聘骤风]=" << inputs[i].buffTime[BF_令聘骤风] << "\n";
 
-            // 逐条打印每条规则 VM/Flat 的布尔结果，定位分歧
+            // 逐条打印每条规则 VM/Flat/Closures 的布尔结果，定位分歧
             cerr << " Rule-by-rule condition results:\n";
             for (size_t r = 0; r < rules.size(); ++r) {
                 bool flatOk = evalFC(flatRules[r].cond, flatRules[r].cond.root, inputs[i]);
 
-                // VM 端：为单条规则重编译一个 probe 程序来评估布尔
+                // VM probe
                 Program probe;
                 {
                     vector<Instr> condCode;
@@ -1308,18 +1783,26 @@ static bool runConsistencyThenBench(const vector<RuleSrc> &rules, const string &
                     for (auto &ins : condCode) {
                         probe.code.push_back(ins);
                     }
-                    // RULE_TEST_END + SELECT + END 作为探针
                     probe.code.push_back({ Op::RULE_TEST_END, 0.0f, 2 });
-                    probe.code.push_back({ Op::SELECT, 0.0f, 1 }); // 命中则 skill=1
+                    probe.code.push_back({ Op::SELECT, 0.0f, 1 });
                     probe.code.push_back({ Op::END });
                 }
                 auto vmDec = VM::execute(probe, inputs[i]);
                 bool vmOk  = (vmDec.skillID == 1);
 
+                // Closures probe
+                bool rcOk = false;
+                {
+                    vector<RuleSrc> one{ rules[r] };
+                    auto rc1 = compileRulesToClosures(one);
+                    rcOk = (executeClosures(rc1, inputs[i]).skillID == rc1.rules[0].skillId);
+                }
+
                 cerr << "  - Rule#" << (r + 1) << " [" << (rules[r].forced ? "fcast " : "cast ")
                      << (rules[r].cond.empty() ? "<empty>" : rules[r].cond) << " -> " << rules[r].skill << "]"
                      << " VM=" << (vmOk ? "true" : "false")
-                     << " Flat=" << (flatOk ? "true" : "false") << "\n";
+                     << " Flat=" << (flatOk ? "true" : "false")
+                     << " Closures=" << (rcOk ? "true" : "false") << "\n";
             }
 
             mismatch++;
@@ -1327,10 +1810,11 @@ static bool runConsistencyThenBench(const vector<RuleSrc> &rules, const string &
         }
         consumeDecision(d1);
         consumeDecision(d2);
+        consumeDecision(d3);
     }
 
     if (mismatch == 0) {
-        cout << "Consistency OK. Example decision (VM==Flat): "
+        cout << "Consistency OK. Example decision (VM==Flat==Closures): "
              << "skill=" << firstVM.skillID << ", forced=" << (firstVM.forced ? "true" : "false") << "\n";
         cout << "Benchmarking...\n";
         const size_t benchN  = 20000;
@@ -1338,13 +1822,19 @@ static bool runConsistencyThenBench(const vector<RuleSrc> &rules, const string &
         auto         inputs2 = makeRandomInputs(benchN, 42);
         auto         rVM     = benchVM(prog, inputs2, rounds);
         auto         rFlat   = benchFlat(flatRules, inputs2, rounds);
+        auto         rRC     = benchClosures(rc, inputs2, rounds);
         cout << fixed << setprecision(3);
-        cout << "VM:       total " << rVM.total_ms << " ms, ns/decision " << rVM.ns_per_decision
+        cout << "VM:        total " << rVM.total_ms << " ms, ns/decision " << rVM.ns_per_decision
              << ", decisions " << rVM.decisions << "\n";
-        cout << "FlatFunc: total " << rFlat.total_ms << " ms, ns/decision " << rFlat.ns_per_decision
+        cout << "FlatFunc:  total " << rFlat.total_ms << " ms, ns/decision " << rFlat.ns_per_decision
              << ", decisions " << rFlat.decisions << "\n";
+        cout << "Closures:  total " << rRC.total_ms << " ms, ns/decision " << rRC.ns_per_decision
+             << ", decisions " << rRC.decisions << "\n";
         cout << "Speedup VM/Flat: "
              << (rFlat.ns_per_decision > 0 ? rVM.ns_per_decision / rFlat.ns_per_decision : 0)
+             << "x ( >1 => VM slower )\n";
+        cout << "Speedup VM/Closures: "
+             << (rRC.ns_per_decision > 0 ? rVM.ns_per_decision / rRC.ns_per_decision : 0)
              << "x ( >1 => VM slower )\n";
         cout << "g_sink=" << (unsigned long long)g_sink << "\n";
         cout << "=== Done: " << suiteName << " ===\n\n";
@@ -1369,8 +1859,7 @@ int main(int argc, char **argv)
 
         auto suites = parseMacroSuites(allText);
         if (suites.empty()) {
-            cerr << "No suites parsed. Ensure macro.txt has /cast or /fcast lines, and separate "
-                    "suites by blank lines.\n";
+            cerr << "No suites parsed. Ensure macro.txt has /cast or /fcast lines, and separate " "suites by blank lines.\n";
             return 1;
         }
         cout << "Suites parsed: " << suites.size() << "\n";

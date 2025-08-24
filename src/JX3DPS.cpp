@@ -332,7 +332,7 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
     JX3DPS::Error_t        err = JX3DPS::Start(jsonIn, jsonOut, obj, progress);
 
     if (err != JX3DPS::JX3DPS_SUCCESS) {
-        spdlog::error("Simulate error: {}", err);
+        // spdlog::error("Simulate error: {}", err);
         return err;
     }
 

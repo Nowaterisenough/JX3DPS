@@ -15,6 +15,7 @@
 #include <queue>
 #include <atomic>
 #include <future>
+#include <functional>
 
 #if defined _WIN32 || defined __CYGWIN__
 #    if defined EXPORT_THREAD_POOL // CMake add_definitions

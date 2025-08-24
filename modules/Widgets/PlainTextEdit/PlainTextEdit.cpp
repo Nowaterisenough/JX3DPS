@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Project: JX3DPS
  * File: SpinBox.cpp
  * Description:

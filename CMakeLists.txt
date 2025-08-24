@@ -21,7 +21,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 option(BUILD_APP "option for build" ON)
 
 # CMake选项 UT测试
-option(BUILD_TESTS "option for build" ON)
+option(BUILD_TESTS "option for build" OFF)
 
 add_subdirectory(3rd)
 add_subdirectory(src)

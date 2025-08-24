@@ -1,7 +1,7 @@
 # common.cmake
 
 # 设置 C++ 标准
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # 关闭转换精度损失警告
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")

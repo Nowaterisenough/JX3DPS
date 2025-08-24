@@ -22,7 +22,7 @@
 
 int TestJX3DPSTaiXuJianYi()
 {
-    nlohmann::ordered_json json;
+    nlohmann::ordered_json  json;
     std::ifstream          ifs("TestTaiXuJianYi.json");
     ifs >> json;
     ifs.close();

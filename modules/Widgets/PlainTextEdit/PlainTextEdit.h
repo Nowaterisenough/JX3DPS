@@ -87,9 +87,9 @@ public:
                     //     return true;
                     // }
 
-                    nlohmann::ordered_json json;
+                    nlohmann::ordered_json  json;
                     try {
-                        json = nlohmann::ordered_json::parse(QGuiApplication::clipboard()->text().toStdString());
+                        json = nlohmann::ordered_json ::parse(QGuiApplication::clipboard()->text().toStdString());
                         plainTextEdit->insertPlainText(QString::fromStdString(json.dump(4)));
                         return true;
                     } catch (const std::exception &e) {

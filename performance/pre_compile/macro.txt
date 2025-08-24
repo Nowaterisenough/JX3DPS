@@ -1,39 +1,15 @@
-/cast [nobuff:神门] 破穴
-/cast 骤风令
-/cast [bufftime:令聘骤风<14] 抟风令
-/cast [sun>87&moon>87] 引窍
-/fcast 劈风令
-/cast [sun>moon] 截阳
-/cast 断脉
-
-/cast [sun>=90] 破穴
-/cast [moon<=10] 骤风令
-/cast [sun==moon] 抟风令
-/cast [sun!=moon] 引窍
-/cast [!(nobuff:神门)] 劈风令
-/cast [sun>87&(moon>87|bufftime:令聘骤风<=14)] 截阳
-/cast 断脉
-
-/cast [87<sun] 破穴
-/cast [moon>sun] 骤风令
-/cast [14>=bufftime:令聘骤风] 抟风令
-/cast [sun<=moon] 引窍
-/cast [sun>=moon] 劈风令
-/cast [!(14<bufftime:令聘骤风)] 截阳
-/cast 断脉
-
-/cast [nobuff:神门&sun>50] 破穴
-/cast [nobuff:神门|sun>95] 骤风令
-/cast [bufftime:令聘骤风<1|bufftime:令聘骤风>29] 抟风令
-/cast [sun>moon&moon>80] 引窍
-/fcast [sun>87&moon>87] 劈风令
-/cast [sun>87|(moon>87&sun>10)] 截阳
-/cast 断脉
-
-/cast [bufftime:令聘骤风==0] 破穴
-/cast [bufftime:令聘骤风>=1000] 骤风令
-/cast [bufftime:令聘骤风<0.001] 抟风令
-/cast [sun<0.001] 引窍
-/cast [moon>99.999] 劈风令
-/cast [nobuff:神门] 截阳
+/cast [buff:神门 & bufftime:令聘骤风>0 & skill_energy:盾飞>=2] 劈风令
+/cast [tbufftime:流血>0 & sun>=85 & moon>=85] 抟风令
+/cast [nobuff:神门 & (sun>=85 & sun<100) & tbufftime:流血=0] 破穴
+/cast [bufftime:令聘骤风<=6 | (skill_energy:盾飞=1 & skill_notin_cd:盾飞)] 骤风令
+/cast [(life<0.35 | mana<0.25) & rage>=4] 引窍
+/cast [last_skill=抟风令 & (qidian<30 | energy<30) & tbufftime:流血>0] 截阳
+/cast [sun_power | moon_power] 劈风令
+/cast [nearby_enemy>=3 & rage>=6] 截阳
+/cast [tbufftime:流血=0 & (moon>=88 & moon<100) & !buff:神门] 抟风令
+/cast [buff:神门 & tbufftime:流血>0 & (sun>moon) & bufftime:令聘骤风>0] 破穴
+/cast [bufftime:令聘骤风=0 | tbufftime:流血=0] 骤风令
+/cast [last_skill=劈风令 & skill_energy:盾飞>=1 & skill_notin_cd:盾飞] 劈风令
+/cast [last_skill=破穴 & sun>=moon] 抟风令
+/cast [last_skill=骤风令 & moon>sun & tbufftime:流血=0] 抟风令
 /cast 断脉

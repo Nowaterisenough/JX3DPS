@@ -1,42 +1,33 @@
+﻿# 启用的检查规则列表
+# 使用逗号分隔的检查规则名称，支持通配符(*)
 Checks: "clang-diagnostic-*,
   clang-analyzer-*,
   performance-*,
-  bugprone-branch-clone,
-  bugprone-copy-constructor-init,
-  bugprone-exception-escape,
-  bugprone-fold-init-type,
-  bugprone-forward-declaration-namespace,
-  bugprone-incorrect-roundings,
-  bugprone-infinite-loop,
-  bugprone-macro-parentheses,
-  bugprone-integer-division,
-  bugprone-misplaced-operator-in-strlen-in-alloc,
-  bugprone-misplaced-pointer-arithmetic-in-alloc,
-  bugprone-misplaced-widening-cast,
-  bugprone-move-forwarding-reference,
-  bugprone-multiple-statement-macro,
-  bugprone-parent-virtual-call,
-  bugprone-posix-return,
-  bugprone-unused-local-non-trivial-variable,
-  bugprone-unused-raii,
-  bugprone-unused-variable,
-  bugprone-reserved-identifier,
-  bugprone-signal-handler,
-  bugprone-redundant-branch-condition,
-  bugprone-sizeof-container,
-  bugprone-sizeof-expression,
-  bugprone-spuriously-wake-up-functions,
-  bugprone-string-constructor,
-  bugprone-string-integer-assignment,
-  bugprone-string-literal-with-embedded-nul,
-  bugprone-suspicious-enum-usage,
-  bugprone-suspicious-memset-usage,
-  bugprone-suspicious-missing-comma,
-  bugprone-suspicious-semicolon,
-  bugprone-suspicious-string-compare,
-  bugprone-suspicious-include,
+  bugprone-*,
   cppcoreguidelines-avoid-goto,
-  cppcoreguidelines-avoid-magic-numbers,
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-prefer-member-initializer,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-pro-type-static-cast-downcast,
+  cppcoreguidelines-virtual-class-destructor,
+  cppcoreguidelines-special-member-functions,
+  cppcoreguidelines-slicing,
+  cppcoreguidelines-avoid-non-const-global-variables,
+  cppcoreguidelines-missing-std-forward,
+  cppcoreguidelines-misleading-capture-default-by-value,
+  cppcoreguidelines-use-enum-class,
+  cppcoreguidelines-avoid-const-or-ref-data-members,
+  cppcoreguidelines-avoid-do-while,
+  cppcoreguidelines-pro-bounds-constant-array-index,
+  cppcoreguidelines-pro-type-const-cast,
+  cppcoreguidelines-pro-type-reinterpret-cast,
+  cppcoreguidelines-pro-type-union-access,
+  cppcoreguidelines-pro-type-vararg,
+  cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-avoid-magic-numbers,
+  modernize-avoid-c-arrays,
   modernize-make-shared,
   modernize-make-unique,
   modernize-pass-by-value,
@@ -53,6 +44,24 @@ Checks: "clang-diagnostic-*,
   modernize-use-using,
   modernize-use-starts-ends-with,
   modernize-use-std-numbers,
+  modernize-avoid-bind,
+  modernize-use-default-member-init,
+  modernize-use-noexcept,
+  modernize-raw-string-literal,
+  modernize-return-braced-init-list,
+  modernize-shrink-to-fit,
+  modernize-unary-static-assert,
+  modernize-macro-to-enum,
+  modernize-use-constraints,
+  modernize-use-designated-initializers,
+  modernize-use-ranges,
+  modernize-use-std-format,
+  modernize-use-std-print,
+  modernize-use-scoped-lock,
+  modernize-min-max-use-initializer-list,
+  modernize-type-traits,
+  modernize-use-integer-sign-comparison,
+  modernize-redundant-void-arg,
   readability-convert-member-functions-to-static,
   readability-else-after-return,
   readability-make-member-function-const,
@@ -68,18 +77,107 @@ Checks: "clang-diagnostic-*,
   readability-static-accessed-through-instance,
   readability-static-definition-in-anonymous-namespace,
   readability-uniqueptr-delete-release,
-  readability-identifier-naming,
   readability-function-size,
-  readability-magic-numbers
+  readability-magic-numbers,
+  readability-function-cognitive-complexity,
+  readability-container-contains,
+  readability-container-size-empty,
+  readability-delete-null-pointer,
+  readability-simplify-boolean-expr,
+  readability-redundant-string-cstr,
+  readability-redundant-string-init,
+  readability-string-compare,
+  readability-braces-around-statements,
+  readability-implicit-bool-conversion,
+  readability-inconsistent-declaration-parameter-name,
+  readability-isolate-declaration,
+  readability-misleading-indentation,
+  readability-misplaced-array-index,
+  readability-named-parameter,
+  readability-identifier-naming,
+  readability-identifier-length,
+  readability-avoid-const-params-in-decls,
+  readability-avoid-return-with-void-value,
+  readability-const-return-type,
+  readability-container-data-pointer,
+  readability-duplicate-include,
+  readability-enum-initial-value,
+  readability-math-missing-parentheses,
+  readability-operators-representation,
+  readability-redundant-casting,
+  readability-redundant-inline-specifier,
+  readability-reference-to-constructed-temporary,
+  readability-simplify-subscript-expr,
+  readability-suspicious-call-argument,
+  readability-use-anyofallof,
+  readability-use-std-min-max,
+  readability-use-concise-preprocessor-directives,
+  misc-const-correctness,
+  misc-definitions-in-headers,
+  misc-redundant-expression,
+  misc-static-assert,
+  misc-uniqueptr-reset-release,
+  misc-unused-alias-decls,
+  misc-unused-parameters,
+  misc-unused-using-decls,
+  misc-use-internal-linkage,
+  misc-throw-by-value-catch-by-reference,
+  misc-new-delete-overloads,
+  misc-non-copyable-objects,
+  misc-unconventional-assign-operator,
+  misc-non-private-member-variables-in-classes,
+  misc-include-cleaner,
+  misc-header-include-cycle,
+  misc-confusable-identifiers,
+  misc-misleading-identifier,
+  misc-misplaced-const,
+  misc-use-anonymous-namespace,
+  performance-avoid-endl,
+  performance-enum-size,
+  performance-faster-string-find,
+  performance-inefficient-algorithm,
+  performance-inefficient-vector-operation,
+  performance-no-automatic-move,
+  performance-trivially-destructible,
+  performance-type-promotion-in-math-fn,
+  performance-unnecessary-copy-initialization,
+  performance-unnecessary-value-param,
+  cert-*,
+  google-explicit-constructor,
+  google-runtime-operator,
+  google-global-names-in-headers,
+  google-runtime-int,
+  hicpp-exception-baseclass,
+  hicpp-multiway-paths-covered,
+  hicpp-signed-bitwise,
+  llvm-namespace-comment,
+  -llvm-include-order,
+  -bugprone-easily-swappable-parameters,
+  bugprone-narrowing-conversions,
+  -google-build-using-namespace"
 
+# 警告处理配置
+# 指定哪些警告应该被视为错误（空字符串表示不将警告视为错误）
 WarningsAsErrors: ""
 
+# 头文件过滤正则表达式
+# 指定哪些头文件应该被检查（.*\.h* 表示所有.h和.hpp等头文件）
 HeaderFilterRegex: '.*\.h*'
 
+# 代码格式化风格
+# 'file' 表示使用项目根目录下的.clang-format文件
 FormatStyle: file
 
+# =============================================================================
+# 检查选项配置
+# 详细配置各种检查规则的参数
+# =============================================================================
 CheckOptions:
-  # 抽象类命名规则：大骆驼命名法
+  # =========================================================================
+  # 标识符命名规范配置 (readability-identifier-naming)
+  # =========================================================================
+
+  # 抽象类命名规则：大骆驼命名法 (例如: BaseInterface, AbstractFactory)
   - key: readability-identifier-naming.AbstractClassCase
     value: CamelCase
   - key: readability-identifier-naming.AbstractClassPrefix
@@ -89,17 +187,19 @@ CheckOptions:
   - key: readability-identifier-naming.AbstractClassIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.AbstractClassHungarianPrefix
-    value: ""
+    value: Off
 
   # 是否进行积极的从属成员查找
+  # 控制是否在模板实例化时积极查找依赖成员
   - key: readability-identifier-naming.AggressiveDependentMemberLookup
     value: false
 
   # 检查父类匿名字段规则
+  # 是否检查继承的匿名字段的命名规范
   - key: readability-identifier-naming.CheckAnonFieldInParent
     value: true
 
-  # 类命名规则: 大骆驼命名法
+  # 类命名规则: 大骆驼命名法 (例如: MyClass, DataProcessor)
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
   - key: readability-identifier-naming.ClassPrefix
@@ -109,9 +209,10 @@ CheckOptions:
   - key: readability-identifier-naming.ClassIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.ClassHungarianPrefix
-    value: ""
+    value: Off
 
-  # 类常量命名规则：全部大写
+  # 类常量命名规则：全部大写 (例如: MAX_SIZE, DEFAULT_VALUE)
+  # 忽略模板相关的类型别名如 type, value 等
   - key: readability-identifier-naming.ClassConstantCase
     value: UPPER_CASE
   - key: readability-identifier-naming.ClassConstantPrefix
@@ -121,21 +222,22 @@ CheckOptions:
   - key: readability-identifier-naming.ClassConstantIgnoredRegexp
     value: "[._a-z]*(type|t|value|v)"
   - key: readability-identifier-naming.ClassConstantHungarianPrefix
-    value: ""
+    value: Off
 
-  # 类成员变量命名规则：小骆驼命名法，用_作为前缀
+  # 类成员变量命名规则：小骆驼命名法，用_作为前缀 (例如: _memberVar, _data)
   - key: readability-identifier-naming.ClassMemberCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.ClassMemberPrefix
-    value: ""
+    value: "_"
   - key: readability-identifier-naming.ClassMemberSuffix
     value: ""
   - key: readability-identifier-naming.ClassMemberIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.ClassMemberHungarianPrefix
-    value: ""
+    value: Off
 
-  # 类方法命名规则：大骆驼命名法
+  # 类方法命名规则：大骆驼命名法 (例如: GetData, ProcessRequest)
+  # 忽略Qt信号命名规范 (Signal_开头的方法)
   - key: readability-identifier-naming.ClassMethodCase
     value: CamelCase
   - key: readability-identifier-naming.ClassMethodPrefix
@@ -145,7 +247,7 @@ CheckOptions:
   - key: readability-identifier-naming.ClassMethodIgnoredRegexp
     value: "Signal_.*"
 
-  # 概念命名规则：大骆驼命名法
+  # 概念命名规则：大骆驼命名法 (C++20概念, 例如: Comparable, Container)
   - key: readability-identifier-naming.ConceptCase
     value: CamelCase
   - key: readability-identifier-naming.ConceptPrefix
@@ -155,7 +257,8 @@ CheckOptions:
   - key: readability-identifier-naming.ConceptIgnoredRegexp
     value: ""
 
-  # 常量命名规则：全部大写
+  # 常量命名规则：全部大写 (例如: PI, MAX_COUNT)
+  # 忽略模板相关的类型别名
   - key: readability-identifier-naming.ConstantCase
     value: UPPER_CASE
   - key: readability-identifier-naming.ConstantPrefix
@@ -165,9 +268,9 @@ CheckOptions:
   - key: readability-identifier-naming.ConstantIgnoredRegexp
     value: "[._a-z]*(type|t|value|v)"
   - key: readability-identifier-naming.ConstantHungarianPrefix
-    value: ""
+    value: Off
 
-  # 类常量命名规则：全部大写
+  # 类常量成员命名规则：全部大写 (例如: MAX_SIZE, DEFAULT_VALUE)
   - key: readability-identifier-naming.ConstantMemberCase
     value: UPPER_CASE
   - key: readability-identifier-naming.ConstantMemberPrefix
@@ -177,9 +280,9 @@ CheckOptions:
   - key: readability-identifier-naming.ConstantMemberIgnoredRegexp
     value: "[._a-z]*(type|t|value|v)"
   - key: readability-identifier-naming.ConstantMemberHungarianPrefix
-    value: ""
+    value: Off
 
-  # 参数常量命名规则: 小骆驼命名法
+  # 参数常量命名规则: 小骆驼命名法 (例如: maxSize, bufferLen)
   - key: readability-identifier-naming.ConstantParameterCase
     value: lower_case
   - key: readability-identifier-naming.ConstantParameterPrefix
@@ -189,9 +292,9 @@ CheckOptions:
   - key: readability-identifier-naming.ConstantParameterIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.ConstantParameterHungarianPrefix
-    value: ""
+    value: Off
 
-  # 指针参数常量命名规则：小骆驼命名法
+  # 指针参数常量命名规则：小骆驼命名法 (例如: const char* fileName)
   - key: readability-identifier-naming.ConstantPointerParameterCase
     value: lower_case
   - key: readability-identifier-naming.ConstantPointerParameterPrefix
@@ -201,9 +304,9 @@ CheckOptions:
   - key: readability-identifier-naming.ConstantPointerParameterIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.ConstantPointerParameterHungarianPrefix
-    value: ""
+    value: Off
 
-  # 枚举命名规则：大骆驼命名法
+  # 枚举命名规则：大骆驼命名法 (例如: Color, Status)
   - key: readability-identifier-naming.EnumCase
     value: CamelCase
   - key: readability-identifier-naming.EnumPrefix
@@ -213,7 +316,7 @@ CheckOptions:
   - key: readability-identifier-naming.EnumIgnoredRegexp
     value: ""
 
-  # 枚举常量命名规则：全部大写
+  # 枚举常量命名规则：全部大写 (例如: RED, GREEN, BLUE)
   - key: readability-identifier-naming.EnumConstantCase
     value: UPPER_CASE
   - key: readability-identifier-naming.EnumConstantPrefix
@@ -223,9 +326,10 @@ CheckOptions:
   - key: readability-identifier-naming.EnumConstantIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.EnumConstantHungarianPrefix
-    value: ""
+    value: Off
 
-  # 函数命名规则：大骆驼命名法
+  # 函数命名规则：大骆驼命名法 (例如: ProcessData, CalculateSum)
+  # 忽略一些常见的模板元编程函数名
   - key: readability-identifier-naming.FunctionCase
     value: CamelCase
   - key: readability-identifier-naming.FunctionPrefix
@@ -236,10 +340,11 @@ CheckOptions:
     value: "(is_)?[a-z]*(_(v|t|type|value))?"
 
   # 配置文件获取
+  # 是否为每个文件获取单独的配置
   - key: readability-identifier-naming.GetConfigPerFile
     value: true
 
-  # 全局常量命名规则：全部大写
+  # 全局常量命名规则：全部大写 (例如: extern const int GLOBAL_MAX)
   - key: readability-identifier-naming.GlobalConstantCase
     value: UPPER_CASE
   - key: readability-identifier-naming.GlobalConstantPrefix
@@ -249,9 +354,9 @@ CheckOptions:
   - key: readability-identifier-naming.GlobalConstantIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.GlobalConstantHungarianPrefix
-    value: ""
+    value: Off
 
-  # 全局常量指针命名规则：全部大写
+  # 全局常量指针命名规则：全部大写 (例如: extern const char* const GLOBAL_CONFIG)
   - key: readability-identifier-naming.GlobalConstantPointerCase
     value: UPPER_CASE
   - key: readability-identifier-naming.GlobalConstantPointerPrefix
@@ -261,9 +366,9 @@ CheckOptions:
   - key: readability-identifier-naming.GlobalConstantPointerIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.GlobalConstantPointerHungarianPrefix
-    value: ""
+    value: Off
 
-  #全局函数命名规则：大骆驼命名法
+  # 全局函数命名规则：大骆驼命名法 (例如: InitializeSystem, ProcessMessage)
   - key: readability-identifier-naming.GlobalFunctionCase
     value: CamelCase
   - key: readability-identifier-naming.GlobalFunctionPrefix
@@ -273,7 +378,7 @@ CheckOptions:
   - key: readability-identifier-naming.GlobalFunctionIgnoredRegexp
     value: "(is_)?[a-z]*(_(v|t|type|value))?"
 
-  # 全局指针命名规则：小写，前缀为"g_"
+  # 全局指针命名规则：小骆驼命名法，前缀为"g_" (例如: g_instance, g_config)
   - key: readability-identifier-naming.GlobalPointerCase
     value: lower_case
   - key: readability-identifier-naming.GlobalPointerPrefix
@@ -281,11 +386,11 @@ CheckOptions:
   - key: readability-identifier-naming.GlobalPointerSuffix
     value: ""
   - key: readability-identifier-naming.GlobalPointerIgnoredRegexp
-    value: "tls_.*"
-  - key: readability-identifier-naming.GlobalPointerHungarianPrefix
     value: ""
+  - key: readability-identifier-naming.GlobalPointerHungarianPrefix
+    value: Off
 
-  # 全局变量命名规则：小写，前缀为"g_"
+  # 全局变量命名规则：小骆驼命名法，前缀为"g_" (例如: g_counter, g_bufferSize)
   - key: readability-identifier-naming.GlobalVariableCase
     value: lower_case
   - key: readability-identifier-naming.GlobalVariablePrefix
@@ -293,15 +398,16 @@ CheckOptions:
   - key: readability-identifier-naming.GlobalVariableSuffix
     value: ""
   - key: readability-identifier-naming.GlobalVariableIgnoredRegexp
-    value: "tls_.*"
-  - key: readability-identifier-naming.GlobalVariableHungarianPrefix
     value: ""
+  - key: readability-identifier-naming.GlobalVariableHungarianPrefix
+    value: Off
 
   # 主函数忽略
+  # 是否忽略main函数及类似函数的命名检查
   - key: readability-identifier-naming.IgnoreMainLikeFunctions
     value: true
 
-  # 内联命名空间命名规则：大骆驼命名法
+  # 内联命名空间命名规则：大骆驼命名法 (例如: inline namespace V1)
   - key: readability-identifier-naming.InlineNamespaceCase
     value: CamelCase
   - key: readability-identifier-naming.InlineNamespacePrefix
@@ -311,7 +417,8 @@ CheckOptions:
   - key: readability-identifier-naming.InlineNamespaceIgnoredRegexp
     value: ""
 
-  # 局部常量命名规则：全部大写
+  # 局部常量命名规则：全部大写 (例如: const int MAX_ATTEMPTS = 3)
+  # 忽略模板相关的类型别名
   - key: readability-identifier-naming.LocalConstantCase
     value: UPPER_CASE
   - key: readability-identifier-naming.LocalConstantPrefix
@@ -321,9 +428,9 @@ CheckOptions:
   - key: readability-identifier-naming.LocalConstantIgnoredRegexp
     value: "[._a-z]*(type|t|value|v)"
   - key: readability-identifier-naming.LocalConstantHungarianPrefix
-    value: ""
+    value: Off
 
-  # 局部常量指针命名规则：全部大写
+  # 局部常量指针命名规则：全部大写 (例如: const char* const LOCAL_MSG)
   - key: readability-identifier-naming.LocalConstantPointerCase
     value: UPPER_CASE
   - key: readability-identifier-naming.LocalConstantPointerPrefix
@@ -333,11 +440,11 @@ CheckOptions:
   - key: readability-identifier-naming.LocalConstantPointerIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.LocalConstantPointerHungarianPrefix
-    value: ""
+    value: Off
 
-  # 局部指针命名规则：小写
+  # 局部指针命名规则：小骆驼命名法 (例如: int* ptr, char* buffer)
   - key: readability-identifier-naming.LocalPointerCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.LocalPointerPrefix
     value: ""
   - key: readability-identifier-naming.LocalPointerSuffix
@@ -345,11 +452,11 @@ CheckOptions:
   - key: readability-identifier-naming.LocalPointerIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.LocalPointerHungarianPrefix
-    value: ""
+    value: Off
 
-  # 局部变量命名规则：小写
+  # 局部变量命名规则：小骆驼命名法 (例如: int count, std::string fileName)
   - key: readability-identifier-naming.LocalVariableCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.LocalVariablePrefix
     value: ""
   - key: readability-identifier-naming.LocalVariableSuffix
@@ -357,9 +464,9 @@ CheckOptions:
   - key: readability-identifier-naming.LocalVariableIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.LocalVariableHungarianPrefix
-    value: ""
+    value: Off
 
-  # 宏定义命名规则：全部大写
+  # 宏定义命名规则：全部大写 (例如: #define MAX_SIZE 100)
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
   - key: readability-identifier-naming.MacroDefinitionPrefix
@@ -369,19 +476,19 @@ CheckOptions:
   - key: readability-identifier-naming.MacroDefinitionIgnoredRegexp
     value: ""
 
-  # 成员变量命名规则：小写，使用_作为前缀
+  # 成员变量命名规则：小骆驼命名法，使用_作为前缀 (例如: _data, _buffer)
   - key: readability-identifier-naming.MemberCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.MemberPrefix
-    value: ""
+    value: "_"
   - key: readability-identifier-naming.MemberSuffix
     value: ""
   - key: readability-identifier-naming.MemberIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.MemberHungarianPrefix
-    value: ""
+    value: Off
 
-  # 方法命名规则：大骆驼命名法
+  # 方法命名规则：大骆驼命名法 (例如: GetValue, SetData)
   - key: readability-identifier-naming.MethodCase
     value: CamelCase
   - key: readability-identifier-naming.MethodPrefix
@@ -391,7 +498,7 @@ CheckOptions:
   - key: readability-identifier-naming.MethodIgnoredRegexp
     value: ""
 
-  # 命名空间命名规则：大骆驼命名法
+  # 命名空间命名规则：大骆驼命名法 (例如: namespace Utils, namespace Network)
   - key: readability-identifier-naming.NamespaceCase
     value: CamelCase
   - key: readability-identifier-naming.NamespacePrefix
@@ -401,9 +508,9 @@ CheckOptions:
   - key: readability-identifier-naming.NamespaceIgnoredRegexp
     value: ""
 
-  # 参数命名规则：小骆驼命名法
+  # 参数命名规则：小骆驼命名法 (例如: void func(int paramValue, const string& fileName))
   - key: readability-identifier-naming.ParameterCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.ParameterPrefix
     value: ""
   - key: readability-identifier-naming.ParameterSuffix
@@ -411,9 +518,9 @@ CheckOptions:
   - key: readability-identifier-naming.ParameterIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.ParameterHungarianPrefix
-    value: ""
+    value: Off
 
-  # 参数包命名规则：小骆驼命名法
+  # 参数包命名规则：小骆驼命名法 (例如: template<typename... args>)
   - key: readability-identifier-naming.ParameterPackCase
     value: lower_case
   - key: readability-identifier-naming.ParameterPackPrefix
@@ -423,7 +530,7 @@ CheckOptions:
   - key: readability-identifier-naming.ParameterPackIgnoredRegexp
     value: ""
 
-  # 指针参数命名规则：小骆驼命名法
+  # 指针参数命名规则：小骆驼命名法 (例如: void func(int* dataPtr))
   - key: readability-identifier-naming.PointerParameterCase
     value: lower_case
   - key: readability-identifier-naming.PointerParameterPrefix
@@ -433,11 +540,12 @@ CheckOptions:
   - key: readability-identifier-naming.PointerParameterIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.PointerParameterHungarianPrefix
-    value: ""
+    value: Off
 
-  # 私有成员变量命名规则：小写，前缀为"_"
+  # 私有成员变量命名规则：小骆驼命名法，前缀为"_" (例如: _privateData)
+  # 忽略Qt的signals关键字
   - key: readability-identifier-naming.PrivateMemberCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.PrivateMemberPrefix
     value: "_"
   - key: readability-identifier-naming.PrivateMemberSuffix
@@ -445,9 +553,10 @@ CheckOptions:
   - key: readability-identifier-naming.PrivateMemberIgnoredRegexp
     value: "signals"
   - key: readability-identifier-naming.PrivateMemberHungarianPrefix
-    value: ""
+    value: Off
 
-  # 私有方法命名规则：大骆驼命名法
+  # 私有方法命名规则：大骆驼命名法 (例如: ProcessInternalData)
+  # 忽略Qt信号命名规范
   - key: readability-identifier-naming.PrivateMethodCase
     value: CamelCase
   - key: readability-identifier-naming.PrivateMethodPrefix
@@ -457,9 +566,9 @@ CheckOptions:
   - key: readability-identifier-naming.PrivateMethodIgnoredRegexp
     value: "Signal_.*"
 
-  # 受保护成员变量命名规则：小写，前缀为"_"
+  # 受保护成员变量命名规则：小骆驼命名法，前缀为"_" (例如: _protectedValue)
   - key: readability-identifier-naming.ProtectedMemberCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.ProtectedMemberPrefix
     value: "_"
   - key: readability-identifier-naming.ProtectedMemberSuffix
@@ -467,9 +576,10 @@ CheckOptions:
   - key: readability-identifier-naming.ProtectedMemberIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.ProtectedMemberHungarianPrefix
-    value: ""
+    value: Off
 
-  # 受保护方法命名规则：大骆驼命名法
+  # 受保护方法命名规则：大骆驼命名法 (例如: ProcessProtectedData)
+  # 忽略Qt信号命名规范
   - key: readability-identifier-naming.ProtectedMethodCase
     value: CamelCase
   - key: readability-identifier-naming.ProtectedMethodPrefix
@@ -479,9 +589,9 @@ CheckOptions:
   - key: readability-identifier-naming.ProtectedMethodIgnoredRegexp
     value: "Signal_.*"
 
-  # 公开成员变量命名规则：小写
+  # 公开成员变量命名规则：小骆驼命名法 (例如: int publicValue)
   - key: readability-identifier-naming.PublicMemberCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.PublicMemberPrefix
     value: ""
   - key: readability-identifier-naming.PublicMemberSuffix
@@ -489,9 +599,10 @@ CheckOptions:
   - key: readability-identifier-naming.PublicMemberIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.PublicMemberHungarianPrefix
-    value: ""
+    value: Off
 
-  # 公开方法命名规则：大骆驼命名法
+  # 公开方法命名规则：大骆驼命名法 (例如: GetPublicData, SetValue)
+  # 忽略Qt信号命名规范
   - key: readability-identifier-naming.PublicMethodCase
     value: CamelCase
   - key: readability-identifier-naming.PublicMethodPrefix
@@ -501,7 +612,7 @@ CheckOptions:
   - key: readability-identifier-naming.PublicMethodIgnoredRegexp
     value: "Signal_.*"
 
-  # 范围内枚举常量命名规则：全部大写
+  # 作用域枚举常量命名规则：全部大写 (例如: enum class Color { RED, GREEN })
   - key: readability-identifier-naming.ScopedEnumConstantCase
     value: UPPER_CASE
   - key: readability-identifier-naming.ScopedEnumConstantPrefix
@@ -511,7 +622,8 @@ CheckOptions:
   - key: readability-identifier-naming.ScopedEnumConstantIgnoredRegexp
     value: ""
 
-  # 静态常量命名规则：全部大写
+  # 静态常量命名规则：全部大写 (例如: static const int MAX_SIZE)
+  # 忽略模板相关的类型别名
   - key: readability-identifier-naming.StaticConstantCase
     value: UPPER_CASE
   - key: readability-identifier-naming.StaticConstantPrefix
@@ -521,9 +633,9 @@ CheckOptions:
   - key: readability-identifier-naming.StaticConstantIgnoredRegexp
     value: "[._a-z]*(type|t|value|v)"
   - key: readability-identifier-naming.StaticConstantHungarianPrefix
-    value: ""
+    value: Off
 
-  # 静态变量命名规则：小写
+  # 静态变量命名规则：小骆驼命名法 (例如: static int counter)
   - key: readability-identifier-naming.StaticVariableCase
     value: lower_case
   - key: readability-identifier-naming.StaticVariablePrefix
@@ -533,9 +645,10 @@ CheckOptions:
   - key: readability-identifier-naming.StaticVariableIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.StaticVariableHungarianPrefix
-    value: ""
+    value: Off
 
-  # 结构体命名规则：大骆驼命名法
+  # 结构体命名规则：大骆驼命名法 (例如: struct DataPoint, struct Config)
+  # 忽略一些常见的模板元编程结构体名
   - key: readability-identifier-naming.StructCase
     value: CamelCase
   - key: readability-identifier-naming.StructPrefix
@@ -545,7 +658,7 @@ CheckOptions:
   - key: readability-identifier-naming.StructIgnoredRegexp
     value: "(is_)?[a-z]*(_(v|t|type|value))?"
 
-  # 模板参数命名规则：小骆驼命名法
+  # 模板参数命名规则：大骆驼命名法 (例如: template<typename T, int N>)
   - key: readability-identifier-naming.TemplateParameterCase
     value: CamelCase
   - key: readability-identifier-naming.TemplateParameterPrefix
@@ -555,7 +668,7 @@ CheckOptions:
   - key: readability-identifier-naming.TemplateParameterIgnoredRegexp
     value: ""
 
-  # 模板参数模板命名规则：小骆驼命名法
+  # 模板模板参数命名规则：大骆驼命名法 (例如: template<template<typename> class Container>)
   - key: readability-identifier-naming.TemplateTemplateParameterCase
     value: CamelCase
   - key: readability-identifier-naming.TemplateTemplateParameterPrefix
@@ -565,7 +678,8 @@ CheckOptions:
   - key: readability-identifier-naming.TemplateTemplateParameterIgnoredRegexp
     value: ""
 
-  # 类型别名命名规则：大骆驼命名法
+  # 类型别名命名规则：大骆驼命名法 (例如: using StringList = std::vector<std::string>)
+  # 忽略模板相关的类型别名
   - key: readability-identifier-naming.TypeAliasCase
     value: CamelCase
   - key: readability-identifier-naming.TypeAliasPrefix
@@ -575,7 +689,7 @@ CheckOptions:
   - key: readability-identifier-naming.TypeAliasIgnoredRegexp
     value: "[._a-z]*(type|t|value|v)"
 
-  # 类型定义命名规则：大骆驼命名法
+  # 类型定义命名规则：大骆驼命名法 (例如: typedef int Counter)
   - key: readability-identifier-naming.TypedefCase
     value: CamelCase
   - key: readability-identifier-naming.TypedefPrefix
@@ -585,7 +699,7 @@ CheckOptions:
   - key: readability-identifier-naming.TypedefIgnoredRegexp
     value: ""
 
-  # 类型模板参数命名规则：大骆驼命名法
+  # 类型模板参数命名规则：大骆驼命名法 (例如: template<typename T>)
   - key: readability-identifier-naming.TypeTemplateParameterCase
     value: CamelCase
   - key: readability-identifier-naming.TypeTemplateParameterPrefix
@@ -595,7 +709,7 @@ CheckOptions:
   - key: readability-identifier-naming.TypeTemplateParameterIgnoredRegexp
     value: ""
 
-  # 联合体命名规则：大骆驼命名法
+  # 联合体命名规则：大骆驼命名法 (例如: union DataUnion)
   - key: readability-identifier-naming.UnionCase
     value: CamelCase
   - key: readability-identifier-naming.UnionPrefix
@@ -605,7 +719,7 @@ CheckOptions:
   - key: readability-identifier-naming.UnionIgnoredRegexp
     value: ""
 
-  # 值模板参数命名规则：全部大写
+  # 值模板参数命名规则：全部大写 (例如: template<int SIZE>)
   - key: readability-identifier-naming.ValueTemplateParameterCase
     value: UPPER_CASE
   - key: readability-identifier-naming.ValueTemplateParameterPrefix
@@ -615,9 +729,9 @@ CheckOptions:
   - key: readability-identifier-naming.ValueTemplateParameterIgnoredRegexp
     value: ""
 
-  # 变量命名规则：小写
+  # 变量命名规则：小骆驼命名法 (例如: int dataCount, std::string userName)
   - key: readability-identifier-naming.VariableCase
-    value: lower_case
+    value: camelBack
   - key: readability-identifier-naming.VariablePrefix
     value: ""
   - key: readability-identifier-naming.VariableSuffix
@@ -625,9 +739,9 @@ CheckOptions:
   - key: readability-identifier-naming.VariableIgnoredRegexp
     value: ""
   - key: readability-identifier-naming.VariableHungarianPrefix
-    value: ""
+    value: Off
 
-  # 虚方法命名规则：大骆驼命名法
+  # 虚方法命名规则：大骆驼命名法 (例如: virtual void ProcessData())
   - key: readability-identifier-naming.VirtualMethodCase
     value: CamelCase
   - key: readability-identifier-naming.VirtualMethodPrefix
@@ -637,22 +751,297 @@ CheckOptions:
   - key: readability-identifier-naming.VirtualMethodIgnoredRegexp
     value: ""
 
-  # 警告所有自动复制
+  # =========================================================================
+  # 其他性能和可读性配置
+  # =========================================================================
+
+  # for循环范围拷贝警告配置
+  # 是否对所有auto拷贝发出警告（0=关闭，避免过多警告）
   - key: performance-for-range-copy.WarnOnAllAutoCopies
     value: "0"
 
-  # 限制函数的控制语句数
+  # 允许的拷贝类型（避免对小对象发出警告）
+  - key: performance-for-range-copy.AllowedTypes
+    value: ""
+
+  # =========================================================================
+  # 函数复杂度配置
+  # =========================================================================
+
+  # readability-function-size 配置 (函数大小限制)
+  # 分支数量阈值（-1表示不限制）
+  # 控制函数中if/else、switch等分支语句的数量
   - key: readability-function-size.BranchThreshold
     value: "-1"
 
-  # 限制函数的行数
+  # 行数阈值（-1表示不限制）
+  # 控制函数的总行数
   - key: readability-function-size.LineThreshold
-    value: "-1"
+    value: "50"
 
-  # 限制函数的参数数量
+  # 参数数量阈值（5表示限制函数参数不超过5个）
+  # 控制函数参数的数量
   - key: readability-function-size.ParameterThreshold
-    value: "-1"
+    value: "5"
 
-  # 限制函数的语句数
+  # 语句数量阈值
+  # 控制函数中语句的数量，建议保持较低以提高可读性
   - key: readability-function-size.StatementThreshold
     value: "800"
+
+  # 嵌套层级阈值（-1表示不限制）
+  # 控制函数中嵌套语句的层级深度
+  - key: readability-function-size.NestingThreshold
+    value: "4"
+
+  # 变量数量阈值（-1表示不限制）
+  # 控制函数中声明的变量数量
+  - key: readability-function-size.VariableThreshold
+    value: "-1"
+
+  # 是否将成员初始化列表计算为语句
+  # 在构造函数中，是否将成员初始化列表算作语句
+  - key: readability-function-size.CountMemberInitAsStmt
+    value: "true"
+
+  # 是否忽略空函数
+  - key: readability-function-size.IgnoreEmptyFunctions
+    value: "true"
+
+  # readability-function-cognitive-complexity 配置 (认知复杂度)
+  # 认知复杂度阈值：衡量代码理解难度
+  # 0-5=非常容易，6-10=容易，11-20=中等，21-50=困难，51+=极其困难
+  - key: readability-function-cognitive-complexity.Threshold
+    value: "15"
+
+  # 是否忽略宏定义
+  # true表示不检查宏定义内的复杂度
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: "true"
+
+  # =========================================================================
+  # 代码质量和安全配置
+  # =========================================================================
+
+  # misc-const-correctness 配置 (const正确性)
+  # 是否分析值类型的const正确性
+  - key: misc-const-correctness.AnalyzeValues
+    value: "true"
+
+  # 是否分析引用类型的const正确性
+  - key: misc-const-correctness.AnalyzeReferences
+    value: "true"
+
+  # 是否变换变量为const
+  - key: misc-const-correctness.TransformValues
+    value: "true"
+
+  # 是否在变换时考虑引用类型
+  - key: misc-const-correctness.TransformReferences
+    value: "false"
+
+  # 是否提示将指针变量设为const（慎用，可能产生大量警告）
+  - key: misc-const-correctness.TransformPointersAsValues
+    value: "false"
+
+  # readability-identifier-length 配置 (标识符长度检查)
+  # 变量名最小长度（单字符变量名通常不够描述性）
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: "2"
+
+  # 循环计数器变量名最小长度（i, j, k通常可以接受）
+  - key: readability-identifier-length.MinimumLoopCounterNameLength
+    value: "1"
+
+  # 异常变量名最小长度（e通常可以接受）
+  - key: readability-identifier-length.MinimumExceptionNameLength
+    value: "2"
+
+  # 参数名最小长度
+  - key: readability-identifier-length.MinimumParameterNameLength
+    value: "2"
+
+  # 函数名最小长度
+  - key: readability-identifier-length.MinimumFunctionNameLength
+    value: "3"
+
+  # 命名空间名最小长度
+  - key: readability-identifier-length.MinimumNamespaceNameLength
+    value: "2"
+
+  # 是否忽略模板参数长度检查
+  - key: readability-identifier-length.IgnoredVariableNames
+    value: "^it$|^ptr$|^fd$|^id$|^x$|^y$|^z$|^dx$|^dy$|^dz$|^rx$|^ry$|^rz$|^tmp$|^buf$|^len$|^idx$|^pos$|^ret$|^err$|^cnt$|^num$|^val$|^res$|^src$|^dst$|^msg$|^cmd$|^arg$|^ref$"
+
+  # 是否忽略Lambda表达式参数
+  - key: readability-identifier-length.IgnoredParameterNames
+    value: "^[ijk]$|^it$|^ptr$|^fd$|^id$|^x$|^y$|^z$|^dx$|^dy$|^dz$|^rx$|^ry$|^rz$|^tmp$|^buf$|^len$|^idx$|^pos$|^ret$|^err$|^cnt$|^num$|^val$|^res$|^src$|^dst$|^msg$|^cmd$|^arg$|^ref$"
+
+  - key: readability-identifier-length.IgnoredLoopCounterNames
+    value: "^[ijklmnpqr]$|^it$|^idx$|^pos$|^cnt$"
+
+  # readability-braces-around-statements 配置 (语句大括号)
+  # 是否在短if语句后也要求大括号
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: "1"
+
+  # readability-implicit-bool-conversion 配置 (隐式bool转换)
+  # 是否允许从整数到bool的隐式转换
+  - key: readability-implicit-bool-conversion.AllowIntegerConditions
+    value: "false"
+
+  # 是否允许从指针到bool的隐式转换
+  - key: readability-implicit-bool-conversion.AllowPointerConditions
+    value: "false"
+
+  # modernize-use-default-member-init 配置 (默认成员初始化)
+  # 是否忽略整数类型的默认初始化
+  - key: modernize-use-default-member-init.UseAssignment
+    value: "false"
+
+  # 是否忽略已有构造函数初始化列表的成员
+  - key: modernize-use-default-member-init.IgnoreMacros
+    value: "true"
+
+  # cppcoreguidelines-special-member-functions 配置 (特殊成员函数)
+  # 是否允许缺少移动构造函数和移动赋值运算符
+  - key: cppcoreguidelines-special-member-functions.AllowMissingMoveFunctions
+    value: "false"
+
+  # 是否允许仅声明特殊成员函数而不定义
+  - key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value: "true"
+
+  # cppcoreguidelines-init-variables 配置 (变量初始化)
+  # 是否包含数学函数的初始化检查
+  - key: cppcoreguidelines-init-variables.MathHeader
+    value: "<cmath>"
+
+  # 是否包含整数类型的初始化检查
+  - key: cppcoreguidelines-init-variables.IncludeIntegers
+    value: "true"
+
+  # =========================================================================
+  # 魔术数字配置
+  # =========================================================================
+  # readability-magic-numbers 配置
+  - key: readability-magic-numbers.IgnoredIntegerValues
+    value: "0,1"
+
+  - key: readability-magic-numbers.IgnoredFloatingPointValues
+    value: "0.0"
+
+  - key: readability-magic-numbers.IgnoreAllFloatingPointValues
+    value: "false"
+
+  - key: readability-magic-numbers.IgnoreBitFieldsWidths
+    value: "true"
+
+  - key: readability-magic-numbers.IgnorePowersOf2IntegerValues
+    value: "true"
+
+  - key: readability-magic-numbers.IgnoreTypeAliases
+    value: "true"
+
+  # cppcoreguidelines-avoid-magic-numbers 配置
+  #- key: cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues
+  #  value: "0,1,2,3,4,5,6,7,8,9,10,15,16,20,24,25,30,32,45,50,60,64,90,100,120,128,180,255,256,352,360,512,1000,1024,1696"
+
+  #- key: cppcoreguidelines-avoid-magic-numbers.IgnoredFloatingPointValues
+  #  value: "0.0,0.1,0.01,0.001,0.25,0.33,0.5,0.6,0.66,0.75,0.8,1.0,1.5,2.0,2.,2.00,2.5,3.0,3.14159,2.71828,3.6,4.0,5.0,10.0,15.0,20.0,30.0,45.0,60.0,90.0,180.0,270.0,360.0"
+
+  # =========================================================================
+  # 新增的代码质量检查配置
+  # =========================================================================
+
+  # performance-unnecessary-copy-initialization 配置 (避免不必要的拷贝初始化)
+  # 是否检查所有auto类型的变量
+  - key: performance-unnecessary-copy-initialization.AllowedTypes
+    value: ""
+
+  # performance-inefficient-vector-operation 配置 (低效vector操作)
+  # 是否检查push_back在循环中的使用
+  - key: performance-inefficient-vector-operation.EnableProto
+    value: "false"
+
+  # readability-suspicious-call-argument 配置 (可疑的函数调用参数)
+  # 参数名相似度阈值 (0-100)
+  - key: readability-suspicious-call-argument.MinimumIdentifierNameLength
+    value: "3"
+
+  # 字符串距离阈值
+  - key: readability-suspicious-call-argument.StringCompareCaseSensitive
+    value: "true"
+
+  # modernize-use-auto 配置 (自动类型推导)
+  # 是否移除星号和&符号
+  - key: modernize-use-auto.RemoveStars
+    value: "false"
+
+  # 最小类型名长度才进行auto替换
+  - key: modernize-use-auto.MinTypeNameLength
+    value: "5"
+
+  # modernize-loop-convert 配置
+  - key: modernize-loop-convert.MaxCopySize
+    value: "16"
+  - key: modernize-loop-convert.MinConfidence
+    value: "reasonable"
+
+  # cppcoreguidelines-avoid-non-const-global-variables 配置
+  # 是否允许const全局变量
+  - key: cppcoreguidelines-avoid-non-const-global-variables.AllowConstGlobals
+    value: "true"
+
+  # cppcoreguidelines-pro-bounds-constant-array-index 配置
+  # 是否包含std::array
+  - key: cppcoreguidelines-pro-bounds-constant-array-index.IncludeArrays
+    value: "true"
+
+  # 数组索引器函数
+  - key: cppcoreguidelines-pro-bounds-constant-array-index.GslHeader
+    value: ""
+
+  # performance-type-promotion-in-math-fn 配置 (数学函数类型提升)
+  # 是否包含cmath头文件
+  - key: performance-type-promotion-in-math-fn.IncludeMathHeader
+    value: "true"
+  - key: performance-type-promotion-in-math-fn.IncludeStyle
+    value: "llvm"
+
+  # readability-container-size-empty 配置 (容器大小检查)
+  # 是否检查所有容器类型
+  - key: readability-container-size-empty.ContainerNames
+    value: "std::vector;std::list;std::deque;std::set;std::map;std::unordered_set;std::unordered_map;std::string"
+
+  # misc-include-cleaner 配置 (包含文件清理)
+  # 是否忽略头文件
+  - key: misc-include-cleaner.IgnoreHeaders
+    value: ".*\\.hpp;.*\\.h"
+
+  # readability-avoid-const-params-in-decls 配置 (避免声明中的const参数)
+  # 是否忽略宏定义
+  - key: readability-avoid-const-params-in-decls.IgnoreMacros
+    value: "true"
+
+  # google相关配置
+  - key: google-explicit-constructor.AllowSingleArgument
+    value: "false"
+
+  # misc配置
+  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: "true"
+
+  # CERT安全检查配置
+  - key: cert-err33-c.CheckedFunctions
+    value: "::aligned_alloc;::calloc;::malloc;::realloc;::tmpfile;::fopen;::freopen;::remove;::rename;::tmpnam;::scanf;::fscanf;::sscanf;::vscanf;::vfscanf;::vsscanf;::fgetc;::fgets;::fputc;::fputs;::getc;::getchar;::gets;::putc;::putchar;::puts;::ungetc;::fread;::fwrite"
+
+  # bugprone返回值检查配置
+  - key: bugprone-unused-return-value.CheckedFunctions
+    value: "::std::async;::std::launder;::std::remove;::std::remove_if;::std::unique;::std::unique_ptr::release;::std::basic_string::empty;::std::vector::empty;::std::back_inserter;::std::distance;::std::find;::std::find_if;::std::inserter;::std::lower_bound;::std::make_pair;::std::map::count;::std::multimap::count;::std::set::count;::std::multiset::count;::std::unordered_map::count;::std::unordered_multimap::count;::std::unordered_set::count;::std::unordered_multiset::count;::std::upper_bound"
+  - key: bugprone-unused-return-value.CheckedReturnTypes
+    value: "::std::error_code;::std::error_condition;::std::errc;::std::expected;::boost::system::error_code"
+  - key: bugprone-unused-return-value.AllowCastToVoid
+    value: "true"
+  - key: bugprone-unused-return-value.AllowUnusedResultFromAssert
+    value: "true"

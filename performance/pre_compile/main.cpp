@@ -14,14 +14,12 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <limits>
 #include <memory>
 #include <optional>
 #include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -557,6 +555,7 @@ struct Lexer
 
     // 修正高位判定：使用 0x80
     static bool isIdentStart(char c) { return isalpha((unsigned char)c) || (c & 0x80) || c == '_'; }
+
     static bool isIdent(char c) { return isalnum((unsigned char)c) || c == '_' || (c & 0x80); }
 
     Tok next()
@@ -2763,8 +2762,12 @@ struct SkillEffects
                 // 新增：25% 概率为盾飞额外充能一层，利于进入劈风令窗口
                 if (std::bernoulli_distribution(0.25)(rng)) {
                     int cur = s.skillEnergy(S盾飞), mx = s.skillEnergyMax(S盾飞);
-                    if (mx <= 0) mx = 3;
-                    if (cur < mx) s.skill_energy[S盾飞] = cur + 1;
+                    if (mx <= 0) {
+                        mx = 3;
+                    }
+                    if (cur < mx) {
+                        s.skill_energy[S盾飞] = cur + 1;
+                    }
                 }
 
                 if (std::bernoulli_distribution(0.2)(rng)) {
@@ -3076,8 +3079,8 @@ int main(int argc, char **argv)
 
         auto suites = parseMacroSuites(allText);
         if (suites.empty()) {
-            cerr << "No suites parsed. Ensure macro.txt has /cast or /fcast lines, suites "
-                    "separated by blank lines.\n";
+            cerr
+                << "No suites parsed. Ensure macro.txt has /cast or /fcast lines, suites " "separat" "ed by " "blank " "lines." "\n";
             return 1;
         }
         cout << "Suites parsed: " << suites.size() << "\n";

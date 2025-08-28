@@ -69,10 +69,10 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 if(BUILD_EXAMPLE)
-    add_subdirectory(example)
+    add_subdirectory(examples)
 endif()
 
 if(BUILD_PERFORMANCE)
-    add_subdirectory(performance)
+    add_subdirectory(perf)
 endif()
 

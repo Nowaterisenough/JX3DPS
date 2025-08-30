@@ -8,7 +8,7 @@ if(BUILD_TESTING)
     add_subdirectory(googletest)
 endif()
 
-if(BUILD_PERFORMANCE)
+if(BUILD_PERF_BENCHMARKS OR BUILD_PERF_EXPERIMENTS)
     set(BENCHMARK_ENABLE_TESTING OFF)
     add_subdirectory(benchmark)
 endif()

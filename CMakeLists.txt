@@ -17,7 +17,7 @@ option(BUILD_PERF_BENCHMARKS  "Build perf/benchmarks"             ON)
 option(BUILD_PERF_EXPERIMENTS "Build perf/experiments"            ON)
 
 # 构建特性
-option(ENABLE_AVX2            "Enable AVX2 for supported compilers (per-target)" OFF)
+option(ENABLE_AVX2            "Enable AVX2 for supported compilers (per-target)" ON)
 option(ENABLE_LTO             "Enable link-time optimization (per-target)"        OFF)
 
 # -------------------- Utilities & target helpers --------------------

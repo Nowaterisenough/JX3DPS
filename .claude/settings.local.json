@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir)",
+      "Bash(cmake:*)",
+      "Bash(dir:*)",
+      "Bash(make:*)",
+      "Bash(timeout:*)",
+      "Bash(\"./JX3DPS Simulator.exe\")",
+      "Bash(ldd:*)",
+      "Bash(start:*)",
+      "Bash(tasklist)",
+      "Bash(export:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bun x ccusage statusline",
+    "padding": 0
+  }
+}

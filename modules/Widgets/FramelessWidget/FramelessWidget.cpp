@@ -90,7 +90,7 @@ bool FramelessWidget::eventFilter(QObject *watched, QEvent *event)
         } else if (event->type() == QEvent::HoverMove) {
             // 设置对应鼠标形状,这个必须放在这里而不是下面,因为可以在鼠标没有按下的时候识别
             QHoverEvent *hoverEvent = (QHoverEvent *)event;
-            QPoint       point      = hoverEvent->pos();
+            QPoint       point      = hoverEvent->position().toPoint();
             if (resizeEnable) {
                 if (pressedRect.at(0).contains(point) && widget->maximumWidth() != widget->minimumWidth())
                 {

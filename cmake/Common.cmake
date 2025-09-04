@@ -1,15 +1,15 @@
 # common.cmake
 
 # 设置 C++ 标准
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 
 # 关闭转换精度损失警告
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wno-conversion)
-    add_compile_options(-Wno-braced-scalar-init)
+    # Note: -Wno-braced-scalar-init removed due to incompatibility with some GCC versions
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wno-shorten-64-to-32)
-    add_compile_options(-Wno-braced-scalar-init)
+    # Note: -Wno-braced-scalar-init removed due to incompatibility with some GCC versions
 elseif(MSVC)
     add_compile_options(/wd4244)
 endif()

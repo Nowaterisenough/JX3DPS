@@ -23,6 +23,9 @@ add_library(${PROJECT_NAME} SHARED
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Widgets
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
     nlohmann_json
 )
 

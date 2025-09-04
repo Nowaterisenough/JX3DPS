@@ -44,6 +44,8 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h*)
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
+# 排除测试文件
+list(REMOVE_ITEM SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/TestWidget.cpp)
 
 file(GLOB RESOURCES
     ${CMAKE_SOURCE_DIR}/resources/*.qrc
@@ -69,7 +71,8 @@ if(${QT_VERSION_MAJOR} EQUAL 6)
     qt_finalize_executable(${PROJECT_NAME})
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+# Link libraries - QCustomPlot is optional
+set(APP_LINK_LIBS
     JX3DPS
     ThreadPool
     spdlog
@@ -91,8 +94,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     PlainTextEdit
     ProgressBar
     TableView
-    QCustomPlot
 )
+
+# Add QCustomPlot if it was built
+if(TARGET QCustomPlot)
+    list(APPEND APP_LINK_LIBS QCustomPlot)
+    message(STATUS "Linking QCustomPlot to app")
+endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${APP_LINK_LIBS})
 
 set(APP_NAME "JX3DPS Simulator")
 

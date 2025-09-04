@@ -13,6 +13,10 @@
  * ----------	-----	----------------------------------------------------------
  */
 
+#ifdef COLOR_HIGHLIGHT
+#undef COLOR_HIGHLIGHT
+#endif
+
 #define COLOR_ACTIVE "26, 159, 255"
 #define COLOR_FOCUS "255, 255, 255"
 #define COLOR_HIGHLIGHT "208, 211, 212"

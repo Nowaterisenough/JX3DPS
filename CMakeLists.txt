@@ -63,50 +63,55 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     FOLDER JX3DPS
 )
 
-install(TARGETS ${PROJECT_NAME}
-    ThreadPool
-    nlohmann_json
-    spdlog
-    EXPORT ${PROJECT_NAME}Targets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    PUBLIC_HEADER DESTINATION include
-)
+# Temporarily disable install exports to fix build issues
+# install(TARGETS ${PROJECT_NAME}
+#     EXPORT ${PROJECT_NAME}Targets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     PUBLIC_HEADER DESTINATION include
+# )
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-    VERSION ${PACKAGE_VERSION}
-    COMPATIBILITY AnyNewerVersion
-)
+# include(CMakePackageConfigHelpers)
+# write_basic_package_version_file(
+#     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+#     VERSION ${PACKAGE_VERSION}
+#     COMPATIBILITY AnyNewerVersion
+# )
 
-install(EXPORT ${PROJECT_NAME}Targets
-    FILE ${PROJECT_NAME}Targets.cmake
-    DESTINATION "lib/cmake/${PROJECT_NAME}"
-)
+# install(EXPORT ${PROJECT_NAME}Targets
+#     FILE ${PROJECT_NAME}Targets.cmake
+#     DESTINATION "lib/cmake/${PROJECT_NAME}"
+# )
 
-configure_package_config_file(
-    ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in # <input>
-    ${PROJECT_NAME}Config.cmake # <output>
-    INSTALL_DESTINATION "lib/cmake/${PROJECT_NAME}"
-)
+# configure_package_config_file(
+#     ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in # <input>
+#     ${PROJECT_NAME}Config.cmake # <output>
+#     INSTALL_DESTINATION "lib/cmake/${PROJECT_NAME}"
+# )
 
-if(NOT BUILD_SHARED_LIBS)
-    file(APPEND
-        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-        "add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)\n"
-    )
-endif(NOT BUILD_SHARED_LIBS)
+# if(NOT BUILD_SHARED_LIBS)
+#     file(APPEND
+#         ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+#         "add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)\n"
+#     )
+# endif(NOT BUILD_SHARED_LIBS)
 
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-    DESTINATION "lib/cmake/${PROJECT_NAME}"
-)
+# install(FILES
+#     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+#     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+#     DESTINATION "lib/cmake/${PROJECT_NAME}"
+# )
 
 if(BUILD_APP)
-    add_subdirectory(app)
+    # Check if Qt is available for app
+    find_package(QT NAMES Qt6 Qt5 QUIET COMPONENTS Widgets PrintSupport OpenGLWidgets)
+    if(QT_FOUND)
+        message(STATUS "Qt found, building app")
+        add_subdirectory(app)
+    else()
+        message(STATUS "Qt not found, skipping app")
+    endif()
 endif()
 
 if(BUILD_TESTS)

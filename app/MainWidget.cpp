@@ -47,13 +47,18 @@ const char *const CONFIG_PATH = "./config.json";
 
 JX3DPS::Simulator::Widget::Widget(QWidget *parent)
 {
+    spdlog::info("MainWidget constructor started");
     QString title = QString("%1  %2").arg(APP_NAME).arg(JX3DPSVersion());
+    spdlog::info("Setting title: {}", title.toStdString());
     this->SetTitle(title);
+    spdlog::info("Title set successfully");
 
     this->setFixedHeight(885);
     this->setMinimumWidth(1000);
 
+    spdlog::info("Creating UI components...");
     GroupBox  *groupBoxSetting         = new GroupBox("设置", this->centralWidget);
+    spdlog::info("GroupBox created");
     TabWidget *tabWidgetAttribute      = new TabWidget(this->centralWidget);
     GroupBox  *groupBoxConfiguration   = new GroupBox("配置", this->centralWidget);
     GroupBox  *groupBoxOut             = new GroupBox("输出", this->centralWidget);
@@ -155,7 +160,9 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     lineEditDelayMax->setFixedSize(64, 28);
     lineEditDelayMax->setText("75");
 
+    spdlog::info("Loading configuration file: {}", CONFIG_PATH);
     JsonParser::LoadConfig(CONFIG_PATH, m_config);
+    spdlog::info("Configuration loaded successfully");
 
     std::list<ComboBox::ItemInfo> itemInfos;
     JsonParser::ParseJsonToClassTypeItemInfos(m_config, itemInfos);
@@ -179,7 +186,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     // buttonSimulate->setFixedWidth(64);
     buttonSimulate->setFont(QFont(buttonSimulate->font().family(), 11));
 
-    connect(buttonSimulate, &QPushButton::clicked, this, [=] { Start(); });
+    connect(buttonSimulate, &QPushButton::clicked, this, [=, this] { Start(); });
 
     Button *buttonAbout = new Button(parent);
     buttonAbout->setText("关于");
@@ -203,8 +210,8 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     gLayout->addWidget(lineEditDelayMin, 3, 1, 1, 1);
     gLayout->addWidget(lineEditDelayMax, 3, 2, 1, 1);
 
-    connect(checkBoxFrameByFrame, &QCheckBox::stateChanged, [=](int checked) {
-        if (checked) {
+    connect(checkBoxFrameByFrame, &QCheckBox::checkStateChanged, [=, this](Qt::CheckState checked) {
+        if (checked == Qt::Checked) {
             lineEditFramePrecision->setText("1");
             lineEditFramePrecision->setReadOnly(true);
         } else {
@@ -213,16 +220,16 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
         }
     });
 
-    connect(checkBoxDebug, &QCheckBox::stateChanged, [=](int checked) {
-        if (checked) {
-            spdlog::default_logger()->set_level(spdlog::level::debug);
+    connect(checkBoxDebug, &QCheckBox::checkStateChanged, [=, this](Qt::CheckState checked) {
+        if (checked == Qt::Checked) {
+            spdlog::global_logger()->set_level(spdlog::level::debug);
             spdlog::flush_on(spdlog::level::debug);
 
             lineEditSimulateCount->setText("1");
             lineEditSimulateCount->setReadOnly(true);
             emit Signal_Debug(true);
         } else {
-            spdlog::default_logger()->set_level(spdlog::level::info);
+            spdlog::global_logger()->set_level(spdlog::level::info);
             spdlog::flush_on(spdlog::level::info);
 
             lineEditSimulateCount->setText("1000");
@@ -231,7 +238,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
         }
     });
 
-    connect(comboBoxClass, &ComboBox::Signal_CurrentItemChanged, [=](const ComboBox::ItemInfo &itemInfo) {
+    connect(comboBoxClass, &ComboBox::Signal_CurrentItemChanged, [=, this](const ComboBox::ItemInfo &itemInfo) {
         if (itemInfo.name == "心法") {
             return;
         }
@@ -240,11 +247,11 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
         emit Signal_UpdateClassType(type);
     });
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParamsClassType, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParamsClassType, [=, this](nlohmann::ordered_json &params) {
         params["ClassType"] = comboBoxClass->GetItemInfo().name.toStdString();
     });
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         params["Options"]["FramePrecision"] = lineEditFramePrecision->text().toInt();
         params["Options"]["SimIterations"]  = lineEditSimulateCount->text().toInt();
         params["Options"]["DelayMin"]       = lineEditDelayMin->text().toInt();
@@ -317,7 +324,7 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
     StatsWidget *statsWidget = new StatsWidget(nullptr);
     statsWidget->hide();
 
-    connect(buttonStats, &QPushButton::clicked, [=]() {
+    connect(buttonStats, &QPushButton::clicked, [=, this]() {
         if (statsWidget->isHidden()) {
             statsWidget->show();
         } else {
@@ -328,7 +335,7 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
     TimeLineWidget *timeLineWidget = new TimeLineWidget(nullptr);
     timeLineWidget->hide();
 
-    connect(buttonTimeLine, &QPushButton::clicked, [=]() {
+    connect(buttonTimeLine, &QPushButton::clicked, [=, this]() {
         if (timeLineWidget->isHidden()) {
             timeLineWidget->show();
         } else {
@@ -336,7 +343,7 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
         }
     });
 
-    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+    connect(this, &Widget::Signal_UpdateResult, this, [=, this](const nlohmann::ordered_json &result) {
         long long damage = JsonParser::GetTotalDamage(result["Stats"]["默认"]);
         int       count  = result["SimIterations"].get<int>();
         int       time   = result["Frames"].get<int>() / JX3DPS::JX3_FRAMES_PER_SECOND;
@@ -345,7 +352,7 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
         emit statsWidget->Signal_UpdateStats(result);
     });
 
-    connect(this, &Widget::Signal_Debug, this, [=](bool debug) {
+    connect(this, &Widget::Signal_Debug, this, [=, this](bool debug) {
         if (debug) {
             buttonTimeLine->setEnabled(true);
         } else {
@@ -354,7 +361,7 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
         }
     });
 
-    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+    connect(this, &Widget::Signal_UpdateResult, this, [=, this](const nlohmann::ordered_json &result) {
         emit timeLineWidget->Signal_Import(result, m_config);
     });
 }
@@ -417,7 +424,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
         QString     str        = "";
         if (index >= 1 && index <= 4) {
             str = types[0];
-            connect(textButton, &TextButton::clicked, [=]() {
+            connect(textButton, &TextButton::clicked, [=, this]() {
                 if (textButton->text() == types[0] + attributeNames[index]) {
                     textButton->setText(types[1] + attributeNames[index]);
                 } else {
@@ -444,7 +451,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
         attributeLineEdits.insert(type, lineEdit);
         attributeSpinBoxes.insert(type, spinBox);
 
-        connect(spinBox, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+        connect(spinBox, &SpinBox::Signal_UpdateValue, this, [=, this](int value) {
             JX3DPS::Attribute::Type t = ATTRIBUTE_TYPE_HASH.at(textButton->text().toStdString());
             attribute->SetAttributeInitial(t, value);
             emit Signal_UpdateAttribute();
@@ -465,19 +472,19 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     attributeSpinBoxes.insert(JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE, spinBoxWeaponMin);
     attributeSpinBoxes.insert(JX3DPS::Attribute::Type::WEAPON_DAMAGE_RAND, spinBoxWeaponMax);
 
-    connect(spinBoxWeaponMin, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+    connect(spinBoxWeaponMin, &SpinBox::Signal_UpdateValue, this, [=, this](int value) {
         JX3DPS::Attribute::Type t = JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE;
         attribute->SetAttributeInitial(t, value);
         emit Signal_UpdateAttribute();
     });
 
-    connect(spinBoxWeaponMax, &SpinBox::Signal_UpdateValue, this, [=](int value) {
+    connect(spinBoxWeaponMax, &SpinBox::Signal_UpdateValue, this, [=, this](int value) {
         JX3DPS::Attribute::Type t = JX3DPS::Attribute::Type::WEAPON_DAMAGE_RAND;
         attribute->SetAttributeInitial(t, value - attribute->GetWeaponDamageBase());
         emit Signal_UpdateAttribute();
     });
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateAttribute, this, [=] {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateAttribute, this, [=, this] {
         if (attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->text() == "身法") {
             attributeLineEdits[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetAgility());
             attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetAgility());
@@ -584,7 +591,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
 
     emit Signal_UpdateAttribute();
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=, this](JX3DPS::ClassType type) {
         for (int index = 1; index <= 4; ++index) {
             attributeTextButtons[attributeTypes[index]]->setText(types[static_cast<int>(type) % 2] +
                                                                  attributeNames[index]);
@@ -645,7 +652,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     ImportWidget *importWidget = new ImportWidget(nullptr);
     importWidget->hide();
 
-    connect(buttonImport, &QPushButton::clicked, [=]() {
+    connect(buttonImport, &QPushButton::clicked, [=, this]() {
         if (importWidget->isHidden()) {
             importWidget->show();
         } else {
@@ -653,7 +660,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
         }
     });
 
-    connect(importWidget, &ImportWidget::Signal_Import, [=](nlohmann::ordered_json &json) {
+    connect(importWidget, &ImportWidget::Signal_Import, [=, this](nlohmann::ordered_json &json) {
         attribute->SetAgilityBaseAdditional(json["Agility"].get<int>() - attribute->GetAgilityBaseByClass());
         attribute->SetSpiritBaseAdditional(json["Spirit"].get<int>() - attribute->GetSpiritBaseByClass());
         attribute->SetSpunkBaseAdditional(json["Spunk"].get<int>() - attribute->GetSpunkBaseByClass());
@@ -690,7 +697,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
 
     gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         params["Attribute"]["身法"]         = attribute->GetAgility();
         params["Attribute"]["力道"]         = attribute->GetStrength();
         params["Attribute"]["根骨"]         = attribute->GetSpirit();
@@ -776,7 +783,7 @@ void JX3DPS::Simulator::Widget::InitWidgetEquipEffects(QWidget *parent)
     gLayout->addWidget(checkBoxClassSetSkill, 3, 1, 1, 1);
     gLayout->addWidget(comboBoxWeapon, 4, 0, 1, 2);
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         for (auto &checkBox : setEffectWidgets) {
             if (checkBox->isChecked()) {
                 params["EquipEffects"].emplace_back(checkBox->text().toStdString());
@@ -826,7 +833,7 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
     QSpacerItem *spacerItem = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
     gLayout->addItem(spacerItem, index, 0, 1, 1);
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         params["Options"]["GainSwitch"]["默认"] =
             attributeDataBars.at(JX3DPS::Attribute::Type::DEFAULT)->isEnabled();
         params["Options"]["GainSwitch"]["会心等级"] =
@@ -835,7 +842,7 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
             attributeDataBars.at(JX3DPS::Attribute::Type::HASTE_BASE)->isEnabled();
     });
 
-    connect(this, &Widget::Signal_UpdateResult, this, [=](const nlohmann::ordered_json &result) {
+    connect(this, &Widget::Signal_UpdateResult, this, [=, this](const nlohmann::ordered_json &result) {
         long long damage = JsonParser::GetTotalDamage(result["Stats"]["默认"]);
         int       count  = result["SimIterations"].get<int>();
 
@@ -886,7 +893,7 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
         talentsComboBoxes.push_back(comboBox);
     }
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=, this](JX3DPS::ClassType type) {
         std::vector<std::list<ComboBox::ItemInfo>> talents;
         std::list<std::string>                     defaults;
         JsonParser::ParseJsonToTalentItemInfos(m_config, type, talents, defaults);
@@ -908,7 +915,7 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
         }
     });
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         std::list<std::string> talents;
         for (int i = 0; i < nums.size(); ++i) {
             talents.emplace_back(talentsComboBoxes[i]->GetItemInfo().name.toStdString());
@@ -925,7 +932,7 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
 
     gLayout->addWidget(stackWidget, 0, 0, 1, 1);
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=, this](JX3DPS::ClassType type) {
         stackWidget->Clear();
 
         std::list<std::pair<std::string, std::list<CheckBox::ItemInfo>>> recipes;
@@ -955,7 +962,7 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
         }
     });
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         for (auto &[btn, stack] : stackWidget->Stacks()) {
             for (auto &checkBox : stack->findChildren<CheckBoxIcon *>()) {
                 if (checkBox->isChecked()) {
@@ -1026,7 +1033,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     layout->addWidget(permanentCheckBoxes[2], 0, 2, 1, 1, Qt::AlignCenter);
     layout->addWidget(permanentCheckBoxes[3], 0, 3, 1, 1, Qt::AlignCenter);
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=, this](JX3DPS::ClassType type) {
         std::unordered_map<std::string, CheckBox::ItemInfo>            permanents1;
         std::unordered_map<std::string, std::list<ComboBox::ItemInfo>> permanents2;
         JsonParser::ParseJsonToPermanents(m_config, type, permanents1, permanents2);
@@ -1052,7 +1059,7 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
         permanentCheckBoxes[3]->SetItemInfo(permanents1["蒸鱼菜盘"]);
     });
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         std::string       className = params["ClassType"].get<std::string>();
         JX3DPS::ClassType type      = GetClassType(className);
         if (permanentCheckBoxes[0]->isChecked()) {
@@ -1119,7 +1126,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
     layout->addWidget(tabWidgetSkills, 0, 0, 1, 1);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    connect(tabWidgetSkills, &TabWidget::Signal_AddTab, this, [=]() {
+    connect(tabWidgetSkills, &TabWidget::Signal_AddTab, this, [=, this]() {
         QWidget *widget = tabWidgetSkills->Widget(tabWidgetSkills->Count() - 1);
         
         PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
@@ -1131,14 +1138,14 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
     });
 
     tabWidgetSkills->AddTab("宏");
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=, this](JX3DPS::ClassType type) {
         tabWidgetSkills->Clear();
         std::list<std::pair<std::string, std::list<std::string>>> skills;
         JsonParser::ParseJsonToSkills(m_config, type, skills);
         int index = 0;
         for (auto &[name, exprs] : skills) {
             tabWidgetSkills->AddTab(name.c_str());
-            PlainTextEdit *text = tabWidgetSkills->Widget(index)->findChild<PlainTextEdit *>();
+            PlainTextEdit *text = tabWidgetSkills->Widget(index)->findChild<PlainTextEdit *>(QString(), Qt::FindChildrenRecursively);
             for (const auto &expr : exprs) {
                 text->appendPlainText(QString::fromStdString(expr));
             }
@@ -1146,10 +1153,10 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
         }
     });
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         for (auto &[btn, tab] : tabWidgetSkills->Tabs()) {
             QString        name   = btn->text();
-            PlainTextEdit *text   = tab->findChild<PlainTextEdit *>();
+            PlainTextEdit *text   = tab->findChild<PlainTextEdit *>(QString(), Qt::FindChildrenRecursively);
             QString        buffer = text->toPlainText();
             QStringList    lines  = buffer.split("\n", Qt::SkipEmptyParts);
             for (const QString &line : lines) {
@@ -1182,7 +1189,7 @@ void JX3DPS::Simulator::Widget::InitWidgetEvents(QWidget *parent)
     buttonImportJcl->SetButtonColor(QColor(COLOR_BACKGROUND_PRIMARY), QColor(COLOR_BACKGROUND_HIGHLIGHT));
     buttonImportJcl->setGeometry(165, 0, 100, 24);
 
-    connect(tabWidgetEvents, &TabWidget::Signal_AddTab, this, [=]() {
+    connect(tabWidgetEvents, &TabWidget::Signal_AddTab, this, [=, this]() {
         QWidget *widget = tabWidgetEvents->Widget(tabWidgetEvents->Count() - 1);
 
         PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
@@ -1192,17 +1199,17 @@ void JX3DPS::Simulator::Widget::InitWidgetEvents(QWidget *parent)
     });
 
     tabWidgetEvents->AddTab("事件");
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=](JX3DPS::ClassType type) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=, this](JX3DPS::ClassType type) {
         std::list<std::string> events;
         JsonParser::ParseJsonToEvents(m_config, type, events);
-        PlainTextEdit *text = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>();
+        PlainTextEdit *text = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>(QString(), Qt::FindChildrenRecursively);
         text->clear();
         for (auto &expr : events) {
             text->appendHtml(expr.c_str());
         }
     });
 
-    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=](nlohmann::ordered_json &params) {
+    connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         PlainTextEdit *text   = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>();
         QString        buffer = text->toPlainText();
         QStringList    lines  = buffer.split("\n", Qt::SkipEmptyParts);
@@ -1223,7 +1230,7 @@ void JX3DPS::Simulator::Widget::Start()
     progressBar->setAttribute(Qt::WA_DeleteOnClose);
     progressBar->show();
 
-    ThreadPool::Instance()->Enqueue([=]() {
+    ThreadPool::Instance()->Enqueue([=, this]() {
         char *buffer = new char[1024 * 1024 * 1024];
         JX3DPSSimulate(json.dump().c_str(), buffer, progressBar, [](void *obj, double arg, const char *text) {
             static_cast<ProgressBar *>(obj)->SetProgress(arg, text);

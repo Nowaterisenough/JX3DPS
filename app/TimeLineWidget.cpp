@@ -687,7 +687,7 @@ TimeLineWidget::TimeLineWidget(QWidget *parent) : Widget(parent)
     connect(this,
             &TimeLineWidget::Signal_Import,
             this,
-            [=](const nlohmann::ordered_json &json, const nlohmann::ordered_json &config) {
+            [this, view, thumbnailView](const nlohmann::ordered_json &json, const nlohmann::ordered_json &config) {
         m_scene->clear();
 
         TimeLineItem *timeLineItem = new TimeLineItem();

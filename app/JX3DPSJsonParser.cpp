@@ -16,6 +16,8 @@
 #include "JX3DPSJsonParser.h"
 
 #include <fstream>
+#include <iostream>
+#include <spdlog/spdlog.h>
 
 QString JX3DPS::Simulator::JsonParser::JX3IconPath(int id)
 {

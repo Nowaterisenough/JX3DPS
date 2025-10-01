@@ -54,9 +54,9 @@ JX3DPS::Simulator::ImportWidget::ImportWidget(QWidget *parent) : Widget(parent)
     layout->addWidget(buttonApply, 1, 0, 1, 1);
     layout->addWidget(buttonCancel, 1, 1, 1, 1);
 
-    connect(buttonCancel, &QPushButton::clicked, [=]() { this->close(); });
+    connect(buttonCancel, &QPushButton::clicked, [this]() { this->close(); });
 
-    connect(buttonApply, QOverload<bool>::of(&QPushButton::clicked), [=](bool) {
+    connect(buttonApply, QOverload<bool>::of(&QPushButton::clicked), [this, plainTextEdit](bool) {
         nlohmann::ordered_json json =
             nlohmann::ordered_json::parse(plainTextEdit->toPlainText().toStdString());
 

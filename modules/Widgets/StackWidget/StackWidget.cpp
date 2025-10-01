@@ -165,7 +165,7 @@ void StackWidget::AddTab(const QString &text)
     StackButton *tabButton = new StackButton(this);
     Stack       *tWidget   = new Stack(this);
 
-    connect(tabButton, &QPushButton::toggled, [=](bool checked) {
+    connect(tabButton, &QPushButton::toggled, [this, tabButton](bool checked) {
         if (checked) {
             for (int i = 0; i < m_stacks.size(); i++) {
                 if (m_stacks[i].first == tabButton && !m_flag) {
@@ -320,7 +320,7 @@ void StackWidget::AnimatedResize(int index)
 
     QPropertyAnimation *animation = new QPropertyAnimation(this, "dx");
 
-    connect(animation, QOverload<>::of(&QPropertyAnimation::finished), [=, this]() {
+    connect(animation, QOverload<>::of(&QPropertyAnimation::finished), [this, index]() {
         for (int i = 0; i < m_stacks.size(); ++i) {
             StackButton *tabButton = m_stacks[i].first;
             Stack       *tWidget   = m_stacks[i].second;

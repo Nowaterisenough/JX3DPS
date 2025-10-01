@@ -132,7 +132,7 @@ void SpinBox::mouseDoubleClickEvent(QMouseEvent *event)
         m_lineEdit->show();
         m_lineEdit->setFocus();
         m_lineEdit->setCursorPosition(m_lineEdit->text().length());
-        connect(m_lineEdit, &QLineEdit::editingFinished, this, [=]() {
+        connect(m_lineEdit, &QLineEdit::editingFinished, this, [this, m_lineEdit]() {
             bool ok;
             int  value = m_lineEdit->text().toInt(&ok);
             if (ok) {

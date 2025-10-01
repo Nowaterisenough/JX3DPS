@@ -181,7 +181,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     CloseButton *closeButton = new CloseButton(this);
     closeButton->setFixedSize(30, 30);
     closeButton->setToolTip("关闭");
-    connect(closeButton, &QPushButton::clicked, this, [=] {
+    connect(closeButton, &QPushButton::clicked, this, [this, closeButton] {
         this->close();
         closeButton->SetColor(QColor(COLOR_BACKGROUND_BASE));
     });

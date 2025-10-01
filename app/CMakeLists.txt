@@ -160,10 +160,10 @@ if(WIN32)
     add_custom_command(
         TARGET ${PROJECT_NAME} # 指定编译的目标名
         POST_BUILD
-        COMMAND tar cf
+        COMMAND ${CMAKE_COMMAND} -E tar cf
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${APP_NAME} ${PROJECT_VERSION}.zip"
-        "--format=zip" 
-        "--directory=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>"
-        *.*
+        --format=zip
+        .
+        WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>"
     )
 endif()

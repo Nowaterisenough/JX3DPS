@@ -15,7 +15,10 @@
 
 #include "MainWidget.h"
 
+#include <cstdio>
+#include <fstream>
 #include <functional>
+#include <iostream>
 
 #include <QLayout>
 
@@ -160,9 +163,25 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     lineEditDelayMax->setFixedSize(64, 28);
     lineEditDelayMax->setText("75");
 
-    spdlog::info("Loading configuration file: {}", CONFIG_PATH);
-    JsonParser::LoadConfig(CONFIG_PATH, m_config);
-    spdlog::info("Configuration loaded successfully");
+    // Load config using C-style FILE instead of C++ ifstream
+    // Note: Using C FILE API to avoid crashes that occurred with std::ifstream in this context
+    {
+        FILE* f = fopen(CONFIG_PATH, "rb");
+        if (!f) {
+            throw std::runtime_error("Failed to open config file");
+        }
+
+        fseek(f, 0, SEEK_END);
+        long fsize = ftell(f);
+        fseek(f, 0, SEEK_SET);
+
+        std::string content(fsize, '\0');
+        size_t read_size = fread(&content[0], 1, fsize, f);
+        fclose(f);
+
+        content.resize(read_size);
+        m_config = nlohmann::ordered_json::parse(content);
+    }
 
     std::list<ComboBox::ItemInfo> itemInfos;
     JsonParser::ParseJsonToClassTypeItemInfos(m_config, itemInfos);
@@ -222,14 +241,14 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
 
     connect(checkBoxDebug, &QCheckBox::checkStateChanged, [=, this](Qt::CheckState checked) {
         if (checked == Qt::Checked) {
-            spdlog::global_logger()->set_level(spdlog::level::debug);
+            spdlog::set_level(spdlog::level::debug);
             spdlog::flush_on(spdlog::level::debug);
 
             lineEditSimulateCount->setText("1");
             lineEditSimulateCount->setReadOnly(true);
             emit Signal_Debug(true);
         } else {
-            spdlog::global_logger()->set_level(spdlog::level::info);
+            spdlog::set_level(spdlog::level::info);
             spdlog::flush_on(spdlog::level::info);
 
             lineEditSimulateCount->setText("1000");

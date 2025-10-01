@@ -79,11 +79,11 @@ RenameWidget::RenameWidget(QWidget *parent) : Widget(parent)
     layout->addWidget(buttonOk, 1, 1, 1, 1);
     layout->addWidget(buttonDelete, 1, 2, 1, 1);
 
-    connect(buttonOk, &QPushButton::clicked, [=]() {
+    connect(buttonOk, &QPushButton::clicked, [this]() {
         emit Signal_Rename(m_lineEdit->text());
     });
 
-    connect(buttonDelete, &QPushButton::clicked, [=]() { emit Signal_Delete(); });
+    connect(buttonDelete, &QPushButton::clicked, [this]() { emit Signal_Delete(); });
 }
 
 void RenameWidget::SetText(const QString &text)
@@ -104,7 +104,7 @@ TabWidget::TabWidget(QWidget *parent) : QWidget(parent)
     m_tabButton->setFont(QFont(m_tabButton->font().family(), 16));
     m_tabButton->hide();
 
-    connect(m_tabButton, &QPushButton::clicked, [=, this]() {
+    connect(m_tabButton, &QPushButton::clicked, [this]() {
         AddTab(QString("新标签页%1").arg(m_tabs.size() + 1));
         m_tabButton->setChecked(false);
     });
@@ -122,7 +122,7 @@ void TabWidget::AddTab(const QString &text)
     tab->hide();
     m_tabs.emplace_back(QPair<TabButton *, Tab *>(tabButton, tab));
 
-    connect(tabButton, &QPushButton::toggled, [=](bool checked) {
+    connect(tabButton, &QPushButton::toggled, [this, tabButton, tab](bool checked) {
         if (checked) {
             tab->show();
 
@@ -135,7 +135,7 @@ void TabWidget::AddTab(const QString &text)
         }
     });
 
-    connect(tabButton, &TabButton::Signal_Delete, this, [=] {
+    connect(tabButton, &TabButton::Signal_Delete, this, [this, tabButton] {
         for (auto &[button, tab] : m_tabs) {
             if (button == tabButton) {
 

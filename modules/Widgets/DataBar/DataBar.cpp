@@ -39,7 +39,7 @@ DataBar::DataBar(QWidget *parent) : QLineEdit(parent)
     this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
 
     s_lineEdits.push_back(this);
-    connect(this, &QLineEdit::textChanged, [=](const QString &text) {
+    connect(this, &QLineEdit::textChanged, [this](const QString &text) {
         if (text.isEmpty()) {
             return;
         }

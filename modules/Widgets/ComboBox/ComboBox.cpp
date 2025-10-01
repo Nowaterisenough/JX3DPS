@@ -126,7 +126,7 @@ ComboBox::ComboBox(QWidget *parent) : QWidget(parent)
 
     this->setGraphicsEffect(shadowEffect); // 为按钮应用阴影效果
 
-    connect(m_subComboBox, &SubComboBox::Signal_CurrentItemChanged, this, [=](const ItemInfo &itemInfo) {
+    connect(m_subComboBox, &SubComboBox::Signal_CurrentItemChanged, this, [this](const ItemInfo &itemInfo) {
         m_name = itemInfo.name;
         update();
         emit Signal_CurrentItemChanged(itemInfo);
@@ -215,12 +215,12 @@ SubComboBox::SubComboBox(QWidget *parent) : QComboBox(parent)
     this->setModel(listWidget->model());
     this->setView(listWidget);
 
-    connect(listWidget, &QListWidget::currentItemChanged, this, [=](QListWidgetItem *current, QListWidgetItem *previous) {
+    connect(listWidget, &QListWidget::currentItemChanged, this, [this, listWidget](QListWidgetItem *current, QListWidgetItem *previous) {
         if (previous != nullptr && ((ItemWidget *)listWidget->itemWidget(previous)) != nullptr)
         {
             ((ItemWidget *)listWidget->itemWidget(previous))->SetSelected(false);
         }
-        if (current == nullptr && ((ItemWidget *)listWidget->itemWidget(current)) == nullptr)
+        if (current == nullptr || ((ItemWidget *)listWidget->itemWidget(current)) == nullptr)
         {
             return;
         }

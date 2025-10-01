@@ -152,7 +152,7 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
     textMax->setColor(Qt::white);
     textMax->setFont(QFont(this->font().family(), 11));
 
-    connect(this, &StatsWidget::Signal_UpdateStats, this, [=](const nlohmann::ordered_json &result) {
+    connect(this, &StatsWidget::Signal_UpdateStats, this, [this, customPlot, textMin, textMax](const nlohmann::ordered_json &result) {
         std::vector<long long> res = result["DamageList"].get<std::vector<long long>>();
 
         int frames = result["Frames"].get<int>();
@@ -262,7 +262,7 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
     modelRoll->setHeaderData(4, Qt::Horizontal, "总伤害");
     modelRoll->setHeaderData(5, Qt::Horizontal, "伤害占比");
 
-    connect(this, &StatsWidget::Signal_UpdateStats, this, [=](const nlohmann::ordered_json &result) {
+    connect(this, &StatsWidget::Signal_UpdateStats, this, [this, modelTarget, tableViewTarget, modelEffect, tableViewEffect](const nlohmann::ordered_json &result) {
         m_stats         = result["Stats"]["默认"];
         m_simIterations = result["SimIterations"].get<int>();
 
@@ -292,7 +292,7 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
         emit Signal_UpdateTargetEffectRollStats(targetName, effectName, effectDamage, effectCount);
     });
 
-    connect(this, &StatsWidget::Signal_UpdateTargetStats, this, [=]() {
+    connect(this, &StatsWidget::Signal_UpdateTargetStats, this, [this, tableViewTarget, modelTarget]() {
         auto      index         = tableViewTarget->currentIndex();
         long long totalDamage   = JsonParser::GetTotalDamage(m_stats);
         auto      targetDamages = JsonParser::GetTargetDamages(m_stats);
@@ -313,7 +313,7 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
     connect(this,
             &StatsWidget::Signal_UpdateTargetEffectStats,
             this,
-            [=](const std::string &targetName, long long targetDamage) {
+            [this, tableViewEffect, modelEffect](const std::string &targetName, long long targetDamage) {
         auto index = tableViewEffect->currentIndex();
         auto targetEffectDamages = JsonParser::GetTargetEffectDamages(m_stats, targetName);
         modelEffect->setRowCount(targetEffectDamages.size());
@@ -334,7 +334,7 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
         tableViewEffect->setCurrentIndex(index);
     });
 
-    connect(tableViewTarget, &QTableView::clicked, this, [=](const QModelIndex &index) {
+    connect(tableViewTarget, &QTableView::clicked, this, [this, modelTarget](const QModelIndex &index) {
         // 获取目标名
         std::string targetName =
             modelTarget->data(modelTarget->index(index.row(), 0)).toString().toStdString();
@@ -346,7 +346,7 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
     connect(this,
             &StatsWidget::Signal_UpdateTargetEffectRollStats,
             this,
-            [=](const std::string &targetName, const std::string &effectName, long long effectDamage, int effectCount) {
+            [this, tableViewRoll, modelRoll](const std::string &targetName, const std::string &effectName, long long effectDamage, int effectCount) {
         auto index = tableViewRoll->currentIndex();
         auto targetEffectRollDamages =
             JsonParser::GetTargetEffectDamages(m_stats, targetName, effectName);
@@ -371,7 +371,7 @@ JX3DPS::Simulator::StatsWidget::StatsWidget(QWidget *parent) : Widget(parent)
         tableViewRoll->setCurrentIndex(index);
     });
 
-    connect(tableViewEffect, &QTableView::clicked, this, [=](const QModelIndex &index) {
+    connect(tableViewEffect, &QTableView::clicked, this, [this, modelTarget, tableViewTarget, modelEffect](const QModelIndex &index) {
         // 获取目标名
         std::string targetName =
             modelTarget->data(modelTarget->index(tableViewTarget->currentIndex().row(), 0))

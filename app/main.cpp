@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
         if (!families.isEmpty()) {
             QString str = families.at(0);
             QFont   font(str, 10.5);
-            font.setStyleStrategy(QFont::PreferAntialias);
+            // font.setStyleStrategy(QFont::PreferAntialias);
             font.setHintingPreference(QFont::PreferFullHinting);
             qApp->setFont(font);
             spdlog::info("Loaded font: {}", str.toStdString());
@@ -49,29 +49,28 @@ int main(int argc, char *argv[])
     }
 
     spdlog::info("Creating main widget...");
+
+    JX3DPS::Simulator::Widget *widget = nullptr;
     try {
-        // 先试试基础的Widget类
-        spdlog::info("Testing base Widget class...");
-        Widget baseWidget;
-        baseWidget.SetTitle("Base Widget Test");
-        spdlog::info("Base Widget created successfully");
-        
-        baseWidget.show();
-        spdlog::info("Base Widget shown, testing JX3DPS Widget...");
-        baseWidget.close();
-        
-        // 现在试试完整的JX3DPS Widget
-        JX3DPS::Simulator::Widget widget;
+        widget = new JX3DPS::Simulator::Widget();
         spdlog::info("JX3DPS Widget created successfully, showing...");
-        widget.show();
+        widget->show();
         spdlog::info("Widget shown, starting event loop...");
     } catch (const std::exception& e) {
         spdlog::error("Exception caught: {}", e.what());
+        if (widget) {
+            delete widget;
+        }
         return -1;
     } catch (...) {
         spdlog::error("Unknown exception caught");
+        if (widget) {
+            delete widget;
+        }
         return -1;
     }
 
-    return app.exec();
+    int result = app.exec();
+    delete widget;
+    return result;
 }

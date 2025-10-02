@@ -18,7 +18,14 @@
       "Bash(ls:*)",
       "Bash(ninja:*)",
       "Bash(find:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(move Resources.h resources.h)",
+      "Bash(ren:*)",
+      "Bash(findstr:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nrefactor: improve code editor and fix CI pipeline\n\n- Refactor code_editor to use unified monospaced font (Monaco + LXGW WenKai Mono)\n- Enhance JX3 macro syntax highlighting with better pattern recognition\n- Fix Resources.h filename case sensitivity issue (Resources.h -> resources.h)\n- Update CMakeLists.txt to fix code_editor subdirectory path\n- Improve GitHub Actions workflows to properly checkout submodules\n- Update font fallback chain to prioritize English (Monaco) and Chinese (LXGW WenKai Mono)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

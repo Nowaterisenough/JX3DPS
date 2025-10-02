@@ -12,3 +12,4 @@ build/*
 .history/*
 
 .cache/*
+.claude/*

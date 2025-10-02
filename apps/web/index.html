@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JX3 宏编辑器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>JX3 宏编辑器</h1>
+        <div class="editor-container">
+            <div class="gutter" id="gutter"></div>
+            <div class="editor-wrapper">
+                <pre id="highlight-layer" class="highlight-layer" aria-hidden="true"></pre>
+                <textarea id="editor" class="editor" spellcheck="false"></textarea>
+            </div>
+        </div>
+        <div class="info">
+            <p>点击行号设置/取消断点 | 支持 JX3 宏语法高亮</p>
+        </div>
+    </div>
+    <script src="highlighter.js"></script>
+    <script src="editor.js"></script>
+</body>
+</html>

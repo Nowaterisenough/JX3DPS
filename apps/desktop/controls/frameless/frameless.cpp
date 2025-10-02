@@ -26,11 +26,86 @@ void Frameless::AddIgnoreWidget(QWidget *widget)
     _windowAgent->setHitTestVisible(widget);
 }
 
-void Frameless::AddTabBar(QWidget *widget, int stretch)
+void Frameless::SetupTitleBar(TitleBarSetupFunction setupFunc)
 {
-    auto *windowBar = qobject_cast<TitleBar *>(_windowAgent->titleBar());
-    if (windowBar) {
-        windowBar->AddWidget(TitleBar::WidgetType::CUSTOM, widget, stretch, Qt::AlignCenter);
+    if (!setupFunc) {
+        return;
+    }
+
+    // 如果已经有 titlebar，先移除
+    if (_titleBar) {
+        auto *layout = qobject_cast<QVBoxLayout *>(this->layout());
+        if (layout) {
+            layout->removeWidget(_titleBar);
+            _titleBar->deleteLater();
+            _titleBar = nullptr;
+        }
+    }
+
+    // 调用自定义的 setup 函数创建 titlebar
+    _titleBar = setupFunc(this, _windowAgent);
+
+    if (_titleBar) {
+        // 设置到 windowAgent
+        _windowAgent->setTitleBar(_titleBar);
+
+        // 添加到布局
+        auto *layout = qobject_cast<QVBoxLayout *>(this->layout());
+        if (layout) {
+            layout->setMenuBar(_titleBar);
+        }
+    }
+}
+
+void Frameless::SetupDefaultTitleBar()
+{
+    SetupTitleBar([](Frameless *frameless, QWK::WidgetWindowAgent *agent) -> QWidget* {
+        constexpr int BUTTON_WIDTH = 45;
+        constexpr int HEIGHT       = 35;
+
+        auto *windowBar = new TitleBar(frameless);
+        windowBar->SetHostWidget(frameless);
+        windowBar->setFixedHeight(HEIGHT);
+
+        auto *icon = new QLabel(windowBar);
+        icon->setFixedHeight(HEIGHT);
+        icon->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+
+        auto *title = new QLabel(windowBar);
+        title->setFixedHeight(HEIGHT);
+        title->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+
+        auto *minimizeButton = new TitleBarButton(TitleBarButton::ButtonType::MINIMIZE, windowBar);
+        minimizeButton->setFixedSize(BUTTON_WIDTH, HEIGHT);
+        minimizeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+        QObject::connect(minimizeButton, &QPushButton::clicked, frameless, &Frameless::showMinimized);
+
+        auto *maximizeButton = new TitleBarButton(TitleBarButton::ButtonType::MAXIMIZE, windowBar);
+        maximizeButton->setFixedSize(BUTTON_WIDTH, HEIGHT);
+        maximizeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+        QObject::connect(maximizeButton, &QPushButton::clicked, frameless, [frameless] {
+            if (frameless->isMaximized()) {
+                frameless->showNormal();
+            } else {
+                frameless->showMaximized();
+            }
+        });
+
+        auto *closeButton = new TitleBarButton(TitleBarButton::ButtonType::CLOSE, windowBar);
+        closeButton->setFixedSize(BUTTON_WIDTH, HEIGHT);
+        closeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+        QObject::connect(closeButton, &QPushButton::clicked, frameless, &Frameless::close);
+
+        auto *spacer = new QWidget(windowBar);
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+        windowBar->AddWidget(TitleBar::WidgetType::ICON, icon, 0, Qt::AlignCenter);
+        windowBar->AddWidget(TitleBar::WidgetType::TITLE, title, 0, Qt::AlignCenter);
+        windowBar->AddWidget(TitleBar::WidgetType::CUSTOM, spacer, 1, Qt::AlignCenter);
+        windowBar->AddWidget(TitleBar::WidgetType::MIN_BUTTON, minimizeButton, 0, Qt::AlignCenter);
+        windowBar->AddWidget(TitleBar::WidgetType::MAX_BUTTON, maximizeButton, 0, Qt::AlignCenter);
+        windowBar->AddWidget(TitleBar::WidgetType::CLOSE_BUTTON, closeButton, 0, Qt::AlignCenter);
+
         windowBar->UpdateLayout({
             TitleBar::WidgetType::SPACER_ITEM,
             TitleBar::WidgetType::ICON,
@@ -43,7 +118,15 @@ void Frameless::AddTabBar(QWidget *widget, int stretch)
             TitleBar::WidgetType::MAX_BUTTON,
             TitleBar::WidgetType::CLOSE_BUTTON,
         });
-    }
+
+        // 设置系统按钮
+        agent->setSystemButton(QWK::WidgetWindowAgent::SystemButton::WindowIcon, icon);
+        agent->setSystemButton(QWK::WidgetWindowAgent::SystemButton::Minimize, minimizeButton);
+        agent->setSystemButton(QWK::WidgetWindowAgent::SystemButton::Maximize, maximizeButton);
+        agent->setSystemButton(QWK::WidgetWindowAgent::SystemButton::Close, closeButton);
+
+        return windowBar;
+    });
 }
 
 void Frameless::InstallWindowAgent()
@@ -54,144 +137,14 @@ void Frameless::InstallWindowAgent()
 
 void Frameless::SetupUI()
 {
-    InitTitleBar();
-}
-
-void Frameless::InitTitleBar()
-{
-    constexpr int BUTTON_WIDTH = 45;
-    constexpr int HEIGHT       = 35;
-
-    auto *windowBar = new TitleBar(this);
-    windowBar->SetHostWidget(this);
-    windowBar->setFixedHeight(HEIGHT);
-
-    auto *icon = new QLabel(windowBar);
-    icon->setFixedHeight(HEIGHT);
-    icon->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
-
-    auto *title = new QLabel(windowBar);
-    title->setFixedHeight(HEIGHT);
-    title->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
-
-    _minimizeButton = new TitleBarButton(TitleBarButton::ButtonType::MINIMIZE, windowBar);
-    _minimizeButton->setFixedSize(BUTTON_WIDTH, HEIGHT);
-    _minimizeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
-    connect(_minimizeButton, &QPushButton::clicked, this, &Frameless::showMinimized);
-
-    _maximizeButton = new TitleBarButton(TitleBarButton::ButtonType::MAXIMIZE, windowBar);
-    _maximizeButton->setFixedSize(BUTTON_WIDTH, HEIGHT);
-    _maximizeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
-    connect(_maximizeButton, &QPushButton::clicked, this, [=, this] {
-        if (isMaximized()) {
-            showNormal();
-        } else {
-            showMaximized();
-        }
-    });
-
-    auto *closeButton = new TitleBarButton(TitleBarButton::ButtonType::CLOSE, windowBar);
-    closeButton->setFixedSize(BUTTON_WIDTH, HEIGHT);
-    closeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
-    connect(closeButton, &QPushButton::clicked, this, &Frameless::close);
-
-    auto *spacer = new QWidget(windowBar);
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-    windowBar->AddWidget(TitleBar::WidgetType::ICON, icon, 0, Qt::AlignCenter);
-    windowBar->AddWidget(TitleBar::WidgetType::TITLE, title, 0, Qt::AlignCenter);
-    windowBar->AddWidget(TitleBar::WidgetType::CUSTOM, spacer, 1, Qt::AlignCenter);
-    windowBar->AddWidget(TitleBar::WidgetType::MIN_BUTTON, _minimizeButton, 0, Qt::AlignCenter);
-    windowBar->AddWidget(TitleBar::WidgetType::MAX_BUTTON, _maximizeButton, 0, Qt::AlignCenter);
-    windowBar->AddWidget(TitleBar::WidgetType::CLOSE_BUTTON, closeButton, 0, Qt::AlignCenter);
-
-    windowBar->UpdateLayout({
-        TitleBar::WidgetType::SPACER_ITEM,
-        TitleBar::WidgetType::ICON,
-        TitleBar::WidgetType::SPACER_ITEM,
-        TitleBar::WidgetType::SPACER_ITEM,
-        TitleBar::WidgetType::TITLE,
-        TitleBar::WidgetType::CUSTOM,
-        TitleBar::WidgetType::SPACER_ITEM,
-        TitleBar::WidgetType::MIN_BUTTON,
-        TitleBar::WidgetType::MAX_BUTTON,
-        TitleBar::WidgetType::CLOSE_BUTTON,
-    });
-
-    _windowAgent->setup(this);
-    _windowAgent->setTitleBar(windowBar);
-    _windowAgent->setSystemButton(QWK::WidgetWindowAgent::SystemButton::WindowIcon, icon);
-    _windowAgent->setSystemButton(QWK::WidgetWindowAgent::SystemButton::Minimize, _minimizeButton);
-    _windowAgent->setSystemButton(QWK::WidgetWindowAgent::SystemButton::Maximize, _maximizeButton);
-    _windowAgent->setSystemButton(QWK::WidgetWindowAgent::SystemButton::Close, closeButton);
-
+    // 创建主布局
     auto *layout = new QVBoxLayout(this);
-    layout->setMenuBar(windowBar);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(_centralWidget);
 }
 
-void Frameless::HideButton()
-{
-    _maximizeButton->hide();
-    _minimizeButton->hide();
-}
-
 bool Frameless::eventFilter(QObject *watched, QEvent *event)
 {
-    // 监听窗口标志更改事件
-    if (watched == this && event->type() == QEvent::Show) {
-        CheckWindowFlags();
-    }
-
     return QWidget::eventFilter(watched, event);
-}
-
-void Frameless::CheckWindowFlags()
-{
-    bool isDialog = this->windowFlags() & Qt::Dialog;
-
-    if (isDialog) {
-        // 如果是Dialog类型，只保留关闭按钮
-        HideButton();
-
-        // 更新布局
-        auto *windowBar = qobject_cast<TitleBar *>(_windowAgent->titleBar());
-        if (windowBar) {
-            windowBar->UpdateLayout({
-                TitleBar::WidgetType::SPACER_ITEM,
-                TitleBar::WidgetType::ICON,
-                TitleBar::WidgetType::SPACER_ITEM,
-                TitleBar::WidgetType::SPACER_ITEM,
-                TitleBar::WidgetType::TITLE,
-                TitleBar::WidgetType::CUSTOM,
-                TitleBar::WidgetType::SPACER_ITEM,
-                TitleBar::WidgetType::CLOSE_BUTTON,
-            });
-        }
-    } else {
-        // 如果不是Dialog类型，显示所有按钮
-        if (_minimizeButton && _maximizeButton) {
-            _minimizeButton->show();
-            _maximizeButton->show();
-        }
-
-        // 更新布局为完整版
-        auto *windowBar = qobject_cast<TitleBar *>(_windowAgent->titleBar());
-        if (windowBar) {
-            windowBar->UpdateLayout({
-                TitleBar::WidgetType::SPACER_ITEM,
-                TitleBar::WidgetType::ICON,
-                TitleBar::WidgetType::SPACER_ITEM,
-                TitleBar::WidgetType::SPACER_ITEM,
-                TitleBar::WidgetType::TITLE,
-                TitleBar::WidgetType::CUSTOM,
-                TitleBar::WidgetType::SPACER_ITEM,
-                TitleBar::WidgetType::MIN_BUTTON,
-                TitleBar::WidgetType::MAX_BUTTON,
-                TitleBar::WidgetType::CLOSE_BUTTON,
-            });
-        }
-    }
 }

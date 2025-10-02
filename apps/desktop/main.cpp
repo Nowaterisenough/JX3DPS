@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
     QApplication::setStyle(new DarkStyle());
 
     Frameless w;
+    w.SetupDefaultTitleBar();  // 使用默认的 titlebar
     w.setWindowTitle("JX3DPS - Code Editor");
     w.resize(1200, 800);
 

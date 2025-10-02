@@ -60,17 +60,17 @@ JX3DPS::Simulator::Widget::Widget(QWidget *parent)
     this->setMinimumWidth(1000);
 
     spdlog::info("Creating UI components...");
-    GroupBox  *groupBoxSetting         = new GroupBox("设置", this->centralWidget);
+    GroupBox *groupBoxSetting = new GroupBox("设置", this->centralWidget);
     spdlog::info("GroupBox created");
     TabWidget *tabWidgetAttribute      = new TabWidget(this->centralWidget);
     GroupBox  *groupBoxConfiguration   = new GroupBox("配置", this->centralWidget);
     GroupBox  *groupBoxOut             = new GroupBox("输出", this->centralWidget);
     TabWidget *tabWidgetGains          = new TabWidget(this->centralWidget);
     TabWidget *tabWidgetTalentsRecipes = new TabWidget(this->centralWidget);
-    GroupBox  *groupBoxPermanents = new GroupBox("常驻增益", this->centralWidget);
-    Splitter  *splitter           = new Splitter(this->centralWidget);
-    QWidget   *widgetSkills       = new QWidget(this->centralWidget);
-    QWidget   *widgetEvents       = new QWidget(this->centralWidget);
+    GroupBox  *groupBoxPermanents      = new GroupBox("常驻增益", this->centralWidget);
+    Splitter  *splitter                = new Splitter(this->centralWidget);
+    QWidget   *widgetSkills            = new QWidget(this->centralWidget);
+    QWidget   *widgetEvents            = new QWidget(this->centralWidget);
 
     tabWidgetAttribute->AddTab("属性");
     tabWidgetAttribute->AddTab("配装");
@@ -166,7 +166,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
     // Load config using C-style FILE instead of C++ ifstream
     // Note: Using C FILE API to avoid crashes that occurred with std::ifstream in this context
     {
-        FILE* f = fopen(CONFIG_PATH, "rb");
+        FILE *f = fopen(CONFIG_PATH, "rb");
         if (!f) {
             throw std::runtime_error("Failed to open config file");
         }
@@ -176,7 +176,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
         fseek(f, 0, SEEK_SET);
 
         std::string content(fsize, '\0');
-        size_t read_size = fread(&content[0], 1, fsize, f);
+        size_t      read_size = fread(&content[0], 1, fsize, f);
         fclose(f);
 
         content.resize(read_size);
@@ -275,7 +275,7 @@ void JX3DPS::Simulator::Widget::InitWidgetSetting(QWidget *parent)
         params["Options"]["SimIterations"]  = lineEditSimulateCount->text().toInt();
         params["Options"]["DelayMin"]       = lineEditDelayMin->text().toInt();
         params["Options"]["DelayMax"]       = lineEditDelayMax->text().toInt();
-        params["Options"]["Mode"] = checkBoxDebug->isChecked() ? "debug" : "default";
+        params["Options"]["Mode"]           = checkBoxDebug->isChecked() ? "debug" : "default";
     });
 }
 
@@ -389,18 +389,13 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
 {
 
     QList<JX3DPS::Attribute::Type> attributeTypes = {
-        JX3DPS::Attribute::Type::DEFAULT,
-        JX3DPS::Attribute::Type::ATTACK_POWER_BASE,
-        JX3DPS::Attribute::Type::CRITICAL_STRIKE,
-        JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER,
-        JX3DPS::Attribute::Type::OVERCOME_BASE,
-        JX3DPS::Attribute::Type::HASTE_BASE,
-        JX3DPS::Attribute::Type::STRAIN_BASE,
-        JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE,
+        JX3DPS::Attribute::Type::DEFAULT,         JX3DPS::Attribute::Type::ATTACK_POWER_BASE,
+        JX3DPS::Attribute::Type::CRITICAL_STRIKE, JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER,
+        JX3DPS::Attribute::Type::OVERCOME_BASE,   JX3DPS::Attribute::Type::HASTE_BASE,
+        JX3DPS::Attribute::Type::STRAIN_BASE,     JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE,
     };
 
-    QList<QString> attributeNames = { "身法", "攻击", "会心", "会效",    "破防",
-                                      "加速", "无双", "破招", "武器伤害" };
+    QList<QString> attributeNames = { "身法", "攻击", "会心", "会效", "破防", "加速", "无双", "破招", "武器伤害" };
 
     QList<QString> types = { "内功", "外功" };
 
@@ -415,7 +410,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     QGridLayout *gLayout = new QGridLayout(parent);
 
     static const std::unordered_map<std::string_view, JX3DPS::Attribute::Type> &ATTRIBUTE_TYPE_HASH = {
-        {{ "身法", JX3DPS::Attribute::Type::AGILITY_BASE },
+        { { "身法", JX3DPS::Attribute::Type::AGILITY_BASE },
          { "力道", JX3DPS::Attribute::Type::STRENGTH_BASE },
          { "根骨", JX3DPS::Attribute::Type::SPIRIT_BASE },
          { "元气", JX3DPS::Attribute::Type::SPUNK_BASE },
@@ -434,7 +429,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
          { "外功会效", JX3DPS::Attribute::Type::PHYSICS_CRITICAL_STRIKE_POWER },
          { "内功会效", JX3DPS::Attribute::Type::MAGIC_CRITICAL_STRIKE_POWER },
          { "外功破防", JX3DPS::Attribute::Type::PHYSICS_OVERCOME_BASE },
-         { "内功破防", JX3DPS::Attribute::Type::MAGIC_OVERCOME_BASE }}
+         { "内功破防", JX3DPS::Attribute::Type::MAGIC_OVERCOME_BASE } }
     };
 
     int index = 0;
@@ -508,15 +503,11 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
             attributeLineEdits[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetAgility());
             attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetAgility());
             attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->setRange(attribute->GetAgilityBaseByClass());
-        } else if (attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->text() ==
-                   "力道")
-        {
+        } else if (attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->text() == "力道") {
             attributeLineEdits[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetStrength());
             attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetStrength());
             attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->setRange(attribute->GetStrengthBaseByClass());
-        } else if (attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->text() ==
-                   "根骨")
-        {
+        } else if (attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->text() == "根骨") {
             attributeLineEdits[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetSpirit());
             attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->UpdateValue(attribute->GetSpirit());
             attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->setRange(attribute->GetSpiritBaseByClass());
@@ -526,98 +517,66 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
             attributeSpinBoxes[JX3DPS::Attribute::Type::DEFAULT]->setRange(attribute->GetSpunkBaseByClass());
         }
 
-        if (attributeTextButtons[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->text().contains(types[1]))
-        {
-            attributeLineEdits[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
-                attribute->GetPhysicsAttackPower());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
-                attribute->GetPhysicsAttackPowerBase());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->setRange(
-                attribute->GetPhysicsAttackPowerBaseByClass());
+        if (attributeTextButtons[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->text().contains(types[1])) {
+            attributeLineEdits[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(attribute->GetPhysicsAttackPower());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(attribute->GetPhysicsAttackPowerBase());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->setRange(attribute->GetPhysicsAttackPowerBaseByClass());
         } else {
-            attributeLineEdits[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
-                attribute->GetMagicAttackPower());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(
-                attribute->GetMagicAttackPowerBase());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->setRange(
-                attribute->GetMagicAttackPowerBaseByClass());
+            attributeLineEdits[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(attribute->GetMagicAttackPower());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->UpdateValue(attribute->GetMagicAttackPowerBase());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::ATTACK_POWER_BASE]->setRange(attribute->GetMagicAttackPowerBaseByClass());
         }
 
-        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->text().contains(types[1]))
-        {
-            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValueFloat(
-                attribute->GetPhysicsCriticalStrikePercent());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValue(
-                attribute->GetPhysicsCriticalStrike());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->setRange(
-                attribute->GetPhysicsCriticalStrikeMinimum());
+        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->text().contains(types[1])) {
+            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValueFloat(attribute->GetPhysicsCriticalStrikePercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValue(attribute->GetPhysicsCriticalStrike());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->setRange(attribute->GetPhysicsCriticalStrikeMinimum());
         } else {
-            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValueFloat(
-                attribute->GetMagicCriticalStrikePercent());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValue(
-                attribute->GetMagicCriticalStrike());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->setRange(
-                attribute->GetMagicCriticalStrikeMinimum());
+            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValueFloat(attribute->GetMagicCriticalStrikePercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->UpdateValue(attribute->GetMagicCriticalStrike());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE]->setRange(attribute->GetMagicCriticalStrikeMinimum());
         }
 
-        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->text().contains(types[1]))
-        {
-            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValueFloat(
-                attribute->GetPhysicsCriticalStrikePowerPercent());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValue(
-                attribute->GetPhysicsCriticalStrikePower());
+        if (attributeTextButtons[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->text().contains(types[1])) {
+            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValueFloat(attribute->GetPhysicsCriticalStrikePowerPercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValue(attribute->GetPhysicsCriticalStrikePower());
         } else {
-            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValueFloat(
-                attribute->GetMagicCriticalStrikePowerPercent());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValue(
-                attribute->GetMagicCriticalStrikePower());
+            attributeLineEdits[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValueFloat(attribute->GetMagicCriticalStrikePowerPercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::CRITICAL_STRIKE_POWER]->UpdateValue(attribute->GetMagicCriticalStrikePower());
         }
 
-        if (attributeTextButtons[JX3DPS::Attribute::Type::OVERCOME_BASE]->text().contains(types[1]))
-        {
-            attributeLineEdits[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValueFloat(
-                attribute->GetPhysicsOvercomePercent());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValue(
-                attribute->GetPhysicsOvercomeBase());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->setRange(
-                attribute->GetPhysicsOvercomeBaseMinimum());
+        if (attributeTextButtons[JX3DPS::Attribute::Type::OVERCOME_BASE]->text().contains(types[1])) {
+            attributeLineEdits[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValueFloat(attribute->GetPhysicsOvercomePercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValue(attribute->GetPhysicsOvercomeBase());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->setRange(attribute->GetPhysicsOvercomeBaseMinimum());
         } else {
-            attributeLineEdits[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValueFloat(
-                attribute->GetMagicOvercomePercent());
-            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValue(
-                attribute->GetMagicOvercomeBase());
+            attributeLineEdits[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValueFloat(attribute->GetMagicOvercomePercent());
+            attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->UpdateValue(attribute->GetMagicOvercomeBase());
             attributeSpinBoxes[JX3DPS::Attribute::Type::OVERCOME_BASE]->setRange(attribute->GetMagicOvercomeBaseMinimum());
         }
 
-        attributeLineEdits[JX3DPS::Attribute::Type::HASTE_BASE]->UpdateValueFloat(
-            attribute->GetHasteVisiblePercent());
+        attributeLineEdits[JX3DPS::Attribute::Type::HASTE_BASE]->UpdateValueFloat(attribute->GetHasteVisiblePercent());
         attributeSpinBoxes[JX3DPS::Attribute::Type::HASTE_BASE]->UpdateValue(attribute->GetHasteBase());
 
-        attributeLineEdits[JX3DPS::Attribute::Type::STRAIN_BASE]->UpdateValueFloat(
-            attribute->GetStrainPercent());
+        attributeLineEdits[JX3DPS::Attribute::Type::STRAIN_BASE]->UpdateValueFloat(attribute->GetStrainPercent());
         attributeSpinBoxes[JX3DPS::Attribute::Type::STRAIN_BASE]->UpdateValue(attribute->GetStrainBase());
 
-        attributeLineEdits[JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE]->UpdateValue(
-            attribute->GetSurplusValueBase());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE]->UpdateValue(
-            attribute->GetSurplusValueBase());
+        attributeLineEdits[JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE]->UpdateValue(attribute->GetSurplusValueBase());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::SURPLUS_VALUE_BASE]->UpdateValue(attribute->GetSurplusValueBase());
 
-        attributeSpinBoxes[JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE]->UpdateValue(
-            attribute->GetWeaponDamageBase());
-        attributeSpinBoxes[JX3DPS::Attribute::Type::WEAPON_DAMAGE_RAND]->UpdateValue(
-            attribute->GetWeaponDamageBase() + attribute->GetWeaponDamageRand());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::WEAPON_DAMAGE_BASE]->UpdateValue(attribute->GetWeaponDamageBase());
+        attributeSpinBoxes[JX3DPS::Attribute::Type::WEAPON_DAMAGE_RAND]->UpdateValue(attribute->GetWeaponDamageBase() +
+                                                                                     attribute->GetWeaponDamageRand());
     });
 
     emit Signal_UpdateAttribute();
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=, this](JX3DPS::ClassType type) {
         for (int index = 1; index <= 4; ++index) {
-            attributeTextButtons[attributeTypes[index]]->setText(types[static_cast<int>(type) % 2] +
-                                                                 attributeNames[index]);
+            attributeTextButtons[attributeTypes[index]]->setText(types[static_cast<int>(type) % 2] + attributeNames[index]);
         }
 
-        if (JX3DPS::Attribute::MAJOR[static_cast<int>(type)][static_cast<int>(JX3DPS::Attribute::MajorType::AGILITY)])
-        {
+        if (JX3DPS::Attribute::MAJOR[static_cast<int>(type)][static_cast<int>(JX3DPS::Attribute::MajorType::AGILITY)]) {
             attributeTextButtons[JX3DPS::Attribute::Type::DEFAULT]->setText("身法");
         } else if (JX3DPS::Attribute::MAJOR[static_cast<int>(type)][static_cast<int>(JX3DPS::Attribute::MajorType::STRENGTH)])
         {
@@ -648,8 +607,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     gLayout->addWidget(spinBoxWeaponMin, index, 1, 1, 1);
     gLayout->addWidget(spinBoxWeaponMax, index, 2, 1, 1);
 
-    QSpacerItem *spacerItem =
-        new QSpacerItem(0, 10, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+    QSpacerItem *spacerItem = new QSpacerItem(0, 10, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
     gLayout->addItem(spacerItem, ++index, 0, 1, 3);
 
     GroupBox *groupBoxEquipEffect = new GroupBox("装备效果", parent);
@@ -659,8 +617,7 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     gLayout->addWidget(groupBoxEquipEffect, ++index, 0, 1, 3);
     gLayout->setRowStretch(index, 0);
 
-    QSpacerItem *spacerItem2 =
-        new QSpacerItem(0, 2, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+    QSpacerItem *spacerItem2 = new QSpacerItem(0, 2, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
     gLayout->addItem(spacerItem2, ++index, 0, 1, 3);
 
     Button *buttonImport = new Button(parent);
@@ -691,24 +648,19 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
         attribute->SetHasteBase(json["Haste"].get<int>());
 
         if (json.find("PhysicsAttackPowerBase") != json.end()) {
-            attribute->SetPhysicsAttackPowerBaseAdditional(
-                json["PhysicsAttackPowerBase"].get<int>() -
-                attribute->GetPhysicsAttackPowerBaseByClass());
+            attribute->SetPhysicsAttackPowerBaseAdditional(json["PhysicsAttackPowerBase"].get<int>() -
+                                                           attribute->GetPhysicsAttackPowerBaseByClass());
             attribute->SetPhysicsCriticalStrikeAdditional(json["PhysicsCriticalStrike"].get<int>() -
                                                           attribute->GetPhysicsCriticalStrikeByClass());
             attribute->SetPhysicsCriticalStrikePower(json["PhysicsCriticalDamagePower"].get<int>());
-            attribute->SetPhysicsOvercomeBaseAdditional(json["PhysicsOvercome"].get<int>() -
-                                                        attribute->GetPhysicsOvercomeBaseByClass());
+            attribute->SetPhysicsOvercomeBaseAdditional(json["PhysicsOvercome"].get<int>() - attribute->GetPhysicsOvercomeBaseByClass());
         }
 
         if (json.find("LunarAttackPowerBase") != json.end()) {
-            attribute->SetMagicAttackPowerBaseAdditional(json["LunarAttackPowerBase"].get<int>() -
-                                                         attribute->GetMagicAttackPowerBaseByClass());
-            attribute->SetMagicCriticalStrikeAdditional(json["LunarCriticalStrike"].get<int>() -
-                                                        attribute->GetMagicCriticalStrikeByClass());
+            attribute->SetMagicAttackPowerBaseAdditional(json["LunarAttackPowerBase"].get<int>() - attribute->GetMagicAttackPowerBaseByClass());
+            attribute->SetMagicCriticalStrikeAdditional(json["LunarCriticalStrike"].get<int>() - attribute->GetMagicCriticalStrikeByClass());
             attribute->SetMagicCriticalStrikePower(json["LunarCriticalDamagePower"].get<int>());
-            attribute->SetMagicOvercomeBaseAdditional(json["LunarOvercome"].get<int>() -
-                                                      attribute->GetMagicOvercomeBaseByClass());
+            attribute->SetMagicOvercomeBaseAdditional(json["LunarOvercome"].get<int>() - attribute->GetMagicOvercomeBaseByClass());
         }
 
         emit Signal_UpdateAttribute();
@@ -717,18 +669,18 @@ void JX3DPS::Simulator::Widget::InitWidgetAttribute(QWidget *parent)
     gLayout->addWidget(buttonImport, ++index, 0, 1, 3);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
-        params["Attribute"]["身法"]         = attribute->GetAgility();
-        params["Attribute"]["力道"]         = attribute->GetStrength();
-        params["Attribute"]["根骨"]         = attribute->GetSpirit();
-        params["Attribute"]["元气"]         = attribute->GetSpunk();
-        params["Attribute"]["基础武器伤害"] = attribute->GetWeaponDamageBase();
-        params["Attribute"]["浮动武器伤害"] = attribute->GetWeaponDamageRand();
-        params["Attribute"]["外功基础攻击"] = attribute->GetPhysicsAttackPowerBase();
-        params["Attribute"]["内功基础攻击"] = attribute->GetMagicAttackPowerBase();
-        params["Attribute"]["外功会心等级"] = attribute->GetPhysicsCriticalStrike();
-        params["Attribute"]["内功会心等级"] = attribute->GetMagicCriticalStrike();
-        params["Attribute"]["外功会效等级"] = attribute->GetPhysicsCriticalStrikePower();
-        params["Attribute"]["内功会效等级"] = attribute->GetMagicCriticalStrikePower();
+        params["Attribute"]["身法"]             = attribute->GetAgility();
+        params["Attribute"]["力道"]             = attribute->GetStrength();
+        params["Attribute"]["根骨"]             = attribute->GetSpirit();
+        params["Attribute"]["元气"]             = attribute->GetSpunk();
+        params["Attribute"]["基础武器伤害"]     = attribute->GetWeaponDamageBase();
+        params["Attribute"]["浮动武器伤害"]     = attribute->GetWeaponDamageRand();
+        params["Attribute"]["外功基础攻击"]     = attribute->GetPhysicsAttackPowerBase();
+        params["Attribute"]["内功基础攻击"]     = attribute->GetMagicAttackPowerBase();
+        params["Attribute"]["外功会心等级"]     = attribute->GetPhysicsCriticalStrike();
+        params["Attribute"]["内功会心等级"]     = attribute->GetMagicCriticalStrike();
+        params["Attribute"]["外功会效等级"]     = attribute->GetPhysicsCriticalStrikePower();
+        params["Attribute"]["内功会效等级"]     = attribute->GetMagicCriticalStrikePower();
         params["Attribute"]["外功基础破防等级"] = attribute->GetPhysicsOvercomeBase();
         params["Attribute"]["内功基础破防等级"] = attribute->GetMagicOvercomeBase();
         params["Attribute"]["无双"]             = attribute->GetStrainBase();
@@ -853,12 +805,9 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
     gLayout->addItem(spacerItem, index, 0, 1, 1);
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
-        params["Options"]["GainSwitch"]["默认"] =
-            attributeDataBars.at(JX3DPS::Attribute::Type::DEFAULT)->isEnabled();
-        params["Options"]["GainSwitch"]["会心等级"] =
-            attributeDataBars.at(JX3DPS::Attribute::Type::CRITICAL_STRIKE)->isEnabled();
-        params["Options"]["GainSwitch"]["加速等级"] =
-            attributeDataBars.at(JX3DPS::Attribute::Type::HASTE_BASE)->isEnabled();
+        params["Options"]["GainSwitch"]["默认"] = attributeDataBars.at(JX3DPS::Attribute::Type::DEFAULT)->isEnabled();
+        params["Options"]["GainSwitch"]["会心等级"] = attributeDataBars.at(JX3DPS::Attribute::Type::CRITICAL_STRIKE)->isEnabled();
+        params["Options"]["GainSwitch"]["加速等级"] = attributeDataBars.at(JX3DPS::Attribute::Type::HASTE_BASE)->isEnabled();
     });
 
     connect(this, &Widget::Signal_UpdateResult, this, [=, this](const nlohmann::ordered_json &result) {
@@ -883,8 +832,8 @@ void JX3DPS::Simulator::Widget::InitWidgetGains(QWidget *parent)
             } else if (result["Stats"].find(JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))) !=
                        result["Stats"].end())
             {
-                long long sum = JsonParser::GetTotalDamage(
-                    result["Stats"][JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))]);
+                long long sum =
+                    JsonParser::GetTotalDamage(result["Stats"][JX3DPS::Attribute::ATTRIBUTE_NAME.at(static_cast<int>(type))]);
                 dataBar->SetValue(sum * 1.0 / damage - 1);
             }
         }
@@ -895,8 +844,7 @@ void JX3DPS::Simulator::Widget::InitWidgetTalents(QWidget *parent)
 {
     std::vector<ComboBox *> talentsComboBoxes;
     QGridLayout            *gLayout = new QGridLayout(parent);
-    QVector<QString>        nums    = { "一", "二", "三", "四", "五",   "六",
-                                        "七", "八", "九", "十", "十一", "十二" };
+    QVector<QString>        nums    = { "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二" };
     for (int i = 0; i < nums.size(); ++i) {
         ComboBox *comboBox = new ComboBox(parent);
         comboBox->SetType(ComboBox::Type::ICON_NAME);
@@ -985,8 +933,7 @@ void JX3DPS::Simulator::Widget::InitWidgetRecipes(QWidget *parent)
         for (auto &[btn, stack] : stackWidget->Stacks()) {
             for (auto &checkBox : stack->findChildren<CheckBoxIcon *>()) {
                 if (checkBox->isChecked()) {
-                    params["Recipes"][btn->text().toStdString()].emplace_back(
-                        checkBox->GetItemInfo().name.toStdString());
+                    params["Recipes"][btn->text().toStdString()].emplace_back(checkBox->GetItemInfo().name.toStdString());
                 }
             }
         }
@@ -998,14 +945,11 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     QGridLayout *gLayout = new QGridLayout(parent);
 
     std::unordered_map<std::string, ComboBox *> permanentComboBoxes;
-    std::vector<std::string> permanents = { "阵眼",     "食品增强", "食品辅助",
-                                            "药品增强", "药品辅助", "家园炊事",
-                                            "家园酿造", "武器磨石" };
+    std::vector<std::string>                    permanents = { "阵眼",     "食品增强", "食品辅助", "药品增强",
+                                                               "药品辅助", "家园炊事", "家园酿造", "武器磨石" };
 
-    std::vector<std::string> permanentTexts = {
-        "TeamCore",   "FoodEnhance", "FoodSupport", "MedEnhance",
-        "MedSupport", "HomeCook",    "HomeWine",    "WeaponWhetstone"
-    };
+    std::vector<std::string> permanentTexts = { "TeamCore",   "FoodEnhance", "FoodSupport", "MedEnhance",
+                                                "MedSupport", "HomeCook",    "HomeWine",    "WeaponWhetstone" };
 
     for (int i = 0; i < permanents.size(); ++i) {
         ComboBox *comboBox = new ComboBox(parent);
@@ -1023,9 +967,8 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
 
     std::vector<CheckBoxIcon *> permanentCheckBoxes;
 
-    GroupBox    *groupBox = new GroupBox("宴席", parent);
-    QSpacerItem *spacerItem =
-        new QSpacerItem(0, 5, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+    GroupBox    *groupBox   = new GroupBox("宴席", parent);
+    QSpacerItem *spacerItem = new QSpacerItem(0, 5, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
 
     gLayout->addItem(spacerItem, 8, 0, 1, 1);
     gLayout->addWidget(groupBox, 9, 0, 1, 1);
@@ -1132,7 +1075,6 @@ void JX3DPS::Simulator::Widget::InitWidgetPermanents(QWidget *parent)
     });
 }
 
-
 #include "Highlighter.h"
 
 void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
@@ -1147,11 +1089,11 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
 
     connect(tabWidgetSkills, &TabWidget::Signal_AddTab, this, [=, this]() {
         QWidget *widget = tabWidgetSkills->Widget(tabWidgetSkills->Count() - 1);
-        
-        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
-        Highlighter *highlighter = new Highlighter(plainTextEdit->document());
 
-        QGridLayout   *layout        = new QGridLayout(widget);
+        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
+        Highlighter   *highlighter   = new Highlighter(plainTextEdit->document());
+
+        QGridLayout *layout = new QGridLayout(widget);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(plainTextEdit);
     });
@@ -1174,10 +1116,10 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
         for (auto &[btn, tab] : tabWidgetSkills->Tabs()) {
-            QString        name   = btn->text();
-            PlainTextEdit *text   = tab->findChild<PlainTextEdit *>(QString(), Qt::FindChildrenRecursively);
-            QString        buffer = text->toPlainText();
-            QStringList    lines  = buffer.split("\n", Qt::SkipEmptyParts);
+            QString     name   = btn->text();
+            auto       *text   = tab->findChild<PlainTextEdit *>(QString(), Qt::FindChildrenRecursively);
+            QString     buffer = text->toPlainText();
+            QStringList lines  = buffer.split("\n", Qt::SkipEmptyParts);
             for (const QString &line : lines) {
                 params["SkillsExpression"][name.toStdString()].push_back(line.toStdString());
             }
@@ -1187,11 +1129,11 @@ void JX3DPS::Simulator::Widget::InitWidgetSkills(QWidget *parent)
 
 void JX3DPS::Simulator::Widget::InitWidgetEvents(QWidget *parent)
 {
-    QGridLayout *layout = new QGridLayout(parent);
+    auto *layout = new QGridLayout(parent);
 
     parent->setMouseTracking(true);
 
-    TabWidget *tabWidgetEvents = new TabWidget(parent);
+    auto *tabWidgetEvents = new TabWidget(parent);
 
     layout->addWidget(tabWidgetEvents, 0, 0, 1, 1);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -1211,8 +1153,8 @@ void JX3DPS::Simulator::Widget::InitWidgetEvents(QWidget *parent)
     connect(tabWidgetEvents, &TabWidget::Signal_AddTab, this, [=, this]() {
         QWidget *widget = tabWidgetEvents->Widget(tabWidgetEvents->Count() - 1);
 
-        PlainTextEdit *plainTextEdit = new PlainTextEdit(widget);
-        QGridLayout   *layout        = new QGridLayout(widget);
+        auto *plainTextEdit = new PlainTextEdit(widget);
+        auto *layout        = new QGridLayout(widget);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(plainTextEdit);
     });
@@ -1221,7 +1163,7 @@ void JX3DPS::Simulator::Widget::InitWidgetEvents(QWidget *parent)
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateClassType, [=, this](JX3DPS::ClassType type) {
         std::list<std::string> events;
         JsonParser::ParseJsonToEvents(m_config, type, events);
-        PlainTextEdit *text = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>(QString(), Qt::FindChildrenRecursively);
+        auto *text = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>(QString(), Qt::FindChildrenRecursively);
         text->clear();
         for (auto &expr : events) {
             text->appendHtml(expr.c_str());
@@ -1229,9 +1171,9 @@ void JX3DPS::Simulator::Widget::InitWidgetEvents(QWidget *parent)
     });
 
     connect(this, &JX3DPS::Simulator::Widget::Signal_UpdateParams, [=, this](nlohmann::ordered_json &params) {
-        PlainTextEdit *text   = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>();
-        QString        buffer = text->toPlainText();
-        QStringList    lines  = buffer.split("\n", Qt::SkipEmptyParts);
+        auto       *text   = tabWidgetEvents->Widget(0)->findChild<PlainTextEdit *>();
+        QString     buffer = text->toPlainText();
+        QStringList lines  = buffer.split("\n", Qt::SkipEmptyParts);
         for (const QString &line : lines) {
             params["EventsExpression"].push_back(line.toStdString());
         }
@@ -1245,7 +1187,7 @@ void JX3DPS::Simulator::Widget::Start()
     emit Signal_UpdateParamsClassType(json);
     emit Signal_UpdateParams(json);
 
-    ProgressBar *progressBar = new ProgressBar(nullptr);
+    auto *progressBar = new ProgressBar(nullptr);
     progressBar->setAttribute(Qt::WA_DeleteOnClose);
     progressBar->show();
 

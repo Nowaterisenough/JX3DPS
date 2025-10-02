@@ -725,8 +725,8 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
         highlightingRules.append(rule);
     }
 
-    // 带等号的关键字（name 已单独定义颜色）
-    QStringList equalKeywords = {"id", "stack_num", "duration", "distance", "shield", "level"};
+    // 带等号的关键字（macro 用于宏名称，name 用于条件判断）
+    QStringList equalKeywords = {"id", "name", "stack_num", "duration", "distance", "shield", "level"};
     for (const QString &keyword : equalKeywords) {
         rule.pattern = QRegularExpression("\\b" + keyword + "(?=\\s*=)");
         rule.format  = conditionFormat;

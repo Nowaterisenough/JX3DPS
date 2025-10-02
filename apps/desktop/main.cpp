@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
 # 参考JX3DPS模拟器宏语法
 
 ## 主循环宏 - 基础输出
+macro 主循环
 /scast [buff:无我无剑] 八荒归元
 /scast [nobuff:无我无剑&skill_cd:八荒归元<8] 无我无剑
 /scast [bufftime:无我无剑<2&tbuff:破>2] 三环套月
@@ -108,6 +109,7 @@ int main(int argc, char *argv[])
 /cast 三柴剑法
 
 ## 爆发宏 - 高伤输出
+macro 爆发
 /fcast [buff:玄门&qidian>7] 两仪化形
 /scast [buff:持盈] 八荒归元
 /scast [buff:梦悠=4] 疾如风
@@ -115,6 +117,7 @@ int main(int argc, char *argv[])
 /cast [nearby_enemy>2] 风来吴山
 
 ## 条件判定示例
+macro 条件判定
 /cast [life<0.3] 啸如虎
 /cast [tlife<0.1] 闹须弥
 /cast [mana<0.4] 碧水滔天
@@ -122,10 +125,12 @@ int main(int argc, char *argv[])
 /cast [skill_cd:八荒归元<4.5] 无我无剑
 
 ## 宏切换示例
-/cast [buff:剑气] 宏·爆发
-/cast [nobuff:剑气] 宏·平稳
+macro 切换
+/switch [buff:剑气] 爆发
+/switch [nobuff:剑气] 平稳
 
 ## 事件语句示例（时间格式）
+macro 事件序列
 00:05.0 /add_target id=1 level=124 shield=27550
 00:10.5 /set_target id=1 distance=4
 00:30.0 /add_buff id=0 name=玄门 stack_num=3 duration=20

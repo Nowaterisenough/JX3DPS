@@ -65,6 +65,11 @@ public:
     bool         HasBreakpoint(int lineNumber) const;           // 检查是否有断点
     QSet<int>    GetBreakpoints() const;                        // 获取所有断点行号
 
+    // 调试箭头管理（指示当前执行行）
+    void         SetCurrentDebugLine(int lineNumber);           // 设置当前调试行
+    void         ClearCurrentDebugLine();                       // 清除当前调试行
+    int          GetCurrentDebugLine() const;                   // 获取当前调试行（-1表示无）
+
 signals:
     void BreakpointAdded(int lineNumber);                       // 断点添加信号
     void BreakpointRemoved(int lineNumber);                     // 断点移除信号
@@ -161,9 +166,10 @@ private:
     };
     QVector<HighlightingRule> highlightingRules;
 
-    QTextCharFormat commandFormat;      // 命令格式 /cast /fcast
+    QTextCharFormat commandFormat;      // 命令格式 /cast /fcast /switch
     QTextCharFormat conditionFormat;    // 条件格式 buff nobuff
     QTextCharFormat skillNameFormat;    // 技能名格式
+    QTextCharFormat nameFormat;         // name 关键字格式
     QTextCharFormat operatorFormat;     // 操作符 = > < & |
     QTextCharFormat numberFormat;       // 数字
     QTextCharFormat commentFormat;      // 注释

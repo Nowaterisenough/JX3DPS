@@ -14,6 +14,7 @@ public:
 
     void polish(QPalette &palette) override;
     void polish(QWidget *widget) override;
+    void polish(QApplication *app) override;
 };
 
 #endif // DARK_STYLE_H

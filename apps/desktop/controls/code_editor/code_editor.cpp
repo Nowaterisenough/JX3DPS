@@ -19,6 +19,7 @@ public:
         syntaxType(CodeEditor::Cpp),
         cppHighlighter(nullptr),
         jx3MacroHighlighter(nullptr),
+        currentDebugLine(-1),
         q_ptr(q)
     {
     }
@@ -31,7 +32,8 @@ public:
     CodeEditor::SyntaxType       syntaxType;
     CppSyntaxHighlighter        *cppHighlighter;
     JX3MacroSyntaxHighlighter   *jx3MacroHighlighter;
-    QSet<int>                    breakpoints;  // 断点集合（行号从1开始）
+    QSet<int>                    breakpoints;       // 断点集合（行号从1开始）
+    int                          currentDebugLine;  // 当前调试行（-1表示无）
 
 private:
     CodeEditor *q_ptr;
@@ -98,9 +100,9 @@ int CodeEditor::LineNumberAreaWidth()
         ++digits;
     }
 
-    // 为断点区域预留空间：左边距(6) + 圆圈(10) + 间距(5) + 行号 + 右边距(8)
-    const int breakpointAreaWidth = 6 + 10 + 5;
-    int space = breakpointAreaWidth + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits + 8;
+    // 为断点区域预留空间：左边距(6) + 圆圈(8) + 间距(4) + 行号 + 右边距(6)
+    const int breakpointAreaWidth = 6 + 8 + 4;
+    int space = breakpointAreaWidth + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits + 6;
     return space;
 }
 
@@ -137,9 +139,22 @@ void CodeEditor::HighlightCurrentLine()
     Q_D(CodeEditor);
     QList<QTextEdit::ExtraSelection> extraSelections;
 
+    // 优先绘制调试行高亮（黄色背景）
+    if (d->currentDebugLine > 0) {
+        QTextBlock debugBlock = document()->findBlockByLineNumber(d->currentDebugLine - 1);
+        if (debugBlock.isValid()) {
+            QTextEdit::ExtraSelection debugSelection;
+            debugSelection.format.setBackground(QColor(255, 255, 0, 40)); // 浅黄色半透明 #ffff0028
+            debugSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
+            debugSelection.cursor = QTextCursor(debugBlock);
+            debugSelection.cursor.clearSelection();
+            extraSelections.append(debugSelection);
+        }
+    }
+
+    // 绘制当前行高亮（深灰色背景）
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
-
         selection.format.setBackground(d->currentLineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
@@ -168,7 +183,7 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
     int currentBlockNumber = textCursor().blockNumber();
 
     // 断点圆圈参数
-    const int breakpointSize = 10; // 断点圆圈直径（更小更精致）
+    const int breakpointSize = 8; // 断点圆圈直径（更小更精致）
     const int breakpointMargin = 6; // 断点左边距
 
     while (block.isValid() && top <= event->rect().bottom()) {
@@ -181,8 +196,8 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
                 painter.setPen(Qt::NoPen);
                 painter.setBrush(QColor(224, 78, 78)); // VSCode 断点红色 #e04e4e
 
-                // 在行号左侧绘制圆形断点
-                int centerY = top + fontMetrics().height() / 2;
+                // 在行号左侧绘制圆形断点，稍微向下偏移以对齐行号中心
+                int centerY = top + fontMetrics().height() / 2 + 1;
                 painter.drawEllipse(QPoint(breakpointMargin + breakpointSize / 2, centerY),
                                     breakpointSize / 2, breakpointSize / 2);
             }
@@ -194,10 +209,33 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
                 painter.setPen(QColor(133, 133, 133)); // 其他行 #858585
             }
 
-            // 绘制行号（在断点右侧）
-            int textX = breakpointMargin + breakpointSize + 5; // 断点后留5px间距
-            painter.drawText(textX, top, d->lineNumberArea->width() - textX - 8,
-                             fontMetrics().height(), Qt::AlignRight, number);
+            // 绘制调试行高亮（如果是当前调试行）- VSCode 风格：黄色背景
+            int textX = breakpointMargin + breakpointSize + 4; // 断点后留4px间距
+
+            if (d->currentDebugLine == lineNumber) {
+                // 1. 绘制黄色背景高亮条（覆盖整个行号区域）
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(QColor(255, 204, 0)); // VSCode 黄色 #ffcc00
+                painter.drawRect(0, top, d->lineNumberArea->width(), fontMetrics().height());
+
+                // 2. 重新绘制行号（黑色，覆盖在黄色背景上）
+                painter.setPen(QColor(0, 0, 0)); // 黑色行号
+                painter.drawText(textX, top, d->lineNumberArea->width() - textX - 6,
+                                 fontMetrics().height(), Qt::AlignRight, number);
+
+                // 3. 如果有断点，重新绘制断点（黑色，覆盖在黄色背景上）
+                if (d->breakpoints.contains(lineNumber)) {
+                    painter.setPen(Qt::NoPen);
+                    painter.setBrush(QColor(0, 0, 0)); // 黑色断点
+                    int centerY = top + fontMetrics().height() / 2 + 1;
+                    painter.drawEllipse(QPoint(breakpointMargin + breakpointSize / 2, centerY),
+                                        breakpointSize / 2, breakpointSize / 2);
+                }
+            } else {
+                // 正常绘制行号（无调试高亮时）
+                painter.drawText(textX, top, d->lineNumberArea->width() - textX - 6,
+                                 fontMetrics().height(), Qt::AlignRight, number);
+            }
         }
 
         block  = block.next();
@@ -563,6 +601,32 @@ QSet<int> CodeEditor::GetBreakpoints() const
 }
 
 // ============================================================================
+// 调试箭头管理
+// ============================================================================
+
+void CodeEditor::SetCurrentDebugLine(int lineNumber)
+{
+    Q_D(CodeEditor);
+    d->currentDebugLine = lineNumber;
+    d->lineNumberArea->update(); // 重绘行号区域
+    HighlightCurrentLine();      // 重绘代码区域高亮
+}
+
+void CodeEditor::ClearCurrentDebugLine()
+{
+    Q_D(CodeEditor);
+    d->currentDebugLine = -1;
+    d->lineNumberArea->update(); // 重绘行号区域
+    HighlightCurrentLine();      // 重绘代码区域高亮
+}
+
+int CodeEditor::GetCurrentDebugLine() const
+{
+    Q_D(const CodeEditor);
+    return d->currentDebugLine;
+}
+
+// ============================================================================
 // LineNumberArea Mouse Event
 // ============================================================================
 
@@ -603,10 +667,11 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
 
     // VSCode 风格配色
 
-    // 命令格式 - 紫色 #c586c0 (/cast /fcast /scast /sfcast等)
+    // 命令格式 - 紫色 #c586c0 (/cast /fcast /scast /sfcast /switch等)
     commandFormat.setForeground(QColor(197, 134, 192));
     QStringList commandPatterns = {
         "/cast\\b", "/fcast\\b", "/scast\\b", "/sfcast\\b",
+        "/switch\\b",  // 切换宏命令
         "/add_target\\b", "/set_target\\b", "/change_target\\b",
         "/add_buff\\b", "/clear_buff\\b",
         "/stop\\b", "/continue\\b", "/end\\b"
@@ -616,6 +681,12 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
         rule.format  = commandFormat;
         highlightingRules.append(rule);
     }
+
+    // name 关键字 - 橙色 #ce9178 (用于宏名称标识)
+    nameFormat.setForeground(QColor(206, 145, 120));
+    rule.pattern = QRegularExpression("\\bname\\b");
+    rule.format  = nameFormat;
+    highlightingRules.append(rule);
 
     // 时间格式 - 浅绿色 #b5cea8 (例如 00:10.5)
     numberFormat.setForeground(QColor(181, 206, 168));
@@ -654,8 +725,8 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
         highlightingRules.append(rule);
     }
 
-    // 带等号的关键字
-    QStringList equalKeywords = {"id", "name", "stack_num", "duration", "distance", "shield", "level"};
+    // 带等号的关键字（name 已单独定义颜色）
+    QStringList equalKeywords = {"id", "stack_num", "duration", "distance", "shield", "level"};
     for (const QString &keyword : equalKeywords) {
         rule.pattern = QRegularExpression("\\b" + keyword + "(?=\\s*=)");
         rule.format  = conditionFormat;

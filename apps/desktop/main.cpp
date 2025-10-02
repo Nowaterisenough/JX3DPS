@@ -14,10 +14,15 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    Resources::InitResources();
-    QApplication::setFont(Resources::Font());
+    // 启用高质量文本渲染（消除锯齿）
+    QFont defaultFont = Resources::Font();
+    defaultFont.setHintingPreference(QFont::PreferFullHinting);
+    defaultFont.setStyleStrategy(QFont::PreferAntialias);
 
-    // 设置深黑蓝色主题
+    Resources::InitResources();
+    QApplication::setFont(defaultFont);
+
+    // 设置深黑蓝色主题（包括 ToolTip 样式）
     QApplication::setStyle(new DarkStyle());
 
     Frameless w;
@@ -50,22 +55,35 @@ int main(int argc, char *argv[])
     });
 
     // 连接调试工具栏信号
-    QObject::connect(debugToolbar, &DebugToolbar::ContinueClicked, [debugToolbar]() {
+    QObject::connect(debugToolbar, &DebugToolbar::ContinueClicked, [debugToolbar, editor]() {
         qDebug() << "Debug: Continue";
         debugToolbar->SetDebugState(DebugToolbar::Running);
+        // 测试：显示调试箭头在第5行
+        editor->SetCurrentDebugLine(5);
     });
-    QObject::connect(debugToolbar, &DebugToolbar::PauseClicked, [debugToolbar]() {
+    QObject::connect(debugToolbar, &DebugToolbar::PauseClicked, [debugToolbar, editor]() {
         qDebug() << "Debug: Pause";
         debugToolbar->SetDebugState(DebugToolbar::Paused);
+        // 测试：显示调试箭头在第10行
+        editor->SetCurrentDebugLine(10);
     });
-    QObject::connect(debugToolbar, &DebugToolbar::StepOverClicked, []() {
+    QObject::connect(debugToolbar, &DebugToolbar::StepOverClicked, [editor]() {
         qDebug() << "Debug: Step Over";
+        // 测试：移动箭头到下一行
+        int currentLine = editor->GetCurrentDebugLine();
+        if (currentLine > 0) {
+            editor->SetCurrentDebugLine(currentLine + 1);
+        }
     });
-    QObject::connect(debugToolbar, &DebugToolbar::StepIntoClicked, []() {
+    QObject::connect(debugToolbar, &DebugToolbar::StepIntoClicked, [editor]() {
         qDebug() << "Debug: Step Into";
+        // 测试：显示箭头
+        editor->SetCurrentDebugLine(3);
     });
-    QObject::connect(debugToolbar, &DebugToolbar::StepOutClicked, []() {
+    QObject::connect(debugToolbar, &DebugToolbar::StepOutClicked, [editor]() {
         qDebug() << "Debug: Step Out";
+        // 测试：清除箭头
+        editor->ClearCurrentDebugLine();
     });
     QObject::connect(debugToolbar, &DebugToolbar::RestartClicked, [debugToolbar]() {
         qDebug() << "Debug: Restart";

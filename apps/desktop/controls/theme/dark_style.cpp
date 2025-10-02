@@ -2,6 +2,7 @@
 
 #include <QPalette>
 #include <QWidget>
+#include <QApplication>
 
 DarkStyle::DarkStyle(QStyle *style) : QProxyStyle(style) { }
 
@@ -34,4 +35,21 @@ void DarkStyle::polish(QPalette &palette)
 void DarkStyle::polish(QWidget *widget)
 {
     QProxyStyle::polish(widget);
+}
+
+void DarkStyle::polish(QApplication *app)
+{
+    QProxyStyle::polish(app);
+
+    // 设置全局样式表，包括 ToolTip 样式
+    app->setStyleSheet(app->styleSheet() + R"(
+        QToolTip {
+            border: 1px solid #454545;
+            background-color: #2d2d2d;
+            color: #cccccc;
+            padding: 4px;
+            font-family: "Microsoft YaHei";
+            font-size: 10pt;
+        }
+    )");
 }

@@ -1,12 +1,61 @@
 #include "debug_toolbar.h"
 
 #include <QHBoxLayout>
+#include <QStackedWidget>
 #include <QLabel>
 #include <QPainter>
 #include <QToolButton>
 #include <QMouseEvent>
 #include <QPainterPath>
 #include <QGraphicsDropShadowEffect>
+#include <QSizePolicy>
+#include <QStringList>
+#include <QFontDatabase>
+#include <QFont>
+#include <QDebug>
+#include <QStyle>
+
+// 自定义暂停按钮 - 绘制两个实心竖条
+class PauseButton : public QToolButton
+{
+public:
+    explicit PauseButton(QWidget *parent = nullptr) : QToolButton(parent) {}
+
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        QToolButton::paintEvent(event);
+
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+
+        // 获取按钮颜色
+        QColor color = property("toolbarColorRole").toString() == "pause"
+                       ? QColor(117, 190, 255)  // #75beff
+                       : QColor(187, 187, 187); // #bbbbbb
+
+        if (!isEnabled()) {
+            color = QColor(90, 93, 94); // #5a5d5e
+        }
+
+        // 在按钮中心绘制两个竖条
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(color);
+
+        int centerX = width() / 2;
+        int centerY = height() / 2;
+        int barWidth = 1.5;   // 非常细的线条
+        int barHeight = 12;
+        int barSpacing = 5;   // 增加间距
+
+        // 左竖条
+        painter.drawRect(centerX - barWidth - barSpacing/2, centerY - barHeight/2,
+                        barWidth, barHeight);
+        // 右竖条
+        painter.drawRect(centerX + barSpacing/2, centerY - barHeight/2,
+                        barWidth, barHeight);
+    }
+};
 
 class DebugToolbarPrivate
 {
@@ -28,6 +77,7 @@ public:
 
     DebugToolbar::DebugState state;
 
+    QStackedWidget *playPauseStack;
     QToolButton *continueButton;
     QToolButton *pauseButton;
     QToolButton *stepOverButton;
@@ -44,7 +94,6 @@ private:
     DebugToolbar *q_ptr;
     Q_DECLARE_PUBLIC(DebugToolbar)
 };
-
 // ============================================================================
 // DebugToolbar Implementation
 // ============================================================================
@@ -67,90 +116,217 @@ void DebugToolbar::SetupUI()
 {
     Q_D(DebugToolbar);
 
-    // 设置固定大小和圆角
-    setFixedHeight(40);
-    setMinimumWidth(280);
+    // 加载 Fluent System Icons 字体（需要 Regular 与 Filled 以便控制线条粗细）
+    const QString fallbackFamily = QStringLiteral("Segoe Fluent Icons");
+    QString regularFamily;
+    QString filledFamily;
 
-    // VSCode 浮窗样式
-    setStyleSheet(R"(
+    struct FontCandidate {
+        QString path;
+        QString *outFamily;
+    };
+
+    const FontCandidate fontSources[] = {
+        {QStringLiteral(":/resources/fonts/FluentSystemIcons-Regular.ttf"), &regularFamily},
+        {QStringLiteral(":/resources/fonts/FluentSystemIcons-Filled.ttf"), &filledFamily},
+    };
+
+    for (const FontCandidate &source : fontSources) {
+        const int fontId = QFontDatabase::addApplicationFont(source.path);
+        if (fontId != -1) {
+            const QStringList families = QFontDatabase::applicationFontFamilies(fontId);
+            if (!families.isEmpty()) {
+                *source.outFamily = families.front();
+                qDebug() << "Loaded Fluent System Icons font:" << *source.outFamily << "from" << source.path;
+            }
+        } else {
+            qDebug() << "Failed to load Fluent System Icons font from" << source.path;
+        }
+    }
+
+    const QString primaryFamily = !regularFamily.isEmpty() ? regularFamily
+                               : (!filledFamily.isEmpty() ? filledFamily : fallbackFamily);
+    const QString actionFamily = !regularFamily.isEmpty() ? regularFamily : primaryFamily;
+    const QString arrowFamily = !filledFamily.isEmpty() ? filledFamily : primaryFamily;
+    const QString dragFamily = !filledFamily.isEmpty() ? filledFamily : primaryFamily;
+
+    if (primaryFamily == fallbackFamily) {
+        qDebug() << "Falling back to Segoe Fluent Icons";
+    }
+    // VSCode 调试工具栏尺寸：更紧凑
+    setFixedHeight(35);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    // VSCode 精确样式
+    setStyleSheet(QString(R"(
         QToolButton {
             background-color: transparent;
             border: none;
-            border-radius: 4px;
-            padding: 6px;
-            min-width: 32px;
-            min-height: 32px;
-            color: #cccccc;
-            font-size: 16px;
+            border-radius: 3px;
+            padding: 0px;
+            min-width: 28px;
+            min-height: 28px;
+            max-width: 28px;
+            max-height: 28px;
+            color: #bbbbbb;
+            font-family: "%1";
         }
         QToolButton:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(90, 93, 94, 0.31);
         }
         QToolButton:pressed {
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(90, 93, 94, 0.5);
         }
         QToolButton:disabled {
-            color: #656565;
+            color: #5a5d5e;
         }
-    )");
+        QToolButton[toolbarColorRole="pause"] {
+            color: #75beff;
+        }
+        QToolButton[toolbarColorRole="pause"]:disabled {
+            color: #5a5d5e;
+        }
+        QToolButton[toolbarColorRole="primary"] {
+            color: #89d185;
+        }
+        QToolButton[toolbarColorRole="primary"]:disabled {
+            color: #5a5d5e;
+        }
+        QToolButton[toolbarColorRole="stop"] {
+            color: #f48771;
+        }
+        QToolButton[toolbarColorRole="stop"]:disabled {
+            color: #5a5d5e;
+        }
+        QLabel {
+            color: #5a5d5e;
+        }
+        QLabel#dragHandle {
+            color: #7f7f7f;
+            font-size: 18px;
+            padding: 0px 6px;
+        }
+    )").arg(primaryFamily));
 
     auto *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(8, 4, 8, 4);
-    layout->setSpacing(2);
+    layout->setContentsMargins(6, 4, 6, 4);
+    layout->setSpacing(0);
+    layout->setAlignment(Qt::AlignVCenter);
+    layout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    // 继续/暂停按钮
-    d->continueButton = new QToolButton(this);
-    d->continueButton->setText("▶");  // 播放图标
-    d->continueButton->setToolTip("继续 (F5)");
+    // 拖拽手柄（三个竖点）
+    auto *dragHandle = new QLabel(QStringLiteral(u"\uE57E"), this);  // Fluent: drag_20_filled
+    dragHandle->setObjectName("dragHandle");
+    dragHandle->setFixedWidth(26);
+    dragHandle->setAlignment(Qt::AlignCenter);
+    dragHandle->setCursor(Qt::SizeAllCursor);
+    QFont dragFont(dragFamily);
+    dragFont.setPointSizeF(18.0);
+    dragHandle->setFont(dragFont);
+    layout->addWidget(dragHandle);
+
+    // 小间距
+    layout->addSpacing(2);
+
+    const auto applyColorRole = [](QToolButton *button, const char *role) {
+        if (!button || !role) {
+            return;
+        }
+        button->setProperty("toolbarColorRole", role);
+        if (button->style()) {
+            button->style()->unpolish(button);
+            button->style()->polish(button);
+        }
+    };
+
+    const auto setIconFont = [&](QToolButton *button, const QString &family, qreal pointSize) {
+        if (!button) {
+            return;
+        }
+        QFont font(family);
+        font.setPointSizeF(pointSize);
+        button->setFont(font);
+    };
+
+    // 继续/暂停按钮 - 使用 QStackedWidget 保证占据相同空间
+    d->playPauseStack = new QStackedWidget(this);
+    d->playPauseStack->setFixedSize(28, 28);
+
+    d->continueButton = new QToolButton(d->playPauseStack);
+    d->continueButton->setText(QStringLiteral(u"\uF605"));  // Fluent: play_20_regular
+    d->continueButton->setToolTip(QStringLiteral("继续 (F5)"));
     connect(d->continueButton, &QToolButton::clicked, this, &DebugToolbar::ContinueClicked);
-    layout->addWidget(d->continueButton);
+    setIconFont(d->continueButton, actionFamily, 13.4);
+    applyColorRole(d->continueButton, "primary");
 
-    d->pauseButton = new QToolButton(this);
-    d->pauseButton->setText("⏸");  // 暂停图标
-    d->pauseButton->setToolTip("暂停 (F6)");
-    d->pauseButton->setVisible(false);
+    d->pauseButton = new PauseButton(d->playPauseStack);
+    d->pauseButton->setToolTip(QStringLiteral("暂停 (F6)"));
     connect(d->pauseButton, &QToolButton::clicked, this, &DebugToolbar::PauseClicked);
-    layout->addWidget(d->pauseButton);
+    applyColorRole(d->pauseButton, "pause");
+
+    d->playPauseStack->addWidget(d->continueButton);
+    d->playPauseStack->addWidget(d->pauseButton);
+    d->playPauseStack->setCurrentWidget(d->continueButton);
+
+    layout->addWidget(d->playPauseStack);
+
+    layout->addSpacing(4);
 
     // 单步跳过
     d->stepOverButton = new QToolButton(this);
-    d->stepOverButton->setText("⤵");  // 跳过图标
-    d->stepOverButton->setToolTip("单步跳过 (F10)");
+    d->stepOverButton->setText(QStringLiteral(u"\uE10F"));  // Fluent: arrow_step_over_20_filled
+    d->stepOverButton->setToolTip(QStringLiteral("单步跳过 (F10)"));
     connect(d->stepOverButton, &QToolButton::clicked, this, &DebugToolbar::StepOverClicked);
     layout->addWidget(d->stepOverButton);
+    setIconFont(d->stepOverButton, arrowFamily, 14.6);
+    applyColorRole(d->stepOverButton, "pause");  // 使用蓝色
 
     // 单步进入
     d->stepIntoButton = new QToolButton(this);
-    d->stepIntoButton->setText("⤓");  // 进入图标
-    d->stepIntoButton->setToolTip("单步进入 (F11)");
+    d->stepIntoButton->setText(QStringLiteral(u"\uE0FC"));  // Fluent: arrow_step_in_20_filled
+    d->stepIntoButton->setToolTip(QStringLiteral("单步进入 (F11)"));
     connect(d->stepIntoButton, &QToolButton::clicked, this, &DebugToolbar::StepIntoClicked);
     layout->addWidget(d->stepIntoButton);
+    setIconFont(d->stepIntoButton, arrowFamily, 14.6);
+    applyColorRole(d->stepIntoButton, "pause");  // 使用蓝色
 
     // 单步跳出
     d->stepOutButton = new QToolButton(this);
-    d->stepOutButton->setText("⤴");  // 跳出图标
-    d->stepOutButton->setToolTip("单步跳出 (Shift+F11)");
+    d->stepOutButton->setText(QStringLiteral(u"\uE10B"));  // Fluent: arrow_step_out_20_filled
+    d->stepOutButton->setToolTip(QStringLiteral("单步跳出 (Shift+F11)"));
     connect(d->stepOutButton, &QToolButton::clicked, this, &DebugToolbar::StepOutClicked);
     layout->addWidget(d->stepOutButton);
+    setIconFont(d->stepOutButton, arrowFamily, 14.6);
+    applyColorRole(d->stepOutButton, "pause");  // 使用蓝色
+
+    layout->addSpacing(4);
 
     // 重启
     d->restartButton = new QToolButton(this);
-    d->restartButton->setText("⟳");  // 重启图标
-    d->restartButton->setToolTip("重启 (Ctrl+Shift+F5)");
+    d->restartButton->setText(QStringLiteral(u"\uF13D"));  // Fluent: arrow_clockwise_20_regular
+    d->restartButton->setToolTip(QStringLiteral("重启 (Ctrl+Shift+F5)"));
     connect(d->restartButton, &QToolButton::clicked, this, &DebugToolbar::RestartClicked);
     layout->addWidget(d->restartButton);
+    setIconFont(d->restartButton, actionFamily, 13.4);
+    applyColorRole(d->restartButton, "primary");
+
+    layout->addSpacing(4);
 
     // 停止
     d->stopButton = new QToolButton(this);
-    d->stopButton->setText("⏹");  // 停止图标
-    d->stopButton->setToolTip("停止 (Shift+F5)");
+    d->stopButton->setText(QStringLiteral(u"\uF72A"));  // Fluent: stop_20_regular
+    d->stopButton->setToolTip(QStringLiteral("停止 (Shift+F5)"));
     connect(d->stopButton, &QToolButton::clicked, this, &DebugToolbar::StopClicked);
     layout->addWidget(d->stopButton);
-
-    layout->addStretch();
+    setIconFont(d->stopButton, actionFamily, 13.4);
+    applyColorRole(d->stopButton, "stop");
 
     // 初始状态
     UpdateButtonStates();
+
+    // 根据内容自适应宽度
+    QSize hint = layout->sizeHint();
+    setFixedWidth(hint.width());
 }
 
 void DebugToolbar::SetDebugState(DebugState state)
@@ -175,9 +351,8 @@ void DebugToolbar::UpdateButtonStates()
     switch (d->state) {
     case Stopped:
         // 停止状态：只有继续按钮可用
-        d->continueButton->setVisible(true);
+        d->playPauseStack->setCurrentWidget(d->continueButton);
         d->continueButton->setEnabled(true);
-        d->pauseButton->setVisible(false);
         d->stepOverButton->setEnabled(false);
         d->stepIntoButton->setEnabled(false);
         d->stepOutButton->setEnabled(false);
@@ -187,8 +362,7 @@ void DebugToolbar::UpdateButtonStates()
 
     case Running:
         // 运行状态：显示暂停按钮，禁用步进按钮
-        d->continueButton->setVisible(false);
-        d->pauseButton->setVisible(true);
+        d->playPauseStack->setCurrentWidget(d->pauseButton);
         d->pauseButton->setEnabled(true);
         d->stepOverButton->setEnabled(false);
         d->stepIntoButton->setEnabled(false);
@@ -199,9 +373,8 @@ void DebugToolbar::UpdateButtonStates()
 
     case Paused:
         // 暂停状态：所有按钮可用
-        d->continueButton->setVisible(true);
+        d->playPauseStack->setCurrentWidget(d->continueButton);
         d->continueButton->setEnabled(true);
-        d->pauseButton->setVisible(false);
         d->stepOverButton->setEnabled(true);
         d->stepIntoButton->setEnabled(true);
         d->stepOutButton->setEnabled(true);
@@ -233,21 +406,22 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // 绘制圆角半透明背景 - VSCode 深色主题
+    // VSCode 调试工具栏背景色 - 更精确的配色
     QPainterPath path;
-    path.addRoundedRect(rect(), 8, 8);
+    path.addRoundedRect(rect(), 6, 6);
 
-    // 背景色：深灰色，带透明度
-    painter.fillPath(path, QColor(45, 45, 45, 240));
+    // VSCode 的调试工具栏背景：非常深的背景色
+    painter.fillPath(path, QColor(30, 30, 30, 255));
 
     // 绘制边框
-    painter.setPen(QPen(QColor(60, 60, 60), 1));
+    painter.setPen(QPen(QColor(60, 60, 60, 255), 1));
     painter.drawPath(path);
 
-    // 绘制顶部高光
-    QPainterPath highlightPath;
-    highlightPath.addRoundedRect(rect().adjusted(1, 1, -1, -rect().height() / 2), 7, 7);
-    painter.fillPath(highlightPath, QColor(255, 255, 255, 10));
+    // 添加轻微的阴影效果
+    QPainterPath shadowPath;
+    shadowPath.addRoundedRect(rect().adjusted(0, 1, 0, 1), 6, 6);
+    painter.setPen(Qt::NoPen);
+    painter.fillPath(shadowPath, QColor(0, 0, 0, 15));
 }
 
 void DebugToolbar::mousePressEvent(QMouseEvent *event)

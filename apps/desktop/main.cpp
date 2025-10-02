@@ -40,9 +40,10 @@ int main(int argc, char *argv[])
     // 设置为剑三宏模式
     editor->SetSyntaxType(CodeEditor::JX3Macro);
 
-    // 连接断点信号（用于调试）
-    QObject::connect(editor, &CodeEditor::BreakpointAdded, [](int lineNumber) {
+    // 连接断点信号（添加断点时自动显示调试工具栏）
+    QObject::connect(editor, &CodeEditor::BreakpointAdded, [debugToolbar](int lineNumber) {
         qDebug() << "Breakpoint added at line:" << lineNumber;
+        debugToolbar->ShowFloating();  // 自动显示调试工具栏
     });
     QObject::connect(editor, &CodeEditor::BreakpointRemoved, [](int lineNumber) {
         qDebug() << "Breakpoint removed from line:" << lineNumber;
@@ -123,8 +124,7 @@ int main(int argc, char *argv[])
 
     w.show();
 
-    // 显示浮动调试工具栏
-    debugToolbar->ShowFloating();
+    // 注意：调试工具栏默认隐藏，添加断点时会自动显示
 
     return QApplication::exec();
 }

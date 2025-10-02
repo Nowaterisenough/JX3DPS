@@ -169,7 +169,7 @@ private:
     QTextCharFormat commandFormat;      // 命令格式 /cast /fcast /switch
     QTextCharFormat conditionFormat;    // 条件格式 buff nobuff
     QTextCharFormat skillNameFormat;    // 技能名格式
-    QTextCharFormat nameFormat;         // name 关键字格式
+    QTextCharFormat macroFormat;        // macro 关键字格式（宏名称标识）
     QTextCharFormat operatorFormat;     // 操作符 = > < & |
     QTextCharFormat numberFormat;       // 数字
     QTextCharFormat commentFormat;      // 注释

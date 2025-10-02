@@ -682,10 +682,10 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
         highlightingRules.append(rule);
     }
 
-    // name 关键字 - 橙色 #ce9178 (用于宏名称标识)
-    nameFormat.setForeground(QColor(206, 145, 120));
-    rule.pattern = QRegularExpression("\\bname\\b");
-    rule.format  = nameFormat;
+    // macro 关键字 - 橙色 #ce9178 (用于宏名称标识)
+    macroFormat.setForeground(QColor(206, 145, 120));
+    rule.pattern = QRegularExpression("\\bmacro\\b");
+    rule.format  = macroFormat;
     highlightingRules.append(rule);
 
     // 时间格式 - 浅绿色 #b5cea8 (例如 00:10.5)

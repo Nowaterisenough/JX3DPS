@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
     // 获取中央控件
     QWidget *centralWidget = w.ContentWidget();
 
-    // 创建调试工具栏
-    DebugToolbar *debugToolbar = new DebugToolbar(centralWidget);
+    // 创建调试工具栏（浮窗形式）
+    DebugToolbar *debugToolbar = new DebugToolbar(&w);
 
     // 创建代码编辑器
     CodeEditor *editor = new CodeEditor(centralWidget);
@@ -115,14 +115,16 @@ int main(int argc, char *argv[])
 03:00.0 /end
 )");
 
-    // 设置布局
+    // 设置布局（只添加编辑器，toolbar 是浮窗）
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(debugToolbar);
     layout->addWidget(editor);
 
     w.show();
+
+    // 显示浮动调试工具栏
+    debugToolbar->ShowFloating();
 
     return QApplication::exec();
 }

@@ -7,7 +7,13 @@
 class DebugToolbarPrivate;
 
 /**
- * @brief VSCode 风格的调试工具栏
+ * @brief VSCode 风格的浮动调试工具栏
+ *
+ * 特性：
+ * - 浮窗设计，可拖动
+ * - 圆角半透明背景
+ * - 紧凑的按钮布局
+ * - VSCode 深色主题配色
  *
  * 提供调试控制功能：
  * - 继续/暂停
@@ -35,6 +41,10 @@ public:
     void SetDebugState(DebugState state);
     DebugState GetDebugState() const;
 
+    // 显示/隐藏浮窗
+    void ShowFloating();
+    void HideFloating();
+
 signals:
     // 调试控制信号
     void ContinueClicked();    // 继续执行
@@ -44,6 +54,11 @@ signals:
     void StepOutClicked();     // 单步跳出
     void RestartClicked();     // 重启调试
     void StopClicked();        // 停止调试
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
     void SetupUI();

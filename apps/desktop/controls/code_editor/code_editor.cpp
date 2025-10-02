@@ -1,10 +1,11 @@
-#include "code_editor.h"
+﻿#include "code_editor.h"
 
 #include <QPainter>
 #include <QTextBlock>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QRegularExpression>
+#include "resources.h"
 
 class CodeEditorPrivate
 {
@@ -55,20 +56,11 @@ CodeEditor::CodeEditor(QWidget *parent) :
     UpdateLineNumberAreaWidth(0);
     HighlightCurrentLine();
 
-    // 设置 VSCode 风格的等宽字体
-    QFont font;
-    // 优先使用现代等宽字体
-    QStringList fontFamilies = {"Cascadia Code", "Fira Code", "JetBrains Mono", "Consolas", "Monaco", "Courier New"};
-    for (const QString &family : fontFamilies) {
-        font.setFamily(family);
-        if (QFontInfo(font).family() == family) {
-            break;
-        }
-    }
-    font.setStyleHint(QFont::Monospace);
-    font.setFixedPitch(true);
-    font.setPointSize(11);
-    setFont(font);
+    // 设置等宽字体：英文 Monaco，中文霞鹜文楷等宽
+    setFont(Resources::MonoFont());
+
+    // 设置文档默认字体，确保中文字符能正确回退
+    document()->setDefaultFont(Resources::MonoFont());
 
     // VSCode 深色主题配色
     QPalette palette = this->palette();
@@ -80,7 +72,7 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
     // 设置制表符宽度
     const int tabStop = 4;
-    QFontMetrics metrics(font);
+    QFontMetrics metrics(Resources::MonoFont());
     setTabStopDistance(tabStop * metrics.horizontalAdvance(' '));
 
     // 设置当前行高亮颜色为 VSCode 风格
@@ -611,11 +603,13 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
 
     // VSCode 风格配色
 
-    // 命令格式 - 紫色 #c586c0 (/cast /fcast /scast /sfcast)
+    // 命令格式 - 紫色 #c586c0 (/cast /fcast /scast /sfcast等)
     commandFormat.setForeground(QColor(197, 134, 192));
-    commandFormat.setFontWeight(QFont::Bold);
     QStringList commandPatterns = {
-        "^\\s*/cast\\b", "^\\s*/fcast\\b", "^\\s*/scast\\b", "^\\s*/sfcast\\b"
+        "/cast\\b", "/fcast\\b", "/scast\\b", "/sfcast\\b",
+        "/add_target\\b", "/set_target\\b", "/change_target\\b",
+        "/add_buff\\b", "/clear_buff\\b",
+        "/stop\\b", "/continue\\b", "/end\\b"
     };
     for (const QString &pattern : commandPatterns) {
         rule.pattern = QRegularExpression(pattern);
@@ -623,55 +617,88 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
         highlightingRules.append(rule);
     }
 
-    // 条件关键字 - 蓝紫色 #569cd6
-    conditionFormat.setForeground(QColor(86, 156, 214));
-    QStringList conditionKeywords = {
-        "\\bbuff:", "\\bnobuff:", "\\bbufftime:", "\\blife:", "\\bmana:", "\\brage:",
-        "\\bqidian:", "\\benergy:", "\\bsun:", "\\bmoon:", "\\bsun_power\\b", "\\bmoon_power\\b",
-        "\\bskill_energy:", "\\bskill:", "\\bnoskill:", "\\blast_skill:", "\\bskill_cd:",
-        "\\bnpclevel:", "\\bnearby_enemy:", "\\bskill_notin_cd:", "\\byaoxing:",
-        "\\btbuff:", "\\btnobuff:", "\\btbufftime:", "\\btlife:"
-    };
-    for (const QString &pattern : conditionKeywords) {
-        rule.pattern = QRegularExpression(pattern);
-        rule.format  = conditionFormat;
-        highlightingRules.append(rule);
-    }
-
-    // 操作符 - 橙色 #d4d4d4
-    operatorFormat.setForeground(QColor(212, 212, 212));
-    rule.pattern = QRegularExpression("[\\[\\]&|=><~]");
-    rule.format  = operatorFormat;
+    // 时间格式 - 浅绿色 #b5cea8 (例如 00:10.5)
+    numberFormat.setForeground(QColor(181, 206, 168));
+    rule.pattern = QRegularExpression("\\b[0-9]+:[0-9]+\\.[0-9]+\\b");
+    rule.format  = numberFormat;
     highlightingRules.append(rule);
 
     // 数字 - 浅绿色 #b5cea8
-    numberFormat.setForeground(QColor(181, 206, 168));
     rule.pattern = QRegularExpression("\\b[0-9]+\\.?[0-9]*\\b");
     rule.format  = numberFormat;
     highlightingRules.append(rule);
 
-    // 技能名（中文） - 黄色 #dcdcaa
+    // 条件关键字 - 蓝紫色 #569cd6
+    conditionFormat.setForeground(QColor(86, 156, 214));
+
+    // 带冒号的关键字
+    QStringList colonKeywords = {
+        "buff", "nobuff", "bufftime",
+        "qidian", "energy", "sun", "moon", "sun_power", "moon_power",
+        "skill_energy", "skill", "noskill", "last_skill", "skill_cd",
+        "npclevel", "nearby_enemy", "skill_notin_cd", "yaoxing",
+        "tbuff", "tnobuff", "tbufftime",
+        "Duff", "Buff", "ebufftime"
+    };
+    for (const QString &keyword : colonKeywords) {
+        rule.pattern = QRegularExpression("\\b" + keyword + "(?=\\s*:)");
+        rule.format  = conditionFormat;
+        highlightingRules.append(rule);
+    }
+
+    // 带比较运算符的关键字 (>, <, >=, <=, =)
+    QStringList comparisonKeywords = {"qidian", "life", "mana", "rage", "tlife", "tmana", "trage", "nearby_enemy"};
+    for (const QString &keyword : comparisonKeywords) {
+        rule.pattern = QRegularExpression("\\b" + keyword + "(?=\\s*[><=])");
+        rule.format  = conditionFormat;
+        highlightingRules.append(rule);
+    }
+
+    // 带等号的关键字
+    QStringList equalKeywords = {"id", "name", "stack_num", "duration", "distance", "shield", "level"};
+    for (const QString &keyword : equalKeywords) {
+        rule.pattern = QRegularExpression("\\b" + keyword + "(?=\\s*=)");
+        rule.format  = conditionFormat;
+        highlightingRules.append(rule);
+    }
+
+    // 独立关键字
+    rule.pattern = QRegularExpression("\\bdead\\b");
+    rule.format  = conditionFormat;
+    highlightingRules.append(rule);
+
+    // 操作符 - 橙色 #d4d4d4
+    operatorFormat.setForeground(QColor(212, 212, 212));
+    rule.pattern = QRegularExpression("[\\[\\]&|=><~:]");
+    rule.format  = operatorFormat;
+    highlightingRules.append(rule);
+
+    // 技能名（中文） - VSCode函数标准黄 #dcdcaa
     skillNameFormat.setForeground(QColor(220, 220, 170));
-    rule.pattern = QRegularExpression("[\\u4e00-\\u9fa5]+"); // 匹配中文字符
+    rule.pattern = QRegularExpression("[\\x{4e00}-\\x{9fa5}]+"); // 匹配中文字符
     rule.format  = skillNameFormat;
     highlightingRules.append(rule);
 
-    // 注释 - 绿色 #6a9955
+    // 注释格式 - 绿色 #6a9955 (必须最后添加以覆盖其他规则)
     commentFormat.setForeground(QColor(106, 153, 85));
-    commentFormat.setFontItalic(true);
-    rule.pattern = QRegularExpression("//[^\n]*|#[^\n]*");
-    rule.format  = commentFormat;
-    highlightingRules.append(rule);
 }
 
 void JX3MacroSyntaxHighlighter::highlightBlock(const QString &text)
 {
-    // 应用所有规则
+    // 应用除注释外的所有规则
     for (const HighlightingRule &rule : highlightingRules) {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {
             QRegularExpressionMatch match = matchIterator.next();
             setFormat(match.capturedStart(), match.capturedLength(), rule.format);
         }
+    }
+
+    // 最后处理注释，覆盖所有其他格式
+    QRegularExpression commentPattern("(//|##?)[^\n]*");
+    QRegularExpressionMatchIterator commentIterator = commentPattern.globalMatch(text);
+    while (commentIterator.hasNext()) {
+        QRegularExpressionMatch match = commentIterator.next();
+        setFormat(match.capturedStart(), match.capturedLength(), commentFormat);
     }
 }

@@ -39,8 +39,10 @@ jobs:
           cached: 'false'
       - name: ubuntu install GL library
         run: sudo apt-get install -y libglew-dev libglfw3-dev
-      - uses: actions/checkout@v2
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v2
         with:
+          submodules: recursive
           fetch-depth: 1
       - name: build ubuntu
         run: |

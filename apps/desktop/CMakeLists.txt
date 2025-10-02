@@ -19,7 +19,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 # Add controls subdirectory
 add_subdirectory(controls/frameless)
 add_subdirectory(controls/theme)
-add_subdirectory(code_editor)
+add_subdirectory(controls/code_editor)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)

@@ -1,4 +1,4 @@
-#include "Resources.h"
+#include "resources.h"
 
 #include <QFont>
 #include <QFontDatabase>
@@ -26,25 +26,27 @@ QFont &Resources::Font()
 QFont &Resources::MonoFont()
 {
     static QFont font = []() {
-        // 加载霞鹜文楷等宽字体（用于中文）
-        static const int LXGW_FONT_ID = QFontDatabase::addApplicationFont(":/resources/fonts/LXGWWenKaiMonoScreen.ttf");
-
         // 加载 Monaco 字体（用于英文）
         static const int MONACO_FONT_ID = QFontDatabase::addApplicationFont(":/resources/fonts/Monaco.ttf");
 
-        QStringList lxgwFamilies   = QFontDatabase::applicationFontFamilies(LXGW_FONT_ID);
+        // 加载霞鹜文楷等宽字体（用于中文）
+        static const int LXGW_FONT_ID = QFontDatabase::addApplicationFont(":/resources/fonts/LXGWWenKaiMonoScreen.ttf");
+
         QStringList monacoFamilies = QFontDatabase::applicationFontFamilies(MONACO_FONT_ID);
+        QStringList lxgwFamilies   = QFontDatabase::applicationFontFamilies(LXGW_FONT_ID);
 
-        // 创建字体，优先使用 Monaco，中文回退到 LXGW
-        static QFont font;
+        // 创建字体回退列表：英文优先 Monaco，中文回退到霞鹜文楷等宽
+        QStringList fontFamilies;
         if (!monacoFamilies.isEmpty()) {
-            font = QFont(monacoFamilies.front());
-        } else if (!lxgwFamilies.isEmpty()) {
-            font = QFont(lxgwFamilies.front());
-        } else {
-            font = QFont("Consolas");
+            fontFamilies << monacoFamilies.front();
         }
+        if (!lxgwFamilies.isEmpty()) {
+            fontFamilies << lxgwFamilies.front();
+        }
+        fontFamilies << "Consolas"; // 最后的回退字体
 
+        static QFont font;
+        font.setFamilies(fontFamilies);
         font.setStyleHint(QFont::Monospace);
         font.setFixedPitch(true);
         font.setPointSize(11);

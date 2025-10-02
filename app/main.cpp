@@ -28,6 +28,10 @@ int main(int argc, char *argv[])
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%t] %v");
     spdlog::info("Starting JX3DPS Simulator");
 
+    // 启用高 DPI 缩放支持
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
     QApplication app(argc, argv);
     spdlog::info("QApplication created successfully");
 
@@ -39,7 +43,7 @@ int main(int argc, char *argv[])
         if (!families.isEmpty()) {
             QString str = families.at(0);
             QFont   font(str, 10.5);
-            // font.setStyleStrategy(QFont::PreferAntialias);
+            font.setStyleStrategy(QFont::PreferAntialias);
             font.setHintingPreference(QFont::PreferFullHinting);
             qApp->setFont(font);
             spdlog::info("Loaded font: {}", str.toStdString());

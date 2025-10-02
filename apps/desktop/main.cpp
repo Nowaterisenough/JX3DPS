@@ -94,40 +94,70 @@ int main(int argc, char *argv[])
         debugToolbar->SetDebugState(DebugToolbar::Stopped);
     });
 
-    // 设置剑三宏示例代码
+    // 设置剑三宏示例代码（基于config配置的真实宏）
     editor->setPlainText(R"(# 剑纯技能宏示例
 # 参考JX3DPS模拟器宏语法
 
 ## 主循环宏 - 基础输出
-macro 主循环
-/scast [buff:无我无剑] 八荒归元
-/scast [nobuff:无我无剑&skill_cd:八荒归元<8] 无我无剑
-/scast [bufftime:无我无剑<2&tbuff:破>2] 三环套月
-/scast [rage>=20] 人剑合一
-/cast [tbuff:流血] 碎星辰
-/cast [nobuff:太极] 太极无极
+macro 循环
 /cast 三柴剑法
+/cast [buff:武器·橙武特效] 宏·宏8
+/scast 碎星辰
+/scast [skill_notin_cd:无我无剑] 紫气东来
+/scast [tlife:1<0.4] 腰坠·破防
+/scast 无我无剑
+/scast 三环套月
+/scast 无我无剑
+/scast 八荒归元
+/scast 无我无剑
+/scast 三环套月
+/scast 无我无剑
+/scast 吞日月
+/scast 人剑合一
+/cast [skill_cd:生太极<3&last_skill=人剑合一] 宏·宏3
+/cast [skill_cd:生太极<6&last_skill=人剑合一] 宏·宏2
+/cast [skill_cd:生太极>6&last_skill=人剑合一] 宏·宏1
 
-## 爆发宏 - 高伤输出
-macro 爆发
-/fcast [buff:玄门&qidian>7] 两仪化形
-/scast [buff:持盈] 八荒归元
-/scast [buff:梦悠=4] 疾如风
-/cast [skill_energy:盾飞>=2] 盾飞
-/cast [nearby_enemy>2] 风来吴山
+## 宏1 - 基础连招
+macro 宏1
+/cast 三柴剑法
+/cast [buff:武器·橙武特效] 宏·宏3
+/scast 碎星辰
+/scast 无我无剑
+/scast 三环套月
+/scast 无我无剑
+/scast 八荒归元
+/scast 无我无剑
+/scast 三环套月
+/scast 无我无剑
+/scast 吞日月
+/scast 人剑合一
+/cast [skill_cd:生太极<6&last_skill=人剑合一] 宏·宏2
+/cast [skill_cd:生太极>6&last_skill=人剑合一] 宏·宏1
 
-## 条件判定示例
-macro 条件判定
-/cast [life<0.3] 啸如虎
-/cast [tlife<0.1] 闹须弥
-/cast [mana<0.4] 碧水滔天
-/cast [tbufftime:流血<2] 龙吟
-/cast [skill_cd:八荒归元<4.5] 无我无剑
+## 宏2 - 太极循环
+macro 宏2
+/cast 三柴剑法
+/cast [buff:武器·橙武特效] 宏·宏3
+/scast 三环套月
+/scast 碎星辰
+/scast 无我无剑
+/scast 生太极
+/scast 三环套月
+/scast 无我无剑
+/scast 八荒归元
+/scast 吞日月
+/scast 三环套月
+/scast 人剑合一
+/cast [tlife:1<0.4&last_skill=人剑合一&skill_energy:紫气东来>=1] 宏·循环
+/scast 宏·宏1
 
 ## 宏切换示例
 macro 切换
-/switch [buff:剑气] 爆发
-/switch [nobuff:剑气] 平稳
+/switch [buff:武器·橙武特效] 宏·宏3
+/switch [skill_cd:生太极<3] 宏·宏3
+/switch [skill_cd:生太极<6] 宏·宏2
+/switch [skill_cd:生太极>6] 宏·宏1
 
 ## 事件语句示例（时间格式）
 macro 事件序列

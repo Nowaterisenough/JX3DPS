@@ -26,6 +26,7 @@ option(BUILD_TESTS "option for build" OFF)
 add_subdirectory(3rd)
 add_subdirectory(src)
 add_subdirectory(modules)
+add_subdirectory(resources)
 
 set(BUILD_SHARED_LIBS true)
 
@@ -107,10 +108,10 @@ if(BUILD_APP)
     # Check if Qt is available for app
     find_package(QT NAMES Qt6 Qt5 QUIET COMPONENTS Widgets PrintSupport OpenGLWidgets)
     if(QT_FOUND)
-        message(STATUS "Qt found, building app")
-        add_subdirectory(app)
+        message(STATUS "Qt found, building apps")
+        add_subdirectory(apps)
     else()
-        message(STATUS "Qt not found, skipping app")
+        message(STATUS "Qt not found, skipping apps")
     endif()
 endif()
 

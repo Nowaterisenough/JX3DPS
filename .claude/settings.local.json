@@ -10,7 +10,15 @@
       "Bash(ldd:*)",
       "Bash(start:*)",
       "Bash(tasklist)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(ninja clean:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(ninja:*)",
+      "Bash(find:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

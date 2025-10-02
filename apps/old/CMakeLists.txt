@@ -47,23 +47,19 @@ file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
 # 排除测试文件
 list(REMOVE_ITEM SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/TestWidget.cpp)
 
-file(GLOB RESOURCES
-    ${CMAKE_SOURCE_DIR}/resources/*.qrc
-    ${CMAKE_SOURCE_DIR}/resources/*.rc
-)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(${PROJECT_NAME}
         MANUAL_FINALIZATION
         ${HEADER_FILES}
         ${SOURCE_FILES}
-        ${RESOURCES}
+        ${CMAKE_SOURCE_DIR}/resources/win32app_icon.rc
     )
 else()
     add_executable(${PROJECT_NAME}
         ${HEADER_FILES}
         ${SOURCE_FILES}
-        ${RESOURCES}
+        ${CMAKE_SOURCE_DIR}/resources/win32app_icon.rc
     )
 endif(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
@@ -94,6 +90,7 @@ set(APP_LINK_LIBS
     PlainTextEdit
     ProgressBar
     TableView
+    Resources
 )
 
 # Add QCustomPlot if it was built
@@ -167,3 +164,6 @@ if(WIN32)
         WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>"
     )
 endif()
+
+# Add desktop subdirectory
+add_subdirectory(desktop)

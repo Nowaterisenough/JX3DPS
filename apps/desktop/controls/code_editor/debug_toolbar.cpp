@@ -108,6 +108,11 @@ DebugToolbar::DebugToolbar(QWidget *parent) :
     setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::NoDropShadowWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
 
+    // 安装事件过滤器以监听父窗口移动
+    if (parent) {
+        parent->installEventFilter(this);
+    }
+
     SetupUI();
 }
 
@@ -526,4 +531,20 @@ void DebugToolbar::mouseReleaseEvent(QMouseEvent *event)
         d->dragging = false;
         event->accept();
     }
+}
+
+bool DebugToolbar::eventFilter(QObject *watched, QEvent *event)
+{
+    Q_D(DebugToolbar);
+
+    // 监听父窗口的移动事件
+    if (watched == parentWidget() && event->type() == QEvent::Move && isVisible()) {
+        // 父窗口移动时，更新浮窗的全局位置以保持相对位置不变
+        if (!d->savedRelativePos.isNull()) {
+            QPoint newGlobalPos = parentWidget()->mapToGlobal(d->savedRelativePos);
+            move(newGlobalPos);
+        }
+    }
+
+    return QWidget::eventFilter(watched, event);
 }

@@ -103,8 +103,8 @@ DebugToolbar::DebugToolbar(QWidget *parent) :
     d_ptr(new DebugToolbarPrivate(this))
 {
     // 设置为浮窗
-    // 先不使用系统阴影，避免圆角处出现白色角
-    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+    // 使用 Tool 而非 Popup，允许点击穿透到下方窗口
+    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::NoDropShadowWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
 
     SetupUI();

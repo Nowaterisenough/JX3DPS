@@ -19,7 +19,7 @@ public:
     explicit TimelinePrivate(Timeline *q) :
         q_ptr(q),
         thumbnailHeight(60),
-        mainViewHeight(180),
+        mainViewHeight(100),  // 减小主视图高度，从180减到100
         buffAreaHeight(0),     // 默认不显示buff区域
         buffRowHeight(30),
         spacing(10),
@@ -482,13 +482,14 @@ void Timeline::paintEvent(QPaintEvent *event)
                 painter.drawPixmap(5, rowY + 3, buffIconSize, buffIconSize, scaledIcon);
             }
 
-            // 绘制buff名称
+            // 绘制buff名称（显示为buff1、buff2、buff3...）
             painter.setPen(QColor(200, 200, 200));
             QFont font = painter.font();
             font.setPointSize(8);
             painter.setFont(font);
+            QString buffLabel = QString("buff%1").arg(i + 1);
             painter.drawText(d->buffRowHeight + 5, rowY, 100, d->buffRowHeight,
-                           Qt::AlignLeft | Qt::AlignVCenter, buff.name);
+                           Qt::AlignLeft | Qt::AlignVCenter, buffLabel);
 
             // 绘制覆盖条区域（从buff名称右侧开始）
             int barStartX = d->buffRowHeight + 110;

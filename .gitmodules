@@ -10,3 +10,9 @@
 [submodule "3rd/qwindowkit"]
 	path = 3rd/qwindowkit
 	url = https://github.com/stdware/qwindowkit
+[submodule "3rd/benchmark"]
+	path = 3rd/benchmark
+	url = https://github.com/google/benchmark.git
+[submodule "3rd/QCustomPlot"]
+	path = 3rd/QCustomPlot
+	url = https://github.com/dimv36/QCustomPlot-library.git

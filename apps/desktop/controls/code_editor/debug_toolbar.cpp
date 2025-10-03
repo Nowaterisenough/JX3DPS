@@ -153,8 +153,9 @@ void DebugToolbar::SetupUI()
     if (primaryFamily == fallbackFamily) {
         qDebug() << "Falling back to Segoe Fluent Icons";
     }
-    // VSCode 调试工具栏尺寸：更紧凑
-    setFixedHeight(35);
+    // VSCode 调试工具栏尺寸：更紧凑，预留阴影空间
+    const int shadowMargin = 16; // 阴影边距（上下左右各 8px）
+    setFixedHeight(35 + shadowMargin);
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     // VSCode 精确样式
@@ -209,7 +210,9 @@ void DebugToolbar::SetupUI()
     )").arg(primaryFamily));
 
     auto *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(6, 4, 6, 4);
+    // 设置边距以留出阴影空间
+    const int shadowRadius = 8;
+    layout->setContentsMargins(6 + shadowRadius, 4 + shadowRadius, 6 + shadowRadius, 4 + shadowRadius);
     layout->setSpacing(0);
     layout->setAlignment(Qt::AlignVCenter);
     layout->setSizeConstraint(QLayout::SetMinimumSize);
@@ -411,16 +414,40 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     painter.fillRect(rect(), Qt::transparent);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    // VSCode 调试工具栏背景
-    QPainterPath path;
-    path.addRoundedRect(rect(), 6, 6);
+    const int shadowRadius = 8;
+    const int borderRadius = 6;
+
+    // 计算内容区域（去除阴影边距）
+    QRect contentRect = rect().adjusted(shadowRadius, shadowRadius, -shadowRadius, -shadowRadius);
+
+    // 绘制阴影 - 使用模糊效果
+    // 从外向内绘制多层，制造渐变模糊效果
+    for (int i = 0; i < shadowRadius; ++i) {
+        // 计算当前层的透明度（外层更透明，内层更不透明）
+        qreal progress = qreal(i) / shadowRadius;  // 0.0 到 1.0
+        int alpha = int(25 * (1.0 - progress));    // 25 到 0
+
+        // 计算当前层的矩形（逐渐缩小）
+        QRectF shadowRect = contentRect.adjusted(-i, -i, i, i);
+
+        QPainterPath shadowPath;
+        shadowPath.addRoundedRect(shadowRect, borderRadius, borderRadius);
+
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(0, 0, 0, alpha));
+        painter.drawPath(shadowPath);
+    }
+
+    // 绘制主体背景
+    QPainterPath mainPath;
+    mainPath.addRoundedRect(contentRect, borderRadius, borderRadius);
 
     // VSCode 的调试工具栏背景：非常深的背景色
-    painter.fillPath(path, QColor(30, 30, 30, 255));
+    painter.fillPath(mainPath, QColor(30, 30, 30, 255));
 
     // 绘制边框
     painter.setPen(QPen(QColor(60, 60, 60, 255), 1));
-    painter.drawPath(path);
+    painter.drawPath(mainPath);
 }
 
 void DebugToolbar::mousePressEvent(QMouseEvent *event)

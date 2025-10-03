@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 ## 主循环宏 - 基础输出
 macro 循环
 /cast 三柴剑法
-/cast [buff:武器·橙武特效] 宏·宏8
+/cast [buff:武器·橙武特效] 宏1
 /scast 碎星辰
 /scast [skill_notin_cd:无我无剑] 紫气东来
 /scast [tlife:1<0.4] 腰坠·破防
@@ -114,14 +114,14 @@ macro 循环
 /scast 无我无剑
 /scast 吞日月
 /scast 人剑合一
-/cast [skill_cd:生太极<3&last_skill=人剑合一] 宏·宏3
-/cast [skill_cd:生太极<6&last_skill=人剑合一] 宏·宏2
-/cast [skill_cd:生太极>6&last_skill=人剑合一] 宏·宏1
+/switch [skill_cd:生太极<3&last_skill=人剑合一] 宏3
+/switch [skill_cd:生太极<6&last_skill=人剑合一] 宏2
+/switch [skill_cd:生太极>6&last_skill=人剑合一] 宏1
 
 ## 宏1 - 基础连招
 macro 宏1
 /cast 三柴剑法
-/cast [buff:武器·橙武特效] 宏·宏3
+/cast [buff:武器·橙武特效] 宏3
 /scast 碎星辰
 /scast 无我无剑
 /scast 三环套月
@@ -132,13 +132,13 @@ macro 宏1
 /scast 无我无剑
 /scast 吞日月
 /scast 人剑合一
-/cast [skill_cd:生太极<6&last_skill=人剑合一] 宏·宏2
-/cast [skill_cd:生太极>6&last_skill=人剑合一] 宏·宏1
+/switch [skill_cd:生太极<6&last_skill=人剑合一] 宏2
+/switch [skill_cd:生太极>6&last_skill=人剑合一] 宏1
 
 ## 宏2 - 太极循环
 macro 宏2
 /cast 三柴剑法
-/cast [buff:武器·橙武特效] 宏·宏3
+/cast [buff:武器·橙武特效] 宏3
 /scast 三环套月
 /scast 碎星辰
 /scast 无我无剑
@@ -149,15 +149,15 @@ macro 宏2
 /scast 吞日月
 /scast 三环套月
 /scast 人剑合一
-/cast [tlife:1<0.4&last_skill=人剑合一&skill_energy:紫气东来>=1] 宏·循环
-/scast 宏·宏1
+/switch [tlife:1<0.4&last_skill=人剑合一&skill_energy:紫气东来>=1] 循环
+/switch 宏1
 
 ## 宏切换示例
 macro 切换
-/switch [buff:武器·橙武特效] 宏·宏3
-/switch [skill_cd:生太极<3] 宏·宏3
-/switch [skill_cd:生太极<6] 宏·宏2
-/switch [skill_cd:生太极>6] 宏·宏1
+/switch [buff:武器·橙武特效] 宏3
+/switch [skill_cd:生太极<3] 宏3
+/switch [skill_cd:生太极<6] 宏2
+/switch [skill_cd:生太极>6] 宏1
 
 ## 事件语句示例（时间格式）
 macro 事件序列

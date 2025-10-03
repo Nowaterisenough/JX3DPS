@@ -1,81 +1,224 @@
 name: Windows MinGW
-on: 
+
+on:
   push:
+    branches: [ master, develop ]
     paths:
       - '.github/workflows/windows-mingw.yml'
-      - '3rd/*'
-      - 'app/*'
-      - 'module/*'
-      - 'cmake/*'
+      - '.gitmodules'
+      - '3rd/**'
+      - 'apps/**'
+      - 'modules/**'
+      - 'src/**'
+      - 'include/**'
+      - 'cmake/**'
       - 'CMakeLists.txt'
   pull_request:
+    branches: [ master, develop ]
     paths:
       - '.github/workflows/windows-mingw.yml'
-      - '3rd/*'
-      - 'app/*'
-      - 'module/*'
-      - 'cmake/*'
+      - '.gitmodules'
+      - '3rd/**'
+      - 'apps/**'
+      - 'modules/**'
+      - 'src/**'
+      - 'include/**'
+      - 'cmake/**'
       - 'CMakeLists.txt'
+
 jobs:
   build:
-    name: Build
+    name: Build with Qt 6.9.2
     runs-on: windows-latest
-    strategy:
-      matrix:
-        include:
-          - qt_arch: win64_mingw
-            qt_ver: 6.2.2
-            qt_tools: "tools_mingw,9.0.0-1-202111221309,qt.tools.win64_mingw900"
-            qt_tools_mingw_install: mingw900_64
+
     env:
-      targetName: JX3DPS.exe
+      QT_VERSION: 6.9.2
+      QT_DOWNLOAD_URL: https://github.com/Nowaterisenough/QtBuild/releases/download/qt6.9.2-native-20250901-1356/qt6.9.2-windows-x86_64-mingwgcc15.2.0_ucrt-shared_release.7z
+      MINGW_DOWNLOAD_URL: https://github.com/brechtsanders/winlibs_mingw/releases/download/15.2.0posix-13.0.0-ucrt-r1/winlibs-x86_64-posix-seh-gcc-15.2.0-mingw-w64ucrt-13.0.0-r1.7z
+      QT_DIR: ${{ github.workspace }}/qt
+      MINGW_DIR: ${{ github.workspace }}/mingw64
+
     steps:
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          version: ${{ matrix.qt_ver }}
-          aqtversion: '==2.0.5'
-          arch: ${{ matrix.qt_arch }}
-          tools: ${{ matrix.qt_tools }}
-          cached: 'false'
-      - uses: actions/checkout@v2
-        with:
+          submodules: recursive
           fetch-depth: 1
-      - name: Qt 6 environment configuration
-        if: ${{ startsWith( matrix.qt_ver, 6 ) }}
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.QT_DIR }}
+          key: qt-6.9.2-windows-mingw-gcc15.2.0-ucrt-release
+
+      - name: Cache MinGW
+        id: cache-mingw
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MINGW_DIR }}
+          key: mingw-gcc-15.2.0-posix-ucrt-r1
+
+      - name: Download and extract Qt
+        if: steps.cache-qt.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
-          Write-Output "${{ env.Qt6_DIR }}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          Write-Output "${{ env.Qt6_DIR }}/../../Tools/${{ matrix.qt_tools_mingw_install }}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: where is qmake & where is mingw32-make
+          Write-Output "Downloading Qt 6.9.2..."
+          New-Item -ItemType Directory -Force -Path "${{ env.QT_DIR }}"
+
+          # Download Qt archive
+          $qtArchive = "${{ github.workspace }}/qt.7z"
+          Invoke-WebRequest -Uri "${{ env.QT_DOWNLOAD_URL }}" -OutFile $qtArchive
+
+          Write-Output "Extracting Qt..."
+          # Extract using 7z (pre-installed on GitHub runners)
+          7z x $qtArchive -o"${{ env.QT_DIR }}" -y
+
+          # Remove archive to save space
+          Remove-Item $qtArchive
+
+          Write-Output "Qt extraction completed"
+
+      - name: Download and extract MinGW
+        if: steps.cache-mingw.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
-          Get-Command -Name 'mingw32-make' | Format-List
-      - name: mingw-build
-        id: build
+          Write-Output "Downloading MinGW GCC 15.2.0 UCRT..."
+          New-Item -ItemType Directory -Force -Path "${{ env.MINGW_DIR }}"
+
+          # Download MinGW archive
+          $mingwArchive = "${{ github.workspace }}/mingw.7z"
+          Invoke-WebRequest -Uri "${{ env.MINGW_DOWNLOAD_URL }}" -OutFile $mingwArchive
+
+          Write-Output "Extracting MinGW..."
+          # Extract to temp directory first
+          $tempDir = "${{ github.workspace }}/mingw_temp"
+          7z x $mingwArchive -o"$tempDir" -y
+
+          # Move contents from mingw64 subfolder to MINGW_DIR
+          $extractedMingw = Get-ChildItem -Path $tempDir -Directory | Select-Object -First 1
+          if ($extractedMingw) {
+            Move-Item -Path "$($extractedMingw.FullName)/*" -Destination "${{ env.MINGW_DIR }}" -Force
+            Remove-Item -Path $tempDir -Recurse -Force
+          }
+
+          # Remove archive to save space
+          Remove-Item $mingwArchive
+
+          Write-Output "MinGW extraction completed"
+
+      - name: Setup Qt and MinGW environment
+        shell: pwsh
+        run: |
+          Write-Output "=== Setting up Qt and MinGW environment ==="
+
+          # Find Qt installation directory
+          $qtRoot = Get-ChildItem -Path "${{ env.QT_DIR }}" -Directory | Select-Object -First 1
+          Write-Output "Qt Root: $($qtRoot.FullName)"
+          $qtBinPath = Join-Path $qtRoot.FullName "bin"
+
+          # MinGW bin path
+          $mingwBinPath = Join-Path "${{ env.MINGW_DIR }}" "bin"
+          Write-Output "MinGW Root: ${{ env.MINGW_DIR }}"
+          Write-Output "MinGW Bin: $mingwBinPath"
+
+          # Verify MinGW installation
+          $gccExe = Join-Path $mingwBinPath "gcc.exe"
+          if (-not (Test-Path $gccExe)) {
+            Write-Error "MinGW GCC not found at: $gccExe"
+            exit 1
+          }
+
+          # Add to PATH - MinGW FIRST to ensure GCC 15.2.0 is used
+          echo "$mingwBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+          # Set Qt environment variables
+          echo "Qt6_DIR=$($qtRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "CMAKE_PREFIX_PATH=$($qtRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          Write-Output "✓ Environment configured"
+          Write-Output "  Qt path: $qtBinPath"
+          Write-Output "  MinGW path: $mingwBinPath"
+
+      - name: Verify Qt installation
+        shell: pwsh
+        run: |
+          Write-Output "=== Verifying Qt and MinGW installation ==="
+
+          if (Get-Command qmake -ErrorAction SilentlyContinue) {
+            Write-Output "`nQt version:"
+            qmake --version
+          }
+
+          if (Get-Command g++ -ErrorAction SilentlyContinue) {
+            Write-Output "`nGCC version:"
+            g++ --version
+          }
+
+          if (Get-Command cmake -ErrorAction SilentlyContinue) {
+            Write-Output "`nCMake version:"
+            cmake --version
+          }
+
+          if (Get-Command mingw32-make -ErrorAction SilentlyContinue) {
+            Write-Output "`nMake version:"
+            mingw32-make --version
+          }
+
+          Write-Output "`nPATH:"
+          $env:PATH -split ';' | ForEach-Object { Write-Output "  $_" }
+
+      - name: Configure CMake
         shell: cmd
         run: |
-          cmake -S . -B ./build -G "MinGW Makefiles"
-          cmake --build ./build --target install --config Release
-      - name: package
-        id: package      
-        env:
-          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
+          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}"
+
+      - name: Build
+        shell: cmd
+        run: |
+          cmake --build ./build --config Release --parallel
+
+      - name: Install
+        shell: cmd
+        run: |
+          cmake --install ./build --config Release --prefix ./install
+
+      - name: Package
+        id: package
         shell: pwsh
         run: |
-          & .github\scripts\windows-mingw-publish.ps1 ${env:archiveName} ${env:targetName}
-           $name = ${env:archiveName}
-           echo "::set-output name=packageName::$name"       
-      - uses: actions/upload-artifact@v2
+          $archiveName = "JX3DPS-${{ github.ref_name }}-windows-x86_64"
+
+          # Create deployment directory
+          New-Item -ItemType Directory -Force -Path "./deploy"
+
+          # Copy executable and dependencies
+          Copy-Item -Path "./install/*" -Destination "./deploy" -Recurse -Force
+
+          # Deploy Qt dependencies using windeployqt
+          $exePath = Get-ChildItem -Path "./deploy" -Filter "*.exe" -Recurse | Select-Object -First 1
+          if ($exePath) {
+            windeployqt $exePath.FullName --release --no-translations
+          }
+
+          # Create archive
+          Compress-Archive -Path "./deploy/*" -DestinationPath "$archiveName.zip"
+
+          echo "packageName=$archiveName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+          Write-Output "Package created: $archiveName.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.package.outputs.packageName }}
-          path: ${{ steps.package.outputs.packageName }}
-      - name: uploadRelease
-        if: startsWith(github.event.ref, 'refs/tags/')
-        uses: svenstaro/upload-release-action@v2
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 7
+
+      - name: Upload release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ steps.package.outputs.packageName }}.zip
-          asset_name: ${{ steps.package.outputs.packageName }}.zip
-          tag: ${{ github.ref }}
-          overwrite: true 
+          files: ${{ steps.package.outputs.packageName }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}

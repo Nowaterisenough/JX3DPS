@@ -425,7 +425,7 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
         // 计算当前层的透明度（离内容越远越淡）
         // 使用指数衰减让内圈更深，外圈更淡
         qreal progress = qreal(i) / shadowRadius;
-        int alpha = int(50 * qPow(1.0 - progress, 2.5));  // 指数衰减，内深外淡
+        int alpha = int(70 * qPow(1.0 - progress, 2.5));  // 增加到 70，内层更深
 
         // 外层矩形
         QRectF outerRect = contentRect.adjusted(-i, -i, i, i);

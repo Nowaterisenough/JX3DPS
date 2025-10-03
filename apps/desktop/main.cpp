@@ -1,12 +1,14 @@
 #include <QApplication>
 #include <QDebug>
 #include <QLabel>
+#include <QRandomGenerator>
 #include <QVBoxLayout>
 
 #include "code_editor/code_editor.h"
 #include "code_editor/debug_toolbar.h"
 #include "controls/frameless/frameless.h"
 #include "controls/theme/dark_style.h"
+#include "controls/timeline/timeline.h"
 
 #include "resources.h"
 
@@ -169,11 +171,61 @@ macro 事件序列
 03:00.0 /end
 )");
 
-    // 设置布局（只添加编辑器，toolbar 是浮窗）
+    // 创建时间轴控件
+    Timeline *timeline = new Timeline(centralWidget);
+    timeline->setMinimumHeight(200);
+
+    // 添加测试数据
+    QVector<Timeline::EventItem> events;
+
+    // 剑纯技能 (技能名 + 图标ID)
+    struct SkillData {
+        QString name;
+        QString iconPath;
+        QColor color;
+    };
+
+    QList<SkillData> skills = {
+        {"碎星辰", ":/resources/images/JX3/Icons/2942.png", QColor(255, 100, 100)},
+        {"无我无剑", ":/resources/images/JX3/Icons/2941.png", QColor(100, 255, 100)},
+        {"三环套月", ":/resources/images/JX3/Icons/2936.png", QColor(100, 100, 255)},
+        {"八荒归元", ":/resources/images/JX3/Icons/2934.png", QColor(255, 255, 100)},
+        {"吞日月", ":/resources/images/JX3/Icons/2933.png", QColor(255, 100, 255)},
+        {"人剑合一", ":/resources/images/JX3/Icons/2931.png", QColor(100, 255, 255)},
+        {"生太极", ":/resources/images/JX3/Icons/2927.png", QColor(200, 150, 100)},
+        {"紫气东来", ":/resources/images/JX3/Icons/2926.png", QColor(150, 100, 200)}
+    };
+
+    // 模拟120秒的技能释放数据
+    for (int ms = 0; ms < 120000; ms += 1000 + (QRandomGenerator::global()->bounded(2000))) {
+        Timeline::EventItem event;
+        int skillIndex = QRandomGenerator::global()->bounded(skills.size());
+        const auto &skill = skills[skillIndex];
+
+        event.timestamp = ms;
+        event.name = skill.name;
+        event.icon = QPixmap(skill.iconPath);
+        event.color = skill.color;
+        event.damage = 10000 + QRandomGenerator::global()->bounded(50000);
+        event.rollResult = QRandomGenerator::global()->bounded(3) + 1;  // 1=普通, 2=会心, 3=识破
+        events.append(event);
+    }
+    timeline->SetEvents(events);
+
+    // 连接时间轴信号
+    QObject::connect(timeline, &Timeline::EventClicked, [](int index, const Timeline::EventItem &item) {
+        qDebug() << "Event clicked:" << index << item.name << "at" << item.timestamp << "ms";
+    });
+    QObject::connect(timeline, &Timeline::VisibleRangeChanged, [](int startMs, int endMs) {
+        qDebug() << "Visible range:" << startMs << "-" << endMs << "ms";
+    });
+
+    // 设置布局（编辑器 + 时间轴，toolbar 是浮窗）
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(editor);
+    layout->addWidget(editor, 1);      // 编辑器占主要空间
+    layout->addWidget(timeline, 0);    // 时间轴固定高度
 
     w.show();
 

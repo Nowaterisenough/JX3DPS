@@ -20,6 +20,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 add_subdirectory(controls/frameless)
 add_subdirectory(controls/theme)
 add_subdirectory(controls/code_editor)
+add_subdirectory(controls/timeline)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
@@ -55,6 +56,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Frameless
     Theme
     CodeEditor
+    Timeline
     Resources
 )
 

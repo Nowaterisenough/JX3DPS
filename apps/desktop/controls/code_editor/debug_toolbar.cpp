@@ -153,8 +153,9 @@ void DebugToolbar::SetupUI()
     if (primaryFamily == fallbackFamily) {
         qDebug() << "Falling back to Segoe Fluent Icons";
     }
-    // VSCode 调试工具栏尺寸：更紧凑
-    setFixedHeight(35);
+    // VSCode 调试工具栏尺寸：更紧凑，预留阴影空间
+    const int shadowMargin = 16; // 阴影边距（8px * 2）
+    setFixedHeight(35 + shadowMargin);
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     // VSCode 精确样式
@@ -209,7 +210,9 @@ void DebugToolbar::SetupUI()
     )").arg(primaryFamily));
 
     auto *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(6, 4, 6, 4);
+    // 设置边距以留出阴影空间
+    const int shadowRadius = 8;
+    layout->setContentsMargins(6 + shadowRadius, 4 + shadowRadius, 6 + shadowRadius, 4 + shadowRadius);
     layout->setSpacing(0);
     layout->setAlignment(Qt::AlignVCenter);
     layout->setSizeConstraint(QLayout::SetMinimumSize);
@@ -406,22 +409,30 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // VSCode 调试工具栏背景色 - 更精确的配色
-    QPainterPath path;
-    path.addRoundedRect(rect(), 6, 6);
+    const int shadowRadius = 8;  // 阴影半径
+    const int borderRadius = 6;  // 圆角半径
+
+    // 绘制阴影 - 多层渐变阴影以增加层次感
+    for (int i = shadowRadius; i > 0; --i) {
+        int alpha = 30 * (shadowRadius - i + 1) / shadowRadius; // 渐变透明度
+        QPainterPath shadowPath;
+        shadowPath.addRoundedRect(rect().adjusted(i, i, -i, -i), borderRadius, borderRadius);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(0, 0, 0, alpha));
+        painter.drawPath(shadowPath);
+    }
+
+    // 绘制主体背景
+    QPainterPath mainPath;
+    QRect contentRect = rect().adjusted(shadowRadius, shadowRadius, -shadowRadius, -shadowRadius);
+    mainPath.addRoundedRect(contentRect, borderRadius, borderRadius);
 
     // VSCode 的调试工具栏背景：非常深的背景色
-    painter.fillPath(path, QColor(30, 30, 30, 255));
+    painter.fillPath(mainPath, QColor(30, 30, 30, 255));
 
     // 绘制边框
     painter.setPen(QPen(QColor(60, 60, 60, 255), 1));
-    painter.drawPath(path);
-
-    // 添加轻微的阴影效果
-    QPainterPath shadowPath;
-    shadowPath.addRoundedRect(rect().adjusted(0, 1, 0, 1), 6, 6);
-    painter.setPen(Qt::NoPen);
-    painter.fillPath(shadowPath, QColor(0, 0, 0, 15));
+    painter.drawPath(mainPath);
 }
 
 void DebugToolbar::mousePressEvent(QMouseEvent *event)

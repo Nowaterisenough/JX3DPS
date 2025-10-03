@@ -74,72 +74,34 @@ jobs:
       - name: Setup Qt environment
         shell: pwsh
         run: |
-          Write-Output "=== Inspecting Qt directory structure ==="
-          Write-Output "Qt DIR: ${{ env.QT_DIR }}"
-          Get-ChildItem -Path "${{ env.QT_DIR }}" -Recurse -Depth 2 | Select-Object FullName | Format-Table -AutoSize
+          Write-Output "=== Setting up Qt environment ==="
 
           # Find Qt installation directory
           $qtRoot = Get-ChildItem -Path "${{ env.QT_DIR }}" -Directory | Select-Object -First 1
-          Write-Output "`nQt Root: $($qtRoot.FullName)"
+          Write-Output "Qt Root: $($qtRoot.FullName)"
+
           $qtBinPath = Join-Path $qtRoot.FullName "bin"
 
-          # Find MinGW directory - search more locations
-          $mingwBinPath = $null
-          $searchRoot = "${{ env.QT_DIR }}"
+          # Check if Qt bin contains compiler tools (integrated MinGW)
+          $qtGpp = Join-Path $qtBinPath "g++.exe"
+          if (Test-Path $qtGpp) {
+            Write-Output "✓ Found integrated MinGW in Qt bin directory"
+            # Qt bin already contains MinGW 15.2.0, just add it to PATH
+            echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-          Write-Output "`nSearching for MinGW in:"
-          $possibleMingwPaths = @(
-            (Join-Path $searchRoot "mingw64/bin"),
-            (Join-Path $qtRoot.FullName "mingw64/bin"),
-            (Join-Path (Split-Path $qtRoot.FullName -Parent) "mingw64/bin"),
-            (Join-Path $qtRoot.FullName "../mingw64/bin"),
-            (Join-Path $qtRoot.FullName "../../mingw64/bin"),
-            (Join-Path $qtRoot.FullName "Tools/mingw1520_64/bin"),
-            (Join-Path $searchRoot "../mingw64/bin")
-          )
-
-          foreach ($path in $possibleMingwPaths) {
-            try {
-              $resolvedPath = [System.IO.Path]::GetFullPath($path)
-              Write-Output "  Checking: $resolvedPath"
-              if (Test-Path $resolvedPath) {
-                $mingwBinPath = $resolvedPath
-                Write-Output "  ✓ Found MinGW at: $mingwBinPath"
-                break
-              }
-            } catch {
-              Write-Output "  ✗ Invalid path: $path"
-            }
+            # Set compiler paths explicitly
+            echo "CMAKE_C_COMPILER=$qtBinPath/gcc.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "CMAKE_CXX_COMPILER=$qtBinPath/g++.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          } else {
+            Write-Output "Qt bin does not contain compiler, using system MinGW"
+            echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           }
-
-          # If still not found, search for g++.exe in Qt directory tree
-          if (-not $mingwBinPath) {
-            Write-Output "`nSearching for g++.exe in Qt directory tree..."
-            $gppExe = Get-ChildItem -Path $searchRoot -Filter "g++.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($gppExe) {
-              $mingwBinPath = $gppExe.Directory.FullName
-              Write-Output "  ✓ Found MinGW via g++.exe at: $mingwBinPath"
-            }
-          }
-
-          if (-not $mingwBinPath) {
-            Write-Output "`n=== Directory listing of Qt root ==="
-            Get-ChildItem -Path $qtRoot.FullName -Recurse -Depth 3 | Select-Object FullName | Format-Table -AutoSize
-            Write-Error "MinGW not found in Qt package!"
-            exit 1
-          }
-
-          # Add to PATH - MinGW FIRST to override system MinGW
-          echo "$mingwBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
           # Set Qt environment variables
           echo "Qt6_DIR=$($qtRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CMAKE_PREFIX_PATH=$($qtRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-          Write-Output "`nQt environment configured"
           Write-Output "Qt path: $qtBinPath"
-          Write-Output "MinGW path: $mingwBinPath"
 
       - name: Verify Qt installation
         shell: pwsh
@@ -172,7 +134,7 @@ jobs:
       - name: Configure CMake
         shell: cmd
         run: |
-          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}"
+          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}" -DCMAKE_C_COMPILER="${{ env.CMAKE_C_COMPILER }}" -DCMAKE_CXX_COMPILER="${{ env.CMAKE_CXX_COMPILER }}"
 
       - name: Build
         shell: cmd

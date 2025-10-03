@@ -89,6 +89,7 @@ public:
     // 拖动相关
     bool dragging;
     QPoint dragStartPos;
+    QPoint savedRelativePos;  // 保存相对于父窗口的位置
 
 private:
     DebugToolbar *q_ptr;
@@ -389,10 +390,21 @@ void DebugToolbar::UpdateButtonStates()
 
 void DebugToolbar::ShowFloating()
 {
-    // 显示在父窗口的中上部
+    Q_D(DebugToolbar);
+
     if (parentWidget()) {
-        QPoint center = parentWidget()->rect().center();
-        move(center.x() - width() / 2, 60);
+        // 如果有保存的位置，使用保存的相对位置
+        if (!d->savedRelativePos.isNull()) {
+            QPoint globalPos = parentWidget()->mapToGlobal(d->savedRelativePos);
+            move(globalPos);
+        } else {
+            // 首次显示：在父窗口的中上部
+            QPoint center = parentWidget()->rect().center();
+            QPoint relativePos(center.x() - width() / 2, 60);
+            QPoint globalPos = parentWidget()->mapToGlobal(relativePos);
+            move(globalPos);
+            d->savedRelativePos = relativePos;
+        }
     }
     show();
 }
@@ -481,7 +493,37 @@ void DebugToolbar::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(DebugToolbar);
     if (d->dragging && (event->buttons() & Qt::LeftButton)) {
-        move(event->globalPosition().toPoint() - d->dragStartPos);
+        QPoint newPos = event->globalPosition().toPoint() - d->dragStartPos;
+
+        // 限制在父窗口范围内
+        if (parentWidget()) {
+            QRect parentRect = parentWidget()->rect();
+            QPoint parentGlobalPos = parentWidget()->mapToGlobal(QPoint(0, 0));
+
+            // 计算可移动的范围（考虑工具栏大小）
+            int minX = parentGlobalPos.x();
+            int minY = parentGlobalPos.y();
+            int maxX = parentGlobalPos.x() + parentRect.width() - width();
+            int maxY = parentGlobalPos.y() + parentRect.height() - height();
+
+            // 限制位置
+            newPos.setX(qBound(minX, newPos.x(), maxX));
+            newPos.setY(qBound(minY, newPos.y(), maxY));
+
+            // 保存相对位置
+            d->savedRelativePos = parentWidget()->mapFromGlobal(newPos);
+        }
+
+        move(newPos);
+        event->accept();
+    }
+}
+
+void DebugToolbar::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_D(DebugToolbar);
+    if (event->button() == Qt::LeftButton) {
+        d->dragging = false;
         event->accept();
     }
 }

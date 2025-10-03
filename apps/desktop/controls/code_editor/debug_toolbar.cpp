@@ -405,6 +405,11 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
+    // 先清空整个区域为透明
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.fillRect(rect(), Qt::transparent);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
     // VSCode 调试工具栏背景
     QPainterPath path;
     path.addRoundedRect(rect(), 6, 6);

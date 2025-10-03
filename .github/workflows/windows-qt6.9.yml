@@ -5,6 +5,7 @@ on:
     branches: [ master, develop ]
     paths:
       - '.github/workflows/windows-qt6.9.yml'
+      - '.gitmodules'
       - '3rd/**'
       - 'apps/**'
       - 'modules/**'
@@ -16,6 +17,7 @@ on:
     branches: [ master, develop ]
     paths:
       - '.github/workflows/windows-qt6.9.yml'
+      - '.gitmodules'
       - '3rd/**'
       - 'apps/**'
       - 'modules/**'

@@ -457,21 +457,23 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     // 绘制边框
     painter.setPen(QPen(QColor(60, 60, 60, 255), 1));
     painter.drawPath(mainPath);
-
-    // 设置窗口遮罩，只响应内容区域的鼠标事件
-    QRegion maskRegion(contentRect, QRegion::Rectangle);
-    QPainterPath maskPath;
-    maskPath.addRoundedRect(contentRect, borderRadius, borderRadius);
-    setMask(QRegion(maskPath.toFillPolygon().toPolygon()));
 }
 
 void DebugToolbar::mousePressEvent(QMouseEvent *event)
 {
     Q_D(DebugToolbar);
     if (event->button() == Qt::LeftButton) {
-        d->dragging = true;
-        d->dragStartPos = event->globalPosition().toPoint() - frameGeometry().topLeft();
-        event->accept();
+        // 检查点击位置是否在内容区域内（排除阴影区域）
+        const int shadowRadius = 8;
+        QRect contentRect = rect().adjusted(shadowRadius, shadowRadius, -shadowRadius, -shadowRadius);
+
+        if (contentRect.contains(event->pos())) {
+            d->dragging = true;
+            d->dragStartPos = event->globalPosition().toPoint() - frameGeometry().topLeft();
+            event->accept();
+        } else {
+            event->ignore();  // 点击阴影区域，忽略事件
+        }
     }
 }
 

@@ -457,6 +457,12 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     // 绘制边框
     painter.setPen(QPen(QColor(60, 60, 60, 255), 1));
     painter.drawPath(mainPath);
+
+    // 设置窗口遮罩，只响应内容区域的鼠标事件
+    QRegion maskRegion(contentRect, QRegion::Rectangle);
+    QPainterPath maskPath;
+    maskPath.addRoundedRect(contentRect, borderRadius, borderRadius);
+    setMask(QRegion(maskPath.toFillPolygon().toPolygon()));
 }
 
 void DebugToolbar::mousePressEvent(QMouseEvent *event)

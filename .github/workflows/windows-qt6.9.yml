@@ -77,11 +77,32 @@ jobs:
           # Find Qt installation directory
           $qtRoot = Get-ChildItem -Path "${{ env.QT_DIR }}" -Directory | Select-Object -First 1
           $qtBinPath = Join-Path $qtRoot.FullName "bin"
-          $mingwBinPath = Join-Path $qtRoot.FullName "../../mingw64/bin"
 
-          # Add to PATH
-          echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          # Find MinGW directory (should be at same level as Qt root or inside Qt package)
+          $mingwBinPath = $null
+          $possibleMingwPaths = @(
+            (Join-Path (Split-Path $qtRoot.FullName -Parent) "mingw64/bin"),
+            (Join-Path $qtRoot.FullName "../mingw64/bin"),
+            (Join-Path $qtRoot.FullName "../../mingw64/bin")
+          )
+
+          foreach ($path in $possibleMingwPaths) {
+            $resolvedPath = [System.IO.Path]::GetFullPath($path)
+            if (Test-Path $resolvedPath) {
+              $mingwBinPath = $resolvedPath
+              Write-Output "Found MinGW at: $mingwBinPath"
+              break
+            }
+          }
+
+          if (-not $mingwBinPath) {
+            Write-Error "MinGW not found in Qt package!"
+            exit 1
+          }
+
+          # Add to PATH - MinGW FIRST to override system MinGW
           echo "$mingwBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
           # Set Qt environment variables
           echo "Qt6_DIR=$($qtRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
@@ -89,17 +110,35 @@ jobs:
 
           Write-Output "Qt environment configured"
           Write-Output "Qt path: $qtBinPath"
+          Write-Output "MinGW path: $mingwBinPath"
 
       - name: Verify Qt installation
         shell: pwsh
         run: |
-          Get-Command qmake -ErrorAction SilentlyContinue | Format-List
-          Get-Command cmake -ErrorAction SilentlyContinue | Format-List
-          Get-Command mingw32-make -ErrorAction SilentlyContinue | Format-List
+          Write-Output "=== Verifying Qt and MinGW installation ==="
 
           if (Get-Command qmake -ErrorAction SilentlyContinue) {
+            Write-Output "`nQt version:"
             qmake --version
           }
+
+          if (Get-Command g++ -ErrorAction SilentlyContinue) {
+            Write-Output "`nGCC version:"
+            g++ --version
+          }
+
+          if (Get-Command cmake -ErrorAction SilentlyContinue) {
+            Write-Output "`nCMake version:"
+            cmake --version
+          }
+
+          if (Get-Command mingw32-make -ErrorAction SilentlyContinue) {
+            Write-Output "`nMake version:"
+            mingw32-make --version
+          }
+
+          Write-Output "`nPATH:"
+          $env:PATH -split ';' | ForEach-Object { Write-Output "  $_" }
 
       - name: Configure CMake
         shell: cmd

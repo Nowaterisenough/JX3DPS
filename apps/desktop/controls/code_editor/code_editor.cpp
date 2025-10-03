@@ -197,7 +197,7 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
                 painter.setBrush(QColor(224, 78, 78)); // VSCode 断点红色 #e04e4e
 
                 // 在行号左侧绘制圆形断点，稍微向下偏移以对齐行号中心
-                int centerY = top + fontMetrics().height() / 2 + 1;
+                int centerY = top + fontMetrics().height() / 2 + 2;
                 painter.drawEllipse(QPoint(breakpointMargin + breakpointSize / 2, centerY),
                                     breakpointSize / 2, breakpointSize / 2);
             }
@@ -227,7 +227,7 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
                 if (d->breakpoints.contains(lineNumber)) {
                     painter.setPen(Qt::NoPen);
                     painter.setBrush(QColor(0, 0, 0)); // 黑色断点
-                    int centerY = top + fontMetrics().height() / 2 + 1;
+                    int centerY = top + fontMetrics().height() / 2 + 2;
                     painter.drawEllipse(QPoint(breakpointMargin + breakpointSize / 2, centerY),
                                         breakpointSize / 2, breakpointSize / 2);
                 }

@@ -423,8 +423,9 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     // 绘制阴影 - 使用裁剪方式，只绘制外部阴影
     for (int i = 1; i <= shadowRadius; ++i) {
         // 计算当前层的透明度（离内容越远越淡）
+        // 使用指数衰减让内圈更深，外圈更淡
         qreal progress = qreal(i) / shadowRadius;
-        int alpha = int(35 * (1.0 - progress));  // 增加到 35，让最内圈更浓
+        int alpha = int(50 * qPow(1.0 - progress, 2.5));  // 指数衰减，内深外淡
 
         // 外层矩形
         QRectF outerRect = contentRect.adjusted(-i, -i, i, i);

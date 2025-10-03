@@ -34,10 +34,29 @@ public:
         QColor color;       // 颜色标记
         int damage;         // 伤害值
         int rollResult;     // 会心结果 (1=普通, 2=会心, 3=识破)
+        QString macroName;  // 所属宏名称
+        QColor macroColor;  // 宏的颜色标记
+    };
+
+    // Buff覆盖区间数据结构
+    struct BuffSegment {
+        int startMs;        // 起始时间（毫秒）
+        int endMs;          // 结束时间（毫秒）
+    };
+
+    // Buff项数据结构
+    struct BuffItem {
+        QString name;                    // Buff名称
+        QPixmap icon;                    // Buff图标
+        QColor color;                    // 覆盖条颜色
+        QVector<BuffSegment> segments;   // 覆盖时间段列表
     };
 
     // 设置时间轴数据
     void SetEvents(const QVector<EventItem> &events);
+
+    // 设置Buff数据
+    void SetBuffs(const QVector<BuffItem> &buffs);
 
     // 清空数据
     void Clear();

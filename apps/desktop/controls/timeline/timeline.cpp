@@ -19,6 +19,8 @@ public:
         q_ptr(q),
         thumbnailHeight(60),
         mainViewHeight(120),
+        buffAreaHeight(0),     // 默认不显示buff区域
+        buffRowHeight(30),
         spacing(10),
         totalDuration(0),
         viewStartMs(0),
@@ -34,10 +36,13 @@ public:
 
     // 数据
     QVector<Timeline::EventItem> events;
+    QVector<Timeline::BuffItem> buffs;
 
     // 布局参数
     int thumbnailHeight;   // 缩略图高度
     int mainViewHeight;    // 主视图高度
+    int buffAreaHeight;    // Buff区域总高度（根据buff数量动态计算）
+    int buffRowHeight;     // 每个buff行的高度
     int spacing;           // 间距
 
     // 时间范围
@@ -56,6 +61,7 @@ public:
     // 区域矩形
     QRect thumbnailRect;
     QRect mainViewRect;
+    QRect buffAreaRect;      // Buff区域矩形
     QRect visibleIndicator;  // 缩略图中的可见区域指示器
 
 private:
@@ -111,10 +117,27 @@ void Timeline::SetEvents(const QVector<EventItem> &events)
     update();
 }
 
+void Timeline::SetBuffs(const QVector<BuffItem> &buffs)
+{
+    Q_D(Timeline);
+    d->buffs = buffs;
+
+    // 根据buff数量调整控件最小高度
+    int requiredHeight = d->thumbnailHeight + d->spacing + d->mainViewHeight;
+    if (!buffs.isEmpty()) {
+        requiredHeight += d->spacing + buffs.size() * d->buffRowHeight;
+    }
+    setMinimumHeight(requiredHeight);
+
+    UpdateLayout();
+    update();
+}
+
 void Timeline::Clear()
 {
     Q_D(Timeline);
     d->events.clear();
+    d->buffs.clear();
     d->totalDuration = 0;
     d->viewStartMs = 0;
     d->viewEndMs = 10000;
@@ -179,11 +202,23 @@ void Timeline::UpdateLayout()
     int w = width();
     int h = height();
 
+    // 计算buff区域高度
+    d->buffAreaHeight = d->buffs.isEmpty() ? 0 : d->buffs.size() * d->buffRowHeight;
+
     // 缩略图区域（上方）
     d->thumbnailRect = QRect(0, 0, w, d->thumbnailHeight);
 
-    // 主视图区域（下方）
-    d->mainViewRect = QRect(0, d->thumbnailHeight + d->spacing, w, h - d->thumbnailHeight - d->spacing);
+    // 主视图区域（中间）
+    int mainViewTop = d->thumbnailHeight + d->spacing;
+    d->mainViewRect = QRect(0, mainViewTop, w, d->mainViewHeight);
+
+    // Buff区域（下方）
+    if (d->buffAreaHeight > 0) {
+        int buffAreaTop = mainViewTop + d->mainViewHeight + d->spacing;
+        d->buffAreaRect = QRect(0, buffAreaTop, w, d->buffAreaHeight);
+    } else {
+        d->buffAreaRect = QRect();
+    }
 
     // 计算可见区域指示器
     if (d->totalDuration > 0) {
@@ -213,11 +248,57 @@ void Timeline::paintEvent(QPaintEvent *event)
         // 背景
         painter.fillRect(d->thumbnailRect, QColor(30, 30, 30));
 
+        // 绘制宏覆盖带（底部）
+        const int macroBarHeight = 8;
+        const int macroBarY = d->thumbnailRect.bottom() - macroBarHeight - 2;
+
+        if (d->totalDuration > 0 && !d->events.isEmpty()) {
+            painter.setPen(Qt::NoPen);
+
+            // 收集宏覆盖区间
+            QString currentMacro;
+            int segmentStart = 0;
+            QColor currentColor;
+
+            for (int i = 0; i < d->events.size(); ++i) {
+                const auto &event = d->events[i];
+
+                // 检测宏切换
+                if (event.macroName != currentMacro) {
+                    // 绘制上一个宏的区间
+                    if (!currentMacro.isEmpty() && i > 0) {
+                        qreal startRatio = qreal(segmentStart) / d->totalDuration;
+                        qreal endRatio = qreal(event.timestamp) / d->totalDuration;
+                        int x1 = startRatio * width();
+                        int x2 = endRatio * width();
+
+                        painter.setBrush(currentColor);
+                        painter.drawRect(x1, macroBarY, x2 - x1, macroBarHeight);
+                    }
+
+                    // 开始新宏区间
+                    currentMacro = event.macroName;
+                    currentColor = event.macroColor;
+                    segmentStart = event.timestamp;
+                }
+            }
+
+            // 绘制最后一个宏区间
+            if (!currentMacro.isEmpty()) {
+                qreal startRatio = qreal(segmentStart) / d->totalDuration;
+                int x1 = startRatio * width();
+                int x2 = width();
+
+                painter.setBrush(currentColor);
+                painter.drawRect(x1, macroBarY, x2 - x1, macroBarHeight);
+            }
+        }
+
         // 绘制所有事件（缩略图 - 使用小图标）
         if (d->totalDuration > 0) {
             painter.setPen(Qt::NoPen);
             const int miniIconSize = 16;  // 缩略图中的小图标尺寸
-            const int iconY = d->thumbnailRect.center().y();
+            const int iconY = d->thumbnailRect.top() + (d->thumbnailRect.height() - 12) / 2;  // 调整图标位置，为底部宏条留空间
 
             for (const auto &event : d->events) {
                 qreal ratio = qreal(event.timestamp) / d->totalDuration;
@@ -233,7 +314,7 @@ void Timeline::paintEvent(QPaintEvent *event)
                 } else {
                     // 无图标时绘制小竖线
                     painter.setPen(QPen(event.color, 2));
-                    painter.drawLine(x, d->thumbnailRect.top() + 10, x, d->thumbnailRect.bottom() - 10);
+                    painter.drawLine(x, d->thumbnailRect.top() + 10, x, macroBarY - 2);
                     painter.setPen(Qt::NoPen);
                 }
             }
@@ -407,6 +488,88 @@ void Timeline::paintEvent(QPaintEvent *event)
         painter.setPen(QColor(60, 60, 60));
         painter.setBrush(Qt::NoBrush);
         painter.drawRect(d->mainViewRect);
+
+        painter.restore();
+    }
+
+    // 绘制Buff区域
+    if (!d->buffs.isEmpty() && d->buffAreaRect.isValid()) {
+        painter.save();
+        painter.setClipRect(d->buffAreaRect);
+
+        // 背景
+        painter.fillRect(d->buffAreaRect, QColor(35, 35, 35));
+
+        int viewDuration = d->viewEndMs - d->viewStartMs;
+
+        // 绘制每个buff行
+        for (int i = 0; i < d->buffs.size(); ++i) {
+            const auto &buff = d->buffs[i];
+            int rowY = d->buffAreaRect.top() + i * d->buffRowHeight;
+
+            // 绘制buff图标和名称
+            if (!buff.icon.isNull()) {
+                int iconSize = d->buffRowHeight - 6;
+                QPixmap scaledIcon = buff.icon.scaled(iconSize, iconSize,
+                                                       Qt::KeepAspectRatio,
+                                                       Qt::SmoothTransformation);
+                painter.drawPixmap(5, rowY + 3, iconSize, iconSize, scaledIcon);
+            }
+
+            // 绘制buff名称
+            painter.setPen(QColor(200, 200, 200));
+            QFont font = painter.font();
+            font.setPointSize(8);
+            painter.setFont(font);
+            painter.drawText(d->buffRowHeight + 5, rowY, 100, d->buffRowHeight,
+                           Qt::AlignLeft | Qt::AlignVCenter, buff.name);
+
+            // 绘制覆盖条区域（从buff名称右侧开始）
+            int barStartX = d->buffRowHeight + 110;
+            int barWidth = d->buffAreaRect.width() - barStartX - 5;
+            int barY = rowY + 5;
+            int barHeight = d->buffRowHeight - 10;
+
+            // 绘制背景条
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(QColor(60, 60, 60));
+            painter.drawRect(barStartX, barY, barWidth, barHeight);
+
+            // 绘制buff覆盖时间段
+            if (viewDuration > 0) {
+                painter.setBrush(buff.color);
+
+                for (const auto &segment : buff.segments) {
+                    // 只绘制可见范围内的部分
+                    int segStart = qMax(segment.startMs, d->viewStartMs);
+                    int segEnd = qMin(segment.endMs, d->viewEndMs);
+
+                    if (segStart < segEnd) {
+                        qreal startRatio = qreal(segStart - d->viewStartMs) / viewDuration;
+                        qreal endRatio = qreal(segEnd - d->viewStartMs) / viewDuration;
+
+                        int x1 = barStartX + startRatio * barWidth;
+                        int x2 = barStartX + endRatio * barWidth;
+                        int w = x2 - x1;
+
+                        // 绘制覆盖条
+                        painter.drawRect(x1, barY, w, barHeight);
+                    }
+                }
+            }
+
+            // 绘制行分割线
+            if (i < d->buffs.size() - 1) {
+                painter.setPen(QColor(50, 50, 50));
+                painter.drawLine(d->buffAreaRect.left(), rowY + d->buffRowHeight,
+                               d->buffAreaRect.right(), rowY + d->buffRowHeight);
+            }
+        }
+
+        // 边框
+        painter.setPen(QColor(60, 60, 60));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(d->buffAreaRect);
 
         painter.restore();
     }

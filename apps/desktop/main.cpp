@@ -196,21 +196,123 @@ macro 事件序列
         {"紫气东来", ":/resources/images/JX3/Icons/2926.png", QColor(150, 100, 200)}
     };
 
-    // 模拟120秒的技能释放数据
-    for (int ms = 0; ms < 120000; ms += 1000 + (QRandomGenerator::global()->bounded(2000))) {
-        Timeline::EventItem event;
-        int skillIndex = QRandomGenerator::global()->bounded(skills.size());
-        const auto &skill = skills[skillIndex];
+    // 定义宏信息
+    struct MacroInfo {
+        QString name;
+        QColor color;
+    };
 
-        event.timestamp = ms;
-        event.name = skill.name;
-        event.icon = QPixmap(skill.iconPath);
-        event.color = skill.color;
-        event.damage = 10000 + QRandomGenerator::global()->bounded(50000);
-        event.rollResult = QRandomGenerator::global()->bounded(3) + 1;  // 1=普通, 2=会心, 3=识破
-        events.append(event);
+    QList<MacroInfo> macros = {
+        {"宏1-基础", QColor(100, 150, 255)},    // 蓝色
+        {"宏2-太极", QColor(255, 150, 100)},    // 橙色
+        {"宏3-爆发", QColor(255, 100, 150)},    // 粉色
+        {"循环", QColor(150, 255, 100)}         // 绿色
+    };
+
+    // 模拟600秒的技能释放数据，平均1.5秒释放2-3个技能
+    int totalDuration = 600000; // 600秒
+    int currentMacroIndex = 0;
+    int macroSwitchCounter = 0;
+
+    for (int ms = 0; ms < totalDuration;) {
+        // 每隔15-25秒切换宏
+        if (macroSwitchCounter >= 10 + QRandomGenerator::global()->bounded(7)) {
+            currentMacroIndex = (currentMacroIndex + 1) % macros.size();
+            macroSwitchCounter = 0;
+        }
+
+        const auto &currentMacro = macros[currentMacroIndex];
+
+        // 每次释放2-3个技能
+        int skillCount = 2 + QRandomGenerator::global()->bounded(2); // 2或3个技能
+
+        for (int i = 0; i < skillCount && ms < totalDuration; ++i) {
+            Timeline::EventItem event;
+            int skillIndex = QRandomGenerator::global()->bounded(skills.size());
+            const auto &skill = skills[skillIndex];
+
+            event.timestamp = ms;
+            event.name = skill.name;
+            event.icon = QPixmap(skill.iconPath);
+            event.color = skill.color;
+            event.damage = 10000 + QRandomGenerator::global()->bounded(50000);
+            event.rollResult = QRandomGenerator::global()->bounded(3) + 1;  // 1=普通, 2=会心, 3=识破
+            event.macroName = currentMacro.name;
+            event.macroColor = currentMacro.color;
+            events.append(event);
+
+            // 同一批技能之间间隔50-150ms
+            ms += 50 + QRandomGenerator::global()->bounded(100);
+        }
+
+        // 下一批技能间隔1.3-1.7秒（平均1.5秒）
+        ms += 1300 + QRandomGenerator::global()->bounded(400);
+        macroSwitchCounter++;
     }
     timeline->SetEvents(events);
+
+    // 添加测试Buff数据（覆盖600秒）
+    QVector<Timeline::BuffItem> buffs;
+
+    // Buff 1: 破防 (20秒CD，持续15秒)
+    Timeline::BuffItem buff1;
+    buff1.name = "破防";
+    buff1.icon = QPixmap(":/resources/images/JX3/Icons/2942.png");
+    buff1.color = QColor(255, 100, 100, 180);
+    for (int t = 0; t < totalDuration; t += 35000) {
+        buff1.segments.append({t, qMin(t + 15000, totalDuration)});
+    }
+    buffs.append(buff1);
+
+    // Buff 2: 无双 (30秒CD，持续20秒)
+    Timeline::BuffItem buff2;
+    buff2.name = "无双";
+    buff2.icon = QPixmap(":/resources/images/JX3/Icons/2941.png");
+    buff2.color = QColor(100, 255, 100, 180);
+    for (int t = 5000; t < totalDuration; t += 50000) {
+        buff2.segments.append({t, qMin(t + 20000, totalDuration)});
+    }
+    buffs.append(buff2);
+
+    // Buff 3: 会心 (25秒CD，持续12秒)
+    Timeline::BuffItem buff3;
+    buff3.name = "会心";
+    buff3.icon = QPixmap(":/resources/images/JX3/Icons/2936.png");
+    buff3.color = QColor(100, 100, 255, 180);
+    for (int t = 10000; t < totalDuration; t += 37000) {
+        buff3.segments.append({t, qMin(t + 12000, totalDuration)});
+    }
+    buffs.append(buff3);
+
+    // Buff 4: 加速 (60秒CD，持续30秒)
+    Timeline::BuffItem buff4;
+    buff4.name = "加速";
+    buff4.icon = QPixmap(":/resources/images/JX3/Icons/2934.png");
+    buff4.color = QColor(255, 255, 100, 180);
+    for (int t = 0; t < totalDuration; t += 90000) {
+        buff4.segments.append({t, qMin(t + 30000, totalDuration)});
+    }
+    buffs.append(buff4);
+
+    // Buff 5: 外功 (持续覆盖)
+    Timeline::BuffItem buff5;
+    buff5.name = "外功";
+    buff5.icon = QPixmap(":/resources/images/JX3/Icons/2933.png");
+    buff5.color = QColor(255, 150, 50, 180);
+    buff5.segments.append({0, totalDuration});
+    buffs.append(buff5);
+
+    // Buff 6: 橙武特效 (45秒CD，持续18秒)
+    Timeline::BuffItem buff6;
+    buff6.name = "橙武";
+    buff6.icon = QPixmap(":/resources/images/JX3/Icons/2931.png");
+    buff6.color = QColor(255, 165, 0, 180);
+    for (int t = 20000; t < totalDuration; t += 63000) {
+        buff6.segments.append({t, qMin(t + 18000, totalDuration)});
+    }
+    buffs.append(buff6);
+
+    timeline->SetBuffs(buffs);
 
     // 连接时间轴信号
     QObject::connect(timeline, &Timeline::EventClicked, [](int index, const Timeline::EventItem &item) {

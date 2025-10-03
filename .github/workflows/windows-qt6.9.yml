@@ -34,6 +34,7 @@ jobs:
     env:
       QT_VERSION: 6.9.2
       QT_DOWNLOAD_URL: https://github.com/Nowaterisenough/QtBuild/releases/download/qt6.9.2-native-20250901-1356/qt6.9.2-windows-x86_64-mingwgcc15.2.0_ucrt-shared_release.7z
+      MINGW_DOWNLOAD_URL: https://github.com/niXman/mingw-builds-binaries/releases/download/15.2.0-rt_v12-rev0/x86_64-15.2.0-release-ucrt-rt_v12-rev0.7z
       QT_DIR: ${{ github.workspace }}/qt
       MINGW_DIR: ${{ github.workspace }}/mingw64
 
@@ -50,6 +51,13 @@ jobs:
         with:
           path: ${{ env.QT_DIR }}
           key: qt-6.9.2-windows-mingw-gcc15.2.0-ucrt-release
+
+      - name: Cache MinGW
+        id: cache-mingw
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MINGW_DIR }}
+          key: mingw-gcc-15.2.0-ucrt-rt_v12-rev0
 
       - name: Download and extract Qt
         if: steps.cache-qt.outputs.cache-hit != 'true'
@@ -71,37 +79,67 @@ jobs:
 
           Write-Output "Qt extraction completed"
 
-      - name: Setup Qt environment
+      - name: Download and extract MinGW
+        if: steps.cache-mingw.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
-          Write-Output "=== Setting up Qt environment ==="
+          Write-Output "Downloading MinGW GCC 15.2.0 UCRT..."
+          New-Item -ItemType Directory -Force -Path "${{ env.MINGW_DIR }}"
+
+          # Download MinGW archive
+          $mingwArchive = "${{ github.workspace }}/mingw.7z"
+          Invoke-WebRequest -Uri "${{ env.MINGW_DOWNLOAD_URL }}" -OutFile $mingwArchive
+
+          Write-Output "Extracting MinGW..."
+          # Extract to temp directory first
+          $tempDir = "${{ github.workspace }}/mingw_temp"
+          7z x $mingwArchive -o"$tempDir" -y
+
+          # Move contents from mingw64 subfolder to MINGW_DIR
+          $extractedMingw = Get-ChildItem -Path $tempDir -Directory | Select-Object -First 1
+          if ($extractedMingw) {
+            Move-Item -Path "$($extractedMingw.FullName)/*" -Destination "${{ env.MINGW_DIR }}" -Force
+            Remove-Item -Path $tempDir -Recurse -Force
+          }
+
+          # Remove archive to save space
+          Remove-Item $mingwArchive
+
+          Write-Output "MinGW extraction completed"
+
+      - name: Setup Qt and MinGW environment
+        shell: pwsh
+        run: |
+          Write-Output "=== Setting up Qt and MinGW environment ==="
 
           # Find Qt installation directory
           $qtRoot = Get-ChildItem -Path "${{ env.QT_DIR }}" -Directory | Select-Object -First 1
           Write-Output "Qt Root: $($qtRoot.FullName)"
-
           $qtBinPath = Join-Path $qtRoot.FullName "bin"
 
-          # Check if Qt bin contains compiler tools (integrated MinGW)
-          $qtGpp = Join-Path $qtBinPath "g++.exe"
-          if (Test-Path $qtGpp) {
-            Write-Output "✓ Found integrated MinGW in Qt bin directory"
-            # Qt bin already contains MinGW 15.2.0, just add it to PATH
-            echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          # MinGW bin path
+          $mingwBinPath = Join-Path "${{ env.MINGW_DIR }}" "bin"
+          Write-Output "MinGW Root: ${{ env.MINGW_DIR }}"
+          Write-Output "MinGW Bin: $mingwBinPath"
 
-            # Set compiler paths explicitly
-            echo "CMAKE_C_COMPILER=$qtBinPath/gcc.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            echo "CMAKE_CXX_COMPILER=$qtBinPath/g++.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          } else {
-            Write-Output "Qt bin does not contain compiler, using system MinGW"
-            echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          # Verify MinGW installation
+          $gccExe = Join-Path $mingwBinPath "gcc.exe"
+          if (-not (Test-Path $gccExe)) {
+            Write-Error "MinGW GCC not found at: $gccExe"
+            exit 1
           }
+
+          # Add to PATH - MinGW FIRST to ensure GCC 15.2.0 is used
+          echo "$mingwBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$qtBinPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
           # Set Qt environment variables
           echo "Qt6_DIR=$($qtRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CMAKE_PREFIX_PATH=$($qtRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-          Write-Output "Qt path: $qtBinPath"
+          Write-Output "✓ Environment configured"
+          Write-Output "  Qt path: $qtBinPath"
+          Write-Output "  MinGW path: $mingwBinPath"
 
       - name: Verify Qt installation
         shell: pwsh
@@ -134,7 +172,7 @@ jobs:
       - name: Configure CMake
         shell: cmd
         run: |
-          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}" -DCMAKE_C_COMPILER="${{ env.CMAKE_C_COMPILER }}" -DCMAKE_CXX_COMPILER="${{ env.CMAKE_CXX_COMPILER }}"
+          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}"
 
       - name: Build
         shell: cmd

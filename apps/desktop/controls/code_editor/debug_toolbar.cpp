@@ -420,14 +420,13 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     // 计算内容区域（去除阴影边距）
     QRect contentRect = rect().adjusted(shadowRadius, shadowRadius, -shadowRadius, -shadowRadius);
 
-    // 绘制阴影 - 使用模糊效果
-    // 从外向内绘制多层，制造渐变模糊效果
-    for (int i = 0; i < shadowRadius; ++i) {
-        // 计算当前层的透明度（外层更透明，内层更不透明）
-        qreal progress = qreal(i) / shadowRadius;  // 0.0 到 1.0
-        int alpha = int(25 * (1.0 - progress));    // 25 到 0
+    // 绘制阴影 - 从内到外逐渐变淡
+    for (int i = shadowRadius; i > 0; --i) {
+        // 计算当前层的透明度（离内容越远越淡）
+        qreal progress = qreal(shadowRadius - i) / shadowRadius;  // 0.0 到 1.0
+        int alpha = int(40 * (1.0 - progress * progress));        // 40 到 0，使用平方衰减
 
-        // 计算当前层的矩形（逐渐缩小）
+        // 计算当前层的矩形（从内容边缘向外扩展）
         QRectF shadowRect = contentRect.adjusted(-i, -i, i, i);
 
         QPainterPath shadowPath;

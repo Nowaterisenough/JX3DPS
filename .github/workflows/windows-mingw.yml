@@ -1,4 +1,4 @@
-name: Windows MinGW
+name: Build Qt 6.9.2
 
 on:
   push:
@@ -27,8 +27,8 @@ on:
       - 'CMakeLists.txt'
 
 jobs:
-  build:
-    name: Build with Qt 6.9.2
+  build-windows:
+    name: Windows MinGW
     runs-on: windows-latest
 
     env:
@@ -221,4 +221,145 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ steps.package.outputs.packageName }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-ubuntu:
+    name: Ubuntu GCC
+    runs-on: ubuntu-latest
+
+    env:
+      QT_VERSION: 6.9.2
+      QT_DOWNLOAD_URL: https://github.com/Nowaterisenough/QtBuild/releases/download/qt6.9.2-native-20250901-1356/qt6.9.2-linux-x86_64-gcc15.2.0-shared_release.tar.xz
+      QT_DIR: ${{ github.workspace }}/qt
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libxkbcommon-dev \
+            libxcb-cursor0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-xfixes0 \
+            libxcb-xinerama0 \
+            libxcb1-dev \
+            libx11-xcb-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.QT_DIR }}
+          key: qt-6.9.2-linux-gcc15.2.0-release
+
+      - name: Download and extract Qt
+        if: steps.cache-qt.outputs.cache-hit != 'true'
+        run: |
+          echo "Downloading Qt 6.9.2..."
+          mkdir -p "${{ env.QT_DIR }}"
+
+          # Download Qt archive
+          wget -O qt.tar.xz "${{ env.QT_DOWNLOAD_URL }}"
+
+          echo "Extracting Qt..."
+          tar -xf qt.tar.xz -C "${{ env.QT_DIR }}"
+
+          # Remove archive to save space
+          rm qt.tar.xz
+
+          echo "Qt extraction completed"
+
+      - name: Setup Qt environment
+        run: |
+          echo "=== Setting up Qt environment ==="
+
+          # Find Qt installation directory
+          QT_ROOT=$(find "${{ env.QT_DIR }}" -maxdepth 1 -type d -name "qt6.9.2*" | head -n 1)
+          echo "Qt Root: $QT_ROOT"
+          QT_BIN_PATH="$QT_ROOT/bin"
+
+          # Add to PATH
+          echo "$QT_BIN_PATH" >> $GITHUB_PATH
+
+          # Set Qt environment variables
+          echo "Qt6_DIR=$QT_ROOT" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=$QT_ROOT" >> $GITHUB_ENV
+
+          echo "✓ Environment configured"
+          echo "  Qt path: $QT_BIN_PATH"
+
+      - name: Verify Qt installation
+        run: |
+          echo "=== Verifying Qt and GCC installation ==="
+
+          echo -e "\nQt version:"
+          qmake --version || true
+
+          echo -e "\nGCC version:"
+          g++ --version
+
+          echo -e "\nCMake version:"
+          cmake --version
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B ./build -G "Ninja" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}"
+
+      - name: Build
+        run: |
+          cmake --build ./build --config Release --parallel
+
+      - name: Install
+        run: |
+          cmake --install ./build --config Release --prefix ./install
+
+      - name: Package
+        id: package
+        run: |
+          ARCHIVE_NAME="JX3DPS-${{ github.ref_name }}-linux-x86_64"
+
+          # Create deployment directory
+          mkdir -p ./deploy
+
+          # Copy executable and dependencies
+          cp -r ./install/* ./deploy/
+
+          # Create archive
+          tar -czf "$ARCHIVE_NAME.tar.gz" -C ./deploy .
+
+          echo "packageName=$ARCHIVE_NAME" >> $GITHUB_OUTPUT
+          echo "Package created: $ARCHIVE_NAME.tar.gz"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.tar.gz
+          retention-days: 7
+
+      - name: Upload release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.package.outputs.packageName }}.tar.gz
           token: ${{ secrets.GITHUB_TOKEN }}

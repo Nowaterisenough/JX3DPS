@@ -102,8 +102,9 @@ DebugToolbar::DebugToolbar(QWidget *parent) :
     QWidget(parent),
     d_ptr(new DebugToolbarPrivate(this))
 {
-    // 设置为浮窗 - 使用 Qt::Popup 获得系统原生阴影
-    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
+    // 设置为浮窗
+    // 先不使用系统阴影，避免圆角处出现白色角
+    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
 
     SetupUI();

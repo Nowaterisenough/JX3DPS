@@ -424,7 +424,7 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     for (int i = shadowRadius; i > 0; --i) {
         // 计算当前层的透明度（离内容越远越淡）
         qreal progress = qreal(shadowRadius - i) / shadowRadius;  // 0.0 到 1.0
-        int alpha = int(40 * (1.0 - progress * progress));        // 40 到 0，使用平方衰减
+        int alpha = int(15 * (1.0 - progress * progress));        // 15 到 0，使用平方衰减
 
         // 计算当前层的矩形（从内容边缘向外扩展）
         QRectF shadowRect = contentRect.adjusted(-i, -i, i, i);

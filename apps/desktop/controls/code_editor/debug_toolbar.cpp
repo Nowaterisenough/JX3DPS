@@ -423,8 +423,9 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     // 绘制阴影 - 从内到外逐渐变淡
     for (int i = shadowRadius; i > 0; --i) {
         // 计算当前层的透明度（离内容越远越淡）
-        qreal progress = qreal(shadowRadius - i) / shadowRadius;  // 0.0 到 1.0
-        int alpha = int(15 * (1.0 - progress * progress));        // 15 到 0，使用平方衰减
+        // i=shadowRadius(8) 是最外层，i=1 是最内层
+        qreal progress = qreal(i) / shadowRadius;              // 1.0 到 0.125
+        int alpha = int(15 * (1.0 - progress * progress));     // 0 到 15，使用平方衰减
 
         // 计算当前层的矩形（从内容边缘向外扩展）
         QRectF shadowRect = contentRect.adjusted(-i, -i, i, i);

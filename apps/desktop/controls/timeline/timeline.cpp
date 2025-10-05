@@ -898,7 +898,8 @@ void Timeline::mouseMoveEvent(QMouseEvent *event)
                 const int iconSize = 40;
                 const int iconY = d->mainViewRect.top() + 30;  // 与绘制位置一致
 
-                for (int i = 0; i < d->events.size(); ++i) {
+                // 反向遍历，优先检测后绘制的图标（最上层的）
+                for (int i = d->events.size() - 1; i >= 0; --i) {
                     const auto &evt = d->events[i];
 
                     // 跳过不可见事件
@@ -909,16 +910,25 @@ void Timeline::mouseMoveEvent(QMouseEvent *event)
                     qreal ratio = qreal(evt.timestamp - d->viewStartMs) / viewDuration;
                     int iconX = d->mainViewRect.left() + ratio * d->mainViewRect.width();
 
-                    // 检测鼠标是否在图标矩形区域内（扩大检测范围提高灵敏度）
-                    int hoverPadding = 8; // 增加额外的检测范围
-                    QRect iconRect(iconX - iconSize / 2 - hoverPadding,
-                                  iconY - hoverPadding,
-                                  iconSize + hoverPadding * 2,
-                                  iconSize + hoverPadding * 2);
+                    // 计算实际绘制区域（与绘制代码保持一致）
+                    // 绘制代码：targetRect(x - iconSize / 2 + 3, iconY + 3, iconSize - 6, iconSize - 6)
+                    const int cropPixels = 3;
+                    int actualIconSize = iconSize - cropPixels * 2;  // 34像素
+
+                    // 实际绘制的左上角位置
+                    int actualLeft = iconX - iconSize / 2 + cropPixels;  // x - 20 + 3 = x - 17
+                    int actualTop = iconY + cropPixels;
+
+                    // 检测鼠标是否在图标实际绘制区域内（稍微扩大检测范围）
+                    int hoverPadding = 3; // 适度的检测范围扩展
+                    QRect iconRect(actualLeft - hoverPadding,
+                                  actualTop - hoverPadding,
+                                  actualIconSize + hoverPadding * 2,
+                                  actualIconSize + hoverPadding * 2);
 
                     if (iconRect.contains(event->pos())) {
                         d->hoveredEventIndex = i;
-                        break;
+                        break;  // 找到最上层的图标，停止检测
                     }
                 }
             }

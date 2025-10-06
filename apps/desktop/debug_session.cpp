@@ -216,32 +216,14 @@ void DebugSession::SimulateStep()
         return;
     }
 
-    // 跳过空行和注释
-    while (m_currentLineIndex < m_macroLines.size()) {
-        QString line = m_macroLines[m_currentLineIndex].trimmed();
-        if (!line.isEmpty() && !line.startsWith('#')) {
-            break;
-        }
-        m_currentLineIndex++;
-    }
-
-    if (m_currentLineIndex >= m_macroLines.size()) {
-        SetState(Finished);
-        emit ExecutionFinished();
-        return;
-    }
-
-    // 更新当前行号（1-based）
-    m_debugInfo.lineNumber = m_currentLineIndex + 1;
-    QString currentLine = m_macroLines[m_currentLineIndex].trimmed();
-
     // 执行真实的模拟器步骤
     if (!m_simulator->StepOne()) {
         qDebug() << "模拟器执行步骤失败";
     }
 
-    // 从模拟器获取真实玩家状态
+    // 从模拟器获取真实玩家状态（包括当前行号）
     auto playerState = m_simulator->GetPlayerState();
+    m_debugInfo.lineNumber = playerState.currentMacroLine;  // 使用模拟器返回的行号
     m_debugInfo.currentFrame = playerState.currentFrame;
     m_debugInfo.currentSeconds = playerState.currentSeconds;
     m_debugInfo.lifePercent = playerState.lifePercent;
@@ -262,8 +244,12 @@ void DebugSession::SimulateStep()
 
     UpdateDebugInfo();
 
-    // 准备下一行
-    m_currentLineIndex++;
+    // 获取当前行文本用于日志
+    QString currentLine;
+    int lineIndex = m_debugInfo.lineNumber - 1;
+    if (lineIndex >= 0 && lineIndex < m_macroLines.size()) {
+        currentLine = m_macroLines[lineIndex].trimmed();
+    }
 
     qDebug() << "执行行" << m_debugInfo.lineNumber << ":" << currentLine
              << "| 帧:" << m_debugInfo.currentFrame

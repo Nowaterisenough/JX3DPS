@@ -31,6 +31,10 @@ struct DebugSimulator::Impl
     bool finished = false;
     QString lastSkill;
     QString currentMacro;
+    int currentMacroLine = 1;  // 当前宏行号（1-based）
+
+    // 宏文本的所有行（用于行号映射）
+    QStringList macroLines;
 };
 
 DebugSimulator::DebugSimulator(QObject *parent)
@@ -50,6 +54,8 @@ bool DebugSimulator::Initialize(const QString &macroText, QString &errorMessage)
 
     // 1. 解析宏文本
     QStringList lines = macroText.split('\n');
+    d->macroLines = lines;  // 保存所有行用于行号跟踪
+    d->currentMacroLine = 1;  // 重置行号
     std::list<std::pair<std::string, std::list<std::string>>> skills;
 
     QString currentMacroName;
@@ -212,6 +218,14 @@ bool DebugSimulator::StepOne()
             if (skillId != JX3DPS::SKILL_DEFAULT) {
                 qDebug() << "CastSkills 返回技能ID:" << static_cast<int>(skillId);
                 d->lastSkill = QString("施放技能ID:%1").arg(static_cast<int>(skillId));
+
+                // 成功施放技能，跳到下一行可执行的宏指令
+                do {
+                    d->currentMacroLine++;
+                } while (d->currentMacroLine <= d->macroLines.size() &&
+                         (d->macroLines[d->currentMacroLine - 1].trimmed().isEmpty() ||
+                          d->macroLines[d->currentMacroLine - 1].trimmed().startsWith('#') ||
+                          d->macroLines[d->currentMacroLine - 1].trimmed().startsWith("macro")));
             }
         } catch (const std::exception &e) {
             qDebug() << "CastSkills 抛出异常:" << e.what();
@@ -292,6 +306,8 @@ DebugSimulator::PlayerState DebugSimulator::GetPlayerState() const
         if (d->targets && d->targets->find(targetId) != d->targets->end()) {
             state.targetLifePercent = (*d->targets)[targetId]->GetLifePercent();
         }
+
+        state.currentMacroLine = d->currentMacroLine;
     }
 
     return state;

@@ -42,6 +42,7 @@ public:
         double currentSeconds;
         QString currentMacro;
         QString lastSkill;
+        int currentMacroLine;  // 当前执行的宏行号（1-based）
     };
     PlayerState GetPlayerState() const;
 

@@ -224,6 +224,45 @@ bool DebugSimulator::StepOne()
         }
     }
 
+    // 6. 检查后序关键帧的状态变化（参考 key_frame.cpp:191-230）
+    // 技能施放后可能改变冷却时间，需要重新排列 KeyFrame
+    JX3DPS::KeyFrame::KeyFrameSequence checkedKeyFrameSequence;
+
+    for (auto it = d->keyFrameSequence.begin(); it != d->keyFrameSequence.end();) {
+        for (auto iter = it->second.begin(); iter != it->second.end();) {
+            JX3DPS::KeyFrame::KeyFrame keyFrame;
+            keyFrame.first = it->first;
+
+            if (iter->first == JX3DPS::KeyFrame::KeyFrameType::SKILL) {
+                keyFrame.first = d->player->skills[iter->second]->GetNextKeyFrame();
+                keyFrame.second.push_back(std::make_pair(JX3DPS::KeyFrame::KeyFrameType::SKILL, iter->second));
+            } else if (iter->first == JX3DPS::KeyFrame::KeyFrameType::BUFF) {
+                keyFrame.first = d->player->buffs[iter->second]->GetNextKeyFrame();
+                keyFrame.second.push_back(std::make_pair(JX3DPS::KeyFrame::KeyFrameType::BUFF, iter->second));
+            }
+
+            if (keyFrame.first != it->first) {
+                // 时间改变了，需要重新插入
+                checkedKeyFrameSequence.push_back(keyFrame);
+                iter = it->second.erase(iter);
+                continue;
+            } else {
+                ++iter;
+            }
+        }
+
+        if (it->second.empty()) {
+            it = d->keyFrameSequence.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // 7. 合并检查后的关键帧（参考 key_frame.cpp:232-253）
+    for (auto &keyFrame : checkedKeyFrameSequence) {
+        JX3DPS::KeyFrame::InsertKeyFrame(d->keyFrameSequence, keyFrame);
+    }
+
     if (d->keyFrameSequence.empty()) {
         d->finished = true;
     }

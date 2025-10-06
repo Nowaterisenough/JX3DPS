@@ -216,13 +216,18 @@ void DebugSession::SimulateStep()
         return;
     }
 
+    qDebug() << "\n[DebugSession::SimulateStep] 开始";
+
     // 执行真实的模拟器步骤
-    if (!m_simulator->StepOne()) {
-        qDebug() << "模拟器执行步骤失败";
+    bool stepResult = m_simulator->StepOne();
+    qDebug() << "[DebugSession] StepOne返回:" << stepResult;
+    if (!stepResult) {
+        qDebug() << "[DebugSession] 模拟器执行步骤失败";
     }
 
     // 从模拟器获取真实玩家状态（包括当前行号）
     auto playerState = m_simulator->GetPlayerState();
+    qDebug() << "[DebugSession] 从模拟器获取行号:" << playerState.currentMacroLine;
     m_debugInfo.lineNumber = playerState.currentMacroLine;  // 使用模拟器返回的行号
     m_debugInfo.currentFrame = playerState.currentFrame;
     m_debugInfo.currentSeconds = playerState.currentSeconds;
@@ -251,7 +256,8 @@ void DebugSession::SimulateStep()
         currentLine = m_macroLines[lineIndex].trimmed();
     }
 
-    qDebug() << "执行行" << m_debugInfo.lineNumber << ":" << currentLine
+    qDebug() << "[DebugSession] 发送DebugInfoUpdated信号，行号:" << m_debugInfo.lineNumber;
+    qDebug() << "[DebugSession] 执行行" << m_debugInfo.lineNumber << ":" << currentLine
              << "| 帧:" << m_debugInfo.currentFrame
              << "| 气点:" << m_debugInfo.qidian
              << "| 技能:" << m_debugInfo.currentSkill;

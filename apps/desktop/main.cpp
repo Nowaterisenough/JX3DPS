@@ -178,7 +178,9 @@ int main(int argc, char *argv[])
 
     // 更新代码编辑器当前行：调试会话 -> 代码编辑器
     QObject::connect(debugSession, &DebugSession::DebugInfoUpdated, [editor](const DebugSession::DebugInfo &info) {
+        qDebug() << "[main.cpp] 收到DebugInfoUpdated信号，行号:" << info.lineNumber;
         editor->SetCurrentDebugLine(info.lineNumber);
+        qDebug() << "[main.cpp] 已调用SetCurrentDebugLine(" << info.lineNumber << ")";
     });
 
     // 连接调试工具栏信号 -> 调试会话

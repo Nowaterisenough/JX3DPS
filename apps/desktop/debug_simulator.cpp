@@ -156,11 +156,18 @@ bool DebugSimulator::Initialize(const QString &macroText, QString &errorMessage)
 
 bool DebugSimulator::StepOne()
 {
+    qDebug() << "\n===== StepOne 开始 =====";
+    qDebug() << "finished:" << d->finished << ", player:" << (d->player != nullptr);
+    qDebug() << "currentMacroLine:" << d->currentMacroLine;
+    qDebug() << "keyFrameSequence.size():" << d->keyFrameSequence.size();
+
     if (d->finished || !d->player) {
+        qDebug() << "StepOne: 已完成或player为空，退出";
         return false;
     }
 
     if (d->keyFrameSequence.empty()) {
+        qDebug() << "StepOne: keyFrameSequence为空，标记为完成";
         d->finished = true;
         return false;
     }
@@ -221,11 +228,13 @@ bool DebugSimulator::StepOne()
             );
 
             if (skillId != JX3DPS::SKILL_DEFAULT) {
-                qDebug() << "CastSkills 返回技能ID:" << static_cast<int>(skillId);
+                qDebug() << ">>> CastSkills 返回技能ID:" << static_cast<int>(skillId);
                 d->lastSkill = QString("施放技能ID:%1").arg(static_cast<int>(skillId));
 
                 // 找出是哪条 exprSkills 指令被执行了
                 // 遍历 exprSkills，找到第一个满足条件且返回此技能ID的指令
+                qDebug() << ">>> 开始匹配指令，exprSkills.size():" << d->exprSkills.size();
+                qDebug() << ">>> exprSkillsLineMap.size():" << d->exprSkillsLineMap.size();
                 int matchedIndex = -1;
                 int index = 0;
                 for (auto iter = d->exprSkills.begin(); iter != d->exprSkills.end(); ++iter, ++index) {
@@ -266,8 +275,12 @@ bool DebugSimulator::StepOne()
                 // 更新当前行号为匹配的指令所在的源代码行
                 if (matchedIndex >= 0 && matchedIndex < static_cast<int>(d->exprSkillsLineMap.size())) {
                     d->currentMacroLine = d->exprSkillsLineMap[matchedIndex];
-                    qDebug() << "匹配到 exprSkills 索引" << matchedIndex << ", 对应源代码行" << d->currentMacroLine;
+                    qDebug() << ">>> 匹配成功！索引" << matchedIndex << "-> 源代码行" << d->currentMacroLine;
+                } else {
+                    qDebug() << ">>> 匹配失败！matchedIndex:" << matchedIndex;
                 }
+            } else {
+                qDebug() << ">>> CastSkills 返回 SKILL_DEFAULT（无技能施放）";
             }
         } catch (const std::exception &e) {
             qDebug() << "CastSkills 抛出异常:" << e.what();

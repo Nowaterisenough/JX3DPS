@@ -41,7 +41,7 @@
 #include "ThreadPool/ThreadPool.h"
 
 #include "ImportWidget.h"
-#include "JX3DPS.h"
+#include "jx3dps.h"
 #include "JX3DPSJsonParser.h"
 #include "StatsWidget.h"
 #include "TimeLineWidget.h"
@@ -51,7 +51,7 @@ const char *const CONFIG_PATH = "./config.json";
 JX3DPS::Simulator::Widget::Widget(QWidget *parent)
 {
     spdlog::info("MainWidget constructor started");
-    QString title = QString("%1  %2").arg(APP_NAME).arg(JX3DPSVersion());
+    QString title = QString("%1  %2").arg(APP_NAME).arg(jx3dps_version());
     spdlog::info("Setting title: {}", title.toStdString());
     this->SetTitle(title);
     spdlog::info("Title set successfully");
@@ -1193,7 +1193,7 @@ void JX3DPS::Simulator::Widget::Start()
 
     ThreadPool::Instance()->Enqueue([=, this]() {
         char *buffer = new char[1024 * 1024 * 1024];
-        JX3DPSSimulate(json.dump().c_str(), buffer, progressBar, [](void *obj, double arg, const char *text) {
+        jx3dps_simulate(json.dump().c_str(), buffer, progressBar, [](void *obj, double arg, const char *text) {
             static_cast<ProgressBar *>(obj)->SetProgress(arg, text);
         });
 

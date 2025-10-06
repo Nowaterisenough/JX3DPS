@@ -10,8 +10,13 @@ DebugSession::DebugSession(QObject *parent)
     , m_currentLineIndex(-1)
     , m_stepStartLine(-1)
     , m_simulator(std::make_unique<DebugSimulator>())
+    , m_executionTimer(new QTimer(this))
 {
     m_debugInfo = {};
+
+    // 配置执行定时器
+    m_executionTimer->setInterval(10);  // 10ms一次，模拟快速执行
+    connect(m_executionTimer, &QTimer::timeout, this, &DebugSession::OnExecutionTimer);
 }
 
 DebugSession::~DebugSession() = default;
@@ -68,6 +73,7 @@ void DebugSession::Continue()
 
     m_stepMode = NoStep;
     SetState(Running);
+    m_executionTimer->start();  // 启动持续执行
 
     qDebug() << "调试继续执行";
 }
@@ -78,12 +84,14 @@ void DebugSession::Pause()
         return;
     }
 
+    m_executionTimer->stop();  // 停止持续执行
     SetState(Paused);
     qDebug() << "调试已暂停";
 }
 
 void DebugSession::Stop()
 {
+    m_executionTimer->stop();  // 停止持续执行
     m_currentLineIndex = -1;
     m_stepMode = NoStep;
     m_breakpoints.clear();
@@ -261,4 +269,19 @@ void DebugSession::SimulateStep()
              << "| 帧:" << m_debugInfo.currentFrame
              << "| 气点:" << m_debugInfo.qidian
              << "| 技能:" << m_debugInfo.currentSkill;
+}
+
+void DebugSession::OnExecutionTimer()
+{
+    if (m_state != Running) {
+        m_executionTimer->stop();
+        return;
+    }
+
+    SimulateStep();
+
+    // 如果被断点暂停，停止定时器
+    if (m_state == Paused) {
+        m_executionTimer->stop();
+    }
 }

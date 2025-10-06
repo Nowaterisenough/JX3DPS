@@ -1,11 +1,11 @@
-﻿/**
+/**
  * Project: JX3DPS
- * File: JX3DPS.cpp
+ * File: jx3_dps.cpp
  * Description:
  * Created Date: 2023-05-29 17:22:39
  * Author: 难为水
  * -----
- * Last Modified: 2023-09-26 07:40:35
+ * Last Modified: 2025-10-06
  * Modified By: 难为水
  * -----
  * HISTORY:
@@ -13,7 +13,12 @@
  * ----------	-------	----------------------------------------------------------
  */
 
-#include "JX3DPS.h"
+#include "jx3dps.h"
+
+#include <cstdarg>
+#include <cstring>
+#include <memory>
+#include <string>
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -34,6 +39,49 @@
 #include "time_line.hpp"
 
 namespace JX3DPS {
+
+// 全局状态
+static std::string g_result;
+static double      g_progress = 0.0;
+
+// 全局调试器状态
+struct DebuggerState
+{
+    Player                      *player          = nullptr;
+    Targets                     *targets         = nullptr;
+    ExprSkillsHash               exprSkillsHash;
+    ExprEvents                   exprEvents;
+    KeyFrame::KeyFrameSequence   keyFrameSequence;
+    Options                      options;
+
+    // CastSkills 需要的状态
+    Id_t                         exprSkillsId    = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    Id_t                         lastExprSkillsId = EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    ExprSkills                   exprSkills;
+
+    Frame_t                      currentFrame    = 0;
+    bool                         finished        = false;
+    std::string                  lastSkill;
+    std::string                  currentMacro;
+    std::string                  debugInfo;
+
+    ~DebuggerState()
+    {
+        if (player) {
+            delete player;
+            player = nullptr;
+        }
+        if (targets) {
+            for (auto &[id, target] : *targets) {
+                delete target;
+            }
+            delete targets;
+            targets = nullptr;
+        }
+    }
+};
+
+static std::unique_ptr<DebuggerState> g_debugger;
 
 void SummarizeStats(Player &player, Stats &stats)
 {
@@ -141,8 +189,12 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             stats   += t;
             stats.damageList.push_back(Sum(t));
             results.pop_front();
-            if (i % step == 0 && obj != nullptr) {
-                progress(obj, i * 1.0 / (count * options.simIterations), "模拟中...");
+            if (i % step == 0) {
+                double prog = i * 1.0 / (count * options.simIterations);
+                g_progress  = prog;
+                if (obj != nullptr && progress != nullptr) {
+                    progress(obj, prog, "模拟中...");
+                }
             }
         }
     }
@@ -176,10 +228,12 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
             Stats t  = results.front().get();
             temp    += t;
             results.pop_front();
-            if (i % step == 0 && obj != nullptr) {
-                progress(obj,
-                         (i + index * options.simIterations) * 1.0 / (count * options.simIterations),
-                         progressText.c_str());
+            if (i % step == 0) {
+                double prog = (i + index * options.simIterations) * 1.0 / (count * options.simIterations);
+                g_progress  = prog;
+                if (obj != nullptr && progress != nullptr) {
+                    progress(obj, prog, progressText.c_str());
+                }
             }
         }
         index++;
@@ -188,7 +242,8 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         stats.gainStats[type] = temp.gainStats[Attribute::Type::DEFAULT];
     }
 
-    if (obj != nullptr) {
+    g_progress = 1.0;
+    if (obj != nullptr && progress != nullptr) {
         progress(obj, 1.0, "模拟完成");
     }
 }
@@ -312,13 +367,33 @@ Error_t Start(const nlohmann::ordered_json &in,
 
 } // namespace JX3DPS
 
-int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(void *, double, const char *))
+// C API 实现
+
+const char *jx3dps_version()
+{
+    return JX3DPS::VERSION;
+}
+
+const char *jx3dps_jx3_version()
+{
+    return JX3DPS::JX3_VERSION_STR;
+}
+
+int jx3dps_simulate(const char *in, ...)
 {
     spdlog::info("{}  Version: {}", JX3DPS::NAME, JX3DPS::VERSION);
     spdlog::info("Start simulation.");
     auto start = std::chrono::steady_clock::now();
 
     spdlog::debug("Input: {}", in);
+
+    // 解析可变参数
+    va_list args;
+    va_start(args, in);
+    char *out                                                   = va_arg(args, char *);
+    void *obj                                                   = va_arg(args, void *);
+    void (*progress)(void *, double, const char *) = va_arg(args, void (*)(void *, double, const char *));
+    va_end(args);
 
     nlohmann::ordered_json jsonIn;
     try {
@@ -332,24 +407,191 @@ int JX3DPSSimulate(const char *const in, char *out, void *obj, void (*progress)(
     JX3DPS::Error_t        err = JX3DPS::Start(jsonIn, jsonOut, obj, progress);
 
     if (err != JX3DPS::JX3DPS_SUCCESS) {
-        // spdlog::error("Simulate error: {}", err);
         return err;
     }
 
-    strcpy(out, jsonOut.dump().data());
+    JX3DPS::g_result = jsonOut.dump();
+    if (out != nullptr) {
+        strcpy(out, JX3DPS::g_result.c_str());
+    }
 
-    spdlog::debug("Output: {}", out);
+    spdlog::debug("Output: {}", JX3DPS::g_result);
 
-    auto end = std::chrono::steady_clock::now();
-
+    auto                              end     = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed = end - start;
     spdlog::info("Simulation finished.");
     spdlog::info("Total time: {:.8f} s", elapsed.count());
-     
+
     return JX3DPS::JX3DPS_SUCCESS;
 }
 
-const char *const JX3DPSVersion()
+const char *jx3dps_get_result()
 {
-    return JX3DPS::VERSION;
+    return JX3DPS::g_result.c_str();
+}
+
+double jx3dps_get_progress()
+{
+    return JX3DPS::g_progress;
+}
+
+int jx3dps_debug(const char *in, ...)
+{
+    spdlog::info("Start debug.");
+    spdlog::debug("Input: {}", in);
+
+    // 解析可变参数
+    va_list args;
+    va_start(args, in);
+    char *out                                                   = va_arg(args, char *);
+    void *obj                                                   = va_arg(args, void *);
+    void (*progress)(void *, double, const char *) = va_arg(args, void (*)(void *, double, const char *));
+    va_end(args);
+
+    // 清理旧的调试器状态
+    JX3DPS::g_debugger = std::make_unique<JX3DPS::DebuggerState>();
+
+    // 解析 JSON 输入
+    nlohmann::ordered_json jsonIn;
+    try {
+        jsonIn = nlohmann::ordered_json::parse(in);
+    } catch (nlohmann::ordered_json::parse_error &e) {
+        spdlog::error("parse json error: {}", e.what());
+        return JX3DPS::JX3DPS_ERROR_INVALID_JSON;
+    }
+
+    // 初始化参数
+    JX3DPS::Error_t err = JX3DPS::InitParams(jsonIn,
+                                             JX3DPS::g_debugger->exprSkillsHash,
+                                             JX3DPS::g_debugger->exprEvents,
+                                             &JX3DPS::g_debugger->player,
+                                             JX3DPS::g_debugger->options);
+    if (err != JX3DPS::JX3DPS_SUCCESS) {
+        return err;
+    }
+
+    // 创建 Targets
+    JX3DPS::g_debugger->targets = new JX3DPS::Targets();
+    JX3DPS::g_debugger->player->SetTargets(JX3DPS::g_debugger->targets);
+
+    // 生成 KeyFrameSequence
+    JX3DPS::KeyFrame::GenerateKeyFrameSequence(JX3DPS::g_debugger->keyFrameSequence,
+                                               JX3DPS::g_debugger->player,
+                                               JX3DPS::g_debugger->exprEvents,
+                                               JX3DPS::g_debugger->exprSkillsHash);
+
+    // 初始化 exprSkills
+    if (JX3DPS::g_debugger->exprSkillsHash.find(JX3DPS::g_debugger->exprSkillsId) !=
+        JX3DPS::g_debugger->exprSkillsHash.end()) {
+        JX3DPS::g_debugger->exprSkills = JX3DPS::g_debugger->exprSkillsHash.at(JX3DPS::g_debugger->exprSkillsId);
+    }
+
+    spdlog::info("Debug session initialized.");
+    return JX3DPS::JX3DPS_SUCCESS;
+}
+
+const char *jx3dps_debugger_step_in()
+{
+    // step_in 和 step_over 在宏调试中通常相同
+    return jx3dps_debugger_step_over();
+}
+
+const char *jx3dps_debugger_step_over()
+{
+    if (!JX3DPS::g_debugger || !JX3DPS::g_debugger->player) {
+        static std::string error = R"({"error":"debugger_not_initialized"})";
+        return error.c_str();
+    }
+
+    if (JX3DPS::g_debugger->keyFrameSequence.empty()) {
+        JX3DPS::g_debugger->finished = true;
+        static std::string finished = R"({"status":"finished"})";
+        return finished.c_str();
+    }
+
+    // 1. 获取下一帧并更新时间
+    JX3DPS::Frame_t next = JX3DPS::g_debugger->keyFrameSequence.front().first;
+    JX3DPS::g_debugger->currentFrame += next;
+
+    // 2. 更新关键帧序列（所有技能/buff的冷却等）
+    JX3DPS::KeyFrame::UpdateKeyFrameSequence(JX3DPS::g_debugger->keyFrameSequence,
+                                             JX3DPS::g_debugger->player,
+                                             next);
+
+    // 3. 执行当前帧的所有事件
+    for (auto &[type, id] : JX3DPS::g_debugger->keyFrameSequence.front().second) {
+        if (type == JX3DPS::KeyFrame::KeyFrameType::SKILL) {
+            JX3DPS::g_debugger->player->skills[id]->Trigger();
+            JX3DPS::g_debugger->lastSkill = "技能ID:" + std::to_string(static_cast<int>(id));
+        } else if (type == JX3DPS::KeyFrame::KeyFrameType::BUFF) {
+            JX3DPS::g_debugger->player->buffs[id]->Trigger();
+        } else if (type == JX3DPS::KeyFrame::KeyFrameType::EVENT) {
+            // 事件处理
+        }
+    }
+
+    // 4. 移除已处理的帧
+    JX3DPS::g_debugger->keyFrameSequence.pop_front();
+
+    // 5. 调用 CastSkills 执行宏逻辑
+    if (!JX3DPS::g_debugger->player->IsStop()) {
+        try {
+            JX3DPS::Id_t skillId = JX3DPS::KeyFrame::CastSkills(
+                JX3DPS::g_debugger->player,
+                JX3DPS::g_debugger->targets,
+                JX3DPS::g_debugger->exprSkillsHash,
+                JX3DPS::g_debugger->exprSkills,
+                JX3DPS::g_debugger->currentFrame,
+                JX3DPS::g_debugger->exprSkillsId,
+                JX3DPS::g_debugger->lastExprSkillsId,
+                0);
+        } catch (const std::exception &e) {
+            spdlog::error("CastSkills exception: {}", e.what());
+        }
+    }
+
+    // 6. 生成调试信息 JSON
+    nlohmann::ordered_json debugJson;
+    debugJson["status"]         = "running";
+    debugJson["currentFrame"]   = JX3DPS::g_debugger->currentFrame;
+    debugJson["currentSeconds"] = JX3DPS::g_debugger->currentFrame / 16.0;
+    debugJson["lastSkill"]      = JX3DPS::g_debugger->lastSkill;
+    debugJson["lifePercent"]    = JX3DPS::g_debugger->player->GetLifePercent();
+    debugJson["manaPercent"]    = JX3DPS::g_debugger->player->GetManaPercent();
+    debugJson["qidian"]         = JX3DPS::g_debugger->player->GetQidian();
+
+    JX3DPS::g_debugger->debugInfo = debugJson.dump();
+    return JX3DPS::g_debugger->debugInfo.c_str();
+}
+
+const char *jx3dps_debugger_continue()
+{
+    if (!JX3DPS::g_debugger || !JX3DPS::g_debugger->player) {
+        static std::string error = R"({"error":"debugger_not_initialized"})";
+        return error.c_str();
+    }
+
+    // 持续执行直到结束（未来可以添加断点支持）
+    while (!JX3DPS::g_debugger->keyFrameSequence.empty()) {
+        jx3dps_debugger_step_over();
+    }
+
+    // 返回最终状态
+    nlohmann::ordered_json debugJson;
+    debugJson["status"]         = "finished";
+    debugJson["currentFrame"]   = JX3DPS::g_debugger->currentFrame;
+    debugJson["currentSeconds"] = JX3DPS::g_debugger->currentFrame / 16.0;
+
+    JX3DPS::g_debugger->debugInfo = debugJson.dump();
+    return JX3DPS::g_debugger->debugInfo.c_str();
+}
+
+void jx3dps_debugger_set_breakpoint(const char *in)
+{
+    // 解析断点 JSON (未来实现)
+    // 格式: {"line": 5} 或 {"frame": 100}
+    spdlog::debug("Set breakpoint: {}", in);
+
+    // TODO: 将断点信息保存到 g_debugger 中
+    // 在 step_over 或 continue 中检查是否到达断点
 }

@@ -5,6 +5,7 @@
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QTimer>
 #include <functional>
 #include <memory>
 
@@ -88,6 +89,9 @@ signals:
     void LineChanged(int lineNumber);
     void ExecutionFinished();
 
+private slots:
+    void OnExecutionTimer();
+
 private:
     void SetState(State newState);
     void UpdateDebugInfo();
@@ -109,6 +113,7 @@ private:
     int m_stepStartLine;     // 单步起始行
 
     std::unique_ptr<DebugSimulator> m_simulator;  // JX3DPS模拟器
+    QTimer *m_executionTimer;  // 用于持续执行的定时器
 };
 
 #endif // DEBUG_SESSION_H

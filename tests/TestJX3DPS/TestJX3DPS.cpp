@@ -18,7 +18,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include "JX3DPS.h"
+#include "jx3dps.h"
 
 int TestJX3DPSTaiXuJianYi()
 {
@@ -29,7 +29,7 @@ int TestJX3DPSTaiXuJianYi()
 
     char *buffer = new char[1024 * 1024]();
 
-    int err = JX3DPSSimulate(json.dump().c_str(), buffer, nullptr, nullptr);
+    int err = jx3dps_simulate(json.dump().c_str(), buffer, nullptr, nullptr);
 
     delete buffer;
 

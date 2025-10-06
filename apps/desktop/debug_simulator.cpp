@@ -8,6 +8,8 @@
 #include "regex.h"
 #include "expression.h"
 #include "target.hpp"
+#include "skill.h"
+#include "buff.h"
 #include "class/tai_xu_jian_yi/tai_xu_jian_yi.h"
 #include "global/defs.h"
 
@@ -20,7 +22,12 @@ struct DebugSimulator::Impl
     JX3DPS::KeyFrame::KeyFrameSequence keyFrameSequence;
     JX3DPS::Options options;
 
-    int currentFrame = 0;
+    // CastSkills 需要的状态
+    JX3DPS::Id_t exprSkillsId = JX3DPS::EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    JX3DPS::Id_t lastExprSkillsId = JX3DPS::EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    JX3DPS::ExprSkills exprSkills;
+
+    JX3DPS::Frame_t currentFrame = 0;
     bool finished = false;
     QString lastSkill;
     QString currentMacro;
@@ -110,12 +117,28 @@ bool DebugSimulator::Initialize(const QString &macroText, QString &errorMessage)
         d->exprSkillsHash
     );
 
+    // 6. 初始化 CastSkills 需要的状态
+    d->exprSkillsId = JX3DPS::EXPRESSION_SKILL_PLACE_HOLDERS_1;
+    d->lastExprSkillsId = JX3DPS::EXPRESSION_SKILL_PLACE_HOLDERS_1;
+
+    // 检查 exprSkillsHash 是否包含默认ID
+    if (d->exprSkillsHash.find(d->exprSkillsId) == d->exprSkillsHash.end()) {
+        errorMessage = QString("ExprSkillsHash 不包含默认宏ID: %1").arg(static_cast<int>(d->exprSkillsId));
+        qDebug() << errorMessage;
+        qDebug() << "ExprSkillsHash 包含的ID数量:" << d->exprSkillsHash.size();
+        return false;
+    }
+
+    d->exprSkills = d->exprSkillsHash.at(d->exprSkillsId);
+    d->player->SetDelay(d->options.delayMin, d->options.delayMax);
+
     d->currentFrame = 0;
     d->finished = false;
 
     qDebug() << "调试模拟器初始化成功";
     qDebug() << "解析到" << skills.size() << "个宏";
     qDebug() << "生成" << d->keyFrameSequence.size() << "个关键帧";
+    qDebug() << "ExprSkillsHash 大小:" << d->exprSkillsHash.size();
 
     return true;
 }
@@ -131,31 +154,75 @@ bool DebugSimulator::StepOne()
         return false;
     }
 
-    // 执行一个关键帧
-    auto &keyFrame = d->keyFrameSequence.front();
+    // 模拟 KeyFrameAdvance 的单步执行
+    // 参考 key_frame.cpp:139-188
 
-    // 推进时间
-    JX3DPS::Frame_t nextFrame = keyFrame.first;
-    d->currentFrame += nextFrame;
+    // 1. 获取下一帧并更新时间
+    JX3DPS::Frame_t next = d->keyFrameSequence.front().first;
+    d->currentFrame += next;
 
-    // TODO: 这里应该调用 KeyFrame::KeyFrameAdvance 的一步
-    // 但 KeyFrameAdvance 是一个完整循环，需要重构为单步执行
-    // 暂时简化处理：移除已处理的帧
+    if (d->currentFrame >= d->options.totalFrames) {
+        d->finished = true;
+        return false;
+    }
 
-    d->player->UpdateGlobalCooldown(nextFrame);
+    // 2. 更新关键帧序列（所有技能/buff的冷却等）
+    JX3DPS::KeyFrame::UpdateKeyFrameSequence(d->keyFrameSequence, d->player, next);
 
-    // 记录执行的技能
-    for (auto &[type, id] : keyFrame.second) {
-        if (type == JX3DPS::KeyFrame::KeyFrameType::SKILL) {
-            // 查找技能名称
-            if (d->player->skills.find(id) != d->player->skills.end()) {
-                // d->lastSkill = QString::fromStdString(d->player->skills[id]->GetName());
-                d->lastSkill = QString("技能ID:%1").arg(id);
+    // 3. 执行当前帧的所有事件
+    for (auto &[type, id] : d->keyFrameSequence.front().second) {
+        if (type == JX3DPS::KeyFrame::KeyFrameType::EVENT) {
+            // 执行事件
+            if (!d->exprEvents.empty()) {
+                d->exprEvents.front().second(d->player, d->targets);
+                d->exprEvents.pop_front();
             }
+        } else if (type == JX3DPS::KeyFrame::KeyFrameType::SKILL) {
+            // 触发技能
+            qDebug() << "触发技能:" << static_cast<int>(id);
+            d->player->skills[id]->Trigger();
+            d->lastSkill = QString("技能ID:%1").arg(static_cast<int>(id));
+        } else if (type == JX3DPS::KeyFrame::KeyFrameType::BUFF) {
+            // 触发buff
+            qDebug() << "触发Buff:" << static_cast<int>(id);
+            d->player->buffs[id]->Trigger();
         }
     }
 
+    // 4. 移除已处理的帧
     d->keyFrameSequence.pop_front();
+
+    // 5. 调用 CastSkills 执行宏逻辑（关键！）
+    if (!d->player->IsStop()) {
+        qDebug() << "准备调用 CastSkills, frame=" << d->currentFrame
+                 << ", exprSkillsId=" << static_cast<int>(d->exprSkillsId);
+
+        try {
+            JX3DPS::Id_t skillId = JX3DPS::KeyFrame::CastSkills(
+                d->player,
+                d->targets,
+                d->exprSkillsHash,
+                d->exprSkills,
+                d->currentFrame,
+                d->exprSkillsId,
+                d->lastExprSkillsId,
+                0
+            );
+
+            if (skillId != JX3DPS::SKILL_DEFAULT) {
+                qDebug() << "CastSkills 返回技能ID:" << static_cast<int>(skillId);
+                d->lastSkill = QString("施放技能ID:%1").arg(static_cast<int>(skillId));
+            }
+        } catch (const std::exception &e) {
+            qDebug() << "CastSkills 抛出异常:" << e.what();
+            d->finished = true;
+            return false;
+        } catch (...) {
+            qDebug() << "CastSkills 抛出未知异常";
+            d->finished = true;
+            return false;
+        }
+    }
 
     if (d->keyFrameSequence.empty()) {
         d->finished = true;

@@ -37,13 +37,26 @@ public:
     };
 
     /**
+     * @brief 调试步骤类型
+     */
+    enum class DebugStepType {
+        LINE,           // 在指令行
+        CONDITION,      // 在条件判定中
+        SKILL_CAST      // 在技能施放中
+    };
+
+    /**
      * @brief 执行状态
      */
     struct ExecutionState {
-        int currentLine;          // 当前行号
-        QString lastSkill;        // 最后施放的技能
-        bool finished;            // 是否执行完成
-        QString errorMessage;     // 错误信息
+        int currentLine;              // 当前行号
+        DebugStepType stepType;       // 当前步骤类型
+        int currentConditionIndex;    // 当前条件索引（-1 表示未在条件中）
+        QString currentCondition;     // 当前条件文本
+        bool conditionResult;         // 当前条件结果
+        QString lastSkill;            // 最后施放的技能
+        bool finished;                // 是否执行完成
+        QString errorMessage;         // 错误信息
     };
 
     /**
@@ -54,7 +67,26 @@ public:
     bool Initialize(const QString &macroText, QString &errorMessage);
 
     /**
-     * @brief 单步执行（执行下一条指令）
+     * @brief 单步进入（进入条件判定，逐个评估条件）
+     * @return 成功返回true
+     */
+    bool StepInto();
+
+    /**
+     * @brief 单步跳过（执行完整的一行指令）
+     * @return 成功返回true
+     */
+    bool StepOver();
+
+    /**
+     * @brief 单步跳出（跳出当前作用域）
+     * @return 成功返回true
+     */
+    bool StepOut();
+
+    /**
+     * @brief 单步执行（执行下一条指令）- 保留兼容性
+     * @deprecated 使用 StepOver 替代
      * @return 成功返回true
      */
     bool StepOne();

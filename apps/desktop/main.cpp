@@ -1,36 +1,34 @@
 #include <QApplication>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include "code_editor/code_editor.h"
 #include "code_editor/debug_toolbar.h"
+#include "code_editor/simulation_toolbar.h"
 #include "controls/frameless/frameless.h"
+#include "controls/player_state_panel/player_state_panel.h"
 #include "controls/theme/dark_style.h"
 #include "controls/timeline/timeline.h"
-#include "controls/player_state_panel/player_state_panel.h"
-#include "test_data_generator.h"
+
 #include "debug_session.h"
 #include "debug_simulator.h"
 #include "resources.h"
+#include "test_data_generator.h"
 
 static void SetupApplication(QApplication &app)
 {
     QFont defaultFont = Resources::Font();
-    defaultFont.setHintingPreference(QFont::PreferFullHinting);
-    defaultFont.setStyleStrategy(QFont::PreferAntialias);
 
     Resources::InitResources();
     QApplication::setFont(defaultFont);
     QApplication::setStyle(new DarkStyle());
 }
 
-static CodeEditor* CreateEditor(QWidget *parent, DebugToolbar *toolbar)
+static CodeEditor *CreateEditor(QWidget *parent)
 {
-    CodeEditor *editor = new CodeEditor(parent);
+    auto *editor = new CodeEditor(parent);
     editor->setFont(Resources::MonoFont());
     editor->SetSyntaxType(CodeEditor::JX3Macro);
-
-    QObject::connect(editor, &CodeEditor::BreakpointAdded, toolbar, &DebugToolbar::ShowFloating);
 
     editor->setPlainText(R"(# 剑纯技能宏示例
 # 参考JX3DPS模拟器宏语法
@@ -109,9 +107,9 @@ macro 事件序列
     return editor;
 }
 
-static Timeline* CreateTimeline(QWidget *parent)
+static Timeline *CreateTimeline(QWidget *parent)
 {
-    Timeline *timeline = new Timeline(parent);
+    auto *timeline = new Timeline(parent);
     timeline->setMinimumHeight(200);
     timeline->SetEvents(TestDataGenerator::GenerateEvents());
     timeline->SetBuffs(TestDataGenerator::GenerateBuffs(600000));
@@ -129,31 +127,42 @@ int main(int argc, char *argv[])
     w.resize(1200, 800);
 
     QWidget *central = w.ContentWidget();
-    DebugToolbar *toolbar = new DebugToolbar(&w);
-    CodeEditor *editor = CreateEditor(central, toolbar);
-    Timeline *timeline = CreateTimeline(central);
-    PlayerStatePanel *statePanel = new PlayerStatePanel(central);
+
+    // 创建工具栏
+    auto *simToolbar   = new SimulationToolbar(central);
+    auto *debugToolbar = new DebugToolbar(&w);
+
+    CodeEditor *editor     = CreateEditor(central);
+    Timeline   *timeline   = CreateTimeline(central);
+    auto       *statePanel = new PlayerStatePanel(central);
 
     // 创建调试会话
-    DebugSession *debugSession = new DebugSession(central);
+    auto *debugSession = new DebugSession(central);
 
     // 同步断点：编辑器 -> 调试会话
     QObject::connect(editor, &CodeEditor::BreakpointAdded, debugSession, &DebugSession::AddBreakpoint);
     QObject::connect(editor, &CodeEditor::BreakpointRemoved, debugSession, &DebugSession::RemoveBreakpoint);
 
-    // 同步调试状态：调试会话 -> 编辑器 + 状态面板
+    // 同步调试状态：调试会话 -> 编辑器 + 状态面板 + 调试浮窗显示/隐藏
     QObject::connect(debugSession, &DebugSession::LineChanged, editor, &CodeEditor::SetCurrentDebugLine);
-    QObject::connect(debugSession, &DebugSession::StateChanged, [toolbar, statePanel](DebugSession::State state) {
+    QObject::connect(debugSession, &DebugSession::StateChanged, [debugToolbar, statePanel, simToolbar](DebugSession::State state) {
         switch (state) {
             case DebugSession::Running:
-                toolbar->SetDebugState(DebugToolbar::Running);
+                debugToolbar->SetDebugState(DebugToolbar::Running);
+                if (simToolbar->IsDebugModeEnabled()) {
+                    debugToolbar->ShowFloating();
+                }
                 break;
             case DebugSession::Paused:
-                toolbar->SetDebugState(DebugToolbar::Paused);
+                debugToolbar->SetDebugState(DebugToolbar::Paused);
+                if (simToolbar->IsDebugModeEnabled()) {
+                    debugToolbar->ShowFloating();
+                }
                 break;
             case DebugSession::Stopped:
             case DebugSession::Finished:
-                toolbar->SetDebugState(DebugToolbar::Stopped);
+                debugToolbar->SetDebugState(DebugToolbar::Stopped);
+                debugToolbar->HideFloating();
                 statePanel->Clear();
                 break;
         }
@@ -162,17 +171,17 @@ int main(int argc, char *argv[])
     // 更新状态面板：调试会话 -> 状态面板
     QObject::connect(debugSession, &DebugSession::DebugInfoUpdated, [statePanel](const DebugSession::DebugInfo &info) {
         PlayerStatePanel::PlayerState state;
-        state.lifePercent = info.lifePercent;
-        state.manaPercent = info.manaPercent;
-        state.qidian = info.qidian;
-        state.rage = info.rage;
-        state.energy = info.energy;
-        state.targetId = info.targetId;
+        state.lifePercent       = info.lifePercent;
+        state.manaPercent       = info.manaPercent;
+        state.qidian            = info.qidian;
+        state.rage              = info.rage;
+        state.energy            = info.energy;
+        state.targetId          = info.targetId;
         state.targetLifePercent = info.targetLifePercent;
-        state.currentFrame = info.currentFrame;
-        state.currentSeconds = info.currentSeconds;
-        state.currentMacro = info.currentMacro;
-        state.lastSkill = info.currentSkill;
+        state.currentFrame      = info.currentFrame;
+        state.currentSeconds    = info.currentSeconds;
+        state.currentMacro      = info.currentMacro;
+        state.lastSkill         = info.currentSkill;
         statePanel->UpdateState(state);
     });
 
@@ -183,46 +192,73 @@ int main(int argc, char *argv[])
         qDebug() << "[main.cpp] 已调用SetCurrentDebugLine(" << info.lineNumber << ")";
     });
 
+    // 连接模拟工具栏信号 -> 调试会话
+    QObject::connect(simToolbar, &SimulationToolbar::StartSimulationClicked, [debugSession, editor, simToolbar]() {
+        if (simToolbar->IsDebugModeEnabled()) {
+            // 调试模式：开始调试
+            qDebug() << "[main.cpp] 以调试模式开始模拟";
+            debugSession->Start(editor->toPlainText());
+        } else {
+            // 正常模式：开始模拟（暂未实现）
+            qDebug() << "[main.cpp] 开始正常模拟（未实现）";
+            // TODO: 实现正常模拟功能
+        }
+    });
+
+    // 调试模式切换时，隐藏调试浮窗（如果已显示）
+    QObject::connect(simToolbar, &SimulationToolbar::DebugModeToggled, [debugToolbar, debugSession](bool enabled) {
+        if (!enabled && debugSession->GetState() != DebugSession::Stopped && debugSession->GetState() != DebugSession::Finished)
+        {
+            debugToolbar->HideFloating();
+        }
+    });
+
     // 连接调试工具栏信号 -> 调试会话
-    QObject::connect(toolbar, &DebugToolbar::ContinueClicked, [debugSession, editor]() {
+    QObject::connect(debugToolbar, &DebugToolbar::ContinueClicked, [debugSession, editor]() {
         if (debugSession->GetState() == DebugSession::Stopped) {
             debugSession->Start(editor->toPlainText());
         } else {
             debugSession->Continue();
         }
     });
-    QObject::connect(toolbar, &DebugToolbar::PauseClicked, debugSession, &DebugSession::Pause);
-    QObject::connect(toolbar, &DebugToolbar::StepOverClicked, [debugSession, editor]() {
+    QObject::connect(debugToolbar, &DebugToolbar::PauseClicked, debugSession, &DebugSession::Pause);
+    QObject::connect(debugToolbar, &DebugToolbar::StepOverClicked, [debugSession, editor]() {
         if (debugSession->GetState() == DebugSession::Stopped) {
             debugSession->Start(editor->toPlainText());
         }
         debugSession->StepOver();
     });
-    QObject::connect(toolbar, &DebugToolbar::StepIntoClicked, [debugSession, editor]() {
+    QObject::connect(debugToolbar, &DebugToolbar::StepIntoClicked, [debugSession, editor]() {
         if (debugSession->GetState() == DebugSession::Stopped) {
             debugSession->Start(editor->toPlainText());
         }
         debugSession->StepInto();
     });
-    QObject::connect(toolbar, &DebugToolbar::StepOutClicked, [debugSession]() {
-        debugSession->StepOut();
-    });
-    QObject::connect(toolbar, &DebugToolbar::RestartClicked, [debugSession, editor]() {
+    QObject::connect(debugToolbar, &DebugToolbar::StepOutClicked, [debugSession]() { debugSession->StepOut(); });
+    QObject::connect(debugToolbar, &DebugToolbar::RestartClicked, [debugSession, editor]() {
         debugSession->Stop();
         debugSession->Start(editor->toPlainText());
     });
-    QObject::connect(toolbar, &DebugToolbar::StopClicked, [debugSession, editor]() {
+    QObject::connect(debugToolbar, &DebugToolbar::StopClicked, [debugSession, editor]() {
         debugSession->Stop();
         editor->ClearCurrentDebugLine();
     });
 
-    // 主布局：水平分割（左侧编辑器+时间轴，右侧状态面板）
-    QHBoxLayout *mainLayout = new QHBoxLayout(central);
+    // 主布局：垂直布局（顶部工具栏 + 内容区）
+    auto *rootLayout = new QVBoxLayout(central);
+    rootLayout->setContentsMargins(0, 0, 0, 0);
+    rootLayout->setSpacing(0);
+
+    // 添加模拟工具栏
+    rootLayout->addWidget(simToolbar);
+
+    // 内容区：水平分割（左侧编辑器+时间轴，右侧状态面板）
+    auto *mainLayout = new QHBoxLayout();
     mainLayout->setContentsMargins(10, 10, 10, 10);
     mainLayout->setSpacing(10);
 
     // 左侧垂直布局
-    QVBoxLayout *leftLayout = new QVBoxLayout();
+    auto *leftLayout = new QVBoxLayout();
     leftLayout->setSpacing(10);
     leftLayout->addWidget(editor, 1);
     leftLayout->addWidget(timeline);
@@ -230,6 +266,8 @@ int main(int argc, char *argv[])
     mainLayout->addLayout(leftLayout, 1);
     mainLayout->addWidget(statePanel);
 
+    rootLayout->addLayout(mainLayout, 1);
+
     w.show();
-    return app.exec();
+    return QApplication::exec();
 }

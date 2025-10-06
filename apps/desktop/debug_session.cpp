@@ -112,11 +112,22 @@ void DebugSession::StepOver()
         return;
     }
 
-    m_stepMode = StepOverMode;
-    m_stepStartLine = m_debugInfo.lineNumber;
-    SimulateStep();
+    qDebug() << "[DebugSession::StepOver] 调用模拟器的 StepOver";
 
-    qDebug() << "单步跳过：从行" << m_stepStartLine;
+    // 调用模拟器的 StepOver
+    if (!m_simulator->StepOver()) {
+        qDebug() << "[DebugSession::StepOver] StepOver 返回 false";
+    }
+
+    // 更新调试信息
+    UpdateDebugInfo();
+    emit DebugInfoUpdated(m_debugInfo);
+
+    // 检查是否完成
+    if (m_simulator->IsFinished()) {
+        SetState(Finished);
+        emit ExecutionFinished();
+    }
 }
 
 void DebugSession::StepInto()
@@ -131,10 +142,22 @@ void DebugSession::StepInto()
         return;
     }
 
-    m_stepMode = StepIntoMode;
-    SimulateStep();
+    qDebug() << "[DebugSession::StepInto] 调用模拟器的 StepInto";
 
-    qDebug() << "单步进入";
+    // 调用模拟器的 StepInto
+    if (!m_simulator->StepInto()) {
+        qDebug() << "[DebugSession::StepInto] StepInto 返回 false";
+    }
+
+    // 更新调试信息
+    UpdateDebugInfo();
+    emit DebugInfoUpdated(m_debugInfo);
+
+    // 检查是否完成
+    if (m_simulator->IsFinished()) {
+        SetState(Finished);
+        emit ExecutionFinished();
+    }
 }
 
 void DebugSession::StepOut()
@@ -143,10 +166,20 @@ void DebugSession::StepOut()
         return;
     }
 
-    m_stepMode = StepOutMode;
-    SetState(Running);
+    qDebug() << "[DebugSession::StepOut] 调用模拟器的 StepOut";
 
-    qDebug() << "单步跳出";
+    // 调用模拟器的 StepOut
+    if (!m_simulator->StepOut()) {
+        qDebug() << "[DebugSession::StepOut] StepOut 返回 false";
+    }
+
+    // 更新调试信息
+    UpdateDebugInfo();
+    emit DebugInfoUpdated(m_debugInfo);
+
+    // 完成后设置状态
+    SetState(Finished);
+    emit ExecutionFinished();
 }
 
 void DebugSession::AddBreakpoint(int lineNumber)

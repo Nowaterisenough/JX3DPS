@@ -1,6 +1,8 @@
 #include "script_interpreter.h"
+#include "tick_context.h"
 #include <QDebug>
 #include <QRegularExpression>
+#include <algorithm>
 
 struct ScriptInterpreter::Impl
 {
@@ -9,6 +11,16 @@ struct ScriptInterpreter::Impl
     QString lastSkill;
     bool finished = false;
     QString errorMessage;
+
+    // 调试状态
+    ScriptInterpreter::DebugStepType stepType = ScriptInterpreter::DebugStepType::LINE;
+    int currentConditionIndex = -1;    // 当前正在评估的条件索引
+    QString currentCondition;          // 当前条件文本
+    bool conditionResult = false;      // 当前条件结果
+    int currentScriptIndex = -1;       // 当前脚本行在 scriptLines 中的索引
+
+    // Tick-based 上下文
+    JX3DPS::TickContext *tickContext = nullptr;
 
     // 模拟的玩家状态（简化版）
     struct PlayerState {
@@ -24,9 +36,13 @@ ScriptInterpreter::ScriptInterpreter(QObject *parent)
     : QObject(parent)
     , d(std::make_unique<Impl>())
 {
+    d->tickContext = new JX3DPS::TickContext();
 }
 
-ScriptInterpreter::~ScriptInterpreter() = default;
+ScriptInterpreter::~ScriptInterpreter()
+{
+    delete d->tickContext;
+}
 
 bool ScriptInterpreter::Initialize(const QString &macroText, QString &errorMessage)
 {
@@ -61,6 +77,25 @@ bool ScriptInterpreter::Initialize(const QString &macroText, QString &errorMessa
     if (d->scriptLines.empty()) {
         errorMessage = "未找到有效的脚本指令";
         return false;
+    }
+
+    // 收集所有技能名称，初始化 TickContext
+    std::vector<std::string> skillNames;
+    for (const auto &scriptLine : d->scriptLines) {
+        if (!scriptLine.skillName.isEmpty()) {
+            std::string skillNameStd = scriptLine.skillName.toStdString();
+            // 检查是否已存在
+            if (std::find(skillNames.begin(), skillNames.end(), skillNameStd) == skillNames.end()) {
+                skillNames.push_back(skillNameStd);
+            }
+        }
+    }
+    d->tickContext->Initialize(skillNames);
+
+    // 设置 currentLine 为第一条有效指令的行号
+    if (!d->scriptLines.empty()) {
+        d->currentLine = d->scriptLines[0].lineNumber;
+        qDebug() << "初始行号设置为:" << d->currentLine;
     }
 
     return true;
@@ -205,8 +240,16 @@ bool ScriptInterpreter::EvaluateCondition(const QString &condition)
     } else if (var.startsWith("tlife:")) {
         varValue = d->player.targetLifePercent;
     } else if (var.startsWith("skill_cd:")) {
-        // TODO: 查询技能冷却
-        varValue = 0; // 假设技能已冷却
+        // 从 TickContext 查询技能冷却
+        QString skillName = var.mid(9); // 去掉 "skill_cd:" 前缀
+        std::string skillNameStd = skillName.toStdString();
+        int skillIndex = d->tickContext->GetSkillIndex(skillNameStd);
+        if (skillIndex >= 0) {
+            const auto &state = d->tickContext->GetSkillState(skillIndex);
+            varValue = state.cooldownRemaining / 16.0; // 转换为秒 (16 ticks/秒)
+        } else {
+            varValue = 0; // 未找到技能，假设已冷却
+        }
     } else {
         qDebug() << "未知的变量:" << var;
         return true;
@@ -233,9 +276,29 @@ bool ScriptInterpreter::EvaluateCondition(const QString &condition)
 
 bool ScriptInterpreter::CastSkill(const QString &skillName)
 {
-    // 简化版技能施放
-    // TODO: 调用 JX3DPS 引擎的技能施放
-    qDebug() << "  [模拟] 施放技能:" << skillName;
+    // 使用 TickContext 检查技能是否就绪
+    std::string skillNameStd = skillName.toStdString();
+    int skillIndex = d->tickContext->GetSkillIndex(skillNameStd);
+    if (skillIndex < 0) {
+        qDebug() << "  [错误] 未找到技能:" << skillName;
+        return false;
+    }
+
+    if (!d->tickContext->IsSkillReady(skillIndex)) {
+        qDebug() << "  [失败] 技能未就绪:" << skillName;
+        return false;
+    }
+
+    qDebug() << "  [成功] 施放技能:" << skillName;
+
+    // 设置技能冷却 (假设所有技能冷却为 160 ticks = 10秒)
+    d->tickContext->CastSkill(skillIndex, 160);
+
+    // 设置全局冷却 (24 ticks = 1.5秒)
+    d->tickContext->SetGlobalCooldown(24);
+
+    // 推进一个 tick
+    d->tickContext->Tick();
 
     // 模拟消耗气点
     if (d->player.qidian > 0) {
@@ -249,6 +312,10 @@ ScriptInterpreter::ExecutionState ScriptInterpreter::GetState() const
 {
     ExecutionState state;
     state.currentLine = d->currentLine;
+    state.stepType = d->stepType;
+    state.currentConditionIndex = d->currentConditionIndex;
+    state.currentCondition = d->currentCondition;
+    state.conditionResult = d->conditionResult;
     state.lastSkill = d->lastSkill;
     state.finished = d->finished;
     state.errorMessage = d->errorMessage;
@@ -262,12 +329,206 @@ void ScriptInterpreter::Reset()
     d->lastSkill.clear();
     d->finished = false;
     d->errorMessage.clear();
+
+    // 重置调试状态
+    d->stepType = DebugStepType::LINE;
+    d->currentConditionIndex = -1;
+    d->currentCondition.clear();
+    d->conditionResult = false;
+    d->currentScriptIndex = -1;
+
     d->player.qidian = 10;
     d->player.lifePercent = 1.0;
     d->player.manaPercent = 1.0;
+
+    // 重置 TickContext
+    if (d->tickContext) {
+        d->tickContext->Reset();
+    }
 }
 
 const std::vector<ScriptInterpreter::ScriptLine>& ScriptInterpreter::GetScriptLines() const
 {
     return d->scriptLines;
+}
+
+bool ScriptInterpreter::StepInto()
+{
+    if (d->finished) {
+        return false;
+    }
+
+    // 状态机：LINE -> CONDITION -> CONDITION -> ... -> SKILL_CAST -> LINE
+
+    if (d->stepType == DebugStepType::LINE) {
+        // 找到当前行对应的脚本
+        ScriptLine *currentScript = nullptr;
+        for (size_t i = 0; i < d->scriptLines.size(); ++i) {
+            if (d->scriptLines[i].lineNumber == d->currentLine) {
+                currentScript = &d->scriptLines[i];
+                d->currentScriptIndex = i;
+                break;
+            }
+        }
+
+        if (!currentScript) {
+            // 当前行没有指令，移动到下一行
+            d->currentLine++;
+            if (d->currentLine > 100) {
+                d->finished = true;
+                return false;
+            }
+            return StepInto();
+        }
+
+        qDebug() << "[StepInto] 进入行" << currentScript->lineNumber << ":" << currentScript->rawLine;
+
+        // 如果有条件，进入第一个条件
+        if (!currentScript->conditions.isEmpty()) {
+            d->stepType = DebugStepType::CONDITION;
+            d->currentConditionIndex = 0;
+            d->currentCondition = currentScript->conditions[0];
+            d->conditionResult = EvaluateCondition(d->currentCondition);
+            qDebug() << "  [条件" << d->currentConditionIndex << "] " << d->currentCondition
+                     << " = " << d->conditionResult;
+            return true;
+        } else {
+            // 没有条件，直接执行技能
+            d->stepType = DebugStepType::SKILL_CAST;
+            return StepInto(); // 递归进入技能施放
+        }
+    }
+    else if (d->stepType == DebugStepType::CONDITION) {
+        // 当前在条件判定中
+        ScriptLine *currentScript = &d->scriptLines[d->currentScriptIndex];
+
+        // 如果当前条件为 false，整个指令失败，跳到下一行
+        if (!d->conditionResult) {
+            qDebug() << "  [条件失败] 跳过此行";
+            d->stepType = DebugStepType::LINE;
+            d->currentConditionIndex = -1;
+            d->currentCondition.clear();
+            d->currentLine++;
+            // 找到下一条有效指令
+            bool foundNext = false;
+            for (const auto &script : d->scriptLines) {
+                if (script.lineNumber >= d->currentLine) {
+                    d->currentLine = script.lineNumber;
+                    foundNext = true;
+                    break;
+                }
+            }
+            if (!foundNext) {
+                d->finished = true;
+            }
+            return true;
+        }
+
+        // 移动到下一个条件
+        d->currentConditionIndex++;
+        if (d->currentConditionIndex < currentScript->conditions.size()) {
+            d->currentCondition = currentScript->conditions[d->currentConditionIndex];
+            d->conditionResult = EvaluateCondition(d->currentCondition);
+            qDebug() << "  [条件" << d->currentConditionIndex << "] " << d->currentCondition
+                     << " = " << d->conditionResult;
+            return true;
+        } else {
+            // 所有条件都通过，进入技能施放
+            d->stepType = DebugStepType::SKILL_CAST;
+            d->currentConditionIndex = -1;
+            return StepInto();
+        }
+    }
+    else if (d->stepType == DebugStepType::SKILL_CAST) {
+        // 执行技能施放
+        ScriptLine *currentScript = &d->scriptLines[d->currentScriptIndex];
+
+        if (currentScript->command == "/cast" || currentScript->command == "/scast") {
+            if (CastSkill(currentScript->skillName)) {
+                qDebug() << "  [技能施放] 成功:" << currentScript->skillName;
+                d->lastSkill = currentScript->skillName;
+            } else {
+                qDebug() << "  [技能施放] 失败:" << currentScript->skillName;
+            }
+        } else if (currentScript->command == "/switch") {
+            qDebug() << "  [切换宏] " << currentScript->skillName;
+        }
+
+        // 移动到下一行
+        d->stepType = DebugStepType::LINE;
+        d->currentLine++;
+
+        // 找到下一条有效指令
+        bool foundNext = false;
+        for (const auto &script : d->scriptLines) {
+            if (script.lineNumber >= d->currentLine) {
+                d->currentLine = script.lineNumber;
+                foundNext = true;
+                break;
+            }
+        }
+
+        if (!foundNext) {
+            d->finished = true;
+            qDebug() << "[StepInto] 脚本执行完成";
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool ScriptInterpreter::StepOver()
+{
+    if (d->finished) {
+        return false;
+    }
+
+    // StepOver: 执行完整的一行（包括所有条件和技能施放）
+    int startLine = d->currentLine;
+
+    qDebug() << "[StepOver] 开始执行，起始行:" << startLine
+             << "，当前步骤类型:" << (int)d->stepType
+             << "，条件索引:" << d->currentConditionIndex;
+
+    // 如果当前在条件或技能施放中，先完成当前步骤
+    if (d->stepType != DebugStepType::LINE) {
+        qDebug() << "[StepOver] 当前在条件/技能中，先完成当前步骤";
+        // 持续执行直到回到 LINE 状态或行号改变
+        while (!d->finished && d->currentLine == startLine && d->stepType != DebugStepType::LINE) {
+            if (!StepInto()) {
+                break;
+            }
+        }
+    }
+
+    // 如果还在同一行且是 LINE 状态，执行完整的一行
+    if (!d->finished && d->currentLine == startLine && d->stepType == DebugStepType::LINE) {
+        qDebug() << "[StepOver] 开始执行完整的一行";
+        // 持续执行直到行号改变
+        while (!d->finished && d->currentLine == startLine) {
+            if (!StepInto()) {
+                break;
+            }
+        }
+    }
+
+    qDebug() << "[StepOver] 完成，结束行:" << d->currentLine
+             << "，步骤类型:" << (int)d->stepType;
+
+    return true;
+}
+
+bool ScriptInterpreter::StepOut()
+{
+    if (d->finished) {
+        return false;
+    }
+
+    // StepOut: 对于宏脚本，跳到脚本末尾
+    // TODO: 如果未来有循环或函数调用，这里需要跟踪调用栈
+    d->finished = true;
+    qDebug() << "[StepOut] 跳出脚本";
+    return true;
 }

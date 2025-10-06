@@ -4,9 +4,23 @@
 #include <QPlainTextEdit>
 #include <QSyntaxHighlighter>
 #include <QRegularExpression>
+#include <QProxyStyle>
 
 class CodeEditorPrivate;
 class LineNumberArea;
+
+/**
+ * @brief 自定义菜单样式代理
+ */
+class MenuStyle : public QProxyStyle
+{
+public:
+    explicit MenuStyle(QStyle *style = nullptr);
+    void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const override;
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const override;
+    QSize sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &size, const QWidget *widget) const override;
+    int pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const override;
+};
 
 /**
  * @brief 代码编辑器控件
@@ -70,6 +84,9 @@ public:
     void         ClearCurrentDebugLine();                       // 清除当前调试行
     int          GetCurrentDebugLine() const;                   // 获取当前调试行（-1表示无）
 
+    // 代码格式化
+    void         FormatDocument();                              // 格式化整个文档
+
 signals:
     void BreakpointAdded(int lineNumber);                       // 断点添加信号
     void BreakpointRemoved(int lineNumber);                     // 断点移除信号
@@ -78,6 +95,7 @@ signals:
 protected:
     void resizeEvent(QResizeEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private slots:
     void UpdateLineNumberAreaWidth(int newBlockCount);

@@ -14,11 +14,13 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 set(CODE_EDITOR_SOURCES
     code_editor.cpp
     debug_toolbar.cpp
+    simulation_toolbar.cpp
 )
 
 set(CODE_EDITOR_HEADERS
     code_editor.h
     debug_toolbar.h
+    simulation_toolbar.h
 )
 
 add_library(${PROJECT_NAME} STATIC

@@ -26,7 +26,16 @@ public:
     // 初始化模拟器（解析宏，创建Player）
     bool Initialize(const QString &macroText, QString &errorMessage);
 
-    // 单步执行（执行一个KeyFrame）
+    // 单步进入（进入条件判定，逐个评估条件）
+    bool StepInto();
+
+    // 单步跳过（执行完整的一行指令）
+    bool StepOver();
+
+    // 单步跳出（跳出当前作用域）
+    bool StepOut();
+
+    // 单步执行（执行一个KeyFrame）- 保留兼容性
     bool StepOne();
 
     // 获取当前状态

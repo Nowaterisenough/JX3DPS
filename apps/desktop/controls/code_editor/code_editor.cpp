@@ -5,7 +5,137 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QRegularExpression>
+#include <QMenu>
+#include <QClipboard>
+#include <QApplication>
+#include <QStyleOptionMenuItem>
 #include "resources.h"
+
+// ============================================================================
+// MenuStyle Implementation
+// ============================================================================
+
+MenuStyle::MenuStyle(QStyle *style) : QProxyStyle(style) {}
+
+void MenuStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
+{
+    if (element != CE_MenuItem) {
+        QProxyStyle::drawControl(element, option, painter, widget);
+        return;
+    }
+
+    const auto *menuOption = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
+    if (!menuOption) {
+        QProxyStyle::drawControl(element, option, painter, widget);
+        return;
+    }
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    // 绘制分隔符
+    if (menuOption->menuItemType == QStyleOptionMenuItem::Separator) {
+        painter->fillRect(option->rect, QColor(37, 37, 38));
+        int y = option->rect.center().y() + 1;
+        painter->setPen(QColor(69, 69, 69));
+        painter->drawLine(option->rect.left() + 4, y, option->rect.right() - 4, y);
+        painter->restore();
+        return;
+    }
+
+    // 绘制背景（圆角矩形）
+    if (menuOption->state & State_Selected) {
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(QColor(0, 120, 212));
+        QRect hoverRect = option->rect.adjusted(2, 1, -2, -1);
+        painter->drawRoundedRect(hoverRect, 3, 3);
+    } else {
+        painter->fillRect(option->rect, QColor(37, 37, 38));
+    }
+
+    // 设置字体
+    QFont font = QApplication::font();
+    font.setPointSizeF(10);
+    painter->setFont(font);
+
+    // 分离菜单文本和快捷键
+    QString fullText = menuOption->text;
+    QStringList parts = fullText.split('\t');
+    QString menuText = parts.value(0);
+    QString shortcutText = parts.value(1);
+
+    QRect textRect = option->rect.adjusted(10, 0, -10, 0);
+
+    bool isSelected = (menuOption->state & State_Selected) != 0;
+    bool isEnabled = (menuOption->state & State_Enabled) != 0;
+
+    // 绘制菜单项文字
+    if (!isEnabled) {
+        painter->setPen(QColor(101, 101, 101));
+    } else if (isSelected) {
+        painter->setPen(QColor(255, 255, 255)); // hover 时纯白色
+    } else {
+        painter->setPen(QColor(204, 204, 204));
+    }
+    painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, menuText);
+
+    // 绘制快捷键
+    if (!shortcutText.isEmpty()) {
+        if (isSelected) {
+            painter->setPen(QColor(255, 255, 255)); // hover 时纯白色
+        } else {
+            painter->setPen(QColor(136, 136, 136)); // 默认暗灰色
+        }
+        painter->drawText(textRect, Qt::AlignRight | Qt::AlignVCenter, shortcutText);
+    }
+
+    painter->restore();
+}
+
+void MenuStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
+{
+    if (element == PE_PanelMenu) {
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->setPen(QColor(69, 69, 69));
+        painter->setBrush(QColor(37, 37, 38));
+        painter->drawRoundedRect(option->rect.adjusted(0, 0, -1, -1), 6, 6);
+        painter->restore();
+        return;
+    }
+
+    QProxyStyle::drawPrimitive(element, option, painter, widget);
+}
+
+QSize MenuStyle::sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &size, const QWidget *widget) const
+{
+    QSize newSize = QProxyStyle::sizeFromContents(type, option, size, widget);
+
+    if (type == CT_MenuItem) {
+        const auto *menuOption = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
+        if (menuOption && menuOption->menuItemType == QStyleOptionMenuItem::Separator) {
+            return {newSize.width(), 9};
+        }
+        return QSize(newSize.width(), 26);
+    }
+
+    return newSize;
+}
+
+int MenuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
+{
+    if (metric == PM_MenuVMargin) {
+        return 4;
+    }
+    if (metric == PM_MenuHMargin) {
+        return 0;
+    }
+    return QProxyStyle::pixelMetric(metric, option, widget);
+}
+
+// ============================================================================
+// CodeEditorPrivate
+// ============================================================================
 
 class CodeEditorPrivate
 {
@@ -73,9 +203,9 @@ CodeEditor::CodeEditor(QWidget *parent) :
     setPalette(palette);
 
     // 设置制表符宽度
-    const int tabStop = 4;
+    constexpr int TAB_STOP = 4;
     QFontMetrics metrics(Resources::MonoFont());
-    setTabStopDistance(tabStop * metrics.horizontalAdvance(' '));
+    setTabStopDistance(TAB_STOP * metrics.horizontalAdvance(' '));
 
     // 设置当前行高亮颜色为 VSCode 风格
     d->currentLineColor = QColor(44, 44, 44); // #2c2c2c
@@ -101,8 +231,8 @@ int CodeEditor::LineNumberAreaWidth()
     }
 
     // 为断点区域预留空间：左边距(6) + 圆圈(8) + 间距(4) + 行号 + 右边距(6)
-    const int breakpointAreaWidth = 6 + 8 + 4;
-    int space = breakpointAreaWidth + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits + 6;
+    constexpr int BREAKPOINT_AREA_WIDTH = 6 + 8 + 4;
+    int space = BREAKPOINT_AREA_WIDTH + (fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits) + 6;
     return space;
 }
 
@@ -114,7 +244,7 @@ void CodeEditor::UpdateLineNumberAreaWidth(int /* newBlockCount */)
 void CodeEditor::UpdateLineNumberArea(const QRect &rect, int dy)
 {
     Q_D(CodeEditor);
-    if (dy) {
+    if (dy != 0) {
         d->lineNumberArea->scroll(0, dy);
     } else {
         d->lineNumberArea->update(0, rect.y(), d->lineNumberArea->width(), rect.height());
@@ -183,8 +313,8 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
     int currentBlockNumber = textCursor().blockNumber();
 
     // 断点圆圈参数
-    const int breakpointSize = 8; // 断点圆圈直径（更小更精致）
-    const int breakpointMargin = 6; // 断点左边距
+    constexpr int BREAKPOINT_SIZE = 8; // 断点圆圈直径（更小更精致）
+    constexpr int BREAKPOINT_MARGIN = 6; // 断点左边距
 
     while (block.isValid() && top <= event->rect().bottom()) {
         if (block.isVisible() && bottom >= event->rect().top()) {
@@ -198,8 +328,8 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
 
                 // 在行号左侧绘制圆形断点，稍微向下偏移以对齐行号中心
                 int centerY = top + fontMetrics().height() / 2 + 2;
-                painter.drawEllipse(QPoint(breakpointMargin + breakpointSize / 2, centerY),
-                                    breakpointSize / 2, breakpointSize / 2);
+                painter.drawEllipse(QPoint(BREAKPOINT_MARGIN + BREAKPOINT_SIZE / 2, centerY),
+                                    BREAKPOINT_SIZE / 2, BREAKPOINT_SIZE / 2);
             }
 
             // VSCode 风格：当前行行号高亮，其他行号灰色
@@ -210,7 +340,7 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
             }
 
             // 绘制调试行高亮（如果是当前调试行）- VSCode 风格：黄色背景
-            int textX = breakpointMargin + breakpointSize + 4; // 断点后留4px间距
+            int textX = BREAKPOINT_MARGIN + BREAKPOINT_SIZE + 4; // 断点后留4px间距
 
             if (d->currentDebugLine == lineNumber) {
                 // 1. 绘制黄色背景高亮条（覆盖整个行号区域）
@@ -228,8 +358,8 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
                     painter.setPen(Qt::NoPen);
                     painter.setBrush(QColor(0, 0, 0)); // 黑色断点
                     int centerY = top + fontMetrics().height() / 2 + 2;
-                    painter.drawEllipse(QPoint(breakpointMargin + breakpointSize / 2, centerY),
-                                        breakpointSize / 2, breakpointSize / 2);
+                    painter.drawEllipse(QPoint(BREAKPOINT_MARGIN + BREAKPOINT_SIZE / 2, centerY),
+                                        BREAKPOINT_SIZE / 2, BREAKPOINT_SIZE / 2);
                 }
             } else {
                 // 正常绘制行号（无调试高亮时）
@@ -287,6 +417,76 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
     }
 
     QPlainTextEdit::keyPressEvent(event);
+}
+
+void CodeEditor::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu *menu = new QMenu(this);
+
+    // 使用自定义样式代理（样式对象将由 QMenu 管理生命周期）
+    MenuStyle *style = new MenuStyle();
+    menu->setStyle(style);
+
+    // 设置菜单属性
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    menu->setWindowFlags(menu->windowFlags() | Qt::NoDropShadowWindowHint);
+
+    QTextCursor cursor = textCursor();
+    bool hasSelection = cursor.hasSelection();
+    bool hasText = !document()->isEmpty();
+    QClipboard *clipboard = QApplication::clipboard();
+    bool hasClipboard = !clipboard->text().isEmpty();
+
+    // 剪切
+    QAction *cutAction = menu->addAction("剪切\tCtrl+X");
+    cutAction->setShortcut(QKeySequence::Cut);
+    cutAction->setEnabled(hasSelection && !isReadOnly());
+    connect(cutAction, &QAction::triggered, this, &CodeEditor::cut);
+
+    // 复制
+    QAction *copyAction = menu->addAction("复制\tCtrl+C");
+    copyAction->setShortcut(QKeySequence::Copy);
+    copyAction->setEnabled(hasSelection);
+    connect(copyAction, &QAction::triggered, this, &CodeEditor::copy);
+
+    // 粘贴
+    QAction *pasteAction = menu->addAction("粘贴\tCtrl+V");
+    pasteAction->setShortcut(QKeySequence::Paste);
+    pasteAction->setEnabled(hasClipboard && !isReadOnly());
+    connect(pasteAction, &QAction::triggered, this, &CodeEditor::paste);
+
+    menu->addSeparator();
+
+    // 全选
+    QAction *selectAllAction = menu->addAction("全选\tCtrl+A");
+    selectAllAction->setShortcut(QKeySequence::SelectAll);
+    selectAllAction->setEnabled(hasText);
+    connect(selectAllAction, &QAction::triggered, this, &CodeEditor::selectAll);
+
+    menu->addSeparator();
+
+    // 撤销
+    QAction *undoAction = menu->addAction("撤销\tCtrl+Z");
+    undoAction->setShortcut(QKeySequence::Undo);
+    undoAction->setEnabled(document()->isUndoAvailable() && !isReadOnly());
+    connect(undoAction, &QAction::triggered, this, &CodeEditor::undo);
+
+    // 重做
+    QAction *redoAction = menu->addAction("重做\tCtrl+Y");
+    redoAction->setShortcut(QKeySequence::Redo);
+    redoAction->setEnabled(document()->isRedoAvailable() && !isReadOnly());
+    connect(redoAction, &QAction::triggered, this, &CodeEditor::redo);
+
+    menu->addSeparator();
+
+    // 格式化
+    QAction *formatAction = menu->addAction("格式化文档\tShift+Alt+F");
+    formatAction->setShortcut(QKeySequence("Shift+Alt+F"));
+    formatAction->setEnabled(hasText && !isReadOnly());
+    connect(formatAction, &QAction::triggered, this, &CodeEditor::FormatDocument);
+
+    menu->exec(event->globalPos());
+    menu->deleteLater();
 }
 
 void CodeEditor::SetTabWidth(int spaces)
@@ -760,4 +960,62 @@ void JX3MacroSyntaxHighlighter::highlightBlock(const QString &text)
         QRegularExpressionMatch match = commentIterator.next();
         setFormat(match.capturedStart(), match.capturedLength(), commentFormat);
     }
+}
+
+// ============================================================================
+// 代码格式化
+// ============================================================================
+
+void CodeEditor::FormatDocument()
+{
+    Q_D(CodeEditor);
+
+    QString text = toPlainText();
+    QStringList lines = text.split('\n');
+    QStringList formattedLines;
+
+    int indentLevel = 0;
+    QString indentString(d->tabWidth, ' ');
+
+    for (const QString &line : lines) {
+        QString trimmed = line.trimmed();
+
+        // 跳过空行和注释行
+        if (trimmed.isEmpty() || trimmed.startsWith('#') || trimmed.startsWith("//")) {
+            formattedLines.append(trimmed);
+            continue;
+        }
+
+        // 处理缩进
+        QString formatted;
+
+        // 如果以 macro 开头，不缩进
+        if (trimmed.startsWith("macro ")) {
+            indentLevel = 0;
+            formatted = trimmed;
+        }
+        // 如果以命令开头，缩进一级
+        else if (trimmed.startsWith('/')) {
+            indentLevel = 1;
+            formatted = indentString + trimmed;
+        }
+        // 时间格式（事件语句）
+        else if (QRegularExpression("^\\d+:\\d+\\.\\d+").match(trimmed).hasMatch()) {
+            indentLevel = 0;
+            formatted = trimmed;
+        }
+        // 其他情况保持当前缩进
+        else {
+            formatted = QString(indentLevel * d->tabWidth, ' ') + trimmed;
+        }
+
+        formattedLines.append(formatted);
+    }
+
+    // 更新文档内容
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    cursor.select(QTextCursor::Document);
+    cursor.insertText(formattedLines.join('\n'));
+    cursor.endEditBlock();
 }

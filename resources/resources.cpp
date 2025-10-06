@@ -13,9 +13,12 @@ int Resources::InitResources()
 QFont &Resources::Font()
 {
     static QFont font = []() {
-        static const int FONT_ID  = QFontDatabase::addApplicationFont(":/resources/fonts/Microsoft-YaHei-Regular.ttc");
-        QStringList      families = QFontDatabase::applicationFontFamilies(FONT_ID);
-        static QFont     font     = QFont(QFontDatabase::applicationFontFamilies(FONT_ID).front());
+        static const int FONT_ID = QFontDatabase::addApplicationFont(":/resources/fonts/Microsoft-YaHei-Semibold.ttc");
+        QStringList families = QFontDatabase::applicationFontFamilies(FONT_ID);
+        QFont font;
+        if (!families.isEmpty()) {
+            font = QFont(families.front());
+        }
         font.setHintingPreference(QFont::HintingPreference::PreferNoHinting);
         font.setStyleStrategy(QFont::StyleStrategy::PreferAntialias);
         return font;

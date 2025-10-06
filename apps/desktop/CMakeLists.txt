@@ -32,6 +32,7 @@ set(HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_data_generator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/debug_session.h
     ${CMAKE_CURRENT_SOURCE_DIR}/debug_simulator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/script_interpreter.h
 )
 
 set(SOURCE_FILES
@@ -39,6 +40,7 @@ set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_data_generator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/debug_session.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/debug_simulator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/script_interpreter.cpp
 )
 
 

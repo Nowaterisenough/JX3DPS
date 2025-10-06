@@ -19,7 +19,7 @@
 
 #include "CheckBox/CheckBox.h"
 #include "ComboBox/ComboBox.h"
-#include "Global/JX3.h"
+#include "global/JX3.h"
 
 #include "TimeLineWidget.h"
 

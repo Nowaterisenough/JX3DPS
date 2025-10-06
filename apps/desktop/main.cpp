@@ -1,12 +1,16 @@
 #include <QApplication>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #include "code_editor/code_editor.h"
 #include "code_editor/debug_toolbar.h"
 #include "controls/frameless/frameless.h"
 #include "controls/theme/dark_style.h"
 #include "controls/timeline/timeline.h"
+#include "controls/player_state_panel/player_state_panel.h"
 #include "test_data_generator.h"
+#include "debug_session.h"
+#include "debug_simulator.h"
 #include "resources.h"
 
 static void SetupApplication(QApplication &app)
@@ -128,47 +132,96 @@ int main(int argc, char *argv[])
     DebugToolbar *toolbar = new DebugToolbar(&w);
     CodeEditor *editor = CreateEditor(central, toolbar);
     Timeline *timeline = CreateTimeline(central);
+    PlayerStatePanel *statePanel = new PlayerStatePanel(central);
 
-    // 连接调试工具栏信号
-    QObject::connect(toolbar, &DebugToolbar::ContinueClicked, [toolbar, editor]() {
-        qDebug() << "Debug: Continue";
-        toolbar->SetDebugState(DebugToolbar::Running);
-        editor->SetCurrentDebugLine(5);
-    });
-    QObject::connect(toolbar, &DebugToolbar::PauseClicked, [toolbar, editor]() {
-        qDebug() << "Debug: Pause";
-        toolbar->SetDebugState(DebugToolbar::Paused);
-        editor->SetCurrentDebugLine(10);
-    });
-    QObject::connect(toolbar, &DebugToolbar::StepOverClicked, [editor]() {
-        qDebug() << "Debug: Step Over";
-        int currentLine = editor->GetCurrentDebugLine();
-        if (currentLine > 0) {
-            editor->SetCurrentDebugLine(currentLine + 1);
+    // 创建调试会话
+    DebugSession *debugSession = new DebugSession(central);
+
+    // 同步断点：编辑器 -> 调试会话
+    QObject::connect(editor, &CodeEditor::BreakpointAdded, debugSession, &DebugSession::AddBreakpoint);
+    QObject::connect(editor, &CodeEditor::BreakpointRemoved, debugSession, &DebugSession::RemoveBreakpoint);
+
+    // 同步调试状态：调试会话 -> 编辑器 + 状态面板
+    QObject::connect(debugSession, &DebugSession::LineChanged, editor, &CodeEditor::SetCurrentDebugLine);
+    QObject::connect(debugSession, &DebugSession::StateChanged, [toolbar, statePanel](DebugSession::State state) {
+        switch (state) {
+            case DebugSession::Running:
+                toolbar->SetDebugState(DebugToolbar::Running);
+                break;
+            case DebugSession::Paused:
+                toolbar->SetDebugState(DebugToolbar::Paused);
+                break;
+            case DebugSession::Stopped:
+            case DebugSession::Finished:
+                toolbar->SetDebugState(DebugToolbar::Stopped);
+                statePanel->Clear();
+                break;
         }
     });
-    QObject::connect(toolbar, &DebugToolbar::StepIntoClicked, [editor]() {
-        qDebug() << "Debug: Step Into";
-        editor->SetCurrentDebugLine(3);
-    });
-    QObject::connect(toolbar, &DebugToolbar::StepOutClicked, [editor]() {
-        qDebug() << "Debug: Step Out";
-        editor->ClearCurrentDebugLine();
-    });
-    QObject::connect(toolbar, &DebugToolbar::RestartClicked, [toolbar]() {
-        qDebug() << "Debug: Restart";
-        toolbar->SetDebugState(DebugToolbar::Running);
-    });
-    QObject::connect(toolbar, &DebugToolbar::StopClicked, [toolbar]() {
-        qDebug() << "Debug: Stop";
-        toolbar->SetDebugState(DebugToolbar::Stopped);
+
+    // 更新状态面板：调试会话 -> 状态面板
+    QObject::connect(debugSession, &DebugSession::DebugInfoUpdated, [statePanel](const DebugSession::DebugInfo &info) {
+        PlayerStatePanel::PlayerState state;
+        state.lifePercent = info.lifePercent;
+        state.manaPercent = info.manaPercent;
+        state.qidian = info.qidian;
+        state.rage = info.rage;
+        state.energy = info.energy;
+        state.targetId = info.targetId;
+        state.targetLifePercent = info.targetLifePercent;
+        state.currentFrame = info.currentFrame;
+        state.currentSeconds = info.currentSeconds;
+        state.currentMacro = info.currentMacro;
+        state.lastSkill = info.currentSkill;
+        statePanel->UpdateState(state);
     });
 
-    QVBoxLayout *layout = new QVBoxLayout(central);
-    layout->setContentsMargins(10, 10, 10, 10);
-    layout->setSpacing(10);
-    layout->addWidget(editor, 1);
-    layout->addWidget(timeline);
+    // 连接调试工具栏信号 -> 调试会话
+    QObject::connect(toolbar, &DebugToolbar::ContinueClicked, [debugSession, editor]() {
+        if (debugSession->GetState() == DebugSession::Stopped) {
+            debugSession->Start(editor->toPlainText());
+        } else {
+            debugSession->Continue();
+        }
+    });
+    QObject::connect(toolbar, &DebugToolbar::PauseClicked, debugSession, &DebugSession::Pause);
+    QObject::connect(toolbar, &DebugToolbar::StepOverClicked, [debugSession, editor]() {
+        if (debugSession->GetState() == DebugSession::Stopped) {
+            debugSession->Start(editor->toPlainText());
+        }
+        debugSession->StepOver();
+    });
+    QObject::connect(toolbar, &DebugToolbar::StepIntoClicked, [debugSession, editor]() {
+        if (debugSession->GetState() == DebugSession::Stopped) {
+            debugSession->Start(editor->toPlainText());
+        }
+        debugSession->StepInto();
+    });
+    QObject::connect(toolbar, &DebugToolbar::StepOutClicked, [debugSession]() {
+        debugSession->StepOut();
+    });
+    QObject::connect(toolbar, &DebugToolbar::RestartClicked, [debugSession, editor]() {
+        debugSession->Stop();
+        debugSession->Start(editor->toPlainText());
+    });
+    QObject::connect(toolbar, &DebugToolbar::StopClicked, [debugSession, editor]() {
+        debugSession->Stop();
+        editor->ClearCurrentDebugLine();
+    });
+
+    // 主布局：水平分割（左侧编辑器+时间轴，右侧状态面板）
+    QHBoxLayout *mainLayout = new QHBoxLayout(central);
+    mainLayout->setContentsMargins(10, 10, 10, 10);
+    mainLayout->setSpacing(10);
+
+    // 左侧垂直布局
+    QVBoxLayout *leftLayout = new QVBoxLayout();
+    leftLayout->setSpacing(10);
+    leftLayout->addWidget(editor, 1);
+    leftLayout->addWidget(timeline);
+
+    mainLayout->addLayout(leftLayout, 1);
+    mainLayout->addWidget(statePanel);
 
     w.show();
     return app.exec();

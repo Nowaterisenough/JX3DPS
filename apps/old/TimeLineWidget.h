@@ -25,7 +25,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include <Attribute/Attribute.hpp>
+#include <attribute/Attribute.hpp>
 
 #include "Widget/Widget.h"
 

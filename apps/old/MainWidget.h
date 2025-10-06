@@ -17,7 +17,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "Global/JX3.h"
+#include "global/JX3.h"
 
 #include "Widget/Widget.h"
 

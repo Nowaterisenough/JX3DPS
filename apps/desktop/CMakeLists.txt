@@ -21,20 +21,24 @@ add_subdirectory(controls/frameless)
 add_subdirectory(controls/theme)
 add_subdirectory(controls/code_editor)
 add_subdirectory(controls/timeline)
+add_subdirectory(controls/player_state_panel)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/src)
 
 set(HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_data_generator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/debug_session.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/debug_simulator.h
 )
 
 set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_data_generator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/debug_session.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/debug_simulator.cpp
 )
 
 
@@ -63,7 +67,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Theme
     CodeEditor
     Timeline
+    PlayerStatePanel
     Resources
+    JX3DPS
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
 )
 
 set(APP_NAME "JX3DPS Desktop")

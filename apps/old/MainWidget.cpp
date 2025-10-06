@@ -24,7 +24,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <Attribute/Attribute.hpp>
+#include <attribute/Attribute.hpp>
 
 #include "Button/Button.h"
 #include "CheckBox/CheckBox.h"

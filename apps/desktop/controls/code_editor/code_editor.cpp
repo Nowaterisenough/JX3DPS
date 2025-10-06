@@ -30,8 +30,8 @@ public:
     QColor                       currentLineColor;
     bool                         syntaxHighlightingEnabled;
     CodeEditor::SyntaxType       syntaxType;
-    CppSyntaxHighlighter        *cppHighlighter;
-    JX3MacroSyntaxHighlighter   *jx3MacroHighlighter;
+    QScopedPointer<CppSyntaxHighlighter>      cppHighlighter;
+    QScopedPointer<JX3MacroSyntaxHighlighter> jx3MacroHighlighter;
     QSet<int>                    breakpoints;       // 断点集合（行号从1开始）
     int                          currentDebugLine;  // 当前调试行（-1表示无）
 
@@ -81,7 +81,7 @@ CodeEditor::CodeEditor(QWidget *parent) :
     d->currentLineColor = QColor(44, 44, 44); // #2c2c2c
 
     // 默认启用 C++ 语法高亮
-    d->cppHighlighter = new CppSyntaxHighlighter(document());
+    d->cppHighlighter.reset(new CppSyntaxHighlighter(document()));
 }
 
 CodeEditor::~CodeEditor() = default;
@@ -335,24 +335,18 @@ void CodeEditor::SetSyntaxHighlighting(bool enable)
     Q_D(CodeEditor);
     d->syntaxHighlightingEnabled = enable;
 
-    // 删除现有高亮器
-    if (d->cppHighlighter) {
-        delete d->cppHighlighter;
-        d->cppHighlighter = nullptr;
-    }
-    if (d->jx3MacroHighlighter) {
-        delete d->jx3MacroHighlighter;
-        d->jx3MacroHighlighter = nullptr;
-    }
+    // 删除现有高亮器 (QScopedPointer自动管理)
+    d->cppHighlighter.reset();
+    d->jx3MacroHighlighter.reset();
 
     // 如果启用，根据类型创建高亮器
     if (enable) {
         switch (d->syntaxType) {
         case Cpp:
-            d->cppHighlighter = new CppSyntaxHighlighter(document());
+            d->cppHighlighter.reset(new CppSyntaxHighlighter(document()));
             break;
         case JX3Macro:
-            d->jx3MacroHighlighter = new JX3MacroSyntaxHighlighter(document());
+            d->jx3MacroHighlighter.reset(new JX3MacroSyntaxHighlighter(document()));
             break;
         }
     }
@@ -373,24 +367,18 @@ void CodeEditor::SetSyntaxType(SyntaxType type)
 
     d->syntaxType = type;
 
-    // 删除旧的高亮器
-    if (d->cppHighlighter) {
-        delete d->cppHighlighter;
-        d->cppHighlighter = nullptr;
-    }
-    if (d->jx3MacroHighlighter) {
-        delete d->jx3MacroHighlighter;
-        d->jx3MacroHighlighter = nullptr;
-    }
+    // 删除旧的高亮器 (QScopedPointer自动管理)
+    d->cppHighlighter.reset();
+    d->jx3MacroHighlighter.reset();
 
     // 创建新的高亮器
     if (d->syntaxHighlightingEnabled) {
         switch (type) {
         case Cpp:
-            d->cppHighlighter = new CppSyntaxHighlighter(document());
+            d->cppHighlighter.reset(new CppSyntaxHighlighter(document()));
             break;
         case JX3Macro:
-            d->jx3MacroHighlighter = new JX3MacroSyntaxHighlighter(document());
+            d->jx3MacroHighlighter.reset(new JX3MacroSyntaxHighlighter(document()));
             break;
         }
     }

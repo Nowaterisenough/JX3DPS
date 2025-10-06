@@ -28,8 +28,14 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h*)
-file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
+set(HEADER_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_data_generator.h
+)
+
+set(SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_data_generator.cpp
+)
 
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

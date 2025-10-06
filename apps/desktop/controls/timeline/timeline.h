@@ -88,6 +88,13 @@ private:
     void SetupUI();
     void UpdateLayout();
 
+    // Paint helpers (拆分自paintEvent)
+    void DrawThumbnail(QPainter &painter);
+    void DrawMainView(QPainter &painter);
+    void DrawBuffArea(QPainter &painter);
+    void DrawHoverEffects(QPainter &painter);
+    void DrawHoverTooltip(QPainter &painter);
+
     QScopedPointer<TimelinePrivate> d_ptr;
     Q_DECLARE_PRIVATE(Timeline)
 };

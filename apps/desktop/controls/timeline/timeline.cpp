@@ -274,23 +274,15 @@ void Timeline::UpdateLayout()
     }
 }
 
-void Timeline::paintEvent(QPaintEvent *event)
+void Timeline::DrawThumbnail(QPainter &painter)
 {
-    Q_UNUSED(event);
     Q_D(Timeline);
 
-    const double FRAME_MS = 62.5;  // JX3逻辑帧：16帧/秒 = 62.5毫秒/帧
+    painter.save();
+    painter.setClipRect(d->thumbnailRect);
 
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    // 绘制缩略图
-    {
-        painter.save();
-        painter.setClipRect(d->thumbnailRect);
-
-        // 背景
-        painter.fillRect(d->thumbnailRect, QColor(30, 30, 30));
+    // 背景
+    painter.fillRect(d->thumbnailRect, QColor(30, 30, 30));
 
         // 绘制宏覆盖带（底部）
         const int macroBarHeight = 8;
@@ -373,92 +365,97 @@ void Timeline::paintEvent(QPaintEvent *event)
         painter.setBrush(Qt::NoBrush);
         painter.drawRect(d->visibleIndicator);
 
-        // 边框
-        painter.setPen(QColor(60, 60, 60));
-        painter.setBrush(Qt::NoBrush);
-        painter.drawRect(d->thumbnailRect);
+    // 边框
+    painter.setPen(QColor(60, 60, 60));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(d->thumbnailRect);
 
-        painter.restore();
-    }
+    painter.restore();
+}
 
-    // 绘制主视图
-    {
-        painter.save();
-        painter.setClipRect(d->mainViewRect);
+void Timeline::DrawMainView(QPainter &painter)
+{
+    Q_D(Timeline);
 
-        // 背景
-        painter.fillRect(d->mainViewRect, QColor(40, 40, 40));
+    painter.save();
+    painter.setClipRect(d->mainViewRect);
 
-        // 绘制时间刻度（顶部，以秒为单位）
-        int viewDuration = d->viewEndMs - d->viewStartMs;
-        if (viewDuration > 0) {
-            // 计算合适的刻度间隔
-            int tickInterval = 1000; // 1秒
-            if (viewDuration > 60000) tickInterval = 5000;  // 5秒
-            if (viewDuration > 300000) tickInterval = 10000; // 10秒
+    // 背景
+    painter.fillRect(d->mainViewRect, QColor(40, 40, 40));
 
-            painter.setPen(QColor(80, 80, 80));
-            QFont font = painter.font();
-            font.setPointSize(8);
-            painter.setFont(font);
+    // 绘制时间刻度（顶部，以秒为单位）
+    int viewDuration = d->viewEndMs - d->viewStartMs;
+    if (viewDuration > 0) {
+        // 计算合适的刻度间隔
+        int tickInterval = 1000; // 1秒
+        if (viewDuration > 60000) tickInterval = 5000;  // 5秒
+        if (viewDuration > 300000) tickInterval = 10000; // 10秒
 
-            for (int ms = (d->viewStartMs / tickInterval) * tickInterval; ms <= d->viewEndMs; ms += tickInterval) {
-                qreal ratio = qreal(ms - d->viewStartMs) / viewDuration;
-                int x = d->mainViewRect.left() + ratio * d->mainViewRect.width();
+        painter.setPen(QColor(80, 80, 80));
+        QFont font = painter.font();
+        font.setPointSize(8);
+        painter.setFont(font);
 
-                // 刻度线（从顶部向下）
-                painter.drawLine(x, d->mainViewRect.top(), x, d->mainViewRect.top() + 20);
-
-                // 时间标签（顶部）
-                QString timeLabel = QString::number(ms / 1000.0, 'f', 1) + "s";
-                painter.drawText(x - 20, d->mainViewRect.top() + 5, 40, 15, Qt::AlignCenter, timeLabel);
-            }
-        }
-
-        // 绘制所有事件图标（正常状态，跳过hover的）
-        painter.setPen(Qt::NoPen);
-        const int iconSize = 40;
-        const int iconY = d->mainViewRect.top() + 30;
-
-        for (int i = 0; i < d->events.size(); ++i) {
-            // 跳过悬停的图标（稍后单独绘制）
-            if (i == d->hoveredEventIndex) {
-                continue;
-            }
-
-            const auto &event = d->events[i];
-
-            // 只绘制可见范围内的事件（性能优化）
-            if (event.timestamp < d->viewStartMs || event.timestamp > d->viewEndMs) {
-                continue;
-            }
-
-            qreal ratio = qreal(event.timestamp - d->viewStartMs) / viewDuration;
+        for (int ms = (d->viewStartMs / tickInterval) * tickInterval; ms <= d->viewEndMs; ms += tickInterval) {
+            qreal ratio = qreal(ms - d->viewStartMs) / viewDuration;
             int x = d->mainViewRect.left() + ratio * d->mainViewRect.width();
 
-            // 绘制事件图标
-            if (!event.icon.isNull()) {
-                // 裁剪掉图标最外3圈像素，并绘制
-                QRect sourceRect(3, 3, event.icon.width() - 6, event.icon.height() - 6);
-                QRect targetRect(x - iconSize / 2 + 3, iconY + 3, iconSize - 6, iconSize - 6);
-                painter.drawPixmap(targetRect, event.icon, sourceRect);
+            // 刻度线（从顶部向下）
+            painter.drawLine(x, d->mainViewRect.top(), x, d->mainViewRect.top() + 20);
 
-                // 绘制灰黑色边框（1像素宽，在裁剪后图标的内侧）
-                painter.setPen(QPen(QColor(60, 60, 60), 1));
-                painter.setBrush(Qt::NoBrush);
-                painter.drawRoundedRect(targetRect.adjusted(0.5, 0.5, -0.5, -0.5), 3, 3);
-                painter.setPen(Qt::NoPen);
-            } else {
-                // 无图标时绘制简单标记
-                painter.setBrush(event.color);
-                painter.drawRect(x - 2, iconY, 4, 40);
-            }
+            // 时间标签（顶部）
+            QString timeLabel = QString::number(ms / 1000.0, 'f', 1) + "s";
+            painter.drawText(x - 20, d->mainViewRect.top() + 5, 40, 15, Qt::AlignCenter, timeLabel);
         }
-
-        painter.restore();
     }
 
-    // 绘制Buff区域
+    // 绘制所有事件图标（正常状态，跳过hover的）
+    painter.setPen(Qt::NoPen);
+    const int iconSize = 40;
+    const int iconY = d->mainViewRect.top() + 30;
+
+    for (int i = 0; i < d->events.size(); ++i) {
+        // 跳过悬停的图标（稍后单独绘制）
+        if (i == d->hoveredEventIndex) {
+            continue;
+        }
+
+        const auto &event = d->events[i];
+
+        // 只绘制可见范围内的事件（性能优化）
+        if (event.timestamp < d->viewStartMs || event.timestamp > d->viewEndMs) {
+            continue;
+        }
+
+        qreal ratio = qreal(event.timestamp - d->viewStartMs) / viewDuration;
+        int x = d->mainViewRect.left() + ratio * d->mainViewRect.width();
+
+        // 绘制事件图标
+        if (!event.icon.isNull()) {
+            // 裁剪掉图标最外3圈像素，并绘制
+            QRect sourceRect(3, 3, event.icon.width() - 6, event.icon.height() - 6);
+            QRect targetRect(x - iconSize / 2 + 3, iconY + 3, iconSize - 6, iconSize - 6);
+            painter.drawPixmap(targetRect, event.icon, sourceRect);
+
+            // 绘制灰黑色边框（1像素宽，在裁剪后图标的内侧）
+            painter.setPen(QPen(QColor(60, 60, 60), 1));
+            painter.setBrush(Qt::NoBrush);
+            painter.drawRoundedRect(targetRect.adjusted(0.5, 0.5, -0.5, -0.5), 3, 3);
+            painter.setPen(Qt::NoPen);
+        } else {
+            // 无图标时绘制简单标记
+            painter.setBrush(event.color);
+            painter.drawRect(x - 2, iconY, 4, 40);
+        }
+    }
+
+    painter.restore();
+}
+
+void Timeline::DrawBuffArea(QPainter &painter)
+{
+    Q_D(Timeline);
+
     if (!d->buffs.isEmpty() && d->buffAreaRect.isValid()) {
         painter.save();
         painter.setClipRect(d->buffAreaRect);
@@ -540,8 +537,13 @@ void Timeline::paintEvent(QPaintEvent *event)
 
         painter.restore();
     }
+}
 
-    // 绘制悬停效果（在buff区域之上，在浮窗之下）
+void Timeline::DrawHoverEffects(QPainter &painter)
+{
+    Q_D(Timeline);
+    const double FRAME_MS = 62.5;  // JX3逻辑帧：16帧/秒 = 62.5毫秒/帧
+
     if (d->hoveredEventIndex >= 0 && d->hoveredEventIndex < d->events.size()) {
         const auto &hoveredEvent = d->events[d->hoveredEventIndex];
         int viewDuration = d->viewEndMs - d->viewStartMs;
@@ -649,8 +651,13 @@ void Timeline::paintEvent(QPaintEvent *event)
             painter.restore();
         }
     }
+}
 
-    // 绘制统一的悬停信息浮窗（最上层）
+void Timeline::DrawHoverTooltip(QPainter &painter)
+{
+    Q_D(Timeline);
+    const double FRAME_MS = 62.5;  // JX3逻辑帧：16帧/秒 = 62.5毫秒/帧
+
     if (d->hoveredEventIndex >= 0 && d->hoveredEventIndex < d->events.size()) {
         const auto &hoveredEvent = d->events[d->hoveredEventIndex];
         int viewDuration = d->viewEndMs - d->viewStartMs;
@@ -765,6 +772,20 @@ void Timeline::paintEvent(QPaintEvent *event)
             painter.restore();
         }
     }
+}
+
+void Timeline::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    DrawThumbnail(painter);
+    DrawMainView(painter);
+    DrawBuffArea(painter);
+    DrawHoverEffects(painter);
+    DrawHoverTooltip(painter);
 }
 
 void Timeline::resizeEvent(QResizeEvent *event)

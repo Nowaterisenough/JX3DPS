@@ -35,6 +35,8 @@ struct DebugSimulator::Impl
 
     // 宏文本的所有行（用于行号映射）
     QStringList macroLines;
+    // exprSkills 索引到源代码行号的映射（1-based）
+    std::vector<int> exprSkillsLineMap;
 };
 
 DebugSimulator::DebugSimulator(QObject *parent)
@@ -61,8 +63,9 @@ bool DebugSimulator::Initialize(const QString &macroText, QString &errorMessage)
     QString currentMacroName;
     std::list<std::string> currentMacroLines;
 
-    for (const QString &line : lines) {
-        QString trimmed = line.trimmed();
+    for (int i = 0; i < lines.size(); ++i) {
+        QString trimmed = lines[i].trimmed();
+        int lineNumber = i + 1;  // 1-based
 
         // 跳过空行和注释
         if (trimmed.isEmpty() || trimmed.startsWith('#')) {
@@ -82,6 +85,8 @@ bool DebugSimulator::Initialize(const QString &macroText, QString &errorMessage)
         // 宏指令
         else {
             currentMacroLines.push_back(trimmed.toStdString());
+            // 记录这条指令对应的源代码行号
+            d->exprSkillsLineMap.push_back(lineNumber);
         }
     }
 
@@ -219,13 +224,50 @@ bool DebugSimulator::StepOne()
                 qDebug() << "CastSkills 返回技能ID:" << static_cast<int>(skillId);
                 d->lastSkill = QString("施放技能ID:%1").arg(static_cast<int>(skillId));
 
-                // 成功施放技能，跳到下一行可执行的宏指令
-                do {
-                    d->currentMacroLine++;
-                } while (d->currentMacroLine <= d->macroLines.size() &&
-                         (d->macroLines[d->currentMacroLine - 1].trimmed().isEmpty() ||
-                          d->macroLines[d->currentMacroLine - 1].trimmed().startsWith('#') ||
-                          d->macroLines[d->currentMacroLine - 1].trimmed().startsWith("macro")));
+                // 找出是哪条 exprSkills 指令被执行了
+                // 遍历 exprSkills，找到第一个满足条件且返回此技能ID的指令
+                int matchedIndex = -1;
+                int index = 0;
+                for (auto iter = d->exprSkills.begin(); iter != d->exprSkills.end(); ++iter, ++index) {
+                    // 检查前置条件（冷却、距离、读条）
+                    bool precondition = true;
+                    for (auto &exprIf : *std::next(iter->first.begin())) {
+                        if (!exprIf(d->player, d->targets)) {
+                            precondition = false;
+                            break;
+                        }
+                    }
+                    if (!precondition) {
+                        continue;
+                    }
+
+                    // 检查施放条件
+                    bool castSuccess = false;
+                    for (auto it = std::next(std::next(iter->first.begin())); it != iter->first.end(); ++it) {
+                        castSuccess = true;
+                        for (auto &exprIf : *it) {
+                            if (!exprIf(d->player, d->targets)) {
+                                castSuccess = false;
+                                break;
+                            }
+                        }
+                        if (castSuccess) {
+                            break;
+                        }
+                    }
+
+                    // 检查技能ID是否匹配
+                    if (castSuccess && iter->second == skillId) {
+                        matchedIndex = index;
+                        break;
+                    }
+                }
+
+                // 更新当前行号为匹配的指令所在的源代码行
+                if (matchedIndex >= 0 && matchedIndex < static_cast<int>(d->exprSkillsLineMap.size())) {
+                    d->currentMacroLine = d->exprSkillsLineMap[matchedIndex];
+                    qDebug() << "匹配到 exprSkills 索引" << matchedIndex << ", 对应源代码行" << d->currentMacroLine;
+                }
             }
         } catch (const std::exception &e) {
             qDebug() << "CastSkills 抛出异常:" << e.what();

@@ -45,7 +45,7 @@ void DebugSession::Start(const QString &macroText)
     // 初始化调试信息（从模拟器获取真实状态）
     auto playerState = m_simulator->GetPlayerState();
     m_debugInfo = {};
-    m_debugInfo.lineNumber = 1;
+    m_debugInfo.lineNumber = playerState.currentMacroLine;  // 使用模拟器返回的行号
     m_debugInfo.frameIndex = 0;
     m_debugInfo.currentFrame = playerState.currentFrame;
     m_debugInfo.currentSeconds = playerState.currentSeconds;

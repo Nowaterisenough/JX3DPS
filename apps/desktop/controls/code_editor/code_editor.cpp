@@ -4,11 +4,15 @@
 #include <QTextBlock>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QPaintEvent>
 #include <QRegularExpression>
 #include <QMenu>
 #include <QClipboard>
 #include <QApplication>
 #include <QStyleOptionMenuItem>
+#include <QTimer>
+#include <QToolTip>
+#include <QHelpEvent>
 #include "resources.h"
 
 // ============================================================================
@@ -150,8 +154,14 @@ public:
         cppHighlighter(nullptr),
         jx3MacroHighlighter(nullptr),
         currentDebugLine(-1),
+        syntaxCheckEnabled(true),
+        syntaxChecker(nullptr),
+        syntaxCheckTimer(new QTimer(q)),
         q_ptr(q)
     {
+        // 配置语法检测定时器：延迟500ms执行，避免频繁检测
+        syntaxCheckTimer->setSingleShot(true);
+        syntaxCheckTimer->setInterval(500);
     }
 
     LineNumberArea              *lineNumberArea;
@@ -164,6 +174,12 @@ public:
     QScopedPointer<JX3MacroSyntaxHighlighter> jx3MacroHighlighter;
     QSet<int>                    breakpoints;       // 断点集合（行号从1开始）
     int                          currentDebugLine;  // 当前调试行（-1表示无）
+
+    // 语法检测
+    bool                         syntaxCheckEnabled;     // 是否启用语法检测
+    QScopedPointer<SyntaxChecker> syntaxChecker;        // 语法检测器
+    QList<SyntaxError>           syntaxErrors;          // 当前语法错误列表
+    QTimer                       *syntaxCheckTimer;     // 延迟检测定时器
 
 private:
     CodeEditor *q_ptr;
@@ -184,6 +200,10 @@ CodeEditor::CodeEditor(QWidget *parent) :
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::UpdateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::UpdateLineNumberArea);
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::HighlightCurrentLine);
+
+    // 连接语法检测信号
+    connect(this, &CodeEditor::textChanged, d->syntaxCheckTimer, static_cast<void(QTimer::*)()>(&QTimer::start));
+    connect(d->syntaxCheckTimer, &QTimer::timeout, this, &CodeEditor::CheckSyntax);
 
     UpdateLineNumberAreaWidth(0);
     HighlightCurrentLine();
@@ -212,6 +232,9 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
     // 默认启用 C++ 语法高亮
     d->cppHighlighter.reset(new CppSyntaxHighlighter(document()));
+
+    // 默认启用 JX3Macro 语法检测器（因为默认是 C++，稍后会根据类型切换）
+    d->syntaxChecker.reset(new JX3MacroSyntaxChecker(this));
 }
 
 CodeEditor::~CodeEditor() = default;
@@ -264,12 +287,95 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
     d->lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), LineNumberAreaWidth(), cr.height()));
 }
 
+void CodeEditor::paintEvent(QPaintEvent *event)
+{
+    Q_D(CodeEditor);
+
+    // 先调用基类绘制
+    QPlainTextEdit::paintEvent(event);
+
+    // 如果没有语法错误，直接返回
+    if (!d->syntaxCheckEnabled || d->syntaxErrors.isEmpty()) {
+        return;
+    }
+
+    // 按行号分组错误信息（仅显示 Error 级别）
+    QMap<int, QStringList> errorsByLine;
+    for (const SyntaxError &error : d->syntaxErrors) {
+        if (error.severity == SyntaxError::Error) {
+            errorsByLine[error.line].append(error.message);
+        }
+    }
+
+    if (errorsByLine.isEmpty()) {
+        return;
+    }
+
+    // 绘制行尾错误信息
+    QPainter painter(viewport());
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QFont errorFont = font();
+    errorFont.setItalic(true);
+    painter.setFont(errorFont);
+    painter.setPen(QColor(255, 73, 73)); // 红色
+
+    for (auto it = errorsByLine.constBegin(); it != errorsByLine.constEnd(); ++it) {
+        int lineNumber = it.key();
+        const QStringList &messages = it.value();
+
+        QTextBlock block = document()->findBlockByLineNumber(lineNumber - 1);
+        if (!block.isValid()) continue;
+
+        // 计算行的绘制位置
+        QRectF blockRect = blockBoundingGeometry(block).translated(contentOffset());
+        int top = qRound(blockRect.top());
+        int height = qRound(blockRect.height());
+
+        // 计算行尾位置
+        QString lineText = block.text();
+        QFontMetrics fm(font());
+        int textWidth = fm.horizontalAdvance(lineText);
+        int xPos = textWidth + 20; // 距离行尾20像素
+
+        // 绘制错误信息
+        QString errorText = "  // Error: " + messages.join("; ");
+        painter.drawText(xPos, top, viewport()->width() - xPos, height,
+                        Qt::AlignLeft | Qt::AlignVCenter, errorText);
+    }
+}
+
 void CodeEditor::HighlightCurrentLine()
 {
     Q_D(CodeEditor);
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    // 优先绘制调试行高亮（黄色背景）
+    // 1. 绘制语法错误下划线（最底层）
+    if (d->syntaxCheckEnabled && !d->syntaxErrors.isEmpty()) {
+        for (const SyntaxError &error : d->syntaxErrors) {
+            QTextBlock block = document()->findBlockByLineNumber(error.line - 1);
+            if (!block.isValid()) continue;
+
+            QTextEdit::ExtraSelection errorSelection;
+            QTextCharFormat format;
+
+            if (error.severity == SyntaxError::Error) {
+                format.setUnderlineColor(QColor(255, 73, 73)); // VSCode 红色 #ff4949
+                format.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline); // 更粗的波浪线
+            } else {
+                format.setUnderlineColor(QColor(255, 165, 0)); // 橙色（警告）
+                format.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+            }
+
+            errorSelection.format = format;
+            errorSelection.cursor = QTextCursor(block);
+            errorSelection.cursor.setPosition(block.position() + error.column);
+            errorSelection.cursor.setPosition(block.position() + error.column + error.length, QTextCursor::KeepAnchor);
+            extraSelections.append(errorSelection);
+        }
+    }
+
+    // 2. 绘制调试行高亮（黄色背景）
     if (d->currentDebugLine > 0) {
         QTextBlock debugBlock = document()->findBlockByLineNumber(d->currentDebugLine - 1);
         if (debugBlock.isValid()) {
@@ -282,7 +388,7 @@ void CodeEditor::HighlightCurrentLine()
         }
     }
 
-    // 绘制当前行高亮（深灰色背景）
+    // 3. 绘制当前行高亮（深灰色背景）
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
         selection.format.setBackground(d->currentLineColor);
@@ -419,6 +525,39 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
     QPlainTextEdit::keyPressEvent(event);
 }
 
+bool CodeEditor::event(QEvent *event)
+{
+    Q_D(CodeEditor);
+
+    // 处理工具提示事件（鼠标悬停）
+    if (event->type() == QEvent::ToolTip) {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        QTextCursor cursor = cursorForPosition(helpEvent->pos());
+        int line = cursor.blockNumber() + 1;
+        int column = cursor.positionInBlock();
+
+        // 查找当前位置的错误
+        QString tooltipText;
+        for (const SyntaxError &error : d->syntaxErrors) {
+            if (error.line == line && column >= error.column && column < error.column + error.length) {
+                if (!tooltipText.isEmpty()) {
+                    tooltipText += "\n";
+                }
+                tooltipText += error.message;
+            }
+        }
+
+        if (!tooltipText.isEmpty()) {
+            QToolTip::showText(helpEvent->globalPos(), tooltipText, this);
+        } else {
+            QToolTip::hideText();
+        }
+        return true;
+    }
+
+    return QPlainTextEdit::event(event);
+}
+
 void CodeEditor::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu *menu = new QMenu(this);
@@ -463,6 +602,12 @@ void CodeEditor::contextMenuEvent(QContextMenuEvent *event)
     selectAllAction->setEnabled(hasText);
     connect(selectAllAction, &QAction::triggered, this, &CodeEditor::selectAll);
 
+    // 格式化
+    QAction *formatAction = menu->addAction("格式化\tShift+Alt+F");
+    formatAction->setShortcut(QKeySequence("Shift+Alt+F"));
+    formatAction->setEnabled(hasText && !isReadOnly());
+    connect(formatAction, &QAction::triggered, this, &CodeEditor::FormatDocument);
+
     menu->addSeparator();
 
     // 撤销
@@ -476,14 +621,6 @@ void CodeEditor::contextMenuEvent(QContextMenuEvent *event)
     redoAction->setShortcut(QKeySequence::Redo);
     redoAction->setEnabled(document()->isRedoAvailable() && !isReadOnly());
     connect(redoAction, &QAction::triggered, this, &CodeEditor::redo);
-
-    menu->addSeparator();
-
-    // 格式化
-    QAction *formatAction = menu->addAction("格式化文档\tShift+Alt+F");
-    formatAction->setShortcut(QKeySequence("Shift+Alt+F"));
-    formatAction->setEnabled(hasText && !isReadOnly());
-    connect(formatAction, &QAction::triggered, this, &CodeEditor::FormatDocument);
 
     menu->exec(event->globalPos());
     menu->deleteLater();
@@ -582,6 +719,20 @@ void CodeEditor::SetSyntaxType(SyntaxType type)
             break;
         }
     }
+
+    // 切换语法检测器
+    switch (type) {
+    case JX3Macro:
+        d->syntaxChecker.reset(new JX3MacroSyntaxChecker(this));
+        break;
+    case Cpp:
+        // C++ 暂时没有检测器
+        d->syntaxChecker.reset(nullptr);
+        break;
+    }
+
+    // 重新执行语法检测
+    CheckSyntax();
 }
 
 CodeEditor::SyntaxType CodeEditor::GetSyntaxType() const
@@ -963,6 +1114,305 @@ void JX3MacroSyntaxHighlighter::highlightBlock(const QString &text)
 }
 
 // ============================================================================
+// 语法检测
+// ============================================================================
+
+void CodeEditor::SetSyntaxCheckEnabled(bool enable)
+{
+    Q_D(CodeEditor);
+    d->syntaxCheckEnabled = enable;
+
+    if (enable) {
+        // 立即执行一次检测
+        CheckSyntax();
+    } else {
+        // 清除所有错误标记
+        d->syntaxErrors.clear();
+        HighlightCurrentLine();
+    }
+}
+
+bool CodeEditor::IsSyntaxCheckEnabled() const
+{
+    Q_D(const CodeEditor);
+    return d->syntaxCheckEnabled;
+}
+
+QList<SyntaxError> CodeEditor::GetSyntaxErrors() const
+{
+    Q_D(const CodeEditor);
+    return d->syntaxErrors;
+}
+
+void CodeEditor::CheckSyntax()
+{
+    Q_D(CodeEditor);
+
+    if (!d->syntaxCheckEnabled || !d->syntaxChecker) {
+        return;
+    }
+
+    // 执行语法检测
+    d->syntaxErrors = d->syntaxChecker->Check(document());
+
+    // 刷新高亮显示
+    HighlightCurrentLine();
+}
+
+// ============================================================================
+// JX3MacroSyntaxChecker Implementation
+// ============================================================================
+
+JX3MacroSyntaxChecker::JX3MacroSyntaxChecker(QObject *parent) : SyntaxChecker(parent) {}
+
+QList<SyntaxError> JX3MacroSyntaxChecker::Check(QTextDocument *document)
+{
+    QList<SyntaxError> errors;
+
+    for (QTextBlock block = document->begin(); block.isValid(); block = block.next()) {
+        QString line = block.text();
+        int lineNumber = block.blockNumber() + 1;
+
+        // 跳过空行和注释
+        QString trimmed = line.trimmed();
+        if (trimmed.isEmpty() || trimmed.startsWith('#') || trimmed.startsWith("//")) {
+            continue;
+        }
+
+        // 检测方括号匹配（优先级最高）
+        CheckBrackets(line, lineNumber, errors);
+
+        // 检测 macro 定义行
+        if (trimmed.startsWith("macro ")) {
+            CheckMacroLine(line, lineNumber, errors);
+        }
+        // 检测命令行
+        else if (trimmed.startsWith('/')) {
+            CheckCommandLine(line, lineNumber, errors);
+        }
+
+        // 检测多余空格（所有行）
+        CheckExtraSpaces(line, lineNumber, errors);
+    }
+
+    return errors;
+}
+
+void JX3MacroSyntaxChecker::CheckCommandLine(const QString &line, int lineNumber, QList<SyntaxError> &errors)
+{
+    QString trimmed = line.trimmed();
+
+    // 定义合法命令列表
+    QStringList validCommands = {
+        "/cast", "/fcast", "/scast", "/sfcast",
+        "/switch", "/add_target", "/set_target", "/change_target",
+        "/add_buff", "/clear_buff", "/stop", "/continue", "/end"
+    };
+
+    // 提取命令（第一个单词）
+    int spaceIndex = trimmed.indexOf(' ');
+    QString command = (spaceIndex > 0) ? trimmed.left(spaceIndex) : trimmed;
+
+    // 检查命令是否合法
+    if (!validCommands.contains(command)) {
+        int column = line.indexOf(command);
+        errors.append(SyntaxError(lineNumber, column, command.length(),
+                                  SyntaxError::Error,
+                                  QString("未知命令: %1").arg(command)));
+        return;
+    }
+
+    // 检查 cast 命令是否有技能参数
+    if ((command == "/cast" || command == "/fcast" || command == "/scast" || command == "/sfcast")) {
+        QString afterCommand = trimmed.mid(command.length()).trimmed();
+
+        // 检查是否有条件表达式（方括号）
+        int bracketStart = static_cast<int>(afterCommand.indexOf('['));
+        int bracketEnd = static_cast<int>(afterCommand.indexOf(']'));
+
+        QString skillPart;
+        if (bracketStart >= 0 && bracketEnd > bracketStart) {
+            // 有条件表达式：技能名可能在方括号前或后
+            QString beforeBracket = afterCommand.left(bracketStart).trimmed();
+            QString afterBracket = afterCommand.mid(bracketEnd + 1).trimmed();
+
+            // 技能名在方括号前或后都可以
+            if (!beforeBracket.isEmpty()) {
+                skillPart = beforeBracket;
+            } else if (!afterBracket.isEmpty()) {
+                skillPart = afterBracket;
+            }
+        } else {
+            // 没有条件表达式
+            skillPart = afterCommand;
+        }
+
+        if (skillPart.isEmpty()) {
+            int column = static_cast<int>(line.indexOf(command)) + command.length();
+            errors.append(SyntaxError(lineNumber, column, 1,
+                                      SyntaxError::Error,
+                                      QString("%1 命令缺少技能名称").arg(command)));
+        }
+    }
+
+    // 检测条件表达式
+    CheckConditions(line, lineNumber, errors);
+}
+
+void JX3MacroSyntaxChecker::CheckMacroLine(const QString &line, int lineNumber, QList<SyntaxError> &errors)
+{
+    QString trimmed = line.trimmed();
+
+    // macro 定义格式: macro 宏名称
+    QRegularExpression macroPattern("^macro\\s+(\\S+)(.*)$");
+    QRegularExpressionMatch match = macroPattern.match(trimmed);
+
+    if (!match.hasMatch()) {
+        int column = line.indexOf("macro");
+        errors.append(SyntaxError(lineNumber, column, 5,
+                                  SyntaxError::Error,
+                                  "macro 定义格式错误，正确格式: macro 宏名称"));
+        return;
+    }
+
+    // 检查是否有多余内容
+    QString extraContent = match.captured(2).trimmed();
+    if (!extraContent.isEmpty()) {
+        int column = line.indexOf(extraContent);
+        errors.append(SyntaxError(lineNumber, column, extraContent.length(),
+                                  SyntaxError::Warning,
+                                  "macro 定义后有多余内容"));
+    }
+}
+
+void JX3MacroSyntaxChecker::CheckConditions(const QString &line, int lineNumber, QList<SyntaxError> &errors)
+{
+    // 查找方括号内的条件表达式
+    QRegularExpression bracketPattern("\\[([^\\]]*)\\]");
+    QRegularExpressionMatchIterator it = bracketPattern.globalMatch(line);
+
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        QString conditions = match.captured(1);
+
+        // 检查条件是否为空
+        if (conditions.trimmed().isEmpty()) {
+            int column = match.capturedStart();
+            errors.append(SyntaxError(lineNumber, column, match.capturedLength(),
+                                      SyntaxError::Warning,
+                                      "条件表达式为空"));
+            continue;
+        }
+
+        // 检查中括号内是否包含空格（不允许）
+        if (conditions.contains(' ')) {
+            int spacePos = static_cast<int>(conditions.indexOf(' '));
+            int column = static_cast<int>(match.capturedStart()) + 1 + spacePos; // +1 跳过左括号
+            errors.append(SyntaxError(lineNumber, column, 1,
+                                      SyntaxError::Error,
+                                      "条件表达式中不允许有空格"));
+        }
+
+        // 分割多个条件（用 & 或 | 分隔）
+        QStringList condList = conditions.split(QRegularExpression("[&|]"));
+
+        for (const QString &cond : condList) {
+            if (cond.isEmpty()) continue;
+
+            // 定义合法的条件关键字
+            QStringList validKeywords = {
+                "buff", "nobuff", "bufftime", "tbuff", "tnobuff", "tbufftime",
+                "Buff", "Duff", "ebufftime",
+                "qidian", "energy", "sun", "moon", "sun_power", "moon_power",
+                "skill_energy", "skill", "noskill", "last_skill", "skill_cd", "skill_notin_cd",
+                "life", "mana", "rage", "tlife", "tmana", "trage",
+                "npclevel", "nearby_enemy", "yaoxing", "dead",
+                "id", "name", "stack_num", "duration", "distance", "shield", "level"
+            };
+
+            // 提取条件关键字（冒号或运算符之前的部分）
+            QRegularExpression keywordPattern("^(\\w+)[:><=~]");
+            QRegularExpressionMatch kwMatch = keywordPattern.match(cond);
+
+            if (kwMatch.hasMatch()) {
+                QString keyword = kwMatch.captured(1);
+                if (!validKeywords.contains(keyword)) {
+                    int column = line.indexOf(keyword, match.capturedStart());
+                    if (column >= 0) {
+                        errors.append(SyntaxError(lineNumber, column, keyword.length(),
+                                                  SyntaxError::Warning,
+                                                  QString("未知条件关键字: %1").arg(keyword)));
+                    }
+                }
+            }
+        }
+    }
+}
+
+void JX3MacroSyntaxChecker::CheckExtraSpaces(const QString &line, int lineNumber, QList<SyntaxError> &errors)
+{
+    // 检测行尾空格
+    if (line.endsWith(' ') || line.endsWith('\t')) {
+        int column = line.length() - 1;
+        while (column > 0 && (line[column] == ' ' || line[column] == '\t')) {
+            column--;
+        }
+        column++; // 指向第一个尾部空格
+
+        errors.append(SyntaxError(lineNumber, column, line.length() - column,
+                                  SyntaxError::Warning,
+                                  "行尾有多余空格"));
+    }
+
+    // 检测多个连续空格（排除缩进）
+    QString trimmed = line.trimmed();
+    if (!trimmed.isEmpty()) {
+        int indentEnd = line.indexOf(trimmed);
+        QString content = line.mid(indentEnd);
+
+        QRegularExpression multiSpacePattern("  +"); // 2个或以上连续空格
+        QRegularExpressionMatchIterator it = multiSpacePattern.globalMatch(content);
+
+        while (it.hasNext()) {
+            QRegularExpressionMatch match = it.next();
+            int column = indentEnd + match.capturedStart();
+            errors.append(SyntaxError(lineNumber, column, match.capturedLength(),
+                                      SyntaxError::Warning,
+                                      "有多个连续空格"));
+        }
+    }
+}
+
+void JX3MacroSyntaxChecker::CheckBrackets(const QString &line, int lineNumber, QList<SyntaxError> &errors)
+{
+    int depth = 0;
+    int lastOpenIndex = -1;
+
+    for (int i = 0; i < line.length(); ++i) {
+        if (line[i] == '[') {
+            depth++;
+            lastOpenIndex = i;
+        } else if (line[i] == ']') {
+            depth--;
+            if (depth < 0) {
+                // 多余的右括号
+                errors.append(SyntaxError(lineNumber, i, 1,
+                                          SyntaxError::Error,
+                                          "多余的右方括号 ']'"));
+                return;
+            }
+        }
+    }
+
+    // 缺少右括号
+    if (depth > 0 && lastOpenIndex >= 0) {
+        errors.append(SyntaxError(lineNumber, lastOpenIndex, 1,
+                                  SyntaxError::Error,
+                                  "缺少右方括号 ']'"));
+    }
+}
+
+// ============================================================================
 // 代码格式化
 // ============================================================================
 
@@ -992,12 +1442,12 @@ void CodeEditor::FormatDocument()
         // 如果以 macro 开头，不缩进
         if (trimmed.startsWith("macro ")) {
             indentLevel = 0;
-            formatted = trimmed;
+            formatted = FormatMacroLine(trimmed);
         }
-        // 如果以命令开头，缩进一级
+        // 如果以命令开头，缩进一级并格式化
         else if (trimmed.startsWith('/')) {
             indentLevel = 1;
-            formatted = indentString + trimmed;
+            formatted = indentString + FormatCommandLine(trimmed);
         }
         // 时间格式（事件语句）
         else if (QRegularExpression("^\\d+:\\d+\\.\\d+").match(trimmed).hasMatch()) {
@@ -1018,4 +1468,104 @@ void CodeEditor::FormatDocument()
     cursor.select(QTextCursor::Document);
     cursor.insertText(formattedLines.join('\n'));
     cursor.endEditBlock();
+}
+
+QString CodeEditor::FormatCommandLine(const QString &line)
+{
+    QString trimmed = line.trimmed();
+
+    // 提取命令部分（第一个单词）
+    int firstSpace = static_cast<int>(trimmed.indexOf(' '));
+    if (firstSpace < 0) {
+        return trimmed; // 只有命令，没有参数
+    }
+
+    QString command = trimmed.left(firstSpace);
+    QString afterCommand = trimmed.mid(firstSpace + 1);
+
+    // 查找条件表达式（方括号）
+    int bracketStart = static_cast<int>(afterCommand.indexOf('['));
+
+    if (bracketStart < 0) {
+        // 没有条件表达式，只规范化空格：命令 参数
+        return command + " " + afterCommand.trimmed();
+    }
+
+    // 有条件表达式
+    QString beforeBracket = afterCommand.left(bracketStart).trimmed();
+    QString fromBracket = afterCommand.mid(bracketStart);
+
+    // 找到右括号位置
+    int bracketEnd = static_cast<int>(fromBracket.indexOf(']'));
+    if (bracketEnd < 0) {
+        // 没有右括号，返回原样（会被语法检测捕获）
+        return command + " " + afterCommand.trimmed();
+    }
+
+    // 提取条件表达式和括号后的内容
+    QString bracketContent = fromBracket.left(bracketEnd + 1);
+    QString afterBracket = fromBracket.mid(bracketEnd + 1).trimmed();
+
+    // 格式化条件表达式（移除内部空格）
+    QString formattedCondition = FormatConditionExpression(bracketContent);
+
+    // 重组：/命令 [条件] 名称
+    QStringList parts;
+    parts.append(command);
+
+    if (!beforeBracket.isEmpty()) {
+        parts.append(beforeBracket); // 条件前的参数
+    }
+
+    parts.append(formattedCondition); // 条件
+
+    if (!afterBracket.isEmpty()) {
+        parts.append(afterBracket); // 条件后的参数
+    }
+
+    return parts.join(" ");
+}
+
+QString CodeEditor::FormatConditionExpression(const QString &expr)
+{
+    QString result = expr;
+
+    // 查找所有方括号对
+    QRegularExpression bracketPattern(R"(\[([^\]]*)\])");
+    QRegularExpressionMatchIterator it = bracketPattern.globalMatch(expr);
+
+    // 从后向前替换（避免位置偏移）
+    QList<QRegularExpressionMatch> matches;
+    while (it.hasNext()) {
+        matches.append(it.next());
+    }
+
+    for (int i = static_cast<int>(matches.size()) - 1; i >= 0; --i) {
+        const QRegularExpressionMatch &match = matches[i];
+        QString conditions = match.captured(1);
+
+        // 移除条件内的所有空格
+        QString noSpaces = conditions;
+        (void)noSpaces.remove(' ');
+
+        // 替换原始表达式
+        result.replace(static_cast<int>(match.capturedStart()), static_cast<int>(match.capturedLength()), "[" + noSpaces + "]");
+    }
+
+    return result;
+}
+
+QString CodeEditor::FormatMacroLine(const QString &line)
+{
+    QString trimmed = line.trimmed();
+
+    // macro 定义格式: macro 宏名称
+    QRegularExpression macroPattern("^macro\\s+(\\S+)");
+    QRegularExpressionMatch match = macroPattern.match(trimmed);
+
+    if (match.hasMatch()) {
+        return "macro " + match.captured(1);
+    }
+
+    return trimmed;
 }

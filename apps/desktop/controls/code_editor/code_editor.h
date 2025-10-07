@@ -8,6 +8,27 @@
 
 class CodeEditorPrivate;
 class LineNumberArea;
+class SyntaxChecker;
+
+/**
+ * @brief 语法错误信息
+ */
+struct SyntaxError
+{
+    enum Severity {
+        Warning,    // 警告（黄色波浪线）
+        Error       // 错误（红色波浪线）
+    };
+
+    int      line;          // 行号（从1开始）
+    int      column;        // 列号（从0开始）
+    int      length;        // 错误范围长度
+    Severity severity;      // 严重程度
+    QString  message;       // 错误消息
+
+    SyntaxError(int l, int c, int len, Severity sev, const QString &msg)
+        : line(l), column(c), length(len), severity(sev), message(msg) {}
+};
 
 /**
  * @brief 自定义菜单样式代理
@@ -87,6 +108,11 @@ public:
     // 代码格式化
     void         FormatDocument();                              // 格式化整个文档
 
+    // 语法检测
+    void         SetSyntaxCheckEnabled(bool enable);            // 启用/禁用语法检测
+    bool         IsSyntaxCheckEnabled() const;                  // 是否启用语法检测
+    QList<SyntaxError> GetSyntaxErrors() const;                 // 获取当前语法错误列表
+
 signals:
     void BreakpointAdded(int lineNumber);                       // 断点添加信号
     void BreakpointRemoved(int lineNumber);                     // 断点移除信号
@@ -96,16 +122,24 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    bool event(QEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private slots:
     void UpdateLineNumberAreaWidth(int newBlockCount);
     void HighlightCurrentLine();
     void UpdateLineNumberArea(const QRect &rect, int dy);
+    void CheckSyntax();                                         // 执行语法检测
 
 private:
     friend class LineNumberArea;
     QScopedPointer<CodeEditorPrivate> d_ptr;
     Q_DECLARE_PRIVATE(CodeEditor)
+
+    // 格式化辅助函数
+    static QString FormatCommandLine(const QString &line);               // 格式化命令行
+    static QString FormatConditionExpression(const QString &expr);       // 格式化条件表达式
+    static QString FormatMacroLine(const QString &line);                 // 格式化宏定义行
 };
 
 /**
@@ -191,6 +225,56 @@ private:
     QTextCharFormat operatorFormat;     // 操作符 = > < & |
     QTextCharFormat numberFormat;       // 数字
     QTextCharFormat commentFormat;      // 注释
+};
+
+/**
+ * @brief 语法检测器基类
+ */
+class SyntaxChecker : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit SyntaxChecker(QObject *parent = nullptr) : QObject(parent) {}
+    virtual ~SyntaxChecker() = default;
+
+    /**
+     * @brief 检测文档中的语法错误
+     * @param document 要检测的文档
+     * @return 语法错误列表
+     */
+    virtual QList<SyntaxError> Check(QTextDocument *document) = 0;
+};
+
+/**
+ * @brief JX3宏语法检测器
+ *
+ * 检测规则：
+ * 1. 命令格式错误（/cast, /fcast 等）
+ * 2. 条件语法错误（buff:, nobuff: 等）
+ * 3. 多余的空格
+ * 4. 缺失的参数
+ * 5. 不匹配的方括号
+ */
+class JX3MacroSyntaxChecker : public SyntaxChecker
+{
+    Q_OBJECT
+
+public:
+    explicit JX3MacroSyntaxChecker(QObject *parent = nullptr);
+    QList<SyntaxError> Check(QTextDocument *document) override;
+
+private:
+    // 检测单行命令
+    void CheckCommandLine(const QString &line, int lineNumber, QList<SyntaxError> &errors);
+    // 检测宏定义行
+    void CheckMacroLine(const QString &line, int lineNumber, QList<SyntaxError> &errors);
+    // 检测条件表达式
+    void CheckConditions(const QString &line, int lineNumber, QList<SyntaxError> &errors);
+    // 检测多余空格
+    void CheckExtraSpaces(const QString &line, int lineNumber, QList<SyntaxError> &errors);
+    // 检测方括号匹配
+    void CheckBrackets(const QString &line, int lineNumber, QList<SyntaxError> &errors);
 };
 
 #endif // CODE_EDITOR_H

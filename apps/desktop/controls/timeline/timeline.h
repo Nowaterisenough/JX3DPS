@@ -55,6 +55,9 @@ public:
     // 设置时间轴数据
     void SetEvents(const QVector<EventItem> &events);
 
+    // 添加单个事件（用于增量添加）
+    void AddEvent(const EventItem &event);
+
     // 设置Buff数据
     void SetBuffs(const QVector<BuffItem> &buffs);
 

@@ -159,6 +159,24 @@ void Timeline::SetEvents(const QVector<EventItem> &events)
     update();
 }
 
+void Timeline::AddEvent(const EventItem &event)
+{
+    Q_D(Timeline);
+    d->events.append(event);
+
+    // 更新总时长
+    if (event.timestamp > d->totalDuration) {
+        d->totalDuration = event.timestamp;
+        // 自动扩展视图范围以包含新事件
+        if (event.timestamp > d->viewEndMs) {
+            d->viewEndMs = event.timestamp;
+        }
+    }
+
+    UpdateLayout();
+    update();
+}
+
 void Timeline::SetBuffs(const QVector<BuffItem> &buffs)
 {
     Q_D(Timeline);

@@ -119,9 +119,23 @@ void DebugSession::StepOver()
         qDebug() << "[DebugSession::StepOver] StepOver 返回 false";
     }
 
+    // 从模拟器获取最新状态并更新调试信息
+    auto playerState = m_simulator->GetPlayerState();
+    m_debugInfo.lineNumber = playerState.currentMacroLine;
+    m_debugInfo.currentFrame = playerState.currentFrame;
+    m_debugInfo.currentSeconds = playerState.currentSeconds;
+    m_debugInfo.lifePercent = playerState.lifePercent;
+    m_debugInfo.manaPercent = playerState.manaPercent;
+    m_debugInfo.qidian = playerState.qidian;
+    m_debugInfo.rage = playerState.rage;
+    m_debugInfo.energy = playerState.energy;
+    m_debugInfo.targetId = playerState.targetId;
+    m_debugInfo.targetLifePercent = playerState.targetLifePercent;
+    m_debugInfo.currentMacro = playerState.currentMacro;
+    m_debugInfo.currentSkill = playerState.lastSkill;
+
     // 更新调试信息
     UpdateDebugInfo();
-    emit DebugInfoUpdated(m_debugInfo);
 
     // 检查是否完成
     if (m_simulator->IsFinished()) {
@@ -149,9 +163,23 @@ void DebugSession::StepInto()
         qDebug() << "[DebugSession::StepInto] StepInto 返回 false";
     }
 
+    // 从模拟器获取最新状态并更新调试信息
+    auto playerState = m_simulator->GetPlayerState();
+    m_debugInfo.lineNumber = playerState.currentMacroLine;
+    m_debugInfo.currentFrame = playerState.currentFrame;
+    m_debugInfo.currentSeconds = playerState.currentSeconds;
+    m_debugInfo.lifePercent = playerState.lifePercent;
+    m_debugInfo.manaPercent = playerState.manaPercent;
+    m_debugInfo.qidian = playerState.qidian;
+    m_debugInfo.rage = playerState.rage;
+    m_debugInfo.energy = playerState.energy;
+    m_debugInfo.targetId = playerState.targetId;
+    m_debugInfo.targetLifePercent = playerState.targetLifePercent;
+    m_debugInfo.currentMacro = playerState.currentMacro;
+    m_debugInfo.currentSkill = playerState.lastSkill;
+
     // 更新调试信息
     UpdateDebugInfo();
-    emit DebugInfoUpdated(m_debugInfo);
 
     // 检查是否完成
     if (m_simulator->IsFinished()) {

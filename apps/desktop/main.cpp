@@ -143,9 +143,16 @@ int main(int argc, char *argv[])
     QObject::connect(editor, &CodeEditor::BreakpointAdded, debugSession, &DebugSession::AddBreakpoint);
     QObject::connect(editor, &CodeEditor::BreakpointRemoved, debugSession, &DebugSession::RemoveBreakpoint);
 
-    // 同步调试状态：调试会话 -> 编辑器 + 状态面板 + 调试浮窗显示/隐藏
+    // 时间轴更新状态跟踪（用于避免重复添加同一技能）
+    struct TimelineUpdateState {
+        QString lastSkillName;
+        int lastFrame = -1;
+    };
+    auto timelineState = std::make_shared<TimelineUpdateState>();
+
+    // 同步调试状态：调试会话 -> 编辑器 + 状态面板 + 时间轴 + 调试浮窗显示/隐藏
     QObject::connect(debugSession, &DebugSession::LineChanged, editor, &CodeEditor::SetCurrentDebugLine);
-    QObject::connect(debugSession, &DebugSession::StateChanged, [debugToolbar, statePanel, simToolbar](DebugSession::State state) {
+    QObject::connect(debugSession, &DebugSession::StateChanged, [debugToolbar, statePanel, timeline, simToolbar](DebugSession::State state) {
         switch (state) {
             case DebugSession::Running:
                 debugToolbar->SetDebugState(DebugToolbar::Running);
@@ -165,6 +172,16 @@ int main(int argc, char *argv[])
                 debugToolbar->HideFloating();
                 statePanel->Clear();
                 break;
+        }
+    });
+
+    // 调试开始时清空时间轴并重置跟踪状态
+    QObject::connect(simToolbar, &SimulationToolbar::StartSimulationClicked, [timeline, timelineState, simToolbar]() {
+        if (simToolbar->IsDebugModeEnabled()) {
+            timeline->Clear();
+            timelineState->lastSkillName.clear();
+            timelineState->lastFrame = -1;
+            qDebug() << "[main.cpp] 调试开始，清空时间轴";
         }
     });
 
@@ -190,6 +207,32 @@ int main(int argc, char *argv[])
         qDebug() << "[main.cpp] 收到DebugInfoUpdated信号，行号:" << info.lineNumber;
         editor->SetCurrentDebugLine(info.lineNumber);
         qDebug() << "[main.cpp] 已调用SetCurrentDebugLine(" << info.lineNumber << ")";
+    });
+
+    // 更新时间轴：调试会话 -> 时间轴（技能施放时添加事件）
+    QObject::connect(debugSession, &DebugSession::DebugInfoUpdated, [timeline, timelineState](const DebugSession::DebugInfo &info) {
+        // 只有当技能名称不为空，且与上次不同时才添加（避免同一技能重复添加）
+        if (!info.currentSkill.isEmpty() &&
+            (info.currentSkill != timelineState->lastSkillName || info.currentFrame != timelineState->lastFrame)) {
+
+            Timeline::EventItem event;
+            event.timestamp = info.currentFrame * 16;  // 游戏帧转毫秒（16帧约1秒）
+            event.name = info.currentSkill;
+            event.icon = QPixmap();  // TODO: 从资源加载技能图标
+            event.color = QColor(100, 150, 255);  // 默认蓝色
+            event.damage = 0;  // 暂不显示伤害
+            event.rollResult = 1;  // 默认普通
+            event.macroName = info.currentMacro;
+            event.macroColor = QColor(150, 200, 100);  // 默认绿色
+
+            timeline->AddEvent(event);
+            qDebug() << "[main.cpp] 添加技能到时间轴:" << info.currentSkill
+                     << "时间戳:" << event.timestamp << "ms";
+
+            // 更新跟踪状态
+            timelineState->lastSkillName = info.currentSkill;
+            timelineState->lastFrame = info.currentFrame;
+        }
     });
 
     // 连接模拟工具栏信号 -> 调试会话

@@ -3,14 +3,14 @@ include(GoogleTest)
 
 include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 
-add_executable(TestThreadPool TestThreadPool.cpp)
+add_executable(test_thread_pool test_thread_pool.cpp)
 
-target_link_libraries(TestThreadPool
+target_link_libraries(test_thread_pool
     GTest::gtest
     GTest::gtest_main
     GTest::gmock
     GTest::gmock_main
-    ThreadPool
+    thread_pool
 )
 
-gtest_discover_tests(TestThreadPool)
+gtest_discover_tests(test_thread_pool)

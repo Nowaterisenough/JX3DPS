@@ -46,7 +46,7 @@ add_library(${PROJECT_NAME} STATIC
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    ThreadPool
+    thread_pool
     nlohmann_json
     spdlog
 )
@@ -133,7 +133,7 @@ message(STATUS "C++ Compiler:      ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER
 message(STATUS "")
 message(STATUS "Core Components:")
 message(STATUS "  JX3DPS Library:  ENABLED")
-message(STATUS "  ThreadPool:      ENABLED")
+message(STATUS "  thread_pool:     ENABLED")
 message(STATUS "  JSON (nlohmann): ENABLED")
 message(STATUS "  spdlog:          ENABLED")
 message(STATUS "")

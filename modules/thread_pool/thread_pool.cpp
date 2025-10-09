@@ -13,7 +13,7 @@
  * ----------	-------	----------------------------------------------------------
  */
 
-#include "ThreadPool.h"
+#include "thread_pool.h"
 
 ThreadPool *ThreadPool::Instance(unsigned short size)
 {

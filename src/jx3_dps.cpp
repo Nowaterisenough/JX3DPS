@@ -23,7 +23,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-#include <ThreadPool/ThreadPool.h>
+#include <thread_pool/thread_pool.h>
 
 #include "attribute/attribute.hpp"
 #include "class/tai_xu_jian_yi/tai_xu_jian_yi.h"

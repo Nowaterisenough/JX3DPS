@@ -1,3 +1,3 @@
-add_subdirectory(TestJX3DPS)
-add_subdirectory(TestThreadPool)
+add_subdirectory(test_jx3dps)
+add_subdirectory(test_thread_pool)
 add_subdirectory(TestUI)

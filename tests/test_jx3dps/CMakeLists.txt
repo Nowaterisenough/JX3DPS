@@ -1,4 +1,4 @@
-project(TestJX3DPS)
+project(test_jx3dps)
 
 enable_testing()
 include(GoogleTest)
@@ -7,7 +7,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 
 add_definitions(-DIMPORT_STATIC_JX3DPS_LIB)
 
-add_executable(${PROJECT_NAME} TestJX3DPS.cpp)
+add_executable(${PROJECT_NAME} test_jx3dps.cpp)
 target_link_libraries(${PROJECT_NAME}
     GTest::gtest
     GTest::gtest_main
@@ -21,8 +21,8 @@ add_custom_command(
     TARGET ${PROJECT_NAME} # 指定编译的目标名
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_SOURCE_DIR}/tests/${PROJECT_NAME}/TestTaiXuJianYi.json # 要复制的文件路径
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/TestTaiXuJianYi.json # 目标路径
+    ${CMAKE_SOURCE_DIR}/tests/${PROJECT_NAME}/test_tai_xu_jian_yi.json # 要复制的文件路径
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/test_tai_xu_jian_yi.json # 目标路径
 )
 
-gtest_discover_tests(TestJX3DPS)
+gtest_discover_tests(test_jx3dps)

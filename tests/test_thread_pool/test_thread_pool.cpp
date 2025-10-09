@@ -1,6 +1,6 @@
 ﻿/**
  * Project: 
- * File: TestThreadPool.cpp
+ * File: test_thread_pool.cpp
  * Description: 
  * Created Date: 2023-07-26 17:26:02
  * Author: 难为水
@@ -17,7 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#include <ThreadPool/ThreadPool.h>
+#include <thread_pool/thread_pool.h>
 
 int TestFunction1(unsigned int time)
 {

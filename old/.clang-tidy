@@ -1,0 +1,660 @@
+Checks: "clang-diagnostic-*, # Clang 诊断
+  clang-analyzer-*, # Clang 静态分析器
+  performance-*, # 性能
+  bugprone-branch-clone,  # 检查相同分支合并
+  bugprone-copy-constructor-init, # 检查初始化列表
+  bugprone-exception-escape, # 检查不抛出异常
+  bugprone-fold-init-type, # 检查初始化列表
+  bugprone-forward-declaration-namespace, # 检查前向声明
+  bugprone-incorrect-roundings, # 检查正确的舍入
+  bugprone-infinite-loop, # 检查无限循环
+  bugprone-macro-parentheses, # 检查宏参数括号
+  bugprone-integer-division, # 检查整数除法
+  bugprone-misplaced-operator-in-strlen-in-alloc, # 检查 strlen 在分配中
+  bugprone-misplaced-pointer-arithmetic-in-alloc, # 检查指针算术在分配中
+  bugprone-misplaced-widening-cast, # 检查宽化转换
+  bugprone-move-forwarding-reference, # 检查移动转发引用
+  bugprone-multiple-statement-macro, # 检查多语句宏
+  bugprone-parent-virtual-call, # 检查父虚拟调用
+  bugprone-posix-return, # 检查 POSIX 返回
+  bugprone-unused-local-non-trivial-variable, # 检查未使用的本地非平凡变量
+  bugprone-unused-raii, # 检查未使用的 RAII
+  bugprone-unused-variable, # 检查未使用的变量
+  bugprone-reserved-identifier, # 检查保留标识符
+  bugprone-signal-handler, # 检查信号处理程序
+  bugprone-redundant-branch-condition, # 检查冗余分支条件
+  bugprone-sizeof-container, # 检查容器大小
+  bugprone-sizeof-expression, # 检查 sizeof 表达式
+  bugprone-spuriously-wake-up-functions, # 检查虚假唤醒函数
+  bugprone-string-constructor, # 检查字符串构造函数
+  bugprone-string-integer-assignment, # 检查字符串整数赋值
+  bugprone-string-literal-with-embedded-nul, # 检查字符串文字嵌入 NUL
+  bugprone-suspicious-enum-usage, # 检查可疑枚举用法
+  bugprone-suspicious-memset-usage, # 检查可疑 memset 用法
+  bugprone-suspicious-missing-comma, # 检查可疑缺少逗号
+  bugprone-suspicious-semicolon, # 检查可疑分号
+  bugprone-suspicious-string-compare, # 检查可疑字符串比较
+  bugprone-suspicious-include, # 检查可疑包含
+  cppcoreguidelines-avoid-goto, # 检查避免 goto
+  cppcoreguidelines-avoid-magic-numbers, # 检查避免魔术数字
+  modernize-make-shared, # 检查 make_shared
+  modernize-make-unique, # 检查 make_unique
+  modernize-pass-by-value, # 检查传值
+  modernize-use-equals-default, # 检查使用 = default
+  modernize-use-equals-delete, # 检查使用 = delete
+  modernize-deprecated-headers, # 检查使用新头文件
+  modernize-loop-convert, # 检查循环转换
+  modernize-use-auto, # 检查使用 auto
+  modernize-use-emplace,  # 检查使用 emplace
+  modernize-use-nullptr, # 检查使用 nullptr
+  modernize-use-override, # 检查使用 override
+  modernize-use-transparent-functors, # 检查使用透明函数对象
+  modernize-use-uncaught-exceptions, # 检查使用未捕获的异常
+  modernize-use-using, # 检查使用 using
+  modernize-use-starts-ends-with, # 检查使用 starts_with/ends_with
+  modernize-use-std-numbers, # 检查使用 std::numbers
+  readability-convert-member-functions-to-static, # 检查将成员函数转换为静态
+  readability-else-after-retur, # 检查 return 后的 else
+  readability-make-member-function-const, # 检查成员函数 const
+  readability-non-const-parameter, # 检查非 const 参数
+  readability-qualified-auto, # 检查限定的 auto
+  readability-redundant-access-specifiers, # 检查冗余访问说明符
+  readability-redundant-control-flow, # 检查冗余控制流
+  readability-redundant-declaration, # 检查冗余声明
+  readability-redundant-function-ptr-dereference, # 检查冗余函数指针解引用
+  readability-redundant-member-init, # 检查冗余成员初始化
+  readability-redundant-preprocessor, # 检查冗余预处理器
+  readability-redundant-smartptr-get, # 检查冗余智能指针 get
+  readability-static-accessed-through-instance, # 检查通过实例访问静态
+  readability-static-definition-in-anonymous-namespace, # 检查匿名命名空间中的静态定义
+  readability-uniqueptr-delete-release, # 检查 unique_ptr delete release
+  readability-identifier-naming, # 检查标识符命名
+  readability-function-size, # 检查函数大小
+  readability-magic-numbers" # 检查魔术数字
+
+WarningsAsErrors: ""
+
+HeaderFilterRegex: '.*\.h*'
+
+AnalyzeTemporaryDtors: false
+
+FormatStyle: file
+
+CheckOptions:
+  # 抽象类命名规则：大骆驼命名法
+  - key: readability-identifier-naming.AbstractClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.AbstractClassPrefix
+    value: ""
+  - key: readability-identifier-naming.AbstractClassSuffix
+    value: ""
+  - key: readability-identifier-naming.AbstractClassIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.AbstractClassHungarianPrefix
+    value: ""
+
+  # 是否进行积极的从属成员查找
+  - key: readability-identifier-naming.AggressiveDependentMemberLookup
+    value: false
+
+  # 检查父类匿名字段规则
+  - key: readability-identifier-naming.CheckAnonFieldInParent
+    value: true
+
+  # 类命名规则: 大骆驼命名法
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassPrefix
+    value: ""
+  - key: readability-identifier-naming.ClassSuffix
+    value: ""
+  - key: readability-identifier-naming.ClassIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.ClassHungarianPrefix
+    value: ""
+
+  # 类常量命名规则：全部大写
+  - key: readability-identifier-naming.ClassConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ClassConstantPrefix
+    value: ""
+  - key: readability-identifier-naming.ClassConstantSuffix
+    value: ""
+  - key: readability-identifier-naming.ClassConstantIgnoredRegexp
+    value: "[._a-z]*(type|t|value|v)"
+  - key: readability-identifier-naming.ClassConstantHungarianPrefix
+    value: ""
+
+  # 类成员变量命名规则：小骆驼命名法，用_作为前缀
+  - key: readability-identifier-naming.ClassMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ClassMemberPrefix
+    value: ""
+  - key: readability-identifier-naming.ClassMemberSuffix
+    value: ""
+  - key: readability-identifier-naming.ClassMemberIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.ClassMemberHungarianPrefix
+    value: ""
+
+  # 类方法命名规则：大骆驼命名法
+  - key: readability-identifier-naming.ClassMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassMethodPrefix
+    value: ""
+  - key: readability-identifier-naming.ClassMethodSuffix
+    value: ""
+  - key: readability-identifier-naming.ClassMethodIgnoredRegexp
+    value: "Signal_.*"
+
+  # 概念命名规则：大骆驼命名法
+  - key: readability-identifier-naming.ConceptCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConceptPrefix
+    value: ""
+  - key: readability-identifier-naming.ConceptSuffix
+    value: ""
+  - key: readability-identifier-naming.ConceptIgnoredRegexp
+    value: ""
+
+  # 常量命名规则：全部大写
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstantPrefix
+    value: ""
+  - key: readability-identifier-naming.ConstantSuffix
+    value: ""
+  - key: readability-identifier-naming.ConstantIgnoredRegexp
+    value: "[._a-z]*(type|t|value|v)"
+  - key: readability-identifier-naming.ConstantHungarianPrefix
+    value: ""
+
+  # 类常量命名规则：全部大写
+  - key: readability-identifier-naming.ConstantMemberCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstantMemberPrefix
+    value: ""
+  - key: readability-identifier-naming.ConstantMemberSuffix
+    value: ""
+  - key: readability-identifier-naming.ConstantMemberIgnoredRegexp
+    value: "[._a-z]*(type|t|value|v)"
+  - key: readability-identifier-naming.ConstantMemberHungarianPrefix
+    value: ""
+
+  # 参数常量命名规则: 小骆驼命名法
+  - key: readability-identifier-naming.ConstantParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.ConstantParameterPrefix
+    value: ""
+  - key: readability-identifier-naming.ConstantParameterSuffix
+    value: ""
+  - key: readability-identifier-naming.ConstantParameterIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.ConstantParameterHungarianPrefix
+    value: ""
+
+  # 指针参数常量命名规则：小骆驼命名法
+  - key: readability-identifier-naming.ConstantPointerParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.ConstantPointerParameterPrefix
+    value: ""
+  - key: readability-identifier-naming.ConstantPointerParameterSuffix
+    value: ""
+  - key: readability-identifier-naming.ConstantPointerParameterIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.ConstantPointerParameterHungarianPrefix
+    value: ""
+
+  # 枚举命名规则：大骆驼命名法
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumPrefix
+    value: ""
+  - key: readability-identifier-naming.EnumSuffix
+    value: ""
+  - key: readability-identifier-naming.EnumIgnoredRegexp
+    value: ""
+
+  # 枚举常量命名规则：全部大写
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.EnumConstantPrefix
+    value: ""
+  - key: readability-identifier-naming.EnumConstantSuffix
+    value: ""
+  - key: readability-identifier-naming.EnumConstantIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.EnumConstantHungarianPrefix
+    value: ""
+
+  # 函数命名规则：大骆驼命名法
+  - key: readability-identifier-naming.FunctionCase
+    value: CamelCase
+  - key: readability-identifier-naming.FunctionPrefix
+    value: ""
+  - key: readability-identifier-naming.FunctionSuffix
+    value: ""
+  - key: readability-identifier-naming.FunctionIgnoredRegexp
+    value: "(is_)?[a-z]*(_(v|t|type|value))?"
+
+  # 配置文件获取
+  - key: readability-identifier-naming.GetConfigPerFile
+    value: true
+
+  # 全局常量命名规则：全部大写
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantPrefix
+    value: ""
+  - key: readability-identifier-naming.GlobalConstantSuffix
+    value: ""
+  - key: readability-identifier-naming.GlobalConstantIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.GlobalConstantHungarianPrefix
+    value: ""
+
+  # 全局常量指针命名规则：全部大写
+  - key: readability-identifier-naming.GlobalConstantPointerCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantPointerPrefix
+    value: ""
+  - key: readability-identifier-naming.GlobalConstantPointerSuffix
+    value: ""
+  - key: readability-identifier-naming.GlobalConstantPointerIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.GlobalConstantPointerHungarianPrefix
+    value: ""
+
+  #全局函数命名规则：大骆驼命名法
+  - key: readability-identifier-naming.GlobalFunctionCase
+    value: CamelCase
+  - key: readability-identifier-naming.GlobalFunctionPrefix
+    value: ""
+  - key: readability-identifier-naming.GlobalFunctionSuffix
+    value: ""
+  - key: readability-identifier-naming.GlobalFunctionIgnoredRegexp
+    value: "(is_)?[a-z]*(_(v|t|type|value))?"
+
+  # 全局指针命名规则：小写，前缀为"g_"
+  - key: readability-identifier-naming.GlobalPointerCase
+    value: lower_case
+  - key: readability-identifier-naming.GlobalPointerPrefix
+    value: "g_"
+  - key: readability-identifier-naming.GlobalPointerSuffix
+    value: ""
+  - key: readability-identifier-naming.GlobalPointerIgnoredRegexp
+    value: "tls_.*"
+  - key: readability-identifier-naming.GlobalPointerHungarianPrefix
+    value: ""
+
+  # 全局变量命名规则：小写，前缀为"g_"
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.GlobalVariablePrefix
+    value: "g_"
+  - key: readability-identifier-naming.GlobalVariableSuffix
+    value: ""
+  - key: readability-identifier-naming.GlobalVariableIgnoredRegexp
+    value: "tls_.*"
+  - key: readability-identifier-naming.GlobalVariableHungarianPrefix
+    value: ""
+
+  # 主函数忽略
+  - key: readability-identifier-naming.IgnoreMainLikeFunctions
+    value: true
+
+  # 内联命名空间命名规则：大骆驼命名法
+  - key: readability-identifier-naming.InlineNamespaceCase
+    value: CamelCase
+  - key: readability-identifier-naming.InlineNamespacePrefix
+    value: ""
+  - key: readability-identifier-naming.InlineNamespaceSuffix
+    value: ""
+  - key: readability-identifier-naming.InlineNamespaceIgnoredRegexp
+    value: ""
+
+  # 局部常量命名规则：全部大写
+  - key: readability-identifier-naming.LocalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.LocalConstantPrefix
+    value: ""
+  - key: readability-identifier-naming.LocalConstantSuffix
+    value: ""
+  - key: readability-identifier-naming.LocalConstantIgnoredRegexp
+    value: "[._a-z]*(type|t|value|v)"
+  - key: readability-identifier-naming.LocalConstantHungarianPrefix
+    value: ""
+
+  # 局部常量指针命名规则：全部大写
+  - key: readability-identifier-naming.LocalConstantPointerCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.LocalConstantPointerPrefix
+    value: ""
+  - key: readability-identifier-naming.LocalConstantPointerSuffix
+    value: ""
+  - key: readability-identifier-naming.LocalConstantPointerIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.LocalConstantPointerHungarianPrefix
+    value: ""
+
+  # 局部指针命名规则：小写
+  - key: readability-identifier-naming.LocalPointerCase
+    value: lower_case
+  - key: readability-identifier-naming.LocalPointerPrefix
+    value: ""
+  - key: readability-identifier-naming.LocalPointerSuffix
+    value: ""
+  - key: readability-identifier-naming.LocalPointerIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.LocalPointerHungarianPrefix
+    value: ""
+
+  # 局部变量命名规则：小写
+  - key: readability-identifier-naming.LocalVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.LocalVariablePrefix
+    value: ""
+  - key: readability-identifier-naming.LocalVariableSuffix
+    value: ""
+  - key: readability-identifier-naming.LocalVariableIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.LocalVariableHungarianPrefix
+    value: ""
+
+  # 宏定义命名规则：全部大写
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.MacroDefinitionPrefix
+    value: ""
+  - key: readability-identifier-naming.MacroDefinitionSuffix
+    value: ""
+  - key: readability-identifier-naming.MacroDefinitionIgnoredRegexp
+    value: ""
+
+  # 成员变量命名规则：小写，使用_作为前缀
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.MemberPrefix
+    value: ""
+  - key: readability-identifier-naming.MemberSuffix
+    value: ""
+  - key: readability-identifier-naming.MemberIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.MemberHungarianPrefix
+    value: ""
+
+  # 方法命名规则：大骆驼命名法
+  - key: readability-identifier-naming.MethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.MethodPrefix
+    value: ""
+  - key: readability-identifier-naming.MethodSuffix
+    value: ""
+  - key: readability-identifier-naming.MethodIgnoredRegexp
+    value: ""
+
+  # 命名空间命名规则：大骆驼命名法
+  - key: readability-identifier-naming.NamespaceCase
+    value: CamelCase
+  - key: readability-identifier-naming.NamespacePrefix
+    value: ""
+  - key: readability-identifier-naming.NamespaceSuffix
+    value: ""
+  - key: readability-identifier-naming.NamespaceIgnoredRegexp
+    value: ""
+
+  # 参数命名规则：小骆驼命名法
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterPrefix
+    value: ""
+  - key: readability-identifier-naming.ParameterSuffix
+    value: ""
+  - key: readability-identifier-naming.ParameterIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.ParameterHungarianPrefix
+    value: ""
+
+  # 参数包命名规则：小骆驼命名法
+  - key: readability-identifier-naming.ParameterPackCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterPackPrefix
+    value: ""
+  - key: readability-identifier-naming.ParameterPackSuffix
+    value: ""
+  - key: readability-identifier-naming.ParameterPackIgnoredRegexp
+    value: ""
+
+  # 指针参数命名规则：小骆驼命名法
+  - key: readability-identifier-naming.PointerParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.PointerParameterPrefix
+    value: ""
+  - key: readability-identifier-naming.PointerParameterSuffix
+    value: ""
+  - key: readability-identifier-naming.PointerParameterIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.PointerParameterHungarianPrefix
+    value: ""
+
+  # 私有成员变量命名规则：小写，前缀为"_"
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: "_"
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: ""
+  - key: readability-identifier-naming.PrivateMemberIgnoredRegexp
+    value: "signals"
+  - key: readability-identifier-naming.PrivateMemberHungarianPrefix
+    value: ""
+
+  # 私有方法命名规则：大骆驼命名法
+  - key: readability-identifier-naming.PrivateMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.PrivateMethodPrefix
+    value: ""
+  - key: readability-identifier-naming.PrivateMethodSuffix
+    value: ""
+  - key: readability-identifier-naming.PrivateMethodIgnoredRegexp
+    value: "Signal_.*"
+
+  # 受保护成员变量命名规则：小写，前缀为"_"
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ProtectedMemberPrefix
+    value: "_"
+  - key: readability-identifier-naming.ProtectedMemberSuffix
+    value: ""
+  - key: readability-identifier-naming.ProtectedMemberIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.ProtectedMemberHungarianPrefix
+    value: ""
+
+  # 受保护方法命名规则：大骆驼命名法
+  - key: readability-identifier-naming.ProtectedMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.ProtectedMethodPrefix
+    value: ""
+  - key: readability-identifier-naming.ProtectedMethodSuffix
+    value: ""
+  - key: readability-identifier-naming.ProtectedMethodIgnoredRegexp
+    value: "Signal_.*"
+
+  # 公开成员变量命名规则：小写
+  - key: readability-identifier-naming.PublicMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.PublicMemberPrefix
+    value: ""
+  - key: readability-identifier-naming.PublicMemberSuffix
+    value: ""
+  - key: readability-identifier-naming.PublicMemberIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.PublicMemberHungarianPrefix
+    value: ""
+
+  # 公开方法命名规则：大骆驼命名法
+  - key: readability-identifier-naming.PublicMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.PublicMethodPrefix
+    value: ""
+  - key: readability-identifier-naming.PublicMethodSuffix
+    value: ""
+  - key: readability-identifier-naming.PublicMethodIgnoredRegexp
+    value: "Signal_.*"
+
+  # 范围内枚举常量命名规则：全部大写
+  - key: readability-identifier-naming.ScopedEnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ScopedEnumConstantPrefix
+    value: ""
+  - key: readability-identifier-naming.ScopedEnumConstantSuffix
+    value: ""
+  - key: readability-identifier-naming.ScopedEnumConstantIgnoredRegexp
+    value: ""
+
+  # 静态常量命名规则：全部大写
+  - key: readability-identifier-naming.StaticConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StaticConstantPrefix
+    value: ""
+  - key: readability-identifier-naming.StaticConstantSuffix
+    value: ""
+  - key: readability-identifier-naming.StaticConstantIgnoredRegexp
+    value: "[._a-z]*(type|t|value|v)"
+  - key: readability-identifier-naming.StaticConstantHungarianPrefix
+    value: ""
+
+  # 静态变量命名规则：小写
+  - key: readability-identifier-naming.StaticVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.StaticVariablePrefix
+    value: ""
+  - key: readability-identifier-naming.StaticVariableSuffix
+    value: ""
+  - key: readability-identifier-naming.StaticVariableIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.StaticVariableHungarianPrefix
+    value: ""
+
+  # 结构体命名规则：大骆驼命名法
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructPrefix
+    value: ""
+  - key: readability-identifier-naming.StructSuffix
+    value: ""
+  - key: readability-identifier-naming.StructIgnoredRegexp
+    value: "(is_)?[a-z]*(_(v|t|type|value))?"
+
+  # 模板参数命名规则：小骆驼命名法
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterPrefix
+    value: ""
+  - key: readability-identifier-naming.TemplateParameterSuffix
+    value: ""
+  - key: readability-identifier-naming.TemplateParameterIgnoredRegexp
+    value: ""
+
+  # 模板参数模板命名规则：小骆驼命名法
+  - key: readability-identifier-naming.TemplateTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateTemplateParameterPrefix
+    value: ""
+  - key: readability-identifier-naming.TemplateTemplateParameterSuffix
+    value: ""
+  - key: readability-identifier-naming.TemplateTemplateParameterIgnoredRegexp
+    value: ""
+
+  # 类型别名命名规则：大骆驼命名法
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeAliasPrefix
+    value: ""
+  - key: readability-identifier-naming.TypeAliasSuffix
+    value: ""
+  - key: readability-identifier-naming.TypeAliasIgnoredRegexp
+    value: "[._a-z]*(type|t|value|v)"
+
+  # 类型定义命名规则：大骆驼命名法
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefPrefix
+    value: ""
+  - key: readability-identifier-naming.TypedefSuffix
+    value: "_t"
+  - key: readability-identifier-naming.TypedefIgnoredRegexp
+    value: ""
+
+  # 类型模板参数命名规则：大骆驼命名法
+  - key: readability-identifier-naming.TypeTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeTemplateParameterPrefix
+    value: ""
+  - key: readability-identifier-naming.TypeTemplateParameterSuffix
+    value: ""
+  - key: readability-identifier-naming.TypeTemplateParameterIgnoredRegexp
+    value: ""
+
+  # 联合体命名规则：大骆驼命名法
+  - key: readability-identifier-naming.UnionCase
+    value: CamelCase
+  - key: readability-identifier-naming.UnionPrefix
+    value: ""
+  - key: readability-identifier-naming.UnionSuffix
+    value: ""
+  - key: readability-identifier-naming.UnionIgnoredRegexp
+    value: ""
+
+  # 值模板参数命名规则：全部大写
+  - key: readability-identifier-naming.ValueTemplateParameterCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ValueTemplateParameterPrefix
+    value: ""
+  - key: readability-identifier-naming.ValueTemplateParameterSuffix
+    value: ""
+  - key: readability-identifier-naming.ValueTemplateParameterIgnoredRegexp
+    value: ""
+
+  # 变量命名规则：小写
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.VariablePrefix
+    value: ""
+  - key: readability-identifier-naming.VariableSuffix
+    value: ""
+  - key: readability-identifier-naming.VariableIgnoredRegexp
+    value: ""
+  - key: readability-identifier-naming.VariableHungarianPrefix
+    value: ""
+
+  # 虚方法命名规则：大骆驼命名法
+  - key: readability-identifier-naming.VirtualMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.VirtualMethodPrefix
+    value: ""
+  - key: readability-identifier-naming.VirtualMethodSuffix
+    value: ""
+  - key: readability-identifier-naming.VirtualMethodIgnoredRegexp
+    value: ""
+
+  # 警告所有自动复制
+  - key: performance-for-range-copy.WarnOnAllAutoCopies
+    value: "0"
+
+  # 限制函数的控制语句数
+  - key: readability-function-size.BranchThreshold
+    value: "-1"
+
+  # 限制函数的行数
+  - key: readability-function-size.LineThreshold
+    value: "-1"
+
+  # 限制函数的参数数量
+  - key: readability-function-size.ParameterThreshold
+    value: "-1"
+
+  # 限制函数的语句数
+  - key: readability-function-size.StatementThreshold
+    value: "800"

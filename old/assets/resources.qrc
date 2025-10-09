@@ -1,0 +1,21 @@
+<RCC>
+  <qresource prefix="/resources">
+    <file>imgs/app_icon.ico</file>
+    <file>imgs/logo.ico</file>
+    <file>imgs/logo2.ico</file>
+    <file>fonts/Monaco.ttf</file>
+    <file>fonts/big_noodle_titling_oblique.ttf</file>
+    <file>fonts/FluentSystemIcons-Filled.ttf</file>
+    <file>fonts/FluentSystemIcons-Regular.ttf</file>
+    <file>fonts/Microsoft-YaHei-Regular.ttc</file>
+    <file>imgs/logo_white_h.png</file>
+    <file>imgs/logo_white_v.png</file>
+    <file>imgs/logo_blue_h.png</file>
+    <file>imgs/logo_blue_v.png</file>
+    <file>imgs/model1.png</file>
+    <file>imgs/model2.png</file>
+    <file>imgs/model3.png</file>
+    <file>imgs/model4.png</file>
+    <file>imgs/model5.png</file>
+  </qresource>
+</RCC>

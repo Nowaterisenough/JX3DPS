@@ -1,0 +1,456 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - '**'  # 匹配所有分支
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, review_requested]
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-win:
+    name: Build Windows MinGW
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - qt_arch: win64_mingw
+            qt_ver: 6.7.2
+            gcc_version: 13.2.0
+    env:
+      targetName: JX3DPS.dll
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install GCC
+        shell: pwsh
+        run: |
+          .\.github\scripts\install-gcc.ps1 -Version ${{ matrix.gcc_version }}
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_ver }}
+          arch: ${{ matrix.qt_arch }}
+          cache: 'false'
+
+      - name: Qt and MinGW environment configuration
+        shell: pwsh
+        run: |
+          $QtBin = "${{ env.Qt6_DIR }}/bin"
+          echo "$QtBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build
+        id: build
+        shell: bash
+        run: |
+          export PATH="/c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin:$PATH"
+          cmake -S . -B ./build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
+          cmake --build ./build --target install --config Release
+
+      - name: Get version from CMake
+        id: get_version
+        shell: bash
+        run: |
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
+          fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
+
+      - name: Package
+        id: package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $archiveName = "JX3DPS-win-${{ steps.get_version.outputs.VERSION }}"
+          $targetName = "${{ env.targetName }}"
+
+          Write-Host "开始打包过程..."
+          Write-Host "Archive Name: $archiveName"
+          Write-Host "Target Name: $targetName"
+
+          $currentDir = Get-Location
+          Write-Host "当前目录: $currentDir"
+
+          $sourcePath = "build\$targetName"
+          if (-not (Test-Path $sourcePath)) {
+              throw "错误: 在 build 目录中找不到 $targetName"
+          }
+
+          $tempDir = New-Item -ItemType Directory -Path "$archiveName" -Force
+          Write-Host "创建临时目录: $tempDir"
+
+          Copy-Item $sourcePath $tempDir
+          Write-Host "复制 $targetName 到临时目录"
+
+          $zipPath = "$archiveName.zip"
+          if (Test-Path $zipPath) {
+              Remove-Item -Path $zipPath -Force
+          }
+          Compress-Archive -Path $tempDir\* -DestinationPath $zipPath
+
+          Remove-Item -Path $tempDir -Recurse -Force
+          Write-Host "清理临时目录"
+
+          Write-Host "打包过程完成。输出文件: $zipPath"
+          echo "packageName=$archiveName" >> $env:GITHUB_OUTPUT
+
+      - name: Verify artifact
+        shell: pwsh
+        run: |
+          $packageName = "${{ steps.package.outputs.packageName }}"
+          if (Test-Path "${packageName}.zip") {
+            Write-Output "Artifact ${packageName}.zip created successfully"
+          } else {
+            Write-Error "Artifact ${packageName}.zip not found"
+            exit 1
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1
+
+  build-linux:
+    name: Build Linux GCC
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - gcc_version: 13
+    env:
+      targetName: JX3DPS.so
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install GCC 13
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y gcc-13 g++-13
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+          sudo update-alternatives --set gcc /usr/bin/gcc-13
+          sudo update-alternatives --set g++ /usr/bin/g++-13
+          gcc --version
+          g++ --version
+
+      - name: Build
+        id: build
+        run: |
+          cmake -S . -B ./build -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DVERSION_BRANCH=release
+          cmake --build ./build --target install --config Release --verbose
+          echo "Build completed. Checking install directory:"
+          find ./build/install -type f
+
+      - name: Check build directory
+        run: |
+          echo "Checking build directory structure:"
+          find ./build -type d
+          echo "Checking for JX3DPS.so:"
+          find ./build -name JX3DPS.so
+
+      - name: Get version from CMake
+        id: get_version
+        run: |
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DVERSION_BRANCH=release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
+          fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
+
+      - name: Package
+        id: package
+        env:
+          archiveName: JX3DPS-linux-${{ steps.get_version.outputs.VERSION }}
+        run: |
+          mkdir -p ${{ env.archiveName }}
+          find ./build -name JX3DPS.so -exec cp {} ${{ env.archiveName }}/ \;
+          if [ ! -f ${{ env.archiveName }}/JX3DPS.so ]; then
+            echo "Error: JX3DPS.so not found"
+            exit 1
+          fi
+          zip -r ${{ env.archiveName }}.zip ${{ env.archiveName }}
+          echo "packageName=${{ env.archiveName }}" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1
+
+  build-mac:
+    name: Build macOS
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - qt_ver: 6.7.2
+    env:
+      targetName: JX3DPS.dylib
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      packageName: ${{ steps.package.outputs.packageName }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_ver }}
+          cache: 'false'
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install cmake
+
+      - name: Build
+        id: build
+        run: |
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release
+          cmake --build ./build --target install --config Release --verbose
+          echo "Build completed. Checking install directory:"
+          find ./build/install -type f
+
+      - name: Get version from CMake
+        id: get_version
+        run: |
+          export TZ="Asia/Shanghai"
+          timestamp=$(TZ="Asia/Shanghai" git log -1 --format=%cd --date=format:%Y%m%d%H%M)
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release > cmake_output.txt
+          version=$(sed -n 's/.*VERSION=\(.*\)/\1/p' cmake_output.txt | head -n 1)
+          if [ -z "$version" ]; then
+            echo "无法从 CMake 输出中提取版本号"
+            exit 1
+          fi
+          major_minor_version=$(echo $version | cut -d. -f1,2)
+          full_version="${major_minor_version}.${timestamp:4:4}.${timestamp:8:4}"
+          echo "生成的版本号: $full_version"
+          echo "VERSION=$full_version" >> $GITHUB_OUTPUT
+
+      - name: Package
+        id: package
+        env:
+          archiveName: JX3DPS-macos-${{ steps.get_version.outputs.VERSION }}
+        run: |
+          mkdir -p ${{ env.archiveName }}
+          find ./build -name JX3DPS.dylib -exec cp {} ${{ env.archiveName }}/ \;
+          if [ ! -f ${{ env.archiveName }}/JX3DPS.dylib ]; then
+            echo "Error: JX3DPS.dylib not found"
+            exit 1
+          fi
+          zip -r ${{ env.archiveName }}.zip ${{ env.archiveName }}
+          echo "packageName=${{ env.archiveName }}" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}.zip
+          retention-days: 1
+          
+  release:
+    name: Generate Changelog and Release
+    needs: [build-win, build-linux, build-mac]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          fetch-depth: 0
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          set -e
+
+          git config --local core.autocrlf input
+
+          latest_tag=$(git describe --tags --abbrev=0)
+          
+          {
+            echo "## CHANGELOG"
+            echo
+
+            # 获取最新提交的哈希和日期
+            latest_commit=$(git rev-parse HEAD)
+            latest_commit_date=$(git log -1 --format=%ad --date=short)
+
+            echo
+
+            commits=$(git log $latest_tag..$latest_commit --pretty=format:"%at|%s|@%an|%h" --reverse --no-merges)
+            
+            declare -A commit_types
+            declare -A merged_commits
+
+            while IFS='|' read -r timestamp message author hash; do
+              if [ -z "$message" ] || [ -z "$author" ] || [ -z "$hash" ]; then
+                continue
+              fi
+
+              if [[ $message =~ ^(feat|fix|docs|perf|refactor|test|build)([^:]*):(.*) ]]; then
+                type=${BASH_REMATCH[1]}
+                scope=${BASH_REMATCH[2]}
+                clean_message=${BASH_REMATCH[3]}
+              else
+                type="other"
+                clean_message=$(echo "$message" | sed -E 's/^(ci|chore|style|revert)([^:]*):\s*//')
+              fi
+              
+              clean_message=$(echo "$clean_message" | sed -e 's/^[[:space:]]*//')
+              key="${type}|${clean_message}|${author}"
+              if [[ -v merged_commits[$key] ]]; then
+                merged_commits[$key]+=" $hash"
+              else
+                merged_commits[$key]="$timestamp|$hash"
+              fi
+              commit_types[$key]=$type
+            done <<< "$commits"
+
+            for type in "feat" "fix" "docs" "perf" "refactor" "test" "build" "other"; do
+              type_commits=()
+              for key in "${!merged_commits[@]}"; do
+                if [[ ${commit_types[$key]} == $type ]]; then
+                  type_commits+=("${merged_commits[$key]}|$key")
+                fi
+              done
+
+              if [ ${#type_commits[@]} -gt 0 ]; then
+                case $type in
+                  feat) echo "### Features" ;;
+                  fix) echo "### Bug Fixes" ;;
+                  docs) echo "### Documentation" ;;
+                  perf) echo "### Performance Improvements" ;;
+                  refactor) echo "### Refactor" ;;
+                  test) echo "### Tests" ;;
+                  build) echo "### Build System" ;;
+                  other) echo "### Others" ;;
+                esac
+                echo
+
+                IFS=$'\n' sorted=($(sort -n <<<"${type_commits[*]}"))
+                unset IFS
+
+                for entry in "${sorted[@]}"; do
+                  IFS='|' read -r timestamp hashes type clean_message author <<< "$entry"
+                  hashes_reversed=$(echo $hashes | tr ' ' '\n' | tac | tr '\n' ' ' | sed 's/ $//')
+                  echo "- $clean_message by $author in $hashes_reversed"
+                done
+                echo
+              fi
+            done
+
+          } > changelog.md
+
+          if [ -s changelog.md ]; then
+            echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
+          else
+            echo "No changes since last release." > changelog.md
+            echo "changelog_path=changelog.md" >> $GITHUB_OUTPUT
+          fi
+
+          git config --local --unset core.autocrlf
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ needs.build-win.outputs.packageName }}
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ needs.build-linux.outputs.packageName }}
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ needs.build-mac.outputs.packageName }}
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ needs.build-win.outputs.version }}"
+          changelogPath="${{ steps.changelog.outputs.changelog_path }}"
+          
+          gh release create $version --title "$version" --notes-file $changelogPath
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ needs.build-win.outputs.version }}"
+          windows_package="${{ needs.build-win.outputs.packageName }}"
+          linux_package="${{ needs.build-linux.outputs.packageName }}"
+          macos_package="${{ needs.build-mac.outputs.packageName }}"
+          
+          if [ -f "${windows_package}.zip" ]; then
+            gh release upload $version "${windows_package}.zip"
+            echo "Successfully uploaded ${windows_package}.zip to release $version"
+          else
+            echo "Error: ${windows_package}.zip not found"
+            ls -R
+            exit 1
+          fi
+
+          if [ -f "${linux_package}.zip" ]; then
+            gh release upload $version "${linux_package}.zip"
+            echo "Successfully uploaded ${linux_package}.zip to release $version"
+          else
+            echo "Error: ${linux_package}.zip not found"
+            ls -R
+            exit 1
+          fi
+
+          if [ -f "${macos_package}.zip" ]; then
+            gh release upload $version "${macos_package}.zip"
+            echo "Successfully uploaded ${macos_package}.zip to release $version"
+          else
+            echo "Error: ${macos_package}.zip not found"
+            ls -R
+            exit 1
+          fi

@@ -3,24 +3,946 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JX3 宏编辑器</title>
-    <link rel="stylesheet" href="style.css">
+    <title>JX3DPS Web Application</title>
+    
+    <!-- 动态加载 Emscripten glue 脚本，避免在未隔离环境下崩溃 -->
+    <script>
+        let __glueLoaded = false;
+        function loadEmscriptenGlue() {
+            if (__glueLoaded) return;
+            __glueLoaded = true;
+            const s = document.createElement('script');
+            s.src = './jx3dps.js';
+            s.onload = () => {
+                console.log('[GLUE] jx3dps.js 已加载');
+                setTimeout(initializeWasm, 100); // 给脚本时间执行
+            };
+            s.onerror = (e) => console.error('[GLUE] 加载失败:', e);
+            document.head.appendChild(s);
+        }
+        if (window.crossOriginIsolated) {
+            console.log('[COI] 已隔离，直接加载 glue');
+            loadEmscriptenGlue();
+        }
+        // 无论是否隔离都尝试加载，因为我们现在处理异步模块
+        setTimeout(() => {
+            if (!__glueLoaded) {
+                console.log('[GLUE] 强制加载 glue (非隔离环境)');
+                loadEmscriptenGlue();
+            }
+        }, 1000);
+    // 不再在未隔离环境下强行加载 glue，等待 SW 接管后刷新
+    </script>
+
+    <!-- 尝试注册 COI Service Worker 以便在静态环境下启用 crossOriginIsolated（启用 SharedArrayBuffer） -->
+    <script>
+    (function enableCOI() {
+            if (window.crossOriginIsolated) return;
+            if ('serviceWorker' in navigator) {
+                // 避免重复无限刷新
+                const reloadedKey = 'coi-sw-reloaded';
+        console.log('[COI] 尝试注册 ServiceWorker...');
+        navigator.serviceWorker.register('/coi-serviceworker.js', { scope: '/' })
+                    .then(() => {
+            console.log('[COI] ServiceWorker 注册成功');
+                        if (navigator.serviceWorker.controller) return;
+                        navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            try {
+                                if (!sessionStorage.getItem(reloadedKey)) {
+                                    sessionStorage.setItem(reloadedKey, '1');
+                                    location.reload();
+                                }
+                            } catch (_) {}
+                        });
+                    })
+            .catch((e) => console.warn('COI ServiceWorker 注册失败:', e));
+            }
+        })();
+    </script>
+
+    <!-- 在加载 Emscripten glue 前配置 Module（如需可定制 locateFile 等） -->
+    <script>
+        // 预备缓冲，捕获在 DOM 可用前的 Emscripten 输出
+        self.__wasmLogs = [];
+        // 可变钩子：在 DOM 就绪后会被赋值为写 UI 的函数
+        self.__appendWasmLog = null;
+        
+        // 全局Module变量用于接收初始化完成的实例
+        var Module = null;
+        
+        // 模块配置
+        var ModuleConfig = {
+            onRuntimeInitialized() {
+                console.log('JX3DPS WASM 运行时初始化完成');
+                // 注意：这里不设置moduleReady，因为Module还没有赋值
+                const bar = document.getElementById('statusBar');
+                if (bar) { bar.style.background = '#f0f8ff'; bar.innerText = 'JX3DPS运行时已就绪'; }
+            },
+            // 在 glue 读取时即生效：将 stdout/stderr 收集到缓冲
+            print: function () {
+                try {
+                    const msg = Array.from(arguments).join(' ');
+                    if (typeof self.__appendWasmLog === 'function') {
+                        self.__appendWasmLog(msg, 'out');
+                    } else {
+                        (self.__wasmLogs || (self.__wasmLogs = [])).push({ type: 'out', msg });
+                    }
+                } catch (_) {}
+            },
+            printErr: function () {
+                try {
+                    const msg = Array.from(arguments).join(' ');
+                    if (typeof self.__appendWasmLog === 'function') {
+                        self.__appendWasmLog(msg, 'err');
+                    } else {
+                        (self.__wasmLogs || (self.__wasmLogs = [])).push({ type: 'err', msg });
+                    }
+                } catch (_) {}
+            },
+            locateFile: function (path) {
+                // 所有生成物都在当前目录
+                return './' + path;
+            }
+            // 如需自定义 pthread 入口，可开启：
+            // , mainScriptUrlOrBlob: './wasm_mt_example.js'
+        };
+        
+        // 异步初始化JX3DPS模块
+        async function initializeWasm() {
+            try {
+                if (typeof JX3DPS === 'function') {
+                    console.log('正在初始化JX3DPS模块...');
+                    Module = await JX3DPS(ModuleConfig);
+                    console.log('JX3DPS模块初始化完成', Module);
+                    
+                    // 现在可以安全地设置moduleReady并显示版本信息
+                    if (Module && Module.ccall) {
+                        moduleReady = true;
+                        showVersionInfo();
+                        console.log('模块功能验证通过');
+                    } else {
+                        console.error('模块初始化完成但ccall方法不可用');
+                    }
+                } else {
+                    console.log('等待JX3DPS模块加载...');
+                    setTimeout(initializeWasm, 100);
+                }
+            } catch (error) {
+                console.error('JX3DPS模块初始化失败:', error);
+            }
+        }
+    </script>
+    <!-- glue 将在 crossOriginIsolated 达成后动态加载 -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #005a87;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100px;
+            margin: 0 10px;
+        }
+        .result {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #007cba;
+        }
+        .status {
+            color: #666;
+            font-style: italic;
+        }
+        .loading {
+            color: #007cba;
+        }
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+        }
+        
+        /* 代码编辑器样式 */
+        .line-number {
+            padding: 0 5px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 18px; /* 与textarea的行高精确匹配 */
+            color: #666;
+            cursor: pointer;
+            height: 18px;
+            box-sizing: border-box;
+            white-space: nowrap;
+            position: relative;
+        }
+        
+        .line-number:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .line-number.breakpoint {
+            background-color: #f44336 !important;
+            color: white !important;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .line-number.breakpoint::before {
+            content: '●';
+            position: absolute;
+            left: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #f44336;
+            font-size: 16px;
+        }
+        
+        .line-number.current-line {
+            background-color: #ffeb3b;
+            color: #000;
+        }
+        
+        .line-number.current-line::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff5722;
+            font-weight: bold;
+        }
+        
+        .code-line {
+            padding: 2px 0;
+            line-height: 1.4;
+            margin: 1px 0;
+        }
+        
+        .code-line.current-line {
+            background-color: #fff3e0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>JX3 宏编辑器</h1>
-        <div class="editor-container">
-            <div class="gutter" id="gutter"></div>
-            <div class="editor-wrapper">
-                <pre id="highlight-layer" class="highlight-layer" aria-hidden="true"></pre>
-                <textarea id="editor" class="editor" spellcheck="false"></textarea>
-            </div>
+        <h1>JX3DPS Web Application</h1>
+
+        <div id="statusBar" class="result" style="display:block; background:#fffbe6; border-left-color:#f0ad4e;">
+            正在初始化JX3DPS运行时...
         </div>
-        <div class="info">
-            <p>点击行号设置/取消断点 | 支持 JX3 宏语法高亮</p>
+        
+        <div class="section">
+            <h3>版本信息</h3>
+            <div id="versionInfo" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>宏输入</h3>
+            <p>输入您的技能宏语句，支持 /cast 和 /fcast 命令</p>
+            <!-- 代码编辑器区域 -->
+            <div id="codeEditor" style="border: 1px solid #ddd; border-radius: 4px; background: #f8f9fa;">
+                <div id="editorHeader" style="background: #e9ecef; padding: 5px 10px; border-bottom: 1px solid #ddd; font-size: 12px; color: #666;">
+                    宏代码编辑器 - 点击行号设置断点
+                </div>
+                <div style="display: flex; height: 200px; overflow: hidden;">
+                    <!-- 行号和断点区域 -->
+                    <div id="lineNumbers" style="background: #f1f3f4; padding: 10px 2px 10px 2px; min-width: 60px; width: 60px; border-right: 1px solid #ddd; user-select: none; overflow: visible; height: 100%; box-sizing: border-box;">
+                        <div id="lineNumbersInner" style="padding-left: 5px; height: 100%; overflow: hidden;">
+                            <!-- 行号将由JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    <!-- 代码区域 -->
+                    <div style="flex: 1; position: relative; overflow: hidden;">
+                        <textarea id="macroInput" style="width: 100%; height: 100%; padding: 10px; border: none; outline: none; resize: none; font-family: 'Courier New', monospace; font-size: 14px; line-height: 18px; box-sizing: border-box; overflow-y: auto;" placeholder="输入宏内容，例如：
+# 天策技能循环
+/fcast 龙吟
+/cast [target.debuff.破防] 劈挂四段
+/cast 击水三千"></textarea>
+                    </div>
+                </div>
+            </div>
+            <!-- 隐藏的原始textarea供兼容性使用 -->
+            <textarea id="hiddenMacroInput" style="display: none;"></textarea>
+            <button onclick="runSimulation()" id="simButton">运行DPS模拟</button>
+            <div id="simResult" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="section">
+            <h3>调试控制</h3>
+            <p>调试您的技能宏执行过程</p>
+            <button onclick="startDebug()">开始调试</button>
+            <button onclick="stepIn()">单步进入</button>
+            <button onclick="stepOver()">单步越过</button>
+            <button onclick="continueExecution()">继续执行</button>
+            <div id="debugResult" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="section">
+            <h3>系统信息</h3>
+            <div id="systemInfo" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h3>控制台输出</h3>
+            <div id="console" style="background-color: #f8f8f8; padding: 10px; font-family: monospace; white-space: pre-wrap; height: 200px; overflow-y: auto; border: 1px solid #ddd;"></div>
         </div>
     </div>
-    <script src="highlighter.js"></script>
-    <script src="editor.js"></script>
+
+    <script>
+    let wasmInstance = null;
+        let isLoading = false;
+    let moduleReady = false;
+    
+    // 代码编辑器状态
+    let breakpoints = new Set();
+    let currentLine = -1;
+    let debugMode = false;
+
+        function writeToUiConsole(text) {
+            const consoleDiv = document.getElementById('console');
+            if (!consoleDiv) return;
+            consoleDiv.textContent += text + '\n';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        // 代码编辑器相关函数
+        function updateLineNumbers() {
+            const macroInput = document.getElementById('macroInput');
+            const lineNumbersInner = document.getElementById('lineNumbersInner');
+            
+            if (!macroInput || !lineNumbersInner) {
+                console.error('找不到macroInput或lineNumbersInner元素');
+                return;
+            }
+            
+            const lines = macroInput.value.split('\n');
+            const lineCount = Math.max(lines.length, 1);
+            
+            console.log('更新行号: 行数=', lineCount, '内容=', JSON.stringify(macroInput.value));
+            
+            // 清空现有行号
+            lineNumbersInner.innerHTML = '';
+            
+            // 生成新的行号
+            for (let i = 1; i <= lineCount; i++) {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'line-number';
+                lineDiv.setAttribute('data-line', i);
+                lineDiv.textContent = i;
+                
+                // 添加断点状态
+                if (breakpoints.has(i)) {
+                    lineDiv.classList.add('breakpoint');
+                }
+                
+                // 添加当前行状态
+                if (i === currentLine) {
+                    lineDiv.classList.add('current-line');
+                }
+                
+                // 点击设置/取消断点
+                lineDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('点击行号:', i);
+                    toggleBreakpoint(i);
+                });
+                
+                // 添加鼠标悬停效果（用于测试事件是否正常工作）
+                lineDiv.addEventListener('mouseenter', () => {
+                    lineDiv.style.backgroundColor = '#e3f2fd';
+                });
+                
+                lineDiv.addEventListener('mouseleave', () => {
+                    if (!breakpoints.has(i) && i !== currentLine) {
+                        lineDiv.style.backgroundColor = '';
+                    }
+                });
+                
+                lineNumbersInner.appendChild(lineDiv);
+            }
+            
+            console.log('行号生成完成，共生成', lineCount, '个行号');
+        }
+        
+        function syncScroll() {
+            const macroInput = document.getElementById('macroInput');
+            const lineNumbersInner = document.getElementById('lineNumbersInner');
+            
+            if (!macroInput || !lineNumbersInner) return;
+            
+            // 同步滚动：行号区域跟随textarea滚动
+            lineNumbersInner.style.transform = `translateY(-${macroInput.scrollTop}px)`;
+        }
+        
+        function toggleBreakpoint(lineNum) {
+            console.log('toggleBreakpoint 被调用，行号:', lineNum);
+            if (breakpoints.has(lineNum)) {
+                breakpoints.delete(lineNum);
+                console.log('移除断点:', lineNum);
+            } else {
+                breakpoints.add(lineNum);
+                console.log('添加断点:', lineNum);
+            }
+            updateLineNumbers();
+            console.log('断点状态:', Array.from(breakpoints));
+        }
+        
+        function setCurrentLine(lineNum) {
+            currentLine = lineNum;
+            updateLineNumbers();
+        }
+        
+        function clearCurrentLine() {
+            currentLine = -1;
+            updateLineNumbers();
+        }
+        
+        function highlightCodeLine(lineNum) {
+            // 这个函数可以用来高亮textarea中的特定行，但由于textarea限制，我们主要依赖行号区域的视觉反馈
+            setCurrentLine(lineNum);
+        }
+        
+        function updateDebugDisplay(debugData) {
+            const resultDiv = document.getElementById('debugResult');
+            resultDiv.style.display = 'block';
+            
+            if (debugData.status === 'paused') {
+                // 高亮当前行
+                const currentLineNum = parseInt(debugData.current_line);
+                setCurrentLine(currentLineNum);
+                
+                // 显示调试信息
+                resultDiv.innerHTML = `
+                    <strong>🐛 调试状态: 已暂停</strong><br>
+                    <div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-left: 4px solid #28a745;">
+                        <strong>当前行:</strong> ${debugData.current_line} / ${debugData.total_lines}<br>
+                        <strong>源码行号:</strong> ${debugData.source_line}<br>
+                        <strong>当前语句:</strong> <code style="background: #e9ecef; padding: 2px 4px;">${debugData.statement}</code><br>
+                        <strong>技能名称:</strong> ${debugData.current_skill}<br>
+                        <strong>强制施放:</strong> ${debugData.is_forced === 'true' ? '是' : '否'}<br>
+                        <strong>条件:</strong> ${debugData.condition !== 'none' ? debugData.condition : '无'}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button onclick="stepIn()">▶️ 下一步</button>
+                        <button onclick="stepOver()">⏭️ 单步越过</button>  
+                        <button onclick="continueExecution()">⏩ 继续执行</button>
+                    </div>
+                `;
+            } else if (debugData.status === 'completed') {
+                // 清除当前行高亮
+                clearCurrentLine();
+                
+                resultDiv.innerHTML = `
+                    <strong>✅ 调试完成</strong><br>
+                    <div style="background: #d4edda; padding: 10px; margin: 5px 0; border-left: 4px solid #28a745;">
+                        ${debugData.message}
+                    </div>
+                `;
+            } else if (debugData.status === 'error') {
+                // 清除当前行高亮
+                clearCurrentLine();
+                
+                resultDiv.innerHTML = `
+                    <strong>❌ 调试错误</strong><br>
+                    <div style="background: #f8d7da; padding: 10px; margin: 5px 0; border-left: 4px solid #dc3545;">
+                        ${debugData.message}
+                    </div>
+                `;
+            }
+        }
+
+        // 供 Module.print/printErr 在运行时调用，直接写入 UI
+        self.__appendWasmLog = function (msg, type) {
+            writeToUiConsole(type === 'err' ? ('[ERR] ' + msg) : msg);
+        };
+
+        // 附加 console 输出到 UI，同时保留原控制台输出
+        const originalLog = console.log;
+        const originalErr = console.error;
+        console.log = function(...args) {
+            try { originalLog.apply(console, args); } catch (_) {}
+            try { writeToUiConsole(args.join(' ')); } catch (_) {}
+        };
+        console.error = function(...args) {
+            try { originalErr.apply(console, args); } catch (_) {}
+            try { writeToUiConsole('[ERR] ' + args.join(' ')); } catch (_) {}
+        };
+
+        // 加载WebAssembly模块 - 脚本已通过HTML直接加载
+        async function loadWasm() {
+            if (wasmInstance) return wasmInstance;
+            
+            try {
+                console.log('检查WebAssembly模块状态...');
+                
+                // 直接检测Module对象
+                wasmInstance = await new Promise((resolve, reject) => {
+                    let attempts = 0;
+                    const maxAttempts = 50;
+                    
+                    function checkModule() {
+                        attempts++;
+                        console.log(`检查Module状态 (${attempts}/${maxAttempts}):`, typeof Module);
+                        
+                        if (typeof Module !== 'undefined') {
+                            console.log('Module对象存在');
+                            console.log('Module属性:', Object.keys(Module));
+                            
+                            if (Module.ccall) {
+                                console.log('JX3DPS WebAssembly模块完全可用!');
+                                wasmInstance = Module;
+                                resolve(Module);
+                                return;
+                            }
+                        }
+                        
+                        if (attempts >= maxAttempts) {
+                            reject(new Error('WebAssembly模块加载超时'));
+                            return;
+                        }
+                        
+                        setTimeout(checkModule, 100);
+                    }
+                    
+                    // 开始检查
+                    checkModule();
+                });
+                
+                console.log('WebAssembly模块加载成功!');
+                
+                // 显示系统信息
+                showSystemInfo();
+                
+                return wasmInstance;
+            } catch (error) {
+                console.error('加载WebAssembly模块失败:', error);
+                throw error;
+            }
+        }
+
+        // 显示版本信息
+        function showVersionInfo() {
+            if (!moduleReady || !Module || !Module.ccall) return;
+            
+            try {
+                const versionInfo = document.getElementById('versionInfo');
+                const libVersion = Module.ccall('jx3dps_version', 'string', [], []);
+                const jx3Version = Module.ccall('jx3dps_jx3_version', 'string', [], []);
+                
+                versionInfo.innerHTML = `
+                    <strong>JX3DPS 版本信息:</strong><br>
+                    库版本: ${libVersion}<br>
+                    JX3数据版本: ${jx3Version}<br>
+                `;
+            } catch (error) {
+                console.error('获取版本信息失败:', error);
+                const versionInfo = document.getElementById('versionInfo');
+                if (versionInfo) {
+                    versionInfo.innerHTML = `<em>版本信息加载中...</em>`;
+                }
+            }
+        }
+
+        // 显示系统信息
+        function showSystemInfo() {
+            const info = document.getElementById('systemInfo');
+            const hasThreadSupport = typeof SharedArrayBuffer !== 'undefined';
+            const cores = navigator.hardwareConcurrency || '未知';
+            const coi = window.crossOriginIsolated === true;
+            
+            info.innerHTML = `
+                <strong>浏览器信息:</strong><br>
+                SharedArrayBuffer支持: ${hasThreadSupport ? '是' : '否'}<br>
+                crossOriginIsolated: ${coi ? '是' : '否'}<br>
+                逻辑处理器数量: ${cores}<br>
+                User Agent: ${navigator.userAgent}
+            `;
+            if (!coi) {
+                info.innerHTML += `<br><em>提示: 多线程 WASM 需要跨源隔离 (COOP/COEP)。已尝试注册 Service Worker，若首次打开请刷新页面。</em>`;
+            }
+        }
+
+        // 运行DPS模拟
+        async function runSimulation() {
+            console.log('[UI] 点击: 运行DPS模拟');
+            if (isLoading) return;
+            const ready = await waitForModuleReady();
+            if (!ready) {
+                writeToUiConsole('[ERR] 运行时未就绪，无法执行模拟');
+                return;
+            }
+            
+            const macroTextArea = document.getElementById('macroInput');
+            const macroText = macroTextArea.value.trim();
+            
+            // 详细调试输入获取
+            console.log('=== 输入调试信息 ===');
+            console.log('textarea元素:', macroTextArea);
+            console.log('textarea.value (原始):', JSON.stringify(macroTextArea.value));
+            console.log('textarea.value (长度):', macroTextArea.value.length);
+            console.log('宏文本 (trim后):', JSON.stringify(macroText));
+            console.log('宏文本 (长度):', macroText.length);
+            console.log('====================');
+            
+            if (!macroText) {
+                alert('请输入宏内容');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('simResult');
+            const button = document.getElementById('simButton');
+            
+            try {
+                isLoading = true;
+                button.disabled = true;
+                button.textContent = '模拟中...';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '<div class="loading">正在运行DPS模拟...</div>';
+                
+                // 使用标准的JSON.stringify来处理转义
+                const jsonInput = JSON.stringify({
+                    macro: macroText
+                });
+                
+                // 调试输出
+                console.log('原始宏文本:', JSON.stringify(macroText));
+                console.log('生成的JSON长度:', jsonInput.length);
+                console.log('生成的JSON (原始):', jsonInput);
+                console.log('生成的JSON (转义显示):', JSON.stringify(jsonInput));
+                
+                // 验证JSON是否有效
+                try {
+                    const parsed = JSON.parse(jsonInput);
+                    console.log('JSON解析成功，宏内容:', JSON.stringify(parsed.macro));
+                } catch (e) {
+                    console.error('JSON解析失败:', e);
+                    throw new Error('生成的JSON无效');
+                }
+                
+                // 显示位置81的字符
+                if (jsonInput.length > 81) {
+                    const char81 = jsonInput.charCodeAt(81);
+                    console.log('位置81的字符码:', char81, '字符:', JSON.stringify(jsonInput.charAt(81)));
+                }
+                
+                // 调用WASM函数
+                console.log('调用WASM函数...');
+                const result = Module.ccall('jx3dps_simulate', 'number', ['string'], [jsonInput]);
+                console.log('WASM函数返回值:', result);
+                
+                if (result !== 0) {
+                    throw new Error(`模拟失败，错误码: ${result}`);
+                }
+                
+                // 模拟现在立即完成，无需等待
+                
+                // 获取结果
+                console.log('获取结果...');
+                const resultSize = Module.ccall('jx3dps_get_result', 'number', ['number', 'number'], [0, 0]);
+                console.log('结果大小:', resultSize);
+                
+                if (resultSize > 0) {
+                    const buffer = Module._malloc(resultSize + 1);
+                    const actualSize = Module.ccall('jx3dps_get_result', 'number', ['number', 'number'], [buffer, resultSize + 1]);
+                    const resultJson = Module.UTF8ToString(buffer, actualSize);
+                    Module._free(buffer);
+                    
+                    console.log('从C++获取的JSON长度:', actualSize);
+                    console.log('从C++获取的JSON (原始):', resultJson);
+                    console.log('从C++获取的JSON (转义显示):', JSON.stringify(resultJson));
+                    
+                    // 显示位置81附近的字符（如果存在）
+                    if (resultJson.length > 81) {
+                        console.log('位置81的字符码:', resultJson.charCodeAt(81), '字符:', JSON.stringify(resultJson.charAt(81)));
+                        console.log('位置80-85的字符:', JSON.stringify(resultJson.substring(80, 86)));
+                    }
+                    
+                    // 解析并显示结果
+                    try {
+                        const resultData = JSON.parse(resultJson);
+                        displaySimulationResult(resultData, resultDiv);
+                        console.log('结果解析成功');
+                    } catch (e) {
+                        console.error('结果JSON解析失败:', e);
+                        resultDiv.innerHTML = `<div class="error">结果JSON解析失败: ${e.message}</div>`;
+                    }
+                } else {
+                    resultDiv.innerHTML = '<div class="error">无法获取模拟结果</div>';
+                }
+                
+                console.log('DPS模拟完成');
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">模拟失败: ${error.message}</div>`;
+                console.error('DPS模拟失败:', error);
+            } finally {
+                isLoading = false;
+                button.disabled = false;
+                button.textContent = '运行DPS模拟';
+            }
+        }
+        
+        function displaySimulationResult(data, container) {
+            container.innerHTML = `
+                <strong>DPS模拟结果:</strong><br>
+                状态: ${data.status || '未知'}<br>
+                DPS: ${data.dps || '未知'}<br>
+                技能数量: ${data.actions_count || '0'}<br>
+                持续时间: ${data.duration || '300'}秒<br>
+                技能列表: ${data.skills || '无'}<br>
+                <br>
+                <strong>调试信息:</strong><br>
+                解析的宏文本: <code>${data.macro_debug || '无'}</code><br>
+                解析详情: ${data.parse_debug || '无'}
+            `;
+        }
+
+        // 开始调试
+        async function startDebug() {
+            console.log('[UI] 点击: 开始调试');
+            if (!moduleReady) {
+                alert('运行时未就绪');
+                return;
+            }
+            
+            const macroTextArea = document.getElementById('macroInput');
+            const macroText = macroTextArea.value.trim();
+            
+            // 详细调试输入获取（调试模式）
+            console.log('=== 调试模式输入调试信息 ===');
+            console.log('textarea元素:', macroTextArea);
+            console.log('textarea.value (原始):', JSON.stringify(macroTextArea.value));
+            console.log('宏文本 (trim后):', JSON.stringify(macroText));
+            console.log('====================');
+            
+            if (!macroText) {
+                alert('请输入宏内容');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('debugResult');
+            
+            try {
+                const debugInput = JSON.stringify({
+                    action: "start_debug",
+                    macro: macroText,
+                    breakpoints: []
+                });
+                
+                const result = Module.ccall('jx3dps_debug', 'number', ['string'], [debugInput]);
+                resultDiv.style.display = 'block';
+                
+                if (result === 0) {
+                    resultDiv.innerHTML = '<div class="loading">调试会话已启动</div>';
+                } else {
+                    resultDiv.innerHTML = `<div class="error">调试启动失败，错误码: ${result}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">调试失败: ${error.message}</div>`;
+                console.error('调试失败:', error);
+            }
+        }
+        
+        // 单步进入
+        async function stepIn() {
+            if (!moduleReady) return;
+            
+            try {
+                const resultSize = Module.ccall('jx3dps_debugger_step_in', 'number', ['number', 'number'], [0, 0]);
+                if (resultSize > 0) {
+                    const buffer = Module._malloc(resultSize + 1);
+                    const actualSize = Module.ccall('jx3dps_debugger_step_in', 'number', ['number', 'number'], [buffer, resultSize + 1]);
+                    const debugInfo = Module.UTF8ToString(buffer, actualSize);
+                    Module._free(buffer);
+                    
+                    // 解析调试信息
+                    try {
+                        const debugData = JSON.parse(debugInfo);
+                        updateDebugDisplay(debugData);
+                        console.log('Step In:', debugInfo);
+                    } catch (e) {
+                        const resultDiv = document.getElementById('debugResult');
+                        resultDiv.innerHTML = `<strong>单步进入:</strong><br>${debugInfo}`;
+                        console.log('Step In:', debugInfo);
+                    }
+                }
+            } catch (error) {
+                console.error('单步进入失败:', error);
+            }
+        }
+        
+        // 单步越过
+        async function stepOver() {
+            if (!moduleReady) return;
+            
+            try {
+                const resultSize = Module.ccall('jx3dps_debugger_step_over', 'number', ['number', 'number'], [0, 0]);
+                if (resultSize > 0) {
+                    const buffer = Module._malloc(resultSize + 1);
+                    const actualSize = Module.ccall('jx3dps_debugger_step_over', 'number', ['number', 'number'], [buffer, resultSize + 1]);
+                    const debugInfo = Module.UTF8ToString(buffer, actualSize);
+                    Module._free(buffer);
+                    
+                    // 解析调试信息
+                    try {
+                        const debugData = JSON.parse(debugInfo);
+                        updateDebugDisplay(debugData);
+                        console.log('Step Over:', debugInfo);
+                    } catch (e) {
+                        const resultDiv = document.getElementById('debugResult');
+                        resultDiv.innerHTML = `<strong>单步越过:</strong><br>${debugInfo}`;
+                        console.log('Step Over:', debugInfo);
+                    }
+                }
+            } catch (error) {
+                console.error('单步越过失败:', error);
+            }
+        }
+        
+        // 继续执行
+        async function continueExecution() {
+            if (!moduleReady) return;
+            
+            try {
+                const resultSize = Module.ccall('jx3dps_debugger_continue', 'number', ['number', 'number'], [0, 0]);
+                if (resultSize > 0) {
+                    const buffer = Module._malloc(resultSize + 1);
+                    const actualSize = Module.ccall('jx3dps_debugger_continue', 'number', ['number', 'number'], [buffer, resultSize + 1]);
+                    const debugInfo = Module.UTF8ToString(buffer, actualSize);
+                    Module._free(buffer);
+                    
+                    // 解析调试信息
+                    try {
+                        const debugData = JSON.parse(debugInfo);
+                        updateDebugDisplay(debugData);
+                        console.log('Continue:', debugInfo);
+                    } catch (e) {
+                        const resultDiv = document.getElementById('debugResult');
+                        resultDiv.innerHTML = `<strong>继续执行:</strong><br>${debugInfo}`;
+                        console.log('Continue:', debugInfo);
+                    }
+                }
+            } catch (error) {
+                console.error('继续执行失败:', error);
+            }
+        }
+
+        // 全局错误转发到 UI
+        window.addEventListener('error', (e) => {
+            writeToUiConsole('[ERR] ' + (e?.error?.stack || e.message || 'Unknown error'));
+            const bar = document.getElementById('statusBar');
+            if (bar) { bar.style.background = '#ffebee'; bar.innerText = '运行时发生错误：' + (e?.message || '未知错误'); }
+        });
+        window.addEventListener('unhandledrejection', (e) => {
+            writeToUiConsole('[ERR] UnhandledRejection: ' + (e?.reason?.stack || e?.reason || ''));
+            const bar = document.getElementById('statusBar');
+            if (bar) { bar.style.background = '#ffebee'; bar.innerText = 'Promise 未捕获异常：' + (e?.reason?.message || e?.reason || ''); }
+        });
+
+        // 等待模块就绪（最多等待 6 秒）
+        async function waitForModuleReady(timeoutMs = 6000) {
+            const start = performance.now();
+            while (performance.now() - start < timeoutMs) {
+                if (moduleReady && Module && Module.ccall) return true;
+                await new Promise(r => setTimeout(r, 100));
+            }
+            return false;
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            console.log('页面加载完成，WebAssembly脚本已加载');
+            console.log('当前Module状态:', typeof Module);
+            if (Module && typeof Module === 'object') {
+                console.log('Module属性:', Object.keys(Module));
+            }
+            showSystemInfo();
+            
+            // 初始化代码编辑器
+            const macroInput = document.getElementById('macroInput');
+            const lineNumbersInner = document.getElementById('lineNumbersInner');
+            console.log('初始化代码编辑器 - macroInput:', !!macroInput, 'lineNumbersInner:', !!lineNumbersInner);
+            
+            if (macroInput) {
+                // 监听文本变化，更新行号
+                macroInput.addEventListener('input', () => {
+                    console.log('textarea input事件触发');
+                    updateLineNumbers();
+                });
+                macroInput.addEventListener('scroll', () => {
+                    console.log('textarea scroll事件触发');
+                    syncScroll();
+                });
+                macroInput.addEventListener('keyup', updateLineNumbers);
+                
+                // 初始化行号显示
+                console.log('调用初始 updateLineNumbers()');
+                updateLineNumbers();
+            } else {
+                console.error('无法找到macroInput元素');
+            }
+            const bar = document.getElementById('statusBar');
+            if (bar) {
+                const coi = window.crossOriginIsolated === true;
+                const sw = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
+                bar.innerText = `运行时加载中... COI: ${coi ? '是' : '否'} | SW: ${sw ? '已控制' : '未控制'}`;
+            }
+
+            // 将 Emscripten 启动早期的缓冲输出刷到 UI
+            try {
+                if (Array.isArray(self.__wasmLogs)) {
+                    for (const { type, msg } of self.__wasmLogs) {
+                        writeToUiConsole(type === 'err' ? ('[ERR] ' + msg) : msg);
+                    }
+                    self.__wasmLogs = [];
+                }
+            } catch (_) {}
+        });
+
+    // 暴露为全局，确保 inline onclick 能调用
+    window.runSimulation = runSimulation;
+    window.startDebug = startDebug;
+    window.stepIn = stepIn;
+    window.stepOver = stepOver;
+    window.continueExecution = continueExecution;
+    </script>
 </body>
 </html>

@@ -1,3 +1,0 @@
-add_subdirectory(tai_xu_jian_yi)
-add_subdirectory(mo_wen)
-add_subdirectory(fen_shan_jing)

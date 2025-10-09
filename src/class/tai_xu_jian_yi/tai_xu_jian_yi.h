@@ -1,158 +1,83 @@
-﻿/**
- * Project: JX3DPS
- * File: TaiXuJianYi.h
- * Description:
- * Created Date: 2023-07-20 02:40:46
- * Author: 难为水
- * -----
- * Last Modified: 2023-09-12 09:43:34
- * Modified By: 难为水
- * -----
- * CHANGELOG:
- * Date      	By     	Comments
- * ----------	-------	----------------------------------------------------------
- */
+#ifndef JX3DPS_CLASS_TAI_XU_JIAN_YI_H
+#define JX3DPS_CLASS_TAI_XU_JIAN_YI_H
 
-#ifndef __JX3DPS_CLASS_TAI_XU_JIAN_YI_H__
-#define __JX3DPS_CLASS_TAI_XU_JIAN_YI_H__
-
-#include "player.h"
+#include "src/core/context.h"
+#include "src/global/concepts.h"
+#include "src/global/jx3.h"
+#include "src/global/types.h"
+#include "src/player/player.hpp"
+#include "tai_xu_jian_yi_ids.h"
+#include <list>
 
 namespace JX3DPS {
+namespace 太虚剑意 {
 
-namespace TaiXuJianYi {
-
-class Player : public JX3DPS::Player
-{
+/**
+ * @brief 太虚剑意玩家类
+ *
+ * 特色系统：
+ * - 气点机制 (0-10点)
+ * - 剑气场管理
+ * - 三柴剑法特殊GCD
+ */
+class Player : public JX3DPS::Player<Player> {
 public:
-    Player();
+    Player() = default;
+    ~Player() = default;
 
-    Player(const Player &other);
+    // ========== 气点系统 ==========
 
-    Player &operator=(const JX3DPS::Player &other) override
-    {
-        if (this == &other) {
-            return *this;
-        }
+    int GetQidian() const { return m_qidian; }
+    void SetQidian(int qidian) { m_qidian = std::clamp(qidian, 0, 10); }
+    void AddQidian(int qidian) { SetQidian(m_qidian + qidian); }
 
-        JX3DPS::Player::operator=(other);
-        return *this;
-    }
+    // ========== GCD 管理 ==========
 
-    Player *Clone() const override { return new Player(*this); }
+    tick_t cooldownSanChaiJianFaCurrent = 0;
 
-    void Init() override;
-
-    Frame_t GetNextGlobalCooldown() const override
-    {
-        Frame_t frame = JX3DPS_INVALID_FRAMES_SET;
-        if (globalCooldownCurrent > 0) {
-            frame = globalCooldownCurrent;
-        }
+    tick_t GetNextGlobalCooldown() const override {
+        tick_t gcd = globalCooldownCurrent > 0 ? globalCooldownCurrent : JX3DPS_INVALID_FRAMES;
         if (cooldownSanChaiJianFaCurrent > 0) {
-            frame = std::min(frame, cooldownSanChaiJianFaCurrent);
+            gcd = std::min(gcd, cooldownSanChaiJianFaCurrent);
         }
-        return frame;
+        return gcd;
     }
 
-    inline void UpdateGlobalCooldown(Frame_t next) override
-    {
-        globalCooldownCurrent -= next;
-        globalCooldownCurrent  = std::max(globalCooldownCurrent, 0);
-
-        cooldownSanChaiJianFaCurrent -= next;
-        cooldownSanChaiJianFaCurrent  = std::max(cooldownSanChaiJianFaCurrent, 0);
+    void UpdateGlobalCooldown(tick_t next) override {
+        globalCooldownCurrent = std::max(globalCooldownCurrent - next, 0);
+        cooldownSanChaiJianFaCurrent = std::max(cooldownSanChaiJianFaCurrent - next, 0);
     }
 
-    std::list<Id_t> fields;
-    
-    Id_t fieldId = TARGET_PLACE_HOLDERS_END;
+    // ========== 剑气场管理 ==========
 
-    void RemoveField(Id_t fieldId, int stackNum = 1)
-    {
-        int stack = 0;
-        for (auto it = fields.begin(); it != fields.end();) {
+    std::list<jx3id_t> fields;   // 已生成的剑气场列表
+    jx3id_t nextFieldId = 1;     // 下一个剑气场ID
+
+    void AddField(jx3id_t fieldId) {
+        fields.push_back(fieldId);
+    }
+
+    void RemoveField(jx3id_t fieldId, int count = 1) {
+        int removed = 0;
+        for (auto it = fields.begin(); it != fields.end() && removed < count;) {
             if (*it == fieldId) {
                 it = fields.erase(it);
-                ++stack;
-                if (stack == stackNum) {
-                    break;
-                }
+                ++removed;
             } else {
                 ++it;
             }
         }
     }
 
-    Frame_t cooldownSanChaiJianFaCurrent = 0;
-
-    static void TriggerWuYi(const Params &params);
-
-    static void TriggerFengShiAdd(const Params &params);
-
-    static void TriggerFengShiClear(const Params &params);
-
-    static void TriggerShenMai(const Params &params);
-
-    static void TriggerXuJi(const Params &params);
-
-    static void TriggerXuanMen(const Params &params);
-
-    static void TriggerChangSheng(const Params &params);
-
-    static void TriggerChiYing(const Params &params);
-
-    static void TriggerWuYu(const Params &params);
-
-    static void TriggerDieRen(const Params &params);
-
-    static void TriggerQieYu(const Params &params);
-
-    static void TriggerHuanYue(const Params &params);
-
-    static void TriggerJingHuaYing(const Params &params);
-
-    static void TriggerGuChang(const Params &params);
-
-    static void TriggerLieYun(const Params &params);
-
-    static void TriggerQiSheng(const Params &params);
-
-    static void TriggerJianRuAdd(const Params &params);
-
-    static void TriggerJianRu(const Params &params);
-
-    static void TriggerFieldQiSheng(const Params &params);
-
-    static void TriggerRenJianHeYiDot(const Params &params);
-
-    static void TriggerShengTaiJiEffectCooldown(const Params &params);
-
-    static void TriggerYunZhongJianSuiXingChen(const Params &params);
-
-    static void TriggerYunZhongJianTunRiYue(const Params &params);
-
-    static void TriggerYunZhongJianShengTaiJi(const Params &params);
-
-    static void TriggerEnchantShoes(const Params &params);
-
-    static void TriggerEnchantBelt(const Params &params);
-
-    static void TriggerEnchantWrist(const Params &params);
-
-    static void TriggerWeaponCW(const Params &params);
-
-    static void TriggerWeaponCWDot(const Params &params);
-
-    static void TriggerWeaponCWDamage(const Params &params);
-
-    static void TriggerSetAttribute(const Params &params);
-
-    static void TriggerTeamCoreTaiXuJianYiYouRen(const Params &params);
+private:
+    int m_qidian = 10; // 初始10点气点
 };
 
-} // namespace TaiXuJianYi
-
+} // namespace 太虚剑意
 } // namespace JX3DPS
 
-#endif // __JX3DPS_CLASS_TAI_XU_JIAN_YI_H__
+// ========== 包含BUFF和技能定义 ==========
+#include "tai_xu_jian_yi_buff.h"
+#include "tai_xu_jian_yi_skill.h"
+
+#endif // JX3DPS_CLASS_TAI_XU_JIAN_YI_H

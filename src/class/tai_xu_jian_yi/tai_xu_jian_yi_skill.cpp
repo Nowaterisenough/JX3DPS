@@ -1,9 +1,9 @@
 /**
- * @file tai_xu_jian_yi_skills.cpp
+ * @file tai_xu_jian_yi_skill.cpp
  * @brief 太虚剑意技能实现
  */
 
-#include "tai_xu_jian_yi_skills.h"
+#include "tai_xu_jian_yi_skill.h"
 #include "tai_xu_jian_yi.h"
 #include "src/core/context.h"
 

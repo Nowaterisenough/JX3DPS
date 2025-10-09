@@ -78,6 +78,6 @@ private:
 
 // ========== 包含BUFF和技能定义 ==========
 #include "tai_xu_jian_yi_buff.h"
-#include "tai_xu_jian_yi_skills.h"
+#include "tai_xu_jian_yi_skill.h"
 
 #endif // JX3DPS_CLASS_TAI_XU_JIAN_YI_H

@@ -1,13 +1,18 @@
 /**
  * @file tai_xu_jian_yi.cpp
- * @brief 太虚剑意动态库实现
+ * @brief 太虚剑意实现
  *
  * 提供C++和C API接口用于技能模拟
  */
 
 #include "tai_xu_jian_yi.h"
 #include "tai_xu_jian_yi_buff.h"
-#include "tai_xu_jian_yi_export.h"
+
+// 定义简单的导出宏（不再作为独立库）
+#define TXJY_API
+#define TXJY_CALL
+#define TXJY_EXTERN_C_BEGIN extern "C" {
+#define TXJY_EXTERN_C_END }
 
 #include <memory>
 #include <string>

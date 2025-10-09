@@ -1,0 +1,27 @@
+@PACKAGE_INIT@
+
+# ============================================================================
+# TaiXuJianYi CMake Package Configuration
+# ============================================================================
+
+include(CMakeFindDependencyMacro)
+
+# Find dependencies if needed
+# find_dependency(nlohmann_json)
+# find_dependency(spdlog)
+
+# Include the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/tai_xu_jian_yiTargets.cmake")
+
+# Define imported targets
+if(NOT TARGET JX3DPS::tai_xu_jian_yi)
+    message(FATAL_ERROR "Expected target JX3DPS::tai_xu_jian_yi not defined by tai_xu_jian_yiTargets.cmake")
+endif()
+
+check_required_components(tai_xu_jian_yi)
+
+# Package information
+set(tai_xu_jian_yi_VERSION "@PROJECT_VERSION@")
+set(tai_xu_jian_yi_FOUND TRUE)
+
+message(STATUS "Found TaiXuJianYi: ${tai_xu_jian_yi_VERSION}")

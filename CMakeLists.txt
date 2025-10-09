@@ -32,16 +32,20 @@ option(BUILD_TESTS "option for build" OFF)
 add_subdirectory(3rd)
 add_subdirectory(src)
 add_subdirectory(modules)
-add_subdirectory(resources)
+
+# Resources 需要 Qt，仅在 BUILD_APP 时构建
+if(BUILD_APP)
+    add_subdirectory(resources)
+endif()
 
 set(BUILD_SHARED_LIBS true)
 
 add_definitions(-DEXPORT_JX3DPS)
 # add_definitions(-DIMPORT_STATIC_THREAD_POOL_LIB)
 
+include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/modules)
-include_directories(${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE HEADER_FILES ${CMAKE_SOURCE_DIR}/src/*.h* ${CMAKE_SOURCE_DIR}/include/*.h*)
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.c*)
@@ -98,11 +102,11 @@ install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION ${PROJECT_NAME}/bin
 )
 
-set(HEADERS ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME}.h)
+set(HEADERS ${CMAKE_SOURCE_DIR}/include/jx3dps.h)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     PUBLIC_HEADER "${HEADERS}"
     VERSION ${PROJECT_VERSION}
-    SOVERSION {PROJECT_VERSION_MAJOR}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
     FOLDER JX3DPS
 )
 
@@ -159,6 +163,13 @@ endif()
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
+endif()
+
+# CMake选项 性能测试样例
+option(BUILD_PERFORMANCE "Build performance benchmarks" OFF)
+
+if(BUILD_PERFORMANCE)
+    add_subdirectory(performance)
 endif()
 
 # ============================================================================

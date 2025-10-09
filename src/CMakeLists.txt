@@ -1,2 +1,19 @@
+# JX3DPS Source CMakeLists
+
+# 收集所有源文件
+file(GLOB_RECURSE JX3DPS_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
+)
+
+# 收集所有头文件
+file(GLOB_RECURSE JX3DPS_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
+)
+
+# 将源文件添加到父作用域
+set(JX3DPS_SOURCES ${JX3DPS_SOURCES} PARENT_SCOPE)
+set(JX3DPS_HEADERS ${JX3DPS_HEADERS} PARENT_SCOPE)
 
 add_subdirectory(class)

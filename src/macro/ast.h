@@ -68,7 +68,7 @@ public:
     explicit BuffExistsCondition(jx3id_t buff_id) : m_buff_id(buff_id) {}
 
     bool Evaluate() const override {
-        return m_comp(tls_sim.cache.buff_duration[0][m_buff_id]);
+        return m_comp(context.cache.buff_duration[0][m_buff_id]);
     }
 };
 
@@ -84,7 +84,7 @@ public:
     explicit TBuffExistsCondition(jx3id_t buff_id) : m_buff_id(buff_id) {}
 
     bool Evaluate() const override {
-        return m_comp(tls_sim.cache.buff_duration[tls_sim.targets.begin()->first][m_buff_id]);
+        return m_comp(context.cache.buff_duration[context.targets.begin()->first][m_buff_id]);
     }
 };
 
@@ -102,7 +102,7 @@ public:
         : m_buff_id(buff_id), m_duration(duration) {}
 
     bool Evaluate() const override {
-        return m_comp(tls_sim.cache.buff_duration[0][m_buff_id], m_duration);
+        return m_comp(context.cache.buff_duration[0][m_buff_id], m_duration);
     }
 
     // 获取时间条件信息
@@ -128,7 +128,7 @@ public:
         : m_buff_id(buff_id), m_duration(duration) {}
 
     bool Evaluate() const override {
-        return m_comp(tls_sim.cache.buff_duration[tls_sim.targets.begin()->first][m_buff_id], m_duration);
+        return m_comp(context.cache.buff_duration[context.targets.begin()->first][m_buff_id], m_duration);
     }
 
     // 获取时间条件信息
@@ -154,7 +154,7 @@ public:
         : m_skill_id(skill_id), m_cooldown(cooldown) {}
 
     bool Evaluate() const override {
-        return m_comp(tls_sim.cache.skill_cooldown[m_skill_id], m_cooldown);
+        return m_comp(context.cache.skill_cooldown[m_skill_id], m_cooldown);
     }
 
     // 获取时间条件信息

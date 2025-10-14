@@ -23,8 +23,8 @@ struct ScriptInterpreter::Impl
     bool                             conditionResult    = false; // 当前条件结果
     int                              currentScriptIndex = -1;    // 当前脚本行在 scriptLines 中的索引
 
-    // 使用 JX3DPS 核心库的 SimContext
-    JX3DPS::SimContext simContext;
+    // 使用 JX3DPS 核心库的 Context
+    JX3DPS::Context simContext;
 
     // 技能和BUFF名称到ID的映射（使用太虚剑意的ID）
     std::unordered_map<std::string, JX3DPS::jx3id_t> skillNameToId;
@@ -116,7 +116,7 @@ bool ScriptInterpreter::Initialize(const QString &macroText, QString &errorMessa
         return false;
     }
 
-    // 初始化 SimContext（不需要额外的初始化，TickCache 已经准备好）
+    // 初始化 Context（不需要额外的初始化，TickCache 已经准备好）
     // 技能和BUFF的状态存储在 simContext.cache 中
 
     // 设置 currentLine 为第一条有效指令的行号
@@ -267,7 +267,7 @@ bool ScriptInterpreter::EvaluateCondition(const QString &condition)
     } else if (var.startsWith("tlife:")) {
         varValue = d->player.targetLifePercent;
     } else if (var.startsWith("skill_cd:")) {
-        // 从 SimContext 查询技能冷却
+        // 从 Context 查询技能冷却
         QString     skillName    = var.mid(9); // 去掉 "skill_cd:" 前缀
         std::string skillNameStd = skillName.toStdString();
 
@@ -305,7 +305,7 @@ bool ScriptInterpreter::EvaluateCondition(const QString &condition)
 
 bool ScriptInterpreter::CastSkill(const QString &skillName)
 {
-    // 使用 SimContext 检查技能是否就绪
+    // 使用 Context 检查技能是否就绪
     std::string skillNameStd = skillName.toStdString();
 
     // 查找技能ID
@@ -323,7 +323,7 @@ bool ScriptInterpreter::CastSkill(const QString &skillName)
         return false;
     }
 
-    if (d->simContext.globalCooldownCurrent > 0) {
+    if (d->simContext.GetGlobalCooldown() > 0) {
         qDebug() << "  [失败] 全局冷却中";
         return false;
     }
@@ -334,7 +334,7 @@ bool ScriptInterpreter::CastSkill(const QString &skillName)
     d->simContext.cache.skill_cooldown[skillId] = 160;
 
     // 设置全局冷却 (24 ticks = 1.5秒)
-    d->simContext.globalCooldownCurrent = 24;
+    d->simContext.SetGlobalCooldown(24);
 
     // 推进时间（1 tick）
     d->simContext.Update(1);
@@ -382,8 +382,8 @@ void ScriptInterpreter::Reset()
     d->player.lifePercent = 1.0;
     d->player.manaPercent = 1.0;
 
-    // 重置 SimContext
-    d->simContext = JX3DPS::SimContext(); // 创建新的 SimContext 以重置所有状态
+    // 重置 Context
+    d->simContext = JX3DPS::Context(); // 创建新的 Context 以重置所有状态
 }
 
 const std::vector<ScriptInterpreter::ScriptLine> &ScriptInterpreter::GetScriptLines() const

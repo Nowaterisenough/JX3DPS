@@ -120,7 +120,7 @@ public:
 
     紫气东来Buff() {
         Register(EventType::POST_ADD, [this]() {
-            auto *player = static_cast<::JX3DPS::太虚剑意::Player *>(tls_sim.player);
+            auto *player = static_cast<::JX3DPS::太虚剑意::Player *>(context.player);
             player->AddQidian(5);
         });
 
@@ -359,7 +359,7 @@ public:
 
         // 10层时触发伤害
         Register(EventType::POST_STACK_CHANGE, [this]() {
-            auto *player = static_cast<::JX3DPS::太虚剑意::Player *>(tls_sim.player);
+            auto *player = static_cast<::JX3DPS::太虚剑意::Player *>(context.player);
             if (player->GetBuffStack(static_cast<jx3id_t>(BuffId::持盈)) >= 10) {
                 // TODO: Deal damage
             }

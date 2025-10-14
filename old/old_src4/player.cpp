@@ -78,7 +78,7 @@ JX3DPS::Player::Player(const Player &other)
     m_lastCastSkill = other.m_lastCastSkill;
 
     globalCooldown        = other.globalCooldown;
-    globalCooldownCurrent = other.globalCooldownCurrent;
+    global_cooldown_current = other.global_cooldown_current;
 
     attribute = other.attribute;
 
@@ -134,7 +134,7 @@ JX3DPS::Player &JX3DPS::Player::operator=(const Player &other)
     m_lastCastSkill = other.m_lastCastSkill;
 
     globalCooldown        = other.globalCooldown;
-    globalCooldownCurrent = other.globalCooldownCurrent;
+    global_cooldown_current = other.global_cooldown_current;
 
     attribute = other.attribute;
 

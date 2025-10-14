@@ -226,8 +226,8 @@ private:
         if (type == "bufftime") {
             jx3id_t id = m_get_buff_id(name);
 
-            // 注册宏时间阈值到 tls_sim
-            RegisterMacroTimeThreshold(MacroTimeThreshold::Type::BUFF_DURATION, id, value);
+            // 注册宏时间阈值到 context
+            RegisterMacroTimeThreshold(MacroTrigger::Type::BUFF_DURATION, id, value);
 
             return MakeComparisonNode<BuffDurationCondition>(id, op, value);
         }
@@ -235,8 +235,8 @@ private:
         if (type == "tbufftime") {
             jx3id_t id = m_get_buff_id(name);
 
-            // 注册宏时间阈值到 tls_sim
-            RegisterMacroTimeThreshold(MacroTimeThreshold::Type::TBUFF_DURATION, id, value);
+            // 注册宏时间阈值到 context
+            RegisterMacroTimeThreshold(MacroTrigger::Type::TBUFF_DURATION, id, value);
 
             return MakeComparisonNode<TBuffDurationCondition>(id, op, value);
         }
@@ -244,8 +244,8 @@ private:
         if (type == "cd") {
             jx3id_t id = m_get_skill_id(name);
 
-            // 注册宏时间阈值到 tls_sim
-            RegisterMacroTimeThreshold(MacroTimeThreshold::Type::SKILL_COOLDOWN, id, value);
+            // 注册宏时间阈值到 context
+            RegisterMacroTimeThreshold(MacroTrigger::Type::SKILL_COOLDOWN, id, value);
 
             return MakeComparisonNode<SkillCooldownCondition>(id, op, value);
         }
@@ -256,15 +256,15 @@ private:
     /**
      * @brief 注册宏时间阈值
      *
-     * 将宏条件中的时间阈值注册到 SimContext，用于生成精确的关键帧
+     * 将宏条件中的时间阈值注册到 Context，用于生成精确的关键帧
      *
      * @param type 阈值类型
      * @param id BUFF 或技能的 ID
      * @param threshold 阈值（帧数）
      */
-    void RegisterMacroTimeThreshold(MacroTimeThreshold::Type type, jx3id_t id, tick_t threshold) {
+    void RegisterMacroTimeThreshold(MacroTrigger::Type type, jx3id_t id, tick_t threshold) {
         // 检查是否已经注册过相同的阈值，避免重复
-        for (const auto& existing : tls_sim.macro_time_thresholds) {
+        for (const auto& existing : context.macro_triggers) {
             if (existing.type == type &&
                 existing.cache_index == static_cast<size_t>(id) &&
                 existing.threshold == threshold) {
@@ -273,7 +273,7 @@ private:
         }
 
         // 添加新的时间阈值
-        tls_sim.macro_time_thresholds.emplace_back(
+        context.macro_triggers.emplace_back(
             type,
             static_cast<size_t>(id),
             threshold

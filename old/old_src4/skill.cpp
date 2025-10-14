@@ -27,7 +27,7 @@ JX3DPS::Skill::Skill(Player *player, Targets *targets)
 {
     this->m_player          = player;
     this->m_targets         = targets;
-    m_globalCooldownCurrent = &(player->globalCooldownCurrent);
+    m_globalCooldownCurrent = &(player->global_cooldown_current);
 }
 
 JX3DPS::Skill::~Skill() { }
@@ -114,7 +114,7 @@ void JX3DPS::Skill::SetPlayer(Player *player)
 {
     m_player = player;
     if (m_globalCooldownCurrent != &(m_noneGlobalCooldown)) {
-        m_globalCooldownCurrent = &(m_player->globalCooldownCurrent);
+        m_globalCooldownCurrent = &(m_player->global_cooldown_current);
     }
 }
 
@@ -177,7 +177,7 @@ void JX3DPS::Skill::SetEnergyCountCurrent(int count)
 
 JX3DPS::Frame_t JX3DPS::Skill::GetCooldownCurrentWithoutGlobal() const
 {
-    if (m_globalCooldownCurrent == &m_player->globalCooldownCurrent) {
+    if (m_globalCooldownCurrent == &m_player->global_cooldown_current) {
         return m_cooldownCurrent;
     }
     return std::max(m_cooldownCurrent, *m_globalCooldownCurrent);

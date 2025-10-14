@@ -87,16 +87,16 @@ public:
 
     // ===== GCD管理 =====
 
-    tick_t globalCooldownCurrent = 0;
+    tick_t global_cooldown_current = 0;
 
     virtual tick_t GetNextGlobalCooldown() const {
-        return globalCooldownCurrent > 0 ? globalCooldownCurrent : JX3DPS_INVALID_FRAMES;
+        return global_cooldown_current > 0 ? global_cooldown_current : JX3DPS_INVALID_FRAMES;
     }
 
     virtual void UpdateGlobalCooldown(tick_t next) {
-        globalCooldownCurrent -= next;
-        if (globalCooldownCurrent < 0) {
-            globalCooldownCurrent = 0;
+        global_cooldown_current -= next;
+        if (global_cooldown_current < 0) {
+            global_cooldown_current = 0;
         }
     }
 

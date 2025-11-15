@@ -163,7 +163,7 @@ public:
     bool IsReady() const {
         // 1. 检查GCD
         if constexpr (!HasNoGCD<DerivedSkill>) {
-            if (tls_sim.globalCooldownCurrent > 0) {
+            if (context.GetGlobalCooldown() > 0) {
                 return false;
             }
         }
@@ -281,7 +281,7 @@ private:
 
         // 应用GCD
         if constexpr (!HasNoGCD<DerivedSkill>) {
-            tls_sim.globalCooldownCurrent = JX3_GLOBAL_COOLDOWN;
+            context.SetGlobalCooldown(JX3_GLOBAL_COOLDOWN);
         }
     }
 

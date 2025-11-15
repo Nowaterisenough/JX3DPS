@@ -46,8 +46,8 @@ public:
     Frame_t GetNextGlobalCooldown() const override
     {
         Frame_t frame = JX3DPS_INVALID_FRAMES_SET;
-        if (globalCooldownCurrent > 0) {
-            frame = globalCooldownCurrent;
+        if (global_cooldown_current > 0) {
+            frame = global_cooldown_current;
         }
         if (cooldownStyleCurrent > 0) {
             frame = std::min(frame, cooldownStyleCurrent);
@@ -72,8 +72,8 @@ public:
 
     inline void UpdateGlobalCooldown(Frame_t next) override
     {
-        globalCooldownCurrent -= next;
-        globalCooldownCurrent  = std::max(globalCooldownCurrent, 0);
+        global_cooldown_current -= next;
+        global_cooldown_current  = std::max(global_cooldown_current, 0);
 
         cooldownStyleCurrent -= next;
         cooldownStyleCurrent  = std::max(cooldownStyleCurrent, 0);

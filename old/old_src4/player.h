@@ -42,8 +42,8 @@ public:
     virtual Frame_t GetNextGlobalCooldown() const
     {
         Frame_t frame = JX3DPS_INVALID_FRAMES_SET;
-        if (globalCooldownCurrent > 0) {
-            frame = globalCooldownCurrent;
+        if (global_cooldown_current > 0) {
+            frame = global_cooldown_current;
         }
         return frame;
     }
@@ -58,9 +58,9 @@ public:
 
     inline virtual void UpdateGlobalCooldown(Frame_t next)
     {
-        globalCooldownCurrent -= next;
-        if (globalCooldownCurrent < 0) {
-            globalCooldownCurrent = 0;
+        global_cooldown_current -= next;
+        if (global_cooldown_current < 0) {
+            global_cooldown_current = 0;
         }
     }
 
@@ -193,7 +193,7 @@ public:
 
 public:
     Frame_t globalCooldown        = 24; // 冷却
-    Frame_t globalCooldownCurrent = 0;  // 当前冷却
+    Frame_t global_cooldown_current = 0;  // 当前冷却
 
     Attribute attribute; // 属性
     ClassType teamCore = ClassType::DEFAULT;

@@ -22,7 +22,7 @@ public:
     static constexpr int LEVEL = 3; // 0气, 1气, 2气
 
     PROPERTY tick_t cooldown = 0;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[0];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[0];
     PROPERTY int range = 4;
 
     SKILL_DATA int physics_surplus_cof[LEVEL] = {
@@ -41,7 +41,7 @@ public:
     static constexpr int LEVEL = 10;
 
     PROPERTY tick_t cooldown = 24;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1];
     PROPERTY int range = 4;
 
     SKILL_DATA int base_damage[LEVEL] = {224, 449, 673, 898, 1122, 1347, 1571, 1795, 2020, 2244};
@@ -75,7 +75,7 @@ public:
     static constexpr int LEVEL = 1;
 
     PROPERTY tick_t cooldown = 480;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[2];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[2];
     PROPERTY int range = 8;
     PROPERTY int limit = 5;
 
@@ -94,7 +94,7 @@ public:
     static constexpr int LEVEL = 1;
 
     PROPERTY tick_t cooldown = 160;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[3];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[3];
     PROPERTY int range = 5;
 
     PROPERTY int base_damage = 360;
@@ -114,7 +114,7 @@ public:
     static constexpr int LEVEL = 1;
 
     PROPERTY tick_t cooldown = 1920;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[4];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[4];
     PROPERTY int range = 20;
 
     PROPERTY int base_damage = 2160;
@@ -134,7 +134,7 @@ public:
     static constexpr int LEVEL = 1;
 
     PROPERTY tick_t cooldown = 0;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[5];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[5];
     PROPERTY int range = 20;
 
     PROPERTY int base_damage = 216;
@@ -154,9 +154,9 @@ public:
     static constexpr int LEVEL = 1;
 
     PROPERTY tick_t casting = 32;
-    PROPERTY tick_t *current_casting = &tls_sim.cache.skill_casting[7];
+    PROPERTY tick_t *current_casting = &context.cache.skill_casting[7];
     PROPERTY tick_t cooldown = 112;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[7];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[7];
     PROPERTY int range = 20;
 
     PROPERTY int base_damage = 1080;
@@ -176,9 +176,9 @@ public:
     static constexpr int LEVEL = 1;
 
     PROPERTY tick_t casting = 32;
-    PROPERTY tick_t *current_casting = &tls_sim.cache.skill_casting[8];
+    PROPERTY tick_t *current_casting = &context.cache.skill_casting[8];
     PROPERTY tick_t cooldown = 112;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[8];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[8];
     PROPERTY int range = 20;
 
     PROPERTY int base_damage = 1080;
@@ -198,9 +198,9 @@ public:
     static constexpr int LEVEL = 1;
 
     PROPERTY tick_t casting = 32;
-    PROPERTY tick_t *current_casting = &tls_sim.cache.skill_casting[9];
+    PROPERTY tick_t *current_casting = &context.cache.skill_casting[9];
     PROPERTY tick_t cooldown = 112;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[9];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[9];
     PROPERTY int range = 20;
 
     PROPERTY int base_damage = 1080;
@@ -222,9 +222,9 @@ public:
     static constexpr int LEVEL = 1;
 
     PROPERTY tick_t prepare = 32;
-    PROPERTY tick_t *current_prepare = &tls_sim.cache.skill_prepare[6];
+    PROPERTY tick_t *current_prepare = &context.cache.skill_prepare[6];
     PROPERTY tick_t cooldown = 0;
-    PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[6];
+    PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[6];
     PROPERTY int range = 4;
 
     PROPERTY int base_damage = 648;

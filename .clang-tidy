@@ -224,11 +224,11 @@ CheckOptions:
   - key: readability-identifier-naming.ClassConstantHungarianPrefix
     value: Off
 
-  # 类成员变量命名规则：小骆驼命名法，用_作为前缀 (例如: _memberVar, _data)
+  # 类成员变量命名规则：蛇形命名法，不使用前缀（具体前缀由访问级别决定）
   - key: readability-identifier-naming.ClassMemberCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.ClassMemberPrefix
-    value: "_"
+    value: ""
   - key: readability-identifier-naming.ClassMemberSuffix
     value: ""
   - key: readability-identifier-naming.ClassMemberIgnoredRegexp
@@ -442,9 +442,9 @@ CheckOptions:
   - key: readability-identifier-naming.LocalConstantPointerHungarianPrefix
     value: Off
 
-  # 局部指针命名规则：小骆驼命名法 (例如: int* ptr, char* buffer)
+  # 局部指针命名规则：蛇形命名法 (例如: int* ptr, char* buffer)
   - key: readability-identifier-naming.LocalPointerCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.LocalPointerPrefix
     value: ""
   - key: readability-identifier-naming.LocalPointerSuffix
@@ -454,9 +454,9 @@ CheckOptions:
   - key: readability-identifier-naming.LocalPointerHungarianPrefix
     value: Off
 
-  # 局部变量命名规则：小骆驼命名法 (例如: int count, std::string fileName)
+  # 局部变量命名规则：蛇形命名法 (例如: int count, std::string file_name)
   - key: readability-identifier-naming.LocalVariableCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.LocalVariablePrefix
     value: ""
   - key: readability-identifier-naming.LocalVariableSuffix
@@ -476,11 +476,11 @@ CheckOptions:
   - key: readability-identifier-naming.MacroDefinitionIgnoredRegexp
     value: ""
 
-  # 成员变量命名规则：小骆驼命名法，使用_作为前缀 (例如: _data, _buffer)
+  # 成员变量命名规则：蛇形命名法，不使用前缀（具体前缀由访问级别决定）
   - key: readability-identifier-naming.MemberCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.MemberPrefix
-    value: "_"
+    value: ""
   - key: readability-identifier-naming.MemberSuffix
     value: ""
   - key: readability-identifier-naming.MemberIgnoredRegexp
@@ -508,9 +508,9 @@ CheckOptions:
   - key: readability-identifier-naming.NamespaceIgnoredRegexp
     value: ""
 
-  # 参数命名规则：小骆驼命名法 (例如: void func(int paramValue, const string& fileName))
+  # 参数命名规则：蛇形命名法 (例如: void func(int param_value, const string& file_name))
   - key: readability-identifier-naming.ParameterCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.ParameterPrefix
     value: ""
   - key: readability-identifier-naming.ParameterSuffix
@@ -542,10 +542,10 @@ CheckOptions:
   - key: readability-identifier-naming.PointerParameterHungarianPrefix
     value: Off
 
-  # 私有成员变量命名规则：小骆驼命名法，前缀为"_" (例如: _privateData)
+  # 私有成员变量命名规则：蛇形命名法，前缀为"_" (例如: _private_data)
   # 忽略Qt的signals关键字
   - key: readability-identifier-naming.PrivateMemberCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.PrivateMemberPrefix
     value: "_"
   - key: readability-identifier-naming.PrivateMemberSuffix
@@ -566,9 +566,9 @@ CheckOptions:
   - key: readability-identifier-naming.PrivateMethodIgnoredRegexp
     value: "Signal_.*"
 
-  # 受保护成员变量命名规则：小骆驼命名法，前缀为"_" (例如: _protectedValue)
+  # 受保护成员变量命名规则：蛇形命名法，前缀为"_" (例如: _protected_value)
   - key: readability-identifier-naming.ProtectedMemberCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.ProtectedMemberPrefix
     value: "_"
   - key: readability-identifier-naming.ProtectedMemberSuffix
@@ -589,9 +589,9 @@ CheckOptions:
   - key: readability-identifier-naming.ProtectedMethodIgnoredRegexp
     value: "Signal_.*"
 
-  # 公开成员变量命名规则：小骆驼命名法 (例如: int publicValue)
+  # 公开成员变量命名规则：蛇形命名法 (例如: int public_value)
   - key: readability-identifier-naming.PublicMemberCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.PublicMemberPrefix
     value: ""
   - key: readability-identifier-naming.PublicMemberSuffix
@@ -729,9 +729,9 @@ CheckOptions:
   - key: readability-identifier-naming.ValueTemplateParameterIgnoredRegexp
     value: ""
 
-  # 变量命名规则：小骆驼命名法 (例如: int dataCount, std::string userName)
+  # 变量命名规则：蛇形命名法 (例如: int data_count, std::string user_name)
   - key: readability-identifier-naming.VariableCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.VariablePrefix
     value: ""
   - key: readability-identifier-naming.VariableSuffix

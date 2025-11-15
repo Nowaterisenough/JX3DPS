@@ -143,7 +143,7 @@ private:
         spdlog::debug("解析配置");
 
         try {
-            // 解析玩家配置
+            // 解析玩家配置（用于日志）
             if (config_.contains("player")) {
                 const auto& player = config_["player"];
                 spdlog::info("玩家: {}", player.value("name", "未知"));

@@ -348,7 +348,7 @@ bool JX3DPS::Expression::SkillCooldownGt(Player *player, Targets *targets, Id_t 
 
 bool JX3DPS::Expression::SkillNotinCd(Player *player, Targets *targets, Id_t id)
 {
-    if (player->skills.at(id)->GetEnergyCountCurrent() > 0 && player->globalCooldownCurrent == 0) {
+    if (player->skills.at(id)->GetEnergyCountCurrent() > 0 && player->global_cooldown_current == 0) {
         return true;
     }
     return player->skills.at(id)->GetCooldownCurrent() == 0;

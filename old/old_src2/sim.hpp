@@ -66,16 +66,16 @@ struct Sim
 };
 
 inline thread_local int tls_index = 0;
-inline thread_local Sim tls_sim;
+inline thread_local Sim context;
 
 // Bind 函数不再需要 global_cooldown 和 index
 template <typename... Skills>
 void BindGlobalCoolDown(int value, Skills &...skills)
 {
-    tls_sim.cache.skill_global_cooldown[tls_index] = value;
+    context.cache.skill_global_cooldown[tls_index] = value;
 
     auto assign = [&](auto &skill) {
-        skill.global_cooldown[tls_index] = &tls_sim.cache.skill_global_cooldown_remain[tls_index];
+        skill.global_cooldown[tls_index] = &context.cache.skill_global_cooldown_remain[tls_index];
     };
     (assign(skills), ...);
     tls_index += 1;

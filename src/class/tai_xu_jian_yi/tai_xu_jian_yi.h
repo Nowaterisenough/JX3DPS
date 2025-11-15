@@ -36,7 +36,7 @@ public:
     tick_t cooldownSanChaiJianFaCurrent = 0;
 
     tick_t GetNextGlobalCooldown() const override {
-        tick_t gcd = globalCooldownCurrent > 0 ? globalCooldownCurrent : JX3DPS_INVALID_FRAMES;
+        tick_t gcd = global_cooldown_current > 0 ? global_cooldown_current : JX3DPS_INVALID_FRAMES;
         if (cooldownSanChaiJianFaCurrent > 0) {
             gcd = std::min(gcd, cooldownSanChaiJianFaCurrent);
         }
@@ -44,7 +44,7 @@ public:
     }
 
     void UpdateGlobalCooldown(tick_t next) override {
-        globalCooldownCurrent = std::max(globalCooldownCurrent - next, 0);
+        global_cooldown_current = std::max(global_cooldown_current - next, 0);
         cooldownSanChaiJianFaCurrent = std::max(cooldownSanChaiJianFaCurrent - next, 0);
     }
 

@@ -69,7 +69,7 @@ struct 太虚剑意
             CONSTANT int SUB   = 1;
 
             PROPERTY tick_t cooldown = 24; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[0]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[0]; // 当前冷却时间
             // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
             // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -94,18 +94,18 @@ struct 太虚剑意
             无我无剑()
             {
                 // Register(CAST_CONDITION,
-                //          [this]() -> bool { return tls_sim.player.GetQidian() > 0; });
+                //          [this]() -> bool { return context.player.GetQidian() > 0; });
 
                 Register(PRE_CAST, [this]() {
-                    self.qidian = tls_sim.player.GetQidian();
-                    tls_sim.player.SetQidian(0);
+                    self.qidian = context.player.GetQidian();
+                    context.player.SetQidian(0);
                 });
 
                 Register(POST_ROLL, [this]() {
                     constexpr int QIDIAN = 6;
                     if (self.qidian > QIDIAN) {
                         int level = self.qidian / 2;
-                        tls_sim.player.CastSkill(破招, level);
+                        context.player.CastSkill(破招, level);
                     }
                 });
 
@@ -126,14 +126,14 @@ struct 太虚剑意
                 });
 
                 Register(叠刃, PRE_CAST, [this]() {
-                    tls_sim.player.AddBuff(叠刃);
+                    context.player.AddBuff(叠刃);
                     if (self.roll == DOUBLE) {
-                        tls_sim.player.AddBuff(叠刃);
+                        context.player.AddBuff(叠刃);
                     }
                 });
 
                 Register(无欲, POST_CAST, [this]() {
-                    if (tls_sim.player.HasBuff(叠刃)) {
+                    if (context.player.HasBuff(叠刃)) {
                         *八荒归元::current_cooldown -= self.qidian * JX3_FRAMES_PER_SECOND / 2;
                         *八荒归元::current_cooldown = std::max(*八荒归元::current_cooldown, 0);
                     }
@@ -149,7 +149,7 @@ struct 太虚剑意
             CONSTANT int LIMIT = 1;
 
             PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 8; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
             // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
             // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -179,7 +179,7 @@ struct 太虚剑意
             CONSTANT int LIMIT = 1;
 
             PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
             // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
             // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -209,7 +209,7 @@ struct 太虚剑意
             CONSTANT int LIMIT = 5;
 
             PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
             // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
             // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -239,7 +239,7 @@ struct 太虚剑意
             CONSTANT int LIMIT = 5;
 
             PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
             // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
             // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -269,7 +269,7 @@ struct 太虚剑意
             CONSTANT int LIMIT = 5;
 
             PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
             // PROPERTY tick_t  prepare         = 0;                      // 预读条时间
             // PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -299,7 +299,7 @@ struct 太虚剑意
             CONSTANT int LIMIT = 5;
 
             PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
             PROPERTY tick_t  prepare         = 0;       // 预读条时间
             PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -329,7 +329,7 @@ struct 太虚剑意
             CONSTANT int LIMIT = 5;
 
             PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
             PROPERTY tick_t  prepare         = 0;       // 预读条时间
             PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -359,7 +359,7 @@ struct 太虚剑意
             CONSTANT int LIMIT = 5;
 
             PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
             PROPERTY tick_t  prepare         = 0;       // 预读条时间
             PROPERTY tick_t *current_prepare = nullptr; // 当前预读条时间
             // PROPERTY tick_t  casting         = 0;       // 读条时间
@@ -385,7 +385,7 @@ struct 太虚剑意
         {
         public:
             // PROPERTY tick_t cooldown = JX3_FRAMES_PER_SECOND * 2; // 冷却时间
-            // PROPERTY tick_t *current_cooldown = &tls_sim.cache.skill_cooldown[1]; // 当前冷却时间
+            // PROPERTY tick_t *current_cooldown = &context.cache.skill_cooldown[1]; // 当前冷却时间
 
             PROPERTY int energy_count = 2; // 充能数
             PROPERTY int energy_max   = 2; // 最大充能数
@@ -393,8 +393,8 @@ struct 太虚剑意
             紫气东来()
             {
                 Register(POST_CAST, [this]() {
-                    tls_sim.player.SetQidian(10);
-                    tls_sim.player.AddBuff(紫气东来);
+                    context.player.SetQidian(10);
+                    context.player.AddBuff(紫气东来);
                 });
             }
         };
@@ -415,16 +415,16 @@ struct 太虚剑意
             紫气东来()
             {
                 Register(ADD, [this]() {
-                    tls_sim.player.AddAttribute(Attribute::Type::CRITICAL_STRIKE, PCT_10);
-                    tls_sim.player.AddAttribute(Attribute::Type::CRITICAL_STRIKE_POWER, PCT_20);
+                    context.player.AddAttribute(Attribute::Type::CRITICAL_STRIKE, PCT_10);
+                    context.player.AddAttribute(Attribute::Type::CRITICAL_STRIKE_POWER, PCT_20);
                 });
 
                 Register(EXPIRE, [this]() {
-                    tls_sim.player.AddAttribute(Attribute::Type::CRITICAL_STRIKE, -PCT_10);
-                    tls_sim.player.AddAttribute(Attribute::Type::CRITICAL_STRIKE_POWER, -PCT_20);
+                    context.player.AddAttribute(Attribute::Type::CRITICAL_STRIKE, -PCT_10);
+                    context.player.AddAttribute(Attribute::Type::CRITICAL_STRIKE_POWER, -PCT_20);
                 });
 
-                Register(TICKING, [this]() { tls_sim.player.AddQidian(2); });
+                Register(TICKING, [this]() { context.player.AddQidian(2); });
             }
         };
 
@@ -440,9 +440,9 @@ struct 太虚剑意
 
             气场·碎星辰()
             {
-                Register(ADD, [this]() { tls_sim.player.AddBuff(碎星辰); });
+                Register(ADD, [this]() { context.player.AddBuff(碎星辰); });
 
-                Register(TICKING, [this]() { tls_sim.player.AddBuff(碎星辰); });
+                Register(TICKING, [this]() { context.player.AddBuff(碎星辰); });
             }
         };
 
@@ -457,11 +457,11 @@ struct 太虚剑意
             碎星辰()
             {
                 Register(ADD, [this]() {
-                    tls_sim.player.AddAttribute(Attribute::CRITICAL_STRIKE, PCT_10);
+                    context.player.AddAttribute(Attribute::CRITICAL_STRIKE, PCT_10);
                 });
 
                 Register(EXPIRE, [this]() {
-                    tls_sim.player.AddAttribute(Attribute::CRITICAL_STRIKE, -PCT_10);
+                    context.player.AddAttribute(Attribute::CRITICAL_STRIKE, -PCT_10);
                 });
             }
         };
@@ -487,7 +487,7 @@ struct 太虚剑意
                 Register(ADD, [this]() {
                     for (auto &[id, snapshot] : snapshots) {
                         if (snapshot.stack_num >= 4) {
-                            tls_sim.targets[id].AddBuff(裂云隐藏);
+                            context.targets[id].AddBuff(裂云隐藏);
                         }
                     }
                 });

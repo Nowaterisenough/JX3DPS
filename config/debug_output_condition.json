@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "state": "paused",
+  "execution": {
+    "current_line": 1,
+    "step_type": "condition",
+    "current_condition_index": 0,
+    "current_condition": "qidian > 20",
+    "condition_result": false,
+    "last_skill": null,
+    "finished": false
+  },
+  "frame": {
+    "current": 0,
+    "time": 0.0
+  },
+  "player": {
+    "life_percent": 1.0,
+    "mana_percent": 1.0,
+    "qidian": 10,
+    "rage": 0,
+    "energy": 0,
+    "buffs": [],
+    "cooldowns": []
+  },
+  "target": {
+    "id": 1,
+    "life_percent": 1.0,
+    "buffs": []
+  },
+  "damage": {
+    "total_damage": 0,
+    "total_count": 0,
+    "critical_count": 0
+  }
+}

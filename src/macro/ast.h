@@ -68,7 +68,8 @@ public:
     explicit BuffExistsCondition(jx3id_t buff_id) : m_buff_id(buff_id) {}
 
     bool Evaluate() const override {
-        return m_comp(context.cache.buff_duration[0][m_buff_id]);
+        // Keep existence and an explicit >0 stack check exactly equivalent.
+        return m_comp(context.GetBuffStack(0, m_buff_id));
     }
 };
 
@@ -84,7 +85,38 @@ public:
     explicit TBuffExistsCondition(jx3id_t buff_id) : m_buff_id(buff_id) {}
 
     bool Evaluate() const override {
-        return m_comp(context.cache.buff_duration[context.targets.begin()->first][m_buff_id]);
+        if (context.targets.empty()) return m_comp(0);
+        const auto unit = context.targets.begin()->first;
+        return m_comp(context.GetBuffStack(unit, m_buff_id));
+    }
+};
+
+/** BUFF 层数条件，例如 buff:玄门>0。 */
+template <typename Comp>
+class BuffStackCondition : public ConditionEvaluator {
+    jx3id_t m_buff_id;
+    int m_stack;
+
+public:
+    BuffStackCondition(jx3id_t buff_id, int stack) : m_buff_id(buff_id), m_stack(stack) {}
+
+    bool Evaluate() const override {
+        return Comp{}(context.GetBuffStack(0, m_buff_id), m_stack);
+    }
+};
+
+/** 目标 BUFF 层数条件，例如 tbuff:叠刃>0。 */
+template <typename Comp>
+class TBuffStackCondition : public ConditionEvaluator {
+    jx3id_t m_buff_id;
+    int m_stack;
+
+public:
+    TBuffStackCondition(jx3id_t buff_id, int stack) : m_buff_id(buff_id), m_stack(stack) {}
+
+    bool Evaluate() const override {
+        if (context.targets.empty()) return Comp{}(0, m_stack);
+        return Comp{}(context.GetBuffStack(context.targets.begin()->first, m_buff_id), m_stack);
     }
 };
 
@@ -102,7 +134,7 @@ public:
         : m_buff_id(buff_id), m_duration(duration) {}
 
     bool Evaluate() const override {
-        return m_comp(context.cache.buff_duration[0][m_buff_id], m_duration);
+        return m_comp(context.cache.buff_duration[0][context.ResolveBuffCacheIndex(m_buff_id)], m_duration);
     }
 
     // 获取时间条件信息
@@ -128,7 +160,9 @@ public:
         : m_buff_id(buff_id), m_duration(duration) {}
 
     bool Evaluate() const override {
-        return m_comp(context.cache.buff_duration[context.targets.begin()->first][m_buff_id], m_duration);
+        if (context.targets.empty()) return m_comp(0, m_duration);
+        return m_comp(context.cache.buff_duration[context.ResolveUnitIndex(context.targets.begin()->first)]
+                                      [context.ResolveBuffCacheIndex(m_buff_id)], m_duration);
     }
 
     // 获取时间条件信息
@@ -154,7 +188,7 @@ public:
         : m_skill_id(skill_id), m_cooldown(cooldown) {}
 
     bool Evaluate() const override {
-        return m_comp(context.cache.skill_cooldown[m_skill_id], m_cooldown);
+        return m_comp(context.cache.skill_cooldown[context.ResolveSkillCacheIndex(m_skill_id)], m_cooldown);
     }
 
     // 获取时间条件信息
@@ -163,6 +197,20 @@ public:
     bool IsGreaterThan() const {
         return std::is_same_v<Comp, Comparator::GreaterThan> ||
                std::is_same_v<Comp, Comparator::GreaterEqual>;
+    }
+};
+
+/** 太虚剑意气点条件，例如 qidian>5 或旧宏中的 qidian20。 */
+template <typename Comp>
+class QidianCondition : public ConditionEvaluator {
+    int m_qidian;
+
+public:
+    explicit QidianCondition(int qidian) : m_qidian(qidian) {}
+    QidianCondition(jx3id_t, int qidian) : m_qidian(qidian) {}
+
+    bool Evaluate() const override {
+        return Comp{}(context.qidian, m_qidian);
     }
 };
 

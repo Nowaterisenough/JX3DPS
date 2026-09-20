@@ -50,27 +50,30 @@ enum class JX3Version
     WU_HAI_XUN_LONG       = 39, // 2024年05月01日 雾海寻龙
     SI_LU_FENG_YU         = 40, // 2024年10月31日 丝路风语
     TAI_JI_MI_LU          = 41, // 2025年04月17日 太极秘录
+    CANG_SHENG_ZHU_SHI    = 42, // 2026年09月08日 苍生铸世（50级新世代）
 
     COUNT,
 };
 
-constinit std::array<const char *const, static_cast<std::size_t>(JX3Version::COUNT)> JX3_VERSIONS = {
+inline constexpr std::array<const char *const, static_cast<std::size_t>(JX3Version::COUNT)> JX3_VERSIONS = {
     "公测",     "破晓之路",   "撼世禅劫",   "藏剑山庄", "战魂劫",   "龙争虎斗", "血龙出渊",
     "巴蜀风云", "一代宗师",   "烛火燎天",   "洱海惊龙", "日月明尊", "安史之乱", "乱世长安",
     "血战天策", "逐鹿中原",   "雕琢版",     "苍雪龙城", "侠义乾坤", "剑胆琴心", "壮志凌云",
     "百家争鸣", "风骨霸刀",   "日月凌空",   "重制版",   "长风破晓", "世外蓬莱", "怒海争锋",
     "凌雪藏锋", "结庐在江湖", "同筑山水居", "奉天证道", "月满归乡", "白帝风云", "北天药宗",
     "江湖无限", "横刀断浪",   "群侠万变",   "万灵当歌", "雾海寻龙", "丝路风语", "太极秘录",
+    "苍生铸世",
 };
 
 } // namespace JX3DPS
 
 /*------------------ 版本号 ------------------*/
 
-#define JX3_LEVEL_VERSION 130                                 // 剑网3 - 等级
-#define JX3_VERSION       JX3DPS::JX3Version::TAI_JI_MI_LU  // 剑网3 - 资料片
+#define JX3_LEVEL_VERSION 50                                 // 剑网3 - 等级
+#define JX3_VERSION       JX3DPS::JX3Version::CANG_SHENG_ZHU_SHI // 剑网3 - 资料片
 #define VERSION_MAJOR     5                                 // JX3DPS - 主版本号
-#define VERSION_MINOR     JX3_VERSION                       // JX3DPS - 次版本号
+#define JX3_VERSION_NUMBER 42                                // 苍生铸世对应的数值版本
+#define VERSION_MINOR     JX3_VERSION_NUMBER                 // JX3DPS - 次版本号
 
 #define AUX_STR(_STR)     #_STR
 #define STR(_STR)         AUX_STR(_STR)

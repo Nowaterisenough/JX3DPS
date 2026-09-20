@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-19",
+  "platform": "Windows x86_64",
+  "cpu": "12th Gen Intel Core i7-12700",
+  "logical_processors": 20,
+  "compiler": "MSYS2 UCRT64 Clang 22.1.8",
+  "build_type": "Release",
+  "legacy_revision": "ba960f776dad2b30c8d43b529cd06d4fcaed5c2c",
+  "runtime_base_revision": "edaf66b161121fc5bc54a8fd596fbe4f3759747e",
+  "runtime_source": "uncommitted codex/new-runtime worktree",
+  "workers": 1,
+  "legacy_precision": 1,
+  "warmup_fights": 5,
+  "rounds": 3,
+  "iterations_per_round": 1000,
+  "seconds_per_fight": 300,
+  "equipment": "none",
+  "team_effects": "none",
+  "critical_rating": 1000000,
+  "configuration": "All implemented talent flags enabled as a mechanics stress fixture; not a recommended in-game build.",
+  "timing_scope": "Fight simulation and result reduction; excludes configuration and macro compilation. Legacy retains attribute-gain calculations."
+}

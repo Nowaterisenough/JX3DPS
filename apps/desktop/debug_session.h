@@ -9,6 +9,12 @@
 #include <functional>
 #include <memory>
 
+#include "runtime_catalog.h"
+#include "combat_event.h"
+#include "buff_trace.h"
+#include "macro_step.h"
+#include "combat_history.h"
+
 class DebugSimulator;
 
 /**
@@ -27,13 +33,6 @@ public:
         Running,    // 运行中
         Paused,     // 已暂停
         Finished    // 执行完成
-    };
-
-    enum StepMode {
-        NoStep,      // 不单步
-        StepOverMode,   // 单步跳过
-        StepIntoMode,   // 单步进入（宏切换时也停）
-        StepOutMode     // 运行到宏结束
     };
 
     struct DebugInfo {
@@ -56,10 +55,17 @@ public:
         // 时间
         int currentFrame;       // 当前游戏帧
         double currentSeconds;  // 当前秒数
+        QString phase;
+        QString condition;
+        QString lastStep;
+        QStringList details;
     };
 
     explicit DebugSession(QObject *parent = nullptr);
     ~DebugSession();
+
+    void SetSimulationOptions(const desktop::Config &config, int durationFrames, std::uint64_t seed = 0);
+    qint64 TotalDamage();
 
     // 调试控制
     void Start(const QString &macroText);
@@ -88,6 +94,10 @@ signals:
     void ErrorOccurred(const QString &error);
     void LineChanged(int lineNumber);
     void ExecutionFinished();
+    void DamageEventsAvailable(const CombatEvents &events);
+    void BuffEventsAvailable(const BuffEvents &events);
+    void MacroStepsAvailable(const MacroSteps &steps);
+    void HistoryAvailable(const desktop::HistoryChunk &history);
 
 private slots:
     void OnExecutionTimer();
@@ -95,23 +105,15 @@ private slots:
 private:
     void SetState(State newState);
     void UpdateDebugInfo();
-    bool ShouldBreak(int lineNumber);
-
-    // 模拟执行（简化版本，实际需要与JX3DPS引擎集成）
+    void ExecuteStep(bool (DebugSimulator::*step)());
+    void Fail(const QString &message);
     void SimulateStep();
 
 private:
     State m_state;
-    StepMode m_stepMode;
     QSet<int> m_breakpoints;
-    DebugInfo m_debugInfo;
+    DebugInfo m_debugInfo{};
     QString m_lastError;
-    QString m_macroText;
-    QStringList m_macroLines;
-
-    int m_currentLineIndex;  // 0-based 行索引
-    int m_stepStartLine;     // 单步起始行
-
     std::unique_ptr<DebugSimulator> m_simulator;  // JX3DPS模拟器
     QTimer *m_executionTimer;  // 用于持续执行的定时器
 };

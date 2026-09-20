@@ -15,7 +15,11 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
-include_directories(${CMAKE_SOURCE_DIR}/3rd/qwindowkit/src)
+if(TARGET QWKWidgets)
+    set(FRAMELESS_QWK_TARGET QWKWidgets)
+else()
+    set(FRAMELESS_QWK_TARGET)
+endif()
 
 # Collect source files
 file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
@@ -35,7 +39,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Widgets
-    QWKWidgets
+    ${FRAMELESS_QWK_TARGET}
 )
 
 # Set properties

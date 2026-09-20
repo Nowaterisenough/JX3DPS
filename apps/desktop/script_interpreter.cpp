@@ -244,7 +244,18 @@ bool ScriptInterpreter::EvaluateCondition(const QString &condition)
     // - tlife:1<0.4 (目标1生命小于40%)
     // - skill_cd:技能名<2 (技能冷却小于2秒)
 
-    QRegularExpression      re(R"(^(\w+)([><]=?)(.+)$)");
+    // 变量名允许包含冒号，例如 skill_cd:无我无剑、buff:玄门。
+    const QString trimmed = condition.trimmed();
+    const QRegularExpression existsRe(R"(^buff:(.+)$)");
+    const auto existsMatch = existsRe.match(trimmed);
+    if (existsMatch.hasMatch() && !trimmed.contains(QRegularExpression(R"([><=])"))) {
+        const auto it = d->buffNameToId.find(existsMatch.captured(1).trimmed().toStdString());
+        if (it == d->buffNameToId.end()) return false;
+        d->simContext.RegisterBuffId(it->second);
+        return d->simContext.GetBuffStack(0, it->second) > 0;
+    }
+
+    QRegularExpression      re(R"(^([^><=]+)([><]=?)(.+)$)");
     QRegularExpressionMatch match = re.match(condition);
 
     if (!match.hasMatch()) {
@@ -275,10 +286,19 @@ bool ScriptInterpreter::EvaluateCondition(const QString &condition)
         auto it = d->skillNameToId.find(skillNameStd);
         if (it != d->skillNameToId.end()) {
             JX3DPS::jx3id_t skillId = it->second;
-            varValue = d->simContext.cache.skill_cooldown[skillId] / 16.0; // 转换为秒 (16 ticks/秒)
+            const auto slot = d->simContext.RegisterSkillId(skillId);
+            varValue = d->simContext.cache.skill_cooldown[slot] / 16.0; // 转换为秒 (16 ticks/秒)
         } else {
             varValue = 0; // 未找到技能，假设已冷却
         }
+    } else if (var.startsWith("buff:")) {
+        const QString buffName = var.mid(5).trimmed();
+        const auto it = d->buffNameToId.find(buffName.toStdString());
+        if (it == d->buffNameToId.end()) return true;
+        const auto buffId = it->second;
+        d->simContext.RegisterBuffId(buffId);
+        // buff:玄门 and buff:玄门>0 deliberately share this stack value.
+        varValue = d->simContext.GetBuffStack(0, buffId);
     } else {
         qDebug() << "未知的变量:" << var;
         return true;
@@ -318,7 +338,8 @@ bool ScriptInterpreter::CastSkill(const QString &skillName)
     JX3DPS::jx3id_t skillId = it->second;
 
     // 检查技能冷却和GCD
-    if (d->simContext.cache.skill_cooldown[skillId] > 0) {
+    const auto slot = d->simContext.RegisterSkillId(skillId);
+    if (d->simContext.cache.skill_cooldown[slot] > 0) {
         qDebug() << "  [失败] 技能冷却中:" << skillName;
         return false;
     }
@@ -331,7 +352,7 @@ bool ScriptInterpreter::CastSkill(const QString &skillName)
     qDebug() << "  [成功] 施放技能:" << skillName;
 
     // 设置技能冷却 (假设所有技能冷却为 160 ticks = 10秒)
-    d->simContext.cache.skill_cooldown[skillId] = 160;
+    d->simContext.cache.skill_cooldown[slot] = 160;
 
     // 设置全局冷却 (24 ticks = 1.5秒)
     d->simContext.SetGlobalCooldown(24);

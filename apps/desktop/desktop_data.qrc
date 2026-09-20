@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/desktop">
+    <file alias="permanents.json">data/permanents.json</file>
+    <file alias="icons.json">data/icons.json</file>
+  </qresource>
+</RCC>

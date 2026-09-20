@@ -22,7 +22,7 @@ add_custom_command(
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_SOURCE_DIR}/tests/${PROJECT_NAME}/test_tai_xu_jian_yi.json # 要复制的文件路径
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/test_tai_xu_jian_yi.json # 目标路径
+    ${CMAKE_CURRENT_BINARY_DIR}/test_tai_xu_jian_yi.json # 目标路径
 )
 
 gtest_discover_tests(test_jx3dps)

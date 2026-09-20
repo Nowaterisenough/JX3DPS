@@ -5,6 +5,7 @@
 #include <QSyntaxHighlighter>
 #include <QRegularExpression>
 #include <QProxyStyle>
+#include <functional>
 
 class CodeEditorPrivate;
 class LineNumberArea;
@@ -112,8 +113,11 @@ public:
     void         SetSyntaxCheckEnabled(bool enable);            // 启用/禁用语法检测
     bool         IsSyntaxCheckEnabled() const;                  // 是否启用语法检测
     QList<SyntaxError> GetSyntaxErrors() const;                 // 获取当前语法错误列表
+    void SetSyntaxValidator(std::function<QList<SyntaxError>(const QString &)> validator);
+    void SetSearchMatches(const QList<QTextCursor> &matches);
 
 signals:
+    void SyntaxErrorsChanged(int count);
     void BreakpointAdded(int lineNumber);                       // 断点添加信号
     void BreakpointRemoved(int lineNumber);                     // 断点移除信号
     void BreakpointToggled(int lineNumber, bool enabled);       // 断点切换信号
@@ -130,6 +134,7 @@ private slots:
     void HighlightCurrentLine();
     void UpdateLineNumberArea(const QRect &rect, int dy);
     void CheckSyntax();                                         // 执行语法检测
+    void SyncBreakpoints();
 
 private:
     friend class LineNumberArea;

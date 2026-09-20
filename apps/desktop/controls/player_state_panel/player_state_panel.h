@@ -35,6 +35,7 @@ public:
     ~PlayerStatePanel();
 
     void UpdateState(const PlayerState &state);
+    void SetCursorTime(int frame, double seconds);
     void Clear();
 
 protected:

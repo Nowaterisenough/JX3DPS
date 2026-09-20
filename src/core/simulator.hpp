@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include <nlohmann/json.hpp>
@@ -12,6 +13,8 @@
 #include "src/global/types.h"
 #include "src/macro/macro_interpreter.h"
 #include "src/player/player.hpp"
+#include "src/class/tai_xu_jian_yi/tai_xu_jian_yi_ids.h"
+#include "src/class/tai_xu_jian_yi/tai_xu_jian_yi_skill.h"
 
 #include "context.h"
 #include "keyframe.hpp"
@@ -29,6 +32,7 @@ struct SimulatorConfig
     int         iterations       = 1;   // 模拟次数
     int         frame_rate       = 16;  // 帧率 (16帧/秒)
     std::string macro;                  // 宏字符串
+    std::vector<std::string> macros;    // 按优先级排列的宏语句
     json        player_config;          // 玩家配置
     json        target_config;          // 目标配置
 
@@ -44,12 +48,29 @@ struct SimulatorConfig
             result.frame_rate       = sim.value("frame_rate", 16);
         }
 
-        if (config.contains("macro")) {
+        if (config.contains("macro") && config["macro"].is_string()) {
             result.macro = config["macro"].get<std::string>();
+            std::istringstream lines(result.macro);
+            for (std::string line; std::getline(lines, line);) {
+                if (!line.empty()) result.macros.push_back(line);
+            }
+        } else if (config.contains("macros") && config["macros"].is_array()) {
+            for (const auto &line : config["macros"]) {
+                if (line.is_string()) result.macros.push_back(line.get<std::string>());
+            }
+            if (!result.macros.empty()) result.macro = result.macros.front();
         }
 
         if (config.contains("player")) {
             result.player_config = config["player"];
+        }
+
+        // New profiles keep gear under player, while legacy profiles may
+        // store it at the document root.
+        if (config.contains("equipment") || config.contains("Equipment")) {
+            if (result.player_config.is_null()) result.player_config = json::object();
+            result.player_config["equipment"] = config.contains("equipment")
+                ? config["equipment"] : config["Equipment"];
         }
 
         if (config.contains("target")) {
@@ -207,7 +228,7 @@ public:
         Initialize();
 
         // 2. 解析宏
-        if (!ParseMacro()) {
+        if (!macro_compiled_ && !ParseMacro()) {
             spdlog::error("宏解析失败");
             return {};
         }
@@ -215,14 +236,23 @@ public:
         // 3. 主循环：从 TickCache 获取最小 tick 并跳跃
         tick_t current_time = 0;
         while (current_time < total_frames_) {
+            // 宏只在运行期执行；AST 和条件 ID 已在解析阶段完成缓存绑定。
+            if (context.GetGlobalCooldown() == 0) {
+                // Macro lines are ordered by priority. Try the next line when
+                // a satisfied condition points at a skill that is not ready.
+                for (const auto &macro_ast : macro_asts_) {
+                    if (macro_ast && macro_ast->Evaluate() &&
+                        ExecuteMacroAction(macro_ast->GetAction())) {
+                        break;
+                    }
+                }
+            }
+
             // 从 Context 获取下一个关键帧时刻（包含宏阈值）
             tick_t next_tick = context.GetNextTick();
 
-            // 如果没有待处理的事件，说明模拟结束
-            if (next_tick == 0) {
-                spdlog::debug("TickCache 中无待处理事件，模拟结束");
-                break;
-            }
+            // 宏和持续时间都可能暂时没有事件，使用一帧心跳保证循环能继续。
+            if (next_tick == 0) next_tick = 1;
 
             // 跳转到下一个事件时间点
             if (current_time + next_tick >= total_frames_) {
@@ -239,15 +269,6 @@ public:
 
             // 更新 TickCache 和 GCD（减去跳过的时间）
             context.Update(next_tick);
-
-            // 当 GCD 为 0 时，尝试执行宏中的技能
-            if (context.GetGlobalCooldown() == 0 && macro_ast_) {
-                bool should_cast = macro_ast_->Evaluate();
-                if (should_cast) {
-                    spdlog::trace("帧 {}: 宏条件满足，尝试施放技能", current_time);
-                    // TODO: 执行宏技能
-                }
-            }
 
             // 触发所有在此时间点到期的技能/BUFF
             TriggerExpiredEvents();
@@ -350,8 +371,10 @@ private:
     {
         spdlog::debug("初始化模拟环境");
 
-        // 重置上下文
-        context.Reset();
+        // The first run builds ID/trigger bindings. Subsequent iterations
+        // retain those compile-time bindings and only clear hot state.
+        if (macro_compiled_) context.ResetRuntime();
+        else context.Reset();
 
         // 创建玩家
         player_        = std::make_unique<PlayerClass>();
@@ -359,6 +382,11 @@ private:
 
         // 从配置初始化玩家属性
         InitializePlayerFromConfig();
+        context.physics_attack_power = player_->attribute.GetPhysicsAttackPower();
+        context.weapon_damage = player_->attribute.GetWeaponDamage();
+        context.physics_critical_strike = player_->attribute.GetPhysicsCriticalStrike();
+        context.physics_overcome = player_->attribute.GetPhysicsOvercome();
+        context.haste = player_->attribute.GetHastePercent();
 
         // 创建目标
         target_                      = std::make_unique<Target>();
@@ -384,23 +412,61 @@ private:
         // 设置属性
         if (cfg.contains("attributes")) {
             const auto &attr = cfg["attributes"];
-
-            // TODO: 根据PlayerClass的实际属性接口设置
-            // 这里需要根据实际的Player类实现来调整
-            spdlog::debug("加载玩家属性");
+            using AttributeType = Attribute::Type;
+            const auto set = [&](const char *name, AttributeType type) {
+                if (attr.contains(name) && attr[name].is_number()) {
+                    player_->attribute.Set(type, attr[name].get<value_t>());
+                }
+            };
+            set("身法", AttributeType::AGILITY_BASE);
+            set("力道", AttributeType::STRENGTH_BASE);
+            set("根骨", AttributeType::SPIRIT_BASE);
+            set("元气", AttributeType::SPUNK_BASE);
+            set("基础武器伤害", AttributeType::WEAPON_DAMAGE_BASE);
+            set("浮动武器伤害", AttributeType::WEAPON_DAMAGE_RAND);
+            set("外功基础攻击", AttributeType::PHYSICS_ATTACK_POWER_BASE);
+            set("内功基础攻击", AttributeType::MAGIC_ATTACK_POWER_BASE);
+            set("外功会心等级", AttributeType::PHYSICS_CRITICAL_STRIKE);
+            set("内功会心等级", AttributeType::MAGIC_CRITICAL_STRIKE);
+            set("外功会效等级", AttributeType::PHYSICS_CRITICAL_STRIKE_POWER);
+            set("内功会效等级", AttributeType::MAGIC_CRITICAL_STRIKE_POWER);
+            set("外功基础破防等级", AttributeType::PHYSICS_OVERCOME_BASE);
+            set("内功基础破防等级", AttributeType::MAGIC_OVERCOME_BASE);
+            set("无双", AttributeType::STRAIN_BASE);
+            set("破招值", AttributeType::SURPLUS_VALUE_BASE);
+            set("加速等级", AttributeType::HASTE_BASE);
+            spdlog::debug("加载玩家属性: {}项", attr.size());
         }
 
-        // 设置奇穴
-        if (cfg.contains("talents")) {
-            const auto &talents = cfg["talents"];
-            spdlog::debug("加载{}个奇穴", talents.size());
+        // Equipment, gems, enchants, food and set bonuses are flattened once
+        // here. Skill damage only reads the resulting Context cache.
+        player_->equipment = EquipmentLoadout::FromJson(cfg);
+        player_->equipment.ApplyTo(player_->attribute);
+        context.equipment_effect_mask = player_->equipment.runtime.triggered_effect_mask;
+
+        // Compile names into numeric IDs before the simulation loop.
+        if (cfg.contains("talents") && cfg["talents"].is_array()) {
+            for (const auto &entry : cfg["talents"]) {
+                if (!entry.is_string()) continue;
+                const auto id = 太虚剑意::TalentIdFromName(entry.get<std::string>());
+                if (id != 0) player_->active_talents[id] = true;
+            }
+        }
+        if (cfg.contains("recipes") && cfg["recipes"].is_object()) {
+            for (auto it = cfg["recipes"].begin(); it != cfg["recipes"].end(); ++it) {
+                if (!it.value().is_array()) continue;
+                for (const auto &entry : it.value()) {
+                    if (!entry.is_string()) continue;
+                    const auto id = 太虚剑意::RecipeIdFromName(entry.get<std::string>());
+                    if (id != 0) player_->active_recipes[id] = true;
+                }
+            }
         }
 
-        // 设置秘籍
-        if (cfg.contains("recipes")) {
-            const auto &recipes = cfg["recipes"];
-            spdlog::debug("加载{}个秘籍", recipes.size());
-        }
+        spdlog::debug("加载{}个奇穴、{}组秘籍、{}个装备部位",
+                      player_->active_talents.size(),
+                      cfg.contains("recipes") && cfg["recipes"].is_object() ? cfg["recipes"].size() : 0,
+                      std::count(player_->equipment.equipped.begin(), player_->equipment.equipped.end(), true));
     }
 
     /**
@@ -418,24 +484,38 @@ private:
         try {
             MacroInterpreter interpreter;
 
-            // 设置ID查询函数（TODO: 实现实际的ID映射）
+            // 使用当前心法的真实 ID，缓存层再将稀疏 ID 压缩到固定槽位。
             interpreter.SetSkillIdGetter([](const std::string &name) -> jx3id_t {
-                // 简化实现：返回名称的哈希值
-                return std::hash<std::string>{}(name);
+                const auto id = 太虚剑意::SkillIdFromName(name);
+                if (id != 0) return id;
+                return static_cast<jx3id_t>(std::hash<std::string>{}(name) & 0x7fffffff);
             });
 
-            interpreter.SetBuffIdGetter([](const std::string &name) -> jx3id_t { return std::hash<std::string>{}(name); });
+            interpreter.SetBuffIdGetter([](const std::string &name) -> jx3id_t {
+                const auto id = 太虚剑意::BuffIdFromName(name);
+                if (id != 0) return id;
+                return static_cast<jx3id_t>(std::hash<std::string>{}(name) & 0x7fffffff);
+            });
 
             // 解析宏
-            auto [ast, error] = interpreter.ParseMacro(config_.macro);
-
-            if (error != ParserError::SUCCESS) {
-                spdlog::error("宏解析错误");
-                return false;
+            macro_asts_.clear();
+            const auto macro_lines = config_.macros.empty()
+                ? std::vector<std::string>{config_.macro}
+                : config_.macros;
+            for (const auto &line : macro_lines) {
+                if (line.empty()) continue;
+                auto [ast, error] = interpreter.ParseMacro(line);
+                if (error != ParserError::SUCCESS) {
+                    // Keep valid priority lines usable when an old profile
+                    // contains a stale or truncated macro entry.
+                    spdlog::warn("跳过无效宏语句: {}", line);
+                    continue;
+                }
+                macro_asts_.push_back(std::move(ast));
             }
-
-            macro_ast_ = std::move(ast);
-            spdlog::debug("宏解析成功");
+            if (macro_asts_.empty()) return false;
+            macro_compiled_ = true;
+            spdlog::debug("宏解析成功: {} 条", macro_asts_.size());
 
             return true;
 
@@ -443,6 +523,58 @@ private:
             spdlog::error("宏解析异常: {}", e.what());
             return false;
         }
+    }
+
+    bool ExecuteMacroAction(const std::string &action)
+    {
+        if constexpr (std::is_same_v<PlayerClass, 太虚剑意::Player>) {
+            if (action == "无我无剑") {
+                太虚剑意::无我无剑 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "八荒归元") {
+                太虚剑意::八荒归元 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "三环套月") {
+                太虚剑意::三环套月 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "万剑归宗") {
+                太虚剑意::万剑归宗 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "人剑合一") {
+                太虚剑意::人剑合一 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "碎星辰") {
+                太虚剑意::碎星辰 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "生太极") {
+                太虚剑意::生太极 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "吞日月") {
+                太虚剑意::吞日月 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "三柴剑法") {
+                太虚剑意::三柴剑法 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else if (action == "紫气东来") {
+                太虚剑意::紫气东来 skill;
+                if (!skill.IsReady()) return false;
+                skill.Cast();
+            } else {
+                return false;
+            }
+            return true;
+        }
+        (void)action;
+        return false;
     }
 
     /**
@@ -453,13 +585,10 @@ private:
         current_frame_++;
 
         // 1. 评估宏条件并执行技能
-        if (macro_ast_) {
-            bool should_cast = macro_ast_->Evaluate();
-
-            if (should_cast) {
-                // TODO: 获取宏中的技能并施放
-                // 这需要扩展AstNode以携带技能信息
-                spdlog::trace("帧 {}: 宏条件满足", current_frame_);
+        for (const auto &macro_ast : macro_asts_) {
+            if (macro_ast && macro_ast->Evaluate()) {
+                spdlog::trace("帧 {}: 宏条件满足，动作 {}", current_frame_, macro_ast->GetAction());
+                break;
             }
         }
 
@@ -539,12 +668,16 @@ private:
     {
         SimulationStats stats;
 
-        stats.total_damage = total_damage_;
+        stats.total_damage = total_damage_ + context.damage_total;
         stats.total_frames = current_frame_;
         stats.total_time   = static_cast<double>(current_frame_) / config_.frame_rate;
 
         if (stats.total_time > 0) {
-            stats.average_dps = total_damage_ / stats.total_time;
+            // SkillImpl writes directly into Context::damage_total, while
+            // frame_damage_ is reserved for external timeline collectors.
+            // Use the finalized total so the public DPS value matches the
+            // reported damage value.
+            stats.average_dps = static_cast<double>(stats.total_damage) / stats.total_time;
         }
 
         // 复制详细统计
@@ -623,7 +756,8 @@ private:
 
     std::unique_ptr<PlayerClass> player_;
     std::unique_ptr<Target>      target_;
-    std::unique_ptr<AstNode>     macro_ast_;
+    std::vector<std::unique_ptr<AstNode>> macro_asts_;
+    bool macro_compiled_ = false;
 
     // 统计数据
     long long                                   total_damage_ = 0;

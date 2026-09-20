@@ -22,17 +22,12 @@ public:
     PROPERTY int effect_count = 8;                         // 持续8跳
 
     // 伤害系数 [层数]
-    PROPERTY int base_damage[7] = {
-        static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 1,
-        static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 2,
-        static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 3,
-        static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 4,
-        static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 5,
-        static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 6,
-        static_cast<int>(58 * 1.15 * 1.1 * 1.1) * 7
+    // JX3BOX 2026-09-16: each tick is 0.021893 * stacks of attack power.
+    PROPERTY int base_damage[7] = {0, 0, 0, 0, 0, 0, 0};
+    PROPERTY cof_t physics_ap[7] = {
+        0.021893, 0.043786, 0.065679, 0.087572,
+        0.109465, 0.131358, 0.153251,
     };
-
-    PROPERTY cof_t physics_ap[7] = {0.0};  // 无AP加成
 
     叠刃() {
         // 裂云奇穴：最大层数+2
@@ -116,7 +111,7 @@ class 紫气东来Buff : public BuffImpl<紫气东来Buff> {
 public:
     static inline constexpr Tag TAG = Tag::PLAYER | Tag::BUFF;
 
-    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 20;  // 持续20秒
+    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 10;  // 持续10秒
 
     紫气东来Buff() {
         Register(EventType::POST_ADD, [this]() {
@@ -136,11 +131,11 @@ class 玄门 : public BuffImpl<玄门> {
 public:
     static inline constexpr Tag TAG = Tag::PLAYER | Tag::BUFF;
 
-    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 8;
-    PROPERTY int max_stacks = 1;
+    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 40;
+    PROPERTY int max_stacks = 3;
 
     // 提高10%伤害
-    PROPERTY pctf_t damage_add = 0.1;
+    PROPERTY pctf_t damage_add = 0.0;
 
     玄门() {
         Register(EventType::POST_ADD, [this]() {
@@ -160,11 +155,11 @@ public:
     static inline constexpr Tag TAG = Tag::TARGET | Tag::DOT | Tag::PHYSICS | Tag::FIELD;
 
     PROPERTY tick_t interval = JX3_FRAMES_PER_SECOND * 2;  // 2秒跳一次
-    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 20; // 持续20秒
+    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 24; // 持续24秒
     PROPERTY int effect_count = 10;
 
-    PROPERTY int base_damage = 85;
-    PROPERTY cof_t physics_ap = 1.85;
+    PROPERTY int base_damage = 0;
+    PROPERTY cof_t physics_ap = 0.0;
 
     剑气场_碎星辰() {
         Register(EventType::POST_ADD, [this]() {
@@ -186,11 +181,11 @@ public:
     static inline constexpr Tag TAG = Tag::TARGET | Tag::DOT | Tag::PHYSICS | Tag::FIELD;
 
     PROPERTY tick_t interval = JX3_FRAMES_PER_SECOND * 2;
-    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 18;
+    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 24;
     PROPERTY int effect_count = 9;
 
-    PROPERTY int base_damage = 39;
-    PROPERTY cof_t physics_ap = 0.25;
+    PROPERTY int base_damage = 0;
+    PROPERTY cof_t physics_ap = 0.0;
 
     剑气场_生太极() {
         Register(EventType::TICK, [this]() {
@@ -206,11 +201,11 @@ public:
     static inline constexpr Tag TAG = Tag::TARGET | Tag::DOT | Tag::PHYSICS | Tag::FIELD;
 
     PROPERTY tick_t interval = JX3_FRAMES_PER_SECOND * 2;
-    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 18;
+    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 24;
     PROPERTY int effect_count = 9;
 
-    PROPERTY int base_damage = 11;
-    PROPERTY cof_t physics_ap = 1.3;
+    PROPERTY int base_damage = 0;
+    PROPERTY cof_t physics_ap = 0.0;
 
     剑气场_吞日月() {
         Register(EventType::POST_ADD, [this](jx3id_t targetId) {
@@ -252,8 +247,8 @@ class 剑入 : public BuffImpl<剑入> {
 public:
     static inline constexpr Tag TAG = Tag::PLAYER | Tag::BUFF;
 
-    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 30;
-    PROPERTY int max_stacks = 10;
+    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 6;
+    PROPERTY int max_stacks = 1;
 
     // 每层提高1%伤害
     PROPERTY pctf_t damage_add_per_stack = 0.01;
@@ -301,7 +296,7 @@ public:
     PROPERTY int max_stacks = 5;
 
     // 每层提高会心2%
-    PROPERTY value_t critical_strike_per_stack = 200;  // 基于万分比
+    PROPERTY value_t critical_strike_per_stack = 0; // 裂云提高的是外功会效，不是会心率
 
     裂云() {
         Register(EventType::POST_ADD, [this]() {
@@ -320,7 +315,7 @@ class 镜花影 : public BuffImpl<镜花影> {
 public:
     static inline constexpr Tag TAG = Tag::PLAYER | Tag::BUFF;
 
-    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 6;
+    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 8;
 
     // 下一个无我无剑造成额外50%伤害
     PROPERTY pctf_t damage_add = 0.5;
@@ -342,8 +337,8 @@ class 持盈 : public BuffImpl<持盈> {
 public:
     static inline constexpr Tag TAG = Tag::PLAYER | Tag::BUFF;
 
-    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 12;
-    PROPERTY int max_stacks = 10;
+    PROPERTY tick_t duration = JX3_FRAMES_PER_SECOND * 15;
+    PROPERTY int max_stacks = 3;
 
     // 每层提高0.5%会心
     PROPERTY value_t critical_strike_per_stack = 50;

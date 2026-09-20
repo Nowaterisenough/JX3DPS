@@ -12,6 +12,11 @@ namespace 太虚剑意 {
 
 // ========== 无我无剑 ==========
 
+bool 无我无剑::CheckResource() const {
+    auto *player = static_cast<Player *>(context.player);
+    return player != nullptr && player->GetQidian() > 0;
+}
+
 无我无剑::无我无剑() {
     // 施放前 - 记录气点并清零
     Register(EventType::PRE_CAST, [this]() {
@@ -21,24 +26,24 @@ namespace 太虚剑意 {
         player->SetQidian(0);
     });
 
-    // 判定后 - 如果气点>=6，触发破招
+    // 新版本技能描述：消耗3格及以上气时额外造成一次破招伤害。
     Register(EventType::POST_ROLL, [this]() {
         int qidian = self.level + 1;
-        if (qidian >= 6) {
-            int pozhao_level = (qidian - 6) / 2; // 0, 1, 2
+        if (qidian >= 3) {
+            int pozhao_level = qidian - 3;
             // TODO: CastSkill<破招>(pozhao_level);
         }
     });
 
-    // 奇穴: 无意 - 6气以上增加会心和会效
+    // 奇穴: 无意 - 消耗3格气以上增加会心和会效
     Register(TalentId::无意, EventType::PRE_DAMAGE, [this]() {
         int qidian = self.level + 1;
-        if (qidian >= 6) {
-            self.damage_cof += 0.1; // +10%会心, +30%会效
+        if (qidian >= 3) {
+            self.damage_cof += 0.1; // 会心+10%，会效+30%由属性层处理
         }
     });
 
-    // 奇穴: 叠刃 - 施放后添加叠刃BUFF
+    // 奇穴: 叠刃 - 命中后添加一层叠刃（会心时再添加一层）
     Register(TalentId::叠刃, EventType::POST_CAST, [this]() {
         auto *player = static_cast<Player *>(context.player);
         // 添加叠刃BUFF，层数根据气点
@@ -50,11 +55,11 @@ namespace 太虚剑意 {
 // ========== 三环套月 ==========
 
 三环套月::三环套月() {
-    // 奇穴: 玄门 - 叠加气点
-    Register(TalentId::玄门, EventType::POST_DAMAGE, [this]() {
+    // 基础技能效果：命中后续气一格。玄门只修改人剑合一的增益，
+    // 不应再把该效果错误绑定到三环套月。
+    Register(EventType::POST_DAMAGE, [this]() {
         auto *player = static_cast<Player *>(context.player);
         player->AddQidian(1);
-        // TODO: player->AddBuff<玄门>(1);
     });
 }
 
@@ -121,10 +126,11 @@ namespace 太虚剑意 {
 // ========== 紫气东来 ==========
 
 紫气东来::紫气东来() {
-    // 施放后恢复10点气点
+    // 施放后立即聚5格气；当前资源上限为10格，后续每秒回复由运行时资源
+    // 事件处理器补齐，这里先保证宏模拟的即时状态与官方描述一致。
     Register(EventType::POST_CAST, [this]() {
         auto *player = static_cast<Player *>(context.player);
-        player->SetQidian(10);
+        player->AddQidian(5);
         // TODO: player->AddBuff<紫气东来>(1);
     });
 }

@@ -1,0 +1,47 @@
+if(NOT DEFINED CLI OR NOT DEFINED OUTPUT_DIR)
+    message(FATAL_ERROR "CLI and OUTPUT_DIR are required")
+endif()
+file(MAKE_DIRECTORY "${OUTPUT_DIR}")
+function(reject expected)
+    execute_process(COMMAND "${CLI}" ${ARGN} RESULT_VARIABLE code OUTPUT_VARIABLE out ERROR_VARIABLE err TIMEOUT 20)
+    if(NOT code STREQUAL "1" OR NOT err MATCHES "${expected}")
+        message(FATAL_ERROR "Expected rejection ${expected}: code=${code}, stdout=${out}, stderr=${err}")
+    endif()
+endfunction()
+reject("unknown style" --style typo)
+reject("whole frames" --seconds 1e300)
+reject("whole frames" --seconds 0.01)
+reject("duplicate option" --equipment weapon_water,weapon_water)
+reject("unknown option" --equipment nonexistent)
+reject("invalid Mo Wen recipe" --recipes-gong crit2,crit3,crit4,damage3,damage4)
+reject("one iteration and one worker" --debug --workers 2)
+reject("invalid decimal" --distance nan)
+
+file(WRITE "${OUTPUT_DIR}/macro.txt" "/cast [tnobuff:shang] shang\n/cast [tnobuff:jue] jue\n/cast shuying\n/cast [buff:qufeng=4] yu\n/cast bianzhi\n/cast biangong\n")
+set(args --seconds 20 --seed 32 --replay 7 --macro "${OUTPUT_DIR}/macro.txt"
+    --equipment weapon_cw,set_attribute,set_skill,weapon_water,belt,shoes,wrist
+    --talents haozhong,feifan,xianfeng,liuzhao,haoqing,shixiang,zhizhi,kemeng,zhengming,mingjin,yunhan,canlian,zhenglv
+    --team-effects you_ren,jingmiao --recipes-gong crit2,damage3,prepare1,range
+    --recipes-shang damage3,damage4,damage5,crit2 --recipes-zhi crit2,damage3,range
+    --recipes-yu crit3,damage3 --attribute attack_base=14000)
+execute_process(COMMAND "${CLI}" ${args} --trace "${OUTPUT_DIR}/fast.csv"
+    RESULT_VARIABLE code OUTPUT_VARIABLE fast ERROR_VARIABLE err TIMEOUT 30)
+if(NOT code STREQUAL "0" OR NOT fast MATCHES "fights=1" OR NOT fast MATCHES "iteration=7")
+    message(FATAL_ERROR "Fast replay failed: ${code}, ${fast}, ${err}")
+endif()
+file(WRITE "${OUTPUT_DIR}/debug.txt" "break 2\ncontinue\nstep\nnext\nclear 2\ncontinue\n")
+execute_process(COMMAND "${CLI}" ${args} --debug --trace "${OUTPUT_DIR}/debug.csv"
+    INPUT_FILE "${OUTPUT_DIR}/debug.txt" RESULT_VARIABLE code OUTPUT_VARIABLE debug ERROR_VARIABLE err TIMEOUT 30)
+if(NOT code STREQUAL "0" OR NOT debug MATCHES "fights=1" OR NOT debug MATCHES "line 2:")
+    message(FATAL_ERROR "Debug replay failed: ${code}, ${debug}, ${err}")
+endif()
+file(SHA256 "${OUTPUT_DIR}/fast.csv" fast_hash)
+file(SHA256 "${OUTPUT_DIR}/debug.csv" debug_hash)
+if(NOT fast_hash STREQUAL debug_hash)
+    message(FATAL_ERROR "Debug stepping/breakpoints changed the damage trace")
+endif()
+string(REGEX MATCH "checksum=[0-9]+" fast_checksum "${fast}")
+string(REGEX MATCH "checksum=[0-9]+" debug_checksum "${debug}")
+if(NOT fast_checksum STREQUAL debug_checksum)
+    message(FATAL_ERROR "Debug and fast replay totals differ")
+endif()

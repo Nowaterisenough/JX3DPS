@@ -4,6 +4,8 @@
 #include "ast.h"
 #include "lexer.h"
 #include "src/global/types.h"
+#include <algorithm>
+#include <cctype>
 #include <functional>
 #include <memory>
 #include <string>
@@ -76,7 +78,7 @@ public:
      * 条件格式:
      * - buff:BUFF名
      * - nobuff:BUFF名
-     * - buff:BUFF名>N
+     * - buff:BUFF名>N（buff:BUFF名等价于 buff:BUFF名>0）
      * - bufftime:BUFF名>N
      * - tbuff:BUFF名
      * - tnobuff:BUFF名
@@ -180,6 +182,33 @@ private:
         std::string type = token.value;
         token = lexer.NextToken();
 
+        // Legacy desktop macros use qidian20 as a shorthand resource check.
+        // The suffix is expressed in tenths (20 means two qi points).
+        if (type.rfind("qidian", 0) == 0 && type.size() > 6) {
+            const auto suffix = type.substr(6);
+            if (!suffix.empty() && std::all_of(suffix.begin(), suffix.end(),
+                                               [](unsigned char c) { return std::isdigit(c); })) {
+                const int encoded = std::stoi(suffix);
+                return MakeConditionNode<QidianCondition<Comparator::GreaterEqual>>(
+                    std::max(1, encoded / 10));
+            }
+        }
+
+        // The explicit form qidian>5 is accepted alongside qidian20.
+        if (type == "qidian") {
+            if (token.type < TokenType::LT || token.type > TokenType::GE) {
+                return {nullptr, ParserError::UNEXPECTED_TOKEN};
+            }
+            const std::string op = TokenTypeToString(token.type);
+            token = lexer.NextToken();
+            if (token.type != TokenType::NUMBER) {
+                return {nullptr, ParserError::UNEXPECTED_TOKEN};
+            }
+            const int value = std::stoi(token.value);
+            token = lexer.NextToken();
+            return MakeComparisonNode<QidianCondition>(0, op, value);
+        }
+
         // 期望 ':'
         if (token.type != TokenType::COLON) {
             return {nullptr, ParserError::UNEXPECTED_TOKEN};
@@ -225,29 +254,44 @@ private:
     {
         if (type == "bufftime") {
             jx3id_t id = m_get_buff_id(name);
-
+            const int frames = value * JX3_FRAMES_PER_SECOND;
             // 注册宏时间阈值到 context
-            RegisterMacroTimeThreshold(MacroTrigger::Type::BUFF_DURATION, id, value);
+            RegisterMacroTimeThreshold(MacroTrigger::Type::BUFF_DURATION, id, frames);
 
-            return MakeComparisonNode<BuffDurationCondition>(id, op, value);
+            return MakeComparisonNode<BuffDurationCondition>(id, op, frames);
         }
 
         if (type == "tbufftime") {
             jx3id_t id = m_get_buff_id(name);
+            const int frames = value * JX3_FRAMES_PER_SECOND;
 
             // 注册宏时间阈值到 context
-            RegisterMacroTimeThreshold(MacroTrigger::Type::TBUFF_DURATION, id, value);
+            RegisterMacroTimeThreshold(MacroTrigger::Type::TBUFF_DURATION, id, frames);
 
-            return MakeComparisonNode<TBuffDurationCondition>(id, op, value);
+            return MakeComparisonNode<TBuffDurationCondition>(id, op, frames);
         }
 
         if (type == "cd") {
             jx3id_t id = m_get_skill_id(name);
+            context.RegisterSkillId(id);
+            const int frames = value * JX3_FRAMES_PER_SECOND;
 
             // 注册宏时间阈值到 context
-            RegisterMacroTimeThreshold(MacroTrigger::Type::SKILL_COOLDOWN, id, value);
+            RegisterMacroTimeThreshold(MacroTrigger::Type::SKILL_COOLDOWN, id, frames);
 
-            return MakeComparisonNode<SkillCooldownCondition>(id, op, value);
+            return MakeComparisonNode<SkillCooldownCondition>(id, op, frames);
+        }
+
+        if (type == "buff") {
+            jx3id_t id = m_get_buff_id(name);
+            context.RegisterBuffId(id);
+            return MakeComparisonNode<BuffStackCondition>(id, op, value);
+        }
+
+        if (type == "tbuff") {
+            jx3id_t id = m_get_buff_id(name);
+            context.RegisterBuffId(id);
+            return MakeComparisonNode<TBuffStackCondition>(id, op, value);
         }
 
         return {nullptr, ParserError::INVALID_CONDITION_TYPE};
@@ -263,10 +307,13 @@ private:
      * @param threshold 阈值（帧数）
      */
     void RegisterMacroTimeThreshold(MacroTrigger::Type type, jx3id_t id, tick_t threshold) {
+        const size_t cache_index = type == MacroTrigger::Type::SKILL_COOLDOWN
+            ? context.RegisterSkillId(id)
+            : context.RegisterBuffId(id);
         // 检查是否已经注册过相同的阈值，避免重复
         for (const auto& existing : context.macro_triggers) {
             if (existing.type == type &&
-                existing.cache_index == static_cast<size_t>(id) &&
+                existing.cache_index == cache_index &&
                 existing.threshold == threshold) {
                 return; // 已存在，不重复添加
             }
@@ -275,7 +322,7 @@ private:
         // 添加新的时间阈值
         context.macro_triggers.emplace_back(
             type,
-            static_cast<size_t>(id),
+            cache_index,
             threshold
         );
     }
@@ -288,6 +335,7 @@ private:
         const std::string& name)
     {
         jx3id_t id = m_get_buff_id(name);
+        context.RegisterBuffId(id);
 
         if (type == "buff") {
             return MakeConditionNode<BuffExistsCondition<Comparator::Exists>>(id);

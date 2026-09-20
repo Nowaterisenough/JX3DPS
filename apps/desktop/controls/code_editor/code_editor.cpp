@@ -246,12 +246,15 @@ public:
     QScopedPointer<CppSyntaxHighlighter>      cppHighlighter;
     QScopedPointer<JX3MacroSyntaxHighlighter> jx3MacroHighlighter;
     QSet<int>                                 breakpoints;      // 断点集合（行号从1开始）
+    QVector<QTextBlock>                        breakpointBlocks;
     int                                       currentDebugLine; // 当前调试行（-1表示无）
 
     // 语法检测
     bool                          syntaxCheckEnabled; // 是否启用语法检测
     QScopedPointer<SyntaxChecker> syntaxChecker;      // 语法检测器
     QList<SyntaxError>            syntaxErrors;       // 当前语法错误列表
+    QList<QTextCursor>            searchMatches;
+    std::function<QList<SyntaxError>(const QString &)> syntaxValidator;
     QTimer                       *syntaxCheckTimer;   // 延迟检测定时器
 
 private:
@@ -275,6 +278,7 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), d_ptr(new Code
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::UpdateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::UpdateLineNumberArea);
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::HighlightCurrentLine);
+    connect(document(), &QTextDocument::contentsChange, this, &CodeEditor::SyncBreakpoints);
 
     // 连接语法检测信号
     connect(this, &CodeEditor::textChanged, d->syntaxCheckTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
@@ -311,7 +315,12 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), d_ptr(new Code
     d->syntaxChecker.reset(new JX3MacroSyntaxChecker(this));
 }
 
-CodeEditor::~CodeEditor() = default;
+CodeEditor::~CodeEditor()
+{
+    // Destroying the highlighter can notify the document after the private
+    // breakpoint storage has started to be destroyed.
+    disconnect(document(), nullptr, this, nullptr);
+}
 
 int CodeEditor::LineNumberAreaWidth()
 {
@@ -475,7 +484,20 @@ void CodeEditor::HighlightCurrentLine()
         extraSelections.append(selection);
     }
 
+    for (const auto &match : d->searchMatches) {
+        QTextEdit::ExtraSelection selection;
+        selection.cursor = match;
+        selection.format.setBackground(QColor(103, 82, 29));
+        extraSelections.append(selection);
+    }
     setExtraSelections(extraSelections);
+}
+
+void CodeEditor::SetSearchMatches(const QList<QTextCursor> &matches)
+{
+    Q_D(CodeEditor);
+    d->searchMatches = matches;
+    HighlightCurrentLine();
 }
 
 void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
@@ -556,6 +578,10 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
 
 void CodeEditor::keyPressEvent(QKeyEvent *event)
 {
+    if (isReadOnly()) {
+        QPlainTextEdit::keyPressEvent(event);
+        return;
+    }
     Q_D(CodeEditor);
 
     // Tab 键转换为空格
@@ -959,8 +985,12 @@ void CodeEditor::ToggleBreakpoint(int lineNumber)
 void CodeEditor::SetBreakpoint(int lineNumber, bool enabled)
 {
     Q_D(CodeEditor);
+    if (!enabled) { RemoveBreakpoint(lineNumber); return; }
+    const auto block = document()->findBlockByNumber(lineNumber - 1);
+    if (!block.isValid()) return;
     if (enabled && !d->breakpoints.contains(lineNumber)) {
         d->breakpoints.insert(lineNumber);
+        d->breakpointBlocks.append(block);
         emit BreakpointAdded(lineNumber);
         emit BreakpointToggled(lineNumber, true);
         d->lineNumberArea->update(); // 刷新行号区域
@@ -971,6 +1001,8 @@ void CodeEditor::RemoveBreakpoint(int lineNumber)
 {
     Q_D(CodeEditor);
     if (d->breakpoints.remove(lineNumber)) {
+        for (int index = d->breakpointBlocks.size() - 1; index >= 0; --index)
+            if (d->breakpointBlocks[index].blockNumber() + 1 == lineNumber) d->breakpointBlocks.removeAt(index);
         emit BreakpointRemoved(lineNumber);
         emit BreakpointToggled(lineNumber, false);
         d->lineNumberArea->update(); // 刷新行号区域
@@ -982,6 +1014,7 @@ void CodeEditor::ClearAllBreakpoints()
     Q_D(CodeEditor);
     QSet<int> oldBreakpoints = d->breakpoints;
     d->breakpoints.clear();
+    d->breakpointBlocks.clear();
     for (int lineNumber : oldBreakpoints) {
         emit BreakpointRemoved(lineNumber);
     }
@@ -992,6 +1025,22 @@ bool CodeEditor::HasBreakpoint(int lineNumber) const
 {
     Q_D(const CodeEditor);
     return d->breakpoints.contains(lineNumber);
+}
+
+void CodeEditor::SyncBreakpoints()
+{
+    Q_D(CodeEditor);
+    QSet<int> updated;
+    for (int index = d->breakpointBlocks.size() - 1; index >= 0; --index) {
+        const auto &block = d->breakpointBlocks[index];
+        if (block.isValid()) updated.insert(block.blockNumber() + 1);
+        else d->breakpointBlocks.removeAt(index);
+    }
+    const auto old = d->breakpoints;
+    d->breakpoints = updated;
+    for (int line : old - updated) { emit BreakpointRemoved(line); emit BreakpointToggled(line, false); }
+    for (int line : updated - old) { emit BreakpointAdded(line); emit BreakpointToggled(line, true); }
+    d->lineNumberArea->update();
 }
 
 QSet<int> CodeEditor::GetBreakpoints() const
@@ -1198,16 +1247,24 @@ QList<SyntaxError> CodeEditor::GetSyntaxErrors() const
     return d->syntaxErrors;
 }
 
+void CodeEditor::SetSyntaxValidator(std::function<QList<SyntaxError>(const QString &)> validator)
+{
+    Q_D(CodeEditor);
+    d->syntaxValidator = std::move(validator);
+    CheckSyntax();
+}
+
 void CodeEditor::CheckSyntax()
 {
     Q_D(CodeEditor);
 
-    if (!d->syntaxCheckEnabled || !d->syntaxChecker) {
+    if (!d->syntaxCheckEnabled || (!d->syntaxValidator && !d->syntaxChecker)) {
         return;
     }
 
     // 执行语法检测
-    d->syntaxErrors = d->syntaxChecker->Check(document());
+    d->syntaxErrors = d->syntaxValidator ? d->syntaxValidator(toPlainText()) : d->syntaxChecker->Check(document());
+    emit SyntaxErrorsChanged(d->syntaxErrors.size());
 
     // 刷新高亮显示
     HighlightCurrentLine();
@@ -1454,6 +1511,7 @@ void JX3MacroSyntaxChecker::CheckBrackets(const QString &line, int lineNumber, Q
 
 void CodeEditor::FormatDocument()
 {
+    if (isReadOnly()) return;
     Q_D(CodeEditor);
 
     QString     text  = toPlainText();

@@ -28,20 +28,21 @@ public:
 
     // 事件项数据结构
     struct EventItem {
-        int timestamp;      // 时间戳（毫秒）
+        double timestamp;   // 时间戳（毫秒），保留 62.5 毫秒的逻辑帧精度
         QString name;       // 技能名称
         QPixmap icon;       // 技能图标
         QColor color;       // 颜色标记
-        int damage;         // 伤害值
-        int rollResult;     // 会心结果 (1=普通, 2=会心, 3=识破)
+        qint64 damage;      // 伤害值
+        int rollResult;     // 会心结果 (0=未命中, 1=普通, 2=会心, 3=识破)
         QString macroName;  // 所属宏名称
         QColor macroColor;  // 宏的颜色标记
     };
 
     // Buff覆盖区间数据结构
     struct BuffSegment {
-        int startMs;        // 起始时间（毫秒）
-        int endMs;          // 结束时间（毫秒）
+        double startMs;     // 起始时间（毫秒）
+        double endMs;       // 结束时间（毫秒）
+        int stacks = 1;
     };
 
     // Buff项数据结构
@@ -78,6 +79,8 @@ signals:
 
     // 时间范围改变（用户缩放或滚动）
     void VisibleRangeChanged(int startMs, int endMs);
+    void CursorTimeChanged(double milliseconds);
+    void CursorLeft();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -86,10 +89,13 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 private:
     void SetupUI();
     void UpdateLayout();
+    int EventAt(const QPoint &position) const;
+    void UpdateCursor(const QPoint &position);
 
     // Paint helpers (拆分自paintEvent)
     void DrawThumbnail(QPainter &painter);

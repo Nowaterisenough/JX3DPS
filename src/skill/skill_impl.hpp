@@ -4,6 +4,7 @@
 #include "src/core/context.h"
 #include "src/global/concepts.h"
 #include "src/global/types.h"
+#include <cmath>
 #include <random>
 
 namespace JX3DPS {
@@ -31,13 +32,15 @@ public:
         // 其他临时数据
     };
 
-    PROPERTY Self self;
+    // Execution state belongs to each cast instance. Keeping it as a member
+    // avoids cross-cast leakage and removes dynamic TLS initialization.
+    Self self;
 
     // ===== 事件系统 =====
     using EventEffects = array_t<vector_t<func_t<void()>>, static_cast<size_t>(EventType::COUNT)>;
 
-    PROPERTY EventEffects effects_;
-    PROPERTY hash_t<int, EventEffects> effects_pool_; // 奇穴/秘籍效果池
+    EventEffects effects_;
+    hash_t<int, EventEffects> effects_pool_; // 奇穴/秘籍效果池
 
     /**
      * @brief 注册通用事件
@@ -96,6 +99,10 @@ public:
      * - 即时技能: 直接Roll -> Damage -> PostCast
      */
     void Cast() {
+        if constexpr (HasResourceCheck<DerivedSkill>) {
+            if (!static_cast<DerivedSkill *>(this)->CheckResource()) return;
+        }
+
         // 1. 检查前摇
         if constexpr (HasPrepare<DerivedSkill>) {
             PreCast();
@@ -314,14 +321,39 @@ private:
             }
         }
 
-        // 2. 攻击力加成
-        // TODO: 完整的伤害计算公式
+        // 2. 攻击力和武器伤害系数。属性值在模拟初始化时缓存到 Context，
+        // 这里保持固定数组/标量访问，避免百万次模拟中的对象遍历。
+        if constexpr (HasPhysicsAP<DerivedSkill>) {
+            cof_t coefficient = 0.0;
+            if constexpr (std::is_array_v<decltype(DerivedSkill::physics_ap)>) {
+                coefficient = DerivedSkill::physics_ap[self.level];
+            } else {
+                coefficient = DerivedSkill::physics_ap;
+            }
+            damage += static_cast<int>(std::llround(context.physics_attack_power * coefficient));
+        }
+
+        if constexpr (HasWeaponDamage<DerivedSkill>) {
+            pctn_t weapon_coefficient = PCT_100;
+            if constexpr (std::is_array_v<decltype(DerivedSkill::weapon_coefficient)>) {
+                weapon_coefficient = DerivedSkill::weapon_coefficient[self.level];
+            } else {
+                weapon_coefficient = DerivedSkill::weapon_coefficient;
+            }
+            damage += static_cast<int>(std::llround(
+                context.weapon_damage * static_cast<double>(weapon_coefficient) / PCT_100));
+        }
+
+        if (self.damage_cof != 0.0) {
+            damage = static_cast<int>(std::llround(damage * (1.0 + self.damage_cof)));
+        }
 
         return damage;
     }
 
     void ApplyDamage(int sub) {
-        // TODO: 应用伤害到目标
+        (void)sub;
+        context.damage_total += self.damage;
     }
 
     int Random(int min, int max) {

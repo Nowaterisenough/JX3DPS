@@ -1,7 +1,7 @@
 function(VERSION)
     # 直接设置版本号，避免复杂的正则解析
     set(VERSION_MAJOR 5)
-    set(VERSION_MINOR 41)  # TAI_JI_MI_LU
+    set(VERSION_MINOR 42)  # CANG_SHENG_ZHU_SHI
 
     # 尝试从Git获取信息
     find_package(Git QUIET)

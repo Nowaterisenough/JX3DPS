@@ -4,16 +4,19 @@
 #include <QString>
 #include <QObject>
 #include <memory>
+#include <QStringList>
+#include "combat_event.h"
+#include "buff_trace.h"
+#include "macro_step.h"
+#include "combat_history.h"
+
+#include "runtime_catalog.h"
 
 /**
  * @brief 调试模拟器 - 连接DebugSession和JX3DPS引擎
  *
  * 负责：
- * 1. 解析宏文本为ExprSkillsHash
- * 2. 初始化Player和Targets
- * 3. 生成KeyFrameSequence
- * 4. 单步执行KeyFrame
- * 5. 提供玩家状态查询
+ * Compiles macros once and exposes the debuggable runtime's state and events.
  */
 class DebugSimulator : public QObject
 {
@@ -22,6 +25,8 @@ class DebugSimulator : public QObject
 public:
     explicit DebugSimulator(QObject *parent = nullptr);
     ~DebugSimulator();
+
+    void SetOptions(const desktop::Config &config, int durationFrames, std::uint64_t seed = 0);
 
     // 初始化模拟器（解析宏，创建Player）
     bool Initialize(const QString &macroText, QString &errorMessage);
@@ -35,7 +40,16 @@ public:
     // 单步跳出（跳出当前作用域）
     bool StepOut();
 
-    // 单步执行（执行一个KeyFrame）- 保留兼容性
+    // Run until a compiled breakpoint, the fight end, or the step budget.
+    bool Continue(std::size_t maxSteps = 10000);
+
+    bool IsPaused() const;
+    bool BudgetExhausted() const;
+
+    // Breakpoints are resolved against the compiled source map.
+    bool SetBreakpoint(int sourceLine, bool enabled = true);
+
+    // Compatibility alias for stepping one condition/action.
     bool StepOne();
 
     // 获取当前状态
@@ -52,8 +66,17 @@ public:
         QString currentMacro;
         QString lastSkill;
         int currentMacroLine;  // 当前执行的宏行号（1-based）
+        QString phase;
+        QString condition;
+        QString lastStep;
+        QStringList details;
     };
     PlayerState GetPlayerState() const;
+    CombatEvents TakeEvents();
+    BuffEvents TakeBuffEvents();
+    MacroSteps TakeMacroSteps();
+    desktop::HistoryChunk TakeHistory();
+    qint64 TotalDamage();
 
     // 检查是否执行完成
     bool IsFinished() const;

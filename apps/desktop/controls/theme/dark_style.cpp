@@ -22,6 +22,7 @@ void DarkStyle::polish(QPalette &palette)
     palette.setColor(QPalette::ToolTipBase, darkBlueLight);
     palette.setColor(QPalette::ToolTipText, lightText);
     palette.setColor(QPalette::Text, lightText);
+    palette.setColor(QPalette::PlaceholderText, QColor(148, 165, 176));
     palette.setColor(QPalette::Button, darkBlue);
     palette.setColor(QPalette::ButtonText, lightText);
     palette.setColor(QPalette::BrightText, brightText);

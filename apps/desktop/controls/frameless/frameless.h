@@ -8,7 +8,21 @@
 #include "../export.h"
 
 namespace QWK {
+#if __has_include(<QWKWidgets/widgetwindowagent.h>)
 class WidgetWindowAgent;
+#else
+// QWindowKit is optional in source checkouts. Keep the desktop shell usable
+// with the native QWidget frame when the third-party submodule is absent.
+class WidgetWindowAgent {
+public:
+    enum class SystemButton { WindowIcon, Minimize, Maximize, Close };
+    explicit WidgetWindowAgent(QWidget *) {}
+    void setup(QWidget *) {}
+    void setHitTestVisible(QWidget *) {}
+    void setTitleBar(QWidget *) {}
+    void setSystemButton(SystemButton, QWidget *) {}
+};
+#endif
 } // namespace QWK
 
 

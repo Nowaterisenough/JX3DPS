@@ -17,7 +17,7 @@ PlayerStatePanel::PlayerStatePanel(QWidget *parent)
     , d(std::make_unique<Impl>())
 {
     setMinimumSize(250, 300);
-    setMaximumWidth(300);
+    setMinimumHeight(300);
 }
 
 PlayerStatePanel::~PlayerStatePanel() = default;
@@ -26,6 +26,14 @@ void PlayerStatePanel::UpdateState(const PlayerState &state)
 {
     d->state = state;
     d->hasData = true;
+    update();
+}
+
+void PlayerStatePanel::SetCursorTime(int frame, double seconds)
+{
+    if (!d->hasData) return;
+    d->state.currentFrame = frame;
+    d->state.currentSeconds = seconds;
     update();
 }
 
@@ -52,8 +60,8 @@ void PlayerStatePanel::paintEvent(QPaintEvent *event)
         return;
     }
 
-    int y = 10;
-    const int lineHeight = 25;
+    int y = 20;
+    const int lineHeight = 22;
     const int leftMargin = 10;
 
     // 标题
@@ -73,7 +81,7 @@ void PlayerStatePanel::paintEvent(QPaintEvent *event)
 
     // 时间信息
     painter.setPen(QColor(180, 180, 180));
-    painter.drawText(leftMargin, y, QString("时间: %1s (帧%2)")
+    painter.drawText(leftMargin, y, QString("时间：%1 秒（第 %2 帧）")
         .arg(d->state.currentSeconds, 0, 'f', 2)
         .arg(d->state.currentFrame));
     y += lineHeight;
@@ -104,13 +112,8 @@ void PlayerStatePanel::paintEvent(QPaintEvent *event)
 
     // 资源信息
     painter.setPen(QColor(180, 180, 180));
-    painter.drawText(leftMargin, y, QString("气点: %1").arg(d->state.qidian));
-    y += lineHeight;
-
-    painter.drawText(leftMargin, y, QString("怒气: %1").arg(d->state.rage));
-    y += lineHeight;
-
-    painter.drawText(leftMargin, y, QString("元气: %1").arg(d->state.energy));
+    painter.drawText(leftMargin, y, QString("气点 %1   怒气 %2   能量 %3")
+        .arg(d->state.qidian).arg(d->state.rage).arg(d->state.energy));
     y += lineHeight + 5;
 
     // 目标信息
@@ -122,7 +125,7 @@ void PlayerStatePanel::paintEvent(QPaintEvent *event)
 
     painter.setFont(normalFont);
     painter.setPen(QColor(180, 180, 180));
-    painter.drawText(leftMargin, y, QString("ID: %1").arg(d->state.targetId));
+    painter.drawText(leftMargin, y, QString("目标编号：%1").arg(d->state.targetId));
     y += lineHeight;
 
     Impl::DrawProgressBar(painter, leftMargin, y, width() - 20, 20,

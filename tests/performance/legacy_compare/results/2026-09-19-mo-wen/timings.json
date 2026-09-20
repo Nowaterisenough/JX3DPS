@@ -1,0 +1,56 @@
+[
+  {
+    "round": 1,
+    "engine": "mo_wen_legacy_bench",
+    "iterations": 1000,
+    "seconds": 300,
+    "elapsed_s": 7.0788414,
+    "fights_per_s": 141.26605520502267,
+    "damage_sum": 24501951000
+  },
+  {
+    "round": 1,
+    "engine": "mo_wen_runtime_bench",
+    "iterations": 1000,
+    "seconds": 300,
+    "elapsed_s": 0.100695,
+    "fights_per_s": 9930.979691146531,
+    "damage_sum": 24501951000
+  },
+  {
+    "round": 2,
+    "engine": "mo_wen_legacy_bench",
+    "iterations": 1000,
+    "seconds": 300,
+    "elapsed_s": 7.2267796,
+    "fights_per_s": 138.37422134750034,
+    "damage_sum": 24501951000
+  },
+  {
+    "round": 2,
+    "engine": "mo_wen_runtime_bench",
+    "iterations": 1000,
+    "seconds": 300,
+    "elapsed_s": 0.100131,
+    "fights_per_s": 9986.917138548502,
+    "damage_sum": 24501951000
+  },
+  {
+    "round": 3,
+    "engine": "mo_wen_legacy_bench",
+    "iterations": 1000,
+    "seconds": 300,
+    "elapsed_s": 7.1669095,
+    "fights_per_s": 139.53015592006568,
+    "damage_sum": 24501951000
+  },
+  {
+    "round": 3,
+    "engine": "mo_wen_runtime_bench",
+    "iterations": 1000,
+    "seconds": 300,
+    "elapsed_s": 0.0996513,
+    "fights_per_s": 10034.992017163851,
+    "damage_sum": 24501951000
+  }
+]

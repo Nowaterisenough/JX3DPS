@@ -1,6 +1,24 @@
 #include "test_data_generator.h"
 #include <QRandomGenerator>
 #include <QPixmap>
+#include <QHash>
+
+#include "src/class/tai_xu_jian_yi/tai_xu_jian_yi_live_data.h"
+
+QPixmap TestDataGenerator::IconForSkill(const QString &skillName)
+{
+    for (const auto &skill : JX3DPS::太虚剑意::LiveData::SKILLS) {
+        if (QString::fromUtf8(skill.name) == skillName) {
+            return QPixmap(QStringLiteral(":/resources/images/JX3/Icons/%1.png").arg(skill.icon));
+        }
+    }
+    for (const auto &talent : JX3DPS::太虚剑意::LiveData::TALENTS) {
+        if (QString::fromUtf8(talent.name) == skillName) {
+            return QPixmap(QStringLiteral(":/resources/images/JX3/Icons/%1.png").arg(talent.icon));
+        }
+    }
+    return {};
+}
 
 QVector<Timeline::EventItem> TestDataGenerator::GenerateEvents()
 {
@@ -14,14 +32,14 @@ QVector<Timeline::EventItem> TestDataGenerator::GenerateEvents()
     };
 
     static const QList<SkillData> skills = {
-        {"碎星辰", ":/resources/images/JX3/Icons/2942.png", QColor(255, 100, 100)},
-        {"无我无剑", ":/resources/images/JX3/Icons/2941.png", QColor(100, 255, 100)},
-        {"三环套月", ":/resources/images/JX3/Icons/2936.png", QColor(100, 100, 255)},
-        {"八荒归元", ":/resources/images/JX3/Icons/2934.png", QColor(255, 255, 100)},
-        {"吞日月", ":/resources/images/JX3/Icons/2933.png", QColor(255, 100, 255)},
-        {"人剑合一", ":/resources/images/JX3/Icons/2931.png", QColor(100, 255, 255)},
-        {"生太极", ":/resources/images/JX3/Icons/2927.png", QColor(200, 150, 100)},
-        {"紫气东来", ":/resources/images/JX3/Icons/2926.png", QColor(150, 100, 200)}
+        {"碎星辰", ":/resources/images/JX3/Icons/1450.png", QColor(255, 100, 100)},
+        {"无我无剑", ":/resources/images/JX3/Icons/617.png", QColor(100, 255, 100)},
+        {"三环套月", ":/resources/images/JX3/Icons/608.png", QColor(100, 100, 255)},
+        {"八荒归元", ":/resources/images/JX3/Icons/2927.png", QColor(255, 255, 100)},
+        {"吞日月", ":/resources/images/JX3/Icons/1445.png", QColor(255, 100, 255)},
+        {"人剑合一", ":/resources/images/JX3/Icons/335.png", QColor(100, 255, 255)},
+        {"生太极", ":/resources/images/JX3/Icons/1448.png", QColor(200, 150, 100)},
+        {"紫气东来", ":/resources/images/JX3/Icons/2933.png", QColor(150, 100, 200)}
     };
 
     // 宏信息
@@ -83,7 +101,7 @@ QVector<Timeline::BuffItem> TestDataGenerator::GenerateBuffs(int totalDurationMs
     // Buff 1: 破防
     Timeline::BuffItem buff1;
     buff1.name = "破防";
-    buff1.icon = QPixmap(":/resources/images/JX3/Icons/2942.png");
+    buff1.icon = QPixmap(":/resources/images/JX3/Icons/1450.png");
     buff1.color = QColor(255, 100, 100, 180);
     for (int t = 0; t < totalDurationMs; t += 35000) {
         buff1.segments.append({t, qMin(t + 15000, totalDurationMs)});
@@ -93,7 +111,7 @@ QVector<Timeline::BuffItem> TestDataGenerator::GenerateBuffs(int totalDurationMs
     // Buff 2: 无双
     Timeline::BuffItem buff2;
     buff2.name = "无双";
-    buff2.icon = QPixmap(":/resources/images/JX3/Icons/2941.png");
+    buff2.icon = QPixmap(":/resources/images/JX3/Icons/617.png");
     buff2.color = QColor(100, 255, 100, 180);
     for (int t = 5000; t < totalDurationMs; t += 50000) {
         buff2.segments.append({t, qMin(t + 20000, totalDurationMs)});
@@ -103,7 +121,7 @@ QVector<Timeline::BuffItem> TestDataGenerator::GenerateBuffs(int totalDurationMs
     // Buff 3: 会心
     Timeline::BuffItem buff3;
     buff3.name = "会心";
-    buff3.icon = QPixmap(":/resources/images/JX3/Icons/2936.png");
+    buff3.icon = QPixmap(":/resources/images/JX3/Icons/608.png");
     buff3.color = QColor(100, 100, 255, 180);
     for (int t = 10000; t < totalDurationMs; t += 37000) {
         buff3.segments.append({t, qMin(t + 12000, totalDurationMs)});
@@ -113,7 +131,7 @@ QVector<Timeline::BuffItem> TestDataGenerator::GenerateBuffs(int totalDurationMs
     // Buff 4: 加速
     Timeline::BuffItem buff4;
     buff4.name = "加速";
-    buff4.icon = QPixmap(":/resources/images/JX3/Icons/2934.png");
+    buff4.icon = QPixmap(":/resources/images/JX3/Icons/2927.png");
     buff4.color = QColor(255, 255, 100, 180);
     for (int t = 0; t < totalDurationMs; t += 90000) {
         buff4.segments.append({t, qMin(t + 30000, totalDurationMs)});
@@ -123,7 +141,7 @@ QVector<Timeline::BuffItem> TestDataGenerator::GenerateBuffs(int totalDurationMs
     // Buff 5: 外功
     Timeline::BuffItem buff5;
     buff5.name = "外功";
-    buff5.icon = QPixmap(":/resources/images/JX3/Icons/2933.png");
+    buff5.icon = QPixmap(":/resources/images/JX3/Icons/1445.png");
     buff5.color = QColor(255, 150, 50, 180);
     buff5.segments.append({0, totalDurationMs});
     buffs.append(buff5);
@@ -131,7 +149,7 @@ QVector<Timeline::BuffItem> TestDataGenerator::GenerateBuffs(int totalDurationMs
     // Buff 6: 橙武
     Timeline::BuffItem buff6;
     buff6.name = "橙武";
-    buff6.icon = QPixmap(":/resources/images/JX3/Icons/2931.png");
+    buff6.icon = QPixmap(":/resources/images/JX3/Icons/335.png");
     buff6.color = QColor(255, 165, 0, 180);
     for (int t = 20000; t < totalDurationMs; t += 63000) {
         buff6.segments.append({t, qMin(t + 18000, totalDurationMs)});

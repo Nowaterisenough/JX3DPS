@@ -2,6 +2,7 @@
 #define TEST_DATA_GENERATOR_H
 
 #include "controls/timeline/timeline.h"
+#include <QPixmap>
 #include <QVector>
 
 /**
@@ -18,6 +19,9 @@ class TestDataGenerator
 public:
     // 生成技能释放事件 (600秒战斗数据)
     static QVector<Timeline::EventItem> GenerateEvents();
+
+    // 使用随应用打包的 JX3 图标，调试时间轴不再退化为文本标记。
+    static QPixmap IconForSkill(const QString &skillName);
 
     // 生成Buff覆盖数据
     static QVector<Timeline::BuffItem> GenerateBuffs(int totalDurationMs);

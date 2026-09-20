@@ -1,0 +1,6 @@
+/cast [nobuff:紫气东来&qidian<6] 紫气东来
+/cast [qidian>=8] 无我无剑
+/cast 八荒归元
+/cast 三环套月
+/cast 三柴剑法
+/cast [qidian>=1] 无我无剑

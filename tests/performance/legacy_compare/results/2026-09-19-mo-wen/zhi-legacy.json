@@ -1,0 +1,56 @@
+{
+  "engine": "mo-wen-legacy-draw-record",
+  "iterations": 1,
+  "seconds": 300,
+  "elapsed_s": 0.0036948,
+  "fights_per_s": 270.6506441485331,
+  "mean_damage": 1644908.0,
+  "mean_dps": 5483.026666666667,
+  "min_damage": 1644908,
+  "max_damage": 1644908,
+  "damage_sum": 1644908,
+  "crit": 20000,
+  "dot": false,
+  "legacy_precision": 1,
+  "phase": 0,
+  "initial_qidian": 10,
+  "talents": [
+    "xianfeng",
+    "liuzhao",
+    "zhenglv",
+    "canlian",
+    "yunhan",
+    "mingjin",
+    "zhizhi",
+    "haoqing",
+    "shixiang",
+    "haozhong",
+    "kemeng",
+    "feifan",
+    "zhengming"
+  ],
+  "weapon_cw": false,
+  "sample": {
+    "变徵": {
+      "hits": 160,
+      "damage": 1644908
+    }
+  },
+  "draws": 160,
+  "attributes": {
+    "attack_base": 10000,
+    "attack_by_class": 2500,
+    "weapon": 2000,
+    "crit": 20000,
+    "crit_basis_points": 0,
+    "crit_power": 15000,
+    "crit_power_percent": 0,
+    "overcome": 25000,
+    "strain": 10000,
+    "surplus": 3000,
+    "haste": 1.0,
+    "attack": 12500,
+    "pve_percent": 61,
+    "damage_percent": 0
+  }
+}

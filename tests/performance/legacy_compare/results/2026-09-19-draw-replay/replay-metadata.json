@@ -1,0 +1,63 @@
+{
+  "created": "2026-09-19T12:10:30.9747314+08:00",
+  "replay_existing": true,
+  "phases": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "initial_qidian": [
+    0,
+    10
+  ],
+  "repeats": 2,
+  "source_sha256": {
+    "src\\core\\runtime\\batch.hpp": "589570DCE0E651EAFA3CAE7F960B1865316035F15181901296E5CF3B4FB9BF27",
+    "src\\core\\runtime\\damage_log.hpp": "D449B2EA38F281213949D6DC3AD36B661A3C801384A3A2A04CD17B54A93F8649",
+    "src\\core\\runtime\\descriptors.hpp": "6C7C7079DA9595F25171BDF4C543A01CDE354EF5713EF0AB10BD7C02B686C50D",
+    "src\\core\\runtime\\macro.hpp": "DA712D247D45B0A976C4AB49E9EE98969FDD0CA68AB6032B0B215FB263B38D25",
+    "src\\core\\runtime\\scheduler.hpp": "FD290492703F394254185F862840FD23F6C44D7E4FA0C665C54B88F9675B2B06",
+    "src\\core\\runtime\\simulation.hpp": "2CF9B7FD7CD719E878A72AF4CAFC82B1B4FB55ED93B9FC56C80629A9AC39ACC1",
+    "src\\core\\runtime.hpp": "4E8916128B647844FD08A8CC3613EC91B14B63C8A616A7438E57A0EC88220099",
+    "src\\class\\tai_xu_jian_yi\\runtime_data.hpp": "2D1FDA6A3B6CA5AE00574522AA18CFB9B0D4421A0E84E34CB810088BA3AB94B1",
+    "src\\class\\tai_xu_jian_yi\\runtime_rules.hpp": "EF01DD4B025FCDE47A55705C2B0656002AF281F8F31CAA212EB57B038147C21A",
+    "tests\\performance\\legacy_compare\\CMakeLists.txt": "1BE1E39E58157FFF1755DFDD4A911E92749E0232CB4E78C0AE8FAF5728E35BE3",
+    "tests\\performance\\legacy_compare\\common.hpp": "AF5CA791CEB93BB39B4E5E63C9B02BBD4142052E088F9EC173AAACADF9AEE8C1",
+    "tests\\performance\\legacy_compare\\compat.hpp": "E42C56B8574A300846D733B198AD7442E5DEC45D7B967E5141CE1210C4882208",
+    "tests\\performance\\legacy_compare\\legacy_bench.cpp": "4B6F0BCB3E46ED387BFB0F4A6F7B01DD47F0439DA9429C064898CF2371313002",
+    "tests\\performance\\legacy_compare\\legacy_draw_record.hpp": "356C3935F68819D6913634479F1800CF35BF5546F685F1A47F6296D8469753AB",
+    "tests\\performance\\legacy_compare\\README.md": "1D5E2CFD478A401E447199E6CB782CFCBF91C0F99162463A7C9BCFDACADF98DB",
+    "tests\\performance\\legacy_compare\\run.ps1": "BC6E1AE723A965F1FFDC17472D1545449DFDE1621DA6680B5EA51D4C789E0231",
+    "tests\\performance\\legacy_compare\\runtime_bench.cpp": "FFA06640F6C1605A77BC271E55D3ACDEEE72B6596E61AFB82D80C38C1AC5B96F",
+    "tests\\performance\\legacy_compare\\summarize.ps1": "2D76254CA90FFB5236D4FEC14BCDEBFEEF2BC62E08E06CFED6BE4DC2AA415D37",
+    "tests\\performance\\legacy_compare\\validate-draws.ps1": "8147EAC373345B041353E71B3F1A4CA72B5B822EB32DD2CC041DA19800CE25D2",
+    "tests\\performance\\legacy_compare\\validate-phases.ps1": "BA55B4398130BBA01E1458B7AE36F13731C925B50810136CDA6627483A345B88",
+    "tests\\performance\\legacy_compare\\validate.ps1": "4792711CFDF5F7A6FF56B63C954F962FE6CD77ECFED5AD19F8BD240530CC4839",
+    "tests\\performance\\legacy_compare\\macros\\cooldowns.txt": "A5EA7F27040B87CBCC3B44B94F136BBC407950AD5B771B12F923003C2B8F917D",
+    "tests\\performance\\legacy_compare\\macros\\rotation.txt": "904B16BCBAACB2DAC0E81AFA09B37BD45E70DD79C08F005D7FCA16FE1DFD8DC1",
+    "tests\\performance\\legacy_compare\\macros\\sanchai.txt": "F2A49F253E94C89EDE7F8286ECE9CB0A3A2442E0375C2D0A57CB1D2C668B15F4"
+  },
+  "binary_sha256": {
+    "runtime_replay": "B259B18820AA6DCFFAE99950AC39E7941A59D721530231C996695E654F49300F",
+    "legacy_record": "CACD8FEA57017FE460846446C4A5AE283BEDE8340EAB00A608B48C82C7DDA877"
+  },
+  "cmake_cache": [
+    "CMAKE_BUILD_TYPE:STRING=Release",
+    "CMAKE_CXX_COMPILER:UNINITIALIZED=C:/msys64/ucrt64/bin/clang++.exe",
+    "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG",
+    "LEGACY_ROOT:PATH=C:/Users/NoWats/Workspace/Personal/JX3DPS-worktrees/ba960f7"
+  ]
+}

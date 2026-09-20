@@ -1,0 +1,7 @@
+/cast [tnobuff:Dot·商] 商
+/cast [tnobuff:Dot·角] 角
+/cast 疏影横斜
+/scast 高山流水
+/cast [buff:曲风=4] 羽
+/cast 变徵
+/cast 变宫

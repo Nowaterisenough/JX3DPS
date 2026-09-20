@@ -3,6 +3,7 @@
 
 #include "attribute.hpp"
 #include "src/core/context.h"
+#include "src/equipment/equipment.hpp"
 #include "src/global/types.h"
 
 namespace JX3DPS {
@@ -20,6 +21,15 @@ public:
 
     // ===== 属性系统 =====
     Attribute attribute;
+
+    // Parsed once at simulation setup. Runtime skill code only reads the
+    // compact cache and never walks JSON or equipment names.
+    EquipmentLoadout equipment;
+
+    // Active IDs are populated during setup and are useful to skill/event
+    // initialization without forcing string lookups in the hot loop.
+    hash_t<jx3id_t, bool> active_talents;
+    hash_t<jx3id_t, bool> active_recipes;
 
     // ===== 资源管理 (子类可重写) =====
 
@@ -43,7 +53,9 @@ public:
     }
 
     void AddBuff(jx3id_t buffId, int stack = 1) {
-        m_buffs[buffId] += stack;
+        auto &value = m_buffs[buffId];
+        value = std::max(value + stack, 0);
+        context.SetBuffStack(0, buffId, value);
     }
 
     void RemoveBuff(jx3id_t buffId, int stack = 1) {
@@ -52,11 +64,17 @@ public:
             it->second -= stack;
             if (it->second <= 0) {
                 m_buffs.erase(it);
+                context.SetBuffStack(0, buffId, 0);
+            } else {
+                context.SetBuffStack(0, buffId, it->second);
             }
         }
     }
 
-    void ClearBuff(jx3id_t buffId) { m_buffs.erase(buffId); }
+    void ClearBuff(jx3id_t buffId) {
+        m_buffs.erase(buffId);
+        context.SetBuffStack(0, buffId, 0);
+    }
 
     // ===== 技能施放 =====
 

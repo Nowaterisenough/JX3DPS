@@ -60,7 +60,7 @@ extern "C"
     /**
      * @brief 模拟API
      * @param in 输入, JSON格式
-     * @param ... 可变参，可以是输出的指针，也可以是进度回调函数
+     * @param ... 兼容旧版 ABI 的可变参数；结果通过 jx3dps_get_result 获取
      * @return 错误码 0: 成功, 其他: 失败
      */
     JX3DPS_API int jx3dps_simulate(const char *const in, ...);
@@ -80,7 +80,7 @@ extern "C"
     /**
      * @brief 调试
      * @param in 输入, JSON格式
-     * @param ... 可变参，可以是输出的指针，也可以是进度回调函数
+     * @param ... 兼容旧版 ABI 的可变参数；调试状态通过调试器接口获取
      * @return 错误码 0: 成功, 其他: 失败
      */
     JX3DPS_API int jx3dps_debug(const char *const in, ...);

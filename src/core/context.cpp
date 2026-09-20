@@ -16,6 +16,38 @@ namespace JX3DPS {
 // 定义线程局部上下文
 thread_local Context context;
 
+size_t Context::RegisterSkillId(jx3id_t id, size_t preferred)
+{
+    for (size_t i = 0; i < skill_id_count; ++i) {
+        if (skill_ids[i] == id) return i;
+    }
+    size_t slot = preferred < TickCache::MAX_SKILLS ? preferred : std::max(skill_id_count, size_t{1});
+    if (slot >= TickCache::MAX_SKILLS) return 0;
+    if (slot < skill_id_count && skill_ids[slot] != 0 && skill_ids[slot] != id) {
+        slot = skill_id_count;
+    }
+    if (slot >= TickCache::MAX_SKILLS) return 0;
+    skill_ids[slot] = id;
+    skill_id_count = std::max(skill_id_count, slot + 1);
+    return slot;
+}
+
+size_t Context::RegisterBuffId(jx3id_t id, size_t preferred)
+{
+    for (size_t i = 0; i < buff_id_count; ++i) {
+        if (buff_ids[i] == id) return i;
+    }
+    size_t slot = preferred < TickCache::MAX_BUFFS ? preferred : buff_id_count;
+    if (slot >= TickCache::MAX_BUFFS) return 0;
+    if (slot < buff_id_count && buff_ids[slot] != 0 && buff_ids[slot] != id) {
+        slot = buff_id_count;
+    }
+    if (slot >= TickCache::MAX_BUFFS) return 0;
+    buff_ids[slot] = id;
+    buff_id_count = std::max(buff_id_count, slot + 1);
+    return slot;
+}
+
 /**
  * @brief 从心法名称创建玩家实例
  */

@@ -30,7 +30,7 @@ namespace 太虚剑意 {
  * @brief 获取版本信息
  */
 TXJY_API const char* GetVersion() {
-    return "1.0.0";
+    return "5.42.0";
 }
 
 /**
@@ -44,7 +44,7 @@ TXJY_API const char* GetClassName() {
  * @brief 获取技能数量
  */
 TXJY_API int GetSkillCount() {
-    return 11; // 11个技能
+    return static_cast<int>(Data::SKILL_COEFFICIENTS.size());
 }
 
 /**

@@ -3,6 +3,8 @@
 
 #include <cstring>
 #include <limits>
+#include <array>
+#include <algorithm>
 #include <string>
 
 #include "src/global/jx3.h"
@@ -38,6 +40,7 @@ struct alignas(64) TickCache
     tick_t buff_cooldown[MAX_UNITS][MAX_BUFFS] = {}; // BUFF冷却
     tick_t buff_duration[MAX_UNITS][MAX_BUFFS] = {}; // BUFF持续时间
     tick_t buff_interval[MAX_UNITS][MAX_BUFFS] = {}; // BUFF间隔
+    int buff_stacks[MAX_UNITS][MAX_BUFFS] = {};       // BUFF层数
 
     void Reset() { std::memset(this, 0, sizeof(TickCache)); }
 
@@ -123,6 +126,16 @@ struct Context
     // 当前Tick
     tick_t current_tick = 0;
 
+    // 单次模拟的热路径缓存，避免每次伤害都重新遍历属性对象。
+    value_t physics_attack_power = 0;
+    value_t weapon_damage = 0;
+    value_t physics_critical_strike = 0;
+    value_t physics_overcome = 0;
+    value_t haste = 0;
+    std::uint64_t equipment_effect_mask = 0;
+    long long damage_total = 0;
+    int qidian = 0; // 太虚剑意资源缓存，供宏条件在运行期快速读取
+
     // 玩家引用 (使用void*实现类型擦除，使用时需转换)
     void *player = nullptr;
 
@@ -144,6 +157,53 @@ struct Context
 
     // 宏时间阈值列表（用于生成精确关键帧）
     vector_t<MacroTrigger> macro_triggers;
+
+    // JX3 的技能/BUFF ID 是稀疏的大整数，不能直接作为固定数组下标。
+    // 解析宏时将外部 ID 注册到紧凑槽位，运行期只访问缓存数组。
+    array_t<jx3id_t, TickCache::MAX_SKILLS> skill_ids{};
+    array_t<jx3id_t, TickCache::MAX_BUFFS> buff_ids{};
+    size_t skill_id_count = 1; // slot 0 is reserved for the global cooldown
+    size_t buff_id_count = 0;
+
+    // 注册只发生在宏编译/初始化阶段，放在 .cpp 中避免 MinGW 对 TLS 全局
+    // context 生成错误的内联专用副本；运行期数组读取仍保持内联。
+    size_t RegisterSkillId(jx3id_t id, size_t preferred = TickCache::MAX_SKILLS);
+
+    size_t RegisterBuffId(jx3id_t id, size_t preferred = TickCache::MAX_BUFFS);
+
+    size_t ResolveSkillCacheIndex(jx3id_t id) const {
+        for (size_t i = 0; i < skill_id_count; ++i) {
+            if (skill_ids[i] == id) return i;
+        }
+        return id >= 0 && static_cast<size_t>(id) < TickCache::MAX_SKILLS
+            ? static_cast<size_t>(id) : 0;
+    }
+
+    size_t ResolveBuffCacheIndex(jx3id_t id) const {
+        for (size_t i = 0; i < buff_id_count; ++i) {
+            if (buff_ids[i] == id) return i;
+        }
+        return id >= 0 && static_cast<size_t>(id) < TickCache::MAX_BUFFS
+            ? static_cast<size_t>(id) : 0;
+    }
+
+    size_t ResolveUnitIndex(jx3id_t id) const {
+        return id >= 0 && static_cast<size_t>(id) < TickCache::MAX_UNITS
+            ? static_cast<size_t>(id) : 0;
+    }
+
+    int GetBuffStack(jx3id_t unit_id, jx3id_t buff_id) const {
+        return cache.buff_stacks[ResolveUnitIndex(unit_id)][ResolveBuffCacheIndex(buff_id)];
+    }
+
+    void SetBuffStack(jx3id_t unit_id, jx3id_t buff_id, int stacks) {
+        const size_t unit = ResolveUnitIndex(unit_id);
+        const size_t slot = RegisterBuffId(buff_id);
+        cache.buff_stacks[unit][slot] = std::max(stacks, 0);
+        if (cache.buff_stacks[unit][slot] == 0) {
+            cache.buff_duration[unit][slot] = 0;
+        }
+    }
 
     // 辅助函数：获取当前 GCD 剩余时间
     tick_t GetGlobalCooldown() const {
@@ -175,15 +235,18 @@ struct Context
 
             switch (threshold.type) {
                 case MacroTrigger::Type::SKILL_COOLDOWN:
-                    current_value = cache.skill_cooldown[threshold.cache_index];
+                    current_value = threshold.cache_index < TickCache::MAX_SKILLS
+                        ? cache.skill_cooldown[threshold.cache_index] : 0;
                     break;
                 case MacroTrigger::Type::BUFF_DURATION:
-                    current_value = cache.buff_duration[0][threshold.cache_index];
+                    current_value = threshold.cache_index < TickCache::MAX_BUFFS
+                        ? cache.buff_duration[0][threshold.cache_index] : 0;
                     break;
                 case MacroTrigger::Type::TBUFF_DURATION:
                     // 目标BUFF，假设第一个目标
                     if (!targets.empty()) {
-                        current_value = cache.buff_duration[targets.begin()->first][threshold.cache_index];
+                        current_value = threshold.cache_index < TickCache::MAX_BUFFS
+                            ? cache.buff_duration[ResolveUnitIndex(targets.begin()->first)][threshold.cache_index] : 0;
                     }
                     break;
             }
@@ -211,12 +274,15 @@ struct Context
         for (size_t i = 0; i < TickCache::MAX_SKILLS; ++i) {
             if (cache.skill_cooldown[i] > 0) {
                 cache.skill_cooldown[i] -= tick;
+                if (cache.skill_cooldown[i] < 0) cache.skill_cooldown[i] = 0;
             }
             if (cache.skill_prepare[i] > 0) {
                 cache.skill_prepare[i] -= tick;
+                if (cache.skill_prepare[i] < 0) cache.skill_prepare[i] = 0;
             }
             if (cache.skill_casting[i] > 0) {
                 cache.skill_casting[i] -= tick;
+                if (cache.skill_casting[i] < 0) cache.skill_casting[i] = 0;
             }
         }
 
@@ -225,12 +291,35 @@ struct Context
             for (size_t b = 0; b < TickCache::MAX_BUFFS; ++b) {
                 if (cache.buff_duration[u][b] > 0) {
                     cache.buff_duration[u][b] -= tick;
+                    if (cache.buff_duration[u][b] < 0) cache.buff_duration[u][b] = 0;
                 }
                 if (cache.buff_interval[u][b] > 0) {
                     cache.buff_interval[u][b] -= tick;
+                    if (cache.buff_interval[u][b] < 0) cache.buff_interval[u][b] = 0;
                 }
             }
         }
+    }
+
+    /**
+     * @brief Reset runtime state while retaining compiled ID bindings.
+     */
+    void ResetRuntime()
+    {
+        cache.Reset();
+        current_tick = 0;
+        physics_attack_power = 0;
+        weapon_damage = 0;
+        physics_critical_strike = 0;
+        physics_overcome = 0;
+        haste = 0;
+        equipment_effect_mask = 0;
+        damage_total = 0;
+        qidian = 0;
+        player = nullptr;
+        targets.clear();
+        std::fill(skill_cooldown_list, skill_cooldown_list + TickCache::MAX_SKILLS, 0);
+        gcd_slot_index = 0;
     }
 
     /**
@@ -238,9 +327,12 @@ struct Context
      */
     void Reset()
     {
-        cache.Reset();
-        current_tick = 0;
+        ResetRuntime();
         macro_triggers.clear();
+        skill_ids.fill(0);
+        buff_ids.fill(0);
+        skill_id_count = 1; // keep slot 0 reserved for the global cooldown
+        buff_id_count = 0;
     }
 
     /**
@@ -333,7 +425,17 @@ struct Target
         return it != buffs.end() ? it->second : 0;
     }
 
-    void AddBuff(jx3id_t buff_id, int stack = 1) { buffs[buff_id] += stack; }
+    void AddBuff(jx3id_t buff_id, int stack = 1) {
+        auto &value = buffs[buff_id];
+        value = std::max(value + stack, 0);
+        // Unit id 0 is the player; target ids are kept in their own cache slot.
+        // The context is thread-local, so this update is allocation-free after
+        // the first registration of the external BUFF id.
+        const size_t unit = id >= 0 && static_cast<size_t>(id) < TickCache::MAX_UNITS
+            ? static_cast<size_t>(id) : 0;
+        const size_t slot = context.RegisterBuffId(buff_id);
+        context.cache.buff_stacks[unit][slot] = value;
+    }
 
     void RemoveBuff(jx3id_t buff_id, int stack = 1)
     {
@@ -342,11 +444,17 @@ struct Target
             it->second -= stack;
             if (it->second <= 0) {
                 buffs.erase(it);
+                context.SetBuffStack(id, buff_id, 0);
+            } else {
+                context.SetBuffStack(id, buff_id, it->second);
             }
         }
     }
 
-    void ClearBuff(jx3id_t buff_id) { buffs.erase(buff_id); }
+    void ClearBuff(jx3id_t buff_id) {
+        buffs.erase(buff_id);
+        context.SetBuffStack(id, buff_id, 0);
+    }
 
     void TakeDamage(long long damage)
     {

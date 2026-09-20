@@ -1,0 +1,447 @@
+[
+    {
+        "macro":  "sanchai",
+        "phase":  7,
+        "forced_critical":  true,
+        "precision":  1,
+        "samples":  {
+                        "legacy":  {
+                                       "engine":  "legacy-ba960f7",
+                                       "iterations":  1,
+                                       "seconds":  300,
+                                       "elapsed_s":  0.0024472,
+                                       "fights_per_s":  408.63027133050014,
+                                       "mean_damage":  1741269.0,
+                                       "mean_dps":  5804.23,
+                                       "min_damage":  1741269,
+                                       "max_damage":  1741269,
+                                       "damage_sum":  1741269,
+                                       "crit":  1000000,
+                                       "dot":  false,
+                                       "legacy_precision":  1,
+                                       "phase":  7,
+                                       "initial_qidian":  10,
+                                       "sample":  {
+                                                      "三柴剑法":  {
+                                                                   "hits":  219,
+                                                                   "damage":  1741269
+                                                               }
+                                                  },
+                                       "attributes":  {
+                                                          "attack_base":  10000,
+                                                          "attack_by_class":  2500,
+                                                          "weapon":  2000,
+                                                          "crit":  1000000,
+                                                          "crit_basis_points":  0,
+                                                          "crit_power":  15000,
+                                                          "crit_power_percent":  0,
+                                                          "overcome":  25000,
+                                                          "strain":  10000,
+                                                          "surplus":  3000,
+                                                          "haste":  1.0,
+                                                          "attack":  12500,
+                                                          "pve_percent":  184,
+                                                          "damage_percent":  0
+                                                      }
+                                   },
+                        "legacy_dps":  {
+                                           "engine":  "legacy-dps-only-diagnostic",
+                                           "iterations":  1,
+                                           "seconds":  300,
+                                           "elapsed_s":  0.0024843,
+                                           "fights_per_s":  402.5278750553476,
+                                           "mean_damage":  1741269.0,
+                                           "mean_dps":  5804.23,
+                                           "min_damage":  1741269,
+                                           "max_damage":  1741269,
+                                           "damage_sum":  1741269,
+                                           "crit":  1000000,
+                                           "dot":  false,
+                                           "legacy_precision":  1,
+                                           "phase":  7,
+                                           "initial_qidian":  10,
+                                           "sample":  {
+                                                          "三柴剑法":  {
+                                                                       "hits":  219,
+                                                                       "damage":  1741269
+                                                                   }
+                                                      },
+                                           "attributes":  {
+                                                              "attack_base":  10000,
+                                                              "attack_by_class":  2500,
+                                                              "weapon":  2000,
+                                                              "crit":  1000000,
+                                                              "crit_basis_points":  0,
+                                                              "crit_power":  15000,
+                                                              "crit_power_percent":  0,
+                                                              "overcome":  25000,
+                                                              "strain":  10000,
+                                                              "surplus":  3000,
+                                                              "haste":  1.0,
+                                                              "attack":  12500,
+                                                              "pve_percent":  184,
+                                                              "damage_percent":  0
+                                                          }
+                                       },
+                        "runtime":  {
+                                        "engine":  "new-runtime",
+                                        "iterations":  1,
+                                        "seconds":  300,
+                                        "elapsed_s":  1.63E-05,
+                                        "fights_per_s":  61349.69325153375,
+                                        "mean_damage":  1741269.0,
+                                        "mean_dps":  5804.23,
+                                        "min_damage":  1741269,
+                                        "max_damage":  1741269,
+                                        "damage_sum":  1741269,
+                                        "crit":  1000000,
+                                        "dot":  false,
+                                        "legacy_precision":  1,
+                                        "phase":  7,
+                                        "initial_qidian":  10,
+                                        "sample":  {
+                                                       "三柴剑法":  {
+                                                                    "hits":  219,
+                                                                    "damage":  1741269
+                                                                }
+                                                   }
+                                    }
+                    },
+        "differences":  {
+                            "legacy_dps":  {
+                                               "different_entries":  0,
+                                               "first_differences":  [
+
+                                                                     ]
+                                           },
+                            "runtime":  {
+                                            "different_entries":  0,
+                                            "first_differences":  [
+
+                                                                  ]
+                                        }
+                        }
+    },
+    {
+        "macro":  "cooldowns",
+        "phase":  7,
+        "forced_critical":  true,
+        "precision":  1,
+        "samples":  {
+                        "legacy":  {
+                                       "engine":  "legacy-ba960f7",
+                                       "iterations":  1,
+                                       "seconds":  300,
+                                       "elapsed_s":  0.0033158,
+                                       "fights_per_s":  301.58634417033596,
+                                       "mean_damage":  14628705.0,
+                                       "mean_dps":  48762.35,
+                                       "min_damage":  14628705,
+                                       "max_damage":  14628705,
+                                       "damage_sum":  14628705,
+                                       "crit":  1000000,
+                                       "dot":  false,
+                                       "legacy_precision":  1,
+                                       "phase":  7,
+                                       "initial_qidian":  10,
+                                       "sample":  {
+                                                      "三柴剑法":  {
+                                                                   "hits":  219,
+                                                                   "damage":  1741269
+                                                               },
+                                                      "三环套月":  {
+                                                                   "hits":  414,
+                                                                   "damage":  11824668
+                                                               },
+                                                      "八荒归元":  {
+                                                                   "hits":  48,
+                                                                   "damage":  1062768
+                                                               }
+                                                  },
+                                       "attributes":  {
+                                                          "attack_base":  10000,
+                                                          "attack_by_class":  2500,
+                                                          "weapon":  2000,
+                                                          "crit":  1000000,
+                                                          "crit_basis_points":  0,
+                                                          "crit_power":  15000,
+                                                          "crit_power_percent":  0,
+                                                          "overcome":  25000,
+                                                          "strain":  10000,
+                                                          "surplus":  3000,
+                                                          "haste":  1.0,
+                                                          "attack":  12500,
+                                                          "pve_percent":  184,
+                                                          "damage_percent":  0
+                                                      }
+                                   },
+                        "legacy_dps":  {
+                                           "engine":  "legacy-dps-only-diagnostic",
+                                           "iterations":  1,
+                                           "seconds":  300,
+                                           "elapsed_s":  0.0030511,
+                                           "fights_per_s":  327.7506473075284,
+                                           "mean_damage":  14628705.0,
+                                           "mean_dps":  48762.35,
+                                           "min_damage":  14628705,
+                                           "max_damage":  14628705,
+                                           "damage_sum":  14628705,
+                                           "crit":  1000000,
+                                           "dot":  false,
+                                           "legacy_precision":  1,
+                                           "phase":  7,
+                                           "initial_qidian":  10,
+                                           "sample":  {
+                                                          "三柴剑法":  {
+                                                                       "hits":  219,
+                                                                       "damage":  1741269
+                                                                   },
+                                                          "三环套月":  {
+                                                                       "hits":  414,
+                                                                       "damage":  11824668
+                                                                   },
+                                                          "八荒归元":  {
+                                                                       "hits":  48,
+                                                                       "damage":  1062768
+                                                                   }
+                                                      },
+                                           "attributes":  {
+                                                              "attack_base":  10000,
+                                                              "attack_by_class":  2500,
+                                                              "weapon":  2000,
+                                                              "crit":  1000000,
+                                                              "crit_basis_points":  0,
+                                                              "crit_power":  15000,
+                                                              "crit_power_percent":  0,
+                                                              "overcome":  25000,
+                                                              "strain":  10000,
+                                                              "surplus":  3000,
+                                                              "haste":  1.0,
+                                                              "attack":  12500,
+                                                              "pve_percent":  184,
+                                                              "damage_percent":  0
+                                                          }
+                                       },
+                        "runtime":  {
+                                        "engine":  "new-runtime",
+                                        "iterations":  1,
+                                        "seconds":  300,
+                                        "elapsed_s":  3.91E-05,
+                                        "fights_per_s":  25575.44757033248,
+                                        "mean_damage":  14628705.0,
+                                        "mean_dps":  48762.35,
+                                        "min_damage":  14628705,
+                                        "max_damage":  14628705,
+                                        "damage_sum":  14628705,
+                                        "crit":  1000000,
+                                        "dot":  false,
+                                        "legacy_precision":  1,
+                                        "phase":  7,
+                                        "initial_qidian":  10,
+                                        "sample":  {
+                                                       "八荒归元":  {
+                                                                    "hits":  48,
+                                                                    "damage":  1062768
+                                                                },
+                                                       "三柴剑法":  {
+                                                                    "hits":  219,
+                                                                    "damage":  1741269
+                                                                },
+                                                       "三环套月":  {
+                                                                    "hits":  414,
+                                                                    "damage":  11824668
+                                                                }
+                                                   }
+                                    }
+                    },
+        "differences":  {
+                            "legacy_dps":  {
+                                               "different_entries":  0,
+                                               "first_differences":  [
+
+                                                                     ]
+                                           },
+                            "runtime":  {
+                                            "different_entries":  0,
+                                            "first_differences":  [
+
+                                                                  ]
+                                        }
+                        }
+    },
+    {
+        "macro":  "rotation",
+        "phase":  7,
+        "forced_critical":  true,
+        "precision":  1,
+        "samples":  {
+                        "legacy":  {
+                                       "engine":  "legacy-ba960f7",
+                                       "iterations":  1,
+                                       "seconds":  300,
+                                       "elapsed_s":  0.0038604,
+                                       "fights_per_s":  259.0405139363797,
+                                       "mean_damage":  15138252.0,
+                                       "mean_dps":  50460.84,
+                                       "min_damage":  15138252,
+                                       "max_damage":  15138252,
+                                       "damage_sum":  15138252,
+                                       "crit":  1000000,
+                                       "dot":  false,
+                                       "legacy_precision":  1,
+                                       "phase":  7,
+                                       "initial_qidian":  10,
+                                       "sample":  {
+                                                      "三柴剑法":  {
+                                                                   "hits":  219,
+                                                                   "damage":  1796853
+                                                               },
+                                                      "三环套月":  {
+                                                                   "hits":  252,
+                                                                   "damage":  7502976
+                                                               },
+                                                      "八荒归元":  {
+                                                                   "hits":  50,
+                                                                   "damage":  1142525
+                                                               },
+                                                      "无我无剑":  {
+                                                                   "hits":  91,
+                                                                   "damage":  4025884
+                                                               },
+                                                      "破":  {
+                                                                "hits":  44,
+                                                                "damage":  670014
+                                                            }
+                                                  },
+                                       "attributes":  {
+                                                          "attack_base":  10000,
+                                                          "attack_by_class":  2500,
+                                                          "weapon":  2000,
+                                                          "crit":  1000000,
+                                                          "crit_basis_points":  0,
+                                                          "crit_power":  15000,
+                                                          "crit_power_percent":  0,
+                                                          "overcome":  25000,
+                                                          "strain":  10000,
+                                                          "surplus":  3000,
+                                                          "haste":  1.0,
+                                                          "attack":  12500,
+                                                          "pve_percent":  184,
+                                                          "damage_percent":  0
+                                                      }
+                                   },
+                        "legacy_dps":  {
+                                           "engine":  "legacy-dps-only-diagnostic",
+                                           "iterations":  1,
+                                           "seconds":  300,
+                                           "elapsed_s":  0.0032551,
+                                           "fights_per_s":  307.2102239562533,
+                                           "mean_damage":  15138252.0,
+                                           "mean_dps":  50460.84,
+                                           "min_damage":  15138252,
+                                           "max_damage":  15138252,
+                                           "damage_sum":  15138252,
+                                           "crit":  1000000,
+                                           "dot":  false,
+                                           "legacy_precision":  1,
+                                           "phase":  7,
+                                           "initial_qidian":  10,
+                                           "sample":  {
+                                                          "三柴剑法":  {
+                                                                       "hits":  219,
+                                                                       "damage":  1796853
+                                                                   },
+                                                          "三环套月":  {
+                                                                       "hits":  252,
+                                                                       "damage":  7502976
+                                                                   },
+                                                          "八荒归元":  {
+                                                                       "hits":  50,
+                                                                       "damage":  1142525
+                                                                   },
+                                                          "无我无剑":  {
+                                                                       "hits":  91,
+                                                                       "damage":  4025884
+                                                                   },
+                                                          "破":  {
+                                                                    "hits":  44,
+                                                                    "damage":  670014
+                                                                }
+                                                      },
+                                           "attributes":  {
+                                                              "attack_base":  10000,
+                                                              "attack_by_class":  2500,
+                                                              "weapon":  2000,
+                                                              "crit":  1000000,
+                                                              "crit_basis_points":  0,
+                                                              "crit_power":  15000,
+                                                              "crit_power_percent":  0,
+                                                              "overcome":  25000,
+                                                              "strain":  10000,
+                                                              "surplus":  3000,
+                                                              "haste":  1.0,
+                                                              "attack":  12500,
+                                                              "pve_percent":  184,
+                                                              "damage_percent":  0
+                                                          }
+                                       },
+                        "runtime":  {
+                                        "engine":  "new-runtime",
+                                        "iterations":  1,
+                                        "seconds":  300,
+                                        "elapsed_s":  7.65E-05,
+                                        "fights_per_s":  13071.8954248366,
+                                        "mean_damage":  15138252.0,
+                                        "mean_dps":  50460.84,
+                                        "min_damage":  15138252,
+                                        "max_damage":  15138252,
+                                        "damage_sum":  15138252,
+                                        "crit":  1000000,
+                                        "dot":  false,
+                                        "legacy_precision":  1,
+                                        "phase":  7,
+                                        "initial_qidian":  10,
+                                        "sample":  {
+                                                       "无我无剑":  {
+                                                                    "hits":  91,
+                                                                    "damage":  4025884
+                                                                },
+                                                       "破招":  {
+                                                                  "hits":  44,
+                                                                  "damage":  670014
+                                                              },
+                                                       "紫气东来":  {
+                                                                    "hits":  5,
+                                                                    "damage":  0
+                                                                },
+                                                       "三柴剑法":  {
+                                                                    "hits":  219,
+                                                                    "damage":  1796853
+                                                                },
+                                                       "八荒归元":  {
+                                                                    "hits":  50,
+                                                                    "damage":  1142525
+                                                                },
+                                                       "三环套月":  {
+                                                                    "hits":  252,
+                                                                    "damage":  7502976
+                                                                }
+                                                   }
+                                    }
+                    },
+        "differences":  {
+                            "legacy_dps":  {
+                                               "different_entries":  0,
+                                               "first_differences":  [
+
+                                                                     ]
+                                           },
+                            "runtime":  {
+                                            "different_entries":  0,
+                                            "first_differences":  [
+
+                                                                  ]
+                                        }
+                        }
+    }
+]

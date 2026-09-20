@@ -1,0 +1,6308 @@
+{
+  "schema_version": 1,
+  "game_version": "std",
+  "data_version": "2026-09-20",
+  "source": "JX3BOX / 魔盒",
+  "sources": {
+    "skill": "https://data.jx3box.com/bps/std/4/skill.json",
+    "talent": "https://data.jx3box.com/bps/std/4/talent.json",
+    "recipe": "https://data.jx3box.com/bps/std/4/skill.json#cheasts",
+    "item_search": "https://node.jx3box.com/api/node/item/search?keyword=太虚&client=std",
+    "icon": "https://icon.jx3box.com/icon/{id}.png",
+    "changelog": "https://cms.jx3box.com/api/cms/pve/skill/changelog/98"
+  },
+  "changelog": {
+    "id": 98,
+    "date": "2026-09-08",
+    "title": "9月8日“苍生铸世”资料片首轮武学调整",
+    "zlp": "cangshengzhushi",
+    "updated_at": "2026-09-09T10:24:10Z"
+  },
+  "skill": {
+    "forceName": "",
+    "kungfu": "taixu",
+    "kungfuId": "4",
+    "kungfuName": "太虚剑意",
+    "zhenFa": {
+      "descs": [
+        {
+          "desc": "阅历提高5%，声望提高5%，外功会心几率提高3%。",
+          "level": 1,
+          "name": "一重粗识"
+        },
+        {
+          "desc": "无双几率提高2%。",
+          "level": 2,
+          "name": "二重略懂"
+        },
+        {
+          "desc": "外功会心效果等级提高15%。",
+          "level": 3,
+          "name": "三重巧熟"
+        },
+        {
+          "desc": "外功招式会心则可使阵眼额外获得一格气。",
+          "level": 4,
+          "name": "四重精妙"
+        },
+        {
+          "desc": "阵眼施展续气招式会心，则小队成员外功会心几率提高1%，最多叠加五层。",
+          "level": 5,
+          "name": "五重游刃"
+        },
+        {
+          "desc": "被会心攻击则可使阵眼外功基础攻击力提高20%，持续8秒。",
+          "level": 6,
+          "name": "六重忘我"
+        },
+        {
+          "desc": "空",
+          "level": 7,
+          "name": "闭阵"
+        }
+      ],
+      "icon": {
+        "FileName": "https://dl.pvp.xoyo.com/prod/icons/Formation_chunyang_10.png?v=2",
+        "Kind": "技能",
+        "SubKind": "阵法"
+      },
+      "skillName": "北斗七星阵"
+    },
+    "remarks": [
+      {
+        "forceSkills": [
+          {
+            "cd": "1分钟调息",
+            "cheasts": [
+              {
+                "desc": "调息时间减少15秒。",
+                "name": "《坐忘经·凭虚御风》穴位图残页"
+              },
+              {
+                "desc": "调息时间减少15秒。",
+                "name": "《坐忘经·凭虚御风》穴位图断篇"
+              },
+              {
+                "desc": "施展招式的消耗降低30%。",
+                "name": "《坐忘经·凭虚御风》注解绝章"
+              },
+              {
+                "desc": "施展招式的消耗降低20%。",
+                "name": "《坐忘经·凭虚御风》注解残页"
+              },
+              {
+                "desc": "施展招式的消耗降低30%。",
+                "name": "《坐忘经·凭虚御风》注解断篇"
+              },
+              {
+                "desc": "移动速度提高30%，持续5秒。",
+                "name": "《坐忘经·凭虚御风》人偶图残页"
+              },
+              {
+                "desc": "能卸除额外一个混元性伤害状态。",
+                "name": "《坐忘经·凭虚御风》人偶图断篇"
+              },
+              {
+                "desc": "效果持续期间每次闪避目标攻击则恢复自身2%气血最大值",
+                "name": "《坐忘经·凭虚御风》人偶图绝章"
+              }
+            ],
+            "consumption": "1439点",
+            "desc": "解除自身定身、锁足、点穴效果，并使自身闪避提高50%，持续时间内自身施展招式不产生威胁值，持续5秒。",
+            "distance": "无",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/621.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 2,
+            "kungfuIds": [
+              "3",
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "生存技，解除自身的被控制效果并能有效地降低非玩家目标优先攻击你的几率。",
+            "skillName": "凭虚御风",
+            "specialDesc": "御风而行，飘渺纵横。",
+            "weapon": "短兵",
+            "_id": "355",
+            "_max_level": "0"
+          },
+          {
+            "cd": "10秒调息",
+            "cheasts": [
+              {
+                "desc": "施展招式的消耗降低10%。",
+                "name": "《纯阳诀·吞日月》注解残页"
+              },
+              {
+                "desc": "施展招式的消耗降低15%。",
+                "name": "《纯阳诀·吞日月》注解断篇"
+              },
+              {
+                "desc": "施展招式的消耗降低20%。",
+                "name": "《纯阳诀·吞日月》注解绝章"
+              },
+              {
+                "desc": "气场每8秒解除团队成员身上的阳性、阴性、混元性和毒性不利效果各一个以及敌人身上阳性、阴性、混元性和毒性有益气劲各一个。",
+                "name": "《纯阳诀·吞日月》人偶图残页"
+              }
+            ],
+            "consumption": "1265点",
+            "desc": "产生一个10尺的气场，范围内敌方不能施展轻功，持续24秒。",
+            "distance": "20尺",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/1445.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 4,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "1秒",
+            "simpleDesc": "控制技，使敌对目标无法施展轻功。",
+            "skillName": "吞日月",
+            "specialDesc": "冰剑囚龙势。",
+            "weapon": "短兵",
+            "_id": "363",
+            "_max_level": "0"
+          },
+          {
+            "cd": "1分15秒充能",
+            "cheasts": [],
+            "consumption": "284点",
+            "desc": "瞬间聚5格气，使自身外功和混元内功基础攻击力提高25%，会心几率提高25%，会心效果提高25%，效果期间每秒获得1格气，持续10秒。（414点混元内功攻击）（1点外功攻击）",
+            "distance": "无",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2933.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "index": 1,
+            "kungfuIds": [
+              "3",
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "辅助技，提高自身在短时间内的伤害爆发能力。",
+            "skillName": "紫气东来",
+            "specialDesc": "紫涛云霞，如日东来。",
+            "weapon": "短兵",
+            "_id": "2681",
+            "_max_level": "0"
+          },
+          {
+            "cd": "10秒调息",
+            "cheasts": [
+              {
+                "desc": "运功时间减少0.125秒。",
+                "name": "《纯阳诀·生太极》经脉图残页"
+              },
+              {
+                "desc": "运功时间减少0.125秒。",
+                "name": "《纯阳诀·生太极》经脉图断篇"
+              },
+              {
+                "desc": "运功时间减少0.125秒。",
+                "name": "《纯阳诀·生太极》经脉图绝章"
+              },
+              {
+                "desc": "施展招式的消耗降低20%。",
+                "name": "《纯阳诀·生太极》注解残页"
+              },
+              {
+                "desc": "施展招式的消耗降低30%。",
+                "name": "《纯阳诀·生太极》注解断篇"
+              },
+              {
+                "desc": "施展招式的消耗降低40%。",
+                "name": "《纯阳诀·生太极》注解绝章"
+              },
+              {
+                "desc": "招式的有效范围增加1尺。",
+                "name": "《纯阳诀·生太极》真传残页"
+              },
+              {
+                "desc": "招式的有效范围增加1尺。",
+                "name": "《纯阳诀·生太极》真传断篇"
+              },
+              {
+                "desc": "招式的有效范围增加1尺。",
+                "name": "《纯阳诀·生太极》真传绝章"
+              },
+              {
+                "desc": "若当前已经存在自身“生太极”气场，则施展招式时返还2秒调息时间。",
+                "name": "《纯阳诀·生太极》人偶图残页"
+              }
+            ],
+            "consumption": "632点",
+            "desc": "产生一个10尺的气场，范围内自身免疫控制（击退和被拉除外），敌方移动速度降低40%，持续24秒，非战斗状态下施展则返还3秒招式调息时间。",
+            "distance": "20尺",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/1448.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 1,
+            "kungfuIds": [
+              "3",
+              "4"
+            ],
+            "releaseType": "1秒",
+            "simpleDesc": "控制技，使自身不受招式控制的同时有效降低敌人的移动速度。",
+            "skillName": "生太极",
+            "specialDesc": "飞剑满天势。",
+            "weapon": "短兵",
+            "_id": "358",
+            "_max_level": "0"
+          },
+          {
+            "cd": "30秒调息",
+            "cheasts": [
+              {
+                "desc": "调息时间减少4秒。",
+                "name": "《坐忘经·坐忘无我》穴位图残页"
+              },
+              {
+                "desc": "调息时间减少8秒。",
+                "name": "《坐忘经·坐忘无我》穴位图断篇"
+              },
+              {
+                "desc": "施展招式的消耗降低20%。",
+                "name": "《坐忘经·坐忘无我》注解残页"
+              },
+              {
+                "desc": "施展招式的消耗降低25%。",
+                "name": "《坐忘经·坐忘无我》注解断篇"
+              },
+              {
+                "desc": "施展招式的消耗降低30%。",
+                "name": "《坐忘经·坐忘无我》注解绝章"
+              },
+              {
+                "desc": "移动速度提高10%，持续6秒。",
+                "name": "《坐忘经·坐忘无我》人偶图残页"
+              },
+              {
+                "desc": "招式立刻恢复5%气血最大值及5%内力最大值。",
+                "name": "《坐忘经·坐忘无我》人偶图断篇"
+              },
+              {
+                "desc": "“坐忘无我”消失后3秒内自身受到的伤害降低50%。",
+                "name": "《坐忘经·坐忘无我》人偶图绝章"
+              }
+            ],
+            "consumption": "50点",
+            "desc": "化解自身受到的伤害效果，持续10分钟；紫霞功心法下每点根骨可化解3点；太虚剑意心法下每点身法可化解10点，最大化解量在2秒内逐步衰减至自身身法4倍，剩余化解量也同比例衰减。每点根骨或身法化解的伤害提高10%。",
+            "distance": "无",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/620.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 4,
+            "kungfuIds": [
+              "3",
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "生存技，效果期间有效降低自身受到的伤害效果。",
+            "skillName": "坐忘无我",
+            "specialDesc": "冥思坐忘，无垢无伤。",
+            "weapon": "短兵",
+            "_id": "312",
+            "_max_level": "9"
+          },
+          {
+            "cd": "30秒调息",
+            "cheasts": [],
+            "consumption": "358点",
+            "desc": "当你处于战斗状态时，下一次跳跃能跳得更高，抗摔伤力提高，持续30秒；当处于非战斗状态时，可以连续跳跃，持续12秒。施展后，重置“蹑云逐月”的调息时间。",
+            "distance": "无",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/622.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 3,
+            "kungfuIds": [
+              "3",
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "门派轻功，提升自身的跳跃能力。",
+            "skillName": "梯云纵",
+            "specialDesc": "傲笑江湖，纵云而去。",
+            "weapon": "任意兵器",
+            "_id": "346",
+            "_max_level": "0"
+          },
+          {
+            "cd": "1分55秒调息",
+            "cheasts": [],
+            "consumption": "537点",
+            "desc": "使纯阳诀下所有招式瞬发，不受无法施展内功招式效果的影响，并且自身受到的伤害降低60%，持续8秒，同时解除所有控制效果，自身免疫控制(击退和被拉除外)，持续4秒。",
+            "distance": "无",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/1452.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 6,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "防御技，降低自身受到的攻击伤害同时免疫控制效果。",
+            "skillName": "转乾坤",
+            "specialDesc": "灵剑应元势。",
+            "weapon": "短兵",
+            "_id": "372",
+            "_max_level": "0"
+          },
+          {
+            "cd": "10秒调息",
+            "cheasts": [],
+            "consumption": "632点",
+            "desc": "产生一个10尺的气场，范围内所有小队成员外功会心率提高5%，外功会心效果提高10%，自身威胁值降低20%，小队成员外功会心效果提高10%，持续24秒。",
+            "distance": "20尺",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/1450.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 5,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "1秒",
+            "simpleDesc": "辅助技，有效提高小队成员的伤害能力。",
+            "skillName": "碎星辰",
+            "specialDesc": "玉剑碎星势。",
+            "weapon": "短兵",
+            "_id": "362",
+            "_max_level": "0"
+          }
+        ],
+        "remark": "纯阳诀"
+      },
+      {
+        "forceSkills": [
+          {
+            "cd": "无调息时间",
+            "cheasts": [
+              {
+                "desc": "会心提高2%。",
+                "name": "《天道剑势·无我无剑》秘诀残页"
+              },
+              {
+                "desc": "会心提高3%。",
+                "name": "《天道剑势·无我无剑》秘诀断篇"
+              },
+              {
+                "desc": "会心提高4%。",
+                "name": "《天道剑势·无我无剑》秘诀绝章"
+              },
+              {
+                "desc": "命中提高1%。",
+                "name": "《天道剑势·无我无剑》详解残页"
+              },
+              {
+                "desc": "命中提高2%。",
+                "name": "《天道剑势·无我无剑》详解断篇"
+              },
+              {
+                "desc": "伤害提高3%。",
+                "name": "《天道剑势·无我无剑》参悟残页"
+              },
+              {
+                "desc": "伤害提高4%。",
+                "name": "《天道剑势·无我无剑》参悟断篇"
+              },
+              {
+                "desc": "伤害提高5%。",
+                "name": "《天道剑势·无我无剑》参悟绝章"
+              },
+              {
+                "desc": "命中目标则续气半格。",
+                "name": "《天道剑势·无我无剑》人偶图残页"
+              }
+            ],
+            "consumption": "1661点",
+            "desc": "需聚气，最少半格气对目标造成200%武器伤害附加外功伤害，最多五格气对目标造成200%武器伤害附加外功伤害，若消耗3格及以上的气则会根据消耗的气的额外造成一次破招伤害。",
+            "distance": "4尺",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/617.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 5,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "攻击技，聚气越多招式效果越强,5格气施展能对目标造成大量的伤害效果。",
+            "skillName": "无我无剑",
+            "specialDesc": "手中无剑，心中无我。",
+            "weapon": "短兵",
+            "_id": "365",
+            "_max_level": "0"
+          },
+          {
+            "cd": "20秒调息",
+            "cheasts": [
+              {
+                "desc": "调息时间减少5秒。",
+                "name": "《天道剑势·人剑合一》穴位图残页"
+              },
+              {
+                "desc": "招式的有效距离增加1尺。",
+                "name": "《天道剑势·人剑合一》真传残页"
+              },
+              {
+                "desc": "招式的有效距离增加1尺。",
+                "name": "《天道剑势·人剑合一》真传断篇"
+              },
+              {
+                "desc": "招式的有效距离增加1尺。",
+                "name": "《天道剑势·人剑合一》真传绝章"
+              },
+              {
+                "desc": "伤害提高40%。",
+                "name": "《天道剑势·人剑合一》参悟残页"
+              },
+              {
+                "desc": "伤害提高60%。",
+                "name": "《天道剑势·人剑合一》参悟断篇"
+              },
+              {
+                "desc": "招式附加额外的持续伤害，持续12秒。",
+                "name": "《天道剑势·人剑合一》人偶图残页"
+              },
+              {
+                "desc": "引爆自身“吞日月”“碎星辰”气场后会使“气剑”分别环绕自身4/5尺运转8秒，“气剑”运转期间会对4个敌对目标造成外功伤害。",
+                "name": "《天道剑势·人剑合一》人偶图断篇"
+              },
+              {
+                "desc": "可以引爆友方气场",
+                "name": "《天道剑势·人剑合一》人偶图绝章"
+              }
+            ],
+            "consumption": "1075点",
+            "desc": "引爆自身13尺范围内自身及敌方气场，对气场周围6尺内最多5个目标造成63点(+0.25*攻击力)外功伤害，引爆自身气场，则使目标定身5秒，每引爆一个自身气场则使被“人剑合一”定身的目标获得1层“叠刃”效果，可使目标每3秒受到一次外功伤害，持续24秒，最多叠加5层。",
+            "distance": "无",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/335.png",
+              "Kind": "技能",
+              "SubKind": "通用"
+            },
+            "index": 4,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "控制技，施展技能引爆气场造成伤害的同时附带定身控制效果。",
+            "skillName": "人剑合一",
+            "specialDesc": "人剑合一，势无不破。",
+            "weapon": "短兵",
+            "_id": "588",
+            "_max_level": "0"
+          },
+          {
+            "cd": "20秒调息",
+            "cheasts": [],
+            "consumption": "537点",
+            "desc": "使目标定身，最少半格气持续2秒，最多五格气持续6秒。",
+            "distance": "8尺",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/629.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 3,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "控制技，有效的控制手段,聚气越多招式效果越强。",
+            "skillName": "大道无术",
+            "specialDesc": "绝圣弃智，返璞归真。",
+            "weapon": "短兵",
+            "_id": "366",
+            "_max_level": "0"
+          },
+          {
+            "cd": "2秒调息",
+            "cheasts": [
+              {
+                "desc": "调息时间减少0.5秒。",
+                "name": "《天道剑势·三环套月》穴位图残页"
+              },
+              {
+                "desc": "会心提高2%。",
+                "name": "《天道剑势·三环套月》秘诀残页"
+              },
+              {
+                "desc": "会心提高3%。",
+                "name": "《天道剑势·三环套月》秘诀断篇"
+              },
+              {
+                "desc": "会心提高4%。",
+                "name": "《天道剑势·三环套月》秘诀绝章"
+              },
+              {
+                "desc": "命中提高1%。",
+                "name": "《天道剑势·三环套月》详解残页"
+              },
+              {
+                "desc": "命中提高2%。",
+                "name": "《天道剑势·三环套月》详解断篇"
+              },
+              {
+                "desc": "伤害提高3%。",
+                "name": "《天道剑势·三环套月》参悟残页"
+              },
+              {
+                "desc": "伤害提高4%。",
+                "name": "《天道剑势·三环套月》参悟断篇"
+              },
+              {
+                "desc": "伤害提高5%。",
+                "name": "《天道剑势·三环套月》参悟绝章"
+              }
+            ],
+            "consumption": "627点",
+            "desc": "连续刺出迅猛的三剑，对目标造成100%的武器伤害外加123-136点(+0.95*攻击力)外功伤害，并续气一格。",
+            "distance": "4尺",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/608.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 6,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "攻击技，对目标造成伤害的同时有效地为自身续气。",
+            "skillName": "三环套月",
+            "specialDesc": "剑锋三现，虚实难辨。",
+            "weapon": "短兵",
+            "_id": "364",
+            "_max_level": "0"
+          },
+          {
+            "cd": "12秒调息",
+            "cheasts": [
+              {
+                "desc": "伤害提高3%。",
+                "name": "《天道剑势·八荒归元》参悟残页"
+              },
+              {
+                "desc": "伤害提高4%。",
+                "name": "《天道剑势·八荒归元》参悟断篇"
+              },
+              {
+                "desc": "伤害提高5%。",
+                "name": "《天道剑势·八荒归元》参悟绝章"
+              },
+              {
+                "desc": "命中目标则续半格气。",
+                "name": "《天道剑势·八荒归元》人偶图残页"
+              },
+              {
+                "desc": "命中提高2%。",
+                "name": "《天道剑势·八荒归元》详解残页"
+              },
+              {
+                "desc": "调息时间减少1秒。",
+                "name": "《天道剑势·八荒归元》穴位图残页"
+              },
+              {
+                "desc": "施展招式的消耗降低5%。",
+                "name": "《天道剑势·八荒归元》注解残页"
+              },
+              {
+                "desc": "施展招式的消耗降低10%。",
+                "name": "《天道剑势·八荒归元》注解断篇"
+              }
+            ],
+            "consumption": "1529点",
+            "desc": "对目标造成200%武器伤害及大量外功伤害，并续气1格。目标气血值越低，造成的伤害越高。最高造成690-760点(+1.97*攻击力)外功伤害，最低造成23-25点(+1.13*攻击力)外功伤害。",
+            "distance": "12尺",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2927.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "index": 2,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "攻击技，对目标造成大量伤害效果的同时为自身积累气点。",
+            "skillName": "八荒归元",
+            "specialDesc": "鏖战八荒，返而归元。",
+            "weapon": "短兵",
+            "_id": "2699",
+            "_max_level": "0"
+          },
+          {
+            "cd": "12秒调息",
+            "cheasts": [],
+            "consumption": "2605点",
+            "desc": "打断周围8尺内最多6个目标运功并造成100%武器伤害附加169-185点(+1.35*攻击力)外功伤害，对定身锁足的目标额外造成100%武器伤害附加113-124点（+0.98*攻击力）外功伤害，并使这些目标锁足2秒且获得5层“玄一”不利效果。每命中一个目标，续气半格。",
+            "distance": "无",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/610.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 7,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "辅助技，可同时使多个目标获得“玄一”效果。",
+            "skillName": "万剑归宗",
+            "specialDesc": "锋芒无匹，万剑来朝。",
+            "weapon": "短兵",
+            "_id": "311",
+            "_max_level": "0"
+          },
+          {
+            "cd": "25秒调息",
+            "cheasts": [],
+            "consumption": "806点",
+            "desc": "对20尺范围内附带“吞日月”“生太极” “叠刃”效果的单一目标使用，快速冲向目标，造成123-136点（1.05*攻击力）外功伤害并击晕目标3秒。",
+            "distance": "20尺",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2925.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "index": 1,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "控制技，使自身快速接近目标并造成眩晕控制效果。",
+            "skillName": "剑冲阴阳",
+            "specialDesc": "剑气侵机，阴阳逆转。",
+            "weapon": "短兵",
+            "_id": "2690",
+            "_max_level": "0"
+          }
+        ],
+        "remark": "天道剑势"
+      }
+    ]
+  },
+  "talent": {
+    "kungfu": "太虚剑意",
+    "kungfuId": "4",
+    "kungfuLevel": [
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "“万剑归宗”对定身锁足的目标造成的额外伤害提高10%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/4561.png",
+              "Kind": "技能",
+              "SubKind": "通用"
+            },
+            "level": 1,
+            "name": "朝玄",
+            "skill_id": "5801",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“三环套月”会心提高10%，会心效果提高10%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2936.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 1,
+            "name": "心固",
+            "skill_id": "5807",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“三环套月”附带60%减速效果，持续5秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2937.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 1,
+            "name": "不善",
+            "skill_id": "18701",
+            "skill_level": "1"
+          }
+        ],
+        "level": 1
+      },
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "“三环套月”调息时间增加4秒，每剑都可以造成伤害和破招伤害，续气一格并使目标身上属于自己的“叠刃”效果立即生效一跳。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/18281.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 2,
+            "name": "环月",
+            "skill_id": "32407",
+            "skill_level": "1"
+          },
+          {
+            "desc": "外功招式会心后，自身立即回复1格气。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2926.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 2,
+            "name": "深埋",
+            "skill_id": "5811",
+            "skill_level": "1"
+          },
+          {
+            "desc": "处于自身“生太极”气场当中，自身受到的伤害降低10%，受到攻击有15%几率令攻击者锁足3秒，并恢复自身10％的内力，该效果每20秒只能触发一次。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/611.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 2,
+            "name": "吐故纳新",
+            "skill_id": "17747",
+            "skill_level": "1"
+          }
+        ],
+        "level": 2
+      },
+      {
+        "forceSkills": [
+          {
+            "cd": "1分30秒调息",
+            "cheasts": [],
+            "consumption": "632点",
+            "desc": "产生一个10尺的气场，自身每3秒回复20%内力和1.5格气，小队成员每3秒回复5%内力，持续期间不受打退、打断影响，持续9秒。",
+            "distance": "20尺",
+            "icon": {
+              "FileName": "https://dl.pvp.xoyo.com/prod/icons/skill_chunyang32.png?v=2",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 1,
+            "kungfuIds": [
+              "3"
+            ],
+            "releaseType": "1秒",
+            "simpleDesc": "辅助技，有效的保持小队成员的续航能力。",
+            "skillName": "化三清",
+            "specialDesc": "神剑夺魄势。",
+            "weapon": "短兵"
+          }
+        ],
+        "kungfuSkills": [
+          {
+            "desc": "施展“凭虚御风”后使自身受到的内功伤害降低40%，持续5秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/621.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 3,
+            "name": "玄德",
+            "skill_id": "14041",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“无我无剑”命中目标后，会对目标周围6尺内最多5个目标造成外功伤害，消耗的气越多，伤害越高。该效果不受到“无我无剑”秘籍的影响。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/617.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 3,
+            "name": "白虹",
+            "skill_id": "5800",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“凭虚御风”闪避效果额外提高15%，持续时间增加3秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2932.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 3,
+            "name": "不移",
+            "skill_id": "5830",
+            "skill_level": "1"
+          }
+        ],
+        "level": 3
+      },
+      {
+        "forceSkills": [
+          {
+            "cd": "20秒调息",
+            "cheasts": [],
+            "consumption": "627点",
+            "desc": "使目标下马并且使其移动速度降低60%，持续5秒，续气一格。若你攻击的目标正在运功，对目标造成28-42点（+0.1*攻击力）外功伤害，并令你额外续气两格并使该目标5秒内无法运功。",
+            "distance": "20尺",
+            "icon": {
+              "FileName": "https://dl.pvp.xoyo.com/prod/icons/skill_chunyang17.png?v=2",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 2,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "控制技，能有效地使远距离外的目标减速。",
+            "skillName": "剑飞惊天",
+            "specialDesc": "拔剑向天，鬼神惊惧。",
+            "weapon": "短兵"
+          }
+        ],
+        "kungfuSkills": [
+          {
+            "desc": "引爆自身“生太极”气场后会使“气剑”分别环绕自身6尺运转8秒，“气剑”运转期间会对4个敌对目标造成40-57（+0.48*攻击力）外功伤害。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/11858.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 4,
+            "name": "云中剑",
+            "skill_id": "21812",
+            "skill_level": "1"
+          },
+          {
+            "desc": "消耗3格气以上施展无我无剑，会心几率提高10%，会心效果提高30%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/4525.png",
+              "Kind": "技能",
+              "SubKind": "通用"
+            },
+            "level": 4,
+            "name": "无意",
+            "skill_id": "5818",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“万剑归宗”命中拥有自身“吞日月”效果的目标，可在8秒内施展二段招式，对目标造成100%武器伤害附加外功伤害。二段招式命中目标后会标记目标，3秒后对目标额外造成外功伤害。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/14078.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 4,
+            "name": "镜花影",
+            "skill_id": "26700",
+            "skill_level": "1"
+          }
+        ],
+        "level": 4
+      },
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "“转乾坤”调息时间降低5秒，伤害降低效果提高10%，不受招式控制的效果提高2秒，每秒恢复自身8%气血最大值，并在期间免疫推拉效果。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/1452.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 5,
+            "name": "独笑",
+            "skill_id": "5809",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“三环套月”“八荒归元”施展距离增加2尺，成功命中目标使下一个“无我无剑”伤害提高30%，施展距离提高2尺，并为目标添加一层叠刃效果，持续5秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/11857.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 5,
+            "name": "风逝",
+            "skill_id": "17742",
+            "skill_level": "1"
+          },
+          {
+            "desc": "施展“紫气东来”时会将四道剑散落在20尺内自身最近的“生太极”气场上，并且剑会在3秒后回到自身并对路径目标造成伤害。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/20068.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 5,
+            "name": "瑞氛",
+            "skill_id": "36106",
+            "skill_level": "1"
+          },
+          {
+            "desc": "气场不再附带“玄一”效果，但“玄一”效果被卸除时只消失1层，“无我无剑”命中自身“玄一”效果的目标，伤害提高10%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/14079.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 5,
+            "name": "合虚",
+            "skill_id": "24969",
+            "skill_level": "1"
+          }
+        ],
+        "level": 5
+      },
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "对被定身、锁足、眩晕的目标伤害提高25%。每次命中被定身、锁足、眩晕的目标会使自身会心几率提高2%，持续3秒，最多提高20%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2929.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 6,
+            "name": "解牛",
+            "skill_id": "5802",
+            "skill_level": "1"
+          },
+          {
+            "desc": "被自身“吞日月”效果作用的敌方侠士目标每秒获得1层“湛存”效果，最多5层，持续4秒。自身施展“无我无剑”命中带有“湛存”效果的目标，最少1层对目标造成200%武器伤害附加2400-2653（+1.03*攻击力）外功伤害，最多5层对目标造成200%武器伤害附加2696-2982（+2.52*攻击力）外功伤害。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/17162.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 6,
+            "name": "湛存",
+            "skill_id": "30831",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“无我无剑”命中目标后附带1层叠刃效果，若会心则额外附带1层叠刃效果，最多叠加5层。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/617.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 6,
+            "name": "叠刃",
+            "skill_id": "5821",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“吞日月”可额外解除友方目标阳性，阴性，混元性和毒性不利效果各一个。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/1445.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 6,
+            "name": "开兑",
+            "skill_id": "14986",
+            "skill_level": "1"
+          }
+        ],
+        "level": 6
+      },
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "“八荒归元”命中40%气血以下目标，能够使“叠刃”的持续伤害立即生效。自身“紫气东来”期间生效气血值提高到60%以下。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2924.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 7,
+            "name": "切玉",
+            "skill_id": "6758",
+            "skill_level": "1"
+          },
+          {
+            "desc": "除“镇山河”外所有气场招式的调息时间降低1秒，施展气场后额外回复1格气，成功运功施展气场，则使下一个气场无需运功",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2931.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 7,
+            "name": "雾外江山",
+            "skill_id": "6481",
+            "skill_level": "1"
+          },
+          {
+            "desc": "每次成功施展气场或剑阵，则使气场或剑阵中心4尺内3个侠士目标锁足1秒，且自身下一个伤害招式附带“持盈”效果，对目标造成40-57（+0.79*攻击力）外功伤害，效果持续15秒，可叠加3层。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/11854.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 7,
+            "name": "长生",
+            "skill_id": "21725",
+            "skill_level": "1"
+          },
+          {
+            "desc": "施展“剑冲阴阳”后可施展二段招式“剑斩列星”，对10尺半径内最多5个目标造成伤害，若目标在自己的三个气场之中则会被禁锢3秒，并返还“剑冲阴阳”2秒调息时间。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/18277.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 7,
+            "name": "列星",
+            "skill_id": "32400",
+            "skill_level": "1"
+          }
+        ],
+        "level": 7
+      },
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "“碎星辰”气场持续时间增加12秒，对自身的增益效果提高100%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/7422.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 8,
+            "name": "负阴",
+            "skill_id": "14829",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“坐忘无我”每点根骨或身法化解的伤害提高10%，效果期间自身受到的伤害降低50%，每秒恢复自身0.4%最大气血值，受到“锁足”“定身”“眩晕”“击倒”控制效果持续时间缩短30%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/620.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 8,
+            "name": "无我",
+            "skill_id": "5813",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“紫气东来”充能时间降低15秒，充能层数提高1层。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/7470.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 8,
+            "name": "若水",
+            "skill_id": "14598",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“剑冲阴阳”使命中目标后会为目标添加2层“叠刃”效果并将把距离目标30尺内最近的自身创建的“吞日月”气场吸引至目标脚下，并强化该“吞日月”5秒，使自身伤害命中受该次“吞日月”效果的侠士会造成0.25秒眩晕效果。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/18361.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 8,
+            "name": "斗转",
+            "skill_id": "32403",
+            "skill_level": "1"
+          },
+          {
+            "desc": "自身造成的\"叠刃\"效果最高层数提高至7层，处于自身4层“叠刃\"及以上的目标15尺内将提高自身25%的移动速度和15%的外功会心效果。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/14081.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 8,
+            "name": "裂云",
+            "skill_id": "24962",
+            "skill_level": "1"
+          }
+        ],
+        "level": 8
+      },
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "万剑归宗”目标数量提高2个，“无我无剑”“万剑归宗”的伤害提高10%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2941.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 9,
+            "name": "同根",
+            "skill_id": "5810",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“大道无术”“人剑合一”“剑冲阴阳”控制时间延长1秒，并使自身续气一格。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/4534.png",
+              "Kind": "技能",
+              "SubKind": "通用"
+            },
+            "level": 9,
+            "name": "实腹",
+            "skill_id": "6466",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“碎星辰”只对自己生效，处于“碎星辰”期间自身无视目标60%外功防御。非战斗状态下施展“碎星辰”返还5秒调息时间。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/12722.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 9,
+            "name": "故长",
+            "skill_id": "18799",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“剑冲阴阳”可直接对敌方目标施展，剑灵持续攻击目标对其造成1233-1450（+0.575*攻击力）外功伤害，若短时间内连续命中同一个目标，则降低为369-434（+0.15*攻击力）外功伤害，持续6秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2925.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 9,
+            "name": "随物",
+            "skill_id": "6744",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“大道无术”成功控制目标获得5格气，使自身立刻获得4秒“紫气东来”效果，且4秒内可额外施展一次“八荒归元”。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/629.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 9,
+            "name": "无为",
+            "skill_id": "24961",
+            "skill_level": "1"
+          }
+        ],
+        "level": 9
+      },
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "拥有增益气场气劲时，自身混元内功和外功基础攻击提高10%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2934.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 10,
+            "name": "期声",
+            "skill_id": "6472",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“人剑合一”引爆及定身效果范围提高3尺，每成功定身一个目标“人剑合一”调息时间降低1秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/4552.png",
+              "Kind": "技能",
+              "SubKind": "通用"
+            },
+            "level": 10,
+            "name": "物我两忘",
+            "skill_id": "17743",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“剑冲阴阳”成功眩晕目标后，在目标区域生成“生太极”气场。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/1447.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 10,
+            "name": "剑势",
+            "skill_id": "20782",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“紫气东来”期间自身“八荒归元”命中目标，则会在目标位置落下一把持续6秒的灵剑，灵剑受到自身范围攻击后将立刻激活并每秒对6尺范围内至多3个敌方目标造成外功伤害，命中非侠士目标伤害提高80%。若施展“八荒归元”时已经有灵剑则会引爆灵剑造成6尺外功伤害并眩晕3秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/19157.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 10,
+            "name": "剑入",
+            "skill_id": "34656",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“人剑合一”成功引爆自身气场后，运功不会被打退、打断，不受无法施展内功招式和缴械效果的影响，持续3秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/13383.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 10,
+            "name": "至柔",
+            "skill_id": "24958",
+            "skill_level": "1"
+          }
+        ],
+        "level": 10
+      },
+      {
+        "forceSkills": [],
+        "kungfuSkills": [
+          {
+            "desc": "“无我无剑”命中有自身“叠刃”效果的目标则减少“八荒归元”调息时间，每消耗1格气则减少1秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/4221.png",
+              "Kind": "技能",
+              "SubKind": "通用"
+            },
+            "level": 11,
+            "name": "无欲",
+            "skill_id": "17731",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“生太极”作用范围提高5尺，减速效果提高到45%。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/7437.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 11,
+            "name": "凶年",
+            "skill_id": "14835",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“坐忘无我”调息时间降低3秒，可以对队友使用，对队友使用时，使其化解自身身法*5点伤害且受到的伤害降低50%，持续5秒。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/11856.png",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "level": 11,
+            "name": "不争",
+            "skill_id": "22704",
+            "skill_level": "1"
+          },
+          {
+            "desc": "自身“叠刃”伤害提高20%。“万剑归宗”会心提高10%，会心效果提高10%，调息时间降低2秒，命中目标将使其获得一层“叠刃”效果。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/7454.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 11,
+            "name": "虚极",
+            "skill_id": "14832",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“人剑合一”每命中一个气场，自身回复2格气，5%内力和1%气血，为小队成员回复2%内力和1%气血。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2942.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 11,
+            "name": "狂歌",
+            "skill_id": "5812",
+            "skill_level": "1"
+          }
+        ],
+        "level": 11
+      },
+      {
+        "forceSkills": [
+          {
+            "cd": "45秒调息",
+            "cheasts": [],
+            "consumption": "737点",
+            "desc": "需聚气。引动万象剑阵，对目标侠士造成伤害并使目标获得“万象”效果，最少一格气持续2秒，最多五格气持续10秒，并且剑阵期间自身移动速度提高40%。目标每次受到伤害都会强化“万象”剑阵，最多强化到10次。对“万象”剑阵的目标施展“无我无剑”时添加一层“叠刃”效果并造成额外的伤害,其中50%的伤害由“万象”效果的目标承担，剩余50%则由目标6尺范围内的至多3个其余目标平摊。",
+            "distance": "8尺",
+            "icon": {
+              "FileName": "https://dl.pvp.xoyo.com/prod/icons/skill_22_10_25_15.png?v=2",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 8,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "",
+            "skillName": "剑道万象",
+            "specialDesc": "道法入剑，万象浩茫。",
+            "weapon": "短兵"
+          },
+          {
+            "cd": "48秒调息",
+            "cheasts": [],
+            "consumption": "627点",
+            "desc": "吸收20尺范围内自身的气场，使其聚集形成12尺的“天道剑阵”\"天道剑阵”持续12秒，使该区域同时附带“生太极”\"吞日月”\"碎星辰\"效果，剑阵内剑灵会持续对区域内敌人造成1233-1450点（+0.63*攻击力）外功伤害，若短时间内连续命中同一个目标，则降低为369-434点（+0.19*攻击力）外功伤害，剑灵每3秒会使范围内的敌人获得1层“叠刃”效果，每吸收一个气场降低招式3秒调息时间。",
+            "distance": "20尺",
+            "icon": {
+              "FileName": "https://dl.pvp.xoyo.com/prod/icons/skill_0514_267.png?v=2",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "index": 3,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "1秒",
+            "simpleDesc": "辅助技，提高自身对气场的掌控能力。",
+            "skillName": "行天道",
+            "specialDesc": "升剑绝圣势。",
+            "weapon": "短兵"
+          },
+          {
+            "cd": "32秒调息",
+            "cheasts": [],
+            "consumption": "不消耗内力",
+            "desc": "怒刺一剑，对目标造成1233-1370点（+1.07*攻击力）外功伤害，并标记目标，持续10秒。期间可以施展二段技能，朝被标记目标冲刺，对270度的6尺范围最多5个目标造成35-40点（+2.86*攻击力）外功伤害，定身2秒并额外附带2层“叠刃”效果。",
+            "distance": "无",
+            "icon": {
+              "FileName": "https://dl.pvp.xoyo.com/prod/icons/skill_20_5_22_23.png?v=2",
+              "Kind": "技能",
+              "SubKind": "纯阳"
+            },
+            "index": 7,
+            "kungfuIds": [
+              "4"
+            ],
+            "releaseType": "瞬间释放",
+            "simpleDesc": "伤害技，标记目标，在标记期间能对其发起冲刺并对周围目标造成伤害和控制。",
+            "skillName": "凌云剑",
+            "specialDesc": "一剑凌云，天地不宁。",
+            "weapon": "短兵"
+          }
+        ],
+        "kungfuSkills": [
+          {
+            "desc": "“剑冲阴阳”伤害提高100%，“剑冲阴阳”施展后立即重置“八荒归元”调息时间。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/2939.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 12,
+            "name": "匣中",
+            "skill_id": "6757",
+            "skill_level": "1"
+          },
+          {
+            "desc": "“生太极”调息时间增加15秒，“人剑合一”每引爆一个自身的气场，破防等级提高20%，外功会心几率提高3%，持续40秒，可叠加3层。",
+            "icon": {
+              "FileName": "https://icon.jx3box.com/icon/7492.png",
+              "Kind": "技能",
+              "SubKind": "天赋"
+            },
+            "level": 12,
+            "name": "玄门",
+            "skill_id": "14833",
+            "skill_level": "1"
+          }
+        ],
+        "level": 12
+      }
+    ]
+  },
+  "equipment_catalog": [
+    {
+      "id": "8_42406",
+      "source_id": 42406,
+      "name": "雷鸣风怒·灵曜戒",
+      "icon_id": 22894,
+      "level": 27100,
+      "quality": 4,
+      "type": "戒指",
+      "magic_type": "130级破防(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高8115",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高607",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1195",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高4396",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2029",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": null
+    },
+    {
+      "id": "8_42379",
+      "source_id": 42379,
+      "name": "雷鸣风怒·灵曜腰坠",
+      "icon_id": 1225,
+      "level": 27100,
+      "quality": 4,
+      "type": "腰坠",
+      "magic_type": "130级破防(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高8115",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高607",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1195",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高4396",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2029",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "化劲等级提高?"
+    },
+    {
+      "id": "8_42352",
+      "source_id": 42352,
+      "name": "雷鸣风怒·灵曜链",
+      "icon_id": 22896,
+      "level": 27100,
+      "quality": 4,
+      "type": "项链",
+      "magic_type": "130级急速(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高8115",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高607",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1011",
+          "is_mobile": false
+        },
+        {
+          "type": "atHasteBase",
+          "color": "green",
+          "label": "加速等级提高5072",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2029",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "额外提高气血上限?"
+    },
+    {
+      "id": "8_42325",
+      "source_id": 42325,
+      "name": "雷鸣风怒·灵曜戒",
+      "icon_id": 22894,
+      "level": 27100,
+      "quality": 4,
+      "type": "戒指",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高8115",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高607",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1195",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高4396",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2029",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": null
+    },
+    {
+      "id": "8_42298",
+      "source_id": 42298,
+      "name": "雷鸣风怒·灵曜腰坠",
+      "icon_id": 1225,
+      "level": 27100,
+      "quality": 4,
+      "type": "腰坠",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高8115",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高607",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1195",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高4396",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2029",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "化劲等级提高?"
+    },
+    {
+      "id": "8_42271",
+      "source_id": 42271,
+      "name": "雷鸣风怒·灵曜链",
+      "icon_id": 22896,
+      "level": 27100,
+      "quality": 4,
+      "type": "项链",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高8115",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高607",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1195",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高4396",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2029",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "体质提高?"
+    },
+    {
+      "id": "8_42082",
+      "source_id": 42082,
+      "name": "雷鸣风怒·灵曜戒",
+      "icon_id": 22894,
+      "level": 25900,
+      "quality": 4,
+      "type": "戒指",
+      "magic_type": "130级破防(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7756",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高580",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1142",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高4201",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1939",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": null
+    },
+    {
+      "id": "8_42055",
+      "source_id": 42055,
+      "name": "雷鸣风怒·灵曜腰坠",
+      "icon_id": 1225,
+      "level": 25900,
+      "quality": 4,
+      "type": "腰坠",
+      "magic_type": "130级破防(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7756",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高580",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1142",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高4201",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1939",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "化劲等级提高?"
+    },
+    {
+      "id": "8_42028",
+      "source_id": 42028,
+      "name": "雷鸣风怒·灵曜链",
+      "icon_id": 22896,
+      "level": 25900,
+      "quality": 4,
+      "type": "项链",
+      "magic_type": "130级急速(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7756",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高580",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高966",
+          "is_mobile": false
+        },
+        {
+          "type": "atHasteBase",
+          "color": "green",
+          "label": "加速等级提高4847",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1939",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "额外提高气血上限?"
+    },
+    {
+      "id": "8_42001",
+      "source_id": 42001,
+      "name": "雷鸣风怒·灵曜戒",
+      "icon_id": 22894,
+      "level": 25900,
+      "quality": 4,
+      "type": "戒指",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7756",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高580",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1142",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高4201",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1939",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": null
+    },
+    {
+      "id": "8_41974",
+      "source_id": 41974,
+      "name": "雷鸣风怒·灵曜腰坠",
+      "icon_id": 1225,
+      "level": 25900,
+      "quality": 4,
+      "type": "腰坠",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7756",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高580",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1142",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高4201",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1939",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "化劲等级提高?"
+    },
+    {
+      "id": "8_41947",
+      "source_id": 41947,
+      "name": "雷鸣风怒·灵曜链",
+      "icon_id": 22896,
+      "level": 25900,
+      "quality": 4,
+      "type": "项链",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜链",
+          "雷鸣风怒·灵曜腰坠",
+          "雷鸣风怒·灵曜戒"
+        ],
+        "attributes": {
+          "2": "御劲等级提高1588",
+          "3": "化劲等级提高1588"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7756",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高580",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1142",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高4201",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1939",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "体质提高?"
+    },
+    {
+      "id": "8_6943",
+      "source_id": 6943,
+      "name": "太虚游",
+      "icon_id": 2845,
+      "level": 306,
+      "quality": 4,
+      "type": "戒指",
+      "magic_type": "伤害（PVE）",
+      "recommend": "纯阳(太虚剑意)、藏剑(均可)、苍云(分山劲)、蓬莱(凌海诀)、凌雪阁(隐龙诀)、万灵(山海心诀)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高84",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高9",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高16",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高57",
+          "is_mobile": false
+        },
+        {
+          "type": "atStrainBase",
+          "color": "green",
+          "label": "无双等级提高46",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": null
+    },
+    {
+      "id": "8_2323",
+      "source_id": 2323,
+      "name": "铁血丹心·太虚坠",
+      "icon_id": 1218,
+      "level": 283,
+      "quality": 4,
+      "type": "腰坠",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高85",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高8",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高12",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高46",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高21",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "化劲等级提高?"
+    },
+    {
+      "id": "8_2315",
+      "source_id": 2315,
+      "name": "铁血丹心·太虚链",
+      "icon_id": 1206,
+      "level": 283,
+      "quality": 4,
+      "type": "项链",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高85",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高8",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高12",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高46",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高21",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "体质提高?"
+    },
+    {
+      "id": "8_2307",
+      "source_id": 2307,
+      "name": "铁血丹心·太虚戒",
+      "icon_id": 1234,
+      "level": 283,
+      "quality": 4,
+      "type": "戒指",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高85",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高8",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高12",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高46",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高21",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": null
+    },
+    {
+      "id": "8_2148",
+      "source_id": 2148,
+      "name": "铁血丹心·太虚坠",
+      "icon_id": 1218,
+      "level": 283,
+      "quality": 4,
+      "type": "腰坠",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高85",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高8",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高12",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高46",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高21",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "化劲等级提高?"
+    },
+    {
+      "id": "8_2140",
+      "source_id": 2140,
+      "name": "铁血丹心·太虚链",
+      "icon_id": 1206,
+      "level": 283,
+      "quality": 4,
+      "type": "项链",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高85",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高8",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高12",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高46",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高21",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "化劲等级提高?"
+    },
+    {
+      "id": "8_2132",
+      "source_id": 2132,
+      "name": "铁血丹心·太虚戒",
+      "icon_id": 1234,
+      "level": 283,
+      "quality": 4,
+      "type": "戒指",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高85",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高8",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高12",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高46",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高21",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": null
+    },
+    {
+      "id": "8_1255",
+      "source_id": 1255,
+      "name": "太虚坠",
+      "icon_id": 1223,
+      "level": 186,
+      "quality": 3,
+      "type": "腰坠",
+      "magic_type": "伤害（PVP）",
+      "recommend": "纯阳(太虚剑意)、藏剑(均可)、苍云(分山劲)、蓬莱(凌海诀)、凌雪阁(隐龙诀)、万灵(山海心诀)",
+      "max_refine": 1,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高50",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高5",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高7",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高27",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高12",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "化劲等级提高?"
+    },
+    {
+      "id": "7_103302",
+      "source_id": 103302,
+      "name": "雷鸣风怒·灵曜衣",
+      "icon_id": 23178,
+      "level": 27100,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高16230",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高1214",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高2389",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高8791",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高4058",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "体质提高?",
+        "外功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_103275",
+      "source_id": 103275,
+      "name": "雷鸣风怒·灵曜冠",
+      "icon_id": 23180,
+      "level": 27100,
+      "quality": 4,
+      "type": "帽子",
+      "magic_type": "130级破防(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高14607",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高1092",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高2150",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高7912",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高3652",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_103248",
+      "source_id": 103248,
+      "name": "雷鸣风怒·灵曜裤",
+      "icon_id": 23181,
+      "level": 27100,
+      "quality": 4,
+      "type": "下装",
+      "magic_type": "130级破防(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高16230",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高1214",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高2389",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高8791",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高4058",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功破防等级提高?",
+        "身法提高?"
+      ]
+    },
+    {
+      "id": "7_103221",
+      "source_id": 103221,
+      "name": "雷鸣风怒·灵曜靴",
+      "icon_id": 23182,
+      "level": 27100,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高11361",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高850",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1672",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高6154",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2840",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功会心等级提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_103194",
+      "source_id": 103194,
+      "name": "雷鸣风怒·灵曜带",
+      "icon_id": 23183,
+      "level": 27100,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "130级御劲(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高12545",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高850",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1930",
+          "is_mobile": false
+        },
+        {
+          "type": "atToughnessBase",
+          "color": "green",
+          "label": "御劲等级提高1420",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2840",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "额外提高气血上限?"
+      ]
+    },
+    {
+      "id": "7_103167",
+      "source_id": 103167,
+      "name": "雷鸣风怒·灵曜袖",
+      "icon_id": 23179,
+      "level": 27100,
+      "quality": 4,
+      "type": "护腕",
+      "magic_type": "130级御劲(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高12545",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高850",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1930",
+          "is_mobile": false
+        },
+        {
+          "type": "atToughnessBase",
+          "color": "green",
+          "label": "御劲等级提高1420",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2840",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_102816",
+      "source_id": 102816,
+      "name": "雷鸣风怒·灵曜衣",
+      "icon_id": 23178,
+      "level": 25900,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高15512",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高1160",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高2283",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高8402",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高3878",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "体质提高?",
+        "外功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_102789",
+      "source_id": 102789,
+      "name": "雷鸣风怒·灵曜冠",
+      "icon_id": 23180,
+      "level": 25900,
+      "quality": 4,
+      "type": "帽子",
+      "magic_type": "130级破防(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高13961",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高1044",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高2055",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高7562",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高3490",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_102762",
+      "source_id": 102762,
+      "name": "雷鸣风怒·灵曜裤",
+      "icon_id": 23181,
+      "level": 25900,
+      "quality": 4,
+      "type": "下装",
+      "magic_type": "130级破防(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高15512",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高1160",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高2283",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高8402",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高3878",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功破防等级提高?",
+        "身法提高?"
+      ]
+    },
+    {
+      "id": "7_102735",
+      "source_id": 102735,
+      "name": "雷鸣风怒·灵曜靴",
+      "icon_id": 23182,
+      "level": 25900,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "130级会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高10858",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高812",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1598",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高5882",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2715",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功会心等级提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_102708",
+      "source_id": 102708,
+      "name": "雷鸣风怒·灵曜带",
+      "icon_id": 23183,
+      "level": 25900,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "130级御劲(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高11989",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高812",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1844",
+          "is_mobile": false
+        },
+        {
+          "type": "atToughnessBase",
+          "color": "green",
+          "label": "御劲等级提高1357",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2715",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "额外提高气血上限?"
+      ]
+    },
+    {
+      "id": "7_102681",
+      "source_id": 102681,
+      "name": "雷鸣风怒·灵曜袖",
+      "icon_id": 23179,
+      "level": 25900,
+      "quality": 4,
+      "type": "护腕",
+      "magic_type": "130级御劲(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": {
+        "name": "雷鸣风怒·灵曜",
+        "siblings": [
+          "雷鸣风怒·灵曜袖",
+          "雷鸣风怒·灵曜带",
+          "雷鸣风怒·灵曜靴",
+          "雷鸣风怒·灵曜冠",
+          "雷鸣风怒·灵曜衣"
+        ],
+        "attributes": {
+          "2": "全会心等级提高2715",
+          "4": "<text>text=\"“转乾坤”招式调息时间减少10秒\" font=105 </text><text>text=\"“行剑千风·悟”/“乾坤剑来·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高11989",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高812",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1844",
+          "is_mobile": false
+        },
+        {
+          "type": "atToughnessBase",
+          "color": "green",
+          "label": "御劲等级提高1357",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高2715",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_95621",
+      "source_id": 95621,
+      "name": "漉血鸣锋·华胥衣",
+      "icon_id": 19115,
+      "level": 12850,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "破防(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7696",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高576",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高1260",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralOvercomeBase",
+          "color": "green",
+          "label": "混元性内功破防等级提高4169",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1924",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "元气提高?",
+        "额外提高气血上限?"
+      ]
+    },
+    {
+      "id": "7_95596",
+      "source_id": 95596,
+      "name": "漉血鸣锋·华胥帽",
+      "icon_id": 19113,
+      "level": 12850,
+      "quality": 4,
+      "type": "帽子",
+      "magic_type": "会心(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高6926",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高518",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高1134",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralCriticalStrike",
+          "color": "green",
+          "label": "混元性内功会心等级提高3752",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1732",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "混元性内功会心效果等级提高?"
+      ]
+    },
+    {
+      "id": "7_95571",
+      "source_id": 95571,
+      "name": "漉血鸣锋·华胥裤",
+      "icon_id": 19248,
+      "level": 12850,
+      "quality": 4,
+      "type": "下装",
+      "magic_type": "会心(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7696",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高576",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高1260",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralCriticalStrike",
+          "color": "green",
+          "label": "混元性内功会心等级提高4169",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1924",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "元气提高?",
+        "混元性内功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_95546",
+      "source_id": 95546,
+      "name": "漉血鸣锋·华胥靴",
+      "icon_id": 19111,
+      "level": 12850,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "破防(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高5387",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高403",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高882",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralOvercomeBase",
+          "color": "green",
+          "label": "混元性内功破防等级提高2918",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1347",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "混元性内功破防等级提高?"
+      ]
+    },
+    {
+      "id": "7_95521",
+      "source_id": 95521,
+      "name": "漉血鸣锋·华胥腰带",
+      "icon_id": 19114,
+      "level": 12850,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "会心(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高5387",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高403",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高882",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralCriticalStrike",
+          "color": "green",
+          "label": "混元性内功会心等级提高2918",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1347",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "元气提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_95496",
+      "source_id": 95496,
+      "name": "漉血鸣锋·华胥护手",
+      "icon_id": 19112,
+      "level": 12850,
+      "quality": 4,
+      "type": "护腕",
+      "magic_type": "破防(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高5387",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高403",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高882",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralOvercomeBase",
+          "color": "green",
+          "label": "混元性内功破防等级提高2918",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1347",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "混元性内功破防等级提高?"
+      ]
+    },
+    {
+      "id": "7_95471",
+      "source_id": 95471,
+      "name": "漉血鸣锋·混沌衣",
+      "icon_id": 19115,
+      "level": 12300,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "破防(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7367",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高551",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高1206",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralOvercomeBase",
+          "color": "green",
+          "label": "混元性内功破防等级提高3990",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1842",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "元气提高?",
+        "额外提高气血上限?"
+      ]
+    },
+    {
+      "id": "7_95446",
+      "source_id": 95446,
+      "name": "漉血鸣锋·混沌帽",
+      "icon_id": 19113,
+      "level": 12300,
+      "quality": 4,
+      "type": "帽子",
+      "magic_type": "会心(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高6630",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高496",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高1085",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralCriticalStrike",
+          "color": "green",
+          "label": "混元性内功会心等级提高3591",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1657",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "混元性内功会心效果等级提高?"
+      ]
+    },
+    {
+      "id": "7_95421",
+      "source_id": 95421,
+      "name": "漉血鸣锋·混沌裤",
+      "icon_id": 19248,
+      "level": 12300,
+      "quality": 4,
+      "type": "下装",
+      "magic_type": "会心(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高7367",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高551",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高1206",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralCriticalStrike",
+          "color": "green",
+          "label": "混元性内功会心等级提高3990",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1842",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "元气提高?",
+        "混元性内功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_95396",
+      "source_id": 95396,
+      "name": "漉血鸣锋·混沌靴",
+      "icon_id": 19111,
+      "level": 12300,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "破防(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高5157",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高386",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高844",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralOvercomeBase",
+          "color": "green",
+          "label": "混元性内功破防等级提高2793",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1289",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "混元性内功破防等级提高?"
+      ]
+    },
+    {
+      "id": "7_95371",
+      "source_id": 95371,
+      "name": "漉血鸣锋·混沌腰带",
+      "icon_id": 19114,
+      "level": 12300,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "会心(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高5157",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高386",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高844",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralCriticalStrike",
+          "color": "green",
+          "label": "混元性内功会心等级提高2793",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1289",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "元气提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_95346",
+      "source_id": 95346,
+      "name": "漉血鸣锋·混沌护手",
+      "icon_id": 19112,
+      "level": 12300,
+      "quality": 4,
+      "type": "护腕",
+      "magic_type": "破防(PVP)",
+      "recommend": "衍天宗(太玄经)",
+      "max_refine": 6,
+      "set": {
+        "name": "漉血鸣锋·华胥",
+        "siblings": [
+          "漉血鸣锋·混沌护手/漉血鸣锋·华胥护手",
+          "漉血鸣锋·混沌腰带/漉血鸣锋·华胥腰带",
+          "漉血鸣锋·混沌靴/漉血鸣锋·华胥靴",
+          "漉血鸣锋·混沌帽/漉血鸣锋·华胥帽",
+          "漉血鸣锋·混沌衣/漉血鸣锋·华胥衣"
+        ],
+        "attributes": {
+          "2": "内功破防等级提高973",
+          "4": "<text>text=\"“斗转星移”调息时间降低4秒\" font=101 </text><text>text=\"“列宿游·悟”/“鬼星开穴·悟”调息时间降低8秒\" font=101 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高5157",
+          "is_mobile": false
+        },
+        {
+          "type": "atSpunkBase",
+          "color": "white",
+          "label": "元气提高386",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralAttackPowerBase",
+          "color": "green",
+          "label": "混元性内功攻击提高844",
+          "is_mobile": false
+        },
+        {
+          "type": "atNeutralOvercomeBase",
+          "color": "green",
+          "label": "混元性内功破防等级提高2793",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高1289",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "混元性内功破防等级提高?"
+      ]
+    },
+    {
+      "id": "7_8627",
+      "source_id": 8627,
+      "name": "弥纶太虚带",
+      "icon_id": 2455,
+      "level": 307,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "会心（PVE）",
+      "recommend": "纯阳(太虚剑意)、藏剑(均可)、苍云(分山劲)、蓬莱(凌海诀)、凌雪阁(隐龙诀)、万灵(山海心诀)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高118",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高10",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高22",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高80",
+          "is_mobile": false
+        },
+        {
+          "type": "atStrainBase",
+          "color": "green",
+          "label": "无双等级提高64",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功会心等级提高?",
+        "外功攻击提高?"
+      ]
+    },
+    {
+      "id": "7_6255",
+      "source_id": 6255,
+      "name": "荻魂·登龙束",
+      "icon_id": 1559,
+      "level": 288,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "命中（PVE）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "荻魂·登龙",
+        "siblings": [
+          "荻魂·登龙拥",
+          "荻魂·登龙靴",
+          "荻魂·登龙束"
+        ],
+        "attributes": {
+          "2": "外功会心等级提高8",
+          "3": "<Text>text=\"施展外功伤害招式，一定几率提高自身外功基础攻击力10%，持续6秒\" font=100 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高111",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高21",
+          "is_mobile": false
+        },
+        {
+          "type": "atSurplusValueBase",
+          "color": "green",
+          "label": "破招值提高75",
+          "is_mobile": false
+        },
+        {
+          "type": "atStrainBase",
+          "color": "green",
+          "label": "无双等级提高60",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "无双等级提高?",
+        "外功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_6253",
+      "source_id": 6253,
+      "name": "荻魂·登龙靴",
+      "icon_id": 1560,
+      "level": 288,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "持续（PVE）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "荻魂·登龙",
+        "siblings": [
+          "荻魂·登龙拥",
+          "荻魂·登龙靴",
+          "荻魂·登龙束"
+        ],
+        "attributes": {
+          "2": "外功会心等级提高8",
+          "3": "<Text>text=\"施展外功伤害招式，一定几率提高自身外功基础攻击力10%，持续6秒\" font=100 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高111",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高21",
+          "is_mobile": false
+        },
+        {
+          "type": "atHasteBase",
+          "color": "green",
+          "label": "加速等级提高75",
+          "is_mobile": false
+        },
+        {
+          "type": "atStrainBase",
+          "color": "green",
+          "label": "无双等级提高60",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功破防等级提高?",
+        "无双等级提高?"
+      ]
+    },
+    {
+      "id": "7_6251",
+      "source_id": 6251,
+      "name": "荻魂·登龙拥",
+      "icon_id": 1556,
+      "level": 288,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "会心（PVE）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "荻魂·登龙",
+        "siblings": [
+          "荻魂·登龙拥",
+          "荻魂·登龙靴",
+          "荻魂·登龙束"
+        ],
+        "attributes": {
+          "2": "外功会心等级提高8",
+          "3": "<Text>text=\"施展外功伤害招式，一定几率提高自身外功基础攻击力10%，持续6秒\" font=100 </text>"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高158",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高29",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高108",
+          "is_mobile": false
+        },
+        {
+          "type": "atStrainBase",
+          "color": "green",
+          "label": "无双等级提高86",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功会心等级提高?",
+        "外功会心效果等级提高?"
+      ]
+    },
+    {
+      "id": "7_6150",
+      "source_id": 6150,
+      "name": "铁血丹心·太虚护手",
+      "icon_id": 2054,
+      "level": 286,
+      "quality": 4,
+      "type": "护腕",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高120",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高18",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高65",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_6149",
+      "source_id": 6149,
+      "name": "铁血丹心·太虚靴",
+      "icon_id": 2056,
+      "level": 286,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高120",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高18",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高65",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功会心等级提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_6148",
+      "source_id": 6148,
+      "name": "铁血丹心·太虚冠",
+      "icon_id": 2597,
+      "level": 286,
+      "quality": 4,
+      "type": "帽子",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高154",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高12",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高23",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高84",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高39",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "外功会心效果等级提高?"
+      ]
+    },
+    {
+      "id": "7_6147",
+      "source_id": 6147,
+      "name": "铁血丹心·太虚腰带",
+      "icon_id": 2060,
+      "level": 286,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高120",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高18",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高65",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_6146",
+      "source_id": 6146,
+      "name": "铁血丹心·太虚裤",
+      "icon_id": 2053,
+      "level": 286,
+      "quality": 4,
+      "type": "下装",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高171",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高25",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高93",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高43",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "外功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_6145",
+      "source_id": 6145,
+      "name": "铁血丹心·太虚衣",
+      "icon_id": 2052,
+      "level": 286,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高171",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高25",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高93",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高43",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "体质提高?",
+        "外功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_6042",
+      "source_id": 6042,
+      "name": "铁血丹心·太虚护手",
+      "icon_id": 2054,
+      "level": 282,
+      "quality": 4,
+      "type": "护腕",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高118",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高17",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高64",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_6041",
+      "source_id": 6041,
+      "name": "铁血丹心·太虚靴",
+      "icon_id": 2056,
+      "level": 282,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高118",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高17",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高64",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功会心等级提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_6040",
+      "source_id": 6040,
+      "name": "铁血丹心·太虚冠",
+      "icon_id": 2597,
+      "level": 282,
+      "quality": 4,
+      "type": "帽子",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高152",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高22",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高82",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高38",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "外功会心效果等级提高?"
+      ]
+    },
+    {
+      "id": "7_6039",
+      "source_id": 6039,
+      "name": "铁血丹心·太虚腰带",
+      "icon_id": 2060,
+      "level": 282,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高118",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高17",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高64",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_6038",
+      "source_id": 6038,
+      "name": "铁血丹心·太虚裤",
+      "icon_id": 2053,
+      "level": 282,
+      "quality": 4,
+      "type": "下装",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高169",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高25",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高91",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高42",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "外功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_6037",
+      "source_id": 6037,
+      "name": "铁血丹心·太虚衣",
+      "icon_id": 2052,
+      "level": 282,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "会心低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高169",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高25",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高91",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高42",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "体质提高?",
+        "外功会心等级提高?"
+      ]
+    },
+    {
+      "id": "7_5829",
+      "source_id": 5829,
+      "name": "铁血丹心·太虚护手",
+      "icon_id": 2054,
+      "level": 286,
+      "quality": 4,
+      "type": "护腕",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高120",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高18",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高65",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "外功破防等级提高?"
+      ]
+    },
+    {
+      "id": "7_5828",
+      "source_id": 5828,
+      "name": "铁血丹心·太虚靴",
+      "icon_id": 2056,
+      "level": 286,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高120",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高18",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高65",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "外功破防等级提高?"
+      ]
+    },
+    {
+      "id": "7_5827",
+      "source_id": 5827,
+      "name": "铁血丹心·太虚冠",
+      "icon_id": 2597,
+      "level": 286,
+      "quality": 4,
+      "type": "帽子",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高154",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高12",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高23",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高84",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高39",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_5826",
+      "source_id": 5826,
+      "name": "铁血丹心·太虚腰带",
+      "icon_id": 2060,
+      "level": 286,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高120",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高18",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高65",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "额外提高气血上限?"
+      ]
+    },
+    {
+      "id": "7_5825",
+      "source_id": 5825,
+      "name": "铁血丹心·太虚裤",
+      "icon_id": 2053,
+      "level": 286,
+      "quality": 4,
+      "type": "下装",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高171",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高25",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高93",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高43",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功破防等级提高?",
+        "身法提高?"
+      ]
+    },
+    {
+      "id": "7_5824",
+      "source_id": 5824,
+      "name": "铁血丹心·太虚衣",
+      "icon_id": 2052,
+      "level": 286,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高171",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高25",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高93",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高43",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "额外提高气血上限?"
+      ]
+    },
+    {
+      "id": "7_5721",
+      "source_id": 5721,
+      "name": "铁血丹心·太虚护手",
+      "icon_id": 2054,
+      "level": 282,
+      "quality": 4,
+      "type": "护腕",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高118",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高17",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高64",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "外功破防等级提高?"
+      ]
+    },
+    {
+      "id": "7_5720",
+      "source_id": 5720,
+      "name": "铁血丹心·太虚靴",
+      "icon_id": 2056,
+      "level": 282,
+      "quality": 4,
+      "type": "鞋子",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高118",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高17",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高64",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "额外提高气血上限?",
+        "外功破防等级提高?"
+      ]
+    },
+    {
+      "id": "7_5719",
+      "source_id": 5719,
+      "name": "铁血丹心·太虚冠",
+      "icon_id": 2597,
+      "level": 282,
+      "quality": 4,
+      "type": "帽子",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高152",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高22",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高82",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高38",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "化劲等级提高?"
+      ]
+    },
+    {
+      "id": "7_5718",
+      "source_id": 5718,
+      "name": "铁血丹心·太虚腰带",
+      "icon_id": 2060,
+      "level": 282,
+      "quality": 4,
+      "type": "腰带",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高118",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高11",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高17",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高64",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高30",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "额外提高气血上限?"
+      ]
+    },
+    {
+      "id": "7_5717",
+      "source_id": 5717,
+      "name": "铁血丹心·太虚裤",
+      "icon_id": 2053,
+      "level": 282,
+      "quality": 4,
+      "type": "下装",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高169",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高25",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高91",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高42",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "外功破防等级提高?",
+        "身法提高?"
+      ]
+    },
+    {
+      "id": "7_5716",
+      "source_id": 5716,
+      "name": "铁血丹心·太虚衣",
+      "icon_id": 2052,
+      "level": 282,
+      "quality": 4,
+      "type": "上衣",
+      "magic_type": "伤害低韧（PVP）",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 2,
+      "set": {
+        "name": "铁血丹心·太虚",
+        "siblings": [
+          "铁血丹心·太虚衣",
+          "铁血丹心·太虚裤",
+          "铁血丹心·太虚腰带",
+          "铁血丹心·太虚冠",
+          "铁血丹心·太虚靴",
+          "铁血丹心·太虚护手"
+        ],
+        "attributes": {
+          "2": "<text>text=\"“人剑合一”招式调息时间减少1秒\" font=105 </text>",
+          "4": "化劲等级提高16",
+          "6": "御劲等级提高16"
+        }
+      },
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高169",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高13",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高25",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高91",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高42",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "身法提高?",
+        "额外提高气血上限?"
+      ]
+    },
+    {
+      "id": "7_1006",
+      "source_id": 1006,
+      "name": "太虚束带",
+      "icon_id": 54,
+      "level": 81,
+      "quality": 2,
+      "type": "腰带",
+      "magic_type": "基础",
+      "recommend": "纯阳(太虚剑意)、藏剑(均可)、苍云(分山劲)、蓬莱(凌海诀)、凌雪阁(隐龙诀)、万灵(山海心诀)",
+      "max_refine": 1,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高24",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高2",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高4",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsOvercomeBase",
+          "color": "green",
+          "label": "外功破防等级提高17",
+          "is_mobile": false
+        },
+        {
+          "type": "atStrainBase",
+          "color": "green",
+          "label": "无双等级提高13",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "身法提高?"
+    },
+    {
+      "id": "6_39980",
+      "source_id": 39980,
+      "name": "雷鸣风怒·灵曜剑",
+      "icon_id": 23025,
+      "level": 27100,
+      "quality": 4,
+      "type": "短兵类",
+      "magic_type": "130级武器暗器用御劲(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atMeleeWeaponDamageBase",
+          "color": "white",
+          "label": "武器伤害提高5464-9107",
+          "is_mobile": false
+        },
+        {
+          "type": "atMeleeWeaponAttackSpeedBase",
+          "color": "white",
+          "label": "速度1.3",
+          "is_mobile": false
+        },
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高21505",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高1457",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高9490",
+          "is_mobile": false
+        },
+        {
+          "type": "atToughnessBase",
+          "color": "green",
+          "label": "御劲等级提高2435",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高812",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "御劲等级提高?",
+        "外功破防等级提高?",
+        "外功攻击提高?"
+      ]
+    },
+    {
+      "id": "6_39953",
+      "source_id": 39953,
+      "name": "雷鸣风怒·灵曜囊",
+      "icon_id": 814,
+      "level": 27100,
+      "quality": 4,
+      "type": "投掷",
+      "magic_type": "130级武器暗器用会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atRangeWeaponDamageBase",
+          "color": "white",
+          "label": "暗器伤害提高5043-8405",
+          "is_mobile": false
+        },
+        {
+          "type": "atRangeWeaponAttackSpeedBase",
+          "color": "white",
+          "label": "速度1.5",
+          "is_mobile": false
+        },
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高9738",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高728",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1985",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高7304",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高406",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "外功会心等级提高?"
+    },
+    {
+      "id": "6_39815",
+      "source_id": 39815,
+      "name": "雷鸣风怒·灵曜剑",
+      "icon_id": 23025,
+      "level": 25900,
+      "quality": 4,
+      "type": "短兵类",
+      "magic_type": "130级武器暗器用御劲(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atMeleeWeaponDamageBase",
+          "color": "white",
+          "label": "武器伤害提高5222-8703",
+          "is_mobile": false
+        },
+        {
+          "type": "atMeleeWeaponAttackSpeedBase",
+          "color": "white",
+          "label": "速度1.3",
+          "is_mobile": false
+        },
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高20553",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高1392",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高9070",
+          "is_mobile": false
+        },
+        {
+          "type": "atToughnessBase",
+          "color": "green",
+          "label": "御劲等级提高2327",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高776",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": [
+        "御劲等级提高?",
+        "外功破防等级提高?",
+        "外功攻击提高?"
+      ]
+    },
+    {
+      "id": "6_39788",
+      "source_id": 39788,
+      "name": "雷鸣风怒·灵曜囊",
+      "icon_id": 814,
+      "level": 25900,
+      "quality": 4,
+      "type": "投掷",
+      "magic_type": "130级武器暗器用会心(PVP)",
+      "recommend": "纯阳(太虚剑意)",
+      "max_refine": 6,
+      "set": null,
+      "attributes": [
+        {
+          "type": "atRangeWeaponDamageBase",
+          "color": "white",
+          "label": "暗器伤害提高4820-8033",
+          "is_mobile": false
+        },
+        {
+          "type": "atRangeWeaponAttackSpeedBase",
+          "color": "white",
+          "label": "速度1.5",
+          "is_mobile": false
+        },
+        {
+          "type": "atVitalityBase",
+          "color": "white",
+          "label": "体质提高9307",
+          "is_mobile": false
+        },
+        {
+          "type": "atAgilityBase",
+          "color": "white",
+          "label": "身法提高696",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsAttackPowerBase",
+          "color": "green",
+          "label": "外功攻击提高1897",
+          "is_mobile": false
+        },
+        {
+          "type": "atPhysicsCriticalStrike",
+          "color": "green",
+          "label": "外功会心等级提高6980",
+          "is_mobile": false
+        },
+        {
+          "type": "atDecriticalDamagePowerBase",
+          "color": "green",
+          "label": "化劲等级提高388",
+          "is_mobile": false
+        }
+      ],
+      "diamonds": "外功会心等级提高?"
+    }
+  ],
+  "recipe_catalog": [
+    {
+      "name": "《纯阳诀·生太极》经脉图残页",
+      "description": "运功时间减少0.125秒。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》经脉图断篇",
+      "description": "运功时间减少0.125秒。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》经脉图绝章",
+      "description": "运功时间减少0.125秒。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》人偶图残页",
+      "description": "若当前已经存在自身“生太极”气场，则施展招式时返还2秒调息时间。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》真传残页",
+      "description": "招式的有效范围增加1尺。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》真传断篇",
+      "description": "招式的有效范围增加1尺。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》真传绝章",
+      "description": "招式的有效范围增加1尺。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》注解残页",
+      "description": "施展招式的消耗降低20%。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》注解断篇",
+      "description": "施展招式的消耗降低30%。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·生太极》注解绝章",
+      "description": "施展招式的消耗降低40%。",
+      "icon_id": 1448
+    },
+    {
+      "name": "《纯阳诀·吞日月》人偶图残页",
+      "description": "气场每8秒解除团队成员身上的阳性、阴性、混元性和毒性不利效果各一个以及敌人身上阳性、阴性、混元性和毒性有益气劲各一个。",
+      "icon_id": 1445
+    },
+    {
+      "name": "《纯阳诀·吞日月》注解残页",
+      "description": "施展招式的消耗降低10%。",
+      "icon_id": 1445
+    },
+    {
+      "name": "《纯阳诀·吞日月》注解断篇",
+      "description": "施展招式的消耗降低15%。",
+      "icon_id": 1445
+    },
+    {
+      "name": "《纯阳诀·吞日月》注解绝章",
+      "description": "施展招式的消耗降低20%。",
+      "icon_id": 1445
+    },
+    {
+      "name": "《天道剑势·八荒归元》参悟残页",
+      "description": "伤害提高3%。",
+      "icon_id": 2927
+    },
+    {
+      "name": "《天道剑势·八荒归元》参悟断篇",
+      "description": "伤害提高4%。",
+      "icon_id": 2927
+    },
+    {
+      "name": "《天道剑势·八荒归元》参悟绝章",
+      "description": "伤害提高5%。",
+      "icon_id": 2927
+    },
+    {
+      "name": "《天道剑势·八荒归元》人偶图残页",
+      "description": "命中目标则续半格气。",
+      "icon_id": 2927
+    },
+    {
+      "name": "《天道剑势·八荒归元》详解残页",
+      "description": "命中提高2%。",
+      "icon_id": 2927
+    },
+    {
+      "name": "《天道剑势·八荒归元》穴位图残页",
+      "description": "调息时间减少1秒。",
+      "icon_id": 2927
+    },
+    {
+      "name": "《天道剑势·八荒归元》注解残页",
+      "description": "施展招式的消耗降低5%。",
+      "icon_id": 2927
+    },
+    {
+      "name": "《天道剑势·八荒归元》注解断篇",
+      "description": "施展招式的消耗降低10%。",
+      "icon_id": 2927
+    },
+    {
+      "name": "《天道剑势·人剑合一》参悟残页",
+      "description": "伤害提高40%。",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·人剑合一》参悟断篇",
+      "description": "伤害提高60%。",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·人剑合一》人偶图残页",
+      "description": "招式附加额外的持续伤害，持续12秒。",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·人剑合一》人偶图断篇",
+      "description": "引爆自身“吞日月”“碎星辰”气场后会使“气剑”分别环绕自身4/5尺运转8秒，“气剑”运转期间会对4个敌对目标造成外功伤害。",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·人剑合一》人偶图绝章",
+      "description": "可以引爆友方气场",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·人剑合一》穴位图残页",
+      "description": "调息时间减少5秒。",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·人剑合一》真传残页",
+      "description": "招式的有效距离增加1尺。",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·人剑合一》真传断篇",
+      "description": "招式的有效距离增加1尺。",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·人剑合一》真传绝章",
+      "description": "招式的有效距离增加1尺。",
+      "icon_id": 335
+    },
+    {
+      "name": "《天道剑势·三环套月》参悟残页",
+      "description": "伤害提高3%。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·三环套月》参悟断篇",
+      "description": "伤害提高4%。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·三环套月》参悟绝章",
+      "description": "伤害提高5%。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·三环套月》秘诀残页",
+      "description": "会心提高2%。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·三环套月》秘诀断篇",
+      "description": "会心提高3%。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·三环套月》秘诀绝章",
+      "description": "会心提高4%。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·三环套月》详解残页",
+      "description": "命中提高1%。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·三环套月》详解断篇",
+      "description": "命中提高2%。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·三环套月》穴位图残页",
+      "description": "调息时间减少0.5秒。",
+      "icon_id": 608
+    },
+    {
+      "name": "《天道剑势·无我无剑》参悟残页",
+      "description": "伤害提高3%。",
+      "icon_id": 617
+    },
+    {
+      "name": "《天道剑势·无我无剑》参悟断篇",
+      "description": "伤害提高4%。",
+      "icon_id": 617
+    },
+    {
+      "name": "《天道剑势·无我无剑》参悟绝章",
+      "description": "伤害提高5%。",
+      "icon_id": 617
+    },
+    {
+      "name": "《天道剑势·无我无剑》秘诀残页",
+      "description": "会心提高2%。",
+      "icon_id": 617
+    },
+    {
+      "name": "《天道剑势·无我无剑》秘诀断篇",
+      "description": "会心提高3%。",
+      "icon_id": 617
+    },
+    {
+      "name": "《天道剑势·无我无剑》秘诀绝章",
+      "description": "会心提高4%。",
+      "icon_id": 617
+    },
+    {
+      "name": "《天道剑势·无我无剑》人偶图残页",
+      "description": "命中目标则续气半格。",
+      "icon_id": 617
+    },
+    {
+      "name": "《天道剑势·无我无剑》详解残页",
+      "description": "命中提高1%。",
+      "icon_id": 617
+    },
+    {
+      "name": "《天道剑势·无我无剑》详解断篇",
+      "description": "命中提高2%。",
+      "icon_id": 617
+    },
+    {
+      "name": "《坐忘经·凭虚御风》人偶图残页",
+      "description": "移动速度提高30%，持续5秒。",
+      "icon_id": 621
+    },
+    {
+      "name": "《坐忘经·凭虚御风》人偶图断篇",
+      "description": "能卸除额外一个混元性伤害状态。",
+      "icon_id": 621
+    },
+    {
+      "name": "《坐忘经·凭虚御风》人偶图绝章",
+      "description": "效果持续期间每次闪避目标攻击则恢复自身2%气血最大值",
+      "icon_id": 621
+    },
+    {
+      "name": "《坐忘经·凭虚御风》穴位图残页",
+      "description": "调息时间减少15秒。",
+      "icon_id": 621
+    },
+    {
+      "name": "《坐忘经·凭虚御风》穴位图断篇",
+      "description": "调息时间减少15秒。",
+      "icon_id": 621
+    },
+    {
+      "name": "《坐忘经·凭虚御风》注解残页",
+      "description": "施展招式的消耗降低20%。",
+      "icon_id": 621
+    },
+    {
+      "name": "《坐忘经·凭虚御风》注解断篇",
+      "description": "施展招式的消耗降低30%。",
+      "icon_id": 621
+    },
+    {
+      "name": "《坐忘经·凭虚御风》注解绝章",
+      "description": "施展招式的消耗降低30%。",
+      "icon_id": 621
+    },
+    {
+      "name": "《坐忘经·坐忘无我》人偶图残页",
+      "description": "移动速度提高10%，持续6秒。",
+      "icon_id": 620
+    },
+    {
+      "name": "《坐忘经·坐忘无我》人偶图断篇",
+      "description": "招式立刻恢复5%气血最大值及5%内力最大值。",
+      "icon_id": 620
+    },
+    {
+      "name": "《坐忘经·坐忘无我》人偶图绝章",
+      "description": "“坐忘无我”消失后3秒内自身受到的伤害降低50%。",
+      "icon_id": 620
+    },
+    {
+      "name": "《坐忘经·坐忘无我》穴位图残页",
+      "description": "调息时间减少4秒。",
+      "icon_id": 620
+    },
+    {
+      "name": "《坐忘经·坐忘无我》穴位图断篇",
+      "description": "调息时间减少8秒。",
+      "icon_id": 620
+    },
+    {
+      "name": "《坐忘经·坐忘无我》注解残页",
+      "description": "施展招式的消耗降低20%。",
+      "icon_id": 620
+    },
+    {
+      "name": "《坐忘经·坐忘无我》注解断篇",
+      "description": "施展招式的消耗降低25%。",
+      "icon_id": 620
+    },
+    {
+      "name": "《坐忘经·坐忘无我》注解绝章",
+      "description": "施展招式的消耗降低30%。",
+      "icon_id": 620
+    }
+  ]
+}

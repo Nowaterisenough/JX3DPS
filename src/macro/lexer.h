@@ -51,7 +51,7 @@ struct Token {
  * 条件格式:
  * - buff:BUFF名           (BUFF存在)
  * - nobuff:BUFF名         (BUFF不存在)
- * - buff:BUFF名>N         (BUFF层数大于N)
+ * - buff:BUFF名>N         (BUFF层数大于N；buff:BUFF名等价于>0)
  * - bufftime:BUFF名>N     (BUFF剩余时间大于N帧)
  * - tbuff:BUFF名          (目标BUFF存在)
  * - cd:技能名<N           (技能冷却小于N帧)

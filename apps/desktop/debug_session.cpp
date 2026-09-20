@@ -1,340 +1,166 @@
+#include "diagnostics.h"
 #include "debug_session.h"
 #include "debug_simulator.h"
-#include <QDebug>
-#include <QRegularExpression>
 
 DebugSession::DebugSession(QObject *parent)
-    : QObject(parent)
-    , m_state(Stopped)
-    , m_stepMode(NoStep)
-    , m_currentLineIndex(-1)
-    , m_stepStartLine(-1)
-    , m_simulator(std::make_unique<DebugSimulator>())
-    , m_executionTimer(new QTimer(this))
+    : QObject(parent), m_state(Stopped), m_simulator(std::make_unique<DebugSimulator>()),
+      m_executionTimer(new QTimer(this))
 {
-    m_debugInfo = {};
-
-    // 配置执行定时器
-    m_executionTimer->setInterval(10);  // 10ms一次，模拟快速执行
+    m_debugInfo.lineNumber = -1;
+    m_executionTimer->setInterval(16);
     connect(m_executionTimer, &QTimer::timeout, this, &DebugSession::OnExecutionTimer);
 }
 
 DebugSession::~DebugSession() = default;
 
+void DebugSession::SetSimulationOptions(const desktop::Config &config, int durationFrames,
+                                        std::uint64_t seed)
+{
+    m_simulator->SetOptions(config, durationFrames, seed);
+}
+
+qint64 DebugSession::TotalDamage() { return m_simulator->TotalDamage(); }
+
 void DebugSession::Start(const QString &macroText)
 {
-    if (m_state != Stopped) {
-        Stop();
-    }
-
-    m_macroText = macroText;
-    m_macroLines = macroText.split('\n');
-    m_currentLineIndex = 0;
-    m_stepMode = NoStep;
-
-    // 初始化JX3DPS模拟器
-    QString errorMsg;
-    if (!m_simulator->Initialize(macroText, errorMsg)) {
-        m_lastError = errorMsg;
-        emit ErrorOccurred(errorMsg);
-        SetState(Stopped);
-        qDebug() << "模拟器初始化失败:" << errorMsg;
+    Stop();
+    QString error;
+    if (!m_simulator->Initialize(macroText, error)) {
+        Fail(error);
         return;
     }
-
-    // 初始化调试信息（从模拟器获取真实状态）
-    auto playerState = m_simulator->GetPlayerState();
-    m_debugInfo = {};
-    m_debugInfo.lineNumber = playerState.currentMacroLine;  // 使用模拟器返回的行号
-    m_debugInfo.frameIndex = 0;
-    m_debugInfo.currentFrame = playerState.currentFrame;
-    m_debugInfo.currentSeconds = playerState.currentSeconds;
-    m_debugInfo.lifePercent = playerState.lifePercent;
-    m_debugInfo.manaPercent = playerState.manaPercent;
-    m_debugInfo.qidian = playerState.qidian;
-    m_debugInfo.rage = playerState.rage;
-    m_debugInfo.energy = playerState.energy;
-    m_debugInfo.targetId = playerState.targetId;
-    m_debugInfo.targetLifePercent = playerState.targetLifePercent;
-    m_debugInfo.currentMacro = playerState.currentMacro;
-    m_debugInfo.currentSkill = playerState.lastSkill;
-
-    SetState(Paused);  // 启动后立即暂停，等待用户操作
-    emit DebugInfoUpdated(m_debugInfo);
-
-    qDebug() << "调试会话已启动（使用真实JX3DPS引擎）";
+    for (const int line : m_breakpoints) m_simulator->SetBreakpoint(line, true);
+    m_lastError.clear();
+    UpdateDebugInfo();
+    SetState(Paused);
 }
 
 void DebugSession::Continue()
 {
-    if (m_state != Paused) {
-        return;
-    }
-
-    m_stepMode = NoStep;
+    if (m_state != Paused) return;
     SetState(Running);
-    m_executionTimer->start();  // 启动持续执行
-
-    qDebug() << "调试继续执行";
+    m_executionTimer->start();
 }
 
 void DebugSession::Pause()
 {
-    if (m_state != Running) {
-        return;
-    }
-
-    m_executionTimer->stop();  // 停止持续执行
+    if (m_state != Running) return;
+    m_executionTimer->stop();
     SetState(Paused);
-    qDebug() << "调试已暂停";
 }
 
 void DebugSession::Stop()
 {
-    m_executionTimer->stop();  // 停止持续执行
-    m_currentLineIndex = -1;
-    m_stepMode = NoStep;
-    m_breakpoints.clear();
+    m_executionTimer->stop();
+    m_simulator->Reset();
+    m_debugInfo = {};
+    m_debugInfo.lineNumber = -1;
     SetState(Stopped);
-
-    qDebug() << "调试已停止";
+    emit LineChanged(-1);
 }
 
-void DebugSession::StepOver()
+void DebugSession::Fail(const QString &message)
 {
-    if (m_state != Paused && m_state != Stopped) {
-        return;
-    }
-
-    if (m_state == Stopped) {
-        m_lastError = "请先启动调试会话";
-        emit ErrorOccurred(m_lastError);
-        return;
-    }
-
-    qDebug() << "[DebugSession::StepOver] 调用模拟器的 StepOver";
-
-    // 调用模拟器的 StepOver
-    if (!m_simulator->StepOver()) {
-        qDebug() << "[DebugSession::StepOver] StepOver 返回 false";
-    }
-
-    // 从模拟器获取最新状态并更新调试信息
-    auto playerState = m_simulator->GetPlayerState();
-    m_debugInfo.lineNumber = playerState.currentMacroLine;
-    m_debugInfo.currentFrame = playerState.currentFrame;
-    m_debugInfo.currentSeconds = playerState.currentSeconds;
-    m_debugInfo.lifePercent = playerState.lifePercent;
-    m_debugInfo.manaPercent = playerState.manaPercent;
-    m_debugInfo.qidian = playerState.qidian;
-    m_debugInfo.rage = playerState.rage;
-    m_debugInfo.energy = playerState.energy;
-    m_debugInfo.targetId = playerState.targetId;
-    m_debugInfo.targetLifePercent = playerState.targetLifePercent;
-    m_debugInfo.currentMacro = playerState.currentMacro;
-    m_debugInfo.currentSkill = playerState.lastSkill;
-
-    // 更新调试信息
-    UpdateDebugInfo();
-
-    // 检查是否完成
-    if (m_simulator->IsFinished()) {
-        SetState(Finished);
-        emit ExecutionFinished();
-    }
+    Stop();
+    m_lastError = message;
+    emit ErrorOccurred(message);
 }
 
-void DebugSession::StepInto()
+void DebugSession::ExecuteStep(bool (DebugSimulator::*step)())
 {
-    if (m_state != Paused && m_state != Stopped) {
-        return;
-    }
-
-    if (m_state == Stopped) {
-        m_lastError = "请先启动调试会话";
-        emit ErrorOccurred(m_lastError);
-        return;
-    }
-
-    qDebug() << "[DebugSession::StepInto] 调用模拟器的 StepInto";
-
-    // 调用模拟器的 StepInto
-    if (!m_simulator->StepInto()) {
-        qDebug() << "[DebugSession::StepInto] StepInto 返回 false";
-    }
-
-    // 从模拟器获取最新状态并更新调试信息
-    auto playerState = m_simulator->GetPlayerState();
-    m_debugInfo.lineNumber = playerState.currentMacroLine;
-    m_debugInfo.currentFrame = playerState.currentFrame;
-    m_debugInfo.currentSeconds = playerState.currentSeconds;
-    m_debugInfo.lifePercent = playerState.lifePercent;
-    m_debugInfo.manaPercent = playerState.manaPercent;
-    m_debugInfo.qidian = playerState.qidian;
-    m_debugInfo.rage = playerState.rage;
-    m_debugInfo.energy = playerState.energy;
-    m_debugInfo.targetId = playerState.targetId;
-    m_debugInfo.targetLifePercent = playerState.targetLifePercent;
-    m_debugInfo.currentMacro = playerState.currentMacro;
-    m_debugInfo.currentSkill = playerState.lastSkill;
-
-    // 更新调试信息
-    UpdateDebugInfo();
-
-    // 检查是否完成
-    if (m_simulator->IsFinished()) {
-        SetState(Finished);
-        emit ExecutionFinished();
+    if (m_state == Stopped || m_state == Finished) return;
+    m_executionTimer->stop();
+    try {
+        (m_simulator.get()->*step)();
+        UpdateDebugInfo();
+        SetState(m_simulator->IsFinished() ? Finished : Paused);
+        if (m_state == Finished) emit ExecutionFinished();
+    } catch (const std::exception &error) {
+        Fail(desktop::Diagnostic(QString::fromUtf8(error.what())));
     }
 }
 
-void DebugSession::StepOut()
-{
-    if (m_state != Paused) {
-        return;
-    }
-
-    qDebug() << "[DebugSession::StepOut] 调用模拟器的 StepOut";
-
-    // 调用模拟器的 StepOut
-    if (!m_simulator->StepOut()) {
-        qDebug() << "[DebugSession::StepOut] StepOut 返回 false";
-    }
-
-    // 更新调试信息
-    UpdateDebugInfo();
-    emit DebugInfoUpdated(m_debugInfo);
-
-    // 完成后设置状态
-    SetState(Finished);
-    emit ExecutionFinished();
-}
+void DebugSession::StepOver() { ExecuteStep(&DebugSimulator::StepOver); }
+void DebugSession::StepInto() { ExecuteStep(&DebugSimulator::StepInto); }
+void DebugSession::StepOut() { ExecuteStep(&DebugSimulator::StepOut); }
 
 void DebugSession::AddBreakpoint(int lineNumber)
 {
+    if (lineNumber < 1) return;
     m_breakpoints.insert(lineNumber);
-    qDebug() << "添加断点：行" << lineNumber;
+    m_simulator->SetBreakpoint(lineNumber, true);
 }
 
 void DebugSession::RemoveBreakpoint(int lineNumber)
 {
     m_breakpoints.remove(lineNumber);
-    qDebug() << "移除断点：行" << lineNumber;
+    m_simulator->SetBreakpoint(lineNumber, false);
 }
 
 void DebugSession::ClearBreakpoints()
 {
+    for (const int line : m_breakpoints) m_simulator->SetBreakpoint(line, false);
     m_breakpoints.clear();
-    qDebug() << "清除所有断点";
 }
 
-bool DebugSession::HasBreakpoint(int lineNumber) const
-{
-    return m_breakpoints.contains(lineNumber);
-}
-
-QSet<int> DebugSession::GetBreakpoints() const
-{
-    return m_breakpoints;
-}
+bool DebugSession::HasBreakpoint(int lineNumber) const { return m_breakpoints.contains(lineNumber); }
+QSet<int> DebugSession::GetBreakpoints() const { return m_breakpoints; }
 
 void DebugSession::SetState(State newState)
 {
-    if (m_state != newState) {
-        m_state = newState;
-        emit StateChanged(newState);
-    }
+    if (m_state == newState) return;
+    m_state = newState;
+    emit StateChanged(newState);
 }
 
 void DebugSession::UpdateDebugInfo()
 {
+    const auto player = m_simulator->GetPlayerState();
+    m_debugInfo.lineNumber = player.currentMacroLine;
+    m_debugInfo.frameIndex = player.currentFrame;
+    m_debugInfo.currentFrame = player.currentFrame;
+    m_debugInfo.currentSeconds = player.currentSeconds;
+    m_debugInfo.lifePercent = player.lifePercent;
+    m_debugInfo.manaPercent = player.manaPercent;
+    m_debugInfo.qidian = player.qidian;
+    m_debugInfo.rage = player.rage;
+    m_debugInfo.energy = player.energy;
+    m_debugInfo.targetId = player.targetId;
+    m_debugInfo.targetLifePercent = player.targetLifePercent;
+    m_debugInfo.currentMacro = player.currentMacro;
+    m_debugInfo.currentSkill = player.lastSkill;
+    m_debugInfo.phase = player.phase;
+    m_debugInfo.condition = player.condition;
+    m_debugInfo.lastStep = player.lastStep;
+    m_debugInfo.details = player.details;
+    const auto events = m_simulator->TakeEvents();
+    if (!events.isEmpty()) emit DamageEventsAvailable(events);
+    const auto buffs = m_simulator->TakeBuffEvents();
+    if (!buffs.isEmpty()) emit BuffEventsAvailable(buffs);
+    const auto steps = m_simulator->TakeMacroSteps();
+    if (!steps.isEmpty()) emit MacroStepsAvailable(steps);
+    emit HistoryAvailable(m_simulator->TakeHistory());
     emit DebugInfoUpdated(m_debugInfo);
     emit LineChanged(m_debugInfo.lineNumber);
 }
 
-bool DebugSession::ShouldBreak(int lineNumber)
-{
-    // 检查断点
-    if (m_breakpoints.contains(lineNumber)) {
-        return true;
-    }
-
-    // 检查单步模式
-    if (m_stepMode == StepOverMode || m_stepMode == StepIntoMode) {
-        return true;
-    }
-
-    return false;
-}
-
 void DebugSession::SimulateStep()
 {
-    // 检查模拟器是否完成
-    if (m_simulator->IsFinished()) {
-        SetState(Finished);
-        emit ExecutionFinished();
-        qDebug() << "模拟器执行完成";
-        return;
-    }
-
-    qDebug() << "\n[DebugSession::SimulateStep] 开始";
-
-    // 执行真实的模拟器步骤
-    bool stepResult = m_simulator->StepOne();
-    qDebug() << "[DebugSession] StepOne返回:" << stepResult;
-    if (!stepResult) {
-        qDebug() << "[DebugSession] 模拟器执行步骤失败";
-    }
-
-    // 从模拟器获取真实玩家状态（包括当前行号）
-    auto playerState = m_simulator->GetPlayerState();
-    qDebug() << "[DebugSession] 从模拟器获取行号:" << playerState.currentMacroLine;
-    m_debugInfo.lineNumber = playerState.currentMacroLine;  // 使用模拟器返回的行号
-    m_debugInfo.currentFrame = playerState.currentFrame;
-    m_debugInfo.currentSeconds = playerState.currentSeconds;
-    m_debugInfo.lifePercent = playerState.lifePercent;
-    m_debugInfo.manaPercent = playerState.manaPercent;
-    m_debugInfo.qidian = playerState.qidian;
-    m_debugInfo.rage = playerState.rage;
-    m_debugInfo.energy = playerState.energy;
-    m_debugInfo.targetId = playerState.targetId;
-    m_debugInfo.targetLifePercent = playerState.targetLifePercent;
-    m_debugInfo.currentMacro = playerState.currentMacro;
-    m_debugInfo.currentSkill = playerState.lastSkill;
-
-    // 检查是否应该暂停
-    if (ShouldBreak(m_debugInfo.lineNumber)) {
-        SetState(Paused);
-        m_stepMode = NoStep;
-    }
-
-    UpdateDebugInfo();
-
-    // 获取当前行文本用于日志
-    QString currentLine;
-    int lineIndex = m_debugInfo.lineNumber - 1;
-    if (lineIndex >= 0 && lineIndex < m_macroLines.size()) {
-        currentLine = m_macroLines[lineIndex].trimmed();
-    }
-
-    qDebug() << "[DebugSession] 发送DebugInfoUpdated信号，行号:" << m_debugInfo.lineNumber;
-    qDebug() << "[DebugSession] 执行行" << m_debugInfo.lineNumber << ":" << currentLine
-             << "| 帧:" << m_debugInfo.currentFrame
-             << "| 气点:" << m_debugInfo.qidian
-             << "| 技能:" << m_debugInfo.currentSkill;
-}
-
-void DebugSession::OnExecutionTimer()
-{
-    if (m_state != Running) {
-        m_executionTimer->stop();
-        return;
-    }
-
-    SimulateStep();
-
-    // 如果被断点暂停，停止定时器
-    if (m_state == Paused) {
-        m_executionTimer->stop();
+    if (m_state != Running) return;
+    try {
+        m_simulator->Continue(2000);
+        UpdateDebugInfo();
+        if (m_simulator->IsFinished()) {
+            m_executionTimer->stop();
+            SetState(Finished);
+            emit ExecutionFinished();
+        } else if (m_simulator->IsPaused()) {
+            m_executionTimer->stop();
+            SetState(Paused);
+        }
+    } catch (const std::exception &error) {
+        Fail(desktop::Diagnostic(QString::fromUtf8(error.what())));
     }
 }
+
+void DebugSession::OnExecutionTimer() { SimulateStep(); }

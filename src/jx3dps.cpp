@@ -15,6 +15,8 @@
 #include <spdlog/spdlog.h>
 
 #include <cstdarg>
+#include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <memory>
 #include <mutex>
@@ -73,9 +75,82 @@ public:
     {
         try {
             config_ = json::parse(input_json);
+            NormalizeLegacyConfig();
         } catch (const json::exception& e) {
             spdlog::error("JSON解析失败: {}", e.what());
             throw std::runtime_error(std::string("JSON解析失败: ") + e.what());
+        }
+    }
+
+    // Convert the desktop application's historical schema once at the API
+    // boundary so the hot simulation path only handles the compact schema.
+    void NormalizeLegacyConfig() {
+        if (!config_.contains("player")) {
+            json player = json::object();
+            player["name"] = "太虚剑意模拟角色";
+            player["class"] = config_.value("ClassType", "太虚剑意");
+            player["level"] = config_.value("GameLevel", JX3DPS::JX3_PLAYER_LEVEL);
+            if (config_.contains("Attribute")) player["attributes"] = config_["Attribute"];
+            if (config_.contains("Talents")) player["talents"] = config_["Talents"];
+            if (config_.contains("Recipes")) player["recipes"] = config_["Recipes"];
+            json equipment = json::object();
+            if (config_.contains("equipment")) equipment = config_["equipment"];
+            else if (config_.contains("Equipment")) equipment = config_["Equipment"];
+            if (config_.contains("EquipEffects")) equipment["equip_effects"] = config_["EquipEffects"];
+            if (config_.contains("Consumables")) equipment["consumables"] = config_["Consumables"];
+            if (config_.contains("Permanents")) equipment["permanents"] = config_["Permanents"];
+            if (!equipment.empty()) player["equipment"] = std::move(equipment);
+            config_["player"] = std::move(player);
+        }
+
+        if (!config_.contains("target")) {
+            config_["target"] = {
+                {"name", "木桩"},
+                {"level", config_.value("GameLevel", JX3DPS::JX3_PLAYER_LEVEL)}
+            };
+        }
+
+        if (!config_.contains("simulation")) {
+            int duration = 300;
+            if (config_.contains("EventsExpression") && config_["EventsExpression"].is_array()) {
+                for (const auto &event : config_["EventsExpression"]) {
+                    if (!event.is_string() || event.get<std::string>().size() < 6) continue;
+                    const auto value = event.get<std::string>();
+                    if (value[2] == ':' && value[5] == ' ') {
+                        const int minutes = std::stoi(value.substr(0, 2));
+                        const int seconds = std::stoi(value.substr(3, 2));
+                        duration = std::max(duration, minutes * 60 + seconds);
+                    }
+                }
+            }
+            int iterations = 1;
+            if (config_.contains("Options")) {
+                iterations = config_["Options"].value("SimIterations", iterations);
+            }
+            config_["simulation"] = {
+                {"duration", duration},
+                {"iterations", std::max(iterations, 1)},
+                {"frame_rate", 16}
+            };
+        }
+
+        if (!config_.contains("macro") && config_.contains("SkillsExpression") &&
+            config_["SkillsExpression"].is_object()) {
+            const auto &macros = config_["SkillsExpression"];
+            if (!macros.empty()) {
+                const auto &first = macros.begin().value();
+                std::string macro;
+                if (first.is_array()) {
+                    for (const auto &line : first) {
+                        if (!line.is_string()) continue;
+                        if (!macro.empty()) macro.push_back('\n');
+                        macro += line.get<std::string>();
+                    }
+                } else if (first.is_string()) {
+                    macro = first.get<std::string>();
+                }
+                if (!macro.empty()) config_["macro"] = std::move(macro);
+            }
         }
     }
 
@@ -154,7 +229,7 @@ private:
             if (config_.contains("target")) {
                 const auto& target = config_["target"];
                 spdlog::info("目标: {}", target.value("name", "木桩"));
-                spdlog::info("等级: {}", target.value("level", 130));
+                spdlog::info("等级: {}", target.value("level", JX3DPS::JX3_PLAYER_LEVEL));
             }
 
             // 解析模拟配置
@@ -183,6 +258,23 @@ private:
 
         std::vector<double> dps_results;
         dps_results.reserve(iterations_);
+
+        // Reuse one simulator for the full batch. Macro ASTs and compact ID
+        // bindings are compiled once, while each iteration resets only hot
+        // runtime state.
+        if (config_["player"].value("class", "太虚剑意") == "太虚剑意") {
+            using namespace JX3DPS;
+            SimulatorConfig sim_config = SimulatorConfig::FromJson(config_);
+            Simulator<太虚剑意::Player> simulator(sim_config);
+            auto progress = [&](double value) {
+                UpdateProgress(base_progress + sim_progress_range * value, callback);
+            };
+            const auto stats = simulator.RunMultiple(progress);
+            for (const auto &item : stats) dps_results.push_back(item.average_dps);
+            if (!stats.empty()) detailed_stats_ = stats.front();
+            CalculateStatistics(dps_results);
+            return true;
+        }
 
         for (int i = 0; i < iterations_; ++i) {
             // 单次模拟
@@ -359,6 +451,10 @@ public:
     {
         try {
             config_ = json::parse(input_json);
+            if (config_.contains("simulation")) {
+                const int duration = config_["simulation"].value("duration", 300);
+                max_frames_ = std::max(1, duration) * 16;
+            }
         } catch (const json::exception& e) {
             spdlog::error("JSON解析失败: {}", e.what());
             throw std::runtime_error(std::string("JSON解析失败: ") + e.what());
@@ -420,10 +516,22 @@ public:
         while (current_frame_ < max_frames_ && !hit_breakpoint) {
             current_frame_++;
 
-            // 检查断点
+            // 支持 frame:N 和纯数字两种断点写法；未知格式保留给宏断点扩展。
             for (const auto& bp : GetGlobalState().debugger.breakpoints) {
-                // TODO: 实现断点检查逻辑
-                (void)bp;
+                int breakpoint_frame = -1;
+                try {
+                    if (bp.rfind("frame:", 0) == 0) {
+                        breakpoint_frame = std::stoi(bp.substr(6));
+                    } else if (!bp.empty() && std::isdigit(static_cast<unsigned char>(bp.front()))) {
+                        breakpoint_frame = std::stoi(bp);
+                    }
+                } catch (const std::exception&) {
+                    breakpoint_frame = -1;
+                }
+                if (breakpoint_frame >= 0 && current_frame_ == breakpoint_frame) {
+                    hit_breakpoint = true;
+                    break;
+                }
             }
         }
 
@@ -471,6 +579,9 @@ private:
     int max_frames_ = 16 * 300;  // 5分钟 @ 16帧/秒
 };
 
+// Keep the debugger object alive between the C API start and step calls.
+thread_local std::unique_ptr<DebuggerImpl> active_debugger;
+
 } // anonymous namespace
 
 // ============================================================================
@@ -495,19 +606,10 @@ JX3DPS_API int jx3dps_simulate(const char* const in, ...) {
     }
 
     try {
-        // 解析可变参数
+        // The historical ABI is variadic, but callers may provide no extra
+        // arguments (the web build does this). Never read an absent vararg;
+        // use the result/progress accessors for a stable cross-language API.
         ProgressCallback callback = nullptr;
-
-        va_list args;
-        va_start(args, in);
-
-        // 第一个可变参可能是回调函数指针
-        void* arg = va_arg(args, void*);
-        if (arg) {
-            callback = reinterpret_cast<ProgressCallback>(arg);
-        }
-
-        va_end(args);
 
         // 创建模拟器并运行
         SimulatorImpl simulator(in);
@@ -544,22 +646,13 @@ JX3DPS_API int jx3dps_debug(const char* const in, ...) {
     }
 
     try {
-        // 解析可变参数
         ProgressCallback callback = nullptr;
 
-        va_list args;
-        va_start(args, in);
-
-        void* arg = va_arg(args, void*);
-        if (arg) {
-            callback = reinterpret_cast<ProgressCallback>(arg);
-        }
-
-        va_end(args);
-
-        // 创建调试器并运行
-        DebuggerImpl debugger(in);
-        return debugger.Run(callback);
+        // 创建调试器并运行；后续单步接口复用同一个实例。
+        auto debugger = std::make_unique<DebuggerImpl>(in);
+        const int result = debugger->Run(callback);
+        if (result == 0) active_debugger = std::move(debugger);
+        return result;
 
     } catch (const std::exception& e) {
         spdlog::error("调试异常: {}", e.what());
@@ -569,35 +662,29 @@ JX3DPS_API int jx3dps_debug(const char* const in, ...) {
 }
 
 JX3DPS_API const char* jx3dps_debugger_step_in() {
-    static thread_local DebuggerImpl* debugger = nullptr;
-
-    if (!debugger) {
+    if (!active_debugger) {
         return R"({"error": "调试器未初始化，请先调用 jx3dps_debug"})";
     }
 
-    std::string result = debugger->StepIn();
+    std::string result = active_debugger->StepIn();
     return GetGlobalState().debugger.debug_info.c_str();
 }
 
 JX3DPS_API const char* jx3dps_debugger_step_over() {
-    static thread_local DebuggerImpl* debugger = nullptr;
-
-    if (!debugger) {
+    if (!active_debugger) {
         return R"({"error": "调试器未初始化，请先调用 jx3dps_debug"})";
     }
 
-    std::string result = debugger->StepOver();
+    std::string result = active_debugger->StepOver();
     return GetGlobalState().debugger.debug_info.c_str();
 }
 
 JX3DPS_API const char* jx3dps_debugger_continue() {
-    static thread_local DebuggerImpl* debugger = nullptr;
-
-    if (!debugger) {
+    if (!active_debugger) {
         return R"({"error": "调试器未初始化，请先调用 jx3dps_debug"})";
     }
 
-    std::string result = debugger->Continue();
+    std::string result = active_debugger->Continue();
     return GetGlobalState().debugger.debug_info.c_str();
 }
 

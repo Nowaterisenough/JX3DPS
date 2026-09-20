@@ -1,5 +1,8 @@
 # Ignore cmake generated directories and files
 build/*
+build-runtime*/
+build-desktop/
+build-legacy-compare/
 
 # Ignore Visual Studio Code files
 .vscode/*

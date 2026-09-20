@@ -4,7 +4,9 @@
 #include <QLayout>
 #include <QPushButton>
 
+#if __has_include(<QWKWidgets/widgetwindowagent.h>)
 #include <QWKWidgets/widgetwindowagent.h>
+#endif
 
 #include "title_bar.h"
 #include "title_bar_button.h"

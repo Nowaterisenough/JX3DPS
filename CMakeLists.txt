@@ -8,6 +8,17 @@ endif()
 
 project(JX3DPS LANGUAGES CXX)
 
+option(JX3DPS_RUNTIME_ONLY "Build standalone runtime tests and microbenchmarks" OFF)
+option(JX3DPS_DESKTOP_TESTS "Build Qt desktop integration tests" OFF)
+if(JX3DPS_DESKTOP_TESTS)
+    enable_testing()
+endif()
+if(JX3DPS_RUNTIME_ONLY)
+    include(CTest)
+    add_subdirectory(tests/runtime)
+    return()
+endif()
+
 include(cmake/Version.cmake)
 VERSION()
 
@@ -162,6 +173,7 @@ if(BUILD_APP)
 endif()
 
 if(BUILD_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif()
 

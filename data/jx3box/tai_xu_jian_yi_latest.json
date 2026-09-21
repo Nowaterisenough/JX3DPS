@@ -1493,7 +1493,28 @@
           "is_mobile": false
         }
       ],
-      "diamonds": null
+      "diamonds": null,
+      "require_level": 130,
+      "max_durability": 0,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "8_42082",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜戒",
+              "quality": "4"
+            },
+            {
+              "id": "5_71801",
+              "app": "item",
+              "label": "响尘古玉·戒指",
+              "quality": "4"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "8_42379",
@@ -1550,7 +1571,28 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "化劲等级提高?"
+      "diamonds": "化劲等级提高?",
+      "require_level": 130,
+      "max_durability": 0,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "8_42055",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜腰坠",
+              "quality": "4"
+            },
+            {
+              "id": "5_71800",
+              "app": "item",
+              "label": "响尘古玉·腰坠",
+              "quality": "4"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "8_42352",
@@ -1607,7 +1649,28 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "额外提高气血上限?"
+      "diamonds": "额外提高气血上限?",
+      "require_level": 130,
+      "max_durability": 0,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "8_42028",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜链",
+              "quality": "4"
+            },
+            {
+              "id": "5_71799",
+              "app": "item",
+              "label": "响尘古玉·项链",
+              "quality": "4"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "8_42325",
@@ -1664,7 +1727,28 @@
           "is_mobile": false
         }
       ],
-      "diamonds": null
+      "diamonds": null,
+      "require_level": 130,
+      "max_durability": 0,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "8_42001",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜戒",
+              "quality": "4"
+            },
+            {
+              "id": "5_71801",
+              "app": "item",
+              "label": "响尘古玉·戒指",
+              "quality": "4"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "8_42298",
@@ -1721,7 +1805,28 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "化劲等级提高?"
+      "diamonds": "化劲等级提高?",
+      "require_level": 130,
+      "max_durability": 0,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "8_41974",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜腰坠",
+              "quality": "4"
+            },
+            {
+              "id": "5_71800",
+              "app": "item",
+              "label": "响尘古玉·腰坠",
+              "quality": "4"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "8_42271",
@@ -1778,7 +1883,28 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "体质提高?"
+      "diamonds": "体质提高?",
+      "require_level": 130,
+      "max_durability": 0,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "8_41947",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜链",
+              "quality": "4"
+            },
+            {
+              "id": "5_71799",
+              "app": "item",
+              "label": "响尘古玉·项链",
+              "quality": "4"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "8_42082",
@@ -1835,7 +1961,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": null
+      "diamonds": null,
+      "require_level": 130,
+      "max_durability": 0
     },
     {
       "id": "8_42055",
@@ -1892,7 +2020,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "化劲等级提高?"
+      "diamonds": "化劲等级提高?",
+      "require_level": 130,
+      "max_durability": 0
     },
     {
       "id": "8_42028",
@@ -1949,7 +2079,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "额外提高气血上限?"
+      "diamonds": "额外提高气血上限?",
+      "require_level": 130,
+      "max_durability": 0
     },
     {
       "id": "8_42001",
@@ -2006,7 +2138,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": null
+      "diamonds": null,
+      "require_level": 130,
+      "max_durability": 0
     },
     {
       "id": "8_41974",
@@ -2063,7 +2197,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "化劲等级提高?"
+      "diamonds": "化劲等级提高?",
+      "require_level": 130,
+      "max_durability": 0
     },
     {
       "id": "8_41947",
@@ -2120,7 +2256,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "体质提高?"
+      "diamonds": "体质提高?",
+      "require_level": 130,
+      "max_durability": 0
     },
     {
       "id": "8_6943",
@@ -2166,7 +2304,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": null
+      "diamonds": null,
+      "require_level": 80,
+      "max_durability": 0
     },
     {
       "id": "8_2323",
@@ -2212,7 +2352,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "化劲等级提高?"
+      "diamonds": "化劲等级提高?",
+      "require_level": 70,
+      "max_durability": 0
     },
     {
       "id": "8_2315",
@@ -2258,7 +2400,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "体质提高?"
+      "diamonds": "体质提高?",
+      "require_level": 70,
+      "max_durability": 0
     },
     {
       "id": "8_2307",
@@ -2304,7 +2448,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": null
+      "diamonds": null,
+      "require_level": 70,
+      "max_durability": 0
     },
     {
       "id": "8_2148",
@@ -2350,7 +2496,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "化劲等级提高?"
+      "diamonds": "化劲等级提高?",
+      "require_level": 70,
+      "max_durability": 0
     },
     {
       "id": "8_2140",
@@ -2396,7 +2544,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "化劲等级提高?"
+      "diamonds": "化劲等级提高?",
+      "require_level": 70,
+      "max_durability": 0
     },
     {
       "id": "8_2132",
@@ -2442,7 +2592,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": null
+      "diamonds": null,
+      "require_level": 70,
+      "max_durability": 0
     },
     {
       "id": "8_1255",
@@ -2488,7 +2640,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "化劲等级提高?"
+      "diamonds": "化劲等级提高?",
+      "require_level": 50,
+      "max_durability": 0
     },
     {
       "id": "7_103302",
@@ -2550,6 +2704,27 @@
       "diamonds": [
         "体质提高?",
         "外功会心等级提高?"
+      ],
+      "require_level": 130,
+      "max_durability": 4800,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "7_102816",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜衣",
+              "quality": "4"
+            },
+            {
+              "id": "5_71794",
+              "app": "item",
+              "label": "响尘古玉·上衣",
+              "quality": "4"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2612,6 +2787,27 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 130,
+      "max_durability": 3840,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "7_102789",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜冠",
+              "quality": "4"
+            },
+            {
+              "id": "5_71793",
+              "app": "item",
+              "label": "响尘古玉·帽子",
+              "quality": "4"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2661,6 +2857,27 @@
       "diamonds": [
         "外功破防等级提高?",
         "身法提高?"
+      ],
+      "require_level": 130,
+      "max_durability": 4320,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "7_102762",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜裤",
+              "quality": "4"
+            },
+            {
+              "id": "5_71797",
+              "app": "item",
+              "label": "响尘古玉·下装",
+              "quality": "4"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2723,6 +2940,27 @@
       "diamonds": [
         "外功会心等级提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 130,
+      "max_durability": 2400,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "7_102735",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜靴",
+              "quality": "4"
+            },
+            {
+              "id": "5_71798",
+              "app": "item",
+              "label": "响尘古玉·鞋子",
+              "quality": "4"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2785,6 +3023,27 @@
       "diamonds": [
         "身法提高?",
         "额外提高气血上限?"
+      ],
+      "require_level": 130,
+      "max_durability": 2400,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "7_102708",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜带",
+              "quality": "4"
+            },
+            {
+              "id": "5_71795",
+              "app": "item",
+              "label": "响尘古玉·腰带",
+              "quality": "4"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2847,6 +3106,27 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 130,
+      "max_durability": 3360,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "7_102681",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜袖",
+              "quality": "4"
+            },
+            {
+              "id": "5_71796",
+              "app": "item",
+              "label": "响尘古玉·护腕",
+              "quality": "4"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2909,7 +3189,9 @@
       "diamonds": [
         "体质提高?",
         "外功会心等级提高?"
-      ]
+      ],
+      "require_level": 130,
+      "max_durability": 4800
     },
     {
       "id": "7_102789",
@@ -2971,7 +3253,9 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
-      ]
+      ],
+      "require_level": 130,
+      "max_durability": 3840
     },
     {
       "id": "7_102762",
@@ -3020,7 +3304,9 @@
       "diamonds": [
         "外功破防等级提高?",
         "身法提高?"
-      ]
+      ],
+      "require_level": 130,
+      "max_durability": 4320
     },
     {
       "id": "7_102735",
@@ -3082,7 +3368,9 @@
       "diamonds": [
         "外功会心等级提高?",
         "化劲等级提高?"
-      ]
+      ],
+      "require_level": 130,
+      "max_durability": 2400
     },
     {
       "id": "7_102708",
@@ -3144,7 +3432,9 @@
       "diamonds": [
         "身法提高?",
         "额外提高气血上限?"
-      ]
+      ],
+      "require_level": 130,
+      "max_durability": 2400
     },
     {
       "id": "7_102681",
@@ -3206,7 +3496,9 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
-      ]
+      ],
+      "require_level": 130,
+      "max_durability": 3360
     },
     {
       "id": "7_95621",
@@ -3268,7 +3560,9 @@
       "diamonds": [
         "元气提高?",
         "额外提高气血上限?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 4800
     },
     {
       "id": "7_95596",
@@ -3330,7 +3624,9 @@
       "diamonds": [
         "额外提高气血上限?",
         "混元性内功会心效果等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 3840
     },
     {
       "id": "7_95571",
@@ -3379,7 +3675,9 @@
       "diamonds": [
         "元气提高?",
         "混元性内功会心等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 4320
     },
     {
       "id": "7_95546",
@@ -3441,7 +3739,9 @@
       "diamonds": [
         "额外提高气血上限?",
         "混元性内功破防等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 2400
     },
     {
       "id": "7_95521",
@@ -3503,7 +3803,9 @@
       "diamonds": [
         "元气提高?",
         "化劲等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 2400
     },
     {
       "id": "7_95496",
@@ -3565,7 +3867,9 @@
       "diamonds": [
         "额外提高气血上限?",
         "混元性内功破防等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 3360
     },
     {
       "id": "7_95471",
@@ -3627,7 +3931,9 @@
       "diamonds": [
         "元气提高?",
         "额外提高气血上限?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 4800
     },
     {
       "id": "7_95446",
@@ -3689,7 +3995,9 @@
       "diamonds": [
         "额外提高气血上限?",
         "混元性内功会心效果等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 3840
     },
     {
       "id": "7_95421",
@@ -3738,7 +4046,9 @@
       "diamonds": [
         "元气提高?",
         "混元性内功会心等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 4320
     },
     {
       "id": "7_95396",
@@ -3800,7 +4110,9 @@
       "diamonds": [
         "额外提高气血上限?",
         "混元性内功破防等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 2400
     },
     {
       "id": "7_95371",
@@ -3862,7 +4174,9 @@
       "diamonds": [
         "元气提高?",
         "化劲等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 2400
     },
     {
       "id": "7_95346",
@@ -3924,7 +4238,9 @@
       "diamonds": [
         "额外提高气血上限?",
         "混元性内功破防等级提高?"
-      ]
+      ],
+      "require_level": 120,
+      "max_durability": 3360
     },
     {
       "id": "7_8627",
@@ -3973,7 +4289,10 @@
       "diamonds": [
         "外功会心等级提高?",
         "外功攻击提高?"
-      ]
+      ],
+      "require_level": 80,
+      "max_durability": 610,
+      "source": []
     },
     {
       "id": "7_6255",
@@ -4033,6 +4352,16 @@
       "diamonds": [
         "无双等级提高?",
         "外功会心等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 563,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "李玄霄(纯阳)"
+          ]
+        }
       ]
     },
     {
@@ -4093,6 +4422,16 @@
       "diamonds": [
         "外功破防等级提高?",
         "无双等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 563,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "李玄霄(纯阳)"
+          ]
+        }
       ]
     },
     {
@@ -4153,6 +4492,16 @@
       "diamonds": [
         "外功会心等级提高?",
         "外功会心效果等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 1126,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "李玄霄(纯阳)"
+          ]
+        }
       ]
     },
     {
@@ -4217,6 +4566,16 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 781,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4281,6 +4640,16 @@
       "diamonds": [
         "外功会心等级提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 558,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4345,6 +4714,16 @@
       "diamonds": [
         "额外提高气血上限?",
         "外功会心效果等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 893,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4409,6 +4788,16 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 558,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4473,6 +4862,16 @@
       "diamonds": [
         "身法提高?",
         "外功会心等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 1005,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4537,6 +4936,16 @@
       "diamonds": [
         "体质提高?",
         "外功会心等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 1116,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4601,6 +5010,16 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 768,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4665,6 +5084,16 @@
       "diamonds": [
         "外功会心等级提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 549,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4729,6 +5158,16 @@
       "diamonds": [
         "额外提高气血上限?",
         "外功会心效果等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 878,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4793,6 +5232,16 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 549,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4857,6 +5306,16 @@
       "diamonds": [
         "身法提高?",
         "外功会心等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 987,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4921,6 +5380,16 @@
       "diamonds": [
         "体质提高?",
         "外功会心等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 1097,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -4985,6 +5454,16 @@
       "diamonds": [
         "额外提高气血上限?",
         "外功破防等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 781,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5049,6 +5528,16 @@
       "diamonds": [
         "额外提高气血上限?",
         "外功破防等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 558,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5113,6 +5602,16 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 893,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5177,6 +5676,16 @@
       "diamonds": [
         "身法提高?",
         "额外提高气血上限?"
+      ],
+      "require_level": 70,
+      "max_durability": 558,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5241,6 +5750,16 @@
       "diamonds": [
         "外功破防等级提高?",
         "身法提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 1005,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5305,6 +5824,16 @@
       "diamonds": [
         "身法提高?",
         "额外提高气血上限?"
+      ],
+      "require_level": 70,
+      "max_durability": 1116,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5369,6 +5898,16 @@
       "diamonds": [
         "额外提高气血上限?",
         "外功破防等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 768,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5433,6 +5972,16 @@
       "diamonds": [
         "额外提高气血上限?",
         "外功破防等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 549,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5497,6 +6046,16 @@
       "diamonds": [
         "身法提高?",
         "化劲等级提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 878,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5561,6 +6120,16 @@
       "diamonds": [
         "身法提高?",
         "额外提高气血上限?"
+      ],
+      "require_level": 70,
+      "max_durability": 549,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5625,6 +6194,16 @@
       "diamonds": [
         "外功破防等级提高?",
         "身法提高?"
+      ],
+      "require_level": 70,
+      "max_durability": 987,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5689,6 +6268,16 @@
       "diamonds": [
         "身法提高?",
         "额外提高气血上限?"
+      ],
+      "require_level": 70,
+      "max_durability": 1097,
+      "source": [
+        {
+          "label": "NPC商店",
+          "children": [
+            "苏碧(浩气盟)"
+          ]
+        }
       ]
     },
     {
@@ -5735,7 +6324,8 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "身法提高?"
+      "diamonds": "身法提高?",
+      "max_durability": 109
     },
     {
       "id": "6_39980",
@@ -5797,6 +6387,27 @@
         "御劲等级提高?",
         "外功破防等级提高?",
         "外功攻击提高?"
+      ],
+      "require_level": 130,
+      "max_durability": 4800,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "6_39815",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜剑",
+              "quality": "4"
+            },
+            {
+              "id": "5_71803",
+              "app": "item",
+              "label": "响尘古玉·武器",
+              "quality": "4"
+            }
+          ]
+        }
       ]
     },
     {
@@ -5855,7 +6466,28 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "外功会心等级提高?"
+      "diamonds": "外功会心等级提高?",
+      "require_level": 130,
+      "max_durability": 3360,
+      "source": [
+        {
+          "label": "物品",
+          "children": [
+            {
+              "id": "6_39788",
+              "app": "item",
+              "label": "雷鸣风怒·灵曜囊",
+              "quality": "4"
+            },
+            {
+              "id": "5_71802",
+              "app": "item",
+              "label": "响尘古玉·暗器",
+              "quality": "4"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "6_39815",
@@ -5917,7 +6549,9 @@
         "御劲等级提高?",
         "外功破防等级提高?",
         "外功攻击提高?"
-      ]
+      ],
+      "require_level": 130,
+      "max_durability": 4800
     },
     {
       "id": "6_39788",
@@ -5975,7 +6609,9 @@
           "is_mobile": false
         }
       ],
-      "diamonds": "外功会心等级提高?"
+      "diamonds": "外功会心等级提高?",
+      "require_level": 130,
+      "max_durability": 3360
     }
   ],
   "recipe_catalog": [
@@ -6304,5 +6940,7 @@
       "description": "施展招式的消耗降低30%。",
       "icon_id": 620
     }
-  ]
+  ],
+  "equipment_metadata_source": "https://node.jx3box.com/api/node/item_merged/id/{ids}?client=std",
+  "equipment_metadata_updated_at": "2026-09-20"
 }

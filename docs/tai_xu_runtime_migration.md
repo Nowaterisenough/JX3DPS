@@ -232,40 +232,43 @@ behaviors, including XuanMen's 400-frame ShengTaiJi CD, are preserved explicitly
 
 Compilation fixes dense slots, descriptors, all coefficient variants and rule
 dispatch. User configuration is resolved once per batch into an immutable
-`Prepared` object shared by workers. There are 120 damage effects and 256 damage
-profile keys, each with hit/critical results. Bits represent Purple, snapshotted
-SuiXing, snapshotted QiSheng, live GuChang, snapshotted LieYun, JianMing set
-attribute and two bits for live XuanMen stacks. The integer damage cache occupies
-491520 bytes (480 KiB). Crit probabilities use Purple, SuiXing, JianMing and
-snapshotted XuanMen, so they need 32 profiles (27648 bytes), not the full cross-product of historical
-and current XuanMen. Both tables are shared across workers and fights.
-All old integer rounding stages execute when preparing this cache.
-The current profile is updated on aura transitions, rather than reconstructed
-from Buff arrays for every damage event.
+`Prepared` object shared by workers. The September 2026 team-buff migration
+replaces the exhaustive damage/probability tables with 120 prepared formulas,
+skill modifiers and coefficients. There is no table dimension for combinations
+of team buffs. Class aura bits remain an internal change detector and a legacy
+trace label; they are not an attribute version ID.
 
 During a fight, macros, cooldowns, charge recovery, stacks and causal rolls stay
-live. Events retain effect, subeffect, level, outcome, RNG key and profile ID.
-Refreshing either DOT captures its attribute profile, including XuanMen's crit
-chance. Each subsequent tick rolls against that snapshot, then records a damage
-key combining the historical attack/crit-power bits with current GuChang and
-XuanMen. Thus historical crit chance remains valid after XuanMen expires, while
-overcome and shield ignore follow current buffs. A trace's `snapshot` column is
-this final damage key; the already-resolved `outcome` encodes the historical
-crit roll. The final reduction is a sequential table lookup and integer sum.
+live. When a hit or DOT application needs attributes, the worker publishes an
+immutable version if a damage-relevant aura has changed. Consecutive captures
+with unchanged attributes reuse the version. Versions contain resolved numbers,
+critical chance and rounded intermediate factors, not copies of buff arrays.
+Refreshing a DOT stores one 32-bit version ID; each tick records this ID and
+the live version ID. Attack, crit power, strain and crit chance use the DOT
+version. Overcome, weapon, shield ignore, PvE bonus and target mitigation or
+vulnerability use the live version. This also handles one buff affecting both
+snapshot and live attributes (JiLei attack/overcome, XuanMen crit/overcome).
+YouRen's legacy crit bonus remains live at the roll point.
+
+A trace's `snapshot` column is retained as the combined class-profile label.
+The appended `snapshot_version` and `live_version` columns are the actual arena
+indices. They are local to one fight and are not timestamps. Multiple versions
+can exist within the same frame. Final reduction reads both versions and applies
+the remaining integer rounding stages in the original order, without buff replay.
 Rules with complete damage snapshots use the one-argument `Reduce(hit)` overload
 and skip historical state replay. Generic rules can still use `Reduce(hit,state)`.
 Mutation records are currently retained in both modes for diagnostics; eliminating
 those writes in batch mode is a further optimization to measure, not a claimed
 property of this port.
 
-This cache is valid only for the supported, fixed-target attribute combinations.
-The old DOT path reads overcome, shield ignore and PVE bonus live despite storing
-other inputs in snapshots. GuChang's live shield ignore and XuanMen's live
-overcome are modeled; PVE bonus remains constant. The migrated `weapon_cw` and
-`set_attribute` effects are resolved in this cache; their causal proc state stays
-in runtime arrays. Other
-equipment, team effects or changing target defenses still require expanding the
-cache key or recording additional live inputs.
+Each worker reserves 4096 attribute versions by default and reuses the storage
+on Start; no global cache grows between fights and no lock is needed per hit.
+Exhaustion throws explicitly. The CLI's `--version-capacity` or Config's
+`attribute_version_capacity` can raise this bound for unusually long schedules.
+The target remains single and stationary. See
+[team buff design and measurements](team_buff_versions.md) for the supported
+catalog, ordering, compatibility restrictions and GCC/Clang results. Mo Wen
+retains its existing class implementation; the generic version arena is reusable.
 
 `Simulation<Rules,false>` and `Simulation<Rules,true>` share these rules but are
 separate template instantiations. Batch execution has no breakpoint checks or

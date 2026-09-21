@@ -6,7 +6,6 @@
 #include <QPixmap>
 #include <QWidget>
 
-#include <functional>
 #include <memory>
 
 class QGridLayout;
@@ -25,7 +24,7 @@ class QToolButton;
 /**
  * @brief 魔盒驱动的中文配装面板。
  *
- * 快照只在界面初始化时读取，图标优先命中本地资源，缺失时异步从
+ * 快照在首次打开配装时读取，图标优先命中本地资源，缺失时异步从
  * icon.jx3box.com 获取。点击候选装备即可替换对应部位并发出完整配置。
  */
 class EQUIPMENT_PANEL_API EquipmentPanel final : public QWidget
@@ -42,6 +41,10 @@ public:
 signals:
     void LoadoutChanged(const QJsonObject &loadout);
 
+protected:
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
+
 private slots:
     void EquipCandidate(QListWidgetItem *item);
     void IconDownloaded(QNetworkReply *reply);
@@ -54,7 +57,12 @@ private:
     void PopulateFromSnapshot(const QJsonObject &snapshot);
     void SetSlotItem(const QString &slot, const QJsonObject &item);
     void UpdateSlotButton(const QString &slot);
-    void RequestIcon(int iconId, const std::function<void(const QPixmap &)> &ready);
+    void OpenSlot(const QString &slot);
+    void FilterCandidates();
+    void UpdateEffects();
+    QString ItemDetails(const QJsonObject &item, const QString &slot) const;
+    void AddIconItem(QListWidget *list, const QString &name, const QString &description, int iconId);
+    QIcon RequestIcon(int iconId);
     static QString FindSnapshotPath(const QString &requested);
     static QString SlotForItem(const QJsonObject &item);
     static QString IconUrl(int iconId);

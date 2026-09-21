@@ -66,6 +66,7 @@ Json Describe(const Stats &stats) {
 
 int main(int argc, char **argv) try {
     Arguments args(argc, argv);
+    const auto preparation_start = Clock::now();
     spdlog::set_level(spdlog::level::off);
     TimeLine::SetMode(Options::DEFAULT);
     TaiXuJianYi::Player player;
@@ -93,6 +94,29 @@ int main(int argc, char **argv) try {
         player.talents[talents.at(name)] = true;
     }
     player.Init();
+    const std::map<std::string, Id_t> team_ids{
+        {"han_ru_lei", BUFF_3RD_HAN_RU_LEI}, {"po_feng", BUFF_3RD_PO_FENG}, {"jing_feng", BUFF_3RD_JING_FENG},
+        {"jie_huo", BUFF_3RD_JIE_HUO}, {"chao_sheng", BUFF_3RD_CHAO_SHENG}, {"sheng_yu_ming_xin", BUFF_3RD_SHENG_YU_MING_XIN},
+        {"zhen_fen", BUFF_3RD_ZHEN_FEN}, {"han_xiao_qian_jun", BUFF_3RD_HAN_XIAO_QIAN_JUN},
+        {"shu_kuang", BUFF_3RD_SHU_KUANG}, {"han_chang_lin_li", BUFF_3RD_HAN_CHANG_LIN_LI},
+        {"ji_lei", BUFF_3RD_JI_LEI}, {"nong_mei", BUFF_3RD_NONG_MEI},
+        {"she_shen_hong_fa", BUFF_3RD_SHE_SHEN_HONG_FA}, {"hao_ling_san_jun", BUFF_3RD_HAO_LING_SAN_JUN}
+    };
+    struct TeamEvent { Id_t id; int frame, duration, stacks; };
+    std::vector<TeamEvent> team_events;
+    std::unordered_set<Id_t> enabled_team;
+    std::istringstream schedule(args.team_buffs);
+    for (std::string row; std::getline(schedule, row, ';'); ) {
+        std::istringstream fields(row);
+        std::string name, frame, duration, stacks;
+        if (!std::getline(fields, name, ':') || !std::getline(fields, frame, ':') ||
+            !std::getline(fields, duration, ':') || !std::getline(fields, stacks) || !team_ids.contains(name))
+            throw std::invalid_argument("invalid legacy team schedule");
+        const auto id = team_ids.at(name);
+        team_events.push_back({id, std::stoi(frame), std::stoi(duration), std::stoi(stacks)});
+        enabled_team.insert(id);
+    }
+    player.AddBuff3rds(enabled_team);
     player.SetQidian(args.initial_qidian);
     if (args.phase >= 0) {
         delete player.buffs.at(BUFF_CLASS_FEATURE);
@@ -121,10 +145,24 @@ int main(int argc, char **argv) try {
     const auto target = TARGET_PLACE_HOLDERS_1;
     events.emplace_back(0, [target](auto *p, auto *t) { return Expression::AddTarget(p, t, target, 124, 30000, 4.0); });
     events.emplace_back(0, [target](auto *p, auto *t) { return Expression::ChangeTarget(p, t, target); });
+    for (const auto app : team_events) {
+        const bool target_buff = app.id == BUFF_3RD_PO_FENG || app.id == BUFF_3RD_JING_FENG || app.id == BUFF_3RD_JIE_HUO;
+        events.emplace_back(app.frame, [app, target, target_buff](auto *p, auto *t) {
+            const auto id = target_buff ? target : PLAYER_ID;
+            if (!app.stacks) {
+                if (p->buffs.at(app.id)->GetDurationCurrent(id) <= 0) return JX3DPS_SUCCESS;
+                return Expression::ClearBuff(p, t, id, app.id, std::max(1, p->buffs.at(app.id)->GetStackNumCurrent(id)));
+            }
+            const auto duration = app.duration ? app.duration : JX3DPS_DEFAULT_DURATION_FRAMES;
+            return Expression::AddBuff(p, t, id, app.id, app.stacks, duration, duration);
+        });
+    }
     events.emplace_back(args.seconds * 16, Expression::SetEnd);
+    events.sort([](const auto &a, const auto &b) { return a.first < b.first; });
     Options options;
     options.totalFrames = args.seconds * 16;
     options.framePrecision = args.precision;
+    const double preparation_s = std::chrono::duration<double>(Clock::now()-preparation_start).count();
     for (int i = 0; i < args.warmup; ++i) (void)Simulate(player, macros, events, options);
     if (!args.trace_path.empty()) TimeLine::SetMode(Options::DEBUG);
     Totals totals;
@@ -152,6 +190,7 @@ int main(int argc, char **argv) try {
     const char *engine = "legacy-ba960f7";
 #endif
     auto result = totals.Result(engine, elapsed, args, Describe(last));
+    result["preparation_s"] = preparation_s;
 #ifdef LEGACY_DRAW_RECORD
     result["draws"] = legacy_draws::samples.size();
 #endif

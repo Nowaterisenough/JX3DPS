@@ -108,7 +108,7 @@ function Normalize-Snapshot($Snapshot) {
         $itemType = if ($item.type) { [string]$item.type } else { [string]$item.TypeLabel }
         $isRecommended = ([string]$item.recommend).Contains("太虚剑意") -or ([string]$item.Recommend).Contains("太虚剑意")
         if ($item.IsEquip -eq $false -or ($itemType -notin $gearTypes -and -not $isRecommended)) { continue }
-        $normalizedItems += [ordered]@{
+        $normalized = [ordered]@{
             id = if ($item.id) { $item.id } else { "8_$($item.SourceID)" }
             source_id = if ($item.source_id) { $item.source_id } else { $item.SourceID }
             name = if ($item.name) { $item.name } else { $item.Name }
@@ -123,6 +123,18 @@ function Normalize-Snapshot($Snapshot) {
             attributes = if ($item.attributes) { @($item.attributes) } else { @() }
             diamonds = if ($item.diamonds) { @($item.diamonds) } else { @($item.Diamonds) }
         }
+        # Preserve optional tooltip metadata without treating absent values as zero.
+        $detailFields = [ordered]@{
+            require_level = 'RequireLevel'; max_durability = 'MaxDurability'; source = 'GetSource'
+            refine_level = 'refineLevel'; durability = 'Durability'; score = 'Score'
+            level_refine_bonus = 'level_refine_bonus'; score_refine_bonus = 'score_refine_bonus'
+            score_enchant_bonus = 'score_enchant_bonus'; enchantments = 'enchantments'; effects = 'effects'
+        }
+        foreach ($key in $detailFields.Keys) {
+            $value = if ($null -ne $item.$key) { $item.$key } else { $item.($detailFields[$key]) }
+            if ($null -ne $value) { $normalized[$key] = $value }
+        }
+        $normalizedItems += $normalized
     }
     Set-SnapshotProperty $Snapshot "equipment_catalog" @($normalizedItems)
     return $Snapshot

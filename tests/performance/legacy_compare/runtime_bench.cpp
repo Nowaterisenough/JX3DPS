@@ -26,8 +26,11 @@ struct ReplayRolls {
 
 int main(int argc, char **argv) try {
     Arguments args(argc, argv);
+    const auto preparation_start = Clock::now();
     tx::Config config;
     config.attributes.crit = args.crit;
+    config.attributes.overcome_base = 25000;
+    config.team_buffs = tx::team::Parse(args.team_buffs);
     config.initial_qidian = args.initial_qidian;
     // Legacy Tai Xu's intrinsic PvE multiplier is part of its resolved stats.
     config.attributes.pve_percent = 184;
@@ -60,6 +63,7 @@ int main(int argc, char **argv) try {
     using Rules = tx::BasicRules<tx::SplitMixRolls, BenchmarkPhase>;
 #endif
     Simulation<Rules> sim(macro.program, Rules(tx::Prepare(config), rng, {args.phase}), args.seconds*16*8+64, args.seconds*16*24+128);
+    const double preparation_s = std::chrono::duration<double>(Clock::now()-preparation_start).count();
     for (int i = 0; i < args.warmup; ++i) { sim.Start(args.seconds*16, IterationSeed(0, i)); sim.Run(); (void)sim.TotalDamage(); }
     Totals totals;
     const auto start = Clock::now();
@@ -91,6 +95,12 @@ int main(int argc, char **argv) try {
     std::cout << result.dump() << '\n';
     if (*rng.cursor != rng.samples->size()) throw std::runtime_error("unused legacy draws: " + std::to_string(rng.samples->size() - *rng.cursor));
 #else
-    std::cout << totals.Result("new-runtime", elapsed, args, sample).dump() << '\n';
+    auto result = totals.Result("new-runtime", elapsed, args, sample);
+    result["preparation_s"] = preparation_s;
+    result["attribute_versions"] = sim.GetRules().Versions().Size();
+    result["attribute_version_bytes"] = sizeof(tx::AttributeVersion);
+    result["prepared_bytes"] = sizeof(tx::Prepared);
+    result["damage_intent_bytes"] = sizeof(DamageIntent);
+    std::cout << result.dump() << '\n';
 #endif
 } catch (const std::exception &error) { std::cerr << error.what() << '\n'; return 1; }

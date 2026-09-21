@@ -18,6 +18,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QScreen>
 #include <QSettings>
 #include <QSpinBox>
 #include <QTableWidget>
@@ -44,6 +45,7 @@
 #include "apps/desktop/controls/theme/dark_style.h"
 #include "apps/desktop/controls/timeline/timeline.h"
 #include "apps/desktop/controls/equipment_panel/equipment_panel.h"
+#include "apps/desktop/controls/equipment_panel/equipment_detail_card.h"
 #include "resources.h"
 #include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
 
@@ -70,6 +72,71 @@ private slots:
 
     void init() { QSettings().clear(); }
 
+    void equipmentReferenceCard()
+    {
+        // Reference values exercise every visible section; production data never uses this fixture.
+        const QJsonObject set{{"name", QStringLiteral("西塞·冷辉")},
+            {"siblings", QJsonArray{QStringLiteral("西塞·冷辉护手"), QStringLiteral("西塞·冷辉腰带"),
+                QStringLiteral("西塞·冷辉履"), QStringLiteral("西塞·冷辉冠"), QStringLiteral("西塞·冷辉衣")}},
+            {"attributes", QJsonObject{{"2", QStringLiteral("装备：施展外功伤害招式，一定几率提高自身外功会心几率4%，会心效果4%，持续6秒。")},
+                {"4", QStringLiteral("<text>text=\"“无我无剑”伤害提高10%\" font=101 </text><text>text=\"“对阵招式”伤害提高5%\" font=101 </text>")}}}};
+        const auto attribute = [](const QString &label, const char *color, int bonus = 0) {
+            return QJsonObject{{"label", label}, {"color", QString::fromLatin1(color)}, {"refine_bonus", bonus}};
+        };
+        QJsonObject item{{"id", "7_101482"}, {"name", QStringLiteral("孤漠·立雪衣")},
+            {"type", QStringLiteral("上衣")}, {"quality", 4}, {"max_refine", 6}, {"refine_level", 6},
+            {"attributes", QJsonArray{attribute(QStringLiteral("外功防御等级提高1060"), "white"),
+                attribute(QStringLiteral("内功防御等级提高848"), "white"), attribute(QStringLiteral("体质提高14219"), "white", 1066),
+                attribute(QStringLiteral("身法提高1160"), "white", 87), attribute(QStringLiteral("外功攻击提高2635"), "green", 198),
+                attribute(QStringLiteral("外功会心等级提高9695"), "green", 727), attribute(QStringLiteral("无双等级提高7756"), "green", 582)}},
+            {"diamonds", QJsonArray{QStringLiteral("外功会心等级提高1317"), QStringLiteral("外功会心效果等级提高1317")}},
+            {"require_level", 130}, {"durability", 4800}, {"max_durability", 4800},
+            {"enchantments", QJsonArray{QJsonObject{{"icon_id", 9527}, {"description", QStringLiteral("无双等级提高624")}},
+                QJsonObject{{"icon_id", 18272}, {"description", QStringLiteral("自身受到的疗伤成效降低10%，基础攻击小幅提高（内功攻击提高791点，外功攻击提高710点），不在名剑大会中生效。")}}}},
+            {"set", set}, {"level", 25900}, {"level_refine_bonus", 1943}, {"score", 46620},
+            {"score_refine_bonus", 3497}, {"score_enchant_bonus", 9180},
+            {"source", QStringLiteral("套装兑换（兑换牌·纯阳） / 侠行点（侠行·纯阳，侠行·初级套装）")}};
+        QJsonObject equipped;
+        for (const auto &slot : {QStringLiteral("帽子"), QStringLiteral("腰带"), QStringLiteral("鞋子")})
+            equipped.insert(slot, QJsonObject{{"set", set}});
+        const QString html = desktop::EquipmentDetailCard::Html(item, equipped, QStringLiteral("上衣"));
+        desktop::EquipmentDetailCard card;
+        card.icon = [](int id) { return desktop::GameIcon(id).pixmap(32, 32); };
+        card.resize(751, 1133);
+        card.setHtml(html);
+        card.show();
+        QCoreApplication::processEvents();
+        const auto text = card.toPlainText();
+        QVERIFY(text.contains(QStringLiteral("精炼等级: 6 / 6")));
+        QVERIFY(text.contains(QStringLiteral("身法+1160 (+87)")));
+        QVERIFY(text.contains(QStringLiteral("西塞·冷辉(4/5)")));
+        QVERIFY(text.contains(QStringLiteral("装备分数 46620 (+3497+9180)")));
+        QVERIFY(!text.contains("font=101"));
+        QCOMPARE(card.horizontalScrollBar()->maximum(), 0);
+        QCOMPARE(card.grab().toImage().pixelColor(700, 600), QColor("#132221"));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+            QVERIFY(card.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-reference-card.png"));
+
+        // Missing metadata must not turn into invented durability, enchantments or refinement.
+        item.remove("refine_level");
+        item.remove("durability");
+        item.remove("enchantments");
+        const QString base = desktop::EquipmentDetailCard::Html(item, {}, QStringLiteral("上衣"));
+        card.setHtml(base);
+        QVERIFY(card.toPlainText().contains(QStringLiteral("精炼上限: 6")));
+        QVERIFY(card.toPlainText().contains(QStringLiteral("耐久度上限：4800")));
+        QVERIFY(card.toPlainText().contains(QStringLiteral("西塞·冷辉(1/5)")));
+        QVERIFY(!card.toPlainText().contains(QStringLiteral("无双等级提高624")));
+        QVERIFY(base.contains("color:#acaeb1'>[4]"));
+        card.resize(500, 640);
+        QCoreApplication::processEvents();
+        QCOMPARE(card.horizontalScrollBar()->maximum(), 0);
+        QVERIFY(card.verticalScrollBar()->maximum() > 0);
+        item["name"] = QStringLiteral("<img src='https://example.invalid'>测试");
+        card.setHtml(desktop::EquipmentDetailCard::Html(item, {}, QStringLiteral("上衣")));
+        QVERIFY(card.toPlainText().contains(item.value("name").toString()));
+    }
+
     void equipmentPreviewPreservesPausedSimulation()
     {
         QTemporaryDir fixture;
@@ -82,7 +149,11 @@ private slots:
         QFile snapshot(fixture.path() + "/data/jx3box/tai_xu_jian_yi_latest.json");
         QVERIFY(snapshot.open(QIODevice::WriteOnly));
         const QJsonObject candidate{{"id", 1}, {"name", QStringLiteral("测试帽子")},
-                                    {"type", QStringLiteral("帽子")}, {"icon_id", 0}};
+                                    {"type", QStringLiteral("帽子")}, {"icon_id", 0},
+                                    {"level", 27100}, {"quality", 4}, {"max_refine", 6},
+                                    {"diamonds", QJsonArray{QStringLiteral("外功会心等级提高100")}},
+                                    {"attributes", QJsonArray{QJsonObject{
+                                        {"label", QStringLiteral("外功攻击提高1195")}, {"color", QStringLiteral("green")}}}}};
         const auto bytes = QJsonDocument(QJsonObject{{"data_version", "merge-test"},
             {"equipment_catalog", QJsonArray{candidate}}}).toJson();
         QCOMPARE(snapshot.write(bytes), bytes.size());
@@ -99,39 +170,97 @@ private slots:
         const auto configuration = options->Snapshot();
         const auto macro = editor->toPlainText();
         const auto line = editor->GetCurrentDebugLine();
-        auto *openEquipment = window.findChild<QToolButton *>("openEquipment");
-        QVERIFY(openEquipment);
-        openEquipment->click();
-        auto *dialog = window.findChild<QDialog *>("equipmentDialog");
-        QVERIFY(dialog);
-        QTRY_VERIFY(dialog->isVisible());
-        auto *panel = dialog->findChild<EquipmentPanel *>();
+        auto *workspace = window.findChild<QTabWidget *>("workspaceTabs");
+        workspace->setCurrentIndex(0);
+        auto *attributeTabs = options->findChild<QTabWidget *>("attributeTabs");
+        QVERIFY(attributeTabs);
+        QCOMPARE(attributeTabs->tabText(2), QStringLiteral("配装"));
+        attributeTabs->setCurrentIndex(2);
+        auto *panel = attributeTabs->widget(2)->findChild<EquipmentPanel *>();
         QVERIFY(panel);
-        QListWidget *catalog = nullptr;
-        for (auto *list : panel->findChildren<QListWidget *>()) {
-            if (list->count() && list->item(0)->data(Qt::UserRole).toJsonObject() == candidate)
-                catalog = list;
-        }
-        QVERIFY(catalog);
+        QTRY_VERIFY(panel->isVisible());
+        QVERIFY(!window.findChild<QToolButton *>("openEquipment"));
+        QVERIFY(!window.findChild<QDialog *>("equipmentDialog"));
+        QVERIFY(!options->findChild<QSpinBox *>("crit")->isEnabled());
+        auto *effects = options->findChild<QCheckBox *>(QStringLiteral("equipment%1").arg(tx::WeaponCW));
+        QVERIFY(effects);
+        QVERIFY(!effects->isEnabled());
+        auto *scroll = options->findChild<QScrollArea *>("equipmentScroll");
+        QVERIFY(scroll);
+        auto *slotButton = panel->findChild<QToolButton *>(QStringLiteral("equipmentSlot0"));
+        QVERIFY(slotButton);
         QSignalSpy changed(panel, &EquipmentPanel::LoadoutChanged);
         QVERIFY(changed.isValid());
+        slotButton->click();
+        auto *catalog = panel->findChild<QListWidget *>(QStringLiteral("equipmentChoices"));
+        QVERIFY(catalog);
+        QTRY_VERIFY(catalog->isVisible());
+        QVERIFY(catalog->screen()->availableGeometry().contains(catalog->window()->geometry()));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+            QVERIFY(catalog->window()->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment-picker.png"));
+        QCOMPARE(catalog->count(), 1);
+        QCOMPARE(catalog->item(0)->data(Qt::UserRole).toJsonObject(), candidate);
         QTest::mouseClick(catalog->viewport(), Qt::LeftButton, Qt::NoModifier,
                           catalog->visualItemRect(catalog->item(0)).center());
         QCOMPARE(changed.count(), 1);
         QCOMPARE(panel->Loadout().value("items").toObject().value(QStringLiteral("帽子")).toObject(), candidate);
+        const auto details = panel->findChild<QTextBrowser *>(QStringLiteral("equipmentDetails"))->toHtml();
+        QVERIFY(details.contains(QStringLiteral("测试帽子")));
+        QVERIFY(details.contains(QStringLiteral("外功攻击提高1195")));
+        auto *effectDetails = panel->findChild<QToolButton *>("equipmentEffectsToggle");
+        auto *equippedEffects = panel->findChild<QListWidget *>("equipmentEffects");
+        QVERIFY(effectDetails);
+        QVERIFY(equippedEffects);
+        QVERIFY(effectDetails->isVisible());
+        QVERIFY(!equippedEffects->isVisible());
+        effectDetails->click();
+        QVERIFY(equippedEffects->isVisible());
+        effectDetails->click();
+        QVERIFY(!equippedEffects->isVisible());
+        QCOMPARE(changed.count(), 1);
         QCOMPARE(options->Snapshot(), configuration);
         QCOMPARE(editor->toPlainText(), macro);
         QCOMPARE(editor->GetCurrentDebugLine(), line);
         QCOMPARE(session->GetState(), DebugSession::Paused);
         QVERIFY(editor->isReadOnly());
-        QCOMPARE(window.findChild<QTabWidget *>("workspaceTabs")->count(), 3);
-        dialog->close();
-        openEquipment->click();
-        QCOMPARE(dialog->findChild<EquipmentPanel *>(), panel);
+        QCOMPARE(workspace->count(), 3);
+        auto *detailButton = panel->findChild<QToolButton *>("viewEquipmentDetails");
+        QVERIFY(detailButton->isEnabled());
+        detailButton->click();
+        auto *detailPopup = panel->findChild<QWidget *>("equipmentDetailsPopup");
+        QVERIFY(detailPopup);
+        QTRY_VERIFY(detailPopup->isVisible());
+        QVERIFY(detailPopup->screen()->availableGeometry().contains(detailPopup->geometry()));
+        attributeTabs->setCurrentIndex(0);
+        QVERIFY(!detailPopup->isVisible());
+        attributeTabs->setCurrentIndex(2);
+        QCOMPARE(attributeTabs->widget(2)->findChild<EquipmentPanel *>(), panel);
         QCOMPARE(panel->Loadout().value("items").toObject().size(), 1);
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(dialog->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment.png"));
         session->Stop();
+        QVERIFY(effects->isEnabled());
+        auto *specialization = options->findChild<QComboBox *>("specialization");
+        specialization->setCurrentIndex(1);
+        QVERIFY(!panel->isVisible());
+        specialization->setCurrentIndex(0);
+        QVERIFY(panel->isVisible());
+        QCOMPARE(panel->Loadout().value("items").toObject().size(), 1);
+        window.resize(1400, 900);
+        QCoreApplication::processEvents();
+        scroll->verticalScrollBar()->setValue(0);
+        for (auto *button : panel->findChildren<QToolButton *>()) {
+            if (!button->property("equipmentSlot").isValid()) continue;
+            QVERIFY(scroll->viewport()->rect().contains(button->mapTo(scroll->viewport(), button->rect().bottomRight())));
+        }
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment-overview.png"));
+        window.resize(1120, 720);
+        QCoreApplication::processEvents();
+        QCOMPARE(scroll->horizontalScrollBar()->maximum(), 0);
+        QVERIFY(panel->width() <= scroll->viewport()->width());
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment.png"));
+        scroll->ensureWidgetVisible(effects);
+        QVERIFY(scroll->viewport()->rect().contains(effects->mapTo(scroll->viewport(), effects->rect().center())));
     }
 
     void moWenDesktopParity()
@@ -199,6 +328,38 @@ private slots:
                 }
         }
         QVERIFY(interruption);
+    }
+
+    void teamBuffOptionsAndSnapshots()
+    {
+        SimulationOptions options;
+        const auto prefix = QStringLiteral("txTeam%1_").arg(tx::team::ZhenFen);
+        options.findChild<QCheckBox *>(prefix + "enabled")->setChecked(true);
+        options.findChild<QDoubleSpinBox *>(prefix + "start")->setValue(1.0625);
+        options.findChild<QDoubleSpinBox *>(prefix + "duration")->setValue(3.125);
+        options.findChild<QSpinBox *>(prefix + "stacks")->setValue(35);
+        const auto config = options.Config();
+        QCOMPARE(config.team_buffs.size(), std::size_t(1));
+        QCOMPARE(config.team_buffs[0].frame, 17);
+        QCOMPARE(config.team_buffs[0].duration, 50);
+        QCOMPARE(config.team_buffs[0].stacks, 35);
+        const auto snapshot = options.Snapshot();
+        SimulationOptions restored;
+        QString error;
+        QVERIFY2(restored.RestoreSnapshot(snapshot, error), qPrintable(error));
+        QCOMPARE(restored.Config().team_buffs, config.team_buffs);
+        auto old = snapshot;
+        auto values = old.value("values").toObject();
+        for (const auto &key : values.keys()) if (key.startsWith("txTeam")) values.remove(key);
+        old.insert("values", values);
+        QVERIFY2(restored.RestoreSnapshot(old, error), qPrintable(error));
+        QVERIFY(restored.Config().team_buffs.empty());
+        auto invalid = snapshot;
+        values = snapshot.value("values").toObject();
+        values.insert(prefix + "stacks", 126);
+        invalid.insert("values", values);
+        QVERIFY(!restored.RestoreSnapshot(invalid, error));
+        QVERIFY(restored.Config().team_buffs.empty());
     }
 
     void moWenOptionsAndImports()
@@ -415,6 +576,35 @@ private slots:
         ResultsPanel panel;
         panel.AddResult(result, QStringLiteral("/cast biangong"), {});
         QCOMPARE(panel.findChild<QTableWidget *>("attributeGainsTable")->rowCount(), 8);
+    }
+
+    void attributeGainReplayUsesCommonPipeline()
+    {
+        const rt::BatchOptions options{8, 19, 16 * 4, 2, 2000, 4000};
+        auto check = [&](const auto &config, const auto &compiled) {
+            BatchWorker worker(compiled.first.program, options, config, nullptr, false, true);
+            QSignalSpy stats(&worker, &BatchWorker::StatisticsReady), failure(&worker, &BatchWorker::Failed);
+            worker.start();
+            QVERIFY(worker.wait(10000));
+            QTRY_COMPARE(stats.count(), 1);
+            QCOMPARE(failure.count(), 0);
+            const auto result = qvariant_cast<SimulationResult>(stats[0][0]);
+            QCOMPARE(result.gains.size(), 8);
+            QCOMPARE(worker.Completed(), worker.Requested());
+            for (const auto index : desktop::DamageOnlyGainIndexes) {
+                const auto changed = desktop::ApplyAttributeGain(config, index);
+                const auto direct = rt::RunBatch(compiled.first.program, options, desktop::MakeRules(changed));
+                QCOMPARE(result.gains[index].stats.count, direct.count);
+                QCOMPARE(result.gains[index].stats.checksum, direct.checksum);
+                QCOMPARE(result.gains[index].stats.mean_damage, direct.mean_damage);
+            }
+        };
+
+        rt::mo_wen::Config mo_wen;
+        check(mo_wen, rt::MacroCompiler::Compile("/cast biangong", rt::mo_wen::MacroOptions(false)));
+        rt::tai_xu::Config tai_xu;
+        tai_xu.team_buffs.push_back({tx::team::HanRuLei, 0, 0, 1});
+        check(tai_xu, rt::MacroCompiler::Compile("/cast wuwu\n/cast sanhuan", rt::tai_xu::MacroOptions(false)));
     }
 
     void chineseWorkbenchAndMoWenCompletion()

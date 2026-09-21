@@ -103,6 +103,8 @@ void Help() {
         "                        qisheng,changsheng,xuanmen,lieyun,xuji,jianru,jinghua (or none).\n"
         "--equipment LIST       weapon_cw,set_attribute (or none).\n"
         "--team-effects LIST    you_ren (or none).\n"
+        "--team-buffs SCHEDULE  name:frame:duration:stacks separated by semicolons; repeatable.\n"
+        "--version-capacity N   Maximum observed attribute versions per fight (default 4096).\n"
         "--recipes-wuwu LIST --recipes-bahuang LIST --recipes-sanhuan LIST\n"
         "                        crit2,crit3,crit4,damage3,damage4,damage5,qidian,cooldown\n"
         "--recipes-shengtaiji LIST  prepare1,prepare2,prepare3,cooldown\n"
@@ -122,12 +124,13 @@ void Help() {
 template <typename Engine> void Trace(Engine &sim, const std::string &path) {
     std::ofstream out(path, std::ios::binary);
     if (!out) throw std::runtime_error("cannot open trace output");
-    out << "frame,sequence,skill_id,skill_name,sub,level,outcome,snapshot,damage,random_key\n";
+    out << "frame,sequence,skill_id,skill_name,sub,level,outcome,snapshot,damage,random_key,snapshot_version,live_version\n";
     for (const auto &hit : sim.Log().Intents()) {
         const auto &skill = tx::Skills.entries[hit.skill];
         out << hit.frame << ',' << hit.sequence << ',' << skill.id << ',' << skill.name << ',' << hit.sub << ',' << hit.level
             << ',' << static_cast<int>(hit.outcome) << ',' << hit.snapshot << ','
-            << sim.GetRules().Reduce(hit, sim.GetState()) << ',' << hit.random_key << '\n';
+            << sim.GetRules().Reduce(hit, sim.GetState()) << ',' << hit.random_key << ','
+            << hit.snapshot_version << ',' << hit.live_version << '\n';
     }
     if (!out) throw std::runtime_error("could not write complete trace");
 }
@@ -226,6 +229,11 @@ int main(int argc, char **argv) try {
         else if (flag == "--talents") config.talents = Flags(value, Talents);
         else if (flag == "--equipment") config.equipment = Flags(value, Equipment);
         else if (flag == "--team-effects") config.team_effects = Flags(value, TeamEffects);
+        else if (flag == "--team-buffs") {
+            const auto schedule = tx::team::Parse(value);
+            config.team_buffs.insert(config.team_buffs.end(), schedule.begin(), schedule.end());
+        }
+        else if (flag == "--version-capacity") config.attribute_version_capacity = Integer<std::size_t>(value);
         else if (flag == "--recipes-wuwu") config.recipes[tx::WuWo] = Flags(value, Recipes);
         else if (flag == "--recipes-bahuang") config.recipes[tx::BaHuang] = Flags(value, Recipes);
         else if (flag == "--recipes-sanhuan") config.recipes[tx::SanHuan] = Flags(value, Recipes);
@@ -249,7 +257,8 @@ int main(int argc, char **argv) try {
     auto [macro, errors] = MacroCompiler::Compile(macro_text, tx::MacroOptions(debug));
     for (const auto &error : errors) std::cerr << "line " << error.line << ": " << error.message << '\n';
     if (!errors.empty()) return 2;
-    std::cout << "ruleset=ba960f7-core-subset fps=16 immutable_damage_cache_bytes=" << sizeof(data->damage)
+    std::cout << "ruleset=ba960f7-core-subset fps=16 prepared_bytes=" << sizeof(*data)
+        << " attribute_version_bytes=" << sizeof(tx::AttributeVersion)
               << " seed_base=" << options.seed << '\n';
     const auto start = std::chrono::steady_clock::now();
     BatchStats stats;

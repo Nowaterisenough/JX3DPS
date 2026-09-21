@@ -1,8 +1,12 @@
 #include "equipment_panel.h"
+#include "equipment_detail_card.h"
+#include "../choice_popup.h"
 
 #include <QApplication>
+#include <QButtonGroup>
 #include <QCoreApplication>
 #include <QDir>
+#include <QDialog>
 #include <QFile>
 #include <QFileInfo>
 #include <QHBoxLayout>
@@ -11,18 +15,23 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
+#include <QMap>
 #include <QNetworkReply>
 #include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QSignalBlocker>
+#include <QShowEvent>
 #include <QStandardPaths>
 #include <QTabWidget>
+#include <QTextBrowser>
 #include <QToolButton>
 #include <QUrl>
 #include <QVBoxLayout>
 
-#include <functional>
+#include <array>
 
 struct EquipmentPanel::Impl
 {
@@ -35,10 +44,25 @@ struct EquipmentPanel::Impl
     QListWidget *recipes = nullptr;
     QLabel *setSummary = nullptr;
     QLabel *sourceLabel = nullptr;
+    QLabel *equippedCount = nullptr;
+    QToolButton *effectsToggle = nullptr;
+    QWidget *effectsContent = nullptr;
+    desktop::ChoicePopup *popup = nullptr;
+    desktop::ChoicePopup *detailsPopup = nullptr;
+    QDialog *referenceDialog = nullptr;
+    QLabel *selectedLabel = nullptr;
+    QToolButton *viewDetails = nullptr;
+    bool loaded = false;
+    QLabel *pickerTitle = nullptr;
+    QLabel *emptyResults = nullptr;
+    QLineEdit *search = nullptr;
+    QPushButton *clear = nullptr;
+    desktop::EquipmentDetailCard *details = nullptr;
+    desktop::EquipmentDetailCard *preview = nullptr;
+    QString activeSlot;
     QHash<QString, QToolButton *> slotButtons;
     QHash<QString, QJsonObject> loadout;
     QHash<QString, QPixmap> iconCache;
-    QHash<QString, QList<std::function<void(const QPixmap &)>>> iconWaiters;
     QHash<QNetworkReply *, QString> replies;
     QJsonArray catalogData;
 };
@@ -54,13 +78,7 @@ const QStringList kSlots = {
 
 QString QualityColor(int quality)
 {
-    switch (quality) {
-    case 5: return QStringLiteral("#ff80ff");
-    case 4: return QStringLiteral("#ff9d3d");
-    case 3: return QStringLiteral("#a335ee");
-    case 2: return QStringLiteral("#1eff00");
-    default: return QStringLiteral("#d8dee9");
-    }
+    return desktop::EquipmentDetailCard::QualityColor(quality);
 }
 
 QPixmap PlaceholderIcon(int iconId)
@@ -70,9 +88,90 @@ QPixmap PlaceholderIcon(int iconId)
     QPainter painter(&pixmap);
     painter.setPen(QColor(160, 170, 185));
     painter.drawRect(1, 1, 50, 50);
-    painter.drawText(pixmap.rect(), Qt::AlignCenter, QString::number(iconId));
+    painter.drawText(pixmap.rect(), Qt::AlignCenter, iconId ? QStringLiteral("装备") : QStringLiteral("空"));
     return pixmap;
 }
+
+QPixmap EmptySlotIcon(const QString &slot)
+{
+    QPixmap pixmap(40, 40);
+    pixmap.fill(Qt::transparent);
+    QPainter p(&pixmap);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setPen(QPen(QColor("#71838c"), 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    p.setBrush(QColor("#233139"));
+    if (slot == QStringLiteral("帽子")) {
+        p.drawRoundedRect(QRectF(9, 11, 22, 19), 8, 8);
+        p.drawLine(6, 30, 34, 30);
+        p.drawLine(20, 11, 20, 23);
+    } else if (slot == QStringLiteral("上衣")) {
+        p.drawPolygon(QPolygon{{13, 8}, {7, 13}, {4, 22}, {11, 24}, {13, 18}, {13, 33},
+                               {28, 33}, {28, 18}, {30, 24}, {36, 22}, {33, 13}, {27, 8}, {20, 13}});
+        p.drawLine(20, 14, 20, 31);
+    } else if (slot == QStringLiteral("下装")) {
+        p.drawPolygon(QPolygon{{10, 8}, {30, 8}, {29, 33}, {22, 33}, {20, 21}, {18, 33}, {11, 33}});
+        p.drawLine(11, 13, 29, 13);
+    } else if (slot == QStringLiteral("鞋子")) {
+        p.drawPolygon(QPolygon{{18, 8}, {29, 8}, {29, 31}, {8, 31}, {8, 26}, {17, 23}});
+        p.drawLine(19, 13, 28, 13);
+    } else if (slot == QStringLiteral("腰带")) {
+        p.drawRoundedRect(QRectF(5, 15, 30, 12), 2, 2);
+        p.drawRoundedRect(QRectF(16, 12, 9, 18), 2, 2);
+    } else if (slot == QStringLiteral("护腕")) {
+        p.drawPolygon(QPolygon{{12, 8}, {29, 11}, {27, 33}, {10, 29}});
+        p.drawLine(13, 16, 28, 19);
+        p.drawLine(12, 22, 27, 25);
+    } else if (slot.startsWith(QStringLiteral("戒指"))) {
+        p.drawEllipse(QRectF(10, 13, 20, 20));
+        p.drawPolygon(QPolygon{{20, 6}, {26, 12}, {20, 18}, {14, 12}});
+    } else if (slot == QStringLiteral("项链")) {
+        p.drawArc(QRectF(8, 3, 24, 25), 180 * 16, 180 * 16);
+        p.drawPolygon(QPolygon{{20, 25}, {25, 30}, {20, 36}, {15, 30}});
+    } else if (slot == QStringLiteral("腰坠")) {
+        p.drawLine(20, 5, 20, 12);
+        p.drawRoundedRect(QRectF(12, 12, 16, 18), 5, 5);
+        p.drawLine(16, 30, 14, 35);
+        p.drawLine(24, 30, 26, 35);
+    } else if (slot == QStringLiteral("武器")) {
+        p.drawPolygon(QPolygon{{29, 6}, {30, 15}, {15, 30}, {10, 25}});
+        p.drawLine(8, 21, 19, 32);
+        p.drawLine(13, 27, 7, 34);
+    } else {
+        p.drawRoundedRect(QRectF(11, 11, 19, 23), 5, 5);
+        p.drawLine(14, 7, 27, 7);
+        p.drawLine(14, 7, 17, 12);
+        p.drawLine(27, 7, 24, 12);
+        p.drawLine(13, 18, 28, 18);
+    }
+    return pixmap;
+}
+
+QStringList SocketLabels(const QJsonValue &value)
+{
+    QStringList labels;
+    if (value.isString() && !value.toString().isEmpty()) labels << value.toString();
+    for (const auto &entry : value.toArray()) {
+        const QString label = entry.isObject() ? entry.toObject().value("label").toString() : entry.toString();
+        if (!label.isEmpty()) labels << label;
+    }
+    return labels;
+}
+
+class SlotButton final : public QToolButton
+{
+public:
+    using QToolButton::QToolButton;
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        QToolButton::paintEvent(event);
+        QPainter painter(this);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(227, 232, 240));
+        painter.drawPolygon(QPolygon{QPoint(width() - 11, height() - 9),
+                                     QPoint(width() - 3, height() - 9), QPoint(width() - 7, height() - 5)});
+    }
+};
 
 } // namespace
 
@@ -81,99 +180,259 @@ EquipmentPanel::EquipmentPanel(QWidget *parent)
     , d(std::make_unique<Impl>())
 {
     setObjectName(QStringLiteral("equipmentPanel"));
-    setMinimumWidth(330);
-    setMaximumWidth(410);
+    setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     BuildUi();
-    LoadLatestData();
     connect(&d->network, &QNetworkAccessManager::finished,
             this, &EquipmentPanel::IconDownloaded);
 }
 
 EquipmentPanel::~EquipmentPanel() = default;
 
+void EquipmentPanel::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    if (!d->loaded) LoadLatestData();
+}
+
+void EquipmentPanel::hideEvent(QHideEvent *event)
+{
+    d->popup->hide();
+    d->detailsPopup->hide();
+    d->referenceDialog->hide();
+    QWidget::hideEvent(event);
+}
+
 void EquipmentPanel::BuildUi()
 {
     auto *root = new QVBoxLayout(this);
-    root->setContentsMargins(10, 8, 10, 8);
-    root->setSpacing(7);
+    root->setContentsMargins(0, 0, 0, 0);
+    root->setSpacing(6);
 
     auto *titleRow = new QHBoxLayout();
-    auto *title = new QLabel(QStringLiteral("太虚剑意 · 魔盒配装"), this);
-    title->setStyleSheet(QStringLiteral("font-size: 14px; font-weight: 600; color: #f4c76b;"));
+    auto *title = new QLabel(QStringLiteral("太虚剑意"), this);
+    title->setStyleSheet(QStringLiteral("font-size: 13px; font-weight: 600; color: #c4d9d2;"));
+    d->equippedCount = new QLabel(QStringLiteral("0 / 12"), this);
+    d->equippedCount->setObjectName(QStringLiteral("equippedCount"));
+    d->equippedCount->setStyleSheet(QStringLiteral("color: #84979e; font-size: 11px;"));
     d->sourceLabel = new QLabel(QStringLiteral("读取中…"), this);
-    d->sourceLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    d->sourceLabel->setWordWrap(true);
     d->sourceLabel->setStyleSheet(QStringLiteral("font-size: 10px; color: #8d99a8;"));
     titleRow->addWidget(title);
+    titleRow->addWidget(d->equippedCount);
     titleRow->addStretch();
-    titleRow->addWidget(d->sourceLabel);
+    auto *references = new QToolButton(this);
+    references->setObjectName(QStringLiteral("equipmentReferences"));
+    references->setText(QStringLiteral("资料"));
+    references->setAutoRaise(true);
+    references->setToolTip(QStringLiteral("查看太虚剑意的技能、奇穴与秘籍资料"));
+    titleRow->addWidget(references);
     root->addLayout(titleRow);
 
-    auto *tabs = new QTabWidget(this);
-    auto *equipmentTab = new QWidget(tabs);
+    d->referenceDialog = new QDialog(this);
+    d->referenceDialog->setObjectName(QStringLiteral("equipmentReferenceDialog"));
+    d->referenceDialog->setWindowTitle(QStringLiteral("太虚剑意 · 魔盒资料"));
+    d->referenceDialog->resize(640, 640);
+    auto *referenceLayout = new QVBoxLayout(d->referenceDialog);
+    auto *tabs = new QTabWidget(d->referenceDialog);
+    referenceLayout->addWidget(tabs);
+    connect(references, &QToolButton::clicked, this, [this] {
+        d->referenceDialog->show();
+        d->referenceDialog->raise();
+        d->referenceDialog->activateWindow();
+    });
+    auto *equipmentTab = new QWidget(this);
     auto *equipmentLayout = new QVBoxLayout(equipmentTab);
     equipmentLayout->setContentsMargins(0, 0, 0, 0);
-    equipmentLayout->setSpacing(7);
+    equipmentLayout->setSpacing(6);
+
+    auto *sidebar = new QVBoxLayout;
+    sidebar->setSpacing(6);
+    equipmentLayout->addLayout(sidebar);
 
     auto *slotsWidget = new QWidget(equipmentTab);
+    slotsWidget->setObjectName(QStringLiteral("equipmentSlots"));
+    slotsWidget->setToolTip(QStringLiteral("点击部位图标更换装备"));
     d->slotGrid = new QGridLayout(slotsWidget);
     d->slotGrid->setContentsMargins(0, 0, 0, 0);
-    d->slotGrid->setSpacing(4);
+    d->slotGrid->setHorizontalSpacing(4);
+    d->slotGrid->setVerticalSpacing(3);
+    for (const auto &[text, column] : {std::pair{QStringLiteral("防具"), 0},
+                                       std::pair{QStringLiteral("首饰 / 兵器"), 3}}) {
+        auto *label = new QLabel(text, slotsWidget);
+        label->setStyleSheet(QStringLiteral("color: #8da4ac; font-size: 11px;"));
+        label->setAlignment(Qt::AlignCenter);
+        d->slotGrid->addWidget(label, 0, column, 1, 2);
+    }
+    auto *divider = new QFrame(slotsWidget);
+    divider->setFixedWidth(1);
+    divider->setStyleSheet(QStringLiteral("background: #2c3b43;"));
+    d->slotGrid->addWidget(divider, 0, 2, 4, 1);
+    auto *slotSelection = new QButtonGroup(this);
+    slotSelection->setExclusive(true);
+    // Keep stable slot identifiers while arranging armor and accessories in two columns each.
+    const std::array<QPoint, 12> positions{{{0, 1}, {1, 1}, {1, 2}, {0, 2}, {0, 3}, {1, 3},
+                                          {3, 1}, {4, 1}, {3, 2}, {4, 2}, {3, 3}, {4, 3}}};
     for (int i = 0; i < kSlots.size(); ++i) {
         const QString slot = kSlots.at(i);
-        auto *button = new QToolButton(slotsWidget);
-        button->setText(slot + QStringLiteral("\n未装备"));
-        button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-        button->setIcon(PlaceholderIcon(0));
-        button->setIconSize(QSize(48, 48));
-        button->setMinimumSize(92, 76);
-        button->setToolTip(slot);
-        button->setStyleSheet(QStringLiteral(
-            "QToolButton { color: #cbd5e1; background: #202631; border: 1px solid #384252; border-radius: 4px; padding: 2px; }"
-            "QToolButton:hover { border-color: #f4c76b; background: #2b3442; }"));
+        auto *cell = new QWidget(slotsWidget);
+        auto *cellLayout = new QVBoxLayout(cell);
+        cellLayout->setContentsMargins(0, 1, 0, 1);
+        cellLayout->setSpacing(1);
+        auto *button = new SlotButton(cell);
+        button->setObjectName(QStringLiteral("equipmentSlot%1").arg(i));
+        button->setProperty("equipmentSlot", slot);
+        button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+        button->setIconSize(QSize(36, 36));
+        button->setFixedSize(44, 44);
+        button->setCheckable(true);
+        slotSelection->addButton(button);
+        button->setCursor(Qt::PointingHandCursor);
+        cellLayout->addWidget(button, 0, Qt::AlignHCenter);
+        auto *caption = new QLabel(slot, cell);
+        caption->setStyleSheet(QStringLiteral("font-size: 11px; color: #b2c0c8;"));
+        caption->setAlignment(Qt::AlignCenter);
+        cellLayout->addWidget(caption);
         d->slotButtons.insert(slot, button);
-        d->slotGrid->addWidget(button, i / 3, i % 3);
+        UpdateSlotButton(slot);
+        connect(button, &QToolButton::clicked, this, [this, slot] { OpenSlot(slot); });
+        d->slotGrid->addWidget(cell, positions[i].y(), positions[i].x());
     }
-    equipmentLayout->addWidget(slotsWidget);
+    sidebar->addWidget(slotsWidget);
 
-    auto *setTitle = new QLabel(QStringLiteral("套装 / 附魔"), this);
-    setTitle->setStyleSheet(QStringLiteral("font-weight: 600; color: #b8c5d6;"));
-    equipmentLayout->addWidget(setTitle);
-    d->setSummary = new QLabel(QStringLiteral("暂无套装数据"), this);
+    auto *selectionRow = new QHBoxLayout;
+    d->selectedLabel = new QLabel(QStringLiteral("点击图标选择装备"), equipmentTab);
+    d->selectedLabel->setObjectName(QStringLiteral("selectedEquipment"));
+    d->selectedLabel->setWordWrap(true);
+    d->selectedLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    selectionRow->addWidget(d->selectedLabel, 1);
+    d->viewDetails = new QToolButton(equipmentTab);
+    d->viewDetails->setObjectName(QStringLiteral("viewEquipmentDetails"));
+    d->viewDetails->setText(QStringLiteral("详情"));
+    d->viewDetails->setAutoRaise(true);
+    d->viewDetails->setEnabled(false);
+    selectionRow->addWidget(d->viewDetails);
+    sidebar->addLayout(selectionRow);
+    d->detailsPopup = new desktop::ChoicePopup(this);
+    d->detailsPopup->setObjectName(QStringLiteral("equipmentDetailsPopup"));
+    auto *detailsLayout = new QVBoxLayout(d->detailsPopup);
+    detailsLayout->setContentsMargins(1, 1, 1, 1);
+    d->details = new desktop::EquipmentDetailCard(d->detailsPopup);
+    d->details->icon = [this](int id) { return RequestIcon(id).pixmap(32, 32); };
+    d->details->setObjectName(QStringLiteral("equipmentDetails"));
+    d->details->setOpenLinks(false);
+    d->details->setMinimumHeight(180);
+    d->details->setHtml(ItemDetails({}, QStringLiteral("装备")));
+    detailsLayout->addWidget(d->details);
+    d->detailsPopup->Watch(d->details);
+    connect(d->viewDetails, &QToolButton::clicked, this, [this] {
+        if (d->detailsPopup->isVisible()) d->detailsPopup->hide();
+        else d->detailsPopup->Open(d->viewDetails, {750, 900}, d->details, desktop::ChoicePopup::Beside);
+    });
+
+    d->effectsToggle = new QToolButton(this);
+    d->effectsToggle->setObjectName(QStringLiteral("equipmentEffectsToggle"));
+    d->effectsToggle->setCheckable(true);
+    d->effectsToggle->setAutoRaise(true);
+    d->effectsToggle->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    d->effectsToggle->setArrowType(Qt::RightArrow);
+    sidebar->addWidget(d->effectsToggle);
+    d->effectsContent = new QWidget(this);
+    auto *effectLayout = new QVBoxLayout(d->effectsContent);
+    effectLayout->setContentsMargins(0, 0, 0, 0);
+    effectLayout->setSpacing(4);
+    sidebar->addWidget(d->effectsContent);
+    d->effectsContent->hide();
+    connect(d->effectsToggle, &QToolButton::toggled, this, [this](bool expanded) {
+        d->effectsToggle->setArrowType(expanded ? Qt::DownArrow : Qt::RightArrow);
+        d->effectsContent->setVisible(expanded);
+    });
+    d->setSummary = new QLabel(QStringLiteral("尚未装备套装"), this);
     d->setSummary->setWordWrap(true);
     d->setSummary->setStyleSheet(QStringLiteral("color: #9ca8b8; font-size: 11px;"));
-    equipmentLayout->addWidget(d->setSummary);
+    effectLayout->addWidget(d->setSummary);
     d->effects = new QListWidget(this);
     d->effects->setViewMode(QListView::IconMode);
     d->effects->setIconSize(QSize(36, 36));
-    d->effects->setGridSize(QSize(128, 58));
+    d->effects->setObjectName(QStringLiteral("equipmentEffects"));
+    d->effects->setGridSize(QSize(76, 58));
     d->effects->setResizeMode(QListView::Adjust);
     d->effects->setMovement(QListView::Static);
     d->effects->setMaximumHeight(68);
     d->effects->setStyleSheet(QStringLiteral(
         "QListWidget { background: #1a2029; border: 1px solid #303a49; }"
         "QListWidget::item { color: #cbd5e1; padding: 1px; }"));
-    equipmentLayout->addWidget(d->effects);
+    effectLayout->addWidget(d->effects);
+    d->sourceLabel->setToolTip(QStringLiteral("装备选择用于预览；模拟属性以「属性」页为准。"));
 
-    auto *catalogTitle = new QLabel(QStringLiteral("魔盒候选装备（点击替换）"), this);
-    catalogTitle->setStyleSheet(QStringLiteral("font-weight: 600; color: #b8c5d6;"));
-    equipmentLayout->addWidget(catalogTitle);
-    d->catalog = new QListWidget(this);
+    d->popup = new desktop::ChoicePopup(this);
+    auto *popupLayout = new QVBoxLayout(d->popup);
+    popupLayout->setContentsMargins(10, 10, 10, 10);
+    popupLayout->setSpacing(8);
+    auto *pickerHeader = new QHBoxLayout;
+    d->pickerTitle = new QLabel(d->popup);
+    d->pickerTitle->setStyleSheet(QStringLiteral("font-weight: 600; color: #f4c76b;"));
+    d->clear = new QPushButton(QStringLiteral("卸下装备"), d->popup);
+    d->clear->setObjectName(QStringLiteral("clearEquipment"));
+    d->clear->setAutoDefault(false);
+    pickerHeader->addWidget(d->pickerTitle, 1);
+    pickerHeader->addWidget(d->clear);
+    popupLayout->addLayout(pickerHeader);
+    d->search = new QLineEdit(d->popup);
+    d->search->setObjectName(QStringLiteral("equipmentSearch"));
+    d->search->setPlaceholderText(QStringLiteral("搜索名称、属性或来源"));
+    auto *body = new QHBoxLayout;
+    auto *candidates = new QVBoxLayout;
+    candidates->addWidget(d->search);
+    d->catalog = new QListWidget(d->popup);
+    d->catalog->setObjectName(QStringLiteral("equipmentChoices"));
     d->catalog->setViewMode(QListView::IconMode);
     d->catalog->setIconSize(QSize(48, 48));
-    d->catalog->setGridSize(QSize(96, 82));
+    d->catalog->setGridSize(QSize(80, 86));
     d->catalog->setResizeMode(QListView::Adjust);
     d->catalog->setMovement(QListView::Static);
-    d->catalog->setSpacing(2);
-    d->catalog->setMinimumHeight(170);
+    d->catalog->setWordWrap(true);
+    d->catalog->setMouseTracking(true);
+    d->catalog->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    d->catalog->setMinimumSize(0, 0);
     d->catalog->setStyleSheet(QStringLiteral(
         "QListWidget { background: #1a2029; border: 1px solid #303a49; }"
         "QListWidget::item { color: #cbd5e1; padding: 2px; }"
         "QListWidget::item:selected { background: #3b4657; }"));
     connect(d->catalog, &QListWidget::itemClicked,
             this, &EquipmentPanel::EquipCandidate);
-    equipmentLayout->addWidget(d->catalog, 1);
+    const auto previewItem = [this](QListWidgetItem *item) {
+        d->preview->setHtml(item ? ItemDetails(item->data(Qt::UserRole).toJsonObject(), d->activeSlot) : QString());
+    };
+    connect(d->catalog, &QListWidget::currentItemChanged, this, [previewItem](QListWidgetItem *item) { previewItem(item); });
+    connect(d->catalog, &QListWidget::itemEntered, this, previewItem);
+    candidates->addWidget(d->catalog, 1);
+    d->emptyResults = new QLabel(QStringLiteral("当前部位没有匹配装备"), d->popup);
+    d->emptyResults->setAlignment(Qt::AlignCenter);
+    candidates->addWidget(d->emptyResults);
+    body->addLayout(candidates, 1);
+    d->preview = new desktop::EquipmentDetailCard(d->popup);
+    d->preview->icon = [this](int id) { return RequestIcon(id).pixmap(32, 32); };
+    d->preview->setObjectName(QStringLiteral("equipmentCandidateDetails"));
+    d->preview->setOpenLinks(false);
+    d->preview->setMinimumSize(0, 0);
+    body->addWidget(d->preview, 3);
+    popupLayout->addLayout(body, 1);
+    auto *pickerHint = new QLabel(QStringLiteral("单击或回车选择 · Esc 取消"), d->popup);
+    pickerHint->setStyleSheet(QStringLiteral("color: #9ca8b8; font-size: 11px;"));
+    popupLayout->addWidget(pickerHint);
+    for (QWidget *widget : std::initializer_list<QWidget *>{d->catalog, d->search, d->preview, d->clear})
+        d->popup->Watch(widget);
+    d->popup->acceptChoice = [this] {
+        if (d->clear->hasFocus()) d->clear->click();
+        else EquipCandidate(d->catalog->currentItem());
+    };
+    connect(d->search, &QLineEdit::textChanged, this, &EquipmentPanel::FilterCandidates);
+    connect(d->clear, &QPushButton::clicked, this, [this] {
+        const QString slot = d->activeSlot;
+        d->popup->hide();
+        SetSlotItem(slot, {});
+    });
 
-    tabs->addTab(equipmentTab, QStringLiteral("装备"));
     const auto createIconList = [tabs](const QString &title) {
         auto *list = new QListWidget(tabs);
         list->setViewMode(QListView::IconMode);
@@ -192,7 +451,8 @@ void EquipmentPanel::BuildUi()
     d->skills = createIconList(QStringLiteral("技能"));
     d->talents = createIconList(QStringLiteral("奇穴"));
     d->recipes = createIconList(QStringLiteral("秘籍"));
-    root->addWidget(tabs, 1);
+    root->addWidget(equipmentTab);
+    root->addWidget(d->sourceLabel);
 }
 
 QString EquipmentPanel::FindSnapshotPath(const QString &requested)
@@ -215,6 +475,7 @@ QString EquipmentPanel::FindSnapshotPath(const QString &requested)
 
 void EquipmentPanel::LoadLatestData(const QString &snapshotPath)
 {
+    d->loaded = true;
     const QString path = FindSnapshotPath(snapshotPath);
     if (path.isEmpty()) {
         d->sourceLabel->setText(QStringLiteral("魔盒快照缺失"));
@@ -231,7 +492,7 @@ void EquipmentPanel::LoadLatestData(const QString &snapshotPath)
         d->sourceLabel->setText(QStringLiteral("快照格式错误"));
         return;
     }
-    d->sourceLabel->setText(QStringLiteral("魔盒 %1").arg(document.object().value(QStringLiteral("data_version")).toString()));
+    d->sourceLabel->setText(QStringLiteral("装备预览 · 魔盒 %1").arg(document.object().value(QStringLiteral("data_version")).toString()));
     PopulateFromSnapshot(document.object());
 }
 
@@ -240,7 +501,8 @@ QString EquipmentPanel::SlotForItem(const QJsonObject &item)
     const QString type = item.value(QStringLiteral("type")).toString();
     if (type == QStringLiteral("戒指")) return QStringLiteral("戒指1");
     if (type == QStringLiteral("腰坠") || type == QStringLiteral("项链")) return type;
-    if (type.contains(QStringLiteral("短兵")) || type == QStringLiteral("投掷") || type == QStringLiteral("武器")) return QStringLiteral("武器");
+    if (type == QStringLiteral("投掷")) return QStringLiteral("特殊");
+    if (type.contains(QStringLiteral("短兵")) || type == QStringLiteral("武器")) return QStringLiteral("武器");
     if (!type.isEmpty()) return type;
     const QString name = item.value(QStringLiteral("name")).toString();
     if (name.contains(QStringLiteral("腰坠"))) return QStringLiteral("腰坠");
@@ -256,6 +518,7 @@ QString EquipmentPanel::IconUrl(int iconId)
 
 void EquipmentPanel::PopulateFromSnapshot(const QJsonObject &snapshot)
 {
+    d->popup->hide();
     d->catalog->clear();
     d->effects->clear();
     d->skills->clear();
@@ -263,22 +526,13 @@ void EquipmentPanel::PopulateFromSnapshot(const QJsonObject &snapshot)
     d->recipes->clear();
     d->catalogData = snapshot.value(QStringLiteral("equipment_catalog")).toArray();
 
-    const auto addIconItem = [this](QListWidget *list, const QString &name,
-                                    const QString &description, int iconId) {
-        auto *entry = new QListWidgetItem(name, list);
-        entry->setToolTip(description);
-        entry->setIcon(QIcon(PlaceholderIcon(iconId)));
-        RequestIcon(iconId, [entry](const QPixmap &pixmap) {
-            if (!pixmap.isNull()) entry->setIcon(QIcon(pixmap));
-        });
-    };
     const auto skill = snapshot.value(QStringLiteral("skill")).toObject();
     const auto remarks = skill.value(QStringLiteral("remarks")).toArray();
     for (const auto &remarkValue : remarks) {
         const auto remark = remarkValue.toObject();
         for (const auto &skillValue : remark.value(QStringLiteral("forceSkills")).toArray()) {
             const auto item = skillValue.toObject();
-            addIconItem(d->skills,
+            AddIconItem(d->skills,
                         item.value(QStringLiteral("skillName")).toString(),
                         item.value(QStringLiteral("desc")).toString(),
                         item.value(QStringLiteral("icon")).toObject().value(QStringLiteral("FileName")).toString().split('/').last().remove(".png").toInt());
@@ -288,7 +542,7 @@ void EquipmentPanel::PopulateFromSnapshot(const QJsonObject &snapshot)
     for (const auto &levelValue : talent.value(QStringLiteral("kungfuLevel")).toArray()) {
         for (const auto &talentValue : levelValue.toObject().value(QStringLiteral("kungfuSkills")).toArray()) {
             const auto item = talentValue.toObject();
-            addIconItem(d->talents,
+            AddIconItem(d->talents,
                         QStringLiteral("%1\n第%2层").arg(item.value(QStringLiteral("name")).toString()).arg(item.value(QStringLiteral("level")).toInt()),
                         item.value(QStringLiteral("desc")).toString(),
                         item.value(QStringLiteral("icon")).toObject().value(QStringLiteral("FileName")).toString().split('/').last().remove(".png").toInt());
@@ -296,83 +550,36 @@ void EquipmentPanel::PopulateFromSnapshot(const QJsonObject &snapshot)
     }
     for (const auto &recipeValue : snapshot.value(QStringLiteral("recipe_catalog")).toArray()) {
         const auto item = recipeValue.toObject();
-        addIconItem(d->recipes,
+        AddIconItem(d->recipes,
                     item.value(QStringLiteral("name")).toString(),
                     item.value(QStringLiteral("description")).toString(),
                     item.value(QStringLiteral("icon_id")).toInt());
     }
 
-    QHash<QString, QStringList> sets;
-    QHash<QString, int> setIcons;
-    for (const auto &value : d->catalogData) {
-        const auto item = value.toObject();
-        auto *entry = new QListWidgetItem(item.value(QStringLiteral("name")).toString(), d->catalog);
-        entry->setData(Qt::UserRole, item);
-        const int iconId = item.value(QStringLiteral("icon_id")).toInt();
-        entry->setIcon(QIcon(PlaceholderIcon(iconId)));
-        entry->setToolTip(item.value(QStringLiteral("name")).toString());
-        RequestIcon(iconId, [entry](const QPixmap &pixmap) {
-            if (!pixmap.isNull()) entry->setIcon(QIcon(pixmap));
-        });
-        const auto set = item.value(QStringLiteral("set")).toObject();
-        const QString setName = set.value(QStringLiteral("name")).toString();
-        if (!setName.isEmpty()) {
-            sets[setName].append(item.value(QStringLiteral("name")).toString());
-            setIcons.insert(setName, iconId);
-        }
-        const auto diamonds = item.value(QStringLiteral("diamonds")).toArray();
-        for (const auto &diamond : diamonds) {
-            auto *effect = new QListWidgetItem(QStringLiteral("宝石\n%1").arg(diamond.toString()), d->effects);
-            effect->setIcon(QIcon(PlaceholderIcon(iconId)));
-            RequestIcon(iconId, [effect](const QPixmap &pixmap) {
-                if (!pixmap.isNull()) effect->setIcon(QIcon(pixmap));
-            });
-        }
-    }
-    QStringList summary;
-    for (auto it = sets.cbegin(); it != sets.cend(); ++it) {
-        QString text = QStringLiteral("%1（%2件候选）").arg(it.key()).arg(it.value().size());
-        for (const auto &value : d->catalogData) {
-            const auto set = value.toObject().value(QStringLiteral("set")).toObject();
-            if (set.value(QStringLiteral("name")).toString() != it.key()) continue;
-            const auto attrs = set.value(QStringLiteral("attributes")).toObject();
-            QStringList bonuses;
-            for (auto bonus = attrs.begin(); bonus != attrs.end(); ++bonus)
-                bonuses << QStringLiteral("%1件：%2").arg(bonus.key(), bonus.value().toString());
-            if (!bonuses.isEmpty()) text += QStringLiteral("\n") + bonuses.join(QStringLiteral("；"));
-            break;
-        }
-        summary << text;
-    }
-    d->setSummary->setText(summary.isEmpty() ? QStringLiteral("当前候选暂无套装标签") : summary.join(QStringLiteral("\n")));
-    for (auto it = sets.cbegin(); it != sets.cend(); ++it) {
-        auto *setItem = new QListWidgetItem(QStringLiteral("套装\n%1").arg(it.key()), d->effects);
-        const int iconId = setIcons.value(it.key());
-        setItem->setIcon(QIcon(PlaceholderIcon(iconId)));
-        RequestIcon(iconId, [setItem](const QPixmap &pixmap) {
-            if (!pixmap.isNull()) setItem->setIcon(QIcon(pixmap));
-        });
-    }
+    UpdateEffects();
 }
 
 void EquipmentPanel::EquipCandidate(QListWidgetItem *item)
 {
     if (!item) return;
     const auto object = item->data(Qt::UserRole).toJsonObject();
-    const QString slot = SlotForItem(object);
-    if (slot == QStringLiteral("戒指1") && d->loadout.contains(QStringLiteral("戒指1"))) {
-        SetSlotItem(QStringLiteral("戒指2"), object);
-    } else {
-        SetSlotItem(slot, object);
-    }
-    emit LoadoutChanged(Loadout());
+    const QString slot = d->activeSlot;
+    d->popup->hide();
+    SetSlotItem(slot, object);
 }
 
 void EquipmentPanel::SetSlotItem(const QString &slot, const QJsonObject &item)
 {
     if (!d->slotButtons.contains(slot)) return;
-    d->loadout.insert(slot, item);
+    const bool changed = d->loadout.value(slot) != item;
+    if (item.isEmpty()) d->loadout.remove(slot);
+    else d->loadout.insert(slot, item);
     UpdateSlotButton(slot);
+    d->selectedLabel->setText(slot + QStringLiteral("：") + (item.isEmpty() ? QStringLiteral("未装备") : item.value("name").toString()));
+    d->viewDetails->setEnabled(!item.isEmpty());
+    d->details->setHtml(ItemDetails(item, slot));
+    UpdateEffects();
+    if (changed) emit LoadoutChanged(Loadout());
 }
 
 void EquipmentPanel::UpdateSlotButton(const QString &slot)
@@ -382,14 +589,108 @@ void EquipmentPanel::UpdateSlotButton(const QString &slot)
     const auto item = d->loadout.value(slot);
     const QString name = item.value(QStringLiteral("name")).toString();
     const int iconId = item.value(QStringLiteral("icon_id")).toInt();
-    button->setText(slot + QStringLiteral("\n") + (name.isEmpty() ? QStringLiteral("未装备") : name.left(7)));
-    button->setIcon(QIcon(PlaceholderIcon(iconId)));
+    button->setText(slot);
+    button->setAccessibleName(slot + QStringLiteral("：") + (name.isEmpty() ? QStringLiteral("未装备") : name));
+    button->setToolTip(ItemDetails(item, slot));
+    button->setIcon(item.isEmpty() ? QIcon(EmptySlotIcon(slot)) : RequestIcon(iconId));
     button->setStyleSheet(QStringLiteral(
-        "QToolButton { color: %1; background: #202631; border: 1px solid #b58a43; border-radius: 4px; padding: 2px; }"
-        "QToolButton:hover { background: #2b3442; }").arg(QualityColor(item.value(QStringLiteral("quality")).toInt())));
-    RequestIcon(iconId, [button](const QPixmap &pixmap) {
-        if (!pixmap.isNull()) button->setIcon(QIcon(pixmap));
-    });
+        "QToolButton { background: #202631; border: 1px solid %1; border-radius: 4px; padding: 2px; }"
+        "QToolButton:hover, QToolButton:focus { background: #2b3442; border: 1px solid #f4c76b; }"
+        "QToolButton:checked { background: #34443e; border: 2px solid #85bfa8; }")
+        .arg(item.isEmpty() ? QStringLiteral("#536071") : QualityColor(item.value("quality").toInt())));
+}
+
+void EquipmentPanel::OpenSlot(const QString &slot)
+{
+    if (d->popup->isVisible() && d->activeSlot == slot) {
+        d->popup->hide();
+        return;
+    }
+    d->popup->hide();
+    d->detailsPopup->hide();
+    d->activeSlot = slot;
+    const auto equipped = d->loadout.value(slot);
+    d->selectedLabel->setText(slot + QStringLiteral("：") + (equipped.isEmpty() ? QStringLiteral("未装备") : equipped.value("name").toString()));
+    d->viewDetails->setEnabled(!equipped.isEmpty());
+    d->details->setHtml(ItemDetails(d->loadout.value(slot), slot));
+    d->clear->setEnabled(d->loadout.contains(slot));
+    const QSignalBlocker blocker(d->search);
+    d->search->clear();
+    FilterCandidates();
+    d->popup->Open(d->slotButtons.value(slot), {980, 720}, d->catalog, desktop::ChoicePopup::Beside);
+    d->catalog->scrollToItem(d->catalog->currentItem());
+}
+
+void EquipmentPanel::FilterCandidates()
+{
+    d->catalog->clear();
+    const QString filter = d->search->text().trimmed();
+    const QString type = d->activeSlot == QStringLiteral("戒指2") ? QStringLiteral("戒指1") : d->activeSlot;
+    QListWidgetItem *selected = nullptr;
+    for (const auto &value : d->catalogData) {
+        const auto item = value.toObject();
+        if (SlotForItem(item) != type) continue;
+        const QString details = ItemDetails(item, d->activeSlot);
+        QTextDocument searchable;
+        searchable.setHtml(details);
+        if (!filter.isEmpty() && !(searchable.toPlainText() + item.value("magic_type").toString()).contains(filter, Qt::CaseInsensitive)) continue;
+        AddIconItem(d->catalog, item.value("name").toString(), details, item.value("icon_id").toInt());
+        auto *entry = d->catalog->item(d->catalog->count() - 1);
+        entry->setData(Qt::UserRole, item);
+        if (item == d->loadout.value(d->activeSlot)) selected = entry;
+    }
+    d->pickerTitle->setText(QStringLiteral("%1 · %2 件候选").arg(d->activeSlot).arg(d->catalog->count()));
+    d->emptyResults->setVisible(d->catalog->count() == 0);
+    d->catalog->setCurrentItem(selected ? selected : d->catalog->item(0));
+    if (!d->catalog->count())
+        d->preview->setHtml(QStringLiteral("<p>没有匹配的装备，请尝试其他名称或属性。</p>"));
+}
+
+QString EquipmentPanel::ItemDetails(const QJsonObject &item, const QString &slot) const
+{
+    return desktop::EquipmentDetailCard::Html(item, Loadout().value("items").toObject(), slot);
+}
+
+void EquipmentPanel::UpdateEffects()
+{
+    d->effects->clear();
+    QMap<QString, QList<QString>> sets;
+    int socketsCount = 0;
+    for (const auto &slot : kSlots) {
+        const auto item = d->loadout.value(slot);
+        const auto name = item.value("set").toObject().value("name").toString();
+        if (!name.isEmpty()) sets[name].append(slot);
+        const auto sockets = SocketLabels(item.value("diamonds"));
+        socketsCount += sockets.size();
+        if (!sockets.isEmpty()) AddIconItem(d->effects, slot + QStringLiteral("镶嵌"), sockets.join('\n'), item.value("icon_id").toInt());
+    }
+    QStringList summary;
+    for (auto it = sets.cbegin(); it != sets.cend(); ++it) {
+        const auto item = d->loadout.value(it.value().first());
+        const auto bonuses = item.value("set").toObject().value("attributes").toObject();
+        QStringList lines{QStringLiteral("%1 · 已装备 %2 件").arg(it.key()).arg(it.value().size())};
+        for (auto bonus = bonuses.begin(); bonus != bonuses.end(); ++bonus)
+            lines << QStringLiteral("%1件：%2（%3）").arg(bonus.key(), bonus.value().toString(),
+                bonus.key().toInt() > 0 && it.value().size() >= bonus.key().toInt() ? QStringLiteral("已激活") : QStringLiteral("未激活"));
+        summary << lines.first();
+        AddIconItem(d->effects, QStringLiteral("套装 %1 件").arg(it.value().size()), lines.join('\n'), item.value("icon_id").toInt());
+    }
+    d->setSummary->setText(summary.isEmpty() ? QStringLiteral("尚未装备套装") : summary.join(QStringLiteral("；")));
+    d->equippedCount->setText(QStringLiteral("%1 / 12").arg(d->loadout.size()));
+    d->effectsToggle->setText(QStringLiteral("套装 %1 · 镶嵌 %2").arg(sets.size()).arg(socketsCount));
+    d->effectsToggle->setVisible(d->effects->count() > 0);
+    d->effectsContent->setVisible(d->effects->count() > 0 && d->effectsToggle->isChecked());
+    d->effects->setVisible(d->effects->count() > 0);
+    for (const auto &slot : kSlots)
+        d->slotButtons.value(slot)->setToolTip(ItemDetails(d->loadout.value(slot), slot));
+}
+
+void EquipmentPanel::AddIconItem(QListWidget *list, const QString &name, const QString &description, int iconId)
+{
+    auto *entry = new QListWidgetItem(name, list);
+    entry->setToolTip(description);
+    entry->setData(Qt::UserRole + 1, iconId);
+    entry->setIcon(RequestIcon(iconId));
 }
 
 QJsonObject EquipmentPanel::Loadout() const
@@ -401,30 +702,28 @@ QJsonObject EquipmentPanel::Loadout() const
     return result;
 }
 
-void EquipmentPanel::RequestIcon(int iconId, const std::function<void(const QPixmap &)> &ready)
+QIcon EquipmentPanel::RequestIcon(int iconId)
 {
-    if (iconId <= 0) return;
+    if (iconId <= 0) return QIcon(PlaceholderIcon(0));
     const QString key = QString::number(iconId);
+    if (d->iconCache.contains(key)) return QIcon(d->iconCache.value(key));
     const QString localPath = QStringLiteral(":/resources/images/JX3/Icons/%1.png").arg(iconId);
     const QPixmap local(localPath);
     if (!local.isNull()) {
-        ready(local);
         d->iconCache.insert(key, local);
-        return;
+        return QIcon(local);
     }
-    if (d->iconCache.contains(key)) {
-        ready(d->iconCache.value(key));
-        return;
-    }
-    d->iconWaiters[key].append(ready);
     bool pending = false;
     for (auto it = d->replies.cbegin(); it != d->replies.cend(); ++it) {
         if (it.value() == key) { pending = true; break; }
     }
     if (!pending) {
-        auto *reply = d->network.get(QNetworkRequest(QUrl(IconUrl(iconId))));
+        QNetworkRequest request(QUrl(IconUrl(iconId)));
+        request.setTransferTimeout(15000);
+        auto *reply = d->network.get(request);
         d->replies.insert(reply, key);
     }
+    return QIcon(PlaceholderIcon(iconId));
 }
 
 void EquipmentPanel::IconDownloaded(QNetworkReply *reply)
@@ -432,7 +731,14 @@ void EquipmentPanel::IconDownloaded(QNetworkReply *reply)
     const QString key = d->replies.take(reply);
     const QPixmap pixmap = QPixmap::fromImage(QImage::fromData(reply->readAll()));
     reply->deleteLater();
-    if (!pixmap.isNull()) d->iconCache.insert(key, pixmap);
-    const auto waiters = d->iconWaiters.take(key);
-    for (const auto &waiter : waiters) waiter(pixmap);
+    if (pixmap.isNull()) return;
+    d->iconCache.insert(key, pixmap);
+    // Refresh only live entries: filtering or reloading may have deleted the original item.
+    for (auto *list : {d->catalog, d->effects, d->skills, d->talents, d->recipes})
+        for (int row = 0; row < list->count(); ++row)
+            if (list->item(row)->data(Qt::UserRole + 1).toInt() == key.toInt()) list->item(row)->setIcon(QIcon(pixmap));
+    for (auto it = d->slotButtons.cbegin(); it != d->slotButtons.cend(); ++it)
+        if (d->loadout.value(it.key()).value("icon_id").toInt() == key.toInt()) it.value()->setIcon(QIcon(pixmap));
+    d->details->RefreshIcon(key.toInt(), pixmap);
+    d->preview->RefreshIcon(key.toInt(), pixmap);
 }

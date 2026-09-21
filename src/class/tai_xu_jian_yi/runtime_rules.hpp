@@ -45,9 +45,12 @@ public:
     const Prepared &Data() const { return *prepared_; }
     std::uint16_t CurrentProfile() const { return profile_; }
     int CurrentCriticalBonus() const { return you_ren_crit_basis_points_; }
+    const team::Modifiers &CurrentTeamModifiers() const { return team_modifiers_; }
+    const AttributeVersions<AttributeVersion> &Versions() const { return versions_; }
     const std::array<FieldInstance, 3> &Fields() const { return fields_; }
 
     template <typename Engine> void Setup(Engine &e) {
+        versions_.Reserve(Data().config.attribute_version_capacity);
         auto &s = e.MutableState();
         if (s.skill_ready_at.size() != SkillCount || s.self_buff_stacks.size() != BuffCount)
             throw std::invalid_argument("macro was not compiled for the Tai Xu ruleset");
@@ -55,12 +58,12 @@ public:
             throw std::invalid_argument("damage capacity and attributes could overflow the fight total");
         for (Slot skill : CastableSkills) {
             if (UsesGcd(skill)) s.skill_gcd_group[skill] = 0;
-            cooldown_[skill] = e.Timers().Create({TimerKind::SkillCooldown, skill}, 0);
-            casting_[skill] = e.Timers().Create({TimerKind::SkillCasting, skill}, 0);
+            cooldown_[skill] = e.Timers().Create({TimerKind::SkillCooldown, skill}, 2);
+            casting_[skill] = e.Timers().Create({TimerKind::SkillCasting, skill}, 2);
         }
         for (Slot skill = SuiXing; skill <= TunRi; ++skill)
-            prepare_[skill-SuiXing] = e.Timers().Create({TimerKind::SkillPrepare, skill}, 0);
-        jinghua_prepare_ = e.Timers().Create({TimerKind::SkillPrepare, JingHua}, 0);
+            prepare_[skill-SuiXing] = e.Timers().Create({TimerKind::SkillPrepare, skill}, 2);
+        jinghua_prepare_ = e.Timers().Create({TimerKind::SkillPrepare, JingHua}, 2);
         for (Slot slot = 0; slot < fields_.size(); ++slot)
             field_timers_[slot] = e.Timers().Create({TimerKind::Field, slot}, 5);
         for (Slot buff : {SuiXingBuff, TunRiBuff, QiShengBuff, ChiYingBuff, XuanMenBuff, LieYunBuff, JianRuBuff})
@@ -80,7 +83,7 @@ public:
         yunz_timers_[0] = e.Timers().Create({TimerKind::BuffInterval, YunZhongSuiXingBuff}, 12);
         yunz_timers_[1] = e.Timers().Create({TimerKind::BuffInterval, YunZhongShengTaiBuff}, 12);
         yunz_timers_[2] = e.Timers().Create({TimerKind::BuffInterval, YunZhongTunRiBuff}, 12);
-        gcd_ = e.Timers().Create({TimerKind::MacroWake}, 0);
+        gcd_ = e.Timers().Create({TimerKind::MacroWake}, 2);
         natural_qidian_ = e.Timers().Create({TimerKind::ResourceRegen}, 19);
         // Each Buff executes its last tick before clearing. Independent buffs
         // have a stable order; cross-buff legacy container order is not assumed.
@@ -89,12 +92,27 @@ public:
         purple_tick_ = e.Timers().Create({TimerKind::BuffInterval, Purple}, 20);
         purple_expire_ = e.Timers().Create({TimerKind::BuffDuration, Purple}, 21);
         feng_expire_ = e.Timers().Create({TimerKind::BuffDuration, FengShi}, 30);
+        team_application_ = e.Timers().Create({TimerKind::TeamApplication}, 0);
+        team_drum_ = e.Timers().Create({TimerKind::BuffInterval, static_cast<Slot>(TeamBuffBegin + static_cast<Slot>(team::HaoLingSanJun))}, 1);
+        for (Slot i=0; i<team::Count; ++i)
+            buff_expire_[TeamBuffBegin+i] = e.Timers().Create({TimerKind::BuffDuration,
+                static_cast<Slot>(TeamBuffBegin+i), team::Definitions[i].target}, 1);
     }
     template <typename Engine> void Reset(Engine &e, std::uint64_t seed) {
         auto &s = e.MutableState();
         rng_.Reset(seed);
         dot_snapshot_ = renjian_snapshot_ = 0;
         profile_ = 0;
+        versions_.Clear();
+        if (++damage_generation_ == 0) {
+            damage_cache_.fill({});
+            damage_generation_ = 1;
+        }
+        team_modifiers_ = {};
+        team_generation_ = captured_generation_ = 0;
+        team_cursor_ = 0;
+        if (!Data().config.team_buffs.empty())
+            e.Timers().ArmAt(team_application_, Data().config.team_buffs.front().frame);
         you_ren_crit_basis_points_ = 0;
         recharge_at_ = 0;
         weapon_cw_ready_at_ = 16 * 30;
@@ -207,7 +225,20 @@ public:
     }
     template <typename Engine> void OnTimer(Engine &e, TimerHandle handle, DeadlineQueue::TimerId) {
         auto &s = e.MutableState();
-        if (handle.kind == TimerKind::ResourceRegen) {
+        if (handle.kind == TimerKind::TeamApplication) {
+            const auto &schedule = Data().config.team_buffs;
+            while (team_cursor_ < schedule.size() && schedule[team_cursor_].frame == s.now)
+                ApplyTeam(e, schedule[team_cursor_++]);
+            if (team_cursor_ < schedule.size()) e.Timers().ArmAt(team_application_, schedule[team_cursor_].frame);
+        } else if (handle.kind == TimerKind::BuffInterval && handle.slot >= TeamBuffBegin) {
+            const auto old = s.self_buff_stacks[handle.slot];
+            const auto remaining = old / 2;
+            team_modifiers_.Add(team::Definitions[team::HaoLingSanJun].modifiers, remaining-old);
+            ++team_generation_;
+            SetBuff(s, e.Log(), false, handle.slot, s.self_buff_expires_at[handle.slot], 0, remaining);
+        } else if (handle.kind == TimerKind::BuffDuration && handle.slot >= TeamBuffBegin) {
+            ApplyTeam(e, {static_cast<team::Kind>(handle.slot-TeamBuffBegin), s.now, 0, 0});
+        } else if (handle.kind == TimerKind::ResourceRegen) {
             if (s.qidian < 10) QidianAt(e, s.qidian + 1);
             e.Timers().ArmAt(natural_qidian_, s.now + 16);
         } else if (handle.kind == TimerKind::SkillPrepare && handle.slot == JingHua) {
@@ -299,7 +330,14 @@ public:
         }
     }
     value_t Reduce(const DamageIntent &hit) const {
-        return Data().damage[hit.snapshot][hit.effect][static_cast<unsigned>(hit.outcome)];
+        const auto effect_roll = static_cast<std::uint32_t>(hit.effect)*2 + (hit.outcome == RollResult::DOUBLE);
+        const auto index = (hit.snapshot_version*0x9e3779b1u ^ hit.live_version*0x85ebca6bu ^ effect_roll*17u) & (damage_cache_.size()-1);
+        auto &cached = damage_cache_[index];
+        if (cached.generation == damage_generation_ && cached.snapshot == hit.snapshot_version &&
+            cached.live == hit.live_version && cached.effect_roll == effect_roll) return cached.damage;
+        const auto damage = Data().Damage(versions_[hit.snapshot_version], versions_[hit.live_version], hit.effect, hit.outcome == RollResult::DOUBLE);
+        cached = {damage_generation_, hit.snapshot_version, hit.live_version, effect_roll, damage};
+        return damage;
     }
     value_t Reduce(const DamageIntent &hit, const State &) const { return Reduce(hit); }
 
@@ -310,34 +348,61 @@ private:
         if constexpr (requires { Rng::UnitSample(key); }) return Rng::UnitSample(key);
         else return static_cast<double>(key >> 11) * 0x1.0p-53;
     }
-    Rolled Roll(std::uint16_t effect, std::uint16_t snapshot) {
+    Rolled Roll(std::uint16_t effect, AttributeVersionId snapshot) {
         const auto key = rng_.Next();
         const auto sample = UnitSample(key);
-        const auto chance = Data().critical_chance[ChanceProfile(snapshot)][effect]
+        const auto &version = versions_[snapshot];
+        const auto chance = version.critical_chance + Data().chance_bonus[effect]
             + you_ren_crit_basis_points_ * 1.0 / 10000;
         return {key, sample < chance ? RollResult::DOUBLE : RollResult::HIT};
     }
-    // Attribute profile changes only on aura transitions, never per hit.
-    std::uint16_t Snapshot(const State &) const { return profile_; }
+    AttributeVersionId Snapshot(const State &) {
+        if (!versions_.Size() || versions_[current_version_].profile != profile_ || captured_generation_ != team_generation_) {
+            current_version_ = versions_.Append(Data().Resolve(profile_, team_modifiers_));
+            captured_generation_ = team_generation_;
+        }
+        return current_version_;
+    }
     static std::uint16_t DotEffect(int stacks, int count) {
         return static_cast<std::uint16_t>(DieRenEffect + (stacks-1)*9 + count);
     }
-    template <typename Engine> void Record(Engine &e, std::uint16_t effect, std::uint16_t snapshot,
+    template <typename Engine> void Record(Engine &e, std::uint16_t effect, AttributeVersionId snapshot,
                                             Rolled roll, int level = -1, int sub = -1) {
         const auto &f = Formulas[effect];
+        const auto live = Snapshot(e.GetState());
+        const auto profile = static_cast<std::uint16_t>((versions_[snapshot].profile & ~LiveProfileMask) |
+            (versions_[live].profile & LiveProfileMask));
         e.Log().Record(e.GetState().now, f.skill, f.kind == FormulaKind::Zero ? INVALID_SLOT : 0,
-            static_cast<std::uint16_t>(level < 0 ? f.level : level), roll.key, 0, 0, roll.outcome, effect, snapshot,
-            static_cast<std::uint16_t>(sub < 0 ? f.sub : sub));
+            static_cast<std::uint16_t>(level < 0 ? f.level : level), roll.key, 0, 0, roll.outcome, effect, profile,
+            static_cast<std::uint16_t>(sub < 0 ? f.sub : sub), snapshot, live);
     }
-    template <typename Engine> RollResult Hit(Engine &e, std::uint16_t effect, std::uint16_t snapshot, int level = -1, int sub = -1) {
+    template <typename Engine> RollResult Hit(Engine &e, std::uint16_t effect, AttributeVersionId snapshot, int level = -1, int sub = -1) {
         const auto roll = Roll(effect, snapshot);
         Record(e, effect, snapshot, roll, level, sub);
         return roll.outcome;
     }
-    template <typename Engine> void DotHit(Engine &e, std::uint16_t effect, std::uint16_t snapshot, int sub = -1) {
+    template <typename Engine> void DotHit(Engine &e, std::uint16_t effect, AttributeVersionId snapshot, int sub = -1) {
         // Crit chance is snapshotted, while overcome and shield ignore are live.
         const auto roll = Roll(effect, snapshot);
-        Record(e, effect, (snapshot & ~LiveProfileMask) | (profile_ & LiveProfileMask), roll, -1, sub);
+        Record(e, effect, snapshot, roll, -1, sub);
+    }
+    template <typename Engine> void ApplyTeam(Engine &e, const team::Application &app) {
+        auto &s = e.MutableState();
+        const auto slot = static_cast<Slot>(TeamBuffBegin+static_cast<Slot>(app.kind));
+        const auto &d = team::Definitions[app.kind];
+        const auto old = d.target ? s.target_buff_stacks[slot] : s.self_buff_stacks[slot];
+        if (app.kind == team::HaoLingSanJun && old && app.stacks) return;
+        team_modifiers_.Add(d.modifiers, app.stacks-old);
+        if (app.stacks != old) ++team_generation_;
+        const auto expiry = app.stacks ? s.now + (app.duration ? app.duration : d.duration) : 0;
+        const auto next = app.kind == team::HaoLingSanJun && app.stacks ? s.now+480 : 0;
+        SetBuff(s, e.Log(), d.target, slot, expiry, next, app.stacks);
+        if (app.kind == team::HaoLingSanJun) {
+            if (next) e.Timers().ArmAt(team_drum_, next);
+            else e.Timers().Cancel(team_drum_);
+        }
+        if (app.stacks) e.Timers().ArmAt(buff_expire_[slot], expiry);
+        else e.Timers().Cancel(buff_expire_[slot]);
     }
     template <typename Engine> void QidianAt(Engine &e, int qidian) {
         auto &s = e.MutableState();
@@ -405,7 +470,7 @@ private:
         const auto expiry = next + Data().dot_interval * 9;
         const auto stacks = std::min(3, s.target_buff_stacks[WanXiangBuff] + 1);
         SetBuff(s, e.Log(), true, WanXiangBuff, expiry, next, stacks);
-        wanxiang_snapshot_ = Snapshot(s) & ~LiveGuChangProfile;
+        wanxiang_snapshot_ = Snapshot(s);
         e.Timers().ArmAt(wanxiang_tick_, next);
         e.Timers().ArmAt(wanxiang_expire_, expiry);
     }
@@ -425,7 +490,7 @@ private:
         const auto expiry = next + static_cast<tick_t>(48*Data().haste*7);
         SetBuff(s, e.Log(), true, DieRen, expiry, next, std::min(Data().dot_max_stacks, s.target_buff_stacks[DieRen] + stacks));
         UpdateLieYun(e); // The immediate threshold proc precedes the new DOT snapshot.
-        dot_snapshot_ = Snapshot(s) & ~LiveGuChangProfile;
+        dot_snapshot_ = Snapshot(s);
         e.Timers().ArmAt(dot_tick_, next);
         e.Timers().ArmAt(dot_expire_, expiry);
     }
@@ -641,7 +706,7 @@ private:
         const auto next = s.now + Data().dot_interval;
         const auto expiry = next + static_cast<tick_t>(48*Data().haste*3);
         SetBuff(s, e.Log(), true, RenJianDot, expiry, next, 1);
-        renjian_snapshot_ = Snapshot(s) & ~LiveGuChangProfile;
+        renjian_snapshot_ = Snapshot(s);
         e.Timers().ArmAt(renjian_tick_, next);
         e.Timers().ArmAt(renjian_expire_, expiry);
     }
@@ -769,7 +834,19 @@ private:
     std::array<DeadlineQueue::TimerId, 3> yunz_timers_{};
     tick_t recharge_at_ = 0;
     tick_t weapon_cw_ready_at_ = 0;
-    std::uint16_t dot_snapshot_ = 0, renjian_snapshot_ = 0, wanxiang_snapshot_ = 0;
+    AttributeVersionId dot_snapshot_ = 0, renjian_snapshot_ = 0, wanxiang_snapshot_ = 0, current_version_ = 0;
+    AttributeVersions<AttributeVersion> versions_;
+    struct DamageCacheEntry {
+        std::uint32_t generation = 0, snapshot = 0, live = 0, effect_roll = 0;
+        value_t damage = 0;
+    };
+    // Direct-mapped, bounded and worker-local. Full keys make collisions harmless.
+    mutable std::array<DamageCacheEntry, 1024> damage_cache_{};
+    std::uint32_t damage_generation_ = 0;
+    team::Modifiers team_modifiers_{};
+    std::uint32_t team_generation_ = 0, captured_generation_ = 0;
+    DeadlineQueue::TimerId team_application_{}, team_drum_{};
+    std::size_t team_cursor_ = 0;
     tick_t jianru_tick_at_ = std::numeric_limits<tick_t>::max();
     std::uint16_t profile_ = 0;
     int you_ren_crit_basis_points_ = 0;

@@ -19,6 +19,7 @@ struct DamageIntent {
     std::uint16_t effect = 0;
     std::uint16_t snapshot = 0;
     std::uint16_t sub = 0;
+    std::uint32_t snapshot_version = 0, live_version = 0;
     bool operator==(const DamageIntent &) const = default;
 };
 
@@ -52,9 +53,9 @@ public:
     void Record(tick_t frame, Slot skill, Slot target, std::uint16_t level,
                 std::uint64_t random_key, value_t base, cof_t coefficient,
                 RollResult outcome = RollResult::HIT, std::uint16_t effect = 0, std::uint16_t snapshot = 0,
-                std::uint16_t sub = 0) {
+                std::uint16_t sub = 0, std::uint32_t snapshot_version = 0, std::uint32_t live_version = 0) {
         CheckCapacity(intents_);
-        intents_.push_back({frame, Sequence(frame), skill, target, level, outcome, random_key, base, coefficient, effect, snapshot, sub});
+        intents_.push_back({frame, Sequence(frame), skill, target, level, outcome, random_key, base, coefficient, effect, snapshot, sub, snapshot_version, live_version});
     }
     void RecordBuff(tick_t frame, bool target, Slot slot, tick_t expires_at, tick_t tick_at, int stacks) {
         CheckCapacity(mutations_);

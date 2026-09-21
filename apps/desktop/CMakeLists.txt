@@ -71,7 +71,7 @@ set(SOURCE_FILES
 add_library(DesktopWorkbench STATIC ${HEADER_FILES} ${SOURCE_FILES})
 target_include_directories(DesktopWorkbench PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(DesktopWorkbench PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Frameless Theme CodeEditor Timeline PlayerStatePanel Resources EquipmentPanel Qt${QT_VERSION_MAJOR}::Network)
-target_compile_features(DesktopWorkbench PUBLIC cxx_std_20)
+target_compile_features(DesktopWorkbench PUBLIC cxx_std_26)
 if(JX3DPS_DESKTOP_TESTS)
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
     add_executable(desktop_tests ${CMAKE_SOURCE_DIR}/tests/desktop/desktop_tests.cpp)

@@ -29,9 +29,9 @@ inline ActorAttributes CurrentAttributes(const rt::tai_xu::Rules &rules)
 {
     const auto &data    = rules.Data();
     const auto  profile = rules.CurrentProfile();
-    return AttributesFromInput(data.Input(rt::tai_xu::ZeroEffect, profile),
+    return AttributesFromInput(data.Input(rt::tai_xu::ZeroEffect, profile, rules.CurrentTeamModifiers()),
                                data.config.attributes.weapon,
-                               data.Chance(rt::tai_xu::ZeroEffect, profile) + rules.CurrentCriticalBonus() / 10000.0,
+                               data.Chance(rt::tai_xu::ZeroEffect, profile, rules.CurrentTeamModifiers().crit_basis_points) + rules.CurrentCriticalBonus() / 10000.0,
                                data.haste);
 }
 

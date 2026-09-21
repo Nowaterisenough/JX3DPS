@@ -134,12 +134,13 @@ from silently misordering same-frame effects. Reduction starts from the initial
 state, replays mutations before each hit, and sets the exact hit frame. The final
 live arrays are never used as a substitute for historical state.
 
-The current mutation schema covers Buff state, resources and cooldowns. Before
-real rules are connected, add all additional mutable damage inputs, target state
-and DOT snapshot identities required by those rules. An application-time DOT
-snapshot is not interchangeable with state at a later tick. This version supports
-one self and one current target; multi-target ownership and switching are still
-migration requirements.
+The generic replay path covers Buff state, resources, cooldowns and casting.
+Tai Xu now uses immutable, fight-local attribute versions instead of replaying
+mutations for damage. Each DOT holds one version ID and each damage event holds
+both snapshot and live version IDs. The rules select historical/live attributes
+individually and retain immediate causal rolls. See [team buff versions](team_buff_versions.md).
+There is one self and one current target; multi-target ownership and switching
+remain migration requirements.
 
 Buffers have explicit capacities. Exhaustion raises an error; it never silently
 drops a hit or reallocates in the hot loop. A production boundary may grow buffers
@@ -154,6 +155,8 @@ mutations and caching derived attributes when their inputs change should be
 measured next. For cheap formulas, an immediate accumulation policy may win.
 
 ## Batches and reproducibility
+
+太虚剑意和莫问共用 `Simulation<Rules>`、宏执行器、调度器、事件日志、批处理 worker 和伤害归约框架。心法适配器只负责装载本心法的技能、Buff、奇穴、秘籍、属性快照和公式；配置在边界通过 `std::variant` 选择适配器，进入模拟后不再复制公共执行流程。属性收益也使用同一入口：会心、无双、加速重新运行时间轴，其他属性复用已记录的伤害节点重算数值。
 
 `RunBatch<Rules>` compiles no macro and constructs no simulator per iteration.
 Each worker owns one reusable simulator, scheduler, initial state, reduction

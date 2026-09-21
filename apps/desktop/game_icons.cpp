@@ -6,10 +6,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QListView>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QScreen>
 #include <QStyledItemDelegate>
+#include <QVBoxLayout>
 
+#include "controls/choice_popup.h"
 #include "resources/resources.h"
 
 static void InitIconData()
@@ -101,6 +104,19 @@ QIcon GameIcon(int id)
 QIcon GameIcon(Specialization specialization, const QString &name)
 {
     const auto entry = Entry(specialization, name);
+    if (entry.isEmpty() && specialization == Specialization::TaiXu) {
+        for (const auto &buff : rt::tai_xu::team::Definitions) {
+            if (name != QString::fromUtf8(buff.name.data(), buff.name.size())) continue;
+            // Team effects without a verified game icon use a named tile.
+            QPixmap tile(32, 32);
+            tile.fill(QColor(46, 64, 72));
+            QPainter painter(&tile);
+            painter.setPen(QColor(225, 233, 235));
+            painter.drawText(tile.rect(), Qt::AlignCenter, name.left(1));
+            painter.end();
+            return QIcon(tile);
+        }
+    }
     return entry.isEmpty() ? QIcon{} : GameIcon(entry.value("Icon").toInt());
 }
 
@@ -137,17 +153,27 @@ IconComboBox::IconComboBox(const QString &category, QWidget *parent) : QComboBox
     setAccessibleName(category);
     setFixedSize(sizeHint());
     setCursor(Qt::PointingHandCursor);
-    auto *choices = new QListView(this);
+    m_popup = new ChoicePopup(this);
+    auto *layout = new QVBoxLayout(m_popup);
+    layout->setContentsMargins(2, 2, 2, 2);
+    auto *choices = m_choices = new QListView(m_popup);
+    choices->setObjectName(QStringLiteral("iconChoices"));
     choices->setViewMode(QListView::IconMode);
     choices->setMovement(QListView::Static);
     choices->setResizeMode(QListView::Adjust);
     choices->setGridSize({ 48, 48 });
     choices->setUniformItemSizes(true);
-    choices->setMinimumWidth(250);
+    choices->setFrameShape(QFrame::NoFrame);
     choices->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     choices->setItemDelegate(new IconChoiceDelegate(choices));
+    // Keep QComboBox::view() compatible for keyboard/configuration callers;
+    // the view itself is still hosted by our pre-laid-out popup.
     setView(choices);
-    setMaxVisibleItems(12);
+    choices->setParent(m_popup);
+    layout->addWidget(choices);
+    m_popup->Watch(choices);
+    m_popup->acceptChoice = [this] { AcceptChoice(); };
+    connect(choices, &QListView::clicked, this, [this] { AcceptChoice(); });
     connect(this, &QComboBox::currentIndexChanged, this, [this, category] {
         setToolTip(category + QStringLiteral("：") + currentText() + '\n' + currentData(Qt::ToolTipRole).toString());
     });
@@ -173,17 +199,54 @@ void IconComboBox::paintEvent(QPaintEvent *)
 
 void IconComboBox::showPopup()
 {
-    view()->setFixedHeight(std::max(1, (count() + 4) / 5) * 48 + 2);
-    QComboBox::showPopup();
-    auto *popup = view()->window();
-    popup->setFixedHeight(view()->height() + 2);
-    const auto available = screen()->availableGeometry();
-    auto       origin    = mapToGlobal(QPoint(0, height()));
-    if (origin.y() + popup->height() > available.bottom()) {
-        origin.setY(mapToGlobal(QPoint()).y() - popup->height());
-    }
-    origin.setX(std::clamp(origin.x(), available.left(), std::max(available.left(), available.right() - popup->width() + 1)));
-    popup->move(origin);
-    view()->scrollTo(model()->index(currentIndex(), modelColumn()));
+    if (!isEnabled() || count() == 0 || m_popup->isVisible()) return;
+    m_choices->setModel(model());
+    m_choices->setRootIndex(rootModelIndex());
+    m_choices->setModelColumn(modelColumn());
+    const auto selected = model()->index(currentIndex(), modelColumn(), rootModelIndex());
+    m_choices->setCurrentIndex(selected);
+    m_popup->Open(this, { 260, std::min(6, std::max(1, (count() + 4) / 5)) * 48 + 4 }, m_choices);
+    m_choices->scrollTo(selected);
+}
+
+void IconComboBox::hidePopup()
+{
+    m_popup->hide();
+}
+
+void IconComboBox::AcceptChoice()
+{
+    const auto index = m_choices->currentIndex();
+    if (!index.isValid() || !(index.flags() & Qt::ItemIsEnabled) || !(index.flags() & Qt::ItemIsSelectable)) return;
+    setCurrentIndex(index.row());
+    hidePopup();
+    emit activated(currentIndex());
+    emit textActivated(currentText());
+}
+
+void IconComboBox::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        setFocus(Qt::MouseFocusReason);
+        if (m_popup->isVisible()) hidePopup();
+        else showPopup();
+        event->accept();
+    } else QComboBox::mousePressEvent(event);
+}
+
+void IconComboBox::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) event->accept();
+    else QComboBox::mouseReleaseEvent(event);
+}
+
+void IconComboBox::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space || event->key() == Qt::Key_F4 ||
+        ((event->modifiers() & Qt::AltModifier) && (event->key() == Qt::Key_Down || event->key() == Qt::Key_Up))) {
+        if (m_popup->isVisible()) hidePopup();
+        else showPopup();
+        event->accept();
+    } else QComboBox::keyPressEvent(event);
 }
 } // namespace desktop

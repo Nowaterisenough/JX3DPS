@@ -14,7 +14,7 @@ using Json = nlohmann::ordered_json;
 struct Arguments {
     int iterations = 1000, seconds = 300, precision = 16, warmup = 5, crit = 20000;
     int phase = -1, initial_qidian = 10;
-    std::string macro_path, trace_path, draws_path;
+    std::string macro_path, trace_path, draws_path, team_buffs;
     std::vector<std::string> talents;
     bool dot = false, weapon_cw = false;
     Arguments(int argc, char **argv) {
@@ -25,6 +25,7 @@ struct Arguments {
             if (key == "--macro") macro_path = value;
             else if (key == "--trace") trace_path = value;
             else if (key == "--draws") draws_path = value;
+            else if (key == "--team-buffs") team_buffs = value;
             else if (key == "--iterations") iterations = std::stoi(value);
             else if (key == "--seconds") seconds = std::stoi(value);
             else if (key == "--precision") precision = std::stoi(value);
@@ -69,6 +70,6 @@ struct Totals {
             {"mean_dps", double(sum) / count / args.seconds}, {"min_damage", min}, {"max_damage", max},
             {"damage_sum", sum}, {"crit", args.crit}, {"dot", args.dot}, {"legacy_precision", args.precision},
             {"phase", args.phase}, {"initial_qidian", args.initial_qidian}, {"talents", args.talents},
-            {"weapon_cw", args.weapon_cw}, {"sample", sample}};
+            {"weapon_cw", args.weapon_cw}, {"team_buffs", args.team_buffs}, {"sample", sample}};
     }
 };

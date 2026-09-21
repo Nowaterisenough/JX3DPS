@@ -33,6 +33,7 @@
 #include "diagnostics.h"
 #include "runtime_backend.h"
 #include "game_icons.h"
+#include "controls/equipment_panel/equipment_panel.h"
 
 namespace mw = JX3DPS::runtime::mo_wen;
 namespace tx = JX3DPS::runtime::tai_xu;
@@ -104,7 +105,6 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     auto *attributeTabs = new QTabWidget(this);
     attributeTabs->setObjectName(QStringLiteral("attributeTabs"));
     layout->addWidget(attributeTabs, 2, 0);
-    m_inputPanels.push_back(attributeTabs);
     auto *tabs = new QTabWidget(this);
     tabs->setObjectName(QStringLiteral("configurationTabs"));
     tabs->setMinimumHeight(200);
@@ -127,8 +127,33 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     auto *target         = page(runTabs, QStringLiteral("目标与初始状态"));
     auto *attributes     = page(attributeTabs, QStringLiteral("属性"));
     auto *bonuses        = page(attributeTabs, QStringLiteral("加成"));
-    auto *equipmentStack = new QStackedWidget;
-    attributeTabs->addTab(equipmentStack, QStringLiteral("配装"));
+    m_inputPanels.push_back(attributes->parentWidget());
+    m_inputPanels.push_back(bonuses->parentWidget());
+    auto *equipmentPage = new QWidget;
+    equipmentPage->setObjectName(QStringLiteral("equipmentPage"));
+    auto *equipmentLayout = new QVBoxLayout(equipmentPage);
+    equipmentLayout->setContentsMargins(7, 7, 7, 7);
+    equipmentLayout->setSpacing(6);
+    equipmentLayout->setAlignment(Qt::AlignTop);
+    auto *equipmentPanel = new EquipmentPanel(equipmentPage);
+    equipmentLayout->addWidget(equipmentPanel);
+    auto equipmentEffects = [&] {
+        auto *content = new QWidget(equipmentPage);
+        content->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
+        auto *form = new QFormLayout(content);
+        form->setContentsMargins(0, 0, 0, 0);
+        form->setVerticalSpacing(6);
+        form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        equipmentLayout->addWidget(content);
+        m_inputPanels.push_back(content);
+        return form;
+    };
+    auto *equipmentScroll = new QScrollArea;
+    equipmentScroll->setObjectName(QStringLiteral("equipmentScroll"));
+    equipmentScroll->setWidgetResizable(true);
+    equipmentScroll->setFrameShape(QFrame::NoFrame);
+    equipmentScroll->setWidget(equipmentPage);
+    attributeTabs->addTab(equipmentScroll, QStringLiteral("配装"));
     auto *talentStack = new QStackedWidget;
     auto *recipeStack = new QStackedWidget;
     tabs->addTab(talentStack, QStringLiteral("奇穴"));
@@ -147,7 +172,7 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     auto *txTalents   = effectPage(talentStack);
     txTalents->setContentsMargins(3, 3, 3, 3);
     auto *txRecipes   = effectPage(recipeStack);
-    auto *txEquipment = effectPage(equipmentStack);
+    auto *txEquipment = equipmentEffects();
     m_iterations      = Integer(run, "iterations", QStringLiteral("模拟次数"), 1000, 1, 1000000000);
     m_workers = Integer(run, "workers", QStringLiteral("工作线程"), std::max(1, QThread::idealThreadCount() / 2), 1, 256);
     m_seconds = Decimal(run, "seconds", QStringLiteral("战斗时长"), 300, 0.0625, 86400, 4);
@@ -267,6 +292,51 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
               { "游刃", tx::YouRen }
     },
           [](tx::Config &c, unsigned v) { c.team_effects = v; });
+    auto *teamGroup = new QGroupBox(QStringLiteral("外部增益时间表（太虚）"));
+    auto *teamRows = new QGridLayout(teamGroup);
+    teamRows->addWidget(new QLabel(QStringLiteral("增益")), 0, 0);
+    teamRows->addWidget(new QLabel(QStringLiteral("开始（秒）")), 0, 1);
+    teamRows->addWidget(new QLabel(QStringLiteral("持续（秒）")), 0, 2);
+    teamRows->addWidget(new QLabel(QStringLiteral("层数")), 0, 3);
+    for (unsigned i = 0; i < tx::team::Count; ++i) {
+        const auto &definition = tx::team::Definitions[i];
+        const auto prefix = QStringLiteral("txTeam%1_").arg(i);
+        auto *enabled = new QCheckBox(QString::fromUtf8(definition.name.data(), definition.name.size()));
+        enabled->setObjectName(prefix + "enabled");
+        enabled->setProperty("defaultValue", false);
+        teamRows->addWidget(enabled, i + 1, 0);
+        for (const auto &field : {QStringLiteral("start"), QStringLiteral("duration")}) {
+            auto *input = new QDoubleSpinBox;
+            input->setObjectName(prefix + field);
+            input->setDecimals(4);
+            input->setSingleStep(0.0625);
+            input->setRange(field == "start" ? 0 : 0.0625, 86400);
+            input->setValue(field == "start" ? 0 : definition.duration / 16.0);
+            if (i == tx::team::HaoLingSanJun && field == "duration") input->setRange(60, 60);
+            input->setProperty("defaultValue", input->value());
+            teamRows->addWidget(input, i + 1, field == "start" ? 1 : 2);
+        }
+        auto *stacks = new QSpinBox;
+        stacks->setObjectName(prefix + "stacks");
+        stacks->setRange(1, definition.max_stacks);
+        stacks->setProperty("defaultValue", 1);
+        if (i == tx::team::HaoLingSanJun) {
+            stacks->setMinimum(2);
+            stacks->setSingleStep(2);
+            stacks->setValue(48);
+            stacks->setProperty("defaultValue", 48);
+            stacks->setToolTip(QStringLiteral("旧版奇数层扣除不一致，当前支持偶数初始层数；30 秒后减半，60 秒结束，期间重复施加无效。"));
+        }
+        teamRows->addWidget(stacks, i + 1, 3);
+        m_bindings.push_back([i, prefix](tx::Config &config, const QJsonObject &values) {
+            if (values.value(prefix + "enabled").toBool())
+                config.team_buffs.push_back({static_cast<tx::team::Kind>(i),
+                    static_cast<tick_t>(std::llround(values.value(prefix + "start").toDouble() * 16)),
+                    static_cast<tick_t>(std::llround(values.value(prefix + "duration").toDouble() * 16)),
+                    values.value(prefix + "stacks").toInt()});
+        });
+    }
+    txEquipment->addRow(teamGroup);
     flags(QStringLiteral("奇穴"),
           "talent",
           {
@@ -353,7 +423,7 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     auto *mwTalents      = effectPage(talentStack);
     mwTalents->setContentsMargins(3, 3, 3, 3);
     auto *mwRecipes      = effectPage(recipeStack);
-    auto *mwEquipment    = effectPage(equipmentStack);
+    auto *mwEquipment    = equipmentEffects();
     auto *initialShadows = Integer(target, "mwShadows", QStringLiteral("初始影子数量"), 0, 0, 6);
     m_style              = new QComboBox;
     m_style->setObjectName(QStringLiteral("mwStyle"));
@@ -598,7 +668,9 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
         const bool moWen = Specialization() == desktop::Specialization::MoWen;
         talentStack->setCurrentIndex(moWen ? 1 : 0);
         recipeStack->setCurrentIndex(moWen ? 1 : 0);
-        equipmentStack->setCurrentIndex(moWen ? 1 : 0);
+        txEquipment->parentWidget()->setVisible(!moWen);
+        mwEquipment->parentWidget()->setVisible(moWen);
+        equipmentPanel->setVisible(!moWen);
         target->setRowVisible(findChild<QSpinBox *>("qidian"), !moWen);
         target->setRowVisible(initialShadows, moWen);
         target->setRowVisible(m_style, moWen);
@@ -913,8 +985,21 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
 
 QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) const
 {
+    auto withTeamDefaults = [this](QJsonObject result) {
+        auto values = result.value("values").toObject();
+        for (auto *input : findChildren<QWidget *>()) {
+            const auto key = input->objectName();
+            if (!key.startsWith("txTeam") || values.contains(key)) continue;
+            if (qobject_cast<QCheckBox *>(input)) values.insert(key, false);
+            else if (qobject_cast<QSpinBox *>(input) || qobject_cast<QDoubleSpinBox *>(input))
+                values.insert(key, QJsonValue::fromVariant(input->property("defaultValue")));
+        }
+        result.insert("values", values);
+        return result;
+    };
     if (snapshot.value("format") != QJsonValue("jx3dps.tai-xu.config") || snapshot.value("version") != QJsonValue(1)) {
-        return snapshot;
+        return snapshot.value("format") == QJsonValue("jx3dps.desktop.config") && snapshot.value("version") == QJsonValue(2)
+            ? withTeamDefaults(snapshot) : snapshot;
     }
     auto converted = snapshot;
     auto values    = snapshot.value("values").toObject();
@@ -944,7 +1029,7 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
     converted.insert("version", 2);
     converted.insert("specialization", 0);
     converted.insert("values", values);
-    return converted;
+    return withTeamDefaults(converted);
 }
 
 bool SimulationOptions::RestoreSnapshot(const QJsonObject &original, QString &error)

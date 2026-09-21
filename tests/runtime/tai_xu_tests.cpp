@@ -183,14 +183,14 @@ void ArithmeticOracle() {
         for (unsigned snapshot = 0; snapshot < tx::ProfileCount; ++snapshot)
             for (unsigned effect = 0; effect < tx::EffectCount; ++effect)
                 for (unsigned critical = 0; critical < 2; ++critical)
-                    CHECK(p->damage[snapshot][effect][critical] == ReferenceDamage(c, effect, snapshot, critical));
+                    CHECK(p->Damage(snapshot, effect, critical) == ReferenceDamage(c, effect, snapshot, critical));
     }
     tx::Config c;
     c.talents = tx::WuYi;
     const auto p = tx::Prepare(c);
-    CHECK(p->critical_chance[0][tx::WuWoEffect+5] > p->critical_chance[0][tx::PoZhaoEffect] + .09);
-    CHECK(p->critical_chance[0][tx::DieRenEffect+1] == p->critical_chance[0][tx::PoZhaoEffect]);
-    CHECK(std::abs(p->critical_chance[tx::SuiXingProfile][tx::PoZhaoEffect] - p->critical_chance[0][tx::PoZhaoEffect] - .05) < 1e-12);
+    CHECK(p->Chance(tx::WuWoEffect+5, 0) > p->Chance(tx::PoZhaoEffect, 0) + .09);
+    CHECK(p->Chance(tx::DieRenEffect+1, 0) == p->Chance(tx::PoZhaoEffect, 0));
+    CHECK(std::abs(p->Chance(tx::PoZhaoEffect, tx::SuiXingProfile) - p->Chance(tx::PoZhaoEffect, 0) - .05) < 1e-12);
 }
 
 void TimingsAndResources() {
@@ -421,7 +421,7 @@ void FieldExplosions() {
     CHECK(r.state.skill_ready_at[tx::WanJian] == 160 && r.state.gcd_ready_at[0] == 24);
     CHECK(r.state.target_buff_stacks[tx::DieRen] == 1);
     auto p = tx::Prepare(c);
-    CHECK(p->critical_chance[0][tx::WanJianEffect] == p->critical_chance[0][tx::PoZhaoEffect]);
+    CHECK(p->Chance(tx::WanJianEffect, 0) == p->Chance(tx::PoZhaoEffect, 0));
     CHECK(p->Input(tx::WanJianEffect, 0).crit_power_percent == 1102);
     c = {}; c.target.distance = 8;
     r = Run("/scast wanjian", c, 1); CHECK(r.hits.size() == 1 && r.state.skill_ready_at[tx::WanJian] == 192);
@@ -494,7 +494,7 @@ void SplitSnapshots() {
     bool saw_live = false;
     for (const auto &hit : r.hits) if (hit.skill == tx::DieRenDamage && hit.frame == 96) {
         CHECK(hit.snapshot == tx::XuanMenProfileUnit && hit.outcome == RollResult::HIT);
-        CHECK(p->damage[hit.snapshot][hit.effect][0] > p->damage[0][hit.effect][0]);
+        CHECK(p->Damage(hit.snapshot, hit.effect, 0) > p->Damage(0, hit.effect, 0));
         saw_live = true;
     }
     CHECK(saw_live);
@@ -909,7 +909,7 @@ void Validation() {
     c.attributes.overcome_percent = 10000;
     auto extremes = tx::Prepare(c);
     for (unsigned effect = 0; effect < tx::EffectCount; ++effect)
-        CHECK(extremes->damage[1][effect][1] == ReferenceDamage(c, effect, true, true));
+        CHECK(extremes->Damage(1, effect, 1) == ReferenceDamage(c, effect, true, true));
     auto macro = Compile("/cast wuwu");
     Rejects([&] { Simulation<tx::Rules> too_large(macro.program, tx::Rules(extremes), 100000, 1); });
     State initial; initial.Resize(tx::SkillCount, tx::BuffCount);
@@ -926,7 +926,141 @@ void Validation() {
     });
 }
 
+void TeamSnapshots() {
+    tx::Config c;
+    c.talents = tx::DieRenTalent;
+    c.attributes.overcome_base = 25000;
+    c.team_buffs = tx::team::Parse("ji_lei:0:10:1;chao_sheng:0:10:12;han_chang_lin_li:0:10:1;"
+        "ji_lei:36:20:1;zhen_fen:24:48:10;nong_mei:24:48:1;po_feng:24:48:1;jie_huo:24:48:1");
+    auto macro = Compile("/scast wuwu");
+    using Rules = tx::BasicRules<ThresholdRolls, FixedQidianPhase>;
+    Simulation<Rules> sim(macro.program, Rules(tx::Prepare(c)));
+    sim.Start(145, 0); sim.Run();
+    CHECK(sim.Log().Size() == 5); // WuWo, PoZhao, three DOT ticks.
+    const auto &versions = sim.GetRules().Versions();
+    const auto &first = sim.Log().Intents().front();
+    const auto &tick = sim.Log().Intents()[2];
+    CHECK(first.outcome == RollResult::DOUBLE && tick.outcome == RollResult::DOUBLE);
+    CHECK(tick.frame == 48 && tick.snapshot_version == first.snapshot_version && tick.live_version != tick.snapshot_version);
+    CHECK(versions[tick.snapshot_version].input.attack == 10000*(1024+205)/1024+2500);
+    CHECK(versions[tick.snapshot_version].input.strain == 14800);
+    CHECK(versions[tick.live_version].input.overcome == (25000+600+700)*(1024+205)/1024);
+    auto expected = c;
+    expected.team_buffs.clear();
+    expected.attributes.attack_percent = 205;
+    expected.attributes.strain = 14800;
+    expected.attributes.overcome_base += 600+700;
+    expected.attributes.overcome_percent = 205;
+    expected.attributes.ignore_shield = 205;
+    expected.target.shield -= 1150;
+    expected.target.vulnerable = 20;
+    CHECK(sim.GetRules().Reduce(tick) == ReferenceDamage(expected, tick.effect, 0, true));
+    const auto &later = sim.Log().Intents()[3];
+    CHECK(later.frame == 96 && later.outcome == RollResult::DOUBLE);
+    expected.attributes.overcome_base = 25000;
+    expected.attributes.overcome_percent = expected.attributes.ignore_shield = expected.target.vulnerable = 0;
+    expected.target.shield = 30000;
+    CHECK(sim.GetRules().Reduce(later) == ReferenceDamage(expected, later.effect, 0, true));
+    CHECK(versions[first.snapshot_version].input.strain == 14800); // Historical version stays immutable.
+
+    c.team_buffs = tx::team::Parse("zhen_fen:0:20:10;zhen_fen:5:30:20;zhen_fen:36:10:0;"
+        "chao_sheng:0:20:24;chao_sheng:7:30:1");
+    auto buffs = Run("/cast sanchai", c, 38);
+    const auto zhen = static_cast<Slot>(tx::TeamBuffBegin + static_cast<Slot>(tx::team::ZhenFen));
+    std::vector<StateMutation> zhen_changes;
+    for (const auto &m : buffs.mutations) if (m.kind == MutationKind::Buff && m.slot == zhen) zhen_changes.push_back(m);
+    CHECK(zhen_changes.size() == 4);
+    CHECK(zhen_changes[0].c == 10 && zhen_changes[1].c == 20 && zhen_changes[1].a == 35);
+    CHECK(zhen_changes[2].frame == 35 && zhen_changes[2].c == 0);
+    CHECK(buffs.state.self_buff_stacks[zhen] == 0);
+
+    // External applications and expiries precede DOT ticks at the same frame.
+    c.team_buffs = tx::team::Parse("ji_lei:48:48:1");
+    Simulation<Rules> boundary(macro.program, Rules(tx::Prepare(c)));
+    boundary.Start(145, 0); boundary.Run();
+    const auto &hits = boundary.Log().Intents();
+    CHECK(boundary.GetRules().Versions()[hits[2].live_version].input.overcome == 25000*(1024+205)/1024);
+    CHECK(boundary.GetRules().Versions()[hits[3].live_version].input.overcome == 25000);
+    CHECK(boundary.GetRules().Versions()[hits[4].live_version].input.overcome == 25000);
+    CHECK(boundary.GetRules().Versions()[hits[2].snapshot_version].input.attack == 12500);
+    auto preparing = Compile("/scast suixing");
+    c.team_buffs = tx::team::Parse("po_feng:1:10:1;han_ru_lei:16:30:1");
+    Simulation<Rules> prepare_order(preparing.program, Rules(tx::Prepare(c)));
+    prepare_order.Start(17, 0); prepare_order.Run();
+    const auto &field_hit = prepare_order.Log().Intents().front();
+    CHECK(field_hit.frame == 16);
+    CHECK(prepare_order.GetRules().Versions()[field_hit.snapshot_version].input.attack == 10000*(1024+51)/1024+2500);
+
+    c.team_buffs = tx::team::Parse("ji_lei:0:10:1;ji_lei:10:20:1");
+    auto refresh = Run("/cast sanchai", c, 31);
+    const auto ji = static_cast<Slot>(tx::TeamBuffBegin + static_cast<Slot>(tx::team::JiLei));
+    CHECK(std::none_of(refresh.mutations.begin(), refresh.mutations.end(), [ji](const auto &m) {
+        return m.kind == MutationKind::Buff && m.slot == ji && m.frame == 10 && m.c == 0;
+    }));
+    Rejects([] { tx::team::Parse("ji_lei:0:1:2"); });
+    Rejects([] { tx::team::Parse("unknown:0:1:1"); });
+    Rejects([] { tx::team::Parse("ji_lei:0:1"); });
+    Rejects([] { tx::team::Parse("ji_lei:0:1:1:2"); });
+    Rejects([] { tx::team::Parse("ji_lei:-1:1:1"); });
+    c.attributes.overcome_base = -1;
+    Rejects([&] { tx::Prepare(c); });
+    Rejects([] { tx::team::Parse("hao_ling_san_jun:0:0:3"); });
+    Rejects([] { tx::team::Parse("hao_ling_san_jun:0:480:48"); });
+    c.attributes.overcome_base = 25000;
+    c.team_buffs = tx::team::Parse("hao_ling_san_jun:0:0:48;hao_ling_san_jun:57:0:24");
+    auto drums = Run("/cast sanchai", c, 961);
+    const auto drum = static_cast<Slot>(tx::TeamBuffBegin + static_cast<Slot>(tx::team::HaoLingSanJun));
+    std::vector<StateMutation> drum_changes;
+    for (const auto &m : drums.mutations) if (m.kind == MutationKind::Buff && m.slot == drum) drum_changes.push_back(m);
+    CHECK(drum_changes.size() == 3);
+    CHECK(drum_changes[0].frame == 0 && drum_changes[0].c == 48);
+    CHECK(drum_changes[1].frame == 480 && drum_changes[1].c == 24);
+    CHECK(drum_changes[2].frame == 960 && drum_changes[2].c == 0);
+}
+
+void TeamVersionReuse() {
+    tx::Config c;
+    c.attributes.overcome_base = 25000;
+    c.talents = tx::DieRenTalent | tx::ShenMai;
+    for (Slot kind = 0; kind < tx::team::Count; ++kind) {
+        const auto &d = tx::team::Definitions[kind];
+        c.team_buffs.push_back({static_cast<tx::team::Kind>(kind), 0, 0, d.max_stacks});
+        c.team_buffs.push_back({static_cast<tx::team::Kind>(kind), 1601, kind == tx::team::HaoLingSanJun ? 960 : 37,
+            kind == tx::team::HaoLingSanJun ? 2 : 1});
+    }
+    auto macro = Compile("/cast [qidian>=8] wuwu\n/cast bahuang\n/cast sanhuan\n/cast sanchai");
+    auto data = tx::Prepare(c);
+    Simulation<tx::Rules> fast(macro.program, tx::Rules(data));
+    Simulation<tx::Rules, true> debug(macro.program, tx::Rules(data));
+    for (int seed = 0; seed < 20; ++seed) {
+        fast.Start(4800, seed); fast.Run();
+        debug.Start(4800, seed); while (debug.Continue()) {}
+        CHECK(fast.Log().Intents() == debug.Log().Intents());
+        CHECK(fast.Log().Mutations() == debug.Log().Mutations());
+        CHECK(fast.TotalDamage() == debug.TotalDamage());
+        CHECK(fast.GetRules().Versions().Size() < 100);
+    }
+    allocations = 0;
+    count_allocations = true;
+    for (int seed=0; seed<20; ++seed) { fast.Start(4800, seed); fast.Run(); (void)fast.TotalDamage(); }
+    count_allocations = false;
+    CHECK(allocations == 0);
+    BatchOptions options; options.iterations = 100;
+    const auto a = RunBatch(macro.program, options, tx::Rules(data));
+    options.workers = 4;
+    const auto b = RunBatch(macro.program, options, tx::Rules(data));
+    CHECK(a.checksum == b.checksum);
+    c.attribute_version_capacity = 1;
+    Simulation<tx::Rules> small(macro.program, tx::Rules(tx::Prepare(c)));
+    bool exhausted = false;
+    try { small.Start(4800, 0); small.Run(); } catch (const std::length_error &) { exhausted = true; }
+    CHECK(exhausted);
+    small.Start(1, 0); small.Run();
+    CHECK(small.GetRules().Versions().Size() == 1 && small.TotalDamage() > 0);
+}
+
 int main() {
+    TeamSnapshots(); TeamVersionReuse();
     ArithmeticOracle(); TimingsAndResources(); NaturalQidianRegeneration(); ChargesAndSnapshots(); TalentOrder(); ModeParity(); Validation(); ActionDiagnostics();
     PreparedFields(); FieldOwnership(); FieldDamageInputs(); FieldModeParity();
     FieldExplosions(); SplitSnapshots(); LieYunLifetime(); JianRuLifetime(); YunZhongLifetime(); JingHuaLifetime(); WeaponCwLifetime(); SetAttributeLifetime(); YouRenLifetime(); ExplosionModeParity();

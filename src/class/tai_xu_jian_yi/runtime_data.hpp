@@ -2,6 +2,8 @@
 #define JX3DPS_TAI_XU_RUNTIME_DATA_HPP
 
 #include "src/core/runtime/descriptors.hpp"
+#include "src/core/runtime/attribute_versions.hpp"
+#include "team_buffs.hpp"
 #include <bit>
 #include <memory>
 
@@ -13,7 +15,8 @@ enum SkillSlot : Slot { WuWo, BaHuang, SanHuan, SanChai, ZiQi, PoZhao, DieRenDam
 enum BuffSlot : Slot { DieRen, Purple, FengShi, SuiXingBuff, TunRiBuff, QiShengBuff,
     ChiYingBuff, FieldSuiXing, FieldShengTai, FieldTunRi, XuanMenBuff, LieYunBuff,
     HiddenLieYun, RenJianDot, JianRuBuff, YunZhongSuiXingBuff, YunZhongShengTaiBuff, YunZhongTunRiBuff,
-    JingHuaBuff, WeaponCwBuff, WanXiangBuff, SetAttributeBuff, YouRenBuff, BuffCount };
+    JingHuaBuff, WeaponCwBuff, WanXiangBuff, SetAttributeBuff, YouRenBuff, TeamBuffBegin,
+    BuffCount = TeamBuffBegin + team::Count };
 inline constexpr std::array<Slot, 12> CastableSkills{WuWo, BaHuang, SanHuan, SanChai, ZiQi, SuiXing, ShengTai, TunRi, WanJian, RenJian, RenJianSuiXing, JingHua};
 inline constexpr bool IsFieldSkill(Slot skill) { return skill >= SuiXing && skill <= TunRi; }
 inline constexpr bool IsRenJian(Slot skill) { return skill == RenJian || skill == RenJianSuiXing; }
@@ -40,7 +43,8 @@ inline constexpr DescriptorTable<SkillDescriptor, SkillCount> Skills{{{
     {32898, "\xe9\x95\x9c\xe8\x8a\xb1\xe5\xbd\xb1", 0, 24, 48},
     {18931, "\xe4\xb8\x87\xe8\xb1\xa1\xe5\xbd\x92\xe5\x85\x83", 0, 0, 0}
 }}};
-inline constexpr DescriptorTable<BuffDescriptor, BuffCount> Buffs{{{
+inline constexpr auto Buffs = [] {
+DescriptorTable<BuffDescriptor, BuffCount> result{{{
     {9745, Skills.entries[DieRenDamage].name, 384, 48, 7},
     {19267, Skills.entries[ZiQi].name, 160, 16, 1},
     {17932, "\xe9\xa3\x8e\xe9\x80\x9d", 80, 0, 1},
@@ -66,10 +70,20 @@ inline constexpr DescriptorTable<BuffDescriptor, BuffCount> Buffs{{{
     {-13, "\xe5\xa5\x97\xe8\xa3\x85\xc2\xb7\xe5\x89\x91\xe9\xb8\xa3", 96, 0, 1},
     {-14, "\xe6\xb8\xb8\xe5\x88\x83", 320, 0, 5}
 }}};
+    for (Slot i=0; i<team::Count; ++i) {
+        const auto &d = team::Definitions[i];
+        result.entries[TeamBuffBegin+i] = {-100-static_cast<int>(i), d.name, d.duration, 0, d.max_stacks};
+    }
+    return result;
+}();
 inline constexpr std::array<std::string_view, SkillCount> SkillAliases{
     "wuwu", "bahuang", "sanhuan", "sanchai", "ziqi", "pozhao", "dieren", "suixing", "shengtaiji", "tunriyue", "chiying", "wanjian", "renjian", "renjian_suixing", "renjian_dot", "jianru", "yunzhongjian", "jinghua", "wanxiang"};
-inline constexpr std::array<std::string_view, BuffCount> BuffAliases{
+inline constexpr auto BuffAliases = [] {
+std::array<std::string_view, BuffCount> result{
     "dieren", "ziqi", "fengshi", "suixing", "tunriyue", "qisheng", "chiying", "field_suixing", "field_shengtaiji", "field_tunriyue", "xuanmen", "lieyun", "hidden_lieyun", "renjian", "jianru", "yunzhong_suixing", "yunzhong_shengtaiji", "yunzhong_tunriyue", "jinghua", "weapon_cw", "wanxiang", "set_attribute", "you_ren"};
+    for (Slot i=0; i<team::Count; ++i) result[TeamBuffBegin+i] = team::Definitions[i].alias;
+    return result;
+}();
 static_assert(Skills.Valid() && Buffs.Valid());
 
 inline CompileOptions MacroOptions(bool debug = true) {
@@ -138,6 +152,8 @@ struct Config {
     unsigned renjian_recipes = 0;
     int initial_qidian = 10;
     tick_t delay = 0; // Fixed input delay; legacy random delay is not migrated.
+    std::vector<team::Application> team_buffs;
+    std::size_t attribute_version_capacity = 4096;
 };
 
 enum class FormulaKind : std::uint8_t { Direct, Surplus, Dot, Zero };
@@ -161,12 +177,10 @@ enum Profile : std::uint16_t { PurpleProfile = 1, SuiXingProfile = 2, QiShengPro
     SetAttributeProfile = 128 };
 inline constexpr unsigned LiveProfileMask = LiveGuChangProfile | XuanMenProfileMask;
 inline constexpr unsigned ProfileCount = 256;
-inline constexpr unsigned ChanceProfile(unsigned profile) {
-    return (profile & (PurpleProfile|SuiXingProfile)) | ((profile & XuanMenProfileMask) >> 3)
-        | ((profile & SetAttributeProfile) >> 3);
-}
 inline constexpr auto Formulas = [] {
     std::array<Formula, EffectCount> result{};
+    // Explicitly materialize defaults for zero effects (also on GCC 16).
+    result.fill(Formula{});
     for (int q = 1; q <= 10; ++q) {
         Formula f{WuWo, 0, static_cast<std::uint16_t>(q - 1),
             (2696*q/10/12 + (2696+286)*q/10/12)/2, 2048,
@@ -223,10 +237,21 @@ inline constexpr auto Formulas = [] {
             10, 0, static_cast<int>(205*stack*1.8), 1, FormulaKind::Dot, 10, 48};
     return result;
 }();
+static_assert(Formulas[ZeroEffect].skill == ZiQi && Formulas[ZeroEffect].kind == FormulaKind::Zero &&
+    Formulas[SuiXingEffect].kind == FormulaKind::Zero);
 
 struct DamageInput {
     value_t attack, weapon, crit_power, overcome, strain, surplus;
     int damage_percent, crit_power_percent, strain_percent, pve_percent, ignore_shield;
+};
+struct AttributeVersion {
+    DamageInput input;
+    double critical_chance = 0;
+    int mitigation = 0, critical_power = 0, strain_factor = 0, vulnerable = 0;
+    std::uint16_t profile = 0;
+    // Keep the timeline aura inputs so a damage-only replay can resolve the
+    // same snapshot under a changed base attribute configuration.
+    team::Modifiers team;
 };
 inline value_t CalculateDamage(const Formula &f, const DamageInput &a, const Target &t, bool critical) {
     if (f.kind == FormulaKind::Zero) return 0;
@@ -267,12 +292,16 @@ struct Prepared {
     tick_t field_prepare = 16, shengtaiji_prepare = 16, jinghua_prepare = 48, shengtaiji_cd = 160, suixing_duration = 384;
     int purple_charges = 2;
     value_t max_damage = 0;
-    std::array<std::array<std::array<value_t, 2>, EffectCount>, ProfileCount> damage{};
-    // AP, shield ignore and crit power do not change crit probability.
-    std::array<std::array<double, EffectCount>, 32> critical_chance{};
+    std::array<Formula, EffectCount> formulas = Formulas;
+    std::array<int, EffectCount> damage_bonus{}, power_bonus{};
+    std::array<double, EffectCount> coefficients{}, chance_bonus{};
+    std::array<value_t, EffectCount> surplus_damage{};
+    double level_multiplier = 1;
 
     explicit Prepared(Config input) : config(std::move(input)) {
         Validate();
+        std::stable_sort(config.team_buffs.begin(), config.team_buffs.end(),
+            [](const auto &a, const auto &b) { return a.frame < b.frame; });
         const auto &a = config.attributes;
         haste = 1024.0 / (static_cast<int>(a.haste / (11.695*8250) * 1024) + a.haste_percent + 1024);
         gcd = static_cast<int>(24 * haste + config.delay);
@@ -292,24 +321,40 @@ struct Prepared {
         suixing_duration = Has(FuYin) ? 576 : 384;
         if (gcd < 1 || sanhuan_cd < 1 || sanchai_cd < 1 || dot_interval < 1)
             throw std::invalid_argument("haste produces a zero-length timer");
-        for (unsigned snapshot = 0; snapshot < ProfileCount; ++snapshot)
-            for (unsigned effect = 0; effect < EffectCount; ++effect) {
-                auto stats = Input(effect, snapshot);
-                auto formula = Formulas[effect];
+        team::Modifiers maximum;
+        const int delta = 120-config.target.level;
+        level_multiplier = 1.0+delta*(delta < 0 ? .05 : .15);
+        for (const auto &d : team::Definitions) maximum.Add(d.modifiers, d.max_stacks);
+        for (unsigned effect = 0; effect < EffectCount; ++effect) {
+                auto &formula = formulas[effect];
                 if (effect >= WanXiangEffect && effect < WanXiangEffect + 3)
                     formula.dot_interval = dot_interval;
                 if (formula.skill == DieRenDamage && Has(XuJi)) formula.channel = static_cast<int>(formula.channel*1.2);
-                damage[snapshot][effect][0] = CalculateDamage(formula, stats, config.target, false);
-                damage[snapshot][effect][1] = CalculateDamage(formula, stats, config.target, true);
-                max_damage = std::max(max_damage, damage[snapshot][effect][1]);
-                critical_chance[ChanceProfile(snapshot)][effect] = Chance(effect, snapshot);
-            }
+                const auto stats = Input(effect, 0);
+                damage_bonus[effect] = stats.damage_percent - a.damage_percent;
+                power_bonus[effect] = stats.crit_power_percent - a.crit_power_percent;
+                chance_bonus[effect] = ExtraChance(effect)*1.0/10000;
+                coefficients[effect] = formula.kind == FormulaKind::Dot
+                    ? formula.channel * std::max(16, formula.dot_count*formula.dot_interval/12) * 1.0 / formula.dot_count / 10 / 16 / 16
+                    : std::max(formula.channel, 16) * 1.0 / 10 / 16;
+                if (formula.kind == FormulaKind::Surplus)
+                    surplus_damage[effect] = static_cast<value_t>(a.surplus * ((formula.channel + (formula.channel < 0)) / 1024 + 1024) / 1024 * 13.192);
+                auto target = TargetFor(maximum);
+                target.shield = 0;
+                max_damage = std::max(max_damage, CalculateDamage(formula, Input(effect, ProfileCount-1, maximum), target, true));
+        }
     }
     bool Has(Talent talent) const { return (config.talents & talent) != 0; }
     bool HasEquipment(EquipmentEffect effect) const { return (config.equipment & effect) != 0; }
     bool HasTeam(TeamEffect effect) const { return (config.team_effects & effect) != 0; }
-    DamageInput Input(unsigned effect, unsigned snapshot) const {
-        const auto &a = config.attributes;
+    DamageInput Input(unsigned effect, unsigned snapshot, const team::Modifiers &team = {}) const {
+        auto a = config.attributes;
+        a.attack_percent += team.attack_percent;
+        if (a.overcome_base >= 0) a.overcome_base += team.overcome_base;
+        else a.overcome += team.overcome_base;
+        a.overcome_percent += team.overcome_percent;
+        a.strain += team.strain;
+        a.ignore_shield += team.ignore_shield;
         const auto &f = Formulas[effect];
         const int attack_bonus = ((snapshot & PurpleProfile) ? 256 : 0) + ((snapshot & QiShengProfile) ? 102 : 0);
         const int power_bonus = ((snapshot & PurpleProfile) ? 256 : 0) + ((snapshot & SuiXingProfile) ? (Has(FuYin) ? 205 : 102) : 0) + ((snapshot & LieYunProfile) ? 154 : 0);
@@ -341,8 +386,43 @@ struct Prepared {
         }
         return result;
     }
-    double Chance(unsigned effect, unsigned snapshot) const {
-        const auto &a = config.attributes;
+    Target TargetFor(const team::Modifiers &team) const {
+        auto result = config.target;
+        result.shield = std::max<value_t>(0, result.shield + team.shield);
+        result.vulnerable += team.vulnerable;
+        return result;
+    }
+    value_t Damage(unsigned profile, unsigned effect, bool critical) const {
+        const auto version = Resolve(profile);
+        return Damage(version, version, effect, critical);
+    }
+    AttributeVersion Resolve(unsigned profile, const team::Modifiers &team = {}) const {
+        const auto input = Input(ZeroEffect, profile, team);
+        const auto target = TargetFor(team);
+        const auto shield = std::max<value_t>(0, target.shield-target.shield*input.ignore_shield/1024);
+        const int overcome = static_cast<int>(input.overcome*1024/(9.530*8250)+1024);
+        const int reduction = static_cast<int>(shield*1024/(shield+5.091*(450*target.level-45750)));
+        return {input, Chance(ZeroEffect, profile, team.crit_basis_points), overcome-overcome*reduction/1024,
+            static_cast<int>(input.crit_power*1024/(3.335*8250)),
+            static_cast<int>(input.strain*1024/(9.189*8250))+1024+input.strain_percent,
+            target.vulnerable, static_cast<std::uint16_t>(profile), team};
+    }
+    value_t Damage(const AttributeVersion &frozen, const AttributeVersion &live, unsigned effect, bool critical) const {
+        const auto &f = formulas[effect];
+        if (f.kind == FormulaKind::Zero) return 0;
+        value_t raw = f.kind == FormulaKind::Surplus ? surplus_damage[effect] :
+            f.fixed + static_cast<value_t>(frozen.input.attack*coefficients[effect]) + live.input.weapon*f.weapon/1024;
+        raw = raw*(1024+frozen.input.damage_percent+damage_bonus[effect])/1024;
+        raw *= f.count;
+        raw = raw*live.mitigation/1024;
+        if (critical) raw = static_cast<value_t>(raw+raw*.75 +
+            raw*(frozen.critical_power+frozen.input.crit_power_percent+power_bonus[effect])/1024);
+        raw = static_cast<value_t>(raw*level_multiplier);
+        raw = raw*frozen.strain_factor/1024;
+        raw = raw*(1024+live.input.pve_percent)/1024;
+        return raw*(1024+live.vulnerable)/1024;
+    }
+    int ExtraChance(unsigned effect) const {
         const auto &f = Formulas[effect];
         int extra = 0;
         if (f.skill <= SanHuan) {
@@ -351,13 +431,24 @@ struct Prepared {
         }
         if (f.skill == WuWo && f.level >= 5 && Has(WuYi)) extra += 1000;
         if (f.skill == SanHuan && Has(XinGu)) extra += 1000;
+        return extra;
+    }
+    double Chance(unsigned effect, unsigned snapshot, int team_crit = 0) const {
+        const auto &a = config.attributes;
         // Keep the legacy addition order at probability boundaries.
         const int bonus = ((snapshot & PurpleProfile) ? 2500 : 0) + ((snapshot & SuiXingProfile) ? (Has(FuYin) ? 1000 : 500) : 0)
             + 300*((snapshot & XuanMenProfileMask)/XuanMenProfileUnit) + ((snapshot & SetAttributeProfile) ? 400 : 0);
-        return a.crit/(9.530*8250) + (a.crit_basis_points+bonus)*1.0/10000 + extra*1.0/10000;
+        return a.crit/(9.530*8250) + (a.crit_basis_points+bonus+team_crit)*1.0/10000 + ExtraChance(effect)*1.0/10000;
     }
 private:
     void Validate() const {
+        if (!config.attribute_version_capacity || config.attribute_version_capacity > 10000000 || config.team_buffs.size() > 100000)
+            throw std::invalid_argument("unsupported attribute version capacity or team schedule size");
+        for (const auto &app : config.team_buffs) {
+            team::Validate(app);
+            if (team::Definitions[app.kind].modifiers.overcome_percent && config.attributes.overcome_base < 0)
+                throw std::invalid_argument("team overcome percent requires explicit overcome_base");
+        }
         if (config.talents & ~SupportedTalents) throw std::invalid_argument("unmigrated talent flags");
         if (config.equipment & ~(WeaponCW|SetAttribute)) throw std::invalid_argument("unmigrated equipment effects");
         if (config.team_effects & ~YouRen) throw std::invalid_argument("unmigrated team effects");

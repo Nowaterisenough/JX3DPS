@@ -30,23 +30,35 @@ $null = New-Item -ItemType Directory -Path $OutputDirectory -Force
 $utf8 = New-Object Text.UTF8Encoding($false)
 [Console]::OutputEncoding = $utf8
 $OutputEncoding = $utf8
+$teamSchedule = @()
+$teamCatalog = @(@('han_ru_lei', 1), @('po_feng', 1), @('jing_feng', 1), @('jie_huo', 1),
+    @('chao_sheng', 24), @('sheng_yu_ming_xin', 24), @('zhen_fen', 125), @('han_xiao_qian_jun', 1),
+    @('shu_kuang', 1), @('han_chang_lin_li', 1), @('ji_lei', 1), @('nong_mei', 1), @('she_shen_hong_fa', 36))
+for ($cycle = 0; $cycle -lt 5; ++$cycle) {
+    for ($i = 0; $i -lt $teamCatalog.Count; ++$i) {
+        $teamSchedule += '{0}:{1}:137:{2}' -f $teamCatalog[$i][0], ($cycle * 901 + $i * 3), $teamCatalog[$i][1]
+    }
+}
+foreach ($frame in @(0, 1920, 3840)) { $teamSchedule += "hao_ling_san_jun:${frame}:0:48" }
 $definitions = @{
     cooldowns_precise = @{ macro = 'cooldowns'; precision = 1; dot = 0 }
     cooldowns = @{ macro = 'cooldowns'; precision = 16; dot = 0 }
     rotation = @{ macro = 'rotation'; precision = 16; dot = 0 }
     rotation_dot = @{ macro = 'rotation'; precision = 16; dot = 1 }
     weapon_cw = @{ macro = 'rotation'; precision = 1; dot = 1; weapon = 1 }
+    team_dot = @{ macro = 'rotation'; precision = 1; dot = 1; team = ($teamSchedule -join ';') }
+    team_weapon = @{ macro = 'rotation'; precision = 1; dot = 1; weapon = 1; team = ($teamSchedule -join ';') }
     sanchai = @{ macro = 'sanchai'; precision = 16; dot = 0 }
 }
 foreach ($case in $Cases) { if (-not $definitions.ContainsKey($case)) { throw "Unknown case: $case" } }
 foreach ($engine in $Engines) {
-    if ($engine -notin @('legacy', 'legacy_dps', 'runtime')) { throw "Unknown engine: $engine" }
+    if ($engine -notin @('legacy', 'legacy_dps', 'runtime', 'previous_runtime')) { throw "Unknown engine: $engine" }
     if (-not (Test-Path -LiteralPath (Join-Path $BuildDirectory "${engine}_bench.exe"))) { throw "Missing binary: $engine" }
 }
 $hashes = [ordered]@{}
 $files = @(Get-ChildItem (Join-Path $RuntimeRoot 'src/core/runtime') -File) +
     @(Get-Item (Join-Path $RuntimeRoot 'src/core/runtime.hpp')) +
-    @(Get-ChildItem (Join-Path $RuntimeRoot 'src/class/tai_xu_jian_yi') -Filter 'runtime*.hpp') +
+    @(Get-ChildItem (Join-Path $RuntimeRoot 'src/class/tai_xu_jian_yi') -Filter '*.hpp') +
     @(Get-ChildItem $PSScriptRoot -File) + @(Get-ChildItem (Join-Path $PSScriptRoot 'macros') -File)
 foreach ($file in $files) { $hashes[$file.FullName.Substring($RuntimeRoot.Length + 1)] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash }
 $binaries = [ordered]@{}
@@ -56,17 +68,20 @@ $legacyCommit = & $GitExecutable -C $LegacyRoot rev-parse HEAD
 if ($LASTEXITCODE -ne 0) { throw 'Cannot read legacy revision; pass -GitExecutable with a working Git installation.' }
 $runtimeCommit = & $GitExecutable -C $RuntimeRoot rev-parse HEAD
 if ($LASTEXITCODE -ne 0) { throw 'Cannot read runtime revision.' }
+$compilerEntry = Get-Content (Join-Path $BuildDirectory 'CMakeCache.txt') | Where-Object { $_ -match '^CMAKE_CXX_COMPILER:(FILEPATH|STRING)=' } | Select-Object -First 1
+if (-not $compilerEntry) { throw 'Compiler path is missing from CMakeCache.txt.' }
+$compilerPath = ($compilerEntry -split '=', 2)[1]
 $metadata = [ordered]@{
     started = (Get-Date -Format o)
     cpu = @{ name = $cpuInfo.Name.ToString(); cores = [int]$cpuInfo.NumberOfCores; logical_processors = [int]$cpuInfo.NumberOfLogicalProcessors }
     os = [Environment]::OSVersion.VersionString
     affinity_mask = $Affinity
     legacy_commit = $legacyCommit
-    legacy_status = @(& $GitExecutable -C $LegacyRoot status --porcelain)
+    legacy_status = @(& $GitExecutable -C $LegacyRoot status --porcelain --ignore-submodules=all)
     runtime_head = $runtimeCommit
     runtime_status = @(& $GitExecutable -C $RuntimeRoot status --porcelain)
     cmake_cache = @(Get-Content -LiteralPath (Join-Path $BuildDirectory 'CMakeCache.txt') | Where-Object { $_ -match '^CMAKE_(CXX_COMPILER:|CXX_FLAGS_RELEASE:|BUILD_TYPE:)' } | ForEach-Object { $_.ToString() })
-    compiler = @(& clang++ --version)
+    compiler = @(& $compilerPath --version)
     iterations = $Iterations
     repeats = $Repeats
     seconds = 300
@@ -89,10 +104,14 @@ try {
         foreach ($case in $Cases) {
             $config = $definitions[$case]
             foreach ($engine in $order) {
+                if ($engine -eq 'previous_runtime' -and $config.team) { continue }
                 $exe = Join-Path $BuildDirectory "${engine}_bench.exe"
                 $macro = Join-Path $PSScriptRoot ('macros/' + $config.macro + '.txt')
                 $timer = [Diagnostics.Stopwatch]::StartNew()
-                $raw = & $exe --macro $macro --iterations $Iterations --seconds 300 --warmup 20 --crit 20000 --precision $config.precision --dot $config.dot --weapon-cw ([int]$config.weapon)
+                $benchmarkArgs = @('--macro', $macro, '--iterations', $Iterations, '--seconds', 300, '--warmup', 20,
+                    '--crit', 20000, '--precision', $config.precision, '--dot', $config.dot, '--weapon-cw', ([int]$config.weapon))
+                if ($config.team) { $benchmarkArgs += @('--team-buffs', $config.team) }
+                $raw = & $exe @benchmarkArgs
                 $timer.Stop()
                 if ($LASTEXITCODE -ne 0) { throw "Benchmark failed: $case / $engine ($LASTEXITCODE)" }
                 $result = $raw | ConvertFrom-Json

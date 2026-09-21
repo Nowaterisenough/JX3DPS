@@ -4,6 +4,7 @@
 #include "simulation.hpp"
 #include <atomic>
 #include <exception>
+#include <span>
 #include <thread>
 
 namespace JX3DPS::runtime {
@@ -117,6 +118,73 @@ BatchStats RunBatchImpl(const MacroProgram &program, const BatchOptions &options
     }
     return combined;
 }
+
+// Run one primary batch while allowing the caller to reduce each completed
+// fight's event log into additional statistics. The observer receives a
+// reusable output span, so replay paths do not allocate per event or fight.
+template <typename Rules, typename Observer>
+std::pair<BatchStats, std::vector<BatchStats>> RunBatchObservedImpl(
+    const MacroProgram &program, const BatchOptions &options, BatchControl &control,
+    const Rules &rules, std::size_t observed_count, std::uint64_t progress_units,
+    Observer observer) {
+    if (!options.iterations || !options.workers || options.duration <= 0 || !progress_units)
+        throw std::invalid_argument("batch iterations, workers and duration must be positive");
+    const auto worker_count = static_cast<unsigned>(std::min<std::uint64_t>(options.workers, options.iterations));
+    struct alignas(64) WorkerResult {
+        BatchStats primary;
+        std::vector<BatchStats> observed;
+        std::exception_ptr error;
+    };
+    std::vector<WorkerResult> results(worker_count);
+    for (auto &result : results) result.observed.resize(observed_count);
+    auto worker = [&](unsigned index) {
+        std::uint64_t pending = 0;
+        try {
+            if (control.cancel_requested.load(std::memory_order_relaxed)) return;
+            Simulation<Rules> simulation(program, rules, options.damage_capacity, options.mutation_capacity);
+            const auto quotient = options.iterations / worker_count;
+            const auto remainder = options.iterations % worker_count;
+            const auto start = quotient * index + std::min<std::uint64_t>(index, remainder);
+            const auto end = start + quotient + (index < remainder ? 1 : 0);
+            auto local_observer = observer;
+            std::vector<value_t> values(observed_count);
+            for (auto i = start; i < end; ++i) {
+                if (control.cancel_requested.load(std::memory_order_relaxed)) break;
+                simulation.Start(options.duration, IterationSeed(options.seed, i));
+                simulation.Run();
+                results[index].primary.Add(simulation.TotalDamage(), i);
+                if (observed_count) {
+                    local_observer(simulation, std::span<value_t>(values));
+                    for (std::size_t j = 0; j < observed_count; ++j)
+                        results[index].observed[j].Add(values[j], i);
+                }
+                pending += progress_units;
+                if (pending >= 32) {
+                    control.completed.fetch_add(pending, std::memory_order_relaxed);
+                    pending = 0;
+                }
+            }
+        } catch (...) {
+            results[index].error = std::current_exception();
+            control.cancel_requested.store(true, std::memory_order_relaxed);
+        }
+        if (pending) control.completed.fetch_add(pending, std::memory_order_relaxed);
+    };
+    {
+        std::vector<std::jthread> threads;
+        threads.reserve(worker_count - 1);
+        for (unsigned i = 1; i < worker_count; ++i) threads.emplace_back(worker, i);
+        worker(0);
+    }
+    BatchStats primary;
+    std::vector<BatchStats> observed(observed_count);
+    for (const auto &result : results) {
+        if (result.error) std::rethrow_exception(result.error);
+        primary.Merge(result.primary);
+        for (std::size_t j = 0; j < observed_count; ++j) observed[j].Merge(result.observed[j]);
+    }
+    return {primary, std::move(observed)};
+}
 } // namespace detail
 
 // Each worker reuses its simulator and log. The CLI specialization contains no
@@ -131,6 +199,16 @@ BatchStats RunBatchControlled(const MacroProgram &program, const BatchOptions &o
                              BatchControl &control, const Rules &rules = {}) {
     control.completed.store(0, std::memory_order_relaxed);
     return detail::RunBatchImpl<true>(program, options, rules, &control);
+}
+
+template <typename Rules, typename Observer>
+std::pair<BatchStats, std::vector<BatchStats>> RunBatchControlledObserved(
+    const MacroProgram &program, const BatchOptions &options, BatchControl &control,
+    const Rules &rules, std::size_t observed_count, std::uint64_t progress_units,
+    Observer observer) {
+    control.completed.store(0, std::memory_order_relaxed);
+    return detail::RunBatchObservedImpl(program, options, control, rules, observed_count, progress_units,
+                                        std::move(observer));
 }
 
 } // namespace JX3DPS::runtime

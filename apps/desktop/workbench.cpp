@@ -36,7 +36,6 @@
 #include "code_editor/debug_toolbar.h"
 #include "code_editor/simulation_toolbar.h"
 #include "controls/player_state_panel/player_state_panel.h"
-#include "controls/equipment_panel/equipment_panel.h"
 #include "controls/timeline/timeline.h"
 
 #include "batch_worker.h"
@@ -144,7 +143,6 @@ struct Workbench::Impl
     QLabel                             *outputDetails;
     QTableWidget                       *gainOverview;
     QDialog                            *helpDialog;
-    QDialog                            *equipmentDialog = nullptr;
     QLabel                             *result;
     QLabel                             *documentLabel;
     QProgressBar                       *progress;
@@ -188,29 +186,6 @@ struct Workbench::Impl
         root->setSpacing(6);
         workspace = new QTabWidget(central);
         workspace->setObjectName(QStringLiteral("workspaceTabs"));
-        auto *equipmentButton = new QToolButton(workspace);
-        equipmentButton->setObjectName(QStringLiteral("openEquipment"));
-        equipmentButton->setText(QStringLiteral("太虚配装"));
-        equipmentButton->setToolTip(QStringLiteral("查看魔盒装备、套装、技能、奇穴与秘籍资料"));
-        workspace->setCornerWidget(equipmentButton, Qt::TopRightCorner);
-        QObject::connect(equipmentButton, &QToolButton::clicked, window, [this] {
-            if (!equipmentDialog) {
-                equipmentDialog = new QDialog(window);
-                equipmentDialog->setObjectName(QStringLiteral("equipmentDialog"));
-                equipmentDialog->setWindowTitle(QStringLiteral("太虚剑意 · 魔盒配装"));
-                equipmentDialog->resize(600, 800);
-                auto *layout = new QVBoxLayout(equipmentDialog);
-                auto *note = new QLabel(QStringLiteral("选择装备可预览配装；当前模拟仍使用主界面的属性、奇穴与秘籍配置。"), equipmentDialog);
-                note->setWordWrap(true);
-                layout->addWidget(note);
-                auto *panel = new EquipmentPanel(equipmentDialog);
-                panel->setMaximumWidth(QWIDGETSIZE_MAX);
-                layout->addWidget(panel, 1);
-            }
-            equipmentDialog->show();
-            equipmentDialog->raise();
-            equipmentDialog->activateWindow();
-        });
         root->addWidget(workspace, 1);
         auto *homePage = new QWidget;
         homePage->setObjectName(QStringLiteral("simulationPage"));

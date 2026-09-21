@@ -7,7 +7,12 @@
 
 #include "runtime_catalog.h"
 
+class QListView;
+class QKeyEvent;
+class QMouseEvent;
+
 namespace desktop {
+class ChoicePopup;
 QIcon   GameIcon(int id);
 QIcon   GameIcon(Specialization specialization, const QString &name);
 QString GameDescription(Specialization specialization, const QString &name);
@@ -37,9 +42,19 @@ public:
     QSize minimumSizeHint() const override { return sizeHint(); }
 
     void showPopup() override;
+    void hidePopup() override;
+    QListView *choiceView() const { return m_choices; }
 
 protected:
     void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+
+private:
+    ChoicePopup *m_popup;
+    QListView *m_choices;
+    void AcceptChoice();
 };
 } // namespace desktop
 #endif

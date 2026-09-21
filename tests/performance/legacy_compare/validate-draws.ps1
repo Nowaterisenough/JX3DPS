@@ -20,7 +20,7 @@ $OutputEncoding = $utf8
 $runtimeRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../../..')).Path
 $sources = @(Get-ChildItem (Join-Path $runtimeRoot 'src/core/runtime') -File) +
     @(Get-Item (Join-Path $runtimeRoot 'src/core/runtime.hpp')) +
-    @(Get-ChildItem (Join-Path $runtimeRoot 'src/class/tai_xu_jian_yi') -Filter 'runtime*.hpp') +
+    @(Get-ChildItem (Join-Path $runtimeRoot 'src/class/tai_xu_jian_yi') -Filter '*.hpp') +
     @(Get-ChildItem $PSScriptRoot -File) + @(Get-ChildItem (Join-Path $PSScriptRoot 'macros') -File)
 $hashes = [ordered]@{}
 foreach ($file in $sources) { $hashes[$file.FullName.Substring($runtimeRoot.Length + 1)] = (Get-FileHash -LiteralPath $file.FullName).Hash }

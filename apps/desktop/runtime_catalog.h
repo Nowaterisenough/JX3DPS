@@ -128,7 +128,7 @@ inline QString FieldName(const QString &key)
     if (key.startsWith("equipment") || key.startsWith("mwEquipment")) {
         return QStringLiteral("装备特效");
     }
-    if (key.startsWith("team") || key.startsWith("mwTeam")) {
+    if (key.startsWith("team") || key.startsWith("mwTeam") || key.startsWith("txTeam")) {
         return QStringLiteral("团队增益");
     }
     return QStringLiteral("秘籍选择");

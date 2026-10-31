@@ -7,7 +7,7 @@
 
 namespace JX3DPS::runtime {
 
-enum class TimerKind : std::uint8_t { SkillCooldown, SkillPrepare, SkillCasting, BuffDuration, BuffInterval, MacroWake, Field, ResourceRegen, TeamApplication };
+enum class TimerKind : std::uint8_t { SkillCooldown, SkillPrepare, SkillCasting, BuffDuration, BuffInterval, MacroWake, Field, ResourceRegen, TeamApplication, TargetChange };
 struct TimerHandle {
     TimerKind kind = TimerKind::SkillCooldown;
     Slot slot = INVALID_SLOT;

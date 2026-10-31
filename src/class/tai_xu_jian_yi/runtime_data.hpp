@@ -3,6 +3,7 @@
 
 #include "src/core/runtime/specialization.hpp"
 #include "src/core/runtime/attribute_versions.hpp"
+#include "src/core/runtime/target_timeline.hpp"
 #include "team_buffs.hpp"
 #include <bit>
 #include <memory>
@@ -144,6 +145,7 @@ struct Config {
     tick_t delay = 0; // Fixed input delay; legacy random delay is not migrated.
     std::vector<team::Application> team_buffs;
     std::size_t attribute_version_capacity = 4096;
+    std::vector<TargetEvent> target_events;
 };
 
 enum class FormulaKind : std::uint8_t { Direct, Surplus, Dot, Zero };
@@ -436,6 +438,7 @@ struct Prepared {
     }
 private:
     void Validate() const {
+        ValidateTargetEvents(config.target_events);
         if (!config.attribute_version_capacity || config.attribute_version_capacity > 10000000 || config.team_buffs.size() > 100000)
             throw std::invalid_argument("unsupported attribute version capacity or team schedule size");
         for (const auto &app : config.team_buffs) {

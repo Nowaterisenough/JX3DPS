@@ -43,6 +43,7 @@ public:
     int ShadowCount()const { return shadow_count_; }
     const std::array<Shadow,6> &Shadows()const { return shadows_; }
     template<typename Engine> void Setup(Engine &e) {
+        target_timeline_.Setup(e, Data().config.target_events);
         auto &s=e.MutableState();
         if (s.skill_ready_at.size()!=SkillCount || s.self_buff_stacks.size()!=BuffCount)
             throw std::invalid_argument("macro was not compiled for Mo Wen");
@@ -71,6 +72,8 @@ public:
         zhiyin_active_=false; zhiyin_level_=1; zhiyin_last_gong_=false;
         weapon_ready_at_=480; shoes_ready_at_=wrist_ready_at_=belt_ready_at_=0;
         s.qidian=0; s.target_life=Data().config.target.life;
+        s.target_distance=Data().config.target.distance;
+        target_timeline_.Reset(e, Data().config.target_events);
         for (Slot k:CastableSkills) s.skill_gcd_group[k]=UsesGcd(k)||k==YiXing?0:INVALID_SLOT;
         s.skill_gcd_group[ShuYing]=4; s.skill_gcd_group[GuYing]=5; s.skill_gcd_group[WuYin]=6;
         SetStyleGroups(s);
@@ -110,8 +113,8 @@ public:
         if (k==YiXing && !shadow_count_) return Reject(e,ActionBlockReason::MissingBuff,0,1,YingZi);
         if (k==ShuYing && shadow_count_==6) return Reject(e,ActionBlockReason::Charges,6,5,ShuYing);
         const auto range=Range(k);
-        if (Data().config.target.distance>range)
-            return Reject(e,ActionBlockReason::Distance,Data().config.target.distance,range,k);
+        if (s.target_distance>range)
+            return Reject(e,ActionBlockReason::Distance,s.target_distance,range,k);
         const auto previous=s.last_skill;
         s.last_skill=k;
         if (UsesGcd(k)) Gcd(e,0,TimingNow().gcd);
@@ -187,6 +190,7 @@ public:
                 }
                 break;
             case TimerKind::BuffDuration: Expire(e,h.slot); break;
+            case TimerKind::TargetChange: target_timeline_.Dispatch(e,Data().config.target_events); break;
             case TimerKind::Field: TickShadow(e,h.slot); break;
             default: break;
         }
@@ -627,6 +631,7 @@ private:
     std::uint64_t shadow_order_=0;
     tick_t weapon_ready_at_=480,shoes_ready_at_=0,wrist_ready_at_=0,belt_ready_at_=0;
     bool zhiyin_active_=false,zhiyin_last_gong_=false;
+    TargetTimeline target_timeline_;
 };
 using Rules=BasicRules<>;
 

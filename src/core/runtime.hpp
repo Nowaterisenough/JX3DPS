@@ -63,6 +63,7 @@ struct State {
     pctf_t life = 1.0;
     pctf_t mana = 1.0;
     pctf_t target_life = 1.0;
+    double target_distance = 4.0;
     Slot last_skill = INVALID_SLOT;
     Slot preparing_skill = INVALID_SLOT;
     // At most one channel owns the player at a time.  Force-cast actions may
@@ -108,6 +109,7 @@ struct State {
         life = 1.0;
         mana = 1.0;
         target_life = 1.0;
+        target_distance = 4.0;
         last_skill = INVALID_SLOT;
         preparing_skill = INVALID_SLOT;
         casting_skill = INVALID_SLOT;

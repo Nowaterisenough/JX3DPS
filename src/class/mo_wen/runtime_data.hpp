@@ -2,6 +2,7 @@
 #define JX3DPS_MO_WEN_RUNTIME_DATA_HPP
 
 #include "src/core/runtime/specialization.hpp"
+#include "src/core/runtime/target_timeline.hpp"
 #include <bit>
 #include <memory>
 
@@ -137,6 +138,7 @@ struct Config {
     using RuntimeModule = Module;
     Attributes attributes; Target target; unsigned talents=0, equipment=0, team_effects=0; std::array<unsigned,4> recipes{};
     Style initial_style=Style::GaoShanLiuShui; int initial_yingzi=0; tick_t delay=0;
+    std::vector<TargetEvent> target_events;
 };
 
 
@@ -401,6 +403,7 @@ struct Prepared {
         checked(upper*capacity);
     }
     void Validate()const {
+        ValidateTargetEvents(config.target_events);
         const auto &a=config.attributes;
         for (value_t v:{a.attack_base,a.attack_by_class,a.weapon,a.crit,a.crit_power,a.overcome,a.strain,a.surplus,a.haste})
             if (v<0 || v>1000000) throw std::invalid_argument("Mo Wen attribute outside 0..1000000");

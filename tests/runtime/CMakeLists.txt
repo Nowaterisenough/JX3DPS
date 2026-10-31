@@ -1,5 +1,11 @@
 find_package(Threads REQUIRED)
 
+add_executable(target_timeline_tests target_timeline_tests.cpp)
+target_include_directories(target_timeline_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+target_compile_features(target_timeline_tests PRIVATE cxx_std_26)
+target_link_libraries(target_timeline_tests PRIVATE Threads::Threads)
+add_test(NAME target_timeline_tests COMMAND target_timeline_tests)
+
 add_executable(runtime_tests runtime_tests.cpp)
 target_include_directories(runtime_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 target_compile_features(runtime_tests PRIVATE cxx_std_26)

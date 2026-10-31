@@ -170,6 +170,7 @@ void HistoryPanel::Refresh()
                         .arg(desktop::SkillName(m_history.Class(), state.casting_skill),
                              Remaining(state.skill_casting_at[state.casting_skill], m_frame));
     }
+    resource += QStringLiteral("\n目标气血 %1% · 距离 %2").arg(state.target_life * 100, 0, 'f', 2).arg(state.target_distance, 0, 'f', 2);
     m_resources->setText(resource);
     auto percent = [](double value) {
         return QStringLiteral("%1 %").arg(value * 100, 0, 'f', 2);

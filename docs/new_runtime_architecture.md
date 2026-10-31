@@ -78,7 +78,8 @@ Implemented macro behavior:
   forward jumps, so failed AND groups and satisfied OR groups skip unused terms.
 - /scast and /sfcast stop on failure and consume the successful step until reset.
 - Buff/TBuff existence and stacks, absent Buffs, remaining times, cooldowns,
-  skill charges, resources, previous skill, current player/target health ratios.
+  skill charges, resources, previous skill, current player/target health ratios,
+  and the current target distance.
 - Fractional-second comparisons retain the correct integer-frame boundary.
 - Unknown names with configured resolvers and malformed expressions reject the
   whole program. No partial program can run. No invented qidian20 shorthand.
@@ -134,13 +135,29 @@ from silently misordering same-frame effects. Reduction starts from the initial
 state, replays mutations before each hit, and sets the exact hit frame. The final
 live arrays are never used as a substitute for historical state.
 
-The generic replay path covers Buff state, resources, cooldowns and casting.
+The generic replay path covers Buff state, resources, cooldowns, casting,
+target health and target distance.
 Tai Xu now uses immutable, fight-local attribute versions instead of replaying
 mutations for damage. Each DOT holds one version ID and each damage event holds
 both snapshot and live version IDs. The rules select historical/live attributes
 individually and retain immediate causal rolls. See [team buff versions](team_buff_versions.md).
 There is one self and one current target; multi-target ownership and switching
 remain migration requirements.
+
+`target_timeline.hpp` shares one reusable priority-0 timer between all target
+events in a fight. Configurations carry up to 256 chronologically ordered events
+with positive frame numbers up to 24 hours; equal-frame entries retain source
+order. The desktop compiler projects frame-zero assignments into the initial
+configuration and emits only timed health/distance changes. Target changes run
+before skill-completion and DOT timers, then the ordinary macro pass observes
+the new state. The interval is `[0, duration)`, so end-frame events do not execute.
+Each fight resets the cursor, and empty schedules create no timer. Dispatch does
+not allocate or parse source. Mutation records use integer basis points for
+health and hundredths for distance; historical replay and Debug use the same
+state. Damage coefficients remain immutable: timed armor/level/vulnerability
+changes are rejected rather than silently using stale prepared coefficients.
+Distance follows existing range-check sites and does not cancel in-flight casts
+or DOTs. Gain configurations retain the schedule when copying attributes.
 
 Buffers have explicit capacities. Exhaustion raises an error; it never silently
 drops a hit or reallocates in the hot loop. A production boundary may grow buffers

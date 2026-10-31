@@ -299,6 +299,8 @@ DebugSimulator::PlayerState DebugSimulator::GetPlayerState() const
         result.currentSeconds    = state.now / 16.0;
         result.currentMacro      = desktop::ClassName(d->Class());
         const auto catalog       = desktop::Describe(d->Class());
+        result.details << QStringLiteral("目标气血 %1% · 距离 %2")
+            .arg(state.target_life * 100, 0, 'f', 2).arg(state.target_distance, 0, 'f', 2);
 
         if (state.last_skill != JX3DPS::runtime::INVALID_SLOT && state.last_skill < catalog.skills.size()) {
             result.lastSkill = QString::fromUtf8(catalog.skills[state.last_skill].name.data(),

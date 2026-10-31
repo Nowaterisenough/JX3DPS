@@ -23,7 +23,7 @@ struct DamageIntent {
     bool operator==(const DamageIntent &) const = default;
 };
 
-enum class MutationKind : std::uint8_t { Buff, SkillCooldown, Resources, Gcd, SkillEnergy, Prepare, Casting };
+enum class MutationKind : std::uint8_t { Buff, SkillCooldown, Resources, Gcd, SkillEnergy, Prepare, Casting, TargetLife, TargetDistance };
 struct StateMutation {
     tick_t frame = 0;
     std::uint32_t sequence = 0;
@@ -85,6 +85,12 @@ public:
         CheckCapacity(mutations_);
         mutations_.push_back({frame, Sequence(frame), MutationKind::Casting, slot, false, ready_at, active});
     }
+    void RecordTarget(tick_t frame, MutationKind kind, int value) {
+        if (kind != MutationKind::TargetLife && kind != MutationKind::TargetDistance)
+            throw std::invalid_argument("invalid target mutation");
+        CheckCapacity(mutations_);
+        mutations_.push_back({frame, Sequence(frame), kind, INVALID_SLOT, true, value});
+    }
     template <typename Fn>
     value_t Reduce(const State &initial, State &scratch, Fn &&reducer) const {
         if (&initial == &scratch) throw std::invalid_argument("replay scratch must not alias initial state");
@@ -143,6 +149,8 @@ public:
                 state.skill_casting_at.at(m.slot) = m.a;
                 state.casting_skill = m.b ? m.slot : INVALID_SLOT;
                 break;
+            case MutationKind::TargetLife: state.target_life = m.a / 10000.0; break;
+            case MutationKind::TargetDistance: state.target_distance = m.a / 100.0; break;
         }
     }
 private:

@@ -50,6 +50,7 @@ public:
     const std::array<FieldInstance, 3> &Fields() const { return fields_; }
 
     template <typename Engine> void Setup(Engine &e) {
+        target_timeline_.Setup(e, Data().config.target_events);
         versions_.Reserve(Data().config.attribute_version_capacity);
         auto &s = e.MutableState();
         if (s.skill_ready_at.size() != SkillCount || s.self_buff_stacks.size() != BuffCount)
@@ -126,6 +127,8 @@ public:
         if (phase < 0 || phase >= 16) throw std::invalid_argument("invalid natural qidian phase");
         e.Timers().ArmAt(natural_qidian_, phase);
         s.target_life = Data().config.target.life;
+        s.target_distance = Data().config.target.distance;
+        target_timeline_.Reset(e, Data().config.target_events);
         s.skill_energy[ZiQi] = Data().purple_charges;
     }
     template <typename Engine> bool Cast(Engine &e, const MacroLine &line) {
@@ -169,8 +172,8 @@ public:
         if (skill == WanJian || skill == JingHua) range = 8;
         else if (IsRenJian(skill)) range = Data().renjian_range;
         if ((skill == BaHuang || skill == SanHuan) && Data().Has(FengShiTalent)) range += 2;
-        if (skill != ZiQi && !IsFieldSkill(skill) && Data().config.target.distance > range) {
-            if constexpr (Engine::debug_enabled) e.RejectAction(ActionBlockReason::Distance, Data().config.target.distance, range);
+        if (skill != ZiQi && !IsFieldSkill(skill) && s.target_distance > range) {
+            if constexpr (Engine::debug_enabled) e.RejectAction(ActionBlockReason::Distance, s.target_distance, range);
             return false;
         }
         if (skill == JingHua && (!Data().Has(JingHuaTalent) || !s.self_buff_stacks[JingHuaBuff])) {
@@ -273,7 +276,7 @@ public:
             e.Timers().ArmAt(jianru_tick_, next);
         } else if (handle.kind == TimerKind::BuffInterval && handle.slot >= YunZhongSuiXingBuff && handle.slot <= YunZhongTunRiBuff) {
             const auto effect = static_cast<std::uint16_t>(YunZhongSuiXingEffect + handle.slot - YunZhongSuiXingBuff);
-            if (Data().config.target.distance <= 6) Hit(e, effect, Snapshot(s));
+            if (s.target_distance <= 6) Hit(e, effect, Snapshot(s));
             ActivateJianRu(e);
             const auto next = s.now + 16;
             SetBuff(s, e.Log(), false, handle.slot, s.self_buff_expires_at[handle.slot], next, 1);
@@ -326,6 +329,8 @@ public:
                 } else if (handle.slot == SetAttributeBuff) profile_ &= ~SetAttributeProfile;
                 else if (handle.slot == YouRenBuff) you_ren_crit_basis_points_ = 0;
             }
+        } else if (handle.kind == TimerKind::TargetChange) {
+            target_timeline_.Dispatch(e, Data().config.target_events);
         }
     }
     value_t Reduce(const DamageIntent &hit) const {
@@ -710,7 +715,7 @@ private:
         e.Timers().ArmAt(renjian_expire_, expiry);
     }
     template <typename Engine> void PulseLieYun(Engine &e) {
-        if (Data().config.target.distance <= 15) Aura(e, LieYunBuff, 16);
+        if (e.GetState().target_distance <= 15) Aura(e, LieYunBuff, 16);
     }
     template <typename Engine> void UpdateLieYun(Engine &e) {
         if (!Data().Has(LieYun)) return;
@@ -819,6 +824,7 @@ private:
     std::shared_ptr<const Prepared> prepared_;
     Rng rng_;
     [[no_unique_address]] QidianPhase qidian_phase_;
+    TargetTimeline target_timeline_;
     DeadlineQueue::TimerId natural_qidian_{};
     std::array<DeadlineQueue::TimerId, SkillCount> cooldown_{};
     std::array<DeadlineQueue::TimerId, SkillCount> casting_{};

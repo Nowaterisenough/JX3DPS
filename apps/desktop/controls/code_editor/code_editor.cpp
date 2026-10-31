@@ -58,21 +58,21 @@ constexpr int   MENU_V_MARGIN              = 4;
 constexpr int   MENU_H_MARGIN              = 0;
 
 // 编辑器颜色常量
-constexpr int EDITOR_BACKGROUND_R = 30;
-constexpr int EDITOR_BACKGROUND_G = 30;
-constexpr int EDITOR_BACKGROUND_B = 30;
+constexpr int EDITOR_BACKGROUND_R = 35;
+constexpr int EDITOR_BACKGROUND_G = 35;
+constexpr int EDITOR_BACKGROUND_B = 39;
 
-constexpr int EDITOR_TEXT_R = 212;
-constexpr int EDITOR_TEXT_G = 212;
-constexpr int EDITOR_TEXT_B = 212;
+constexpr int EDITOR_TEXT_R = 232;
+constexpr int EDITOR_TEXT_G = 237;
+constexpr int EDITOR_TEXT_B = 247;
 
-constexpr int EDITOR_HIGHLIGHT_R = 38;
-constexpr int EDITOR_HIGHLIGHT_G = 79;
-constexpr int EDITOR_HIGHLIGHT_B = 120;
+constexpr int EDITOR_HIGHLIGHT_R = 35;
+constexpr int EDITOR_HIGHLIGHT_G = 64;
+constexpr int EDITOR_HIGHLIGHT_B = 97;
 
-constexpr int CURRENT_LINE_R = 44;
-constexpr int CURRENT_LINE_G = 44;
-constexpr int CURRENT_LINE_B = 44;
+constexpr int CURRENT_LINE_R = 42;
+constexpr int CURRENT_LINE_G = 42;
+constexpr int CURRENT_LINE_B = 48;
 
 // 编辑器尺寸常量
 constexpr int TAB_STOP                 = 4;
@@ -91,10 +91,10 @@ constexpr int WARNING_COLOR_R = 255;
 constexpr int WARNING_COLOR_G = 165;
 constexpr int WARNING_COLOR_B = 0;
 
-constexpr int DEBUG_BG_R     = 255;
-constexpr int DEBUG_BG_G     = 255;
-constexpr int DEBUG_BG_B     = 0;
-constexpr int DEBUG_BG_ALPHA = 40;
+constexpr int DEBUG_BG_R     = 216;
+constexpr int DEBUG_BG_G     = 185;
+constexpr int DEBUG_BG_B     = 121;
+constexpr int DEBUG_BG_ALPHA = 28;
 
 // 其他常量
 constexpr int ERROR_ICON_X_OFFSET = 20;
@@ -293,11 +293,10 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), d_ptr(new Code
     // 设置文档默认字体，确保中文字符能正确回退
     document()->setDefaultFont(Resources::MonoFont());
 
-    // VSCode 深色主题配色
     QPalette palette = this->palette();
-    palette.setColor(QPalette::Base, QColor(EDITOR_BACKGROUND_R, EDITOR_BACKGROUND_G, EDITOR_BACKGROUND_B)); // 编辑器背景 #1e1e1e
-    palette.setColor(QPalette::Text, QColor(EDITOR_TEXT_R, EDITOR_TEXT_G, EDITOR_TEXT_B)); // 文本颜色 #d4d4d4
-    palette.setColor(QPalette::Highlight, QColor(EDITOR_HIGHLIGHT_R, EDITOR_HIGHLIGHT_G, EDITOR_HIGHLIGHT_B)); // 选中背景 #264f78
+    palette.setColor(QPalette::Base, QColor(EDITOR_BACKGROUND_R, EDITOR_BACKGROUND_G, EDITOR_BACKGROUND_B));
+    palette.setColor(QPalette::Text, QColor(EDITOR_TEXT_R, EDITOR_TEXT_G, EDITOR_TEXT_B));
+    palette.setColor(QPalette::Highlight, QColor(EDITOR_HIGHLIGHT_R, EDITOR_HIGHLIGHT_G, EDITOR_HIGHLIGHT_B));
     palette.setColor(QPalette::HighlightedText, QColor(WHITE_COLOR_RGB, WHITE_COLOR_RGB, WHITE_COLOR_RGB)); // 选中文本
     setPalette(palette);
 
@@ -305,8 +304,7 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), d_ptr(new Code
     QFontMetrics metrics(Resources::MonoFont());
     setTabStopDistance(TAB_STOP * metrics.horizontalAdvance(' '));
 
-    // 设置当前行高亮颜色为 VSCode 风格
-    d->currentLineColor = QColor(CURRENT_LINE_R, CURRENT_LINE_G, CURRENT_LINE_B); // #2c2c2c
+    d->currentLineColor = QColor(CURRENT_LINE_R, CURRENT_LINE_G, CURRENT_LINE_B);
 
     // 默认启用 C++ 语法高亮
     d->cppHighlighter.reset(new CppSyntaxHighlighter(document()));
@@ -466,7 +464,7 @@ void CodeEditor::HighlightCurrentLine()
         QTextBlock debugBlock = document()->findBlockByLineNumber(d->currentDebugLine - 1);
         if (debugBlock.isValid()) {
             QTextEdit::ExtraSelection debugSelection;
-            debugSelection.format.setBackground(QColor(DEBUG_BG_R, DEBUG_BG_G, DEBUG_BG_B, DEBUG_BG_ALPHA)); // 浅黄色半透明 #ffff0028
+            debugSelection.format.setBackground(QColor(DEBUG_BG_R, DEBUG_BG_G, DEBUG_BG_B, DEBUG_BG_ALPHA));
             debugSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
             debugSelection.cursor = QTextCursor(debugBlock);
             debugSelection.cursor.clearSelection();
@@ -506,8 +504,7 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
     QPainter painter(d->lineNumberArea);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
-    // VSCode 风格的行号区域背景 #1e1e1e
-    painter.fillRect(event->rect(), QColor(30, 30, 30));
+    painter.fillRect(event->rect(), palette().color(QPalette::Base));
 
     QTextBlock block       = firstVisibleBlock();
     int        blockNumber = block.blockNumber();
@@ -540,7 +537,7 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
             if (blockNumber == currentBlockNumber) {
                 painter.setPen(QColor(212, 212, 212)); // 当前行 #d4d4d4
             } else {
-                painter.setPen(QColor(133, 133, 133)); // 其他行 #858585
+                painter.setPen(QColor(129, 143, 164));
             }
 
             // 绘制调试行高亮（如果是当前调试行）- VSCode 风格：黄色背景
@@ -549,7 +546,7 @@ void CodeEditor::LineNumberAreaPaintEvent(QPaintEvent *event)
             if (d->currentDebugLine == lineNumber) {
                 // 1. 绘制黄色背景高亮条（覆盖整个行号区域）
                 painter.setPen(Qt::NoPen);
-                painter.setBrush(QColor(255, 204, 0)); // VSCode 黄色 #ffcc00
+                painter.setBrush(QColor(216, 185, 121));
                 painter.drawRect(0, top, d->lineNumberArea->width(), fontMetrics().height());
 
                 // 2. 重新绘制行号（黑色，覆盖在黄色背景上）
@@ -1115,11 +1112,10 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
 
     // VSCode 风格配色
 
-    // 命令格式 - 紫色 #c586c0 (/cast /fcast /scast /sfcast /switch等)
-    commandFormat.setForeground(QColor(197, 134, 192));
+    commandFormat.setForeground(QColor(112, 185, 255));
     QStringList commandPatterns = { "/cast\\b",       "/fcast\\b",      "/scast\\b",         "/sfcast\\b",
                                     "/switch\\b", // 切换宏命令
-                                    "/add_target\\b", "/set_target\\b", "/change_target\\b", "/add_buff\\b",
+                                    "/add_target\\b", "/set_target\\b", "/set_player\\b", "/change_target\\b", "/add_buff\\b",
                                     "/clear_buff\\b", "/stop\\b",       "/continue\\b",      "/end\\b" };
     for (const QString &pattern : commandPatterns) {
         rule.pattern = QRegularExpression(pattern);
@@ -1127,14 +1123,12 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
         highlightingRules.append(rule);
     }
 
-    // macro 关键字 - 橙色 #ce9178 (用于宏名称标识)
-    macroFormat.setForeground(QColor(206, 145, 120));
+    macroFormat.setForeground(QColor(201, 173, 128));
     rule.pattern = QRegularExpression("\\bmacro\\b");
     rule.format  = macroFormat;
     highlightingRules.append(rule);
 
-    // 时间格式 - 浅绿色 #b5cea8 (例如 00:10.5)
-    numberFormat.setForeground(QColor(181, 206, 168));
+    numberFormat.setForeground(QColor(239, 188, 113));
     rule.pattern = QRegularExpression("\\b[0-9]+:[0-9]+\\.[0-9]+\\b");
     rule.format  = numberFormat;
     highlightingRules.append(rule);
@@ -1144,8 +1138,7 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
     rule.format  = numberFormat;
     highlightingRules.append(rule);
 
-    // 条件关键字 - 蓝紫色 #569cd6
-    conditionFormat.setForeground(QColor(86, 156, 214));
+    conditionFormat.setForeground(QColor(95, 216, 223));
 
     // 带冒号的关键字
     QStringList colonKeywords = {
@@ -1168,7 +1161,7 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
     }
 
     // 带等号的关键字（macro 用于宏名称，name 用于条件判断）
-    QStringList equalKeywords = { "id", "name", "stack_num", "duration", "distance", "shield", "level" };
+    QStringList equalKeywords = { "id", "name", "stack_num", "duration", "distance", "shield", "level", "vulnerable", "shadows", "style" };
     for (const QString &keyword : equalKeywords) {
         rule.pattern = QRegularExpression("\\b" + keyword + "(?=\\s*=)");
         rule.format  = conditionFormat;
@@ -1180,20 +1173,17 @@ JX3MacroSyntaxHighlighter::JX3MacroSyntaxHighlighter(QTextDocument *parent) : QS
     rule.format  = conditionFormat;
     highlightingRules.append(rule);
 
-    // 操作符 - 橙色 #d4d4d4
-    operatorFormat.setForeground(QColor(212, 212, 212));
+    operatorFormat.setForeground(QColor(160, 172, 192));
     rule.pattern = QRegularExpression("[\\[\\]&|=><~:]");
     rule.format  = operatorFormat;
     highlightingRules.append(rule);
 
-    // 技能名（中文） - VSCode函数标准黄 #dcdcaa
-    skillNameFormat.setForeground(QColor(220, 220, 170));
+    skillNameFormat.setForeground(QColor(244, 245, 247));
     rule.pattern = QRegularExpression("[\\x{4e00}-\\x{9fa5}]+"); // 匹配中文字符
     rule.format  = skillNameFormat;
     highlightingRules.append(rule);
 
-    // 注释格式 - 绿色 #6a9955 (必须最后添加以覆盖其他规则)
-    commentFormat.setForeground(QColor(106, 153, 85));
+    commentFormat.setForeground(QColor(132, 146, 166));
 }
 
 void JX3MacroSyntaxHighlighter::highlightBlock(const QString &text)

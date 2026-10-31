@@ -18,7 +18,8 @@ public:
     BatchWorker(JX3DPS::runtime::MacroProgram program,
                 JX3DPS::runtime::BatchOptions options,
                 desktop::Config config,
-                QObject *parent = nullptr, bool captureTrace = false, bool calculateGains = false);
+                QObject *parent = nullptr, bool captureTrace = false, bool calculateGains = false,
+                desktop::GainComparisonMode gainMode = desktop::GainComparisonMode::SameValue);
     ~BatchWorker() override;
 
     void RequestCancel();
@@ -43,7 +44,7 @@ private:
     JX3DPS::runtime::BatchControl m_control;
     bool m_captureTrace = false;
     bool m_calculateGains = false;
-    std::atomic<std::uint64_t> m_completedStages{0};
+    desktop::GainComparisonMode m_gainMode;
 };
 
 #endif // BATCH_WORKER_H

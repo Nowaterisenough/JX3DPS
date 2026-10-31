@@ -23,6 +23,7 @@ public:
 
     // 获取调试模式状态
     bool IsDebugModeEnabled() const;
+    void SetAccentColor(const QColor &accent);
 
 signals:
     void StartSimulationClicked();         // 开始模拟

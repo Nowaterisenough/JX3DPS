@@ -14,6 +14,7 @@
 #include <QFont>
 #include <QDebug>
 #include <QStyle>
+#include <QPointer>
 
 // 自定义暂停按钮 - 绘制两个实心竖条
 class PauseButton : public QToolButton
@@ -31,7 +32,7 @@ protected:
 
         // 获取按钮颜色
         QColor color = property("toolbarColorRole").toString() == "pause"
-                       ? QColor(117, 190, 255)  // #75beff
+                       ? QColor(116, 191, 241)
                        : QColor(187, 187, 187); // #bbbbbb
 
         if (!isEnabled()) {
@@ -90,6 +91,7 @@ public:
     bool dragging;
     QPoint dragStartPos;
     QPoint savedRelativePos;  // 保存相对于父窗口的位置
+    QPointer<QWidget> anchor;
 
 private:
     DebugToolbar *q_ptr;
@@ -105,8 +107,9 @@ DebugToolbar::DebugToolbar(QWidget *parent) :
 {
     // 设置为浮窗
     // 使用 Tool 而非 Popup，允许点击穿透到下方窗口
-    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::NoDropShadowWindowHint);
+    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus | Qt::NoDropShadowWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_ShowWithoutActivating);
 
     // 安装事件过滤器以监听父窗口移动
     if (parent) {
@@ -175,11 +178,11 @@ void DebugToolbar::SetupUI()
             min-height: 28px;
             max-width: 28px;
             max-height: 28px;
-            color: #bbbbbb;
+            color: #cbd2dc;
             font-family: "%1";
         }
         QToolButton:hover {
-            background-color: rgba(90, 93, 94, 0.31);
+            background-color: rgba(38, 115, 235, 0.22);
         }
         QToolButton:pressed {
             background-color: rgba(90, 93, 94, 0.5);
@@ -188,20 +191,22 @@ void DebugToolbar::SetupUI()
             color: #5a5d5e;
         }
         QToolButton[toolbarColorRole="pause"] {
-            color: #75beff;
+            color: #74bff1;
         }
         QToolButton[toolbarColorRole="pause"]:disabled {
             color: #5a5d5e;
         }
         QToolButton[toolbarColorRole="primary"] {
-            color: #89d185;
+            color: #76b5ff;
         }
         QToolButton[toolbarColorRole="primary"]:disabled {
             color: #5a5d5e;
         }
         QToolButton[toolbarColorRole="stop"] {
-            color: #f48771;
+            color: #ee7873;
         }
+        QToolButton[toolbarColorRole="warning"] { color: #ffb23e; }
+        QToolButton[toolbarColorRole="warning"]:disabled { color: #5a5d5e; }
         QToolButton[toolbarColorRole="stop"]:disabled {
             color: #5a5d5e;
         }
@@ -262,6 +267,8 @@ void DebugToolbar::SetupUI()
     d->playPauseStack->setFixedSize(28, 28);
 
     d->continueButton = new QToolButton(d->playPauseStack);
+    d->continueButton->setObjectName(QStringLiteral("debugContinueButton"));
+    d->continueButton->setAccessibleName(QStringLiteral("开始或继续调试"));
     d->continueButton->setText(QStringLiteral(u"\uF605"));  // Fluent: play_20_regular
     d->continueButton->setToolTip(QStringLiteral("继续 (F5)"));
     connect(d->continueButton, &QToolButton::clicked, this, &DebugToolbar::ContinueClicked);
@@ -269,6 +276,8 @@ void DebugToolbar::SetupUI()
     applyColorRole(d->continueButton, "primary");
 
     d->pauseButton = new PauseButton(d->playPauseStack);
+    d->pauseButton->setObjectName(QStringLiteral("debugPauseButton"));
+    d->pauseButton->setAccessibleName(QStringLiteral("暂停调试"));
     d->pauseButton->setToolTip(QStringLiteral("暂停 (F6)"));
     connect(d->pauseButton, &QToolButton::clicked, this, &DebugToolbar::PauseClicked);
     applyColorRole(d->pauseButton, "pause");
@@ -283,6 +292,8 @@ void DebugToolbar::SetupUI()
 
     // 单步跳过
     d->stepOverButton = new QToolButton(this);
+    d->stepOverButton->setObjectName(QStringLiteral("debugStepOverButton"));
+    d->stepOverButton->setAccessibleName(QStringLiteral("执行一行"));
     d->stepOverButton->setText(QStringLiteral(u"\uE10F"));  // Fluent: arrow_step_over_20_filled
     d->stepOverButton->setToolTip(QStringLiteral("单步跳过 (F10)"));
     connect(d->stepOverButton, &QToolButton::clicked, this, &DebugToolbar::StepOverClicked);
@@ -292,6 +303,8 @@ void DebugToolbar::SetupUI()
 
     // 单步进入
     d->stepIntoButton = new QToolButton(this);
+    d->stepIntoButton->setObjectName(QStringLiteral("debugStepIntoButton"));
+    d->stepIntoButton->setAccessibleName(QStringLiteral("执行一个条件或动作"));
     d->stepIntoButton->setText(QStringLiteral(u"\uE0FC"));  // Fluent: arrow_step_in_20_filled
     d->stepIntoButton->setToolTip(QStringLiteral("单步进入 (F11)"));
     connect(d->stepIntoButton, &QToolButton::clicked, this, &DebugToolbar::StepIntoClicked);
@@ -301,6 +314,8 @@ void DebugToolbar::SetupUI()
 
     // 单步跳出
     d->stepOutButton = new QToolButton(this);
+    d->stepOutButton->setObjectName(QStringLiteral("debugStepOutButton"));
+    d->stepOutButton->setAccessibleName(QStringLiteral("执行本轮宏"));
     d->stepOutButton->setText(QStringLiteral(u"\uE10B"));  // Fluent: arrow_step_out_20_filled
     d->stepOutButton->setToolTip(QStringLiteral("单步跳出 (Shift+F11)"));
     connect(d->stepOutButton, &QToolButton::clicked, this, &DebugToolbar::StepOutClicked);
@@ -312,17 +327,21 @@ void DebugToolbar::SetupUI()
 
     // 重启
     d->restartButton = new QToolButton(this);
+    d->restartButton->setObjectName(QStringLiteral("debugRestartButton"));
+    d->restartButton->setAccessibleName(QStringLiteral("重新调试"));
     d->restartButton->setText(QStringLiteral(u"\uF13D"));  // Fluent: arrow_clockwise_20_regular
     d->restartButton->setToolTip(QStringLiteral("重启 (Ctrl+Shift+F5)"));
     connect(d->restartButton, &QToolButton::clicked, this, &DebugToolbar::RestartClicked);
     layout->addWidget(d->restartButton);
     setIconFont(d->restartButton, actionFamily, 13.4);
-    applyColorRole(d->restartButton, "primary");
+    applyColorRole(d->restartButton, "warning");
 
     layout->addSpacing(4);
 
     // 停止
     d->stopButton = new QToolButton(this);
+    d->stopButton->setObjectName(QStringLiteral("debugStopButton"));
+    d->stopButton->setAccessibleName(QStringLiteral("停止调试"));
     d->stopButton->setText(QStringLiteral(u"\uF72A"));  // Fluent: stop_20_regular
     d->stopButton->setToolTip(QStringLiteral("停止 (Shift+F5)"));
     connect(d->stopButton, &QToolButton::clicked, this, &DebugToolbar::StopClicked);
@@ -359,14 +378,17 @@ void DebugToolbar::UpdateButtonStates()
 
     switch (d->state) {
     case Stopped:
-        // 停止状态：只有继续按钮可用
+    case Finished:
+        // 未启动与完成后禁用单步；完成后仍可重启或停止。
         d->playPauseStack->setCurrentWidget(d->continueButton);
         d->continueButton->setEnabled(true);
         d->stepOverButton->setEnabled(false);
         d->stepIntoButton->setEnabled(false);
         d->stepOutButton->setEnabled(false);
-        d->restartButton->setEnabled(false);
-        d->stopButton->setEnabled(false);
+        d->restartButton->setEnabled(d->state == Finished);
+        d->stopButton->setEnabled(d->state == Finished);
+        d->continueButton->setToolTip(d->state == Finished ? QStringLiteral("重新调试（F5）")
+                                                         : QStringLiteral("开始调试（F5）"));
         break;
 
     case Running:
@@ -384,6 +406,7 @@ void DebugToolbar::UpdateButtonStates()
         // 暂停状态：所有按钮可用
         d->playPauseStack->setCurrentWidget(d->continueButton);
         d->continueButton->setEnabled(true);
+        d->continueButton->setToolTip(QStringLiteral("继续（F5）"));
         d->stepOverButton->setEnabled(true);
         d->stepIntoButton->setEnabled(true);
         d->stepOutButton->setEnabled(true);
@@ -393,24 +416,38 @@ void DebugToolbar::UpdateButtonStates()
     }
 }
 
-void DebugToolbar::ShowFloating()
+void DebugToolbar::SetAnchorWidget(QWidget *anchor)
 {
     Q_D(DebugToolbar);
+    if (d->anchor) d->anchor->removeEventFilter(this);
+    d->anchor = anchor;
+    d->savedRelativePos = {};
+    if (anchor) anchor->installEventFilter(this);
+    if (isVisible()) UpdateFloatingPosition();
+}
 
-    if (parentWidget()) {
-        // 如果有保存的位置，使用保存的相对位置
-        if (!d->savedRelativePos.isNull()) {
-            QPoint globalPos = parentWidget()->mapToGlobal(d->savedRelativePos);
-            move(globalPos);
-        } else {
-            // 首次显示：在父窗口的中上部
-            QPoint center = parentWidget()->rect().center();
-            QPoint relativePos(center.x() - width() / 2, 60);
-            QPoint globalPos = parentWidget()->mapToGlobal(relativePos);
-            move(globalPos);
-            d->savedRelativePos = relativePos;
-        }
-    }
+QRect DebugToolbar::FloatingBounds() const
+{
+    Q_D(const DebugToolbar);
+    auto *anchor = d->anchor ? d->anchor.data() : parentWidget();
+    return anchor ? QRect(anchor->mapToGlobal(QPoint(0, 0)), anchor->size()) : geometry();
+}
+
+void DebugToolbar::UpdateFloatingPosition()
+{
+    Q_D(DebugToolbar);
+    const auto bounds = FloatingBounds();
+    auto position = bounds.topLeft() + QPoint(qMax(0, bounds.width() - width() - 8), 8);
+    if (parentWidget() && !d->savedRelativePos.isNull()) position = parentWidget()->mapToGlobal(d->savedRelativePos);
+    position.setX(qBound(bounds.left(), position.x(), qMax(bounds.left(), bounds.right() - width() + 1)));
+    position.setY(qBound(bounds.top(), position.y(), qMax(bounds.top(), bounds.bottom() - height() + 1)));
+    move(position);
+    if (parentWidget()) d->savedRelativePos = parentWidget()->mapFromGlobal(position);
+}
+
+void DebugToolbar::ShowFloating()
+{
+    UpdateFloatingPosition();
     show();
 }
 
@@ -432,7 +469,7 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     const int shadowRadius = 8;
-    const int borderRadius = 6;
+    const int borderRadius = 8;
 
     // 计算内容区域（去除阴影边距）
     QRect contentRect = rect().adjusted(shadowRadius, shadowRadius, -shadowRadius, -shadowRadius);
@@ -442,7 +479,7 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
         // 计算当前层的透明度（离内容越远越淡）
         // 使用指数衰减让内圈更深，外圈更淡
         qreal progress = qreal(i) / shadowRadius;
-        int alpha = int(90 * qPow(1.0 - progress, 2.5));  // 增加到 90，内层更深
+        int alpha = int(42 * qPow(1.0 - progress, 2.5));
 
         // 外层矩形
         QRectF outerRect = contentRect.adjusted(-i, -i, i, i);
@@ -468,11 +505,10 @@ void DebugToolbar::paintEvent(QPaintEvent *event)
     QPainterPath mainPath;
     mainPath.addRoundedRect(contentRect, borderRadius, borderRadius);
 
-    // VSCode 的调试工具栏背景：非常深的背景色
-    painter.fillPath(mainPath, QColor(30, 30, 30, 255));
+    painter.fillPath(mainPath, QColor("#232327"));
 
     // 绘制边框
-    painter.setPen(QPen(QColor(60, 60, 60, 255), 1));
+    painter.setPen(QPen(QColor("#333339"), 1));
     painter.drawPath(mainPath);
 }
 
@@ -500,22 +536,10 @@ void DebugToolbar::mouseMoveEvent(QMouseEvent *event)
     if (d->dragging && (event->buttons() & Qt::LeftButton)) {
         QPoint newPos = event->globalPosition().toPoint() - d->dragStartPos;
 
-        // 限制在父窗口范围内
         if (parentWidget()) {
-            QRect parentRect = parentWidget()->rect();
-            QPoint parentGlobalPos = parentWidget()->mapToGlobal(QPoint(0, 0));
-
-            // 计算可移动的范围（考虑工具栏大小）
-            int minX = parentGlobalPos.x();
-            int minY = parentGlobalPos.y();
-            int maxX = parentGlobalPos.x() + parentRect.width() - width();
-            int maxY = parentGlobalPos.y() + parentRect.height() - height();
-
-            // 限制位置
-            newPos.setX(qBound(minX, newPos.x(), maxX));
-            newPos.setY(qBound(minY, newPos.y(), maxY));
-
-            // 保存相对位置
+            const auto bounds = FloatingBounds();
+            newPos.setX(qBound(bounds.left(), newPos.x(), qMax(bounds.left(), bounds.right() - width() + 1)));
+            newPos.setY(qBound(bounds.top(), newPos.y(), qMax(bounds.top(), bounds.bottom() - height() + 1)));
             d->savedRelativePos = parentWidget()->mapFromGlobal(newPos);
         }
 
@@ -537,14 +561,8 @@ bool DebugToolbar::eventFilter(QObject *watched, QEvent *event)
 {
     Q_D(DebugToolbar);
 
-    // 监听父窗口的移动事件
-    if (watched == parentWidget() && event->type() == QEvent::Move && isVisible()) {
-        // 父窗口移动时，更新浮窗的全局位置以保持相对位置不变
-        if (!d->savedRelativePos.isNull()) {
-            QPoint newGlobalPos = parentWidget()->mapToGlobal(d->savedRelativePos);
-            move(newGlobalPos);
-        }
-    }
+    if ((watched == parentWidget() || watched == d->anchor) && isVisible() &&
+        (event->type() == QEvent::Move || event->type() == QEvent::Resize)) UpdateFloatingPosition();
 
     return QWidget::eventFilter(watched, event);
 }

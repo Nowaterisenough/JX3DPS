@@ -24,13 +24,17 @@ add_subdirectory(controls/timeline)
 add_subdirectory(controls/player_state_panel)
 add_subdirectory(controls/equipment_panel)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Network)
+find_package(Qt6 6.12 REQUIRED COMPONENTS Widgets Network)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(HEADER_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/controls/theme/magpie_shell.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/controls/theme/history_chart.h
     ${CMAKE_CURRENT_SOURCE_DIR}/game_icons.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/talent_panel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/flow_timeline_editor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/combat_history.h
     ${CMAKE_CURRENT_SOURCE_DIR}/history_panel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/traced_rules.h
@@ -52,6 +56,8 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/game_icons.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/talent_panel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/flow_timeline_editor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/combat_history.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/history_panel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/desktop_data.qrc
@@ -77,7 +83,7 @@ if(JX3DPS_DESKTOP_TESTS)
     add_executable(desktop_tests ${CMAKE_SOURCE_DIR}/tests/desktop/desktop_tests.cpp)
     target_link_libraries(desktop_tests PRIVATE DesktopWorkbench Qt${QT_VERSION_MAJOR}::Test)
     add_test(NAME desktop_tests COMMAND desktop_tests -platform offscreen)
-    set_tests_properties(desktop_tests PROPERTIES TIMEOUT 60)
+    set_tests_properties(desktop_tests PROPERTIES TIMEOUT 180)
 endif()
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

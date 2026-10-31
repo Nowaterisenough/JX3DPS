@@ -10,12 +10,14 @@
 class QListView;
 class QKeyEvent;
 class QMouseEvent;
+class QPainter;
 
 namespace desktop {
 class ChoicePopup;
 QIcon   GameIcon(int id);
 QIcon   GameIcon(Specialization specialization, const QString &name);
 QString GameDescription(Specialization specialization, const QString &name);
+void    PaintGameIcon(QPainter &painter, const QRect &bounds, const QIcon &icon, bool grayscale = false);
 
 class IconCheckBox : public QCheckBox
 {
@@ -35,9 +37,12 @@ protected:
 class IconComboBox : public QComboBox
 {
 public:
-    explicit IconComboBox(const QString &category, QWidget *parent = nullptr);
+    explicit IconComboBox(const QString &category, QWidget *parent = nullptr, bool hasEmptyChoice = true);
 
-    QSize sizeHint() const override { return { 48, 44 }; }
+    QSize sizeHint() const override {
+        const int extent = m_hasEmptyChoice ? 44 : 38;
+        return { extent, extent };
+    }
 
     QSize minimumSizeHint() const override { return sizeHint(); }
 
@@ -54,6 +59,7 @@ protected:
 private:
     ChoicePopup *m_popup;
     QListView *m_choices;
+    bool m_hasEmptyChoice;
     void AcceptChoice();
 };
 } // namespace desktop

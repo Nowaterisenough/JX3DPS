@@ -73,7 +73,7 @@ HistoryPanel::HistoryPanel(QWidget *parent) : QWidget(parent)
     layout->setContentsMargins(10, 4, 4, 4);
     m_time = new QLabel(QStringLiteral("时间点属性"));
     m_time->setObjectName(QStringLiteral("historyTime"));
-    m_time->setStyleSheet(QStringLiteral("font-size: 16px; color: #efbf5f;"));
+    m_time->setStyleSheet(QStringLiteral("font-size: 16px; color: #ededf1;"));
     layout->addWidget(m_time);
     m_status = new QLabel;
     m_status->setWordWrap(true);

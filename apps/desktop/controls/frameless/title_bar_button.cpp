@@ -56,7 +56,7 @@ TitleBarButton::TitleBarButton(ButtonType type, QWidget *parent) : QPushButton(p
 {
     _type            = type;
     _backgroundColor = Qt::transparent;
-    _textColor       = QColor(140, 140, 140);
+    _textColor       = QColor(237, 237, 241);
     _isCloseButton   = (type == ButtonType::CLOSE);
 
     setFixedWidth(45);
@@ -108,7 +108,7 @@ void TitleBarButton::paintEvent(QPaintEvent *event)
     QString icon;
     switch (_type) {
         case ButtonType::MINIMIZE: icon = iconFont.minimize; break;
-        case ButtonType::MAXIMIZE: icon = iconFont.maximize; break;
+        case ButtonType::MAXIMIZE: icon = window()->isMaximized() ? iconFont.restore : iconFont.maximize; break;
         case ButtonType::RESTORE: icon = iconFont.restore; break;
         case ButtonType::CLOSE: icon = iconFont.close; break;
         default: break;
@@ -163,7 +163,7 @@ void TitleBarButton::SetHovered(bool hovered)
     if (hovered) {
         StartAnimation(QColor(0x3d3d3d), QColor(0xffffff));
     } else {
-        StartAnimation(Qt::transparent, QColor(0x8c8c8c));
+        StartAnimation(Qt::transparent, QColor(0xededf1));
     }
 }
 
@@ -177,7 +177,7 @@ void TitleBarButton::enterEvent(QEnterEvent *event)
 
 void TitleBarButton::leaveEvent(QEvent *event)
 {
-    StartAnimation(Qt::transparent, QColor(0x8c8c8c));
+    StartAnimation(Qt::transparent, QColor(0xededf1));
     QPushButton::leaveEvent(event);
 }
 

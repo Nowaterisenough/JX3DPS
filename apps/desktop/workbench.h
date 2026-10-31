@@ -10,6 +10,7 @@ public:
     ~Workbench() override;
 protected:
     void closeEvent(QCloseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 private:
     struct Impl;
     std::unique_ptr<Impl> d;

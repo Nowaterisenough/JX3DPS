@@ -1,5 +1,6 @@
 #include "simulation_options.h"
 
+#include <algorithm>
 #include <cmath>
 
 #include <QCheckBox>
@@ -11,12 +12,14 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPainter>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QRegularExpressionValidator>
@@ -27,19 +30,169 @@
 #include <QStackedWidget>
 #include <QTabWidget>
 #include <QThread>
+#include <QTextBlock>
+#include <QTextBrowser>
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 
 #include "diagnostics.h"
 #include "runtime_backend.h"
 #include "game_icons.h"
+#include "game_attributes.h"
+#include "talent_panel.h"
+#include "flow_macro.h"
+#include "flow_timeline_editor.h"
+#include "controls/code_editor/code_editor.h"
 #include "controls/equipment_panel/equipment_panel.h"
+#include "controls/theme/segmented_tabs.h"
+#include "controls/theme/header_group_box.h"
+#include "controls/theme/fixed_unit_spin_box.h"
 
 namespace mw = JX3DPS::runtime::mo_wen;
 namespace tx = JX3DPS::runtime::tai_xu;
 using namespace JX3DPS;
 
 namespace {
+class ConfigurationRows final : public QFormLayout {
+public:
+    explicit ConfigurationRows(QWidget *parent) : QFormLayout(parent) {}
+    void SetExpanded(bool expanded) { expanded_ = expanded; invalidate(); }
+    void SetColumns(int columns) { columns_ = columns; invalidate(); }
+    void SetCompactFieldWidth(int width) { compactFieldWidth_ = width; invalidate(); }
+    bool HasCompactFields() const { return compactFieldWidth_ > 0; }
+    QSize minimumSize() const override { return columns_ == 1 ? QFormLayout::minimumSize() : GridSize(); }
+    QSize sizeHint() const override { return columns_ == 1 ? QFormLayout::sizeHint() : GridSize(); }
+    void setGeometry(const QRect &rect) override {
+        if (columns_ > 1) {
+            QLayout::setGeometry(rect);
+            const auto margins = contentsMargins();
+            const auto area = rect.marginsRemoved(margins);
+            constexpr int gutter = 18;
+            const int cellWidth = (area.width() - gutter * (columns_ - 1)) / columns_;
+            const int rowHeight = RowHeight();
+            int y = area.top(), cell = 0;
+            for (int row = 0; row < rowCount(); ++row) {
+                auto *field = Field(row);
+                if (!field || (field->widget() && field->widget()->isHidden())) continue;
+                auto *label = itemAt(row, LabelRole);
+                if (!label) {
+                    if (cell) { y += rowHeight + verticalSpacing(); cell = 0; }
+                    field->setGeometry(QRect(area.left(), y, area.width(), field->sizeHint().height()));
+                    y += field->sizeHint().height() + verticalSpacing();
+                    continue;
+                }
+                const int x = area.left() + cell * (cellWidth + gutter);
+                const int labelWidth = label->sizeHint().width();
+                label->setGeometry(QRect(x, y, labelWidth, rowHeight));
+                const int fieldWidth = qMin(expanded_ ? 200 : cellWidth, cellWidth - labelWidth - horizontalSpacing());
+                field->setGeometry(QRect(x + cellWidth - fieldWidth, y, fieldWidth, rowHeight));
+                if (++cell == columns_) { cell = 0; y += rowHeight + verticalSpacing(); }
+            }
+            return;
+        }
+        if (!expanded_ && compactFieldWidth_ > 0) {
+            int labelWidth = 0, fieldWidth = compactFieldWidth_;
+            for (int row = 0; row < rowCount(); ++row) {
+                if (!isRowVisible(row)) continue;
+                const auto *label = itemAt(row, LabelRole);
+                const auto *field = itemAt(row, FieldRole);
+                if (!label || !field) continue;
+                labelWidth = qMax(labelWidth, label->sizeHint().width());
+                fieldWidth = qMax(fieldWidth, field->minimumSize().width());
+            }
+            const auto margins = contentsMargins();
+            const int width = qMin(rect.width(), margins.left() + labelWidth + horizontalSpacing() + fieldWidth + margins.right());
+            // Center the label/input pairs together, rather than separating them across the card.
+            QFormLayout::setGeometry(QRect(rect.x() + (rect.width() - width) / 2, rect.y(), width, rect.height()));
+            return;
+        }
+        QFormLayout::setGeometry(rect);
+        if (!expanded_) return;
+        // Right-align fields without inflating the form's minimum width on resize.
+        for (int row = 0; row < rowCount(); ++row) {
+            auto *field = itemAt(row, QFormLayout::FieldRole);
+            if (!field || !itemAt(row, QFormLayout::LabelRole)) continue;
+            auto bounds = field->geometry();
+            bounds.setLeft(qMax(bounds.left(), bounds.right() - 199));
+            field->setGeometry(bounds);
+        }
+    }
+private:
+    QLayoutItem *Field(int row) const {
+        auto *field = itemAt(row, FieldRole);
+        return field ? field : itemAt(row, SpanningRole);
+    }
+    int RowHeight() const {
+        int height = 0;
+        for (int row = 0; row < rowCount(); ++row) {
+            const auto *field = Field(row);
+            if (field && itemAt(row, LabelRole) && !(field->widget() && field->widget()->isHidden()))
+                height = qMax(height, field->sizeHint().height());
+        }
+        return height;
+    }
+    QSize GridSize() const {
+        int fields = 0, height = 0, pairWidth = 0, spanWidth = 0;
+        for (int row = 0; row < rowCount(); ++row) {
+            const auto *field = Field(row);
+            if (!field || (field->widget() && field->widget()->isHidden())) continue;
+            const auto *label = itemAt(row, LabelRole);
+            if (label) {
+                ++fields;
+                pairWidth = qMax(pairWidth, label->minimumSize().width() + horizontalSpacing() + field->minimumSize().width());
+            } else {
+                height += field->sizeHint().height() + verticalSpacing();
+                spanWidth = qMax(spanWidth, field->minimumSize().width());
+            }
+        }
+        const int lines = (fields + columns_ - 1) / columns_;
+        const auto margins = contentsMargins();
+        height += lines * RowHeight() + qMax(0, lines - 1) * verticalSpacing();
+        return {qMax(spanWidth, columns_ * pairWidth + (columns_ - 1) * 18) + margins.left() + margins.right(),
+                height + margins.top() + margins.bottom()};
+    }
+    int columns_ = 1;
+    int compactFieldWidth_ = 0;
+    bool expanded_ = false;
+};
+
+class ConfigurationForm final : public QWidget {
+public:
+    explicit ConfigurationForm(QWidget *parent = nullptr) : QWidget(parent), form(new ConfigurationRows(this)) {
+        setProperty("configurationForm", true);
+        form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        form->setHorizontalSpacing(6);
+        SetExpanded(false);
+    }
+    void SetExpanded(bool expanded) {
+        expanded_ = expanded;
+        const int horizontalMargin = expanded ? 18 : form->HasCompactFields() ? 4 : 10;
+        const int verticalMargin = expanded ? 10 : form->HasCompactFields() ? 2 : 4;
+        form->setContentsMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
+        form->setVerticalSpacing(expanded ? 14 : form->HasCompactFields() ? 2 : 3);
+        form->SetExpanded(expanded);
+        update();
+    }
+    ConfigurationRows *form;
+protected:
+    void paintEvent(QPaintEvent *event) override {
+        QWidget::paintEvent(event);
+        if (!expanded_) return;
+        QPainter painter(this);
+        painter.setPen(QColor("#2c2c32"));
+        for (int row = 0; row < form->rowCount() - 1; ++row) {
+            const auto *field = form->itemAt(row, QFormLayout::FieldRole);
+            if (!field || (field->widget() && !field->widget()->isVisible())) continue;
+            const int y = field->geometry().bottom() + 11;
+            painter.drawLine(18, y, width() - 18, y);
+        }
+    }
+private:
+    bool expanded_ = false;
+};
+
 QSpinBox *Integer(QFormLayout *form, const char *key, const QString &label, int value, int minimum, int maximum)
 {
     auto *input = new QSpinBox;
@@ -52,9 +205,10 @@ QSpinBox *Integer(QFormLayout *form, const char *key, const QString &label, int 
     return input;
 }
 
-QDoubleSpinBox *Decimal(QFormLayout *form, const char *key, const QString &label, double value, double minimum, double maximum, int decimals = 2)
+template<typename Input = QDoubleSpinBox>
+Input *Decimal(QFormLayout *form, const char *key, const QString &label, double value, double minimum, double maximum, int decimals = 2)
 {
-    auto *input = new QDoubleSpinBox;
+    auto *input = new Input;
     input->setObjectName(QString::fromLatin1(key));
     input->setDecimals(decimals);
     input->setRange(minimum, maximum);
@@ -70,52 +224,147 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     Q_INIT_RESOURCE(desktop_data);
     auto *layout = new QGridLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(8);
+    layout->setSpacing(6);
     auto group = [&](const QString &title, const char *name, int row, int column, int rowSpan = 1, int columnSpan = 1) {
-        auto *box = new QGroupBox(title, this);
+        auto *box = new desktop::HeaderGroupBox(title, this);
         box->setObjectName(QString::fromLatin1(name));
         auto *content = new QVBoxLayout(box);
-        content->setContentsMargins(10, 16, 10, 10);
-        content->setSpacing(6);
+        content->setContentsMargins(10, 6, 10, 8);
+        content->setSpacing(4);
         layout->addWidget(box, row, column, rowSpan, columnSpan);
         return content;
     };
-    auto *settingsLayout = group(QStringLiteral("设置"), "runSettings", 0, 0, 2);
-    auto *profileLayout  = group(QStringLiteral("配置"), "configurationSchemes", 0, 1);
+    auto *profileLayout  = group(QStringLiteral("配置方案"), "configurationSchemes", 0, 0, 1, 2);
+    auto *settingsLayout = group(QStringLiteral("模拟设置"), "runSettings", 1, 0);
     profileLayout->parentWidget()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     profileLayout->setAlignment(Qt::AlignTop);
-    m_output              = group(QStringLiteral("输出"), "outputPanel", 1, 1);
-    m_gains               = group(QStringLiteral("属性收益"), "gainsOverview", 2, 1);
-    auto *permanentLayout = group(QStringLiteral("常驻增益"), "permanentPanel", 0, 2, 2);
-    m_inputPanels         = { profileLayout->parentWidget(), permanentLayout->parentWidget() };
-    SetupProfiles(profileLayout);
-    m_specialization = new QComboBox(this);
-    m_specialization->setObjectName(QStringLiteral("specialization"));
-    m_specialization->addItems({ QStringLiteral("太虚剑意 · 纯阳"), QStringLiteral("莫问 · 长歌") });
-    m_specialization->setAccessibleName(QStringLiteral("心法"));
-    settingsLayout->addWidget(m_specialization);
-    auto *runTabs = new QTabWidget(this);
-    runTabs->setObjectName(QStringLiteral("runTabs"));
-    settingsLayout->addWidget(runTabs, 1);
-    m_inputPanels.push_back(runTabs);
-    m_inputPanels.push_back(m_specialization);
+    m_output              = group(QStringLiteral("模拟结果"), "outputPanel", 3, 0, 1, 2);
+    m_output->parentWidget()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    auto *permanentLayout = group(QStringLiteral("常驻增益"), "permanentPanel", 1, 1);
+    for (auto *box : {settingsLayout->parentWidget(), permanentLayout->parentWidget()}) {
+        box->setStyleSheet(QStringLiteral("QGroupBox#%1 { margin-top: %2px; } QGroupBox#%1::title { top: 5px; }")
+            .arg(box->objectName()).arg(desktop::AttributeHeaderHeight + desktop::AttributeHeaderSpacing));
+    }
+    auto *permanentHeader = static_cast<desktop::HeaderGroupBox *>(permanentLayout->parentWidget())->HeaderActions(desktop::AttributeHeaderHeight);
+    auto *panelMode = new desktop::SegmentedTabBar;
+    panelMode->SetSegmentHeight(desktop::AttributeHeaderHeight);
+    panelMode->setUsesScrollButtons(false);
+    m_permanentsInPanel = panelMode;
+    m_permanentsInPanel->setObjectName(QStringLiteral("permanentsInPanel"));
+    m_permanentsInPanel->setAccessibleName(QStringLiteral("常驻增益面板显示方式"));
+    m_permanentsInPanel->addTab(QStringLiteral("计入面板"));
+    m_permanentsInPanel->addTab(QStringLiteral("基础面板"));
+    m_permanentsInPanel->setCurrentIndex(QSettings().value(QStringLiteral("interface/permanentsInPanel"), true).toBool() ? 0 : 1);
+    const auto panelHint = QStringLiteral("计入面板：显示包含常驻增益的总属性，数值前的括号标出净变化（绿色增加、红色减少）。\n"
+        "基础面板：仅显示未计入常驻增益的属性。\n此切换只影响面板展示，所选常驻增益始终参与模拟；收益也仍按实际模拟配置计算。");
+    m_permanentsInPanel->setToolTip(panelHint);
+    m_permanentsInPanel->setTabToolTip(0, panelHint);
+    m_permanentsInPanel->setTabToolTip(1, panelHint);
+    permanentHeader->addWidget(m_permanentsInPanel);
+    auto *settingsRow = new QWidget(this);
+    settingsRow->setObjectName(QStringLiteral("simulationSettingsRow"));
+    auto *settingsRowLayout = new QHBoxLayout(settingsRow);
+    settingsRowLayout->setContentsMargins(0, 0, 0, 0);
+    settingsRowLayout->setSpacing(4);
+    settingsRow->hide();
+    settingsLayout->parentWidget()->setMaximumHeight(245);
+    permanentLayout->parentWidget()->setMaximumHeight(245);
+    m_inputPanels         = { profileLayout->parentWidget() };
     m_runActions = new QVBoxLayout;
     m_runActions->setContentsMargins(0, 0, 0, 0);
-    settingsLayout->addLayout(m_runActions);
-    auto *attributeTabs = new QTabWidget(this);
-    attributeTabs->setObjectName(QStringLiteral("attributeTabs"));
-    layout->addWidget(attributeTabs, 2, 0);
-    auto *tabs = new QTabWidget(this);
+    SetupProfiles(profileLayout);
+    m_specialization = new desktop::IconComboBox(QStringLiteral("心法"), this, false);
+    m_specialization->setObjectName(QStringLiteral("specialization"));
+    m_specialization->addItem(desktop::GameIcon(desktop::Specialization::TaiXu, QStringLiteral("太虚剑意")), QStringLiteral("太虚剑意 · 纯阳"));
+    m_specialization->addItem(desktop::GameIcon(desktop::Specialization::MoWen, QStringLiteral("莫问")), QStringLiteral("莫问 · 长歌"));
+    for (int index = 0; index < m_specialization->count(); ++index)
+        m_specialization->setItemData(index, m_specialization->itemText(index) + QStringLiteral("\n点击图标切换心法"), Qt::ToolTipRole);
+    m_specialization->setToolTip(QStringLiteral("心法：太虚剑意 · 纯阳\n点击图标切换心法"));
+    auto *specializationRow = new QHBoxLayout;
+    specializationRow->setSpacing(8);
+    specializationRow->addWidget(m_specialization);
+    auto *specializationName = new QLabel(m_specialization->currentText());
+    specializationName->setObjectName(QStringLiteral("selectedSpecializationName"));
+    specializationRow->addWidget(specializationName, 1);
+    connect(m_specialization, &QComboBox::currentTextChanged, specializationName, &QLabel::setText);
+    settingsLayout->addLayout(specializationRow);
+    m_inputPanels.push_back(m_specialization);
+    auto *runContent = new ConfigurationForm;
+    runContent->setObjectName(QStringLiteral("runParameters"));
+    auto *run = runContent->form;
+    run->SetCompactFieldWidth(136);
+    settingsLayout->addWidget(runContent, 1);
+    m_inputPanels.push_back(runContent);
+    auto *flowLayout = group(QStringLiteral("流程宏"), "flowMacroPanel", 2, 2);
+    flowLayout->parentWidget()->setStyleSheet(QStringLiteral("QGroupBox#flowMacroPanel { margin-top: 32px; } QGroupBox#flowMacroPanel::title { top: 5px; }"));
+    m_flowValues = desktop::FlowDefaults();
+    m_flowEditor = new CodeEditor;
+    m_flowEditor->setObjectName(QStringLiteral("flowMacroEditor"));
+    m_flowEditor->setAccessibleName(QStringLiteral("流程宏脚本"));
+    m_flowEditor->SetSyntaxType(CodeEditor::JX3Macro);
+    m_flowEditor->SetShowLineNumbers(false);
+    m_flowEditor->setLineWrapMode(QPlainTextEdit::NoWrap);
+    m_flowEditor->SetSyntaxValidator([](const QString &source) {
+        QList<SyntaxError> errors;
+        for (const auto &error : desktop::CompileFlowMacro(source).errors)
+            errors.append({error.line, error.column, error.length, SyntaxError::Error, error.message});
+        return errors;
+    });
+    m_flowTimeline = new desktop::FlowTimelineEditor(m_flowEditor);
+    flowLayout->addWidget(m_flowTimeline, 1);
+    m_flowStatus = new QLabel;
+    m_flowStatus->setObjectName(QStringLiteral("flowMacroStatus"));
+    m_flowStatus->setTextFormat(Qt::PlainText);
+    m_flowStatus->setFixedHeight(30);
+    m_flowStatus->setWordWrap(true);
+    flowLayout->addWidget(m_flowStatus);
+    m_flowTimeline->statusChanged = [this](const QString &text, bool error) {
+        m_flowStatus->setText(text);
+        m_flowStatus->setToolTip(text);
+        m_flowStatus->setStyleSheet(QStringLiteral("font-size: 11px; color: %1;").arg(error ? "#f08078" : "#92929d"));
+    };
+    auto *flowHelp = new QDialog(this);
+    flowHelp->setObjectName(QStringLiteral("flowMacroHelpDialog"));
+    flowHelp->setWindowTitle(QStringLiteral("流程宏语法 · 时间轴"));
+    flowHelp->resize(650, 500);
+    auto *flowHelpLayout = new QVBoxLayout(flowHelp);
+    auto *flowHelpText = new QTextBrowser;
+    flowHelpText->setHtml(QStringLiteral("<h2>流程宏与时间轴</h2><p>无时间前缀或 0 秒节点用于每场开战前初始化，随后运行右侧循环宏。"
+        "省略的参数采用默认值，分行重复赋值以后面的值为准。支持 # 和 // 注释。</p><pre>%1</pre>"
+        "<p><b>/set_target</b>：level 等级、shield 防御、life 气血、distance 距离、vulnerable 易伤。"
+        "life 和 vulnerable 建议带百分号；不带百分号时按比例解释，例如 life=0.5 等于 life=50%。</p>"
+        "<p><b>/set_player</b>：qidian 太虚初始气点；shadows 莫问初始影子；style 可写阳春白雪/高山流水或 0/1。"
+        "各心法仅使用对应的初始资源；太虚沿用旧规则的开场 +1 气点，上限 10。</p><p>一行可写多个 参数=值；等号两侧不要留空格。"
+        "可使用 00:00 或 00:00.00 前缀表示开场。当前只有一个目标，id 仅接受 1。</p>"
+        "<p><b>战中节点仅支持目标气血和距离：</b></p><pre>00:30 /set_target life=50%\n00:45.0625 /set_target distance=3</pre>"
+        "<p>时间格式为 分:秒，最多四位小数，精度 1/16 秒。节点按时间执行，相同时间按源码顺序执行。"
+        "等级、防御、易伤和角色初始资源只能在 0 秒设置。距离沿用技能现有的判距规则，不自动取消读条或持续伤害。</p>"
+        "<p>时间轴支持双击添加/编辑、拖动调整时间、滚轮缩放和空白处拖动平移；修改与脚本同步，可撤销。"
+        "最多 256 个节点，时间不超过 24 小时。战斗区间不包含结束帧，位于结束处或之后的节点标灰且不会执行。</p>"
+        "<p><b>尚不支持多目标、切换目标、等待或停止指令。</b>这些内容会报错并阻止模拟，不会被忽略。"
+        "流程宏不设置技能断点，技能循环与断点调试仍在循环宏中。</p>")
+        .arg(desktop::FlowMacroFromValues(m_flowValues).toHtmlEscaped()));
+    flowHelpLayout->addWidget(flowHelpText);
+    auto *help = new QToolButton;
+    help->setObjectName(QStringLiteral("openFlowMacroHelp"));
+    help->setText(QStringLiteral("语法…"));
+    auto *flowActions = static_cast<desktop::HeaderGroupBox *>(flowLayout->parentWidget())->HeaderActions(desktop::AttributeHeaderHeight);
+    auto *expandFlow = new QToolButton;
+    expandFlow->setObjectName(QStringLiteral("openFlowTimeline"));
+    expandFlow->setText(QStringLiteral("展开…"));
+    flowActions->addWidget(expandFlow);
+    flowActions->addWidget(help);
+    connect(expandFlow, &QToolButton::clicked, m_flowTimeline, &desktop::FlowTimelineEditor::OpenEditor);
+    connect(help, &QToolButton::clicked, flowHelp, [flowHelp] { flowHelp->show(); flowHelp->raise(); flowHelp->activateWindow(); });
+    auto *tabs = new desktop::SegmentedTabs(this);
     tabs->setObjectName(QStringLiteral("configurationTabs"));
-    tabs->setMinimumHeight(200);
-    layout->addWidget(tabs, 2, 2);
+    static_cast<desktop::SegmentedTabBar *>(tabs->tabBar())->SetSegmentHeight(desktop::AttributeHeaderHeight);
+    tabs->setStyleSheet(QStringLiteral("QTabWidget#configurationTabs::pane { top: %1px; }")
+        .arg(desktop::AttributeHeaderSpacing));
     m_inputPanels.push_back(tabs);
     auto page = [&](QTabWidget *owner, const QString &title) {
-        auto *content = new QWidget;
-        auto *form    = new QFormLayout(content);
-        form->setContentsMargins(10, 10, 10, 10);
-        form->setVerticalSpacing(3);
-        form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        auto *content = new ConfigurationForm;
+        auto *form = content->form;
         auto *scroll = new QScrollArea;
         scroll->setWidgetResizable(true);
         scroll->setFrameShape(QFrame::NoFrame);
@@ -123,12 +372,52 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
         owner->addTab(scroll, title);
         return form;
     };
-    auto *run            = page(runTabs, QStringLiteral("模拟"));
-    auto *target         = page(runTabs, QStringLiteral("目标与初始状态"));
-    auto *attributes     = page(attributeTabs, QStringLiteral("属性"));
-    auto *bonuses        = page(attributeTabs, QStringLiteral("加成"));
+    m_attributeEditor = new QDialog(this);
+    m_attributeEditor->setObjectName(QStringLiteral("attributeValueEditor"));
+    m_attributeEditor->setWindowTitle(QStringLiteral("属性输入 · 旧规则"));
+    m_attributeEditor->setWindowModality(Qt::WindowModal);
+    m_attributeEditor->resize(540, 510);
+    auto *attributeEditorLayout = new QVBoxLayout(m_attributeEditor);
+    auto *attributeNote = new QLabel(QStringLiteral("这里编辑等级、基础数值和额外加成，主面板显示折算后的结果。修改即时生效。"));
+    attributeNote->setWordWrap(true);
+    attributeEditorLayout->addWidget(attributeNote);
+    auto *editorTabs = new desktop::SegmentedTabs(m_attributeEditor);
+    editorTabs->setObjectName(QStringLiteral("attributeEditorTabs"));
+    attributeEditorLayout->addWidget(editorTabs, 1);
+    auto *attributes = page(editorTabs, QStringLiteral("数值"));
+    auto *bonuses = page(editorTabs, QStringLiteral("加成"));
+    attributes->SetColumns(1);
+    bonuses->SetColumns(1);
+    editorTabs->widget(1)->setObjectName(QStringLiteral("bonusesScroll"));
     m_inputPanels.push_back(attributes->parentWidget());
     m_inputPanels.push_back(bonuses->parentWidget());
+    auto *attributeButtons = new QDialogButtonBox(QDialogButtonBox::Close);
+    attributeButtons->button(QDialogButtonBox::Close)->setText(QStringLiteral("关闭"));
+    attributeEditorLayout->addWidget(attributeButtons);
+    connect(attributeButtons, &QDialogButtonBox::rejected, m_attributeEditor, &QDialog::close);
+    auto *attributeScroll = new QScrollArea(this);
+    attributeScroll->setObjectName(QStringLiteral("attributesScroll"));
+    attributeScroll->setWidgetResizable(true);
+    attributeScroll->setFrameShape(QFrame::NoFrame);
+    m_attributePane = attributeScroll;
+    m_gameAttributes = new desktop::GameAttributePanel;
+    attributeScroll->setWidget(m_gameAttributes);
+    m_gameGains = new desktop::AttributeGainsPanel(this);
+    m_inputPanels.push_back(m_gameGains->calculate);
+    auto highlightAttribute = [this](int index) { m_gameAttributes->HighlightRow(index); m_gameGains->HighlightRow(index); };
+    m_gameAttributes->hoverChanged = highlightAttribute;
+    m_gameGains->hoverChanged = highlightAttribute;
+    m_inputPanels.push_back(m_gameAttributes->edit);
+    connect(m_gameAttributes->edit, &QPushButton::clicked, this, [this] { m_attributeEditor->show(); m_attributeEditor->raise(); });
+    m_equipmentDialog = new QDialog(this);
+    m_equipmentDialog->setObjectName(QStringLiteral("equipmentDialog"));
+    m_equipmentDialog->resize(720, 680);
+    m_equipmentDialog->setModal(false);
+    auto *equipmentDialogLayout = new QVBoxLayout(m_equipmentDialog);
+    auto *equipmentNote = new QLabel(QStringLiteral("配装预览不会自动覆盖模拟属性；装备特效用于下一次模拟。关闭窗口后保留本次选择。"));
+    equipmentNote->setWordWrap(true);
+    equipmentDialogLayout->addWidget(equipmentNote);
+    connect(m_gameAttributes->equipment, &QToolButton::clicked, this, &SimulationOptions::ShowEquipment);
     auto *equipmentPage = new QWidget;
     equipmentPage->setObjectName(QStringLiteral("equipmentPage"));
     auto *equipmentLayout = new QVBoxLayout(equipmentPage);
@@ -153,8 +442,18 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     equipmentScroll->setWidgetResizable(true);
     equipmentScroll->setFrameShape(QFrame::NoFrame);
     equipmentScroll->setWidget(equipmentPage);
-    attributeTabs->addTab(equipmentScroll, QStringLiteral("配装"));
+    equipmentDialogLayout->addWidget(equipmentScroll, 1);
+    auto *equipmentButtons = new QDialogButtonBox(QDialogButtonBox::Close);
+    equipmentButtons->button(QDialogButtonBox::Close)->setText(QStringLiteral("关闭"));
+    equipmentDialogLayout->addWidget(equipmentButtons);
+    connect(equipmentButtons, &QDialogButtonBox::rejected, m_equipmentDialog, &QDialog::close);
     auto *talentStack = new QStackedWidget;
+    auto *talentHeaders = new QStackedWidget;
+    talentHeaders->setObjectName(QStringLiteral("talentHeaders"));
+    talentHeaders->setFixedHeight(desktop::AttributeHeaderHeight);
+    tabs->setCornerWidget(talentHeaders, Qt::TopRightCorner);
+    connect(tabs, &QTabWidget::currentChanged, talentHeaders, [talentHeaders](int index) { talentHeaders->setVisible(index == 0); });
+    connect(tabs, &QTabWidget::currentChanged, this, [this] { UpdateTalentHeight(); });
     auto *recipeStack = new QStackedWidget;
     tabs->addTab(talentStack, QStringLiteral("奇穴"));
     tabs->addTab(recipeStack, QStringLiteral("秘籍"));
@@ -169,14 +468,31 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
         owner->addWidget(scroll);
         return form;
     };
-    auto *txTalents   = effectPage(talentStack);
-    txTalents->setContentsMargins(3, 3, 3, 3);
+    auto talentPage = [&](desktop::Specialization specialization) {
+        auto *panel = new desktop::TalentPanel(specialization);
+        panel->setObjectName(QStringLiteral("talents%1").arg(static_cast<int>(specialization)));
+        m_talentPanels[static_cast<int>(specialization)] = panel;
+        panel->SetColumns(9);
+        talentHeaders->addWidget(panel->TakeHeader());
+        connect(panel->HeaderWidget()->findChild<QToolButton *>(QStringLiteral("legacyTalentToggle")),
+            &QToolButton::toggled, this, [this] { UpdateTalentHeight(); });
+        auto *scroll = new QScrollArea;
+        scroll->setObjectName(QStringLiteral("talentsScroll%1").arg(static_cast<int>(specialization)));
+        scroll->setWidgetResizable(true);
+        scroll->setFrameShape(QFrame::NoFrame);
+        scroll->setWidget(panel);
+        talentStack->addWidget(scroll);
+        return panel;
+    };
+    auto *txTalents   = talentPage(desktop::Specialization::TaiXu);
     auto *txRecipes   = effectPage(recipeStack);
     auto *txEquipment = equipmentEffects();
     m_iterations      = Integer(run, "iterations", QStringLiteral("模拟次数"), 1000, 1, 1000000000);
     m_workers = Integer(run, "workers", QStringLiteral("工作线程"), std::max(1, QThread::idealThreadCount() / 2), 1, 256);
-    m_seconds = Decimal(run, "seconds", QStringLiteral("战斗时长"), 300, 0.0625, 86400, 4);
-    m_seconds->setSuffix(QStringLiteral(" 秒"));
+    auto *seconds = Decimal<desktop::FixedUnitDoubleSpinBox>(run, "seconds", QStringLiteral("战斗时长"), 300, 0.0625, 86400, 4);
+    seconds->SetUnit(QStringLiteral("秒"));
+    seconds->setAccessibleDescription(QStringLiteral("单位：秒"));
+    m_seconds = seconds;
     m_seconds->setSingleStep(0.0625);
     connect(m_seconds, &QDoubleSpinBox::editingFinished, this, [this] {
         m_seconds->setValue(std::llround(m_seconds->value() * 16.0) / 16.0);
@@ -184,14 +500,17 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     m_seed = new QLineEdit(QStringLiteral("0"));
     m_seed->setObjectName(QStringLiteral("seed"));
     m_seed->setValidator(new QRegularExpressionValidator(QRegularExpression(QStringLiteral("[0-9]{1,20}")), m_seed));
-    m_seed->setToolTip(QStringLiteral("相同种子可复现相同战斗；调试和单次记录复现其中第一场。"));
+    auto seedHint = [this] {
+        m_seed->setToolTip(QStringLiteral("当前种子：%1\n相同种子可复现相同战斗；调试和单次记录复现其中第一场。")
+            .arg(m_seed->text()));
+    };
+    connect(m_seed, &QLineEdit::textChanged, this, seedHint);
+    seedHint();
     run->addRow(QStringLiteral("随机种子"), m_seed);
-    Integer(target, "qidian", QStringLiteral("初始气点"), 10, 0, 10);
     Integer(run, "delay", QStringLiteral("输入延迟"), 0, 0, 160)->setSuffix(QStringLiteral(" 帧"));
-    Integer(target, "targetLevel", QStringLiteral("目标等级"), 124, 110, 130);
-    Integer(target, "shield", QStringLiteral("目标防御"), 30000, 0, 10000000);
-    Decimal(target, "targetLife", QStringLiteral("目标气血（%）"), 100, 1, 100);
-    Decimal(target, "distance", QStringLiteral("目标距离"), 4, 0, 1000);
+    // Native range-based size hints must not widen this small, non-scrolling form.
+    for (int row = 0; row < run->rowCount(); ++row)
+        run->itemAt(row, QFormLayout::FieldRole)->widget()->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     m_bindings.push_back([](tx::Config &config, const QJsonObject &values) {
         config.initial_qidian  = values.value("qidian").toInt();
         config.delay           = values.value("delay").toInt();
@@ -234,7 +553,6 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     bonus("strainBonus", QStringLiteral("无双加成"), &tx::Attributes::strain_percent);
     bonus("pveBonus", QStringLiteral("非侠士伤害加成"), &tx::Attributes::pve_percent);
     bonus("ignoreShield", QStringLiteral("无视防御"), &tx::Attributes::ignore_shield, 1024, 1024);
-    Decimal(target, "vulnerable", QStringLiteral("目标易伤（%）"), 0, 0, 976.5625, 4);
     m_bindings.push_back([](tx::Config &config, const QJsonObject &values) {
         config.target.vulnerable = static_cast<int>(std::llround(values.value("vulnerable").toDouble() * 1024 / 100));
     });
@@ -243,32 +561,25 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
                      const char                                              *prefix,
                      std::initializer_list<std::pair<const char *, unsigned>> entries,
                      std::function<void(tx::Config &, unsigned)>              assign) {
-        auto *group = new QGroupBox(title);
-        auto *rows  = new QGridLayout(group);
-        rows->setVerticalSpacing(5);
         const bool talent = QString::fromLatin1(prefix) == QStringLiteral("talent");
+        auto *group = talent ? nullptr : new QGroupBox(title);
+        auto *rows  = group ? new QGridLayout(group) : nullptr;
+        if (rows) rows->setVerticalSpacing(5);
         const bool equipment =
             QString::fromLatin1(prefix) == QStringLiteral("equipment") || QString::fromLatin1(prefix) == QStringLiteral("team");
-        const int                                 columns = talent ? 4 : 1;
         if (!talent && !equipment) group->setTitle(QString(title).replace(QStringLiteral("秘籍（最多四本）"), QStringLiteral("（最多四本）")));
-        if (talent) {
-            group->setTitle({});
-            rows->setContentsMargins(4, 4, 4, 4);
-            rows->setHorizontalSpacing(2);
-            rows->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-        }
         int                                       index   = 0;
         std::vector<std::pair<QString, unsigned>> inputs;
         for (const auto &[label, flag] : entries) {
-            auto *input = talent ? new desktop::IconCheckBox(QString::fromUtf8(label), desktop::Specialization::TaiXu, group)
+            auto *input = talent ? txTalents->AddTalent(QString::fromUtf8(label), QString::fromLatin1(prefix) + QString::number(flag))
                                  : new QCheckBox(QString::fromUtf8(label), group);
             input->setObjectName(QString::fromLatin1(prefix) + QString::number(flag));
             input->setProperty("defaultValue", false);
-            rows->addWidget(input, index / columns, index % columns);
+            if (rows) rows->addWidget(input, index, 0);
             ++index;
             inputs.emplace_back(input->objectName(), flag);
         }
-        (talent ? txTalents : equipment ? txEquipment : txRecipes)->addRow(group);
+        if (!talent) (equipment ? txEquipment : txRecipes)->addRow(group);
         m_bindings.push_back([inputs, assign](tx::Config &config, const QJsonObject &values) {
             unsigned result = 0;
             for (const auto &[key, flag] : inputs) {
@@ -420,48 +731,34 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     },
           [](tx::Config &c, unsigned v) { c.renjian_recipes = v; });
 
-    auto *mwTalents      = effectPage(talentStack);
-    mwTalents->setContentsMargins(3, 3, 3, 3);
+    auto *mwTalents      = talentPage(desktop::Specialization::MoWen);
     auto *mwRecipes      = effectPage(recipeStack);
     auto *mwEquipment    = equipmentEffects();
-    auto *initialShadows = Integer(target, "mwShadows", QStringLiteral("初始影子数量"), 0, 0, 6);
-    m_style              = new QComboBox;
-    m_style->setObjectName(QStringLiteral("mwStyle"));
-    m_style->addItems({ QStringLiteral("阳春白雪"), QStringLiteral("高山流水") });
-    m_style->setCurrentIndex(1);
-    target->addRow(QStringLiteral("初始曲目"), m_style);
     auto mwFlags = [&](const QString                                           &title,
                        const char                                              *prefix,
                        std::initializer_list<std::pair<const char *, unsigned>> entries,
                        std::function<void(mw::Config &, unsigned)>              assign) {
-        auto *group = new QGroupBox(title);
-        auto *rows  = new QGridLayout(group);
-        rows->setVerticalSpacing(5);
         const bool talent    = QString::fromLatin1(prefix) == QStringLiteral("mwTalent");
+        auto *group = talent ? nullptr : new QGroupBox(title);
+        auto *rows  = group ? new QGridLayout(group) : nullptr;
+        if (rows) rows->setVerticalSpacing(5);
         const bool equipment = QString::fromLatin1(prefix) == QStringLiteral("mwEquipment") ||
                                QString::fromLatin1(prefix) == QStringLiteral("mwTeam");
-        const int  columns   = talent ? 4 : 1;
         if (!talent && !equipment) group->setTitle(QString(title).replace(QStringLiteral("秘籍（最多四本）"), QStringLiteral("（最多四本）")));
-        if (talent) {
-            group->setTitle({});
-            rows->setContentsMargins(4, 4, 4, 4);
-            rows->setHorizontalSpacing(2);
-            rows->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-        }
         int        index     = 0;
         std::vector<std::pair<QString, unsigned>> inputs;
         for (const auto &[label, flag] : entries) {
             const auto text  = QString::fromUtf8(label);
-            auto *input = talent ? new desktop::IconCheckBox(text, desktop::Specialization::MoWen, group)
+            auto *input = talent ? mwTalents->AddTalent(text, QString::fromLatin1(prefix) + QString::number(flag))
                                  : new QCheckBox(text.section(QStringLiteral("（"), 0, 0), group);
             if (!talent) input->setToolTip(text);
             input->setObjectName(QString::fromLatin1(prefix) + QString::number(flag));
             input->setProperty("defaultValue", false);
-            rows->addWidget(input, index / columns, index % columns);
+            if (rows) rows->addWidget(input, index, 0);
             ++index;
             inputs.emplace_back(input->objectName(), flag);
         }
-        (talent ? mwTalents : equipment ? mwEquipment : mwRecipes)->addRow(group);
+        if (!talent) (equipment ? mwEquipment : mwRecipes)->addRow(group);
         m_mowenBindings.push_back([inputs, assign](mw::Config &config, const QJsonObject &values) {
             unsigned result = 0;
             for (const auto &[key, flag] : inputs) {
@@ -556,6 +853,8 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     },
             [](mw::Config &c, unsigned v) { c.recipes[3] = v; });
     auto *permanentScroll = new QScrollArea;
+    permanentScroll->setObjectName(QStringLiteral("permanentsScroll"));
+    m_inputPanels.push_back(permanentScroll);
     permanentScroll->setWidgetResizable(true);
     permanentScroll->setFrameShape(QFrame::NoFrame);
     auto *permanentStack = new QStackedWidget;
@@ -580,9 +879,11 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     };
     for (int specialization = 0; specialization < 2; ++specialization) {
         auto *content = new QWidget;
+        content->setProperty("permanentChoices", true);
         auto *grid = new QGridLayout(content);
         grid->setContentsMargins(0, 0, 0, 0);
-        grid->setSpacing(8);
+        grid->setHorizontalSpacing(10);
+        grid->setVerticalSpacing(6);
         grid->setAlignment(Qt::AlignTop | Qt::AlignLeft);
         permanentStack->addWidget(content);
         int position = 0;
@@ -592,11 +893,13 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
             const bool feast = QString::fromLatin1(category) == "Others";
             auto       add   = [&](const QJsonArray &entries, const QString &suffix, const QString &title) {
                 auto *cell = new QWidget;
-                auto *cellLayout = new QVBoxLayout(cell);
+                auto *cellLayout = new QHBoxLayout(cell);
                 cellLayout->setContentsMargins(0, 0, 0, 0);
-                cellLayout->setSpacing(2);
+                cellLayout->setSpacing(6);
                 auto *combo = new desktop::IconComboBox(title);
                 combo->setObjectName(QStringLiteral("permanent%1%2%3").arg(specialization).arg(QString::fromLatin1(category), suffix));
+                combo->setFixedSize(38, 38);
+                combo->setStyleSheet(QStringLiteral("QComboBox { min-height: 38px; max-height: 38px; padding: 0; border: 0; }"));
                 combo->setProperty("specialization", specialization);
                 combo->addItem(QStringLiteral("无"), QJsonArray{});
                 combo->setItemData(0, QStringLiteral("不使用此项增益"), Qt::ToolTipRole);
@@ -607,10 +910,11 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
                     combo->setItemData(combo->count() - 1, label + '\n' + entry.value("Description").toString(), Qt::ToolTipRole);
                 }
                 combo->setToolTip(title + QStringLiteral("：无；点击图标选择"));
-                cellLayout->addWidget(combo, 0, Qt::AlignHCenter);
+                cellLayout->addWidget(combo);
                 auto *caption = new QLabel(feast ? QStringLiteral("宴席") : title);
-                caption->setAlignment(Qt::AlignCenter);
-                caption->setStyleSheet(QStringLiteral("font-size: 11px; color: #aeb9c7;"));
+                caption->setObjectName(combo->objectName() + QStringLiteral("Caption"));
+                caption->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+                caption->setStyleSheet(QStringLiteral("font-size: 11px; color: #92929d;"));
                 cellLayout->addWidget(caption);
                 grid->addWidget(cell, position / 3, position % 3);
                 ++position;
@@ -627,7 +931,9 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     }
     auto *importAttributes = new QPushButton(QStringLiteral("导入魔盒属性"));
     importAttributes->setObjectName(QStringLiteral("importAttributes"));
-    attributes->insertRow(0, importAttributes);
+    importAttributes->setProperty("moduleAction", true);
+    m_gameAttributes->tools->insertWidget(0, importAttributes, 1);
+    m_inputPanels.push_back(importAttributes);
     connect(importAttributes, &QPushButton::clicked, this, [this] {
         QDialog dialog(this);
         dialog.setWindowTitle(QStringLiteral("导入魔盒属性"));
@@ -666,14 +972,14 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     Integer(bonuses, "importedStrength", QStringLiteral("已含力道"), 41, 0, 1000000);
     auto updateClass = [=, this] {
         const bool moWen = Specialization() == desktop::Specialization::MoWen;
+        m_equipmentDialog->setWindowTitle(desktop::ClassName(Specialization()) + QStringLiteral(" · 配装"));
         talentStack->setCurrentIndex(moWen ? 1 : 0);
+        talentHeaders->setCurrentIndex(moWen ? 1 : 0);
+        UpdateTalentHeight();
         recipeStack->setCurrentIndex(moWen ? 1 : 0);
         txEquipment->parentWidget()->setVisible(!moWen);
         mwEquipment->parentWidget()->setVisible(moWen);
         equipmentPanel->setVisible(!moWen);
-        target->setRowVisible(findChild<QSpinBox *>("qidian"), !moWen);
-        target->setRowVisible(initialShadows, moWen);
-        target->setRowVisible(m_style, moWen);
         attributes->setRowVisible(findChild<QSpinBox *>("overcomeClass"), !moWen);
         permanentStack->setCurrentIndex(m_specialization->currentIndex());
         emit SpecializationChanged();
@@ -683,53 +989,362 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     for (auto *input : m_permanents) {
         input->setCurrentIndex(std::clamp(settings.value("simulation/" + input->objectName(), 0).toInt(), 0, input->count() - 1));
     }
-    m_style->setCurrentIndex(settings.value("simulation/mwStyle", 1).toInt());
     m_specialization->setCurrentIndex(settings.value("simulation/specialization", 0).toInt() == 1 ? 1 : 0);
     updateClass();
     for (auto *input : findChildren<QSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         input->setValue(settings.value("simulation/" + input->objectName(), input->value()).toInt());
     }
     for (auto *input : findChildren<QDoubleSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         input->setValue(settings.value("simulation/" + input->objectName(), input->value()).toDouble());
     }
     for (auto *input : findChildren<QCheckBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         input->setChecked(settings.value("simulation/" + input->objectName(), false).toBool());
     }
+    for (int index = 0; index < 2; ++index) {
+        const auto stored = settings.value(QStringLiteral("simulation/talentPreview%1").arg(index)).toByteArray();
+        if (stored.isEmpty()) continue;
+        const auto selected = QJsonDocument::fromJson(stored).array();
+        QString error;
+        if (m_talentPanels[index]->ValidateSelection(selected, error)) m_talentPanels[index]->RestoreSelection(selected);
+    }
     m_seed->setText(settings.value(QStringLiteral("simulation/seed"), QStringLiteral("0")).toString());
+    auto legacyFlow = desktop::FlowDefaults();
+    for (const auto &field : desktop::FlowFields)
+        legacyFlow.insert(QString::fromLatin1(field.key), settings.value("simulation/" + QString::fromLatin1(field.key), field.initial).toDouble());
+    if (std::all_of(desktop::FlowFields.begin(), desktop::FlowFields.end(), [&](const auto &field) {
+            return desktop::ValidFlowValue(field, legacyFlow.value(QString::fromLatin1(field.key)));
+        })) m_flowValues = legacyFlow;
+    m_flowEditor->setPlainText(settings.value(QStringLiteral("simulation/flowMacro"), desktop::FlowMacroFromValues(legacyFlow)).toString());
     auto *reset = findChild<QMenu *>(QStringLiteral("configurationMenu"))->addAction(QStringLiteral("重置配置"));
     reset->setObjectName(QStringLiteral("resetConfiguration"));
-    layout->setColumnStretch(0, 5);
-    layout->setColumnStretch(1, 5);
-    layout->setColumnStretch(2, 4);
+    layout->setColumnStretch(0, 1);
+    layout->setColumnStretch(1, 0);
+    layout->setRowMinimumHeight(1, 235);
     layout->setRowStretch(2, 1);
     connect(reset, &QAction::triggered, this, [this] {
+        for (auto *panel : m_talentPanels) panel->ClearSelection();
         for (auto *input : findChildren<QSpinBox *>()) {
+            if (input->property("flowViewOnly").toBool()) continue;
             input->setValue(input->property("defaultValue").toInt());
         }
         for (auto *input : findChildren<QDoubleSpinBox *>()) {
+            if (input->property("flowViewOnly").toBool()) continue;
             input->setValue(input->property("defaultValue").toDouble());
         }
         for (auto *input : findChildren<QCheckBox *>()) {
+            if (input->property("flowViewOnly").toBool()) continue;
             input->setChecked(false);
         }
         m_seed->setText(QStringLiteral("0"));
-        m_style->setCurrentIndex(1);
+        m_flowEditor->setPlainText(desktop::FlowMacroFromValues(desktop::FlowDefaults()));
         for (auto *input : m_permanents) {
             input->setCurrentIndex(0);
         }
     });
+    auto refresh = [this] {
+        if (m_refreshQueued) return;
+        m_refreshQueued = true;
+        QTimer::singleShot(0, this, [this] { m_refreshQueued = false; RefreshGameAttributes(); });
+    };
+    for (auto *input : findChildren<QSpinBox *>()) connect(input, &QSpinBox::valueChanged, this, refresh);
+    for (auto *input : findChildren<QDoubleSpinBox *>()) connect(input, &QDoubleSpinBox::valueChanged, this, refresh);
+    for (auto *input : findChildren<QComboBox *>()) connect(input, &QComboBox::currentIndexChanged, this, refresh);
+    for (auto *input : findChildren<QCheckBox *>()) connect(input, &QCheckBox::toggled, this, refresh);
+    connect(m_seed, &QLineEdit::textChanged, this, refresh);
+    connect(m_permanentsInPanel, &QTabBar::currentChanged, this, [this] (int index) {
+        QSettings().setValue(QStringLiteral("interface/permanentsInPanel"), index == 0);
+        RefreshGameAttributes();
+    });
+    connect(m_flowEditor, &QPlainTextEdit::textChanged, this, &SimulationOptions::UpdateFlowMacro);
+    connect(m_seconds, &QDoubleSpinBox::valueChanged, this, [this](double seconds) { m_flowTimeline->SetDuration(qRound(seconds * 16)); });
+    m_flowTimeline->SetDuration(qRound(m_seconds->value() * 16));
+    UpdateFlowMacro();
+    ShowSection(QStringLiteral("simulation"));
+    RefreshGameAttributes();
+}
+
+SimulationOptions::~SimulationOptions()
+{
+    // Syntax-highlighter teardown can emit textChanged while child widgets are being deleted.
+    disconnect(m_flowEditor, nullptr, this, nullptr);
+    m_flowTimeline->statusChanged = {};
+}
+
+void SimulationOptions::RefreshGameAttributes()
+{
+    std::array<QString, 10> panel;
+    std::array<QString, 10> changes{};
+    panel.fill(QStringLiteral("--"));
+    const auto values = Values();
+    const bool included = m_permanentsInPanel->currentIndex() == 0;
+    try {
+        auto readPanel = [&](const QJsonObject &inputValues) {
+            const auto config = ActiveConfigFromValues(inputValues, Specialization());
+            value_t major = inputValues.value("importedMajor").toInt();
+            for (const auto *input : m_permanents) {
+                if (input->property("specialization").toInt() != static_cast<int>(Specialization())) continue;
+                for (const auto &entry : input->itemData(inputValues.value(input->objectName()).toInt()).value<QJsonArray>()) {
+                    const auto effect = entry.toObject();
+                    if (effect.value("Type").toString() == QStringLiteral("身法") || effect.value("Type").toString() == QStringLiteral("根骨")) major += effect.value("Value").toInt();
+                }
+            }
+            return std::visit([&](const auto &configuration) -> std::array<double, 10> {
+                const auto &a = configuration.attributes;
+                value_t overcome;
+                if constexpr (requires { a.overcome_base; }) overcome = a.overcome_base * (1024 + a.overcome_percent) / 1024 + a.overcome_by_class;
+                else overcome = a.overcome * (1024 + a.overcome_percent) / 1024;
+                return {double(major), double(a.attack_base * (1024 + a.attack_percent) / 1024 + a.attack_by_class), 100.0,
+                    100 * (a.crit / (9.530 * 8250) + a.crit_basis_points / 10000.0),
+                    100 * (1.75 + (static_cast<int>(a.crit_power * 1024 / (3.335 * 8250)) + a.crit_power_percent) / 1024.0),
+                    100 * (static_cast<int>(a.haste * 1024 / (11.695 * 8250)) + a.haste_percent) / 1024.0,
+                    100 * static_cast<int>(overcome * 1024 / (9.530 * 8250)) / 1024.0,
+                    100 * (static_cast<int>(a.strain * 1024 / (9.189 * 8250)) + a.strain_percent) / 1024.0,
+                    double(a.surplus), double(a.weapon)};
+            }, config);
+        };
+        // Clear only permanent selections in a copy; both projections retain manual bonuses and integer rounding.
+        auto baseValues = values;
+        for (const auto *input : m_permanents) baseValues.insert(input->objectName(), 0);
+        const auto base = readPanel(baseValues);
+        const auto current = included ? readPanel(values) : base;
+        for (int i = 0; i < int(panel.size()); ++i) {
+            const bool percentage = i >= 2 && i <= 7;
+            const int decimals = percentage ? 2 : 0;
+            const auto suffix = percentage ? QStringLiteral("%") : QString{};
+            panel[i] = i == 0 && values.value("importedMajor").toInt() <= 0 ? QStringLiteral("--")
+                : QString::number(current[i], 'f', decimals) + suffix;
+            const double scale = percentage ? 100 : 1;
+            const auto delta = (std::round(current[i] * scale) - std::round(base[i] * scale)) / scale;
+            if (included && delta != 0)
+                changes[i] = (delta > 0 ? QStringLiteral("+") : QString{}) + QString::number(delta, 'f', decimals) + suffix;
+        }
+        m_gameAttributes->setToolTip({});
+    } catch (const std::exception &error) {
+        m_gameAttributes->setToolTip(QString::fromUtf8(error.what()));
+    }
+    m_gameAttributes->SetValues(Specialization(), panel, changes, included);
+    if (m_gainSnapshot.isEmpty() || m_gainSnapshot != Snapshot()) ClearAttributeGains();
+}
+
+bool SimulationOptions::CheckFlowMacro(QString &error) const
+{
+    error = desktop::CompileFlowMacro(m_flowEditor->toPlainText()).ErrorText();
+    return error.isEmpty();
+}
+
+void SimulationOptions::FocusFlowMacro()
+{
+    m_flowTimeline->ShowScript();
+    QMetaObject::invokeMethod(m_flowEditor, "CheckSyntax", Qt::DirectConnection);
+    const auto compiled = desktop::CompileFlowMacro(m_flowEditor->toPlainText());
+    m_flowEditor->setFocus();
+    if (compiled.errors.isEmpty()) return;
+    const auto &error = compiled.errors.front();
+    const auto block = m_flowEditor->document()->findBlockByNumber(error.line - 1);
+    if (!block.isValid()) return;
+    QTextCursor cursor(block);
+    cursor.setPosition(block.position() + error.column);
+    cursor.setPosition(qMin(block.position() + error.column + error.length, block.position() + block.length() - 1), QTextCursor::KeepAnchor);
+    m_flowEditor->setTextCursor(cursor);
+    m_flowEditor->ensureCursorVisible();
+}
+
+void SimulationOptions::UpdateFlowMacro()
+{
+    const auto source = m_flowEditor->toPlainText();
+    // Syntax highlighting and theme changes also emit textChanged; only source edits change configuration.
+    if (m_flowInitialized && source == m_flowSource) return;
+    m_flowInitialized = true;
+    m_flowSource = source;
+    const auto compiled = desktop::CompileFlowMacro(source);
+    if (compiled.errors.isEmpty()) { m_flowValues = compiled.values; m_flowEvents = compiled.TargetEvents(); }
+    RefreshGameAttributes();
+}
+
+void SimulationOptions::UpdateTalentHeight()
+{
+    if (m_section != QStringLiteral("simulation") && m_section != QStringLiteral("attributes")) return;
+    auto *panel = m_talentPanels[static_cast<int>(Specialization())];
+    if (!panel) return;
+    auto *tabs = findChild<QTabWidget *>(QStringLiteral("configurationTabs"));
+    const bool legacy = panel->HeaderWidget()->findChild<QToolButton *>(QStringLiteral("legacyTalentToggle"))->isChecked();
+    tabs->setFixedHeight(tabs->currentIndex() == 0 && !legacy ? 100 : 270);
+}
+
+void SimulationOptions::SetAttributeGainResult(const SimulationResult &result)
+{
+    if (m_gainSnapshot != Snapshot()) m_gameGains->Clear(Specialization());
+    m_gainSnapshot = result.gainsRequested ? Snapshot() : QJsonObject{};
+    m_gameGains->SetResult(result, Specialization());
+}
+
+desktop::GainComparisonMode SimulationOptions::GainMode() const { return m_gameGains->Mode(); }
+bool SimulationOptions::AutoCalculateGains() const { return m_gameGains->calculate->isChecked(); }
+
+void SimulationOptions::ClearAttributeGains()
+{
+    m_gainSnapshot = {};
+    m_gameGains->Clear(Specialization());
 }
 
 void SimulationOptions::SetInputsEnabled(bool enabled)
 {
+    if (!enabled) m_attributeEditor->hide();
+    m_flowTimeline->SetReadOnly(!enabled);
     for (auto *panel : m_inputPanels) {
         panel->setEnabled(enabled);
     }
 }
 
+void SimulationOptions::ShowAttributeGains()
+{
+    m_gameGains->calculate->setFocus(Qt::OtherFocusReason);
+}
+
+QToolButton *SimulationOptions::GainsButton() const { return m_gameGains->calculate; }
+
+void SimulationOptions::ShowEquipment()
+{
+    m_equipmentDialog->show();
+    m_equipmentDialog->raise();
+    m_equipmentDialog->activateWindow();
+}
+
+void SimulationOptions::CloseAuxiliaryWindows()
+{
+    for (auto *dialog : findChildren<QDialog *>()) dialog->close();
+}
+
+QWidget *SimulationOptions::TakeOutputPanel()
+{
+    m_externalOutput = true;
+    auto *panel = m_output->parentWidget();
+    layout()->removeWidget(panel);
+    auto *profiles = findChild<QGroupBox *>(QStringLiteral("configurationSchemes"));
+    profiles->setTitle({});
+    profiles->layout()->setContentsMargins(10, 6, 10, 6);
+    qobject_cast<QGroupBox *>(panel)->setTitle({});
+    panel->layout()->setContentsMargins(12, 8, 12, 8);
+    return panel;
+}
+
+void SimulationOptions::ShowSection(const QString &section)
+{
+    m_section = section;
+    setMaximumWidth(section == QStringLiteral("attributes") ? 664 : QWIDGETSIZE_MAX);
+    const bool expanded = section != QStringLiteral("simulation");
+    setStyleSheet(QStringLiteral("QWidget { font-size: %1px; } QWidget#simulationOptions { background: transparent; }")
+        .arg(expanded ? 14 : 13));
+    if (!expanded) setStyleSheet(styleSheet() + QStringLiteral(
+        "QComboBox, QSpinBox, QDoubleSpinBox, QLineEdit { min-height: 20px; padding: 1px 6px; }"));
+    for (auto *widget : findChildren<QWidget *>()) {
+        if (widget->property("configurationForm").toBool())
+            static_cast<ConfigurationForm *>(widget)->SetExpanded(expanded);
+        if (widget->property("permanentChoices").toBool()) {
+            auto *choices = static_cast<QGridLayout *>(widget->layout());
+            choices->setAlignment(expanded ? Qt::AlignTop | Qt::AlignLeft : Qt::AlignTop);
+            for (int column = 0; column < 3; ++column) choices->setColumnStretch(column, expanded ? 0 : 1);
+        }
+    }
+    auto *import = findChild<QPushButton *>(QStringLiteral("importAttributes"));
+    import->setMaximumWidth(expanded ? 200 : QWIDGETSIZE_MAX);
+    auto *grid = qobject_cast<QGridLayout *>(layout());
+    auto *profiles = findChild<QWidget *>(QStringLiteral("configurationSchemes"));
+    auto *run = findChild<QWidget *>(QStringLiteral("runSettings"));
+    auto *permanents = findChild<QWidget *>(QStringLiteral("permanentPanel"));
+    auto *settingsRow = findChild<QWidget *>(QStringLiteral("simulationSettingsRow"));
+    auto *talents = findChild<QWidget *>(QStringLiteral("configurationTabs"));
+    auto *flow = findChild<QWidget *>(QStringLiteral("flowMacroPanel"));
+    auto *output = m_output->parentWidget();
+    for (auto *panel : {profiles, run, permanents, m_attributePane, static_cast<QWidget *>(m_gameGains), flow, talents, output}) {
+        if (panel == output && m_externalOutput) continue;
+        if (panel->parentWidget() == settingsRow) settingsRow->layout()->removeWidget(panel);
+        else grid->removeWidget(panel);
+        panel->hide();
+        panel->setMinimumSize(0, 0);
+        panel->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    }
+    grid->removeWidget(settingsRow);
+    settingsRow->hide();
+    for (int row = 0; row < grid->rowCount(); ++row) {
+        grid->setRowStretch(row, 0);
+        grid->setRowMinimumHeight(row, 0);
+    }
+    for (int column = 0; column < grid->columnCount(); ++column) {
+        grid->setColumnStretch(column, 0);
+        grid->setColumnMinimumWidth(column, 0);
+    }
+    grid->setColumnStretch(0, 1);
+    grid->setColumnStretch(1, 1);
+    m_attributePane->setMinimumWidth(208);
+    m_gameGains->setMinimumWidth(208);
+    m_attributePane->setFixedHeight(270);
+    m_gameGains->setFixedHeight(270);
+    flow->setFixedSize(224, 270);
+    auto add = [this, grid](QWidget *widget, int row, int col, int span = 1) {
+        grid->addWidget(widget, row, col, 1, span);
+        if (widget == m_attributePane || widget == m_gameGains) grid->setAlignment(widget, Qt::AlignTop);
+        widget->show();
+    };
+    if (section == QStringLiteral("simulation")) {
+        grid->setAlignment({});
+        grid->setSpacing(4);
+        add(profiles, 0, 0, 3);
+        // The upper cards have their own columns, independent of attributes/gains below.
+        run->setFixedWidth(224);
+        settingsRow->layout()->addWidget(run);
+        settingsRow->layout()->addWidget(permanents);
+        run->show();
+        permanents->show();
+        add(settingsRow, 1, 0, 3);
+        settingsRow->setMaximumHeight(236);
+        run->setMaximumHeight(236);
+        permanents->setMaximumHeight(236);
+        add(m_attributePane, 2, 0);
+        add(m_gameGains, 2, 1);
+        add(flow, 2, 2);
+        grid->setAlignment(flow, Qt::AlignTop);
+        add(talents, 3, 0, 3);
+        talents->setFixedHeight(100);
+        grid->setAlignment(talents, Qt::AlignTop);
+        if (!m_externalOutput) add(output, 4, 0, 3);
+        grid->setRowMinimumHeight(1, 222);
+        grid->setRowMinimumHeight(2, 270);
+        grid->setRowMinimumHeight(3, 100);
+        grid->setRowStretch(3, 1);
+    } else {
+        grid->setAlignment(Qt::AlignTop);
+        grid->setSpacing(8);
+        add(profiles, 0, 0, 3);
+        if (section == "attributes") {
+            add(m_attributePane, 1, 0);
+            add(m_gameGains, 1, 1);
+            add(flow, 1, 2);
+            grid->setAlignment(flow, Qt::AlignTop);
+            talents->setFixedHeight(100);
+            add(talents, 2, 0, 3);
+            grid->setAlignment(talents, Qt::AlignTop);
+        } else {
+            QWidget *panel = section == "talents" ? talents : section == "permanents" ? permanents : run;
+            add(panel, 1, 0, 3);
+            panel->setMinimumHeight(section == "permanents" ? 300 : 440);
+        }
+        grid->setRowStretch(1, 1);
+    }
+    UpdateTalentHeight();
+    updateGeometry();
+}
+
 tx::Config SimulationOptions::Config() const
 {
-    return std::get<tx::Config>(ActiveConfigFromValues(Values(), desktop::Specialization::TaiXu));
+    QString flowError;
+    if (!CheckFlowMacro(flowError)) throw std::invalid_argument(flowError.toUtf8().constData());
+    if (m_talentPanels[0]->HasSelection())
+        throw std::invalid_argument("新版九重奇穴目前仅支持配装预览，战斗机制尚未迁移。请清空新版配装后使用旧规则模拟选项。");
+    return std::get<tx::Config>(ActiveConfigFromValues(Values(), desktop::Specialization::TaiXu, m_flowEvents));
 }
 
 tx::Config SimulationOptions::ConfigFromValues(const QJsonObject &values) const
@@ -748,12 +1363,18 @@ desktop::Specialization SimulationOptions::Specialization() const
 
 desktop::Config SimulationOptions::ActiveConfig() const
 {
-    return ActiveConfigFromValues(Values(), Specialization());
+    QString flowError;
+    if (!CheckFlowMacro(flowError)) throw std::invalid_argument(flowError.toUtf8().constData());
+    if (m_talentPanels[static_cast<int>(Specialization())]->HasSelection())
+        throw std::invalid_argument("新版九重奇穴目前仅支持配装预览，战斗机制尚未迁移。请清空新版配装后使用旧规则模拟选项。");
+    return ActiveConfigFromValues(Values(), Specialization(), m_flowEvents);
 }
 
-desktop::Config SimulationOptions::ActiveConfigFromValues(const QJsonObject &values, desktop::Specialization specialization) const
+desktop::Config SimulationOptions::ActiveConfigFromValues(const QJsonObject &values, desktop::Specialization specialization,
+    std::span<const runtime::TargetEvent> events) const
 {
     auto  taiXu      = ConfigFromValues(values);
+    taiXu.target_events.assign(events.begin(), events.end());
     auto &attr       = taiXu.attributes;
     int   majorAdded = 0, strengthBonus = 0;
     for (auto *input : m_permanents) {
@@ -834,6 +1455,7 @@ desktop::Config SimulationOptions::ActiveConfigFromValues(const QJsonObject &val
         a.ignore_shield
     };
     config.target = { taiXu.target.level, taiXu.target.shield, taiXu.target.vulnerable, taiXu.target.life, taiXu.target.distance };
+    config.target_events = std::move(taiXu.target_events);
     config.delay          = taiXu.delay;
     config.initial_yingzi = values.value("mwShadows").toInt();
     config.initial_style  = static_cast<mw::Style>(values.value("mwStyle").toInt());
@@ -855,25 +1477,32 @@ runtime::BatchOptions SimulationOptions::Batch() const
         throw std::invalid_argument("随机种子须为 0 至 18446744073709551615 之间的整数。");
     }
     batch.damage_capacity   = static_cast<std::size_t>(batch.duration) * 16 + 64;
-    batch.mutation_capacity = static_cast<std::size_t>(batch.duration) * 40 + 128;
+    batch.mutation_capacity = static_cast<std::size_t>(batch.duration) * 40 + 128 + m_flowEvents.size() * 2;
     return batch;
 }
 
 void SimulationOptions::SaveSettings() const
 {
     QSettings settings;
+    for (int index = 0; index < 2; ++index)
+        settings.setValue(QStringLiteral("simulation/talentPreview%1").arg(index), QJsonDocument(m_talentPanels[index]->Selection()).toJson(QJsonDocument::Compact));
     for (auto *input : findChildren<QSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         settings.setValue("simulation/" + input->objectName(), input->value());
     }
     for (auto *input : findChildren<QDoubleSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         settings.setValue("simulation/" + input->objectName(), input->value());
     }
     for (auto *input : findChildren<QCheckBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         settings.setValue("simulation/" + input->objectName(), input->isChecked());
     }
     settings.setValue(QStringLiteral("simulation/seed"), m_seed->text());
     settings.setValue("simulation/specialization", m_specialization->currentIndex());
-    settings.setValue("simulation/mwStyle", m_style->currentIndex());
+    settings.setValue(QStringLiteral("simulation/flowMacro"), m_flowEditor->toPlainText());
+    for (const auto &field : desktop::FlowFields)
+        settings.setValue("simulation/" + QString::fromLatin1(field.key), m_flowValues.value(QString::fromLatin1(field.key)).toVariant());
     for (auto *input : m_permanents) {
         settings.setValue("simulation/" + input->objectName(), input->currentIndex());
     }
@@ -881,19 +1510,21 @@ void SimulationOptions::SaveSettings() const
 
 QJsonObject SimulationOptions::Values() const
 {
-    QJsonObject values;
+    QJsonObject values = m_flowValues;
     for (auto *input : findChildren<QSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         values.insert(input->objectName(), input->value());
     }
     for (auto *input : findChildren<QDoubleSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         values.insert(input->objectName(), input->value());
     }
     for (auto *input : findChildren<QCheckBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         values.insert(input->objectName(), input->isChecked());
     }
     // JSON numbers cannot portably preserve all uint64 seeds.
     values.insert(QStringLiteral("seed"), m_seed->text());
-    values.insert("mwStyle", m_style->currentIndex());
     for (auto *input : m_permanents) {
         values.insert(input->objectName(), input->currentIndex());
     }
@@ -904,16 +1535,19 @@ QJsonObject SimulationOptions::Snapshot() const
 {
     return {
         { "format",         "jx3dps.desktop.config"          },
-        { "version",        2                                },
+        { "version",        4                                },
         { "specialization", m_specialization->currentIndex() },
-        { "values",         Values()                         }
+        { "values",         Values()                         },
+        { "flowMacro",      m_flowEditor->toPlainText()       },
+        { "talents",        QJsonObject{{"version", desktop::TalentPanel::DataVersion()},
+                               {"0", m_talentPanels[0]->Selection()}, {"1", m_talentPanels[1]->Selection()}} }
     };
 }
 
 bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &error) const
 {
     error.clear();
-    if (snapshot.value("format") != QJsonValue("jx3dps.desktop.config") || snapshot.value("version") != QJsonValue(2) ||
+    if (snapshot.value("format") != QJsonValue("jx3dps.desktop.config") || snapshot.value("version") != QJsonValue(4) ||
         !snapshot.value("values").isObject())
     {
         error = QStringLiteral("不支持此配置格式或版本。");
@@ -924,6 +1558,26 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
         return false;
     }
     const auto values = snapshot.value("values").toObject();
+    if (!snapshot.value("flowMacro").isString()) {
+        error = QStringLiteral("流程宏必须是文本。"); return false;
+    }
+    const auto flow = desktop::CompileFlowMacro(snapshot.value("flowMacro").toString());
+    if (!flow.errors.isEmpty()) { error = flow.ErrorText(); return false; }
+    for (const auto &field : desktop::FlowFields) {
+        const auto key = QString::fromLatin1(field.key);
+        if (!desktop::ValidFlowValue(field, values.value(key)) || values.value(key) != flow.values.value(key)) {
+            error = QStringLiteral("流程宏与配置值不一致：%1").arg(desktop::FieldName(key)); return false;
+        }
+    }
+    const auto talents = snapshot.value("talents").toObject();
+    if (talents.value("version") != QJsonValue(desktop::TalentPanel::DataVersion())) {
+        error = QStringLiteral("奇穴数据版本不匹配。"); return false;
+    }
+    for (int index = 0; index < 2; ++index) {
+        const auto selected = talents.value(QString::number(index));
+        if (!selected.isArray()) { error = QStringLiteral("奇穴配装字段无效。"); return false; }
+        if (!m_talentPanels[index]->ValidateSelection(selected.toArray(), error)) return false;
+    }
     if (values.value("mwStyle") != QJsonValue(0) && values.value("mwStyle") != QJsonValue(1)) {
         error = QStringLiteral("初始曲目无效。");
         return false;
@@ -937,6 +1591,7 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
         return false;
     };
     for (auto *input : findChildren<QSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         const auto v = values.value(input->objectName());
         const auto n = v.toDouble();
         if (!v.isDouble() || !std::isfinite(n) || n < input->minimum() || n > input->maximum() || std::floor(n) != n) {
@@ -944,6 +1599,7 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
         }
     }
     for (auto *input : findChildren<QDoubleSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         const auto v     = values.value(input->objectName());
         const auto n     = v.toDouble();
         const auto scale = std::pow(10.0, input->decimals());
@@ -954,6 +1610,7 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
         }
     }
     for (auto *input : findChildren<QCheckBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         if (!values.value(input->objectName()).isBool()) {
             return invalid(input->objectName());
         }
@@ -975,7 +1632,7 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
     try {
         // Validate coupled rules (recipes, haste, etc.) before changing any control.
         std::visit([](const auto &config) { desktop::MakeRules(config); },
-                   ActiveConfigFromValues(values, static_cast<desktop::Specialization>(snapshot.value("specialization").toInt())));
+                   ActiveConfigFromValues(values, static_cast<desktop::Specialization>(snapshot.value("specialization").toInt()), flow.TargetEvents()));
     } catch (const std::exception &exception) {
         error = desktop::Diagnostic(QString::fromUtf8(exception.what()));
         return false;
@@ -986,6 +1643,17 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
 QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) const
 {
     auto withTeamDefaults = [this](QJsonObject result) {
+        if (result.value("version") == QJsonValue(2)) {
+            result.remove("flowMacro");
+            QJsonObject talents{{"version", desktop::TalentPanel::DataVersion()}};
+            for (int index = 0; index < 2; ++index) {
+                QJsonArray empty;
+                for (int slot = 0; slot < m_talentPanels[index]->Selection().size(); ++slot) empty.append(QString{});
+                talents.insert(QString::number(index), empty);
+            }
+            result.insert("version", 3);
+            result.insert("talents", talents);
+        }
         auto values = result.value("values").toObject();
         for (auto *input : findChildren<QWidget *>()) {
             const auto key = input->objectName();
@@ -995,10 +1663,13 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
                 values.insert(key, QJsonValue::fromVariant(input->property("defaultValue")));
         }
         result.insert("values", values);
+        if (!result.contains("flowMacro")) result.insert("flowMacro", desktop::FlowMacroFromValues(values));
+        result.insert("version", 4);
         return result;
     };
     if (snapshot.value("format") != QJsonValue("jx3dps.tai-xu.config") || snapshot.value("version") != QJsonValue(1)) {
-        return snapshot.value("format") == QJsonValue("jx3dps.desktop.config") && snapshot.value("version") == QJsonValue(2)
+        return snapshot.value("format") == QJsonValue("jx3dps.desktop.config") &&
+            (snapshot.value("version") == QJsonValue(2) || snapshot.value("version") == QJsonValue(3) || snapshot.value("version") == QJsonValue(4))
             ? withTeamDefaults(snapshot) : snapshot;
     }
     auto converted = snapshot;
@@ -1010,16 +1681,19 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
     }
     // Older Tai Xu snapshots predate the Mo Wen fields; fill only these new keys.
     for (auto *input : findChildren<QSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         if (input->objectName().startsWith("mw")) {
             values.insert(input->objectName(), input->property("defaultValue").toInt());
         }
     }
     for (auto *input : findChildren<QCheckBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         if (input->objectName().startsWith("mw")) {
             values.insert(input->objectName(), false);
         }
     }
     values.insert("mwStyle", 1);
+    values.insert("mwShadows", 0);
     values.insert("importedMajor", 0);
     values.insert("importedStrength", 41);
     for (auto *input : m_permanents) {
@@ -1039,17 +1713,22 @@ bool SimulationOptions::RestoreSnapshot(const QJsonObject &original, QString &er
         return false;
     }
     const auto values = snapshot.value("values").toObject();
+    const auto talents = snapshot.value("talents").toObject();
+    for (int index = 0; index < 2; ++index) m_talentPanels[index]->RestoreSelection(talents.value(QString::number(index)).toArray());
     for (auto *input : findChildren<QSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         input->setValue(values.value(input->objectName()).toInt());
     }
     for (auto *input : findChildren<QDoubleSpinBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         input->setValue(values.value(input->objectName()).toDouble());
     }
     for (auto *input : findChildren<QCheckBox *>()) {
+        if (input->property("flowViewOnly").toBool()) continue;
         input->setChecked(values.value(input->objectName()).toBool());
     }
     m_seed->setText(values.value("seed").toString());
-    m_style->setCurrentIndex(values.value("mwStyle").toInt());
+    m_flowEditor->setPlainText(snapshot.value("flowMacro").toString());
     for (auto *input : m_permanents) {
         input->setCurrentIndex(values.value(input->objectName()).toInt());
     }
@@ -1174,8 +1853,8 @@ void SimulationOptions::SetupProfiles(QVBoxLayout *layout)
     auto placeholderPalette = profiles->lineEdit()->palette();
     placeholderPalette.setColor(QPalette::PlaceholderText, QColor(QStringLiteral("#94a5b0")));
     profiles->lineEdit()->setPalette(placeholderPalette);
-    rows->addWidget(profiles);
     auto *buttons = new QHBoxLayout;
+    buttons->addWidget(profiles, 1);
     auto  button  = [&](const QString &label, const char *name, auto callback) {
         auto *item = new QPushButton(label, group);
         item->setObjectName(QString::fromLatin1(name));
@@ -1230,6 +1909,7 @@ void SimulationOptions::SetupProfiles(QVBoxLayout *layout)
     menu->setObjectName(QStringLiteral("configurationMenu"));
     more->setMenu(menu);
     buttons->addWidget(more);
+    buttons->addLayout(m_runActions);
     rows->addLayout(buttons);
     auto menuAction = [&](const QString &label, const char *name, auto callback) {
         auto *item = menu->addAction(label);

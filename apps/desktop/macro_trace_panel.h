@@ -6,10 +6,13 @@
 
 class QCheckBox;
 class QComboBox;
+class QHBoxLayout;
 class QLabel;
 class QLineEdit;
 class QPushButton;
 class QTableView;
+class QTextBrowser;
+class QResizeEvent;
 class MacroStepModel;
 
 class MacroTracePanel : public QWidget {
@@ -21,6 +24,8 @@ public:
     bool ExportCsv(const QString &path, QString &error) const;
 signals:
     void SourceRequested(const QString &source, int line);
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 private:
     QString m_source;
     MacroStepModel *m_model;
@@ -29,9 +34,13 @@ private:
     QLineEdit *m_search;
     QCheckBox *m_follow;
     QLabel *m_status;
-    QLabel *m_details;
+    QTextBrowser *m_details;
     QPushButton *m_export;
     QPushButton *m_locate;
+    QHBoxLayout *m_filters;
+    QHBoxLayout *m_actions;
+    QWidget *m_actionRow;
+    bool m_wide = false;
     void Refresh(const MacroSteps &steps = {}, bool reset = false);
     void ShowSelection();
     void LocateSelection();

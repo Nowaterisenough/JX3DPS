@@ -11,8 +11,10 @@
 #include <QMessageBox>
 #include <QPalette>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QSaveFile>
 #include <QTableView>
+#include <QTextBrowser>
 #include <QVBoxLayout>
 
 namespace {
@@ -88,7 +90,9 @@ MacroTracePanel::MacroTracePanel(QWidget *parent) : QWidget(parent)
 {
     setObjectName(QStringLiteral("macroTracePanel"));
     auto *layout = new QVBoxLayout(this);
-    auto *tools = new QHBoxLayout;
+    auto *filterRow = new QWidget(this);
+    auto *tools = m_filters = new QHBoxLayout(filterRow);
+    tools->setContentsMargins(0, 0, 0, 0);
     m_scope = new QComboBox(this);
     m_scope->setObjectName(QStringLiteral("macroStepScope"));
     m_scope->addItems({"全部步骤", "不成立 / 受阻", "条件", "动作", "跳过", "引导打断"});
@@ -103,13 +107,18 @@ MacroTracePanel::MacroTracePanel(QWidget *parent) : QWidget(parent)
     tools->addWidget(m_search, 1);
     m_follow = new QCheckBox(QStringLiteral("跟随最新"), this);
     m_follow->setChecked(true);
-    tools->addWidget(m_follow);
+    layout->addWidget(filterRow);
+    m_actionRow = new QWidget(this);
+    auto *actions = m_actions = new QHBoxLayout(m_actionRow);
+    actions->setContentsMargins(0, 0, 0, 0);
+    actions->addWidget(m_follow);
+    actions->addStretch();
     m_locate = new QPushButton(QStringLiteral("定位宏行"), this);
     m_locate->setObjectName(QStringLiteral("locateMacroStep"));
-    tools->addWidget(m_locate);
+    actions->addWidget(m_locate);
     m_export = new QPushButton(QStringLiteral("导出步骤"), this);
-    tools->addWidget(m_export);
-    layout->addLayout(tools);
+    actions->addWidget(m_export);
+    layout->addWidget(m_actionRow);
     m_status = new QLabel(this);
     m_status->setObjectName(QStringLiteral("macroStepStatus"));
     m_status->setWordWrap(true);
@@ -117,23 +126,24 @@ MacroTracePanel::MacroTracePanel(QWidget *parent) : QWidget(parent)
     m_model = new MacroStepModel(this);
     m_table = new QTableView(this);
     m_table->setObjectName(QStringLiteral("macroSteps"));
+    m_table->setMinimumHeight(110);
     m_table->setModel(m_model);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setSelectionMode(QAbstractItemView::SingleSelection);
     m_table->setAlternatingRowColors(true);
+    m_table->setShowGrid(false);
     m_table->setStyleSheet(QStringLiteral("QHeaderView::section { padding: 4px 6px; }"));
     m_table->verticalHeader()->hide();
     m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_table->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
     layout->addWidget(m_table, 1);
-    m_details = new QLabel(this);
+    m_details = new QTextBrowser(this);
     m_details->setObjectName(QStringLiteral("macroStepDetails"));
-    m_details->setTextFormat(Qt::PlainText);
-    m_details->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    m_details->setWordWrap(true);
+    m_details->setFrameShape(QFrame::NoFrame);
     m_details->setMinimumHeight(58);
-    m_details->setStyleSheet(QStringLiteral("padding: 8px; background: #20252b; color: #c7d4e3;"));
+    m_details->setMaximumHeight(96);
+    m_details->setStyleSheet(QStringLiteral("padding: 12px; background: #232327; color: #ededf1;"));
     layout->addWidget(m_details);
     connect(m_scope, &QComboBox::currentIndexChanged, this, [this] { Refresh(); });
     connect(m_search, &QLineEdit::textChanged, this, [this] { Refresh(); });
@@ -158,6 +168,24 @@ void MacroTracePanel::Reset(const QString &source)
     Refresh({}, true);
 }
 
+void MacroTracePanel::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    const bool wide = event->size().width() >= 600;
+    if (wide == m_wide) return;
+    m_wide = wide;
+    if (wide) {
+        m_filters->addWidget(m_follow);
+        m_filters->addWidget(m_locate);
+        m_filters->addWidget(m_export);
+    } else {
+        m_actions->insertWidget(0, m_follow);
+        m_actions->addWidget(m_locate);
+        m_actions->addWidget(m_export);
+    }
+    m_actionRow->setVisible(!wide);
+}
+
 void MacroTracePanel::Append(const MacroSteps &steps)
 {
     if (steps.isEmpty()) return;
@@ -170,11 +198,12 @@ void MacroTracePanel::Refresh(const MacroSteps &steps, bool reset)
     const auto selected = current && !reset ? current->ordinal : 0;
     m_model->Update(steps, reset, m_scope->currentIndex(), m_search->text().trimmed());
     const auto count = m_model->steps.size();
-    m_status->setText(count
-        ? QStringLiteral("显示 %1 条 | 共 %3 步，保留 %2 条 | 已淘汰 %4 条旧记录（上限 %5）。导出遵循当前筛选。")
-              .arg(m_model->rowCount()).arg(count).arg(m_model->steps.back().ordinal)
-              .arg(m_model->steps.back().ordinal - count).arg(MacroStepHistoryLimit)
-        : QStringLiteral("启动调试后，通过单步或继续执行记录条件与动作的实际结果。"));
+    const auto removed = count ? m_model->steps.back().ordinal - count : 0;
+    m_status->setText(count ? QStringLiteral("显示 %1 条 · 共 %2 步%3")
+                                  .arg(m_model->rowCount()).arg(m_model->steps.back().ordinal)
+                                  .arg(removed ? QStringLiteral(" · 已淘汰 %1 条旧记录").arg(removed) : QString{})
+                            : QStringLiteral("启动调试后记录条件与动作的实际结果。"));
+    m_status->setToolTip(QStringLiteral("最多保留 %1 步；导出包含当前筛选的全部记录。").arg(MacroStepHistoryLimit));
     m_export->setEnabled(m_model->rowCount() > 0);
     int row = -1;
     if (m_follow->isChecked()) row = m_model->rowCount() - 1;
@@ -191,7 +220,7 @@ void MacroTracePanel::ShowSelection()
 {
     const auto *step = m_model->Step(m_table->currentIndex().row());
     m_locate->setEnabled(step && !m_source.isEmpty());
-    m_details->setText(step ? QStringLiteral("#%1 | %2 秒 | 第 %3 行 | %4 -> %5\n%6")
+    m_details->setPlainText(step ? QStringLiteral("#%1 | %2 秒 | 第 %3 行 | %4 -> %5\n%6")
         .arg(step->ordinal).arg(step->frame / 16.0, 0, 'f', 4).arg(step->line)
         .arg(step->expression, step->outcome, step->details)
         : QStringLiteral("选择步骤，查看实际参与比较的数值或首个阻止施放的原因。"));

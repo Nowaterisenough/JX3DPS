@@ -15,6 +15,8 @@ public:
     void polish(QPalette &palette) override;
     void polish(QWidget *widget) override;
     void polish(QApplication *app) override;
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
+                       const QWidget *widget = nullptr) const override;
 };
 
 #endif // DARK_STYLE_H

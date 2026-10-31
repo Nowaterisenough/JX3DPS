@@ -62,12 +62,14 @@ void Frameless::SetupTitleBar(TitleBarSetupFunction setupFunc)
 void Frameless::SetupDefaultTitleBar()
 {
     SetupTitleBar([](Frameless *frameless, QWK::WidgetWindowAgent *agent) -> QWidget* {
-        constexpr int BUTTON_WIDTH = 45;
-        constexpr int HEIGHT       = 35;
+        constexpr int BUTTON_WIDTH = 46;
+        constexpr int HEIGHT       = 30;
 
         auto *windowBar = new TitleBar(frameless);
         windowBar->SetHostWidget(frameless);
         windowBar->setFixedHeight(HEIGHT);
+        windowBar->setObjectName(QStringLiteral("windowTitleBar"));
+        windowBar->setStyleSheet(QStringLiteral("QFrame#windowTitleBar { background: #1a1a1e; border: 0; } QLabel { color: #ededf1; font-size: 12px; }"));
 
         auto *icon = new QLabel(windowBar);
         icon->setFixedHeight(HEIGHT);

@@ -35,13 +35,15 @@ public:
     enum DebugState {
         Stopped,   // 停止状态
         Running,   // 运行中
-        Paused     // 已暂停
+        Paused,    // 已暂停
+        Finished   // 已完成，可以重新调试
     };
 
     void SetDebugState(DebugState state);
     DebugState GetDebugState() const;
 
     // 显示/隐藏浮窗
+    void SetAnchorWidget(QWidget *anchor);
     void ShowFloating();
     void HideFloating();
 
@@ -65,6 +67,8 @@ protected:
 private:
     void SetupUI();
     void UpdateButtonStates();
+    QRect FloatingBounds() const;
+    void UpdateFloatingPosition();
 
     QScopedPointer<DebugToolbarPrivate> d_ptr;
     Q_DECLARE_PRIVATE(DebugToolbar)

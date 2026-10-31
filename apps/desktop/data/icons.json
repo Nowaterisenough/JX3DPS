@@ -1,6 +1,9 @@
 {
   "_source": "ba960f776dad2b30c8d43b529cd06d4fcaed5c2c/config/config.json; runtime derivatives use their source skill/talent icon.",
   "0": {
+    "太虚剑意": {
+      "Icon": 8484
+    },
     "破": {
       "Icon": 572
     },
@@ -296,6 +299,9 @@
     }
   },
   "1": {
+    "莫问": {
+      "Icon": 8501
+    },
     "破": {
       "Icon": 572
     },

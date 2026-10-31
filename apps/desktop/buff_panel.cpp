@@ -1,5 +1,6 @@
 #include "buff_panel.h"
 #include "game_icons.h"
+#include "controls/theme/segmented_tabs.h"
 
 #include <QComboBox>
 #include <limits>
@@ -90,7 +91,7 @@ BuffPanel::BuffPanel(QWidget *parent) : QWidget(parent)
     m_status->setObjectName(QStringLiteral("buffStatus"));
     m_status->setWordWrap(true);
     layout->addWidget(m_status);
-    auto *tabs = new QTabWidget(this);
+    auto *tabs = new desktop::SegmentedTabs(this);
     tabs->setObjectName(QStringLiteral("buffTabs"));
     m_coverage = Table({QStringLiteral("归属"), QStringLiteral("自身增益"), QStringLiteral("最新层数"), QStringLiteral("最高层数"),
         QStringLiteral("生效时间（秒）"), QStringLiteral("覆盖率 %"), QStringLiteral("平均层数"), QStringLiteral("变化记录")}, "buffCoverage", tabs);

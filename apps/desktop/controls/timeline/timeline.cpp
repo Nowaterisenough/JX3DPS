@@ -1,4 +1,5 @@
 #include "timeline.h"
+#include "../theme/workbench_theme.h"
 
 #include <QPainter>
 #include <QMouseEvent>
@@ -106,7 +107,7 @@ void Timeline::SetupUI()
     // 设置样式
     setStyleSheet(R"(
         Timeline {
-            background-color: #1e1e1e;
+            background-color: #1a1a1e;
         }
     )");
 
@@ -333,7 +334,7 @@ void Timeline::DrawThumbnail(QPainter &painter)
     painter.setClipRect(d->thumbnailRect);
 
     // 背景
-    painter.fillRect(d->thumbnailRect, QColor(30, 30, 30));
+    painter.fillRect(d->thumbnailRect, QColor(desktop::theme::Surface));
 
         // 绘制宏覆盖带（底部）
         const int macroBarHeight = 8;
@@ -412,12 +413,12 @@ void Timeline::DrawThumbnail(QPainter &painter)
         painter.setBrush(QColor(100, 100, 100, 80));
         painter.drawRect(d->visibleIndicator);
 
-        painter.setPen(QPen(QColor(117, 190, 255), 2));
+        painter.setPen(QPen(desktop::theme::AccentColor(this), 2));
         painter.setBrush(Qt::NoBrush);
         painter.drawRect(d->visibleIndicator);
 
     // 边框
-    painter.setPen(QColor(60, 60, 60));
+    painter.setPen(QColor(desktop::theme::Border));
     painter.setBrush(Qt::NoBrush);
     painter.drawRect(d->thumbnailRect);
 
@@ -432,7 +433,7 @@ void Timeline::DrawMainView(QPainter &painter)
     painter.setClipRect(d->mainViewRect);
 
     // 背景
-    painter.fillRect(d->mainViewRect, QColor(40, 40, 40));
+    painter.fillRect(d->mainViewRect, QColor(desktop::theme::Surface));
 
     // 绘制时间刻度（顶部，以秒为单位）
     int viewDuration = d->viewEndMs - d->viewStartMs;
@@ -441,7 +442,7 @@ void Timeline::DrawMainView(QPainter &painter)
         const double magnitude = std::pow(10.0, std::floor(std::log10(desired)));
         const int tickInterval = static_cast<int>(magnitude * (desired <= magnitude ? 1 : desired <= 2 * magnitude ? 2 : desired <= 5 * magnitude ? 5 : 10));
 
-        painter.setPen(QColor(165, 170, 180));
+        painter.setPen(QColor(desktop::theme::Muted));
         QFont font = painter.font();
         font.setPointSize(8);
         painter.setFont(font);
@@ -490,7 +491,7 @@ void Timeline::DrawMainView(QPainter &painter)
             painter.drawPixmap(targetRect, event.icon, sourceRect);
 
             // 绘制灰黑色边框（1像素宽，在裁剪后图标的内侧）
-            painter.setPen(QPen(QColor(60, 60, 60), 1));
+            painter.setPen(QPen(QColor(desktop::theme::Border), 1));
             painter.setBrush(Qt::NoBrush);
             painter.drawRoundedRect(targetRect.adjusted(0.5, 0.5, -0.5, -0.5), 3, 3);
             painter.setPen(Qt::NoPen);
@@ -513,7 +514,7 @@ void Timeline::DrawBuffArea(QPainter &painter)
         painter.setClipRect(d->buffAreaRect);
 
         // 背景
-        painter.fillRect(d->buffAreaRect, QColor(35, 35, 35));
+        painter.fillRect(d->buffAreaRect, QColor(desktop::theme::Surface));
 
         int viewDuration = d->viewEndMs - d->viewStartMs;
 
@@ -539,7 +540,7 @@ void Timeline::DrawBuffArea(QPainter &painter)
 
             // 绘制背景条
             painter.setPen(Qt::NoPen);
-            painter.setBrush(QColor(60, 60, 60));
+            painter.setBrush(QColor(desktop::theme::Border));
             painter.drawRect(barStartX, barY, barWidth, barHeight);
 
             // 绘制buff覆盖时间段
@@ -573,14 +574,14 @@ void Timeline::DrawBuffArea(QPainter &painter)
 
             // 绘制行分割线
             if (i < d->buffs.size() - 1) {
-                painter.setPen(QColor(50, 50, 50));
+                painter.setPen(QColor("#2c2c32"));
                 painter.drawLine(d->buffAreaRect.left(), rowY + d->buffRowHeight,
                                d->buffAreaRect.right(), rowY + d->buffRowHeight);
             }
         }
 
         // 边框
-        painter.setPen(QColor(60, 60, 60));
+        painter.setPen(QColor(desktop::theme::Border));
         painter.setBrush(Qt::NoBrush);
         painter.drawRect(d->buffAreaRect);
 
@@ -595,14 +596,14 @@ void Timeline::DrawHoverEffects(QPainter &painter)
     if (d->cursorMs >= 0) {
         const int x = d->cursorPosition.x();
         const int bottom = d->buffAreaRect.isValid() ? d->buffAreaRect.bottom() : d->mainViewRect.bottom();
-        painter.setPen(QPen(QColor(239, 191, 95), 1));
+        painter.setPen(QPen(QColor(desktop::theme::Success), 1));
         painter.drawLine(x, d->mainViewRect.top(), x, bottom);
         const QString time = QStringLiteral("%1 秒 · 第 %2 帧")
             .arg(d->cursorMs / 1000.0, 0, 'f', 4).arg(static_cast<int>(d->cursorMs * 16 / 1000));
         const int width = painter.fontMetrics().horizontalAdvance(time) + 16;
         const int left = qBound(0, x - width / 2, qMax(0, this->width() - width));
         const QRect label(left, d->mainViewRect.top() - 27, width, 25);
-        painter.fillRect(label, QColor(35, 39, 46));
+        painter.fillRect(label, QColor(desktop::theme::Raised));
         painter.drawText(label, Qt::AlignCenter, time);
     }
     const int duration = d->viewEndMs - d->viewStartMs;
@@ -614,7 +615,7 @@ void Timeline::DrawHoverEffects(QPainter &painter)
             const QRect iconRect(x - size / 2, d->mainViewRect.top() + 30 - (size - 40) / 2, size, size);
             painter.setClipRect(d->mainViewRect);
             painter.drawPixmap(iconRect, event.icon);
-            painter.setPen(QPen(QColor(239, 191, 95), 2));
+            painter.setPen(QPen(QColor(desktop::theme::Success), 2));
             painter.drawRect(iconRect);
         }
     }
@@ -716,11 +717,11 @@ void Timeline::DrawHoverTooltip(QPainter &painter)
             }
 
             // 绘制浮窗背景
-            painter.setBrush(QColor(45, 45, 48, 240));
+            painter.setBrush(QColor(35, 35, 39, 250));
             painter.drawRect(popupRect);
 
             // 绘制边框（深灰色，0.5像素宽）
-            painter.setPen(QPen(QColor(120, 120, 120), 0.5));
+            painter.setPen(QPen(QColor(desktop::theme::Border), 0.5));
             painter.setBrush(Qt::NoBrush);
             painter.drawRect(popupRect);
 
@@ -729,9 +730,9 @@ void Timeline::DrawHoverTooltip(QPainter &painter)
             for (int i = 0; i < tooltipLines.size(); ++i) {
                 // 悬停的事件用金色高亮
                 if (overlappedIndices[i] == d->hoveredEventIndex) {
-                    painter.setPen(QColor(255, 215, 0));
+                    painter.setPen(QColor(desktop::theme::Text));
                 } else {
-                    painter.setPen(QColor(200, 200, 200));
+                    painter.setPen(QColor(desktop::theme::Muted));
                 }
                 painter.drawText(popupX + 10, textY, tooltipLines[i]);
                 textY += fm.height();

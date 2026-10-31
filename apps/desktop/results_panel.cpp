@@ -11,14 +11,38 @@
 #include <QPushButton>
 #include <QSaveFile>
 #include <QSplitter>
+#include <QStyledItemDelegate>
 #include <QTableWidget>
 #include <QTabWidget>
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
 #include "runtime_catalog.h"
+#include "game_attributes.h"
+#include "controls/theme/segmented_tabs.h"
+#include "controls/theme/history_chart.h"
 
 namespace {
+class DamageShareDelegate final : public QStyledItemDelegate {
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
+        QStyledItemDelegate::paint(painter, option, index);
+        bool valid = false;
+        const auto share = index.data().toString().remove('%').toDouble(&valid);
+        if (!valid) return;
+        const QRectF track(option.rect.left() + 8, option.rect.bottom() - 5, qMax(0, option.rect.width() - 16), 3);
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(QColor(desktop::theme::Raised));
+        painter->drawRoundedRect(track, 1.5, 1.5);
+        painter->setBrush(desktop::theme::AccentColor(option.widget));
+        painter->drawRoundedRect(QRectF(track.topLeft(), QSizeF(track.width() * std::clamp(share / 100, 0.0, 1.0), track.height())), 1.5, 1.5);
+        painter->restore();
+    }
+};
+
 QTableWidget *Table(const QStringList &headers, const char *name, QWidget *parent)
 {
     auto *table = new QTableWidget(0, headers.size(), parent);
@@ -28,7 +52,9 @@ QTableWidget *Table(const QStringList &headers, const char *name, QWidget *paren
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
     table->setSelectionMode(QAbstractItemView::SingleSelection);
     table->setAlternatingRowColors(true);
+    table->setShowGrid(false);
     table->verticalHeader()->hide();
+    table->verticalHeader()->setDefaultSectionSize(34);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     table->horizontalHeader()->setMinimumSectionSize(65);
     table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -66,11 +92,14 @@ ResultsPanel::ResultsPanel(QWidget *parent) : QWidget(parent)
 {
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    m_tabs = new QTabWidget(this);
+    m_tabs = new desktop::SegmentedTabs(this);
     m_tabs->setObjectName(QStringLiteral("resultTabs"));
     layout->addWidget(m_tabs);
     auto *history = new QWidget(m_tabs);
+    history->setObjectName(QStringLiteral("resultHistoryPage"));
     auto *rows    = new QVBoxLayout(history);
+    rows->setContentsMargins(0, 14, 0, 0);
+    rows->setSpacing(14);
     auto *actions = new QHBoxLayout;
     actions->addWidget(new QLabel(QStringLiteral("本次会话最近 50 次模拟"), history));
     actions->addStretch();
@@ -109,7 +138,14 @@ ResultsPanel::ResultsPanel(QWidget *parent) : QWidget(parent)
             QMessageBox::warning(this, QStringLiteral("导出结果"), error);
         }
     });
+    auto *detailsToggle = button(QStringLiteral("宏与配置"), "toggleResultDetails", [this] {
+        m_details->setVisible(findChild<QPushButton *>(QStringLiteral("toggleResultDetails"))->isChecked());
+    });
+    detailsToggle->setCheckable(true);
+    detailsToggle->setToolTip(QStringLiteral("展开所选运行的宏、配置和详细统计"));
     rows->addLayout(actions);
+    m_chart = new desktop::HistoryChart(history);
+    rows->addWidget(m_chart);
     auto *splitter = new QSplitter(Qt::Vertical, history);
     rows->addWidget(splitter, 1);
     m_history =
@@ -124,8 +160,16 @@ ResultsPanel::ResultsPanel(QWidget *parent) : QWidget(parent)
               splitter);
     m_details = new QTextBrowser(splitter);
     m_details->setObjectName(QStringLiteral("resultDetails"));
-    splitter->setSizes({ 140, 100 });
+    m_details->hide();
+    splitter->setSizes({360, 140});
     connect(m_history, &QTableWidget::itemSelectionChanged, this, [this] { ShowDetails(); });
+    m_chart->runSelected = [this](quint64 id) {
+        for (int row = 0; row < m_entries.size(); ++row) if (m_entries[row].id == id) {
+            m_history->selectRow(row);
+            m_history->scrollToItem(m_history->item(row, 0));
+            break;
+        }
+    };
     m_tabs->addTab(history, QStringLiteral("模拟历史"));
     auto *trace       = new QWidget(m_tabs);
     auto *traceLayout = new QVBoxLayout(trace);
@@ -147,13 +191,13 @@ ResultsPanel::ResultsPanel(QWidget *parent) : QWidget(parent)
                 QStringLiteral("未命中") },
               "skillDamage",
               trace);
+    m_damage->setItemDelegateForColumn(3, new DamageShareDelegate(m_damage));
     traceLayout->addWidget(m_damage, 1);
     m_tabs->addTab(trace, QStringLiteral("技能统计"));
     auto *gainPage   = new QWidget(m_tabs);
     auto *gainLayout = new QVBoxLayout(gainPage);
-    auto *gainNote   = new QLabel(QStringLiteral("分别增加 100 "
-                                               "点属性，使用相同宏与种子重新模拟，显示平均秒伤变化。会心与加速可能改变"
-                                               "后续施放和随机数消耗，差值含模拟波动。取消时只保留完整计算的项目。"));
+    auto *gainNote   = new QLabel;
+    gainNote->setObjectName(QStringLiteral("attributeGainDescription"));
     gainNote->setWordWrap(true);
     gainLayout->addWidget(gainNote);
     m_gains =
@@ -178,6 +222,8 @@ const ResultsPanel::Entry *ResultsPanel::Selected() const
     return row >= 0 && row < m_entries.size() ? &m_entries[row] : nullptr;
 }
 
+void ResultsPanel::ShowOverview() { m_tabs->setCurrentIndex(0); }
+
 void ResultsPanel::AddResult(const SimulationResult &result, const QString &source, const QJsonObject &configuration)
 {
     if (m_entries.size() == 50) {
@@ -188,6 +234,7 @@ void ResultsPanel::AddResult(const SimulationResult &result, const QString &sour
     m_history->selectRow(m_entries.size() - 1);
     m_tabs->setCurrentIndex(0);
     ShowDetails();
+    if (result.skillsCollected && result.stats.count) m_tabs->setCurrentIndex(1);
     if (!result.gains.isEmpty()) {
         m_tabs->setCurrentIndex(2);
     }
@@ -195,12 +242,14 @@ void ResultsPanel::AddResult(const SimulationResult &result, const QString &sour
 
 void ResultsPanel::RefreshHistory()
 {
+    QVector<desktop::HistoryChart::Point> points;
     m_history->setUpdatesEnabled(false);
     m_history->setRowCount(m_entries.size());
     for (int row = 0; row < m_entries.size(); ++row) {
         const auto &entry   = m_entries[row];
         const auto &r       = entry.result;
         const bool  hasData = r.stats.count > 0;
+        if (hasData && r.Complete()) points.push_back({entry.id, r.MeanDps()});
         const auto  label   = QStringLiteral("#%1%2").arg(entry.id).arg(
             m_baseline && m_baseline->id == entry.id ? QStringLiteral("（基准）") : QString{});
         Row(m_history,
@@ -214,6 +263,8 @@ void ResultsPanel::RefreshHistory()
               QString::number(r.elapsedSeconds, 'f', 3) });
     }
     m_history->setUpdatesEnabled(true);
+    m_chart->SetPoints(std::move(points));
+    m_chart->SetReference(m_baseline ? std::optional<double>(m_baseline->result.MeanDps()) : std::nullopt);
 }
 
 void ResultsPanel::ShowDetails()
@@ -224,25 +275,21 @@ void ResultsPanel::ShowDetails()
     m_useInputs->setEnabled(entry && m_inputsEnabled);
     m_export->setEnabled(entry);
     m_gains->setRowCount(0);
+    auto *gainNote = findChild<QLabel *>(QStringLiteral("attributeGainDescription"));
     if (!entry) {
+        gainNote->setText(QStringLiteral("在收益卡片底部选择比较方式，选中“计算”，再开始模拟。"));
         m_details->setPlainText(QStringLiteral("运行批量模拟或单次记录，查看统计及本次使用的宏与配置。"));
         return;
     }
     const auto &r = entry->result;
-    m_gains->setRowCount(r.gains.size());
-    for (int index = 0; index < r.gains.size(); ++index) {
-        const auto &gain = r.gains[index];
-        const auto  dps  = gain.stats.mean_damage / r.FightSeconds();
-        Row(m_gains,
-            index,
-            { gain.attribute,
-              QString::number(gain.increment),
-              QString::number(gain.stats.count),
-              Number(dps),
-              Number(dps - r.MeanDps()),
-              QString::number((dps - r.MeanDps()) / gain.increment, 'f', 4),
-              Delta(dps, r.MeanDps()) });
-    }
+    gainNote->setText(QStringLiteral("%1：实际增加点数见表格，显示平均秒伤变化。会心、无双、加速重新模拟循环；"
+        "基础攻击、会效、破防、破招、武器伤害使用基准战斗统计重算。"
+        "重跑使用相同宏与种子，差值可能含模拟波动。取消时保留完整计算的项目。")
+        .arg(desktop::GainComparisonName(r.gainMode)));
+    m_chart->SetSelectedRun(entry->id);
+    ShowResultSkills(r);
+    desktop::FillGameGainTable(m_gains, r,
+        static_cast<desktop::Specialization>(entry->configuration.value("specialization").toInt()), true);
     QString text =
         desktop::ClassName(static_cast<desktop::Specialization>(entry->configuration.value("specialization").toInt())) +
         QStringLiteral(" | ") +
@@ -264,7 +311,8 @@ void ResultsPanel::ShowDetails()
         text += QStringLiteral("没有已完成的模拟，暂无秒伤统计。\n");
     }
     if (r.gainsRequested) {
-        text += QStringLiteral("属性收益：%1 / 8 项完成（下列统计为基准战斗）。\n").arg(r.gains.size());
+        text += QStringLiteral("属性收益 · %1：%2 / 8 项完成（下列统计为基准战斗）。\n%3\n")
+            .arg(desktop::GainComparisonName(r.gainMode)).arg(r.gains.size()).arg(desktop::GainComparisonDescription(r.gainMode));
     }
     if (!r.Complete()) {
         text += QStringLiteral("模拟未全部完成；统计仅包含已完成的战斗。\n");
@@ -309,6 +357,8 @@ void ResultsPanel::SetInputsEnabled(bool enabled)
     m_useInputs->setEnabled(enabled && Selected());
 }
 
+void ResultsPanel::ShowSkillStatistics() { m_tabs->setCurrentIndex(1); }
+
 bool ResultsPanel::ExportSelected(const QString &path, QString &error) const
 {
     error.clear();
@@ -326,6 +376,8 @@ bool ResultsPanel::ExportSelected(const QString &path, QString &error) const
         { "complete",       r.Complete()                          },
         { "trace",          r.trace                               },
         { "gainsRequested", r.gainsRequested                      },
+        { "gainComparisonMode", r.gainMode == desktop::GainComparisonMode::SameCost ? "same_cost" : "same_value" },
+        { "gainBudgetModel", "jx3box_71692_level120" },
         { "durationFrames", r.options.duration                    },
         { "seed",           QString::number(r.options.seed)       },
         { "workers",        static_cast<int>(r.options.workers)   }
@@ -348,7 +400,16 @@ bool ResultsPanel::ExportSelected(const QString &path, QString &error) const
             { "checksum",   QString::number(gain.stats.checksum) }
         });
     }
+    QJsonArray skills;
+    for (const auto &skill : r.skills) {
+        skills.append(QJsonObject{{"skill", skill.skill}, {"name", skill.name},
+            {"damage", QString::number(skill.damage)}, {"count", QString::number(skill.count)},
+            {"hit", QString::number(skill.hit)}, {"critical", QString::number(skill.critical)},
+            {"insight", QString::number(skill.insight)}, {"miss", QString::number(skill.miss)}});
+    }
     const QJsonObject report{
+        { "skills", skills },
+        { "skillsCollected", r.skillsCollected },
         { "gains",         gains                             },
         { "format",        "jx3dps.desktop.run"              },
         { "version",       2                                 },
@@ -374,7 +435,7 @@ void ResultsPanel::ClearTrace(double seconds)
     m_traceCount   = 0;
     m_traceSeconds = seconds > 0 ? seconds : 1;
     m_damage->setRowCount(0);
-    m_traceSummary->setText(QStringLiteral("单次记录或调试后可查看技能伤害；批量模拟保存汇总统计。"));
+    m_traceSummary->setText(QStringLiteral("模拟完成后可查看技能统计；单次记录或调试时持续更新当前战斗。"));
 }
 
 void ResultsPanel::AppendTrace(const CombatEvents &events)
@@ -384,6 +445,7 @@ void ResultsPanel::AppendTrace(const CombatEvents &events)
     }
     for (const auto &event : events) {
         auto &skill   = m_skills[event.skill];
+        skill.skill   = event.skill;
         skill.name    = event.name;
         skill.damage += event.damage;
         ++skill.count;
@@ -399,8 +461,20 @@ void ResultsPanel::AppendTrace(const CombatEvents &events)
         m_traceDamage += event.damage;
         ++m_traceCount;
     }
-    auto skills = m_skills.values();
-    std::sort(skills.begin(), skills.end(), [](const Skill &a, const Skill &b) { return a.damage > b.damage; });
+    RenderSkills(m_skills.values(), static_cast<double>(m_traceDamage), m_traceSeconds);
+    m_traceSummary->setText(
+        QStringLiteral("当前记录 / 调试：%1 条事件 | 总伤害 %2 | 秒伤按配置的 %3 "
+                       "秒战斗计算。\n计数包含持续伤害跳数，会心率包含全部命中结果；调试过程中持续累积。")
+            .arg(m_traceCount)
+            .arg(m_traceDamage)
+            .arg(m_traceSeconds));
+}
+
+void ResultsPanel::RenderSkills(QVector<Skill> skills, double totalDamage, double totalSeconds)
+{
+    std::sort(skills.begin(), skills.end(), [](const Skill &a, const Skill &b) {
+        return a.damage != b.damage ? a.damage > b.damage : a.skill < b.skill;
+    });
     m_damage->setUpdatesEnabled(false);
     m_damage->setRowCount(skills.size());
     for (int row = 0; row < skills.size(); ++row) {
@@ -410,8 +484,8 @@ void ResultsPanel::AppendTrace(const CombatEvents &events)
             { skill.name,
               QString::number(skill.count),
               QString::number(skill.damage),
-              Number(m_traceDamage ? skill.damage * 100.0 / m_traceDamage : 0) + '%',
-              Number(skill.damage / m_traceSeconds),
+              Number(totalDamage ? skill.damage * 100.0 / totalDamage : 0) + '%',
+              Number(totalSeconds > 0 ? skill.damage / totalSeconds : 0),
               Number(skill.damage / static_cast<double>(skill.count)),
               QString::number(skill.hit),
               QString::number(skill.critical),
@@ -420,10 +494,17 @@ void ResultsPanel::AppendTrace(const CombatEvents &events)
               QString::number(skill.miss) });
     }
     m_damage->setUpdatesEnabled(true);
-    m_traceSummary->setText(
-        QStringLiteral("当前记录 / 调试：%1 条事件 | 总伤害 %2 | 秒伤按配置的 %3 "
-                       "秒战斗计算。\n计数包含持续伤害跳数，会心率包含全部命中结果；调试过程中持续累积。")
-            .arg(m_traceCount)
-            .arg(m_traceDamage)
-            .arg(m_traceSeconds));
+}
+
+void ResultsPanel::ShowResultSkills(const SimulationResult &result)
+{
+    double damage = 0;
+    quint64 events = 0;
+    for (const auto &skill : result.skills) { damage += static_cast<double>(skill.damage); events += skill.count; }
+    RenderSkills(result.skills, damage, result.stats.count * result.FightSeconds());
+    m_traceSummary->setText(result.skillsCollected
+        ? QStringLiteral("所选模拟：%1 场已完成战斗 · %2 条伤害事件 · 平均秒伤 %3\n"
+                         "事件数、伤害和命中结果为整批合计；技能秒伤按已完成场次及战斗时长取平均，持续伤害按跳数计数。")
+              .arg(result.stats.count).arg(events).arg(Number(result.MeanDps()))
+        : QStringLiteral("此历史结果没有技能统计，请重新模拟。"));
 }

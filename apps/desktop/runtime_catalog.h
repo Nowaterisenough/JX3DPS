@@ -20,7 +20,7 @@ using Config = std::variant<rt::tai_xu::Config, rt::mo_wen::Config>;
 
 inline Specialization ClassOf(const Config &config)
 {
-    return std::holds_alternative<rt::mo_wen::Config>(config) ? Specialization::MoWen : Specialization::TaiXu;
+    return static_cast<Specialization>(config.index());
 }
 
 inline QString Text(std::string_view value)
@@ -35,23 +35,14 @@ inline QString ClassName(Specialization value)
 
 inline rt::CompileOptions MacroOptions(Specialization value, bool debug = false)
 {
-    return value == Specialization::MoWen ? rt::mo_wen::MacroOptions(debug) : rt::tai_xu::MacroOptions(debug);
+    return rt::CatalogMacroOptions(value == Specialization::MoWen ? rt::mo_wen::Catalog : rt::tai_xu::Catalog, debug);
 }
 
-struct Catalog
-{
-    std::span<const rt::SkillDescriptor> skills;
-    std::span<const rt::BuffDescriptor>  buffs;
-    std::span<const rt::Slot>            castable;
-    std::span<const std::string_view>    skillAliases, buffAliases;
-};
+using Catalog = rt::SkillCatalog;
 
 inline Catalog Describe(Specialization value)
 {
-    if (value == Specialization::MoWen) {
-        return { rt::mo_wen::Skills.entries, rt::mo_wen::Buffs.entries, rt::mo_wen::CastableSkills, rt::mo_wen::SkillAliases, rt::mo_wen::BuffAliases };
-    }
-    return { rt::tai_xu::Skills.entries, rt::tai_xu::Buffs.entries, rt::tai_xu::CastableSkills, rt::tai_xu::SkillAliases, rt::tai_xu::BuffAliases };
+    return value == Specialization::MoWen ? rt::mo_wen::Catalog : rt::tai_xu::Catalog;
 }
 
 inline QString DisplayName(std::string_view name)

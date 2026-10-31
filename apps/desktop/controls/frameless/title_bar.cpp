@@ -99,7 +99,7 @@ bool TitleBar::eventFilter(QObject *obj, QEvent *event)
                 if (d->autoIcon) {
                     QLabel *icon = qobject_cast<QLabel *>(d->widgets[ICON]);
                     if (icon) {
-                        icon->setPixmap(d->hostWidget->windowIcon().pixmap(24, 24));
+                        icon->setPixmap(d->hostWidget->windowIcon().pixmap(16, 16));
                     }
                 }
                 break;

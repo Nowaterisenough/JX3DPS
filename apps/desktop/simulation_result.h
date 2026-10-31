@@ -5,12 +5,19 @@
 #include <QString>
 #include <QVector>
 #include "src/core/runtime/batch.hpp"
+#include "attribute_gain_mode.h"
 
 // Emitted once after a run; no per-fight Qt objects are created by batch workers.
 struct AttributeGain {
     QString attribute;
     int increment = 100;
     JX3DPS::runtime::BatchStats stats;
+};
+struct SkillStatistics {
+    int skill = 0;
+    QString name;
+    qint64 damage = 0;
+    quint64 count = 0, hit = 0, critical = 0, insight = 0, miss = 0;
 };
 struct SimulationResult {
     JX3DPS::runtime::BatchStats stats;
@@ -19,6 +26,9 @@ struct SimulationResult {
     bool trace = false;
     QVector<AttributeGain> gains;
     bool gainsRequested = false;
+    QVector<SkillStatistics> skills;
+    bool skillsCollected = false;
+    desktop::GainComparisonMode gainMode = desktop::GainComparisonMode::SameValue;
 
     bool Complete() const { return stats.count == options.iterations && (!gainsRequested || gains.size() == 8); }
     double FightSeconds() const { return options.duration / 16.0; }

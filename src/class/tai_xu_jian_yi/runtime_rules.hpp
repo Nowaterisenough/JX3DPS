@@ -54,8 +54,7 @@ public:
         auto &s = e.MutableState();
         if (s.skill_ready_at.size() != SkillCount || s.self_buff_stacks.size() != BuffCount)
             throw std::invalid_argument("macro was not compiled for the Tai Xu ruleset");
-        if (Data().max_damage && e.Log().DamageCapacity() > static_cast<std::size_t>(std::numeric_limits<value_t>::max()/Data().max_damage))
-            throw std::invalid_argument("damage capacity and attributes could overflow the fight total");
+        Data().ValidateCapacity(e.Log().DamageCapacity());
         for (Slot skill : CastableSkills) {
             if (UsesGcd(skill)) s.skill_gcd_group[skill] = 0;
             cooldown_[skill] = e.Timers().Create({TimerKind::SkillCooldown, skill}, 2);
@@ -852,6 +851,38 @@ private:
     int you_ren_crit_basis_points_ = 0;
 };
 using Rules = BasicRules<>;
+
+class DamageReducer {
+public:
+    explicit DamageReducer(std::shared_ptr<const Prepared> prepared) : prepared_(std::move(prepared)) {}
+
+    void Setup(std::size_t damage_capacity) {
+        prepared_->ValidateCapacity(damage_capacity);
+        versions_.reserve(prepared_->config.attribute_version_capacity);
+    }
+    template <class SourceRules>
+    void Bind(const SourceRules &source) {
+        if (source.Versions().Size() > versions_.capacity())
+            throw std::length_error("attribute version capacity exhausted");
+        versions_.clear();
+        for (const auto &version : source.Versions())
+            versions_.push_back(prepared_->Resolve(version.profile, version.team));
+    }
+    value_t Reduce(const DamageIntent &hit) const {
+        return prepared_->Damage(versions_[hit.snapshot_version], versions_[hit.live_version],
+                                  hit.effect, hit.outcome == RollResult::DOUBLE);
+    }
+
+private:
+    std::shared_ptr<const Prepared> prepared_;
+    std::vector<AttributeVersion> versions_;
+};
+
+struct Module {
+    using Rules = tai_xu::Rules;
+    using DamageReducer = tai_xu::DamageReducer;
+    static auto Prepare(const Config &config) { return tai_xu::Prepare(config); }
+};
 
 } // namespace JX3DPS::runtime::tai_xu
 #endif

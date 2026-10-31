@@ -65,9 +65,13 @@ struct BatchControl {
 };
 
 namespace detail {
-template <bool Controlled, typename Rules>
+struct TotalDamageReducer {
+    template <class Simulation>
+    value_t operator()(Simulation &simulation, unsigned) const { return simulation.TotalDamage(); }
+};
+template <bool Controlled, typename Rules, typename Reducer = TotalDamageReducer>
 BatchStats RunBatchImpl(const MacroProgram &program, const BatchOptions &options, const Rules &rules,
-                       BatchControl *control) {
+                       BatchControl *control, Reducer reducer = {}) {
     if (!options.iterations || !options.workers || options.duration <= 0) {
         throw std::invalid_argument("batch iterations, workers and duration must be positive");
     }
@@ -85,13 +89,14 @@ BatchStats RunBatchImpl(const MacroProgram &program, const BatchOptions &options
             const auto remainder = options.iterations % worker_count;
             const auto start = quotient * index + std::min<std::uint64_t>(index, remainder);
             const auto end = start + quotient + (index < remainder ? 1 : 0);
+            auto local_reducer = reducer;
             for (auto i = start; i < end; ++i) {
                 if constexpr (Controlled) {
                     if (control->cancel_requested.load(std::memory_order_relaxed)) break;
                 }
                 simulation.Start(options.duration, IterationSeed(options.seed, i));
                 simulation.Run();
-                results[index].stats.Add(simulation.TotalDamage(), i);
+                results[index].stats.Add(local_reducer(simulation, index), i);
                 if constexpr (Controlled) {
                     if (++pending == 32) {
                         control->completed.fetch_add(pending, std::memory_order_relaxed);
@@ -122,11 +127,11 @@ BatchStats RunBatchImpl(const MacroProgram &program, const BatchOptions &options
 // Run one primary batch while allowing the caller to reduce each completed
 // fight's event log into additional statistics. The observer receives a
 // reusable output span, so replay paths do not allocate per event or fight.
-template <typename Rules, typename Observer>
+template <typename Rules, typename Observer, typename Reducer = TotalDamageReducer>
 std::pair<BatchStats, std::vector<BatchStats>> RunBatchObservedImpl(
     const MacroProgram &program, const BatchOptions &options, BatchControl &control,
     const Rules &rules, std::size_t observed_count, std::uint64_t progress_units,
-    Observer observer) {
+    Observer observer, Reducer reducer = {}) {
     if (!options.iterations || !options.workers || options.duration <= 0 || !progress_units)
         throw std::invalid_argument("batch iterations, workers and duration must be positive");
     const auto worker_count = static_cast<unsigned>(std::min<std::uint64_t>(options.workers, options.iterations));
@@ -147,12 +152,14 @@ std::pair<BatchStats, std::vector<BatchStats>> RunBatchObservedImpl(
             const auto start = quotient * index + std::min<std::uint64_t>(index, remainder);
             const auto end = start + quotient + (index < remainder ? 1 : 0);
             auto local_observer = observer;
+            auto local_reducer = reducer;
+            if constexpr (requires { local_observer.Setup(simulation); }) local_observer.Setup(simulation);
             std::vector<value_t> values(observed_count);
             for (auto i = start; i < end; ++i) {
                 if (control.cancel_requested.load(std::memory_order_relaxed)) break;
                 simulation.Start(options.duration, IterationSeed(options.seed, i));
                 simulation.Run();
-                results[index].primary.Add(simulation.TotalDamage(), i);
+                results[index].primary.Add(local_reducer(simulation, index), i);
                 if (observed_count) {
                     local_observer(simulation, std::span<value_t>(values));
                     for (std::size_t j = 0; j < observed_count; ++j)
@@ -209,6 +216,15 @@ std::pair<BatchStats, std::vector<BatchStats>> RunBatchControlledObserved(
     control.completed.store(0, std::memory_order_relaxed);
     return detail::RunBatchObservedImpl(program, options, control, rules, observed_count, progress_units,
                                         std::move(observer));
+}
+
+// The reducer runs once per completed fight and can aggregate into worker-local
+// storage while reducing damage. It receives the worker index, not a fight id.
+template <typename Rules, typename Reducer>
+BatchStats RunBatchControlledWithReducer(const MacroProgram &program, const BatchOptions &options,
+                                        BatchControl &control, const Rules &rules, Reducer reducer) {
+    control.completed.store(0, std::memory_order_relaxed);
+    return detail::RunBatchImpl<true>(program, options, rules, &control, std::move(reducer));
 }
 
 } // namespace JX3DPS::runtime

@@ -1,7 +1,7 @@
 #ifndef JX3DPS_TAI_XU_RUNTIME_DATA_HPP
 #define JX3DPS_TAI_XU_RUNTIME_DATA_HPP
 
-#include "src/core/runtime/descriptors.hpp"
+#include "src/core/runtime/specialization.hpp"
 #include "src/core/runtime/attribute_versions.hpp"
 #include "team_buffs.hpp"
 #include <bit>
@@ -86,22 +86,10 @@ std::array<std::string_view, BuffCount> result{
 }();
 static_assert(Skills.Valid() && Buffs.Valid());
 
+inline constexpr SkillCatalog Catalog{Skills.entries, Buffs.entries, CastableSkills, SkillAliases, BuffAliases};
+
 inline CompileOptions MacroOptions(bool debug = true) {
-    CompileOptions options;
-    options.skill_count = SkillCount;
-    options.buff_count = BuffCount;
-    options.keep_debug_info = debug;
-    options.resolve_skill = [](std::string_view name) {
-        for (Slot s : CastableSkills)
-            if (name == Skills.entries[s].name || name == SkillAliases[s]) return s;
-        return INVALID_SLOT;
-    };
-    options.resolve_buff = [](std::string_view name) {
-        for (Slot b = 0; b < BuffCount; ++b)
-            if (name == Buffs.entries[b].name || name == BuffAliases[b]) return b;
-        return INVALID_SLOT;
-    };
-    return options;
+    return CatalogMacroOptions(Catalog, debug);
 }
 
 enum Talent : unsigned {
@@ -141,7 +129,9 @@ struct Target {
     int vulnerable = 0;
     double life = 1.0, distance = 4.0;
 };
+struct Module;
 struct Config {
+    using RuntimeModule = Module;
     Attributes attributes;
     Target target;
     unsigned talents = 0;
@@ -421,6 +411,10 @@ struct Prepared {
         raw = raw*frozen.strain_factor/1024;
         raw = raw*(1024+live.input.pve_percent)/1024;
         return raw*(1024+live.vulnerable)/1024;
+    }
+    void ValidateCapacity(std::size_t capacity) const {
+        if (max_damage && capacity > static_cast<std::size_t>(std::numeric_limits<value_t>::max() / max_damage))
+            throw std::invalid_argument("damage capacity and attributes could overflow the fight total");
     }
     int ExtraChance(unsigned effect) const {
         const auto &f = Formulas[effect];

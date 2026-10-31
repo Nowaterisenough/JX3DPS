@@ -156,13 +156,27 @@ measured next. For cheap formulas, an immediate accumulation policy may win.
 
 ## Batches and reproducibility
 
-太虚剑意和莫问共用 `Simulation<Rules>`、宏执行器、调度器、事件日志、批处理 worker 和伤害归约框架。心法适配器只负责装载本心法的技能、Buff、奇穴、秘籍、属性快照和公式；配置在边界通过 `std::variant` 选择适配器，进入模拟后不再复制公共执行流程。属性收益也使用同一入口：会心、无双、加速重新运行时间轴，其他属性复用已记录的伤害节点重算数值。
+太虚剑意和莫问共用 `Simulation<Rules>`、宏执行器、调度器、事件日志、批处理 worker 和伤害归约框架。每个心法的 `Config::RuntimeModule` 指定配置准备、技能规则钩子与伤害重算适配器；核心 `LoadSpecialization(config)` 装载模块，CLI、桌面批处理、单次记录和调试均由同一 `Simulation` 执行。心法目录使用公共 `SkillCatalog`，名称解析与可施放技能筛选由核心完成。心法自身提供技能、Buff、奇穴、秘籍、属性快照、公式和机制钩子，例如气点触发、气场与影子；公共层不包含针对太虚或莫问的执行分支。
+
+`src/core/runtime/attribute_gains.hpp` 是两心法共同使用的属性收益入口。基准战斗执行一次，`DamageStatistics` 按伤害输入和判定结果计数；基础攻击、会效、破防、破招、武器伤害按各自增量，根据相同统计重新结算。会心、无双、加速仍分别完整运行循环，所以实际执行场数为请求次数的四倍。调用者可传入八项正整数增量，默认保持每项 100 点；桌面的“同属性费用”模式传入 120 级参考模型的同预算增量，不以显示层乘系数替代计算。重跑/重算分类仍在核心的一张表中定义，桌面只选择比较预算、名称和显示，不复制战斗逻辑。
+
+统计键保留效果、等级、子效果、目标、命中结果、快照/实时版本和额外伤害载荷；帧、事件序号和随机数键不参与计数。太虚重算适配器按原版本的心法与团队增益输入重新解析属性；莫问保留增益 profile 和额外会效。每个统计桶先计算单次伤害，再乘次数，整数取整顺序与完整模拟一致。统计、版本映射和输出缓冲区在每个 worker 开始战斗前预留，跨场清空复用，不保存整批日志。
+
+取消在单场结束时生效，进度累计实际完成的战斗，不在阶段切换时清零。基准完整结束后，五项伤害重算结果已经可用；之后取消仍保留这些结果及完整完成的重跑项。`tests/runtime/attribute_gain_tests.cpp` 比较两心法全部八项收益与直接模拟，包括团队增益、DOT、装备触发和莫问额外会效；另用第三个测试模块计数，验证只有四组循环，并覆盖取消、多线程和重算期间零分配。
 
 `RunBatch<Rules>` compiles no macro and constructs no simulator per iteration.
 Each worker owns one reusable simulator, scheduler, initial state, reduction
 scratch and bounded log. The program is shared read-only. Online Welford moments
 replace a vector of all DPS results; each worker returns count, mean, variance,
 min/max and a checksum. Worker exceptions are joined and propagated.
+
+`Simulation::TotalDamage(observer)` exposes each intent and its final integer
+damage during the existing reduction, including the historical-state replay
+path. `RunBatchControlledWithReducer` lets desktop runs aggregate per-skill
+damage and roll counts into worker-local arrays without retaining batch logs or
+running extra fights. Attribute-gain runs use this reducer only for their primary
+baseline; rotation reruns retain ordinary total-damage reduction. Cancelled runs
+aggregate only fights that completed, matching the returned batch count.
 
 Seeds derive from (batch seed, iteration index), not thread identity. Worker
 counts produce the same fight results. Floating-point moment reduction may differ

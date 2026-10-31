@@ -348,6 +348,15 @@ void SimulationTests() {
         CHECK(fast.Log().Mutations() == debug.Log().Mutations());
         CHECK(fast.TotalDamage() == debug.TotalDamage());
         CHECK(fast.TotalDamage() == fast.GetRules().immediate_total);
+        value_t observed_damage = 0;
+        std::size_t observed_hits = 0;
+        const auto observed_total = fast.TotalDamage([&](const DamageIntent &hit, value_t damage) {
+            CHECK(hit.sequence == fast.Log().Intents()[observed_hits].sequence);
+            observed_damage += damage;
+            ++observed_hits;
+        });
+        CHECK(observed_hits == fast.Log().Size());
+        CHECK(observed_total == observed_damage && observed_total == fast.GetRules().immediate_total);
         CHECK(fast.Log().Intents()[0].frame == 0);
         CHECK(fast.Log().Intents().back().frame < 4800);
     }
@@ -490,6 +499,17 @@ void BatchTests() {
     cancelling.control = &control;
     auto partial = RunBatchControlled(macro.program, options, control, cancelling);
     CHECK(partial.count == 7 && control.completed == 7);
+    control.cancel_requested = false;
+    value_t reduced_damage = 0;
+    std::uint64_t reduced_fights = 0;
+    auto observed_partial = RunBatchControlledWithReducer(macro.program, options, control, cancelling,
+        [&](auto &simulation, unsigned worker) {
+            CHECK(worker == 0 && simulation.Finished());
+            ++reduced_fights;
+            return simulation.TotalDamage([&](const DamageIntent &, value_t damage) { reduced_damage += damage; });
+        });
+    CHECK(observed_partial.checksum == partial.checksum && reduced_fights == partial.count);
+    CHECK(std::abs(reduced_damage - observed_partial.mean_damage * observed_partial.count) < 1e-8);
     options.iterations = 7;
     auto first_seven = RunBatch<FixtureRules>(macro.program, options);
     CHECK(partial.checksum == first_seven.checksum && partial.mean_damage == first_seven.mean_damage);

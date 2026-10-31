@@ -630,5 +630,22 @@ private:
 };
 using Rules=BasicRules<>;
 
+class DamageReducer {
+public:
+    explicit DamageReducer(std::shared_ptr<const Prepared> prepared) : prepared_(std::move(prepared)) {}
+    void Setup(std::size_t damage_capacity) { prepared_->ValidateCapacity(damage_capacity); }
+    template <class SourceRules> void Bind(const SourceRules &) {}
+    value_t Reduce(const DamageIntent &hit) const { return prepared_->Reduce(hit); }
+
+private:
+    std::shared_ptr<const Prepared> prepared_;
+};
+
+struct Module {
+    using Rules = mo_wen::Rules;
+    using DamageReducer = mo_wen::DamageReducer;
+    static auto Prepare(const Config &config) { return mo_wen::Prepare(config); }
+};
+
 } // namespace JX3DPS::runtime::mo_wen
 #endif

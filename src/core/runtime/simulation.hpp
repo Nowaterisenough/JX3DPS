@@ -143,14 +143,24 @@ public:
     DamageIntentLog &Log() { return log_; }
     const DamageIntentLog &Log() const { return log_; }
     value_t TotalDamage() {
+        return TotalDamage([](const DamageIntent &, value_t) {});
+    }
+    template <class Observer>
+    value_t TotalDamage(Observer observer) {
         if (!finished_) throw std::logic_error("fight must finish before deferred reduction");
         if constexpr (requires(const DamageIntent &hit) { rules_.Reduce(hit); }) {
             value_t total = 0;
-            for (const auto &hit : log_.Intents()) total += rules_.Reduce(hit);
+            for (const auto &hit : log_.Intents()) {
+                const auto damage = rules_.Reduce(hit);
+                observer(hit, damage);
+                total += damage;
+            }
             return total;
         } else {
-            return log_.Reduce(initial_, scratch_, [this](const DamageIntent &hit, const State &state) {
-                return rules_.Reduce(hit, state);
+            return log_.Reduce(initial_, scratch_, [this, &observer](const DamageIntent &hit, const State &state) {
+                const auto damage = rules_.Reduce(hit, state);
+                observer(hit, damage);
+                return damage;
             });
         }
     }

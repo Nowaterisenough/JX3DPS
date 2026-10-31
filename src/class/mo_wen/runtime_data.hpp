@@ -1,7 +1,7 @@
 #ifndef JX3DPS_MO_WEN_RUNTIME_DATA_HPP
 #define JX3DPS_MO_WEN_RUNTIME_DATA_HPP
 
-#include "src/core/runtime/descriptors.hpp"
+#include "src/core/runtime/specialization.hpp"
 #include <bit>
 #include <memory>
 
@@ -105,22 +105,13 @@ inline constexpr std::array<std::string_view, BuffCount> BuffAliases{
     "shenbing_gong", "you_ren", "jingmiao", "shoes", "wrist", "belt", "weapon_water"
 };
 static_assert(Skills.Valid() && Buffs.Valid());
+inline constexpr std::array<NameBinding, 2> ExtraBuffNames{{
+    {Skills.entries[Shang].name, ShangDot}, {Skills.entries[Jue].name, JueDot}
+}};
+inline constexpr SkillCatalog Catalog{Skills.entries, Buffs.entries, CastableSkills,
+    SkillAliases, BuffAliases, ExtraBuffNames};
 inline CompileOptions MacroOptions(bool debug=true) {
-    CompileOptions o;
-    o.skill_count=SkillCount; o.buff_count=BuffCount; o.keep_debug_info=debug;
-    o.resolve_skill=[](std::string_view name) {
-        for (Slot s : CastableSkills)
-            if (name==Skills.entries[s].name || name==SkillAliases[s]) return s;
-        return INVALID_SLOT;
-    };
-    o.resolve_buff=[](std::string_view name) {
-        for (Slot b=0; b<BuffCount; ++b)
-            if (name==Buffs.entries[b].name || name==BuffAliases[b]) return b;
-        if (name==Skills.entries[Shang].name) return Slot{ShangDot};
-        if (name==Skills.entries[Jue].name) return Slot{JueDot};
-        return INVALID_SLOT;
-    };
-    return o;
+    return CatalogMacroOptions(Catalog, debug);
 }
 enum Talent : unsigned {
     HaoZhong = 1u << 0, FeiFan = 1u << 1, ChangQing = 1u << 2, XianFengTalent = 1u << 3,
@@ -141,7 +132,9 @@ struct Attributes {
     value_t haste=0; int attack_percent=0, overcome_percent=0, haste_percent=0, crit_basis_points=0, crit_power_percent=0, damage_percent=0, strain_percent=0, pve_percent=0, ignore_shield=0;
 };
 struct Target { int level=124; value_t shield=30000; int vulnerable=0; double life=1.0, distance=4.0; };
+struct Module;
 struct Config {
+    using RuntimeModule = Module;
     Attributes attributes; Target target; unsigned talents=0, equipment=0, team_effects=0; std::array<unsigned,4> recipes{};
     Style initial_style=Style::GaoShanLiuShui; int initial_yingzi=0; tick_t delay=0;
 };

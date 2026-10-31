@@ -253,11 +253,12 @@ int main(int argc, char **argv) try {
         throw std::invalid_argument("debug, trace and replay require one iteration and one worker");
     options.damage_capacity = static_cast<std::size_t>(options.duration)*8 + 32;
     options.mutation_capacity = static_cast<std::size_t>(options.duration)*24 + 64;
-    const auto data = tx::Prepare(config);
+    const auto rules = LoadSpecialization(config);
+    const auto &data = rules.Data();
     auto [macro, errors] = MacroCompiler::Compile(macro_text, tx::MacroOptions(debug));
     for (const auto &error : errors) std::cerr << "line " << error.line << ": " << error.message << '\n';
     if (!errors.empty()) return 2;
-    std::cout << "ruleset=ba960f7-core-subset fps=16 prepared_bytes=" << sizeof(*data)
+    std::cout << "ruleset=ba960f7-core-subset fps=16 prepared_bytes=" << sizeof(data)
         << " attribute_version_bytes=" << sizeof(tx::AttributeVersion)
               << " seed_base=" << options.seed << '\n';
     const auto start = std::chrono::steady_clock::now();
@@ -267,18 +268,18 @@ int main(int argc, char **argv) try {
         const auto seed = IterationSeed(options.seed, index);
         std::cout << "iteration=" << index << " fight_seed=" << seed << '\n';
         if (debug) {
-            Simulation<tx::Rules, true> sim(macro.program, tx::Rules(data), options.damage_capacity, options.mutation_capacity);
+            Simulation<tx::Rules, true> sim(macro.program, rules, options.damage_capacity, options.mutation_capacity);
             sim.Start(options.duration, seed);
             if (!Debug(sim, macro)) { std::cout << "Debug session ended before fight completion.\n"; return 0; }
             if (!trace_path.empty()) Trace(sim, trace_path);
             stats.Add(sim.TotalDamage(), index);
         } else {
-            Simulation<tx::Rules> sim(macro.program, tx::Rules(data), options.damage_capacity, options.mutation_capacity);
+            Simulation<tx::Rules> sim(macro.program, rules, options.damage_capacity, options.mutation_capacity);
             sim.Start(options.duration, seed); sim.Run();
             if (!trace_path.empty()) Trace(sim, trace_path);
             stats.Add(sim.TotalDamage(), index);
         }
-    } else stats = RunBatch(macro.program, options, tx::Rules(data));
+    } else stats = RunBatch(macro.program, options, rules);
     const auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     const double seconds = options.duration/16.0;
     std::cout << std::fixed << std::setprecision(3) << "fights=" << stats.count << " workers=" << options.workers

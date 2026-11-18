@@ -1,5 +1,6 @@
 #include "batch_worker.h"
 #include <QCoreApplication>
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -47,8 +48,8 @@ QJsonObject Stats(const desktop::rt::BatchStats &stats)
 int RunDesktopWorkload(int argc, char *argv[]) try {
     QCoreApplication app(argc, argv);
     const auto args = app.arguments();
-    if (args.size() != 8)
-        throw std::invalid_argument("expected scene, batch|gains, iterations, workers, seed, result file");
+    if (args.size() != 8 && args.size() != 9)
+        throw std::invalid_argument("expected scene, batch|gains, iterations, workers, seed, result file and optional macro file");
     const bool gains = args[3] == "gains";
     if (!gains && args[3] != "batch") throw std::invalid_argument("unknown workload");
     desktop::rt::BatchOptions options;
@@ -63,6 +64,11 @@ int RunDesktopWorkload(int argc, char *argv[]) try {
     auto config = Scenario(args[2]);
     const auto spec = desktop::ClassOf(config);
     auto source = desktop::DefaultMacro(spec).toUtf8();
+    if (args.size() == 9) {
+        QFile file(args[8]);
+        if (!file.open(QIODevice::ReadOnly)) throw std::runtime_error(file.errorString().toStdString());
+        source = file.readAll();
+    }
     auto [macro, errors] = desktop::rt::MacroCompiler::Compile(source.toStdString(), desktop::MacroOptions(spec));
     if (!errors.empty()) throw std::runtime_error("macro line " + std::to_string(errors.front().line) + ": " + errors.front().message);
     if (macro.program.lines.empty()) throw std::runtime_error("empty desktop workload macro");

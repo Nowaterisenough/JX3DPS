@@ -1,0 +1,5 @@
+/cast [tlife>0.2&mana>0.1&life>0.5&rage=0&energy=0&skill_energy:yu>=1&notlast_skill:yu|buff:qufeng>=3&nobuff:yangchun] yu
+/cast [tnobuff:shang&notlast_skill:shang] shang
+/cast [tnobuff:jue&notlast_skill:jue] jue
+/cast [buff:qufeng>=2|skill_cd:yu>1] bianzhi
+/cast biangong

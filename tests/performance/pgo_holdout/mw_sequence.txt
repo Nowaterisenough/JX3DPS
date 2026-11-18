@@ -1,0 +1,6 @@
+/scast shuying
+/scast shang
+/scast jue
+/scast yu
+/cast [buff:qufeng>=2] bianzhi
+/cast biangong

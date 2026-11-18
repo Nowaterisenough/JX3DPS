@@ -1,0 +1,7 @@
+/scast suixing
+/scast shengtaiji
+/scast renjian
+/scast ziqi
+/cast [qidian>=7] wuwu
+/cast sanhuan
+/cast sanchai

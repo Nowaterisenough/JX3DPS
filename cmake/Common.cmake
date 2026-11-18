@@ -2,6 +2,10 @@
 
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 26)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND NOT "cxx_std_26" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+    # CMake currently maps MSVC's latest draft mode to the C++23 feature level.
+    set(CMAKE_CXX_STANDARD 23)
+endif()
 
 # 关闭转换精度损失警告
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")

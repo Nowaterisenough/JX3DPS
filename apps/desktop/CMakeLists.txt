@@ -153,7 +153,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 set(APP_NAME "JX3DPS Desktop")
 
-if(NOT __APPLE__)
+if(NOT APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         OUTPUT_NAME ${APP_NAME}
     )
@@ -204,10 +204,7 @@ if(WIN32)
         POST_BUILD
         COMMAND "${DEPLOYQT_EXECUTABLE}"
         --verbose 1
-        --no-svg
-        --no-opengl-sw
         --no-compiler-runtime
-        --no-system-d3d-compiler
         --translations zh_CN
         "$<IF:$<CONFIG:Debug>,--debug,--release>"
         "$<TARGET_FILE:${PROJECT_NAME}>"

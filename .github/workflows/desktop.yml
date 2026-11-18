@@ -82,10 +82,12 @@ jobs:
         with:
           version: '6.12.0'
           arch: ${{ matrix.qt_arch }}
+          # PyPI aqt 3.3.0 predates the Windows Qt 6.11+ repository layout.
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@7e5a5c3d95cf962cfc2f36c86ffa0d2c07f1a0d4
           cache: true
 
       - name: Configure Release desktop
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON
       - name: Build desktop
         run: cmake --build build --target JX3DPSDesktop
 

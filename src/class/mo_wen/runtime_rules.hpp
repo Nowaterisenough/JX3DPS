@@ -641,6 +641,9 @@ public:
     void Setup(std::size_t damage_capacity) { prepared_->ValidateCapacity(damage_capacity); }
     template <class SourceRules> void Bind(const SourceRules &) {}
     value_t Reduce(const DamageIntent &hit) const { return prepared_->Reduce(hit); }
+    value_t Reduce(DamageGrouping::Key key) const {
+        return prepared_->Reduce(key.profile, key.effect_roll / 2, (key.effect_roll & 1) != 0, key.extra_power);
+    }
 
 private:
     std::shared_ptr<const Prepared> prepared_;
@@ -648,6 +651,7 @@ private:
 
 struct Module {
     static constexpr bool replay_strain = true;
+    using DamageGrouping = mo_wen::DamageGrouping;
     using Rules = mo_wen::Rules;
     using DamageReducer = mo_wen::DamageReducer;
     static auto Prepare(const Config &config) { return mo_wen::Prepare(config); }

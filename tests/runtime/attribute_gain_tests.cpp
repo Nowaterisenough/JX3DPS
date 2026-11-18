@@ -98,6 +98,45 @@ void StatisticsKeys() {
     Throws<std::invalid_argument>([&] { statistics.Reserve(0); });
 }
 
+void MoWenGrouping() {
+    mw::Config config;
+    config.equipment = mw::WeaponWater | mw::EnchantBelt;
+    mw::DamageReducer reducer(mw::Prepare(config));
+    auto statistics = MakeDamageStatistics<mw::Module>();
+    statistics.Reserve(16);
+    DamageIntent hit;
+    hit.effect = mw::EGong;
+    value_t expected = 0;
+    auto record = [&] {
+        statistics.Record(hit);
+        expected += reducer.Reduce(hit);
+        CHECK(statistics.Reduce(reducer) == expected);
+    };
+    record();
+    hit.snapshot |= mw::YouRenProfile;
+    hit.base = 410;
+    hit.frame = 80;
+    hit.random_key = 31;
+    record();
+    CHECK(statistics.Entries().size() == 1);
+    hit.outcome = RollResult::DOUBLE;
+    record();
+    hit.snapshot ^= mw::YouRenProfile;
+    record();
+    CHECK(statistics.Entries().size() == 2);
+    hit.base += 82;
+    record();
+    hit.snapshot += mw::WaterUnit;
+    record();
+    hit.snapshot += mw::BeltUnit;
+    record();
+    hit.snapshot |= mw::SetProfile;
+    record();
+    hit.effect = mw::EShangDot;
+    record();
+    CHECK(statistics.Entries().size() == 7);
+}
+
 // A third module proves that the framework has no Tai Xu/Mo Wen dispatch or
 // hidden full simulations for the five damage-only gains.
 namespace probe {
@@ -292,6 +331,7 @@ void GameModules() {
 
 int main() {
     StatisticsKeys();
+    MoWenGrouping();
     ExecutionAndCancellation();
     GameModules();
     std::cout << "attribute gain tests passed: module-specific simulation stages, statistics reduction, game-module parity, cancellation, worker parity, zero reduction allocations\n";

@@ -112,7 +112,7 @@ public:
 
 private:
     std::vector<Reducer> reducers_;
-    DamageStatistics statistics_;
+    decltype(MakeDamageStatistics<typename Config::RuntimeModule>()) statistics_;
 };
 
 struct AttributeGainBatch {

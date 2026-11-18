@@ -204,6 +204,29 @@ inline constexpr unsigned WaterUnit=512, WaterMask=15*WaterUnit, BeltUnit=8192, 
 inline constexpr unsigned ChanceProfile(unsigned p) {
     return ((p&SetProfile)?1:0) | ((p&YouRenProfile)?2:0);
 }
+struct DamageGrouping {
+    struct Key {
+        std::uint16_t profile;
+        std::uint16_t effect_roll;
+        std::int32_t extra_power;
+        bool operator==(const Key &) const = default;
+    };
+    static Key MakeKey(const DamageIntent &hit) {
+        const bool critical = hit.outcome == RollResult::DOUBLE;
+        // YouRen only changes the roll probability. The recorded roll already includes it.
+        constexpr unsigned damage_profile = (ProfileCount - 1) | WaterMask | BeltMask;
+        static_assert(2 * ECount <= 65536);
+        return {static_cast<std::uint16_t>(hit.snapshot & damage_profile),
+                static_cast<std::uint16_t>(2 * hit.effect + critical),
+                critical ? static_cast<std::int32_t>(hit.base) : 0};
+    }
+    static std::size_t Hash(Key key) {
+        auto bits = std::bit_cast<std::uint64_t>(key);
+        bits ^= bits >> 33;
+        bits *= 0xff51afd7ed558ccdULL;
+        return static_cast<std::size_t>(bits ^ (bits >> 32));
+    }
+};
 struct DamageInput {
     value_t attack, crit_power, overcome, strain, surplus;
     int damage_percent, crit_power_percent, strain_percent, pve_percent;
@@ -367,15 +390,17 @@ struct Prepared {
         if (effect==EYingZi && Has(KeMeng)) bonus+=1000;
         return a.crit/(9.530*8250)+bonus/10000.0;
     }
-    value_t Reduce(const DamageIntent &hit)const {
-        const auto profile=CacheIndex(hit.snapshot);
-        const bool critical=hit.outcome==RollResult::DOUBLE;
+    value_t Reduce(unsigned snapshot, unsigned effect, bool critical, value_t extra_power) const {
+        const auto profile = CacheIndex(snapshot);
         // Legacy MiaoYi adds power even at the stack cap. Capture its unbounded
         // remainder in the payload instead of growing a cache dimension per fight.
-        if (!critical || hit.base==0) return damage[profile][hit.effect][critical];
-        return AfterCritical(before_crit[profile][hit.effect],
-            power[hit.snapshot&(ProfileCount-1)][hit.effect]+static_cast<int>(hit.base),true,strain,
-            config.attributes.pve_percent,config.target.vulnerable,level);
+        if (!critical || extra_power == 0) return damage[profile][effect][critical];
+        return AfterCritical(before_crit[profile][effect],
+            power[snapshot & (ProfileCount - 1)][effect] + static_cast<int>(extra_power), true, strain,
+            config.attributes.pve_percent, config.target.vulnerable, level);
+    }
+    value_t Reduce(const DamageIntent &hit) const {
+        return Reduce(hit.snapshot, hit.effect, hit.outcome == RollResult::DOUBLE, hit.base);
     }
     unsigned CacheIndex(unsigned profile)const {
         return (profile&(ProfileCount-1))+ProfileCount*((profile&WaterMask)/WaterUnit+

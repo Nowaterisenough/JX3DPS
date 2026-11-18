@@ -38,3 +38,5 @@ git clone --recurse-submodules git@github.com:Nowaterisenough/JX3DPS.git
 ```
 2. CMake编译
 
+桌面版可选用 GCC Release 的 PGO。运行 `python tools/desktop_pgo.py` 自动构建、训练并生成优化版，加上 `--benchmark` 可以与普通 Release 逐项对照。[桌面 PGO 构建与验证](docs/desktop_pgo.md)
+

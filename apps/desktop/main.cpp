@@ -6,8 +6,16 @@
 #include "resources.h"
 #include "workbench.h"
 
+#ifdef JX3DPS_DESKTOP_WORKLOAD
+#include <string_view>
+int RunDesktopWorkload(int argc, char *argv[]);
+#endif
+
 int main(int argc, char *argv[])
 {
+#ifdef JX3DPS_DESKTOP_WORKLOAD
+    if (argc > 1 && std::string_view(argv[1]) == "--pgo-workload") return RunDesktopWorkload(argc, argv);
+#endif
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName(QStringLiteral("JX3DPS"));
     QCoreApplication::setApplicationName(QStringLiteral("MacroWorkbench"));

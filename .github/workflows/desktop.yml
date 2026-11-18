@@ -35,10 +35,11 @@ jobs:
             qt_arch: linux_gcc_64
           - name: macOS AppleClang
             id: macos-arm64
-            runner: macos-26
+            runner: macos-26-intel
             cc: clang
             cxx: clang++
             qt_arch: clang_64
+            cmake_arch: -DCMAKE_OSX_ARCHITECTURES=arm64
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
@@ -68,9 +69,19 @@ jobs:
 
       - name: Select Visual Studio x64 environment
         if: matrix.id == 'windows-msvc'
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
+        shell: pwsh
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$vs) { throw 'Visual Studio with the x64 C++ tools was not found' }
+          $oldPath = $env:PATH -split ';'
+          & (Join-Path $vs 'Common7/Tools/Launch-VsDevShell.ps1') -Arch amd64 -HostArch amd64 -SkipAutomaticLocation
+          Get-Command cl.exe -ErrorAction Stop | Select-Object -ExpandProperty Source
+          $env:PATH -split ';' | Where-Object { $_ -and $_ -notin $oldPath } | Add-Content -LiteralPath $env:GITHUB_PATH -Encoding utf8
+          foreach ($name in 'INCLUDE','LIB','LIBPATH','VSINSTALLDIR','VCINSTALLDIR','VCToolsInstallDir','VCToolsRedistDir','WindowsSdkDir','WindowsSDKVersion','UniversalCRTSdkDir','UCRTVersion') {
+            $value = [Environment]::GetEnvironmentVariable($name)
+            if ($value) { Add-Content -LiteralPath $env:GITHUB_ENV -Value "$name=$value" -Encoding utf8 }
+          }
       - name: Install GCC and Qt system dependencies
         if: runner.os == 'Linux'
         run: |
@@ -87,7 +98,7 @@ jobs:
           cache: true
 
       - name: Configure Release desktop
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON ${{ matrix.cmake_arch }}
       - name: Build desktop
         run: cmake --build build --target JX3DPSDesktop
 
@@ -110,6 +121,7 @@ jobs:
         run: |
           app=build/bin/JX3DPSDesktop.app
           test -x "$app/Contents/MacOS/JX3DPSDesktop"
+          lipo -verify_arch arm64 "$app/Contents/MacOS/JX3DPSDesktop"
           mkdir -p "$app/Contents/Resources/data" && cp -R data/jx3box "$app/Contents/Resources/data/"
           macdeployqt "$app" -dmg
           codesign --verify --deep --strict "$app"

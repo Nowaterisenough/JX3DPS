@@ -21,22 +21,31 @@ inline constexpr std::array<AttributeGainSpec, 8> AttributeGains{{
     {AttributeGainKind::Haste, true}, {AttributeGainKind::Weapon, false}
 }};
 
-template <bool Rerun>
+template <class Config>
+constexpr bool RerunsRotation(AttributeGainSpec gain) {
+    using Module = typename Config::RuntimeModule;
+    if constexpr (requires { Module::replay_strain; }) {
+        if (gain.kind == AttributeGainKind::Strain) return !Module::replay_strain;
+    }
+    return gain.rerun_rotation;
+}
+
+template <class Config, bool Rerun>
 consteval auto GainIndexes() {
     constexpr std::size_t count = [] {
         std::size_t result = 0;
-        for (const auto &gain : AttributeGains) result += gain.rerun_rotation == Rerun;
+        for (const auto &gain : AttributeGains) result += RerunsRotation<Config>(gain) == Rerun;
         return result;
     }();
     std::array<int, count> result{};
     std::size_t cursor = 0;
     for (std::size_t i = 0; i < AttributeGains.size(); ++i)
-        if (AttributeGains[i].rerun_rotation == Rerun) result[cursor++] = static_cast<int>(i);
+        if (RerunsRotation<Config>(AttributeGains[i]) == Rerun) result[cursor++] = static_cast<int>(i);
     return result;
 }
-inline constexpr auto DamageOnlyGainIndexes = GainIndexes<false>();
-inline constexpr auto RotationGainIndexes = GainIndexes<true>();
-inline constexpr std::uint64_t AttributeGainSimulationStages = 1 + RotationGainIndexes.size();
+template <class Config> inline constexpr auto DamageOnlyGainIndexes = GainIndexes<Config, false>();
+template <class Config> inline constexpr auto RotationGainIndexes = GainIndexes<Config, true>();
+template <class Config> inline constexpr std::uint64_t AttributeGainSimulationStages = 1 + RotationGainIndexes<Config>.size();
 inline constexpr int AttributeGainIncrement = 100;
 using AttributeGainIncrements = std::array<int, AttributeGains.size()>;
 inline constexpr AttributeGainIncrements DefaultGainIncrements{100, 100, 100, 100, 100, 100, 100, 100};
@@ -78,7 +87,7 @@ public:
                        const AttributeGainIncrements &increments = DefaultGainIncrements) {
         reducers_.reserve(indexes.size());
         for (const auto index : indexes) {
-            if (index < 0 || index >= static_cast<int>(AttributeGains.size()) || AttributeGains[index].rerun_rotation)
+            if (index < 0 || index >= static_cast<int>(AttributeGains.size()) || RerunsRotation<Config>(AttributeGains[index]))
                 throw std::invalid_argument("rotation-sensitive attribute requires simulation");
             reducers_.emplace_back(PrepareConfiguration(ApplyAttributeGain(config, index, increments[index])));
         }
@@ -119,15 +128,15 @@ AttributeGainBatch RunAttributeGainsControlled(const MacroProgram &program, cons
         if (increment <= 0) throw std::invalid_argument("attribute gain increment must be positive");
     control.completed.store(0, std::memory_order_relaxed);
     auto rules = LoadSpecialization(config);
-    DamageGainObserver<Config> observer(config, DamageOnlyGainIndexes, increments);
+    DamageGainObserver<Config> observer(config, DamageOnlyGainIndexes<Config>, increments);
     const auto observed_count = observer.Count();
     auto combined = detail::RunBatchObservedImpl(program, options, control, rules, observed_count, 1,
                                                  std::move(observer), std::move(reducer));
     AttributeGainBatch result{combined.first, {}};
     if (result.primary.count != options.iterations) return result;
-    for (std::size_t i = 0; i < DamageOnlyGainIndexes.size(); ++i)
-        result.gains[DamageOnlyGainIndexes[i]] = combined.second[i];
-    for (const auto index : RotationGainIndexes) {
+    for (std::size_t i = 0; i < DamageOnlyGainIndexes<Config>.size(); ++i)
+        result.gains[DamageOnlyGainIndexes<Config>[i]] = combined.second[i];
+    for (const auto index : RotationGainIndexes<Config>) {
         if (control.cancel_requested.load(std::memory_order_relaxed)) break;
         const auto changed_rules = LoadSpecialization(ApplyAttributeGain(config, index, increments[index]));
         const auto gain = detail::RunBatchImpl<true>(program, options, changed_rules, &control);

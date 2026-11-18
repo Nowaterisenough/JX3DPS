@@ -325,7 +325,7 @@ private:
         const auto &result = cached ? *cached : empty;
         const auto description = GainComparisonDescription(Mode());
         calculate->setToolTip(QStringLiteral("选中后，点击开始模拟时一并计算%1收益；不选中则只模拟基准战斗。\n"
-            "切换此开关不会启动任务；不作用于断点调试和单次记录。收益约需四组战斗，结果按比较模式分别保留。\n%2")
+            "切换此开关不会启动任务；不作用于断点调试和单次记录。收益共需三组战斗，结果按比较模式分别保留。\n%2")
             .arg(GainComparisonName(Mode()), description));
         for (int i = 0; i < int(GameAttributeRows.size()); ++i) {
             const auto *gain = GameAttributeGain(result, i);

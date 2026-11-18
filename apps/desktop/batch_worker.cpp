@@ -95,8 +95,11 @@ std::uint64_t BatchWorker::Completed() const
 
 std::uint64_t BatchWorker::Requested() const
 {
-    return m_options.iterations *
-           (m_calculateGains ? runtime::AttributeGainSimulationStages : 1);
+    if (!m_calculateGains) return m_options.iterations;
+    const auto stages = std::visit([]<class Config>(const Config &) {
+        return runtime::AttributeGainSimulationStages<Config>;
+    }, m_config);
+    return m_options.iterations * stages;
 }
 
 void BatchWorker::run()

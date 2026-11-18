@@ -885,6 +885,7 @@ private:
 };
 
 struct Module {
+    static constexpr bool replay_strain = true;
     using Rules = tai_xu::Rules;
     using DamageReducer = tai_xu::DamageReducer;
     static auto Prepare(const Config &config) { return tai_xu::Prepare(config); }

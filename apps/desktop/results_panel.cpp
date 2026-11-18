@@ -282,8 +282,8 @@ void ResultsPanel::ShowDetails()
         return;
     }
     const auto &r = entry->result;
-    gainNote->setText(QStringLiteral("%1：实际增加点数见表格，显示平均秒伤变化。会心、无双、加速重新模拟循环；"
-        "基础攻击、会效、破防、破招、武器伤害使用基准战斗统计重算。"
+    gainNote->setText(QStringLiteral("%1：实际增加点数见表格，显示平均秒伤变化。会心、加速重新模拟循环；"
+        "基础攻击、会效、破防、无双、破招、武器伤害使用基准战斗统计重算。"
         "重跑使用相同宏与种子，差值可能含模拟波动。取消时保留完整计算的项目。")
         .arg(desktop::GainComparisonName(r.gainMode)));
     m_chart->SetSelectedRun(entry->id);

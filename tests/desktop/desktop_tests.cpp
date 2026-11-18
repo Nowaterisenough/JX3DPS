@@ -679,7 +679,7 @@ private slots:
         };
         QTRY_VERIFY2_WITH_TIMEOUT(checkedFillSettled(), qPrintable(QStringLiteral("checked fill %1, expected %2")
             .arg(checkedFill.name(), expected.name())), 2000);
-        run([&] { start->click(); }, 16);
+        run([&] { start->click(); }, 12);
         data = report();
         QVERIFY(data.value("result").toObject().value("gainsRequested").toBool());
         QCOMPARE(data.value("gains").toArray().size(), 8);
@@ -688,7 +688,7 @@ private slots:
         window.findChild<QTabBar *>("attributeGainMode")->setCurrentIndex(1);
         window.findChild<QPushButton *>("nav_macro")->click();
         QCoreApplication::processEvents();
-        run([&] { window.findChild<QToolButton *>("runMacroButton")->click(); }, 16);
+        run([&] { window.findChild<QToolButton *>("runMacroButton")->click(); }, 12);
         data = report();
         QCOMPARE(data.value("result").toObject().value("gainComparisonMode").toString(), QStringLiteral("same_cost"));
         QCOMPARE(data.value("gains").toArray()[0].toObject().value("increment").toInt(), 398);
@@ -708,7 +708,7 @@ private slots:
         window.findChild<QSpinBox *>("iterations")->setValue(1000000);
         start->click();
         QVERIFY(window.findChild<BatchWorker *>());
-        QCOMPARE(window.findChild<BatchWorker *>()->Requested(), quint64(4000000));
+        QCOMPARE(window.findChild<BatchWorker *>()->Requested(), quint64(3000000));
         window.findChild<QPushButton *>("cancelBatch")->click();
         QTRY_VERIFY_WITH_TIMEOUT(start->isEnabled(), 10000);
         QVERIFY(calculate->isChecked());
@@ -2550,7 +2550,7 @@ private slots:
         for (const auto &skill : result.skills) skillDamage += skill.damage;
         QVERIFY(std::abs(skillDamage - result.stats.mean_damage * result.stats.count) < .01);
         QCOMPARE(worker.Completed(), worker.Requested());
-        QCOMPARE(worker.Requested(), options.iterations * 4);
+        QCOMPARE(worker.Requested(), options.iterations * 3);
         config.attributes.attack_base += 100;
         const auto direct = rt::RunBatch(compiled.first.program, options, rt::mo_wen::Rules(rt::mo_wen::Prepare(config)));
         QCOMPARE(result.gains[0].stats.checksum, direct.checksum);
@@ -2575,7 +2575,7 @@ private slots:
             QCOMPARE(result.gainMode, mode);
             QCOMPARE(result.gains.size(), 8);
             QCOMPARE(worker.Completed(), worker.Requested());
-            QCOMPARE(worker.Requested(), options.iterations * 4);
+            QCOMPARE(worker.Requested(), options.iterations * 3);
             for (int index = 0; index < 8; ++index) {
                 QCOMPARE(result.gains[index].increment, increments[index]);
                 const auto changed = desktop::ApplyAttributeGain(config, index, increments[index]);

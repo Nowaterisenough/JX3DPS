@@ -647,6 +647,7 @@ private:
 };
 
 struct Module {
+    static constexpr bool replay_strain = true;
     using Rules = mo_wen::Rules;
     using DamageReducer = mo_wen::DamageReducer;
     static auto Prepare(const Config &config) { return mo_wen::Prepare(config); }

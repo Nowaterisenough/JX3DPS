@@ -163,7 +163,7 @@ void ExecutionAndCancellation() {
     BatchControl control;
     const auto result = RunAttributeGainsControlled(macro.program, options, control, config);
     CHECK(config.counters->starts == options.iterations * 4);
-    CHECK(control.completed == options.iterations * AttributeGainSimulationStages);
+    CHECK(control.completed == options.iterations * AttributeGainSimulationStages<probe::Config>);
     CHECK(result.primary.mean_damage == 6);
     for (const auto &stage : config.counters->stages) CHECK(stage == options.iterations);
     for (const auto &gain : result.gains) CHECK(gain && gain->count == options.iterations && gain->mean_damage == 306);
@@ -205,7 +205,7 @@ void CompareGains(const Config &config, std::string_view source, CompileOptions 
     BatchOptions options{17, 931, 16 * 65, 1, 16000, 48000};
     BatchControl control;
     const auto single = RunAttributeGainsControlled(macro.program, options, control, config, detail::TotalDamageReducer{}, increments);
-    CHECK(control.completed == options.iterations * 4);
+    CHECK(control.completed == options.iterations * 3);
     SameStats(single.primary, RunBatch(macro.program, options, LoadSpecialization(config)));
     for (std::size_t i = 0; i < single.gains.size(); ++i) {
         CHECK(single.gains[i]);
@@ -214,7 +214,7 @@ void CompareGains(const Config &config, std::string_view source, CompileOptions 
     }
     options.workers = 4;
     const auto parallel = RunAttributeGainsControlled(macro.program, options, control, config, detail::TotalDamageReducer{}, increments);
-    CHECK(control.completed == options.iterations * 4);
+    CHECK(control.completed == options.iterations * 3);
     SameStats(parallel.primary, single.primary);
     for (std::size_t i = 0; i < single.gains.size(); ++i) {
         CHECK(parallel.gains[i]);
@@ -223,18 +223,28 @@ void CompareGains(const Config &config, std::string_view source, CompileOptions 
 
     using Rules = typename Config::RuntimeModule::Rules;
     Simulation<Rules> simulation(macro.program, LoadSpecialization(config), options.damage_capacity, options.mutation_capacity);
-    DamageGainObserver<Config> observer(config, DamageOnlyGainIndexes, increments);
+    DamageGainObserver<Config> observer(config, DamageOnlyGainIndexes<Config>, increments);
     observer.Setup(simulation);
-    std::array<value_t, DamageOnlyGainIndexes.size()> values{};
+    std::array<std::array<value_t, DamageOnlyGainIndexes<Config>.size()>, 4> replay_damage{};
     allocations = 0;
     count_allocations = true;
-    for (unsigned i = 0; i < 4; ++i) {
+    for (unsigned i = 0; i < replay_damage.size(); ++i) {
         simulation.Start(options.duration, IterationSeed(options.seed, i));
         simulation.Run();
-        observer(simulation, values);
+        observer(simulation, replay_damage[i]);
     }
     count_allocations = false;
     CHECK(allocations == 0);
+    for (std::size_t j = 0; j < DamageOnlyGainIndexes<Config>.size(); ++j) {
+        const auto index = DamageOnlyGainIndexes<Config>[j];
+        const auto changed = ApplyAttributeGain(config, index, increments[index]);
+        Simulation<Rules> direct(macro.program, LoadSpecialization(changed), options.damage_capacity, options.mutation_capacity);
+        for (std::size_t i = 0; i < replay_damage.size(); ++i) {
+            direct.Start(options.duration, IterationSeed(options.seed, i));
+            direct.Run();
+            CHECK(replay_damage[i][j] == direct.TotalDamage());
+        }
+    }
     DamageStatistics statistics;
     statistics.Reserve(options.damage_capacity);
     statistics.Collect(simulation.Log().Intents());
@@ -243,7 +253,7 @@ void CompareGains(const Config &config, std::string_view source, CompileOptions 
     CHECK(count == simulation.Log().Size());
     CHECK(statistics.Entries().size() < count);
     Throws<std::invalid_argument>([&] {
-        DamageGainObserver<Config> invalid(config, RotationGainIndexes);
+        DamageGainObserver<Config> invalid(config, RotationGainIndexes<Config>);
     });
 }
 
@@ -284,5 +294,5 @@ int main() {
     StatisticsKeys();
     ExecutionAndCancellation();
     GameModules();
-    std::cout << "attribute gain tests passed: four simulation stages, statistics reduction, game-module parity, cancellation, worker parity, zero reduction allocations\n";
+    std::cout << "attribute gain tests passed: module-specific simulation stages, statistics reduction, game-module parity, cancellation, worker parity, zero reduction allocations\n";
 }

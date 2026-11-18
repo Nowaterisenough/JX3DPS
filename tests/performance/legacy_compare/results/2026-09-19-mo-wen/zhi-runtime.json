@@ -1,0 +1,41 @@
+{
+  "engine": "mo-wen-runtime-draw-replay",
+  "iterations": 1,
+  "seconds": 300,
+  "elapsed_s": 2.38E-05,
+  "fights_per_s": 42016.80672268908,
+  "mean_damage": 1644908.0,
+  "mean_dps": 5483.026666666667,
+  "min_damage": 1644908,
+  "max_damage": 1644908,
+  "damage_sum": 1644908,
+  "crit": 20000,
+  "dot": false,
+  "legacy_precision": 1,
+  "phase": 0,
+  "initial_qidian": 10,
+  "talents": [
+    "xianfeng",
+    "liuzhao",
+    "zhenglv",
+    "canlian",
+    "yunhan",
+    "mingjin",
+    "zhizhi",
+    "haoqing",
+    "shixiang",
+    "haozhong",
+    "kemeng",
+    "feifan",
+    "zhengming"
+  ],
+  "weapon_cw": false,
+  "sample": {
+    "变徵": {
+      "hits": 160,
+      "damage": 1644908
+    }
+  },
+  "draws": 160,
+  "unused_draws": 0
+}

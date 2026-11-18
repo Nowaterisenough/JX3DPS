@@ -1,0 +1,6 @@
+{
+  "url": "https://lua.jx3box.com/api/lua/bps/index.json?client=std",
+  "http_status": 401,
+  "available": false,
+  "reason": "Authentication or account access is required for original skill scripts."
+}

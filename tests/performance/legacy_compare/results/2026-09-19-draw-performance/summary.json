@@ -1,0 +1,64 @@
+[
+  {
+    "case": "rotation",
+    "engines": {
+      "legacy": {
+        "repeats": 3,
+        "iterations": 10000,
+        "median_s": 13.0235765,
+        "min_s": 12.8313573,
+        "max_s": 13.3268179,
+        "mean_dps": 30595.343847
+      },
+      "legacy_dps": {
+        "repeats": 3,
+        "iterations": 10000,
+        "median_s": 7.0010922,
+        "min_s": 6.9728974,
+        "max_s": 7.015451,
+        "mean_dps": 30595.923288777776
+      },
+      "runtime": {
+        "repeats": 3,
+        "iterations": 10000,
+        "median_s": 0.7429764,
+        "min_s": 0.7353713,
+        "max_s": 0.7635385,
+        "mean_dps": 30602.773846666663
+      }
+    },
+    "old_over_new": 17.52892352973796,
+    "diagnostic_over_new": 9.423034432856818
+  },
+  {
+    "case": "weapon_cw",
+    "engines": {
+      "legacy": {
+        "repeats": 3,
+        "iterations": 10000,
+        "median_s": 44.7548706,
+        "min_s": 44.6783739,
+        "max_s": 45.150245,
+        "mean_dps": 40798.428965555555
+      },
+      "legacy_dps": {
+        "repeats": 3,
+        "iterations": 10000,
+        "median_s": 36.5594247,
+        "min_s": 36.5378881,
+        "max_s": 36.6672138,
+        "mean_dps": 40804.15653099999
+      },
+      "runtime": {
+        "repeats": 3,
+        "iterations": 10000,
+        "median_s": 0.9692533,
+        "min_s": 0.9408829,
+        "max_s": 0.982864,
+        "mean_dps": 40809.33076933333
+      }
+    },
+    "old_over_new": 46.17458676694729,
+    "diagnostic_over_new": 37.719164536246616
+  }
+]

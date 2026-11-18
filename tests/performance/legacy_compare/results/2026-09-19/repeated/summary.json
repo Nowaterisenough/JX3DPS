@@ -1,0 +1,126 @@
+[
+    {
+        "case":  "cooldowns",
+        "engines":  {
+                        "legacy":  {
+                                       "repeats":  3,
+                                       "iterations":  10000,
+                                       "median_s":  9.8265845,
+                                       "min_s":  9.8246798,
+                                       "max_s":  9.901739,
+                                       "mean_dps":  27219.809798555554
+                                   },
+                        "legacy_dps":  {
+                                           "repeats":  3,
+                                           "iterations":  10000,
+                                           "median_s":  5.1137808,
+                                           "min_s":  5.076487,
+                                           "max_s":  5.1243141,
+                                           "mean_dps":  27211.815622666665
+                                       },
+                        "runtime":  {
+                                        "repeats":  3,
+                                        "iterations":  10000,
+                                        "median_s":  0.2708177,
+                                        "min_s":  0.2705852,
+                                        "max_s":  0.2709709,
+                                        "mean_dps":  28250.152630333338
+                                    }
+                    },
+        "old_over_new":  36.284868012688975,
+        "diagnostic_over_new":  18.882742154593291
+    },
+    {
+        "case":  "cooldowns_precise",
+        "engines":  {
+                        "legacy":  {
+                                       "repeats":  3,
+                                       "iterations":  10000,
+                                       "median_s":  29.6345868,
+                                       "min_s":  29.4852264,
+                                       "max_s":  29.6919505,
+                                       "mean_dps":  28242.251428555555
+                                   },
+                        "legacy_dps":  {
+                                           "repeats":  3,
+                                           "iterations":  10000,
+                                           "median_s":  24.4982322,
+                                           "min_s":  24.4802531,
+                                           "max_s":  24.6338355,
+                                           "mean_dps":  28240.443630555557
+                                       },
+                        "runtime":  {
+                                        "repeats":  3,
+                                        "iterations":  10000,
+                                        "median_s":  0.2730485,
+                                        "min_s":  0.2717145,
+                                        "max_s":  0.2738194,
+                                        "mean_dps":  28250.152630333338
+                                    }
+                    },
+        "old_over_new":  108.53231861738848,
+        "diagnostic_over_new":  89.721174809603411
+    },
+    {
+        "case":  "rotation",
+        "engines":  {
+                        "legacy":  {
+                                       "repeats":  3,
+                                       "iterations":  10000,
+                                       "median_s":  11.6358851,
+                                       "min_s":  11.5736567,
+                                       "max_s":  11.6979909,
+                                       "mean_dps":  30600.406996666668
+                                   },
+                        "legacy_dps":  {
+                                           "repeats":  3,
+                                           "iterations":  10000,
+                                           "median_s":  6.3371049,
+                                           "min_s":  6.3212018,
+                                           "max_s":  6.3869788,
+                                           "mean_dps":  30600.323379888887
+                                       },
+                        "runtime":  {
+                                        "repeats":  3,
+                                        "iterations":  10000,
+                                        "median_s":  0.4574401,
+                                        "min_s":  0.4571756,
+                                        "max_s":  0.4607134,
+                                        "mean_dps":  28591.875251666668
+                                    }
+                    },
+        "old_over_new":  25.436959068520665,
+        "diagnostic_over_new":  13.853409222322222
+    },
+    {
+        "case":  "rotation_dot",
+        "engines":  {
+                        "legacy":  {
+                                       "repeats":  3,
+                                       "iterations":  10000,
+                                       "median_s":  13.4136576,
+                                       "min_s":  13.407405,
+                                       "max_s":  13.4265223,
+                                       "mean_dps":  37417.699678777775
+                                   },
+                        "legacy_dps":  {
+                                           "repeats":  3,
+                                           "iterations":  10000,
+                                           "median_s":  6.8428837,
+                                           "min_s":  6.8111913,
+                                           "max_s":  6.938859,
+                                           "mean_dps":  37409.188776444447
+                                       },
+                        "runtime":  {
+                                        "repeats":  3,
+                                        "iterations":  10000,
+                                        "median_s":  0.5193747,
+                                        "min_s":  0.5172484,
+                                        "max_s":  0.5209772,
+                                        "mean_dps":  37496.389506
+                                    }
+                    },
+        "old_over_new":  25.826551813170724,
+        "diagnostic_over_new":  13.175234950797565
+    }
+]

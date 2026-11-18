@@ -1,0 +1,150 @@
+name: Desktop CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows UCRT64 GCC
+            id: windows-ucrt64
+            runner: windows-2025
+            cc: gcc
+            cxx: g++
+          - name: Windows MSVC
+            id: windows-msvc
+            runner: windows-2025-vs2026
+            cc: cl
+            cxx: cl
+            qt_arch: win64_msvc2022_64
+          - name: Ubuntu GCC
+            id: linux-x86_64
+            runner: ubuntu-26.04
+            cc: gcc-16
+            cxx: g++-16
+            qt_arch: linux_gcc_64
+          - name: macOS AppleClang
+            id: macos-arm64
+            runner: macos-26-intel
+            cc: clang
+            cxx: clang++
+            qt_arch: clang_64
+            cmake_arch: -DCMAKE_OSX_ARCHITECTURES=arm64
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      CMAKE_BUILD_PARALLEL_LEVEL: 3
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install Qt and GCC from the same UCRT64 repository
+        if: matrix.id == 'windows-ucrt64'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-qt6-tools mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+      - name: Select UCRT64 toolchain
+        if: matrix.id == 'windows-ucrt64'
+        shell: msys2 {0}
+        run: |
+          cygpath -w /ucrt64/bin >> "$GITHUB_PATH"
+          test "$(g++ -dumpversion | cut -d. -f1)" -ge 16
+          qmake6 -query QT_VERSION
+
+      - name: Select Visual Studio x64 environment
+        if: matrix.id == 'windows-msvc'
+        shell: pwsh
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$vs) { throw 'Visual Studio with the x64 C++ tools was not found' }
+          $oldPath = $env:PATH -split ';'
+          & (Join-Path $vs 'Common7/Tools/Launch-VsDevShell.ps1') -Arch amd64 -HostArch amd64 -SkipAutomaticLocation
+          Get-Command cl.exe -ErrorAction Stop | Select-Object -ExpandProperty Source
+          $env:PATH -split ';' | Where-Object { $_ -and $_ -notin $oldPath } | Add-Content -LiteralPath $env:GITHUB_PATH -Encoding utf8
+          foreach ($name in 'INCLUDE','LIB','LIBPATH','VSINSTALLDIR','VCINSTALLDIR','VCToolsInstallDir','VCToolsRedistDir','WindowsSdkDir','WindowsSDKVersion','UniversalCRTSdkDir','UCRTVersion') {
+            $value = [Environment]::GetEnvironmentVariable($name)
+            if ($value) { Add-Content -LiteralPath $env:GITHUB_ENV -Value "$name=$value" -Encoding utf8 }
+          }
+      - name: Install GCC and Qt system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-16 ninja-build libgl-dev libegl-dev libglx-dev libxkbcommon-dev libxkbcommon-x11-0 libxcb-cursor0
+      - name: Install Qt 6.12
+        if: matrix.id != 'windows-ucrt64'
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.12.0'
+          arch: ${{ matrix.qt_arch }}
+          # PyPI aqt 3.3.0 predates the Windows Qt 6.11+ repository layout.
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@7e5a5c3d95cf962cfc2f36c86ffa0d2c07f1a0d4
+          cache: true
+
+      - name: Configure Release desktop
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON ${{ matrix.cmake_arch }}
+      - name: Build desktop
+        run: cmake --build build --target JX3DPSDesktop
+
+      - name: Package Windows desktop
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (!(Test-Path -LiteralPath 'build/bin/JX3DPS Desktop.exe')) { throw 'Missing desktop executable' }
+          New-Item -ItemType Directory -Path build/bin/data -Force | Out-Null
+          Copy-Item -LiteralPath data/jx3box -Destination build/bin/data -Recurse
+          Compress-Archive -Path build/bin/* -DestinationPath JX3DPS-${{ matrix.id }}.zip
+      - name: Package Linux desktop
+        if: runner.os == 'Linux'
+        run: |
+          test -x 'build/bin/JX3DPS Desktop'
+          mkdir -p build/bin/data && cp -R data/jx3box build/bin/data/
+          tar -C build/bin -czf JX3DPS-linux-x86_64.tar.gz .
+      - name: Package macOS desktop
+        if: runner.os == 'macOS'
+        run: |
+          app=build/bin/JX3DPSDesktop.app
+          test -x "$app/Contents/MacOS/JX3DPSDesktop"
+          lipo "$app/Contents/MacOS/JX3DPSDesktop" -verify_arch arm64
+          mkdir -p "$app/Contents/Resources/data" && cp -R data/jx3box "$app/Contents/Resources/data/"
+          macdeployqt "$app" -dmg
+          codesign --verify --deep --strict "$app"
+          mv build/bin/JX3DPSDesktop.dmg JX3DPS-macos-arm64.dmg
+      - uses: actions/upload-artifact@v6
+        with:
+          name: JX3DPS-${{ matrix.id }}
+          path: JX3DPS-${{ matrix.id }}.*
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          path: packages
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: packages/*
+          fail_on_unmatched_files: true

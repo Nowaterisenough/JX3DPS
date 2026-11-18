@@ -1,0 +1,31 @@
+{
+    "case":  "rotation",
+    "engines":  {
+                    "legacy":  {
+                                   "repeats":  1,
+                                   "iterations":  100000,
+                                   "median_s":  116.3341875,
+                                   "min_s":  116.3341875,
+                                   "max_s":  116.3341875,
+                                   "mean_dps":  30594.484627766666
+                               },
+                    "legacy_dps":  {
+                                       "repeats":  1,
+                                       "iterations":  100000,
+                                       "median_s":  63.8217946,
+                                       "min_s":  63.8217946,
+                                       "max_s":  63.8217946,
+                                       "mean_dps":  30593.9256282
+                                   },
+                    "runtime":  {
+                                    "repeats":  1,
+                                    "iterations":  100000,
+                                    "median_s":  4.5661334,
+                                    "min_s":  4.5661334,
+                                    "max_s":  4.5661334,
+                                    "mean_dps":  28589.835164266671
+                                }
+                },
+    "old_over_new":  25.477614714454027,
+    "diagnostic_over_new":  13.97720763042096
+}

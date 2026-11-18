@@ -1,0 +1,4 @@
+/cast [tnobuff:shang|tbufftime:shang<2] shang
+/cast [tnobuff:jue|tbufftime:jue<2] jue
+/cast [buff:qufeng>=3] yu
+/cast biangong

@@ -1,0 +1,11 @@
+/cast [nobuff:ziqi&qidian<6] ziqi
+/cast [buff:field_suixing&buff:field_shengtaiji&buff:field_tunriyue] renjian
+/cast [nobuff:field_suixing] suixing
+/cast [nobuff:field_shengtaiji] shengtaiji
+/cast [nobuff:field_tunriyue] tunriyue
+/cast wanjian
+/cast [qidian>=8] wuwu
+/cast bahuang
+/cast sanhuan
+/cast sanchai
+/cast [qidian>=1] wuwu

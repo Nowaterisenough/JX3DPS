@@ -1,0 +1,1666 @@
+[
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  0,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  1,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  2,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  3,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  4,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  5,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  6,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  7,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  8,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  9,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  10,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  11,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  12,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  13,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  14,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  0,
+        "phase":  15,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  0,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  1,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  2,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  3,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  4,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  5,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  6,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  7,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  8,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  9,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  10,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  11,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  12,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  13,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  14,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  0,
+        "phase":  15,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  0,
+        "legacy_damage":  15152142,
+        "runtime_damage":  15152142,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  1,
+        "legacy_damage":  15147475,
+        "runtime_damage":  15147475,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  2,
+        "legacy_damage":  15147475,
+        "runtime_damage":  15147475,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  3,
+        "legacy_damage":  15147475,
+        "runtime_damage":  15147475,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  4,
+        "legacy_damage":  15147475,
+        "runtime_damage":  15147475,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  5,
+        "legacy_damage":  15147475,
+        "runtime_damage":  15147475,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  6,
+        "legacy_damage":  15147475,
+        "runtime_damage":  15147475,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  7,
+        "legacy_damage":  15147475,
+        "runtime_damage":  15147475,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  8,
+        "legacy_damage":  15147475,
+        "runtime_damage":  15147475,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  9,
+        "legacy_damage":  15152142,
+        "runtime_damage":  15152142,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  10,
+        "legacy_damage":  15152142,
+        "runtime_damage":  15152142,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  11,
+        "legacy_damage":  15152142,
+        "runtime_damage":  15152142,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  12,
+        "legacy_damage":  15152142,
+        "runtime_damage":  15152142,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  13,
+        "legacy_damage":  15152142,
+        "runtime_damage":  15152142,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  14,
+        "legacy_damage":  15152142,
+        "runtime_damage":  15152142,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  0,
+        "phase":  15,
+        "legacy_damage":  15152142,
+        "runtime_damage":  15152142,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  0,
+        "legacy_damage":  18889613,
+        "runtime_damage":  18889613,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  1,
+        "legacy_damage":  18521499,
+        "runtime_damage":  18521499,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  2,
+        "legacy_damage":  18521499,
+        "runtime_damage":  18521499,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  3,
+        "legacy_damage":  18521499,
+        "runtime_damage":  18521499,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  4,
+        "legacy_damage":  18521499,
+        "runtime_damage":  18521499,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  5,
+        "legacy_damage":  18521499,
+        "runtime_damage":  18521499,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  6,
+        "legacy_damage":  18521499,
+        "runtime_damage":  18521499,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  7,
+        "legacy_damage":  18521499,
+        "runtime_damage":  18521499,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  8,
+        "legacy_damage":  18521499,
+        "runtime_damage":  18521499,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  9,
+        "legacy_damage":  18889613,
+        "runtime_damage":  18889613,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  10,
+        "legacy_damage":  18889613,
+        "runtime_damage":  18889613,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  11,
+        "legacy_damage":  18889613,
+        "runtime_damage":  18889613,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  12,
+        "legacy_damage":  18889613,
+        "runtime_damage":  18889613,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  13,
+        "legacy_damage":  18889613,
+        "runtime_damage":  18889613,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  14,
+        "legacy_damage":  18889613,
+        "runtime_damage":  18889613,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  0,
+        "phase":  15,
+        "legacy_damage":  18889613,
+        "runtime_damage":  18889613,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  0,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  1,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  2,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  3,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  4,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  5,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  6,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  7,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  8,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  9,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  10,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  11,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  12,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  13,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  14,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "sanchai",
+        "initial_qidian":  10,
+        "phase":  15,
+        "legacy_damage":  1741269,
+        "runtime_damage":  1741269,
+        "legacy_hits":  219,
+        "runtime_hits":  219,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  0,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  1,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  2,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  3,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  4,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  5,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  6,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  7,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  8,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  9,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  10,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  11,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  12,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  13,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  14,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "cooldowns",
+        "initial_qidian":  10,
+        "phase":  15,
+        "legacy_damage":  14628705,
+        "runtime_damage":  14628705,
+        "legacy_hits":  681,
+        "runtime_hits":  681,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  0,
+        "legacy_damage":  15142919,
+        "runtime_damage":  15142919,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  1,
+        "legacy_damage":  15138252,
+        "runtime_damage":  15138252,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  2,
+        "legacy_damage":  15138252,
+        "runtime_damage":  15138252,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  3,
+        "legacy_damage":  15138252,
+        "runtime_damage":  15138252,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  4,
+        "legacy_damage":  15138252,
+        "runtime_damage":  15138252,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  5,
+        "legacy_damage":  15138252,
+        "runtime_damage":  15138252,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  6,
+        "legacy_damage":  15138252,
+        "runtime_damage":  15138252,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  7,
+        "legacy_damage":  15138252,
+        "runtime_damage":  15138252,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  8,
+        "legacy_damage":  15138252,
+        "runtime_damage":  15138252,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  9,
+        "legacy_damage":  15142919,
+        "runtime_damage":  15142919,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  10,
+        "legacy_damage":  15142919,
+        "runtime_damage":  15142919,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  11,
+        "legacy_damage":  15142919,
+        "runtime_damage":  15142919,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  12,
+        "legacy_damage":  15142919,
+        "runtime_damage":  15142919,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  13,
+        "legacy_damage":  15142919,
+        "runtime_damage":  15142919,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  14,
+        "legacy_damage":  15142919,
+        "runtime_damage":  15142919,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation",
+        "initial_qidian":  10,
+        "phase":  15,
+        "legacy_damage":  15142919,
+        "runtime_damage":  15142919,
+        "legacy_hits":  656,
+        "runtime_hits":  656,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  0,
+        "legacy_damage":  18886595,
+        "runtime_damage":  18886595,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  1,
+        "legacy_damage":  18503144,
+        "runtime_damage":  18503144,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  2,
+        "legacy_damage":  18503144,
+        "runtime_damage":  18503144,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  3,
+        "legacy_damage":  18503144,
+        "runtime_damage":  18503144,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  4,
+        "legacy_damage":  18503144,
+        "runtime_damage":  18503144,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  5,
+        "legacy_damage":  18503144,
+        "runtime_damage":  18503144,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  6,
+        "legacy_damage":  18503144,
+        "runtime_damage":  18503144,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  7,
+        "legacy_damage":  18503144,
+        "runtime_damage":  18503144,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  8,
+        "legacy_damage":  18503144,
+        "runtime_damage":  18503144,
+        "legacy_hits":  780,
+        "runtime_hits":  780,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  9,
+        "legacy_damage":  18886595,
+        "runtime_damage":  18886595,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  10,
+        "legacy_damage":  18886595,
+        "runtime_damage":  18886595,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  11,
+        "legacy_damage":  18886595,
+        "runtime_damage":  18886595,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  12,
+        "legacy_damage":  18886595,
+        "runtime_damage":  18886595,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  13,
+        "legacy_damage":  18886595,
+        "runtime_damage":  18886595,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  14,
+        "legacy_damage":  18886595,
+        "runtime_damage":  18886595,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    },
+    {
+        "case":  "rotation_dot",
+        "initial_qidian":  10,
+        "phase":  15,
+        "legacy_damage":  18886595,
+        "runtime_damage":  18886595,
+        "legacy_hits":  788,
+        "runtime_hits":  788,
+        "different_entries":  0,
+        "first_differences":  [
+
+                              ]
+    }
+]

@@ -1,0 +1,93 @@
+{
+  "engine": "mo-wen-runtime-draw-replay",
+  "iterations": 1,
+  "seconds": 300,
+  "elapsed_s": 0.0001747,
+  "fights_per_s": 5724.098454493417,
+  "mean_damage": 24501951.0,
+  "mean_dps": 81673.17,
+  "min_damage": 24501951,
+  "max_damage": 24501951,
+  "damage_sum": 24501951,
+  "crit": 1000000,
+  "dot": false,
+  "legacy_precision": 1,
+  "phase": 0,
+  "initial_qidian": 10,
+  "talents": [
+    "xianfeng",
+    "liuzhao",
+    "zhenglv",
+    "canlian",
+    "yunhan",
+    "mingjin",
+    "zhizhi",
+    "haoqing",
+    "shixiang",
+    "haozhong",
+    "kemeng",
+    "feifan",
+    "zhengming"
+  ],
+  "weapon_cw": false,
+  "sample": {
+    "商": {
+      "hits": 1,
+      "damage": 12906
+    },
+    "疏影横斜": {
+      "hits": 17,
+      "damage": 0
+    },
+    "高山流水": {
+      "hits": 1,
+      "damage": 0
+    },
+    "角": {
+      "hits": 1,
+      "damage": 14190
+    },
+    "影子": {
+      "hits": 408,
+      "damage": 3780897
+    },
+    "流照": {
+      "hits": 450,
+      "damage": 7131202
+    },
+    "变徵": {
+      "hits": 225,
+      "damage": 4966518
+    },
+    "Dot·商": {
+      "hits": 100,
+      "damage": 920659
+    },
+    "Dot·角": {
+      "hits": 100,
+      "damage": 905071
+    },
+    "变宫": {
+      "hits": 52,
+      "damage": 2143481
+    },
+    "破招·流照": {
+      "hits": 440,
+      "damage": 2003256
+    },
+    "争鸣": {
+      "hits": 27,
+      "damage": 567431
+    },
+    "破招": {
+      "hits": 81,
+      "damage": 884611
+    },
+    "羽": {
+      "hits": 27,
+      "damage": 1171729
+    }
+  },
+  "draws": 1929,
+  "unused_draws": 0
+}

@@ -1,8 +1,23 @@
-﻿#include <thread_pool.h>
+﻿/**
+ * Project: 
+ * File: test_thread_pool.cpp
+ * Description: 
+ * Created Date: 2023-07-26 17:26:02
+ * Author: 难为水
+ * -----
+ * Last Modified: 2023-07-27 22:43:05
+ * Modified By: 难为水
+ * -----
+ * CHANGELOG:
+ * Date      	By     	Comments
+ * ----------	-------	----------------------------------------------------------
+ */
 
 #include <iostream>
 
 #include <gtest/gtest.h>
+
+#include <thread_pool/thread_pool.h>
 
 int TestFunction1(unsigned int time)
 {
@@ -34,8 +49,7 @@ public:
     std::string TestFunction3(unsigned int time, std::string str, char c)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
-        std::cout << "thread id: " << std::this_thread::get_id() << " " << time << " " << str << " "
-                  << c << std::endl;
+        std::cout << "thread id: " << std::this_thread::get_id() << " " << time << " " << str << " " << c << std::endl;
         return str;
     }
 };

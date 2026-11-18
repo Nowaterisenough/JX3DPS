@@ -1,1 +1,3 @@
 *.sh    text eol=lf
+# Source-cache checksums require byte-for-byte data on every platform.
+data/jx3box/runtime_sources/*.json -text

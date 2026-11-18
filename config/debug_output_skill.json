@@ -1,0 +1,52 @@
+{
+  "version": "1.0",
+  "state": "paused",
+  "execution": {
+    "current_line": 2,
+    "step_type": "skill_cast",
+    "current_condition_index": -1,
+    "current_condition": null,
+    "condition_result": null,
+    "last_skill": "三环套月",
+    "skill_success": true,
+    "finished": false
+  },
+  "frame": {
+    "current": 16,
+    "time": 1.0
+  },
+  "player": {
+    "life_percent": 1.0,
+    "mana_percent": 0.95,
+    "qidian": 11,
+    "rage": 0,
+    "energy": 0,
+    "buffs": [
+      {
+        "name": "玄门",
+        "id": 12345,
+        "stack": 3,
+        "duration": 34.0,
+        "interval": 0.0
+      }
+    ],
+    "cooldowns": [
+      {
+        "skill": "三环套月",
+        "remaining": 8.0
+      }
+    ]
+  },
+  "target": {
+    "id": 1,
+    "life_percent": 0.99,
+    "buffs": []
+  },
+  "damage": {
+    "last_damage": 98000,
+    "is_critical": false,
+    "total_damage": 98000,
+    "total_count": 1,
+    "critical_count": 0
+  }
+}

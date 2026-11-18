@@ -1,0 +1,185 @@
+/* VSCode Dark 主题样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #d4d4d4;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: normal;
+}
+
+.editor-container {
+    display: flex;
+    background-color: #1e1e1e;
+    border: 1px solid #3c3c3c;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 600px;
+}
+
+/* 行号区域（Gutter） */
+.gutter {
+    background-color: #1e1e1e;
+    color: #858585;
+    padding: 4px 0;
+    min-width: 60px;
+    text-align: right;
+    user-select: none;
+    overflow-y: hidden;
+    border-right: 1px solid #3c3c3c;
+    flex-shrink: 0;
+}
+
+.gutter-line {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 21px;
+    padding: 0 10px 0 4px;
+    cursor: pointer;
+    position: relative;
+}
+
+.gutter-line:hover {
+    background-color: #2a2a2a;
+}
+
+.gutter-line.breakpoint {
+    background-color: #2a2a2a;
+}
+
+.breakpoint-dot {
+    position: absolute;
+    left: 4px;
+    width: 12px;
+    height: 12px;
+    background-color: #e51400;
+    border-radius: 50%;
+    border: 1px solid #c00000;
+}
+
+.line-number {
+    display: inline-block;
+    min-width: 30px;
+    text-align: right;
+}
+
+/* 编辑器包装器 */
+.editor-wrapper {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* 高亮层 */
+.highlight-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 4px 10px;
+    margin: 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 21px;
+    color: #d4d4d4;
+    white-space: pre;
+    overflow: auto;
+    pointer-events: none;
+    background-color: transparent;
+    border: none;
+}
+
+/* 文本编辑器 */
+.editor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 4px 10px;
+    margin: 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 21px;
+    color: transparent;
+    caret-color: #d4d4d4;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    white-space: pre;
+    overflow: auto;
+    tab-size: 4;
+}
+
+/* 滚动条样式 */
+.editor::-webkit-scrollbar,
+.highlight-layer::-webkit-scrollbar,
+.gutter::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+
+.editor::-webkit-scrollbar-track,
+.highlight-layer::-webkit-scrollbar-track,
+.gutter::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+.editor::-webkit-scrollbar-thumb,
+.highlight-layer::-webkit-scrollbar-thumb,
+.gutter::-webkit-scrollbar-thumb {
+    background: #424242;
+    border: 3px solid #1e1e1e;
+    border-radius: 7px;
+}
+
+.editor::-webkit-scrollbar-thumb:hover,
+.highlight-layer::-webkit-scrollbar-thumb:hover,
+.gutter::-webkit-scrollbar-thumb:hover {
+    background: #4e4e4e;
+}
+
+/* 信息栏 */
+.info {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #252526;
+    border: 1px solid #3c3c3c;
+    border-radius: 4px;
+    color: #858585;
+    font-size: 13px;
+}
+
+.info p {
+    margin: 0;
+}
+
+/* 选中文本样式 */
+.editor::selection {
+    background-color: #264f78;
+}
+
+.editor::-moz-selection {
+    background-color: #264f78;
+}

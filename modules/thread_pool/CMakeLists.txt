@@ -1,22 +1,18 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ThreadPool VERSION 1.1)
+project(thread_pool VERSION 1.1)
 
+FILE(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h*)
 FILE(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.c*)
 
 add_definitions(-DEXPORT_THREAD_POOL)
 
 add_library(${PROJECT_NAME} SHARED
+    ${HEADER_FILES}
     ${SOURCE_FILES}
 )
 
-# 保证包含目录在构建目录下而不是源目录下
-target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include>
-)
-
-set(HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h)
+set(HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/thread_pool.h)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     PUBLIC_HEADER "${HEADERS}"
     VERSION ${PROJECT_VERSION}
@@ -36,7 +32,7 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
     VERSION ${PACKAGE_VERSION}
-    COMPATIBILITY AnyNewerVersion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+    COMPATIBILITY AnyNewerVersion
 )
 
 install(EXPORT ${PROJECT_NAME}Targets

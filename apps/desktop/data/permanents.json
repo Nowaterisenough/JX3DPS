@@ -1,0 +1,891 @@
+{
+  "0": {
+    "TeamCore": [
+      {
+        "Name": "北斗七星阵",
+        "Icon": 1798,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，外功会心几率提高3%。\n二重略懂：无双提高2%。\n三重巧熟：外功会心效果等级提高15%。\n四重精妙：外功招式会心则可使阵眼额外获得一格气。\n五重游刃：阵眼施展续气招式会心，则小队成员外功会心几率提高1%，最多叠加五层。\n六重忘我：被会心攻击则可使阵眼外功基础攻击力提高20%，持续8秒。",
+        "AttributeAdditional": [
+          {
+            "Type": "外功会心加成",
+            "Value": 300
+          },
+          {
+            "Type": "无双加成",
+            "Value": 20
+          },
+          {
+            "Type": "外功会效加成",
+            "Value": 154
+          }
+        ]
+      },
+      {
+        "Name": "苍梧引灵阵",
+        "Icon": 17401,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，全会心提高3%。\n二重略懂：无双提高2%。\n三重巧熟：造成伤害提高6%。\n四重精妙：阵眼消耗一枚唤灵印时获得1%受到伤害降低效果，最多6层，持续10s。\n五重游刃：阵眼施展白羽流星强化招式时小队会心效果提高15%，持续6s。\n六重忘我：若重伤目标，阵眼恢复30%内力。",
+        "AttributeAdditional": [
+          {
+            "Type": "会心加成",
+            "Value": 300
+          },
+          {
+            "Type": "无双加成",
+            "Value": 20
+          },
+          {
+            "Type": "伤害加成",
+            "Value": 62
+          }
+        ]
+      },
+      {
+        "Name": "横云破锋阵",
+        "Icon": 18185,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，外功基础攻击提高5%。\n二重略懂：破招点数提高1516点。\n三重巧熟：外功破防等级提高25%。\n四重精妙：小队成员招式会心则使阵眼会心效果提高10%。\n五重游刃：阵眼施展“灭影追风”时，小队成员伤害将无视目标10%减伤效果。\n六重忘我：小队成员重伤时，阵眼将立刻获得“识破”效果及100点“锐意”。",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击加成",
+            "Value": 51
+          },
+          {
+            "Type": "破招值",
+            "Value": 1516
+          },
+          {
+            "Type": "外功破防加成",
+            "Value": 256
+          }
+        ]
+      },
+      {
+        "Name": "锋凌横绝阵",
+        "Icon": 6446,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，外功会心几率提高3%。\n二重略懂：无双等级提高2%。\n三重巧熟：化劲率提高3%。\n四重精妙：外功招式会心则阵眼外功破防提高15%。\n五重游刃：阵眼施展“绝刀”，使小队成员外功会心效果提高2%，最多叠加5层，持续30秒。\n六重忘我：小队成员被击则阵眼获得外功基础攻击力提高10%，持续5秒。",
+        "AttributeAdditional": [
+          {
+            "Type": "外功会心加成",
+            "Value": 300
+          },
+          {
+            "Type": "无双加成",
+            "Value": 20
+          }
+        ]
+      },
+      {
+        "Name": "流星赶月阵",
+        "Icon": 3144,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，力道提高3%。\n二重略懂：无双提高2%。\n三重巧熟：外功破防等级提高20%。\n四重精妙：外功招式会心则使阵眼恢复10点神机值。\n五重游刃：阵眼施展“追命箭”，则小队成员外功会心几率提高5%，持续10秒。\n六重忘我：若目标重伤，则阵眼下一个伤害招式会心率提高20%，并击倒目标。",
+        "AttributeAdditional": [
+          {
+            "Type": "力道加成",
+            "Value": 31
+          },
+          {
+            "Type": "无双加成",
+            "Value": 20
+          },
+          {
+            "Type": "外功破防加成",
+            "Value": 205
+          }
+        ]
+      },
+      {
+        "Name": "卫公折冲阵",
+        "Icon": 1804,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，外功基础攻击力提高5%。\n二重略懂：外功破防提高20%。\n三重巧熟：御劲提高3%。\n四重精妙：招式会心攻击则使阵眼力道提高1%，最多叠加五层。\n五重游刃：阵眼施展“撼如雷”，则外功基础攻击力提高5%。\n六重忘我：若重伤，则阵眼招式必会心。",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击加成",
+            "Value": 51
+          },
+          {
+            "Type": "外功破防加成",
+            "Value": 205
+          }
+        ]
+      },
+      {
+        "Name": "墟海引归阵",
+        "Icon": 11194,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，外功会心几率提高3%。\n二重略懂：外功基础攻击力提高10%。\n三重巧熟：招式释放距离增加1尺，外功破防等级提高10%。\n四重精妙：小队成员外功招式会心则使阵眼外功基础攻击力提高10%，持续4秒。\n五重游刃：施展“九霄踏云步”套路下招式，则小队移动速度提高20%，持续5秒。\n六重忘我：小队成员被会心攻击则阵眼外功会心效果提高20%，持续5秒。",
+        "AttributeAdditional": [
+          {
+            "Type": "外功会心加成",
+            "Value": 300
+          },
+          {
+            "Type": "基础攻击加成",
+            "Value": 102
+          },
+          {
+            "Type": "外功破防加成",
+            "Value": 102
+          }
+        ]
+      },
+      {
+        "Name": "龙皇雪风阵",
+        "Icon": 12130,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，外功基础攻击力提高5%。\n二重略懂：外功会心几率提高3%。\n三重巧熟：移动速度提高10%，外功会心效果提高15%。\n四重精妙：招式会心则阵眼外功会心效果提高10%，持续4秒。\n五重游刃：施展“乱天狼”则使小队成员外功基础攻击力提高10%，持续5秒。\n六重忘我：小队成员被会心攻击则阵眼外功会心提高10%，持续5秒。",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击加成",
+            "Value": 51
+          },
+          {
+            "Type": "外功会心加成",
+            "Value": 300
+          },
+          {
+            "Type": "外功会效加成",
+            "Value": 154
+          }
+        ]
+      },
+      {
+        "Name": "霜岚洗锋阵",
+        "Icon": 8426,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，外功基础攻击提高5%。\n二重略懂：无双提高2%。\n三重巧熟：外功破防等级提高10%。\n四重精妙：小队成员招式会心则使阵眼回复1点能量。\n五重游刃：施展耗能量技能，则使小队成员会心几率提高5%，持续4秒。\n六重忘我：小队成员受到会心攻击则使阵眼下一招式会心几率提高20%，持续4秒。",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击加成",
+            "Value": 51
+          },
+          {
+            "Type": "无双加成",
+            "Value": 20
+          },
+          {
+            "Type": "外功破防加成",
+            "Value": 102
+          }
+        ]
+      }
+    ],
+    "FoodEnhance": [
+      {
+        "Name": "断浪·太后饼",
+        "Icon": 7531,
+        "Description": "攻击 + 696",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 696
+          }
+        ]
+      },
+      {
+        "Name": "断浪·白肉血肠",
+        "Icon": 549,
+        "Description": "破招 + 1545",
+        "AttributeAdditional": [
+          {
+            "Type": "破招值",
+            "Value": 1545
+          }
+        ]
+      },
+      {
+        "Name": "断浪·红烧排骨",
+        "Icon": 9999,
+        "Description": "破防 + 1545",
+        "AttributeAdditional": [
+          {
+            "Type": "基础破防等级",
+            "Value": 1545
+          }
+        ]
+      },
+      {
+        "Name": "断浪·酸菜鱼",
+        "Icon": 8909,
+        "Description": "会心 + 1545",
+        "AttributeAdditional": [
+          {
+            "Type": "会心等级",
+            "Value": 1545
+          }
+        ]
+      }
+    ],
+    "FoodSupport": [
+      {
+        "Name": "断浪·杂锦鱼球粥",
+        "Icon": 9989,
+        "Description": "身法 + 347",
+        "AttributeAdditional": [
+          {
+            "Type": "身法",
+            "Value": 347
+          }
+        ]
+      },
+      {
+        "Name": "断浪·杂碎汤",
+        "Icon": 10000,
+        "Description": "身法 + 173",
+        "AttributeAdditional": [
+          {
+            "Type": "身法",
+            "Value": 173
+          }
+        ]
+      }
+    ],
+    "MedEnhance": [
+      {
+        "Name": "断浪·上品亢龙散",
+        "Icon": 4302,
+        "Description": "攻击 + 895",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 895
+          }
+        ]
+      },
+      {
+        "Name": "断浪·上品凝神散",
+        "Icon": 4487,
+        "Description": "破招 + 1987",
+        "AttributeAdditional": [
+          {
+            "Type": "破招值",
+            "Value": 1987
+          }
+        ]
+      },
+      {
+        "Name": "断浪·上品破秽散",
+        "Icon": 4278,
+        "Description": "破防 + 1987",
+        "AttributeAdditional": [
+          {
+            "Type": "基础破防等级",
+            "Value": 1987
+          }
+        ]
+      },
+      {
+        "Name": "断浪·上品玉璃散",
+        "Icon": 4268,
+        "Description": "会心 + 1987",
+        "AttributeAdditional": [
+          {
+            "Type": "会心等级",
+            "Value": 1987
+          }
+        ]
+      }
+    ],
+    "MedSupport": [
+      {
+        "Name": "断浪·上品轻身丹",
+        "Icon": 4274,
+        "Description": "身法 + 446",
+        "AttributeAdditional": [
+          {
+            "Type": "身法",
+            "Value": 446
+          }
+        ]
+      },
+      {
+        "Name": "断浪·中品轻身丹",
+        "Icon": 4275,
+        "Description": "身法 + 223",
+        "AttributeAdditional": [
+          {
+            "Type": "身法",
+            "Value": 223
+          }
+        ]
+      }
+    ],
+    "HomeCook": [
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "攻击 + 866",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 866
+          }
+        ]
+      },
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "破防 + 1934",
+        "AttributeAdditional": [
+          {
+            "Type": "基础破防等级",
+            "Value": 1934
+          }
+        ]
+      },
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "会心 + 1934",
+        "AttributeAdditional": [
+          {
+            "Type": "会心等级",
+            "Value": 1934
+          }
+        ]
+      },
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "破招 + 1934",
+        "AttributeAdditional": [
+          {
+            "Type": "破招值",
+            "Value": 1934
+          }
+        ]
+      },
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "无双 + 1934",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 1934
+          }
+        ]
+      },
+      {
+        "Name": "葫芦叫花鸡",
+        "Icon": 7646,
+        "Description": "攻击 + 320",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 320
+          }
+        ]
+      },
+      {
+        "Name": "炸鱼干",
+        "Icon": 8915,
+        "Description": "会心 + 716",
+        "AttributeAdditional": [
+          {
+            "Type": "会心等级",
+            "Value": 716
+          }
+        ]
+      },
+      {
+        "Name": "清蒸鲈鱼",
+        "Icon": 8909,
+        "Description": "破防 + 716",
+        "AttributeAdditional": [
+          {
+            "Type": "基础破防等级",
+            "Value": 716
+          }
+        ]
+      },
+      {
+        "Name": "炖豆腐",
+        "Icon": 9989,
+        "Description": "无双 + 716",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 716
+          }
+        ]
+      },
+      {
+        "Name": "煎豆腐",
+        "Icon": 552,
+        "Description": "破招 + 716",
+        "AttributeAdditional": [
+          {
+            "Type": "破招值",
+            "Value": 716
+          }
+        ]
+      }
+    ],
+    "HomeWine": [
+      {
+        "Name": "关外白酒·旬又三",
+        "Icon": 1396,
+        "Description": "身法 + 256",
+        "AttributeAdditional": [
+          {
+            "Type": "身法",
+            "Value": 256
+          }
+        ]
+      },
+      {
+        "Name": "女儿红·旬又三",
+        "Icon": 10134,
+        "Description": "加速 + 1144",
+        "AttributeAdditional": [
+          {
+            "Type": "加速等级",
+            "Value": 1144
+          }
+        ]
+      }
+    ],
+    "WeaponWhetstone": [
+      {
+        "Name": "断浪·瀑沙熔锭",
+        "Icon": 7595,
+        "Description": "攻击 + 597",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 597
+          }
+        ]
+      }
+    ],
+    "Others": [
+      {
+        "Name": "玉笛谁家听落梅",
+        "Icon": 9407,
+        "Description": "攻击 + 398, 会心 + 883, 破招 + 883",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 398
+          },
+          {
+            "Type": "会心等级",
+            "Value": 883
+          },
+          {
+            "Type": "破招值",
+            "Value": 883
+          }
+        ]
+      },
+      {
+        "Name": "同泽宴",
+        "Icon": 9408,
+        "Description": "无双 + 234, 破招 + 234",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 234
+          },
+          {
+            "Type": "破招值",
+            "Value": 234
+          }
+        ]
+      },
+      {
+        "Name": "百炼水煮鱼",
+        "Icon": 7667,
+        "Description": "无双 + 400, 破招 + 400",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 400
+          },
+          {
+            "Type": "破招值",
+            "Value": 400
+          }
+        ]
+      },
+      {
+        "Name": "蒸鱼菜盘",
+        "Icon": 553,
+        "Description": "无双 + 517",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 517
+          }
+        ]
+      }
+    ]
+  },
+  "1": {
+    "TeamCore": [
+      {
+        "Name": "万籁金弦阵",
+        "Icon": 7047,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，内功会心几率提高3%。\n二重略懂：无双提高2%。\n三重巧熟：御劲率提高3%，内功基础攻击提高10%。\n四重精妙：小队成员伤害招式会心，则使阵眼内功会心效果提高20%，持续5秒。\n五重游刃：阵眼施展任何音套路下招式会心，则小队成员内功会心几率提高5%，持续5秒。\n六重忘我：小队成员受到会心攻击，则阵眼破防等级提高10%，持续5秒。",
+        "AttributeAdditional": [
+          {
+            "Type": "内功会心加成",
+            "Value": 300
+          },
+          {
+            "Type": "无双加成",
+            "Value": 20
+          },
+          {
+            "Type": "基础攻击加成",
+            "Value": 102
+          }
+        ]
+      },
+      {
+        "Name": "苍梧引灵阵",
+        "Icon": 17401,
+        "Description": "一重粗识：阅历提高5%，声望提高5%，全会心提高3%。\n二重略懂：无双提高2%。\n三重巧熟：造成伤害提高6%。\n四重精妙：阵眼消耗一枚唤灵印时获得1%受到伤害降低效果，最多6层，持续10s。\n五重游刃：阵眼施展白羽流星强化招式时小队会心效果提高15%，持续6s。\n六重忘我：若重伤目标，阵眼恢复30%内力。",
+        "AttributeAdditional": [
+          {
+            "Type": "会心加成",
+            "Value": 300
+          },
+          {
+            "Type": "无双加成",
+            "Value": 20
+          },
+          {
+            "Type": "伤害加成",
+            "Value": 62
+          }
+        ]
+      }
+    ],
+    "FoodEnhance": [
+      {
+        "Name": "断浪·灌汤包",
+        "Icon": 7614,
+        "Description": "攻击 + 831",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 831
+          }
+        ]
+      },
+      {
+        "Name": "断浪·白肉血肠",
+        "Icon": 549,
+        "Description": "破招 + 1545",
+        "AttributeAdditional": [
+          {
+            "Type": "破招值",
+            "Value": 1545
+          }
+        ]
+      },
+      {
+        "Name": "断浪·红烧排骨",
+        "Icon": 9999,
+        "Description": "破防 + 1545",
+        "AttributeAdditional": [
+          {
+            "Type": "基础破防等级",
+            "Value": 1545
+          }
+        ]
+      },
+      {
+        "Name": "断浪·酸菜鱼",
+        "Icon": 8909,
+        "Description": "会心 + 1545",
+        "AttributeAdditional": [
+          {
+            "Type": "会心等级",
+            "Value": 1545
+          }
+        ]
+      }
+    ],
+    "FoodSupport": [
+      {
+        "Name": "断浪·咸骨粥",
+        "Icon": 261,
+        "Description": "根骨 + 347",
+        "AttributeAdditional": [
+          {
+            "Type": "根骨",
+            "Value": 347
+          }
+        ]
+      }
+    ],
+    "MedEnhance": [
+      {
+        "Name": "断浪·上品展凤散",
+        "Icon": 1360,
+        "Description": "攻击 + 1068",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 1068
+          }
+        ]
+      },
+      {
+        "Name": "断浪·上品凝神散",
+        "Icon": 4487,
+        "Description": "破招 + 1987",
+        "AttributeAdditional": [
+          {
+            "Type": "破招值",
+            "Value": 1987
+          }
+        ]
+      },
+      {
+        "Name": "断浪·上品破秽散",
+        "Icon": 4278,
+        "Description": "破防 + 1987",
+        "AttributeAdditional": [
+          {
+            "Type": "基础破防等级",
+            "Value": 1987
+          }
+        ]
+      },
+      {
+        "Name": "断浪·上品玉璃散",
+        "Icon": 4268,
+        "Description": "会心 + 1987",
+        "AttributeAdditional": [
+          {
+            "Type": "会心等级",
+            "Value": 1987
+          }
+        ]
+      }
+    ],
+    "MedSupport": [
+      {
+        "Name": "断浪·上品静心丸",
+        "Icon": 4266,
+        "Description": "根骨 + 446",
+        "AttributeAdditional": [
+          {
+            "Type": "根骨",
+            "Value": 446
+          }
+        ]
+      }
+    ],
+    "HomeCook": [
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "攻击 + 1038",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 1038
+          }
+        ]
+      },
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "破防 + 1934",
+        "AttributeAdditional": [
+          {
+            "Type": "基础破防等级",
+            "Value": 1934
+          }
+        ]
+      },
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "会心 + 1934",
+        "AttributeAdditional": [
+          {
+            "Type": "会心等级",
+            "Value": 1934
+          }
+        ]
+      },
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "破招 + 1934",
+        "AttributeAdditional": [
+          {
+            "Type": "破招值",
+            "Value": 1934
+          }
+        ]
+      },
+      {
+        "Name": "创意料理·盛",
+        "Icon": 9409,
+        "Description": "无双 + 1934",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 1934
+          }
+        ]
+      },
+      {
+        "Name": "炸鱼干",
+        "Icon": 8915,
+        "Description": "会心 + 648",
+        "AttributeAdditional": [
+          {
+            "Type": "会心等级",
+            "Value": 648
+          }
+        ]
+      },
+      {
+        "Name": "清蒸鲈鱼",
+        "Icon": 8909,
+        "Description": "破防 + 648",
+        "AttributeAdditional": [
+          {
+            "Type": "基础破防等级",
+            "Value": 648
+          }
+        ]
+      },
+      {
+        "Name": "小炒青菜",
+        "Icon": 7607,
+        "Description": "攻击 + 384",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 384
+          }
+        ]
+      },
+      {
+        "Name": "炖豆腐",
+        "Icon": 9989,
+        "Description": "无双 + 648",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 648
+          }
+        ]
+      },
+      {
+        "Name": "煎豆腐",
+        "Icon": 552,
+        "Description": "破招 + 648",
+        "AttributeAdditional": [
+          {
+            "Type": "破招值",
+            "Value": 648
+          }
+        ]
+      }
+    ],
+    "HomeWine": [
+      {
+        "Name": "高粱酒·旬又三",
+        "Icon": 237,
+        "Description": "根骨 + 256",
+        "AttributeAdditional": [
+          {
+            "Type": "根骨",
+            "Value": 256
+          }
+        ]
+      },
+      {
+        "Name": "女儿红·旬又三",
+        "Icon": 10134,
+        "Description": "加速 + 1144",
+        "AttributeAdditional": [
+          {
+            "Type": "加速等级",
+            "Value": 1144
+          }
+        ]
+      }
+    ],
+    "WeaponWhetstone": [
+      {
+        "Name": "断浪·坠宵熔锭",
+        "Icon": 7596,
+        "Description": "攻击 + 712",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 712
+          }
+        ]
+      }
+    ],
+    "Others": [
+      {
+        "Name": "玉笛谁家听落梅",
+        "Icon": 9407,
+        "Description": "攻击 + 475, 会心 + 883, 破招 + 883",
+        "AttributeAdditional": [
+          {
+            "Type": "基础攻击",
+            "Value": 475
+          },
+          {
+            "Type": "会心等级",
+            "Value": 883
+          },
+          {
+            "Type": "破招值",
+            "Value": 883
+          }
+        ]
+      },
+      {
+        "Name": "同泽宴",
+        "Icon": 9408,
+        "Description": "无双 + 192, 破招 + 192",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 192
+          },
+          {
+            "Type": "破招值",
+            "Value": 192
+          }
+        ]
+      },
+      {
+        "Name": "百炼水煮鱼",
+        "Icon": 7667,
+        "Description": "无双 + 400, 破招 + 400",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 400
+          },
+          {
+            "Type": "破招值",
+            "Value": 400
+          }
+        ]
+      },
+      {
+        "Name": "蒸鱼菜盘",
+        "Icon": 553,
+        "Description": "无双 + 517",
+        "AttributeAdditional": [
+          {
+            "Type": "无双",
+            "Value": 517
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "iterations": 1000,
+  "rounds": 3,
+  "seconds_per_fight": 300,
+  "workers": 1,
+  "legacy_median_s": 7.1669095,
+  "runtime_median_s": 0.100131,
+  "speedup": 71.57533131597607,
+  "scope": "All migrated talent flags, one GaoShan activation, all critical; legacy includes attribute-gain calculations, runtime reduces DPS only.",
+  "validation": [
+    {
+      "scenario": "gong",
+      "frames": 4800,
+      "crit": 20000,
+      "events": 171,
+      "draws": 171,
+      "damage": 3762963,
+      "comparison": "strict sequential random replay"
+    },
+    {
+      "scenario": "zhi",
+      "frames": 4800,
+      "crit": 20000,
+      "events": 160,
+      "draws": 160,
+      "damage": 1644908,
+      "comparison": "strict sequential random replay"
+    },
+    {
+      "scenario": "rotation",
+      "frames": 4800,
+      "crit": 1000000,
+      "events": 1930,
+      "draws": 1929,
+      "damage": 24501951,
+      "comparison": "same-frame sorted, all critical"
+    }
+  ]
+}

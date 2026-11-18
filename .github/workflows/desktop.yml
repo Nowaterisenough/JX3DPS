@@ -121,7 +121,7 @@ jobs:
         run: |
           app=build/bin/JX3DPSDesktop.app
           test -x "$app/Contents/MacOS/JX3DPSDesktop"
-          lipo -verify_arch arm64 "$app/Contents/MacOS/JX3DPSDesktop"
+          lipo "$app/Contents/MacOS/JX3DPSDesktop" -verify_arch arm64
           mkdir -p "$app/Contents/Resources/data" && cp -R data/jx3box "$app/Contents/Resources/data/"
           macdeployqt "$app" -dmg
           codesign --verify --deep --strict "$app"

@@ -24,7 +24,7 @@ public:
     TimerId Create(TimerHandle handle, std::uint16_t priority = 0) {
         if (timers_.size() >= INVALID_TIMER) throw std::length_error("too many timers");
         auto id = static_cast<TimerId>(timers_.size());
-        timers_.push_back({handle, 0, 0, INVALID_TIMER, priority});
+        timers_.push_back({priority, 0, INVALID_TIMER, handle});
         heap_.reserve(timers_.size());
         return id;
     }
@@ -38,13 +38,19 @@ public:
     void ArmAt(TimerId id, tick_t deadline) {
         if (deadline < current_) throw std::out_of_range("timer is in the past");
         auto &timer = timers_.at(id);
-        timer.deadline = deadline;
+        const auto previous = timer.deadline_priority;
+        timer.deadline_priority = (static_cast<std::uint64_t>(deadline) << 16) | static_cast<std::uint16_t>(previous);
         timer.order = sequence_++;
         if (timer.position == INVALID_TIMER) {
-            timer.position = static_cast<TimerId>(heap_.size());
+            const auto pos = static_cast<TimerId>(heap_.size());
             heap_.push_back(id);
+            SiftUp(pos, id);
+        } else if (timer.deadline_priority < previous) {
+            SiftUp(timer.position, id);
+        } else {
+            // Equal deadlines get a later insertion order when re-armed.
+            SiftDown(timer.position, id);
         }
-        Repair(timer.position);
     }
     void Cancel(TimerId id) {
         auto &timer = timers_.at(id);
@@ -52,7 +58,7 @@ public:
     }
     std::optional<tick_t> NextDelta() const {
         if (heap_.empty()) return std::nullopt;
-        return std::max<tick_t>(0, timers_[heap_.front()].deadline - current_);
+        return std::max<tick_t>(0, timers_[heap_.front()].Deadline() - current_);
     }
     void Advance(tick_t delta) {
         if (delta < 0 || delta > std::numeric_limits<tick_t>::max() - current_) {
@@ -65,7 +71,7 @@ public:
     template <typename Fn>
     void DispatchDue(Fn &&fn, std::size_t budget = 100000) {
         std::size_t dispatched = 0;
-        while (!heap_.empty() && timers_[heap_.front()].deadline <= current_) {
+        while (!heap_.empty() && timers_[heap_.front()].Deadline() <= current_) {
             if (dispatched++ == budget) throw std::runtime_error("same-frame event budget exceeded");
             const auto id = heap_.front();
             const auto handle = timers_[id].handle;
@@ -84,39 +90,43 @@ public:
 
 private:
     struct Timer {
-        TimerHandle handle;
-        tick_t deadline;
+        // Unsigned (absolute frame, priority), in lexicographic order.
+        std::uint64_t deadline_priority;
         std::uint64_t order;
         TimerId position;
-        std::uint16_t priority;
+        TimerHandle handle;
+        tick_t Deadline() const { return static_cast<tick_t>(deadline_priority >> 16); }
     };
     bool Before(TimerId lhs, TimerId rhs) const {
         const auto &a = timers_[lhs];
         const auto &b = timers_[rhs];
-        if (a.deadline != b.deadline) return a.deadline < b.deadline;
-        if (a.priority != b.priority) return a.priority < b.priority;
+        if (a.deadline_priority != b.deadline_priority) return a.deadline_priority < b.deadline_priority;
         return a.order < b.order;
     }
-    void Swap(TimerId a, TimerId b) {
-        std::swap(heap_[a], heap_[b]);
-        timers_[heap_[a]].position = a;
-        timers_[heap_[b]].position = b;
+    void Place(TimerId pos, TimerId id) {
+        heap_[pos] = id;
+        timers_[id].position = pos;
     }
-    void Repair(TimerId pos) {
-        while (pos > 0 && Before(heap_[pos], heap_[(pos - 1) / 2])) {
-            auto parent = (pos - 1) / 2;
-            Swap(pos, parent);
+    void SiftUp(TimerId pos, TimerId id) {
+        while (pos > 0) {
+            const auto parent = (pos - 1) / 2;
+            const auto parent_id = heap_[parent];
+            if (!Before(id, parent_id)) break;
+            Place(pos, parent_id);
             pos = parent;
         }
-        for (;;) {
-            const auto left = std::size_t(pos) * 2 + 1;
-            if (left >= heap_.size()) break;
-            auto best = static_cast<TimerId>(left);
-            if (left + 1 < heap_.size() && Before(heap_[left + 1], heap_[left])) ++best;
-            if (!Before(heap_[best], heap_[pos])) break;
-            Swap(pos, best);
-            pos = best;
+        Place(pos, id);
+    }
+    void SiftDown(TimerId pos, TimerId id) {
+        while (pos < heap_.size() / 2) {
+            auto child = pos * 2 + 1;
+            if (child + 1 < heap_.size() && Before(heap_[child + 1], heap_[child])) ++child;
+            const auto child_id = heap_[child];
+            if (!Before(child_id, id)) break;
+            Place(pos, child_id);
+            pos = child;
         }
+        Place(pos, id);
     }
     void Remove(TimerId pos) {
         const auto removed = heap_[pos];
@@ -124,9 +134,10 @@ private:
         heap_.pop_back();
         timers_[removed].position = INVALID_TIMER;
         if (pos < heap_.size()) {
-            heap_[pos] = moved;
-            timers_[moved].position = pos;
-            Repair(pos);
+            if (pos > 0 && Before(moved, heap_[(pos - 1) / 2]))
+                SiftUp(pos, moved);
+            else
+                SiftDown(pos, moved);
         }
     }
 

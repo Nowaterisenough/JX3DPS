@@ -209,6 +209,18 @@ void SchedulerTests() {
     std::vector<DeadlineQueue::TimerId> fired;
     queue.DispatchDue([&](auto, auto id) { fired.push_back(id); });
     CHECK((fired == std::vector<DeadlineQueue::TimerId>{b, a}));
+    // Re-arming a peer moves it behind equal-priority timers already due.
+    // A callback can cancel a due timer and insert a higher-priority one at this frame.
+    const auto peer = queue.Create({TimerKind::BuffDuration, 2}, 10);
+    const auto cancelled = queue.Create({TimerKind::BuffDuration, 3}, 10);
+    const auto urgent = queue.Create({TimerKind::BuffInterval, 4}, 0);
+    queue.Arm(a, 0); queue.Arm(peer, 0); queue.Arm(cancelled, 0); queue.Arm(a, 0);
+    fired.clear();
+    queue.DispatchDue([&](auto, auto id) {
+        fired.push_back(id);
+        if (id == peer) { queue.Cancel(cancelled); queue.Arm(urgent, 0); }
+    });
+    CHECK((fired == std::vector<DeadlineQueue::TimerId>{peer, urgent, a}));
     for (int i = 0; i < 1000000; ++i) queue.Arm(a, 10 + i % 2);
     CHECK(queue.Pending() == 1 && queue.NextDelta() == 11);
     queue.Arm(a, 5); queue.Arm(b, 10); queue.Cancel(a);
@@ -222,7 +234,16 @@ void SchedulerTests() {
     Throws<std::runtime_error>([&] { queue.DispatchDue([&](auto, auto id) { queue.Arm(id, 0); }, 5); });
     queue.Reset();
     Throws<std::out_of_range>([&] { queue.Arm(a, -1); });
-    queue.Advance(std::numeric_limits<tick_t>::max());
+    const auto last_frame = std::numeric_limits<tick_t>::max();
+    const auto lowest_priority = queue.Create({TimerKind::BuffDuration, 5}, std::numeric_limits<std::uint16_t>::max());
+    queue.ArmAt(b, last_frame); queue.ArmAt(lowest_priority, last_frame - 1);
+    queue.Advance(last_frame - 1);
+    fired.clear();
+    queue.DispatchDue([&](auto, auto id) { fired.push_back(id); });
+    CHECK((fired == std::vector<DeadlineQueue::TimerId>{lowest_priority}));
+    queue.Advance(1);
+    queue.DispatchDue([&](auto, auto id) { fired.push_back(id); });
+    CHECK((fired == std::vector<DeadlineQueue::TimerId>{lowest_priority, b}));
     Throws<std::out_of_range>([&] { queue.Arm(a, 1); });
 
     struct Ref { int at = -1; std::uint64_t order = 0; };

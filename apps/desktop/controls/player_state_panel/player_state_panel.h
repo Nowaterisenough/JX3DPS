@@ -4,6 +4,12 @@
 #include <QWidget>
 #include <memory>
 
+#if defined(PlayerStatePanel_EXPORTS)
+#    define PLAYER_STATE_PANEL_API Q_DECL_EXPORT
+#else
+#    define PLAYER_STATE_PANEL_API Q_DECL_IMPORT
+#endif
+
 /**
  * @brief 玩家状态面板 - 显示调试时的玩家状态
  *
@@ -12,7 +18,7 @@
  * - 输出：格式化的状态显示
  * - 无业务逻辑，纯UI展示
  */
-class PlayerStatePanel : public QWidget
+class PLAYER_STATE_PANEL_API PlayerStatePanel : public QWidget
 {
     Q_OBJECT
 

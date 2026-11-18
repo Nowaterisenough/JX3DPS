@@ -88,6 +88,16 @@ public:
         // including for YangChun (its skill-specific override is not consulted).
         if (e.GetState().casting_skill!=INVALID_SLOT && IsForceCast(line.command)) Interrupt(e);
     }
+    static bool MayActWhileBusy(const MacroLine &line) {
+        return IsForceCast(line.command) || line.action_slot == YangChun || !IsCastable(line.action_slot);
+    }
+    static bool CanAttempt(const State &s, const MacroLine &line) {
+        const auto skill = line.action_slot;
+        if (!IsCastable(skill)) return true;
+        // BeforeMacroLine has already applied any force-cast interrupt. Cast handles the YangChun exception.
+        if ((s.preparing_skill != INVALID_SLOT || s.casting_skill != INVALID_SLOT) && skill != YangChun) return false;
+        return s.SkillReadyAt(skill) <= s.now;
+    }
     template<typename Engine> bool Cast(Engine &e,const MacroLine &line) {
         auto &s=e.MutableState();
         const auto k=line.action_slot;

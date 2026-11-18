@@ -350,6 +350,7 @@ struct DebugState {
 };
 struct NoDebugState {};
 struct NoLineHook { void operator()(const MacroLine &)const {} };
+struct AllowMacroLine { bool operator()(const MacroLine &) const { return true; } };
 
 enum class ActionBlockReason : std::uint8_t {
     None, Preparing, Channeling, SkillCooldown, GlobalCooldown, Qidian, Charges,
@@ -394,12 +395,16 @@ public:
     DebugState &MutableDebugState() requires Debug { return debug_; }
     const std::vector<std::uint8_t> &Consumed() const { return consumed_; }
 
-    template <typename Action, typename BeforeLine = NoLineHook>
-    bool EvaluateFast(State &state, Action &&action, BeforeLine before_line = {}) requires (!Debug) {
+    template <typename Action, typename BeforeLine = NoLineHook, typename Available = AllowMacroLine>
+    bool EvaluateFast(State &state, Action &&action, BeforeLine before_line = {}, Available available = {}) requires (!Debug) {
         for (Pc line_index = 0; line_index < program_.lines.size(); ++line_index) {
             if (consumed_[line_index]) continue;
             const auto &line = program_.lines[line_index];
             before_line(line);
+            if (!available(line)) {
+                if (IsSequential(line.command)) return false;
+                continue;
+            }
             Pc pc = line.condition_count ? 0 : ACCEPT;
             while (pc < REJECT) {
                 const auto &c = program_.conditions[line.condition_begin + pc];

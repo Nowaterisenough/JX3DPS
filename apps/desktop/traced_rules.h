@@ -57,6 +57,10 @@ class TracedRules : public Rules
 public:
     explicit TracedRules(Rules rules) : Rules(std::move(rules)) { }
 
+    // Capture also observes rejected actions after a pre-condition channel interrupt.
+    static bool CanAttempt(const rt::State &, const rt::MacroLine &) { return true; }
+    static bool MayActWhileBusy(const rt::MacroLine &) { return true; }
+
     template <class Engine>
     void Reset(Engine &engine, std::uint64_t seed)
     {

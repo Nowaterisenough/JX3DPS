@@ -131,6 +131,22 @@ public:
         target_timeline_.Reset(e, Data().config.target_events);
         s.skill_energy[ZiQi] = Data().purple_charges;
     }
+    static bool MayActWhileBusy(const MacroLine &line) {
+        return IsForceCast(line.command) || !IsCastable(line.action_slot);
+    }
+    static tick_t CastReadyAt(const State &s, Slot skill) {
+        const auto group = s.skill_gcd_group[skill];
+        if (skill == BaHuang && s.self_buff_stacks[WeaponCwBuff] && group != INVALID_SLOT)
+            return s.gcd_ready_at[group];
+        return s.SkillReadyAt(skill);
+    }
+    static bool CanAttempt(const State &s, const MacroLine &line) {
+        if (!IsCastable(line.action_slot)) return true; // Let Cast report the invalid skill if its condition passes.
+        if (s.preparing_skill != INVALID_SLOT) return false;
+        // A force-cast may interrupt even when the new skill is on cooldown.
+        if (s.casting_skill != INVALID_SLOT) return IsForceCast(line.command);
+        return CastReadyAt(s, line.action_slot) <= s.now;
+    }
     template <typename Engine> bool Cast(Engine &e, const MacroLine &line) {
         auto &s = e.MutableState();
         const auto skill = line.action_slot;
@@ -149,11 +165,10 @@ public:
             if constexpr (Engine::debug_enabled) e.NoteChannelInterrupt(s.casting_skill);
             InterruptCasting(e);
         }
-        const bool free_bahuang = skill == BaHuang && s.self_buff_stacks[WeaponCwBuff];
-        const auto ready_at = free_bahuang && s.skill_gcd_group[skill] != INVALID_SLOT
-            ? s.gcd_ready_at[s.skill_gcd_group[skill]] : s.SkillReadyAt(skill);
+        const auto ready_at = CastReadyAt(s, skill);
         if (ready_at > s.now) {
             if constexpr (Engine::debug_enabled) {
+                const bool free_bahuang = skill == BaHuang && s.self_buff_stacks[WeaponCwBuff];
                 const auto reason = !free_bahuang && s.skill_ready_at[skill] == ready_at
                     ? ActionBlockReason::SkillCooldown : ActionBlockReason::GlobalCooldown;
                 e.RejectAction(reason, ready_at - s.now, 0, skill);

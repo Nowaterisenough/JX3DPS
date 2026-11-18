@@ -324,6 +324,18 @@ void TalentOrder() {
     CHECK(r.state.qidian == 10);
 }
 
+void OffGcdDuringCooldown() {
+    const auto result = Run("/cast bahuang\n/cast [nobuff:ziqi] ziqi\n/cast sanchai", {}, 24);
+    CHECK(result.state.gcd_ready_at[0] == 24);
+    std::vector<std::pair<Slot, tick_t>> events;
+    for (const auto &hit : result.hits) {
+        if (hit.effect == tx::BaHuangEffect || hit.effect == tx::ZeroEffect || hit.effect == tx::SanChaiEffect)
+            events.emplace_back(hit.skill, hit.frame);
+    }
+    CHECK((events == std::vector<std::pair<Slot, tick_t>>{
+        {tx::BaHuang, 0}, {tx::ZiQi, 0}, {tx::SanChai, 0}, {tx::SanChai, 22}}));
+}
+
 void PreparedFields() {
     tx::Config c; c.initial_qidian = 0;
     constexpr auto script = "/scast suixing\n/sfcast ziqi\n/scast sanchai";
@@ -1060,6 +1072,7 @@ void TeamVersionReuse() {
 }
 
 int main() {
+    OffGcdDuringCooldown();
     TeamSnapshots(); TeamVersionReuse();
     ArithmeticOracle(); TimingsAndResources(); NaturalQidianRegeneration(); ChargesAndSnapshots(); TalentOrder(); ModeParity(); Validation(); ActionDiagnostics();
     PreparedFields(); FieldOwnership(); FieldDamageInputs(); FieldModeParity();

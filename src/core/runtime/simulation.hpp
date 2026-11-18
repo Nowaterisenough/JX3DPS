@@ -65,6 +65,12 @@ public:
         : program_(program), rules_(std::move(rules)), macro_(program), log_(damage_capacity, mutation_capacity) {
         state_.Resize(program.skill_count, program.buff_count);
         initial_ = scratch_ = state_;
+        has_time_conditions_ = std::any_of(program.conditions.begin(), program.conditions.end(), [](const Condition &c) {
+            return c.kind == ValueKind::SkillCooldown || c.kind == ValueKind::BuffDuration;
+        });
+        if constexpr (!Debug && requires(const MacroLine &line) { Rules::MayActWhileBusy(line); }) {
+            scan_while_busy_ = std::any_of(program.lines.begin(), program.lines.end(), Rules::MayActWhileBusy);
+        }
         if constexpr (Debug) debug_.breakpoints.resize(program.lines.size());
         rules_.Setup(*this);
     }
@@ -214,7 +220,12 @@ private:
             macro_.BeginPass();
         } else {
             (void)honor_breakpoints;
-            success = macro_.EvaluateFast(state_, cast, before_line);
+            auto available = [this](const MacroLine &line) {
+                if constexpr (requires { rules_.CanAttempt(state_, line); }) return rules_.CanAttempt(state_, line);
+                else return true;
+            };
+            const bool scan = scan_while_busy_ || (state_.preparing_skill == INVALID_SLOT && state_.casting_skill == INVALID_SLOT);
+            success = scan && macro_.EvaluateFast(state_, cast, before_line, available);
         }
         if constexpr (Debug) debug_.new_pass = true;
         if (success) {
@@ -223,8 +234,10 @@ private:
             return;
         }
         auto next = queue_.NextDelta();
-        if (auto boundary = NextMacroBoundary(program_, state_); boundary && (!next || *boundary - state_.now < *next)) {
-            next = *boundary - state_.now;
+        if (has_time_conditions_) {
+            if (auto boundary = NextMacroBoundary(program_, state_); boundary && (!next || *boundary - state_.now < *next)) {
+                next = *boundary - state_.now;
+            }
         }
         if (!next || *next >= end_ - state_.now) {
             state_.now = end_;
@@ -250,6 +263,7 @@ private:
     tick_t end_ = 0;
     std::size_t actions_at_frame_ = 0;
     bool dispatch_ = true, finished_ = true;
+    bool has_time_conditions_ = false, scan_while_busy_ = true;
     [[no_unique_address]] std::conditional_t<Debug, SimulationDebugControl, NoDebugState> debug_;
 };
 

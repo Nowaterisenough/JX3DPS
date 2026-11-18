@@ -1,22 +1,10 @@
 # JX3DPS
 
-| [Windows][win-link]| [Ubuntu][ubuntu-link]|[MacOS][macos-link]|
-|---------------|---------------|-----------------|
-| ![win-badge]  | ![ubuntu-badge]      | ![macos-badge] |
-
+[![Desktop CI](https://github.com/Nowaterisenough/JX3DPS/actions/workflows/desktop.yml/badge.svg?branch=develop)](https://github.com/Nowaterisenough/JX3DPS/actions/workflows/desktop.yml)
 
 |[License][license-link]| [Release][release-link]|[Download][download-link]|[Issues][issues-link]|
 |-----------------|-----------------|-----------------|-----------------|
 |![license-badge] |![release-badge] | ![download-badge]|![issues-badge]|
-
-[win-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3AWindows "WindowsAction"
-[win-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/Windows/badge.svg  "Windows"
-
-[ubuntu-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3AUbuntu "UbuntuAction"
-[ubuntu-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/Ubuntu/badge.svg "Ubuntu"
-
-[macos-link]: https://github.com/Nowaterisenough/JX3DPS/actions?query=workflow%3AMacOS "MacOSAction"
-[macos-badge]: https://github.com/Nowaterisenough/JX3DPS/workflows/MacOS/badge.svg "MacOS"
 
 [release-link]: https://github.com/Nowaterisenough/JX3DPS/releases "Release status"
 [release-badge]: https://img.shields.io/github/release/Nowaterisenough/JX3DPS.svg?style=flat-square "Release status"

@@ -110,8 +110,9 @@ jobs:
         run: |
           app=build/bin/JX3DPSDesktop.app
           test -x "$app/Contents/MacOS/JX3DPSDesktop"
-          mkdir -p "$app/Contents/MacOS/data" && cp -R data/jx3box "$app/Contents/MacOS/data/"
+          mkdir -p "$app/Contents/Resources/data" && cp -R data/jx3box "$app/Contents/Resources/data/"
           macdeployqt "$app" -dmg
+          codesign --verify --deep --strict "$app"
           mv build/bin/JX3DPSDesktop.dmg JX3DPS-macos-arm64.dmg
       - uses: actions/upload-artifact@v6
         with:

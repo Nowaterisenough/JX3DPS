@@ -2,6 +2,7 @@
 #define JX3DPS_RUNTIME_SCHEDULER_HPP
 
 #include "../runtime.hpp"
+#include "fight_timing.hpp"
 #include <optional>
 #include <stdexcept>
 
@@ -16,7 +17,8 @@ struct TimerHandle {
 
 // One heap entry per timer. Re-arming neither allocates nor retains stale
 // entries, even when a buff is refreshed millions of times before expiry.
-class DeadlineQueue {
+template<bool Measure>
+class BasicDeadlineQueue {
 public:
     using TimerId = std::uint32_t;
     static constexpr TimerId INVALID_TIMER = std::numeric_limits<TimerId>::max();
@@ -36,6 +38,7 @@ public:
         ArmAt(id, current_ + delay);
     }
     void ArmAt(TimerId id, tick_t deadline) {
+        PhaseScope<Measure> phase(FightPhase::Queue, "DeadlineQueue::ArmAt");
         if (deadline < current_) throw std::out_of_range("timer is in the past");
         auto &timer = timers_.at(id);
         const auto previous = timer.deadline_priority;
@@ -53,14 +56,17 @@ public:
         }
     }
     void Cancel(TimerId id) {
+        PhaseScope<Measure> phase(FightPhase::Queue, "DeadlineQueue::Cancel");
         auto &timer = timers_.at(id);
         if (timer.position != INVALID_TIMER) Remove(timer.position);
     }
     std::optional<tick_t> NextDelta() const {
+        PhaseScope<Measure> frame("DeadlineQueue::NextDelta");
         if (heap_.empty()) return std::nullopt;
         return std::max<tick_t>(0, timers_[heap_.front()].Deadline() - current_);
     }
     void Advance(tick_t delta) {
+        PhaseScope<Measure> frame("DeadlineQueue::Advance");
         if (delta < 0 || delta > std::numeric_limits<tick_t>::max() - current_) {
             throw std::out_of_range("clock advance is out of range");
         }
@@ -70,6 +76,7 @@ public:
 
     template <typename Fn>
     void DispatchDue(Fn &&fn, std::size_t budget = 100000) {
+        PhaseScope<Measure> frame("DeadlineQueue::DispatchDue");
         std::size_t dispatched = 0;
         while (!heap_.empty() && timers_[heap_.front()].Deadline() <= current_) {
             if (dispatched++ == budget) throw std::runtime_error("same-frame event budget exceeded");
@@ -108,6 +115,7 @@ private:
         timers_[id].position = pos;
     }
     void SiftUp(TimerId pos, TimerId id) {
+        PhaseScope<Measure> frame("DeadlineQueue::SiftUp");
         while (pos > 0) {
             const auto parent = (pos - 1) / 2;
             const auto parent_id = heap_[parent];
@@ -118,6 +126,7 @@ private:
         Place(pos, id);
     }
     void SiftDown(TimerId pos, TimerId id) {
+        PhaseScope<Measure> frame("DeadlineQueue::SiftDown");
         while (pos < heap_.size() / 2) {
             auto child = pos * 2 + 1;
             if (child + 1 < heap_.size() && Before(heap_[child + 1], heap_[child])) ++child;
@@ -129,6 +138,7 @@ private:
         Place(pos, id);
     }
     void Remove(TimerId pos) {
+        PhaseScope<Measure> frame("DeadlineQueue::Remove");
         const auto removed = heap_[pos];
         const auto moved = heap_.back();
         heap_.pop_back();
@@ -146,6 +156,8 @@ private:
     std::vector<Timer> timers_;
     std::vector<TimerId> heap_;
 };
+
+using DeadlineQueue = BasicDeadlineQueue<false>;
 
 } // namespace JX3DPS::runtime
 #endif

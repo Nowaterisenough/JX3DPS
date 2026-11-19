@@ -19,7 +19,7 @@ public:
                 JX3DPS::runtime::BatchOptions options,
                 desktop::Config config,
                 QObject *parent = nullptr, bool captureTrace = false, bool calculateGains = false,
-                desktop::GainComparisonMode gainMode = desktop::GainComparisonMode::SameValue);
+                desktop::GainComparisonMode gainMode = desktop::GainComparisonMode::SameValue, bool hotspots = false);
     ~BatchWorker() override;
 
     void RequestCancel();
@@ -45,6 +45,7 @@ private:
     bool m_captureTrace = false;
     bool m_calculateGains = false;
     desktop::GainComparisonMode m_gainMode;
+    bool m_hotspots;
 };
 
 #endif // BATCH_WORKER_H

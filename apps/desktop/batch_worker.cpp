@@ -1,12 +1,15 @@
 #include "batch_worker.h"
 
+#include <chrono>
 #include <exception>
+#include <thread>
 #include <limits>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 
 #include <QElapsedTimer>
+#include <QScopeGuard>
 
 #include "diagnostics.h"
 #include "runtime_backend.h"
@@ -36,6 +39,40 @@ struct SkillTotals {
         insight += other.insight; miss += other.miss;
     }
 };
+
+FightHotspots MergeHotspots(const runtime::BatchProfile &profile)
+{
+    FightHotspots report;
+    runtime::CallTree merged;
+    decltype(runtime::WorkerProfile::phases) phaseHits{};
+    for (const auto &worker : profile.workers) {
+        if (worker.error) std::rethrow_exception(worker.error);
+        std::vector<std::uint32_t> ids(worker.calls.nodes.size());
+        for (std::size_t i = 0; i < ids.size(); ++i) {
+            const auto &node = worker.calls.nodes[i];
+            if (i) ids[i] = merged.Child(ids[node.parent], node.function);
+            merged.nodes[ids[i]].self += node.self;
+        }
+        quint64 points = 0;
+        for (std::size_t i = 0; i < phaseHits.size(); ++i) {
+            phaseHits[i] += worker.phases[i];
+            points += worker.phases[i];
+        }
+        report.samplePoints += points;
+        report.workers.push_back({worker.fights, points});
+        report.fights += worker.fights;
+        report.workerMs += std::chrono::duration<double, std::milli>(worker.elapsed).count();
+    }
+    for (const auto &node : merged.nodes)
+        report.calls.push_back({QString::fromUtf8(node.function), node.parent, node.self, node.self});
+    for (qsizetype i = report.calls.size() - 1; i > 0; --i)
+        report.calls[report.calls[i].parent].inclusive += report.calls[i].inclusive;
+    if (report.fights && report.samplePoints) {
+        const auto usPerPoint = report.workerMs * 1000.0 / report.fights / report.samplePoints;
+        for (std::size_t i = 0; i < phaseHits.size(); ++i) report.phaseUs[i] = usPerPoint * phaseHits[i];
+    }
+    return report;
+}
 
 void StoreSkills(SimulationResult &result, const std::vector<std::vector<SkillTotals>> &workers,
                  desktop::Specialization specialization) {
@@ -67,9 +104,9 @@ QString FormatStats(const runtime::BatchStats &stats, double seconds, double ela
 
 } // namespace
 
-BatchWorker::BatchWorker(runtime::MacroProgram program, runtime::BatchOptions options, desktop::Config config, QObject *parent, bool captureTrace, bool calculateGains, desktop::GainComparisonMode gainMode) :
+BatchWorker::BatchWorker(runtime::MacroProgram program, runtime::BatchOptions options, desktop::Config config, QObject *parent, bool captureTrace, bool calculateGains, desktop::GainComparisonMode gainMode, bool hotspots) :
     QThread(parent), m_program(std::move(program)), m_options(options), m_config(std::move(config)),
-    m_captureTrace(captureTrace), m_calculateGains(calculateGains), m_gainMode(gainMode)
+    m_captureTrace(captureTrace), m_calculateGains(calculateGains), m_gainMode(gainMode), m_hotspots(hotspots)
 {
     qRegisterMetaType<CombatEvents>();
     qRegisterMetaType<BuffEvents>();
@@ -107,7 +144,8 @@ void BatchWorker::run()
     QElapsedTimer timer;
     timer.start();
     try {
-        std::visit(
+        auto simulate = [&]<bool Measure>(runtime::BatchProfile *profile) {
+          std::visit(
             [&](const auto &config) {
                 using Rules               = decltype(desktop::MakeRules(config));
                 const auto specialization = desktop::ClassOf(m_config);
@@ -122,7 +160,8 @@ void BatchWorker::run()
                         return;
                     }
                     auto rules = desktop::MakeRules(config);
-                    runtime::Simulation<desktop::TracedRules<Rules>> simulation(m_program, desktop::TracedRules(rules), m_options.damage_capacity, m_options.mutation_capacity);
+                    runtime::WorkerMeasurement<Measure> measurement(profile, 0, "单次记录");
+                    runtime::Simulation<desktop::TracedRules<Rules>, false, Measure> simulation(m_program, desktop::TracedRules(rules), m_options.damage_capacity, m_options.mutation_capacity);
                     simulation.Start(m_options.duration, runtime::IterationSeed(m_options.seed, 0));
                     desktop::HistoryChunk history;
                     history.specialization = specialization;
@@ -151,8 +190,14 @@ void BatchWorker::run()
                     emit HistoryReady(history);
                     SimulationResult result{ stats, m_options, timer.nsecsElapsed() / 1e9, true };
                     StoreSkills(result, skillTotals, specialization);
+                    if constexpr (Measure) {
+                        ++profile->workers[0].fights;
+                        measurement.Finish();
+                        result.hotspots = MergeHotspots(*profile);
+                    }
+                    result.elapsedSeconds = timer.nsecsElapsed() / 1e9;
                     emit StatisticsReady(result);
-                    emit ResultReady(FormatStats(stats, m_options.duration / 16.0, timer.elapsed() / 1000.0));
+                    emit ResultReady(FormatStats(stats, m_options.duration / 16.0, result.elapsedSeconds));
                     return;
                 }
                 SimulationResult result{ {}, m_options, timer.nsecsElapsed() / 1e9, false };
@@ -167,7 +212,8 @@ void BatchWorker::run()
                 };
                 if (m_calculateGains) {
                     const auto increments = desktop::GainComparisonIncrements(m_gainMode, specialization == desktop::Specialization::MoWen);
-                    const auto calculated = runtime::RunAttributeGainsControlled(m_program, m_options, m_control, config, reduce, increments);
+                    const auto calculated = runtime::RunAttributeGainsControlled<std::decay_t<decltype(config)>, decltype(reduce), Measure>(
+                        m_program, m_options, m_control, config, reduce, increments, profile);
                     result.stats = calculated.primary;
                     for (std::size_t index = 0; index < calculated.gains.size(); ++index) {
                         if (calculated.gains[index])
@@ -175,16 +221,22 @@ void BatchWorker::run()
                                                     *calculated.gains[index]});
                     }
                 } else {
-                    result.stats = runtime::RunBatchControlledWithReducer(m_program, m_options, m_control, desktop::MakeRules(config), reduce);
+                    result.stats = runtime::detail::RunBatchImpl<true, Measure>(m_program, m_options, desktop::MakeRules(config), &m_control, reduce, profile);
                 }
                 StoreSkills(result, skillTotals, specialization);
+                if constexpr (Measure) result.hotspots = MergeHotspots(*profile);
                 result.elapsedSeconds = timer.nsecsElapsed() / 1e9;
                 emit StatisticsReady(result);
                 const auto status = result.Complete() ? QStringLiteral("已完成。 ") : QStringLiteral("已取消，已完成部分的结果：");
                 emit ResultReady((m_calculateGains ? QStringLiteral("属性收益：%1 / 8 项完成。 ").arg(result.gains.size()) : QString{}) +
-                                 status + FormatStats(result.stats, m_options.duration / 16.0, timer.elapsed() / 1000.0));
+                                 status + FormatStats(result.stats, m_options.duration / 16.0, result.elapsedSeconds));
             },
             m_config);
+        };
+        if (m_hotspots) {
+            runtime::BatchProfile profile(m_captureTrace ? 1 : static_cast<unsigned>(std::min<std::uint64_t>(m_options.workers, m_options.iterations)));
+            simulate.template operator()<true>(&profile);
+        } else simulate.template operator()<false>(nullptr);
     } catch (const std::exception &error) {
         emit Failed(desktop::Diagnostic(QString::fromUtf8(error.what())));
     } catch (...) {

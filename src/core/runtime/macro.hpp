@@ -374,7 +374,7 @@ struct MacroObservation {
 
 // Both specializations execute the same transitions. Only the debug
 // specialization retains a resumable cursor and source-level observations.
-template <bool Debug, bool TrackLastSkill = true>
+template <bool Debug, bool TrackLastSkill = true, bool Measure = false>
 class MacroExecutor {
 public:
     explicit MacroExecutor(const MacroProgram &program) : program_(program), consumed_(program.lines.size()) {
@@ -397,6 +397,7 @@ public:
 
     template <typename Action, typename BeforeLine = NoLineHook, typename Available = AllowMacroLine>
     bool EvaluateFast(State &state, Action &&action, BeforeLine before_line = {}, Available available = {}) requires (!Debug) {
+        PhaseScope<Measure> frame("MacroExecutor::EvaluateFast");
         for (Pc line_index = 0; line_index < program_.lines.size(); ++line_index) {
             if (consumed_[line_index]) continue;
             const auto &line = program_.lines[line_index];
@@ -408,6 +409,7 @@ public:
             Pc pc = line.condition_count ? 0 : ACCEPT;
             while (pc < REJECT) {
                 const auto &c = program_.conditions[line.condition_begin + pc];
+                PhaseScope<Measure> condition("EvaluateCondition");
                 pc = EvaluateCondition(state, c) ? c.on_true : c.on_false;
             }
             const bool success = pc == ACCEPT && action(state, line);

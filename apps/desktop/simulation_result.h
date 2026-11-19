@@ -19,6 +19,19 @@ struct SkillStatistics {
     qint64 damage = 0;
     quint64 count = 0, hit = 0, critical = 0, insight = 0, miss = 0;
 };
+struct FightHotspots {
+    struct Call {
+        QString function;
+        unsigned parent = 0;
+        quint64 inclusive = 0, self = 0;
+    };
+    QVector<Call> calls;
+    struct Worker { quint64 fights, samplePoints; };
+    QVector<Worker> workers;
+    quint64 fights = 0, samplePoints = 0;
+    double workerMs = 0;
+    std::array<double, static_cast<std::size_t>(JX3DPS::runtime::FightPhase::Count)> phaseUs{};
+};
 struct SimulationResult {
     JX3DPS::runtime::BatchStats stats;
     JX3DPS::runtime::BatchOptions options;
@@ -29,6 +42,7 @@ struct SimulationResult {
     QVector<SkillStatistics> skills;
     bool skillsCollected = false;
     desktop::GainComparisonMode gainMode = desktop::GainComparisonMode::SameValue;
+    std::optional<FightHotspots> hotspots;
 
     bool Complete() const { return stats.count == options.iterations && (!gainsRequested || gains.size() == 8); }
     double FightSeconds() const { return options.duration / 16.0; }

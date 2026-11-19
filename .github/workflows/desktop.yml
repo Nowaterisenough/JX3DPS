@@ -80,6 +80,17 @@ jobs:
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
           $vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           if (!$vs) { throw 'Visual Studio with the x64 C++ tools was not found' }
+          if ($env:CXX -eq 'cl') {
+            $channel = Invoke-RestMethod 'https://aka.ms/vs/18/stable/channel'
+            $installed = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationVersion
+            if ([version]$installed -lt [version]$channel.info.buildVersion) {
+              $bootstrapper = Join-Path $env:RUNNER_TEMP 'vs_BuildTools.exe'
+              Invoke-WebRequest 'https://aka.ms/vs/stable/vs_BuildTools.exe' -OutFile $bootstrapper
+              $vs = Join-Path $env:RUNNER_TEMP 'vs-stable'
+              $install = Start-Process $bootstrapper -ArgumentList "--quiet --wait --norestart --nocache --installPath `"$vs`" --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64" -WindowStyle Hidden -Wait -PassThru
+              if ($install.ExitCode -notin 0,3010) { throw "Build Tools installation failed with $($install.ExitCode)" }
+            }
+          }
           $oldPath = $env:PATH -split ';'
           & (Join-Path $vs 'Common7/Tools/Launch-VsDevShell.ps1') -Arch amd64 -HostArch amd64 -SkipAutomaticLocation
           Get-Command cl.exe -ErrorAction Stop | Select-Object -ExpandProperty Source

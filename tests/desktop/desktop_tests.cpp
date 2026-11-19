@@ -1590,14 +1590,16 @@ private slots:
         QTest::mouseClick(window.findChild<QPushButton *>("nav_character"), Qt::LeftButton);
         QVERIFY(window.findChild<QPushButton *>("nav_attributes")->isChecked());
         QVERIFY(window.findChild<QWidget *>("characterChildren")->isVisible());
-        for (const auto *page : {"profiles", "attributes", "talents", "permanents", "macro", "general", "about", "statistics", "timeline", "buffs"}) {
+        for (const auto *page : {"profiles", "attributes", "talents", "permanents", "macro", "general", "about", "statistics", "skills", "gains", "hotspots", "timeline", "events", "buffs"}) {
             auto *button = window.findChild<QPushButton *>(QStringLiteral("nav_%1").arg(QString::fromLatin1(page)));
             QVERIFY(button);
             const QString key = QString::fromLatin1(page);
-            if (key == "attributes" || key == "talents" || key == "permanents")
+            if (key == "profiles" || key == "attributes" || key == "talents" || key == "permanents")
                 window.findChild<QPushButton *>("nav_character")->click();
             if (key == "general" || key == "about")
                 window.findChild<QPushButton *>("nav_settings")->click();
+            if (button->parentWidget()->objectName() == "analysisChildren")
+                window.findChild<QPushButton *>("nav_analysis")->click();
             QCoreApplication::processEvents();
             QVERIFY(button->isVisible());
             QTest::mouseClick(button, Qt::LeftButton);
@@ -1608,6 +1610,8 @@ private slots:
             QCOMPARE(editor->toPlainText(), source);
             QVERIFY(editor->HasBreakpoint(2));
             QVERIFY(pages->currentWidget()->isVisible());
+            if (key == "hotspots") QVERIFY(window.findChild<QPushButton *>("runWithHotspots")->isVisible());
+            if (key == "events") QCOMPARE(window.findChild<QTabWidget *>("analysisViews")->currentWidget(), window.findChild<QTableWidget *>("damageEvents"));
             QVERIFY(window.findChild<QLabel *>("breadcrumb")->text().contains(button->text().trimmed()));
             shot(QString::fromLatin1(page));
         }
@@ -1690,6 +1694,37 @@ private slots:
         QVERIFY(!window.findChild<QWidget *>("characterChildren")->isVisible());
         QVERIFY(!window.findChild<QToolButton *>("toggleSidebar"));
         QVERIFY(window.close());
+    }
+
+    void analysisNavigationRunsFromEmptyPages()
+    {
+        Workbench window;
+        window.resize(1120, 820);
+        window.show();
+        auto *options = window.findChild<SimulationOptions *>();
+        window.findChild<QSpinBox *>("iterations")->setValue(12);
+        window.findChild<QDoubleSpinBox *>("seconds")->setValue(30);
+        auto clickPage = [&](const char *key) {
+            auto *button = window.findChild<QPushButton *>(QStringLiteral("nav_") + QString::fromLatin1(key));
+            QVERIFY(button && button->isVisible());
+            QTest::mouseClick(button, Qt::LeftButton);
+        };
+        clickPage("analysis");
+        clickPage("hotspots");
+        auto *start = window.findChild<QPushButton *>("runWithHotspots");
+        QVERIFY(start->isVisible());
+        QTest::mouseClick(start, Qt::LeftButton);
+        QTRY_COMPARE_WITH_TIMEOUT(window.findChild<QTableWidget *>("resultHistory")->rowCount(), 1, 10000);
+        QVERIFY(window.findChild<QPushButton *>("nav_hotspots")->isChecked());
+        QVERIFY(start->isHidden());
+        clickPage("gains");
+        auto *gains = window.findChild<QPushButton *>("runWithGains");
+        QTRY_VERIFY(gains->isVisible() && gains->isEnabled());
+        QTest::mouseClick(gains, Qt::LeftButton);
+        QTRY_COMPARE_WITH_TIMEOUT(window.findChild<QTableWidget *>("resultHistory")->rowCount(), 2, 10000);
+        QVERIFY(options->AutoCalculateGains());
+        QVERIFY(window.findChild<QPushButton *>("nav_gains")->isChecked());
+        QVERIFY(gains->isHidden());
     }
 
     void equipmentReferenceCard()
@@ -1982,6 +2017,82 @@ private slots:
             QVERIFY(equipmentWindow->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment.png"));
         scroll->ensureWidgetVisible(effects);
         QVERIFY(scroll->viewport()->rect().contains(effects->mapTo(scroll->viewport(), effects->rect().center())));
+    }
+
+    void optionalFightHotspots_data()
+    {
+        QTest::addColumn<bool>("moWen");
+        QTest::addColumn<bool>("trace");
+        QTest::addColumn<bool>("gains");
+        QTest::newRow("tai-xu-batch") << false << false << false;
+        QTest::newRow("mo-wen-batch") << true << false << false;
+        QTest::newRow("tai-xu-trace") << false << true << false;
+        QTest::newRow("mo-wen-gains") << true << false << true;
+    }
+
+    void optionalFightHotspots()
+    {
+        QFETCH(bool, moWen);
+        QFETCH(bool, trace);
+        QFETCH(bool, gains);
+        desktop::Config config = moWen ? desktop::Config{rt::mo_wen::Config{}} : desktop::Config{rt::tai_xu::Config{}};
+        const auto spec = desktop::ClassOf(config);
+        const auto source = desktop::DefaultMacro(spec);
+        const auto compiled = rt::MacroCompiler::Compile(source.toStdString(), desktop::MacroOptions(spec));
+        QVERIFY(compiled.second.empty());
+        rt::BatchOptions options{trace ? 1u : 512u, 42, 4800, 2, 4800 * 16, 4800 * 40};
+        SimulationResult plain;
+        ResultsPanel panel;
+        auto *tabs = panel.findChild<QTabWidget *>("resultTabs");
+        const int tab = tabs->count() - 1;
+        for (bool enabled : {false, true}) {
+            BatchWorker worker(compiled.first.program, options, config, nullptr, trace, gains, desktop::GainComparisonMode::SameValue, enabled);
+            QSignalSpy ready(&worker, &BatchWorker::StatisticsReady);
+            worker.start();
+            QVERIFY(worker.wait(20000));
+            QTRY_COMPARE(ready.size(), 1);
+            const auto result = qvariant_cast<SimulationResult>(ready.front().front());
+            QVERIFY(result.Complete());
+            QCOMPARE(result.hotspots.has_value(), enabled);
+            panel.AddResult(result, source, {});
+            QVERIFY(tabs->isTabVisible(tab));
+            QCOMPARE(panel.findChild<QPushButton *>("runWithHotspots")->isHidden(), enabled);
+            if (!enabled) { plain = result; continue; }
+            QCOMPARE(result.stats.checksum, plain.stats.checksum);
+            QCOMPARE(result.skills.size(), plain.skills.size());
+            for (int i = 0; i < result.gains.size(); ++i) QCOMPARE(result.gains[i].stats.checksum, plain.gains[i].stats.checksum);
+            QCOMPARE(result.hotspots->fights, options.iterations * (gains ? rt::AttributeGainSimulationStages<rt::mo_wen::Config> : 1));
+            QCOMPARE(result.hotspots->workers.size(), trace ? 1 : 2);
+            quint64 workerPoints = 0, workerFights = 0;
+            for (const auto &w : result.hotspots->workers) {
+                QVERIFY(w.fights > 0);
+                workerPoints += w.samplePoints;
+                workerFights += w.fights;
+            }
+            QCOMPARE(workerFights, result.hotspots->fights);
+            QCOMPARE(workerPoints, result.hotspots->samplePoints);
+            QVERIFY(result.hotspots->workerMs > 0);
+            const auto &calls = result.hotspots->calls;
+            QVERIFY(!calls.isEmpty());
+            QCOMPARE(calls.front().inclusive, result.hotspots->samplePoints);
+            QVector<quint64> accounted(calls.size());
+            for (int i = 0; i < calls.size(); ++i) {
+                const auto &call = calls[i];
+                accounted[i] += call.self;
+                if (i) {
+                    QVERIFY(call.parent < static_cast<unsigned>(i));
+                    accounted[call.parent] += call.inclusive;
+                }
+            }
+            for (int i = 0; i < calls.size(); ++i) QCOMPARE(calls[i].inclusive, accounted[i]);
+            double estimate = 0;
+            for (double stage : result.hotspots->phaseUs) estimate += stage;
+            if (result.hotspots->samplePoints) QVERIFY(qAbs(estimate - result.hotspots->workerMs * 1000 / result.hotspots->fights) < 1e-6);
+            QCOMPARE(tabs->currentIndex(), tab);
+            QCOMPARE(panel.findChild<QTableWidget *>("fightHotspotTable")->rowCount(), 10);
+            panel.findChild<QTableWidget *>("resultHistory")->selectRow(0);
+            QVERIFY(!panel.findChild<QPushButton *>("runWithHotspots")->isHidden());
+        }
     }
 
     void moWenDesktopParity()

@@ -125,15 +125,12 @@ public:
         auto *list = new QHBoxLayout(items);
         list->setContentsMargins(0, 0, 0, 0);
         list->setSpacing(4);
-        AddItem(list, "simulation", QStringLiteral("模拟"), ShellIcon::Terminal, QStringLiteral("使用"));
-        AddItem(list, "macro", QStringLiteral("循环宏"), ShellIcon::File, QStringLiteral("使用"));
-        AddItem(list, "profiles", QStringLiteral("配置库"), ShellIcon::Library, QStringLiteral("使用"));
-        character_ = AddItem(list, "character", QStringLiteral("角色配置"), ShellIcon::Sliders, QStringLiteral("角色"));
-        AddItem(list, "statistics", QStringLiteral("模拟统计"), ShellIcon::Chart, QStringLiteral("观测"));
-        AddItem(list, "timeline", QStringLiteral("时间轴"), ShellIcon::Timeline, QStringLiteral("观测"));
-        AddItem(list, "buffs", QStringLiteral("增益分析"), ShellIcon::Shield, QStringLiteral("观测"));
+        AddItem(list, "simulation", QStringLiteral("模拟工作台"), ShellIcon::Terminal);
+        character_ = AddItem(list, "character", QStringLiteral("角色配置"), ShellIcon::Sliders);
+        AddItem(list, "macro", QStringLiteral("宏编辑与调试"), ShellIcon::File);
+        analysis_ = AddItem(list, "analysis", QStringLiteral("结果分析"), ShellIcon::Chart);
         list->addSpacing(12);
-        settings_ = AddItem(list, "settings", QStringLiteral("设置"), ShellIcon::Settings, QStringLiteral("设置"));
+        settings_ = AddItem(list, "settings", QStringLiteral("设置"), ShellIcon::Settings);
         navigationLayout->addWidget(items);
         navigationLayout->addStretch();
         layout->addWidget(navigation);
@@ -163,12 +160,17 @@ public:
             return row;
         };
         auto *characterRow = children(characterChildren_, "characterChildren");
-        AddItem(characterRow, "attributes", QStringLiteral("属性与收益"), ShellIcon::Sliders, QStringLiteral("角色"), true);
-        AddItem(characterRow, "talents", QStringLiteral("奇穴与秘籍"), ShellIcon::Nodes, QStringLiteral("角色"), true);
-        AddItem(characterRow, "permanents", QStringLiteral("常驻增益"), ShellIcon::Shield, QStringLiteral("角色"), true);
+        AddItem(characterRow, "attributes", QStringLiteral("属性与配装"), ShellIcon::Sliders, true);
+        AddItem(characterRow, "talents", QStringLiteral("奇穴与秘籍"), ShellIcon::Nodes, true);
+        AddItem(characterRow, "permanents", QStringLiteral("常驻增益"), ShellIcon::Shield, true);
+        AddItem(characterRow, "profiles", QStringLiteral("配置方案"), ShellIcon::Library, true);
+        auto *analysisRow = children(analysisChildren_, "analysisChildren");
+        for (auto [key, text] : {std::pair{"statistics", "模拟历史"}, {"skills", "技能统计"}, {"gains", "属性收益"},
+                                 {"hotspots", "性能热点"}, {"timeline", "战斗时间轴"}, {"events", "伤害事件"}, {"buffs", "增益分析"}})
+            AddItem(analysisRow, key, QString::fromUtf8(text), ShellIcon::Chart, true);
         auto *settingsRow = children(settingsChildren_, "settingsChildren");
-        AddItem(settingsRow, "general", QStringLiteral("常规"), ShellIcon::Settings, QStringLiteral("设置"), true);
-        AddItem(settingsRow, "about", QStringLiteral("关于"), ShellIcon::Settings, QStringLiteral("设置"), true);
+        AddItem(settingsRow, "general", QStringLiteral("常规"), ShellIcon::Settings, true);
+        AddItem(settingsRow, "about", QStringLiteral("关于"), ShellIcon::Settings, true);
         headerLayout->addStretch();
         engineStatus = new QLabel(QStringLiteral("<span style='color:#6fd99b'>●</span> &nbsp;本地引擎 · 就绪"));
         engineStatus->setObjectName(QStringLiteral("engineStatus"));
@@ -191,18 +193,17 @@ public:
 
     void Select(const QString &id) {
         const auto key = Destination(id);
-        for (auto *button : buttons_) button->setChecked(button->property("pageId").toString() == key);
-        const bool settings = key == "general" || key == "about";
-        const bool character = key == "attributes" || key == "talents" || key == "permanents";
-        settings_->setChecked(settings);
-        character_->setChecked(character);
-        settingsChildren_->setVisible(settings);
-        characterChildren_->setVisible(character);
-        for (auto *button : buttons_) if (button->property("pageId").toString() == key) {
-            breadcrumb->setText(QStringLiteral("<span style='color:#92929d'>%1 &nbsp;/&nbsp; </span><b>%2</b>")
-                .arg(button->property("category").toString().toHtmlEscaped(), button->text().trimmed().toHtmlEscaped()));
-            break;
+        QPushButton *selected = nullptr;
+        for (auto *button : buttons_) if (button->property("pageId").toString() == key) selected = button;
+        if (!selected) return;
+        for (auto *button : buttons_) button->setChecked(button == selected);
+        for (auto [group, parent] : {std::pair{characterChildren_, character_}, {analysisChildren_, analysis_}, {settingsChildren_, settings_}}) {
+            const bool active = group == selected->parentWidget();
+            parent->setChecked(active);
+            group->setVisible(active);
         }
+        breadcrumb->setText(selected->text().toHtmlEscaped());
+        breadcrumb->setVisible(!selected->property("navChild").toBool());
     }
     void SetCompactHeader(bool compact) {
         header_->setFixedHeight(compact ? 34 : 44);
@@ -210,15 +211,15 @@ public:
     }
 private:
     static QString Destination(const QString &id) {
-        return id == "settings" ? QStringLiteral("general") : id == "character" ? QStringLiteral("attributes") : id;
+        return id == "settings" ? QStringLiteral("general") : id == "character" ? QStringLiteral("attributes")
+            : id == "analysis" ? QStringLiteral("statistics") : id;
     }
-    QPushButton *AddItem(QBoxLayout *layout, const char *id, const QString &text, ShellIcon icon, const QString &category, bool child = false) {
+    QPushButton *AddItem(QBoxLayout *layout, const char *id, const QString &text, ShellIcon icon, bool child = false) {
         auto *button = new NavigationButton(text, child);
         button->setObjectName(QStringLiteral("nav_%1").arg(QString::fromLatin1(id)));
         button->setProperty("navItem", true);
         button->setProperty("navChild", child);
         button->setProperty("pageId", QString::fromLatin1(id));
-        button->setProperty("category", category);
         button->setAccessibleName(text);
         if (!child) { button->setIcon(LineIcon(icon)); button->setIconSize(QSize(18, 18)); }
         button->setCheckable(true);
@@ -236,6 +237,8 @@ private:
     QFrame *characterChildren_;
     QWidget *header_;
     QFrame *settingsChildren_;
+    QFrame *analysisChildren_;
+    QPushButton *analysis_;
     QPushButton *character_;
     QPushButton *settings_;
     QList<QPushButton *> buttons_;

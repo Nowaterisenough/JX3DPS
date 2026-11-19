@@ -14,6 +14,8 @@ class QPushButton;
 class QTableWidget;
 class QTextBrowser;
 class QTabWidget;
+class FightHotspotChart;
+class FightFlameGraph;
 namespace desktop { class HistoryChart; }
 
 class ResultsPanel : public QWidget {
@@ -26,10 +28,16 @@ public:
     void SetInputsEnabled(bool enabled);
     void ShowSkillStatistics();
     void ShowOverview();
+    bool ShowSection(const QString &id);
+    QString CurrentSection() const;
+    void UseWorkspaceNavigation();
     bool ExportSelected(const QString &path, QString &error) const;
 
 signals:
     void InputsRequested(const QString &source, const QJsonObject &configuration);
+    void SectionChanged();
+    void HotspotRunRequested();
+    void GainRunRequested();
 
 private:
     struct Entry {
@@ -52,6 +60,14 @@ private:
     desktop::HistoryChart *m_chart;
     QTableWidget *m_damage;
     QTableWidget *m_gains;
+    QLabel *m_hotspotSummary;
+    QWidget *m_hotspotPage;
+    QTabWidget *m_hotspotViews;
+    QPushButton *m_collectHotspots;
+    QPushButton *m_runGains;
+    FightFlameGraph *m_flame;
+    FightHotspotChart *m_hotspotChart;
+    QTableWidget *m_hotspotTable;
     QTextBrowser *m_details;
     QLabel *m_traceSummary;
     QPushButton *m_useInputs;

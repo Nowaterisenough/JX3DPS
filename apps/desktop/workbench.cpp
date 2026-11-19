@@ -125,6 +125,8 @@ struct Workbench::Impl
     QScrollArea            *configurationScroll;
     QSplitter              *body;
     QLabel                 *pageNote;
+    QToolBar               *traceTools;
+    QLabel                 *traceHint;
     QWidget                *statusBar;
     QWidget                *settingsPage;
     QWidget                *aboutPage;
@@ -176,6 +178,7 @@ struct Workbench::Impl
     QPointer<BatchWorker>               batch;
     QAction                            *traceAction;
     QAction                            *gainsAction;
+    QAction                            *hotspotAction;
     QAction                            *exportAction;
     QAction                            *openAction;
     QAction                            *newAction;
@@ -254,7 +257,7 @@ struct Workbench::Impl
         auto *check  = action(QStringLiteral("检查宏"), "checkMacro", QKeySequence(Qt::CTRL | Qt::Key_Return), [this] {
             CheckMacro();
         });
-        traceAction  = action(QStringLiteral("单次记录"), "singleTrace", {}, [this] { StartBatch(true); });
+        traceAction  = action(QStringLiteral("记录一场战斗"), "singleTrace", {}, [this] { StartBatch(true); });
         gainsAction = new QAction(QStringLiteral("自动收益"), window);
         gainsAction->setObjectName(QStringLiteral("attributeGains"));
         gainsAction->setCheckable(true);
@@ -417,6 +420,13 @@ struct Workbench::Impl
         quickGain->setObjectName(QStringLiteral("calculateAttributeGains"));
         quickGain->setDefaultAction(gainsAction);
         outputActions->addWidget(quickGain, 1, 1);
+        hotspotAction = new QAction(QStringLiteral("采集性能热点"), window);
+        hotspotAction->setObjectName(QStringLiteral("collectFightHotspots"));
+        hotspotAction->setCheckable(true);
+        hotspotAction->setToolTip(QStringLiteral("运行期间对所有模拟线程采样，合并显示整批调用栈和阶段耗时。"));
+        auto *hotspotButton = new desktop::MagpieCheckButton;
+        hotspotButton->setDefaultAction(hotspotAction);
+        outputActions->addWidget(hotspotButton, 2, 0, 1, 2);
         outputSummary->addLayout(outputActions);
         outputSummary->setSpacing(10);
         options->OutputLayout()->addLayout(outputSummary);
@@ -429,18 +439,21 @@ struct Workbench::Impl
         analysisDialog->addActions({find, replace, completeAction});
         auto *analysisLayout = new QVBoxLayout(analysisDialog);
         analysisLayout->setContentsMargins(0, 0, 0, 0);
-        auto *analysisTools  = new QToolBar(analysisDialog);
-        analysisTools->addAction(traceAction);
-        analysisTools->addAction(exportAction);
-        auto *analysisSpace = new QWidget(analysisTools);
-        analysisSpace->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        analysisTools->addWidget(analysisSpace);
-        auto *backToMacro = new QToolButton(analysisTools);
+        auto *analysisActions = new QHBoxLayout;
+        traceTools = new QToolBar(analysisDialog);
+        traceTools->addAction(traceAction);
+        traceTools->addAction(exportAction);
+        traceHint = new QLabel(QStringLiteral("记录后可查看逐击伤害、时间轴和增益覆盖。"));
+        traceHint->setProperty("muted", true);
+        traceTools->addWidget(traceHint);
+        analysisActions->addWidget(traceTools);
+        analysisActions->addStretch();
+        auto *backToMacro = new QToolButton(analysisDialog);
         backToMacro->setObjectName(QStringLiteral("closeAnalysis"));
         backToMacro->setText(QStringLiteral("返回循环宏"));
         QObject::connect(backToMacro, &QToolButton::clicked, window, [this] { ShowEditor(); });
-        analysisTools->addWidget(backToMacro);
-        analysisLayout->addWidget(analysisTools);
+        analysisActions->addWidget(backToMacro);
+        analysisLayout->addLayout(analysisActions);
         views = new desktop::SegmentedTabs(analysisDialog);
         views->setObjectName(QStringLiteral("analysisViews"));
         analysisLayout->addWidget(views, 1);
@@ -482,6 +495,16 @@ struct Workbench::Impl
         views->addTab(results, QStringLiteral("模拟统计"));
         buffs = new BuffPanel(views);
         views->addTab(buffs, QStringLiteral("增益分析"));
+        views->tabBar()->hide();
+        results->UseWorkspaceNavigation();
+        QObject::connect(results, &ResultsPanel::HotspotRunRequested, window, [this] {
+            hotspotAction->setChecked(true);
+            StartBatch(false, QStringLiteral("hotspots"));
+        });
+        QObject::connect(results, &ResultsPanel::GainRunRequested, window, [this] {
+            gainsAction->setChecked(true);
+            StartBatch(false, QStringLiteral("gains"));
+        });
         views->setCurrentWidget(results);
 
         debugSession  = new DebugSession(window);
@@ -839,12 +862,14 @@ struct Workbench::Impl
             ApplySpecializationTheme();
         });
         shell->navigate = [this](const QString &page) { Navigate(page); };
-        QObject::connect(views, &QTabWidget::currentChanged, window, [this](int) {
+        auto syncAnalysisNavigation = [this] {
             if (shell->pages->currentWidget() != analysisDialog) return;
-            currentPage = views->currentWidget() == results ? QStringLiteral("statistics")
-                        : views->currentWidget() == buffs ? QStringLiteral("buffs") : QStringLiteral("timeline");
+            currentPage = AnalysisSection();
             shell->Select(currentPage);
-        });
+            traceTools->setVisible(views->currentWidget() != results);
+        };
+        QObject::connect(views, &QTabWidget::currentChanged, window, syncAnalysisNavigation);
+        QObject::connect(results, &ResultsPanel::SectionChanged, window, syncAnalysisNavigation);
         QObject::connect(shell->refresh, &QToolButton::clicked, window, [this] { CheckMacro(); });
         ApplySpecializationTheme();
         Navigate(QStringLiteral("simulation"));
@@ -995,7 +1020,7 @@ struct Workbench::Impl
                 QSettings().setValue(QStringLiteral("appearance/editorSize"), size->currentData());
             });
             add(QStringLiteral("编辑器字号"), QStringLiteral("仅调整循环宏编辑器，不改变界面布局与系统缩放"), size);
-            add(QStringLiteral("配置导入与导出"), QStringLiteral("在配置库中管理命名方案，导入或导出完整的 JSON 配置"), [&] {
+            add(QStringLiteral("配置导入与导出"), QStringLiteral("在「角色配置 → 配置方案」中保存方案，导入或导出 JSON 配置"), [&] {
                 auto *button = new QToolButton;
                 button->setText(QStringLiteral("打开"));
                 QObject::connect(button, &QToolButton::clicked, window, [this] { Navigate(QStringLiteral("profiles")); });
@@ -1032,12 +1057,12 @@ struct Workbench::Impl
         window->findChild<QLineEdit *>(QStringLiteral("searchAbout"))->setVisible(page == "about");
         if (page == "general" || page == "about") {
             shell->pages->setCurrentWidget(page == "general" ? settingsPage : aboutPage);
-        } else if (page == "statistics" || page == "timeline" || page == "buffs") {
-            if (page == "statistics") results->ShowOverview();
-            views->setCurrentWidget(page == "statistics" ? static_cast<QWidget *>(results)
-                                  : page == "timeline" ? views->widget(0) : buffs);
-            shell->pages->setCurrentWidget(analysisDialog);
-            analysisDialog->show();
+        } else if (results->ShowSection(page)) {
+            ShowAnalysis(results);
+            return;
+        } else if (page == "timeline" || page == "events" || page == "buffs") {
+            ShowAnalysis(page == "events" ? static_cast<QWidget *>(eventsTable) : page == "buffs" ? buffs : views->widget(0));
+            return;
         } else {
             shell->pages->setCurrentWidget(homePage);
             const bool macro = page == "macro";
@@ -1052,7 +1077,7 @@ struct Workbench::Impl
                 : page == "attributes" ? QStringLiteral("属性与收益逐行对应；点击“配装…”打开独立窗口，数值和加成在“编辑数值”中调整。")
                 : page == "talents" ? QStringLiteral("新版九重奇穴仅用于配装预览；战斗模拟使用已迁移的旧规则。")
                 : page == "permanents" ? QStringLiteral("选择阵法、食品、药品与宴席。常驻属性在每场战斗开始前应用。")
-                : QStringLiteral("保存、切换或导入配置方案。修改后点击开始模拟，结果保留在模拟统计中。"));
+                : QStringLiteral("保存、切换或导入配置方案。修改后点击开始模拟，在「结果分析 → 模拟历史」查看记录。"));
         }
         UpdateLayout();
         UpdateControls();
@@ -1065,12 +1090,21 @@ struct Workbench::Impl
         shell->SetCompactHeader(compact);
     }
 
+    QString AnalysisSection() const
+    {
+        if (views->currentWidget() == results) return results->CurrentSection();
+        if (views->currentWidget() == eventsTable) return QStringLiteral("events");
+        return views->currentWidget() == buffs ? QStringLiteral("buffs") : QStringLiteral("timeline");
+    }
+
     void ShowAnalysis(QWidget *page)
     {
         window->findChild<QLineEdit *>(QStringLiteral("searchSettings"))->hide();
         window->findChild<QLineEdit *>(QStringLiteral("searchAbout"))->hide();
         views->setCurrentWidget(page);
-        currentPage = page == results ? QStringLiteral("statistics") : page == buffs ? QStringLiteral("buffs") : QStringLiteral("timeline");
+        traceTools->setVisible(page != results);
+        traceHint->setVisible(events.isEmpty());
+        currentPage = AnalysisSection();
         shell->Select(currentPage);
         shell->pages->setCurrentWidget(analysisDialog);
         analysisDialog->show();
@@ -1139,6 +1173,7 @@ struct Workbench::Impl
         macroRun->setVisible(currentPage == QStringLiteral("macro"));
         traceAction->setEnabled(!batch && !debugging);
         gainsAction->setEnabled(!batch && !debugging);
+        hotspotAction->setEnabled(!batch && !debugging);
         cancel->setEnabled(batch && !cancelling);
         cancel->setVisible(batch);
         progress->setVisible(batch || debugging);
@@ -1225,6 +1260,7 @@ struct Workbench::Impl
     void ClearEvents()
     {
         events.clear();
+        traceHint->show();
         history->Clear();
         timeline->Clear();
         timeline->SetTimeRange(0, static_cast<int>((static_cast<qint64>(activeOptions.duration) * 1000 + 15) / 16));
@@ -1270,10 +1306,11 @@ struct Workbench::Impl
         }
         eventsTable->setUpdatesEnabled(true);
         results->AppendTrace(hits);
+        traceHint->setVisible(events.isEmpty());
         exportAction->setEnabled(!events.isEmpty());
     }
 
-    void StartBatch(bool trace)
+    void StartBatch(bool trace, const QString &requestedReport = {})
     {
         if (batch || debugSession->GetState() == DebugSession::Running || debugSession->GetState() == DebugSession::Paused)
         {
@@ -1302,24 +1339,29 @@ struct Workbench::Impl
             debugSession->Stop();
             activeOptions = run;
             ClearEvents();
-            if (trace) {
+            if (trace && (shell->pages->currentWidget() != analysisDialog || views->currentWidget() == results)) {
                 ShowAnalysis(views->widget(0));
             }
             cancelling = false;
             progress->setValue(0);
             progress->setFormat(QStringLiteral("%p%"));
-            batch        = new BatchWorker(std::move(compiled.first.program), run, config, window, trace, gains, options->GainMode());
+            batch        = new BatchWorker(std::move(compiled.first.program), run, config, window, trace, gains, options->GainMode(), hotspotAction->isChecked());
             auto *worker = batch.data();
             QObject::connect(worker,
                              &BatchWorker::StatisticsReady,
                              window,
-                             [this, source = editor->toPlainText(), snapshot, trace](const SimulationResult &stats) {
+                             [this, source = editor->toPlainText(), snapshot, trace, requestedReport](const SimulationResult &stats) {
                                  results->AddResult(stats, source, snapshot);
                                  UpdateOutput(stats);
                                  if (source == editor->toPlainText() && snapshot == options->Snapshot())
                                      options->SetAttributeGainResult(stats);
                                  else options->ClearAttributeGains();
-                                 if (!trace) {
+                                 if (!requestedReport.isEmpty()) {
+                                     results->ShowSection(requestedReport);
+                                     ShowAnalysis(results);
+                                 } else if (stats.hotspots) {
+                                     ShowAnalysis(results);
+                                 } else if (!trace) {
                                      views->setCurrentWidget(results);
                                  }
                              });

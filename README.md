@@ -19,7 +19,7 @@
 [issues-badge]: https://img.shields.io/badge/github-issues-red.svg?maxAge=60 "Issues"
 
 
-桌面版在推送 Git 标签时发布。需要构建旧版独立动态库时，请使用[合并前的主分支源码](https://github.com/Nowaterisenough/JX3DPS/tree/03d529ff4e7077f9b6fafce28d8fec8c7b643bd0)。
+推送到 `master` 后，四个平台的桌面包全部构建成功时，GitHub Actions 会自动创建 Release 并上传安装包。推送 Git 标签也可以按该标签发布。需要构建旧版独立动态库时，请使用[合并前的主分支源码](https://github.com/Nowaterisenough/JX3DPS/tree/03d529ff4e7077f9b6fafce28d8fec8c7b643bd0)。
 
 ## For Developer
 1. git代码仓

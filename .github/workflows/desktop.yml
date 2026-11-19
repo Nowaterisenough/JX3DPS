@@ -135,16 +135,39 @@ jobs:
 
   release:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v6
+        if: github.ref == 'refs/heads/master'
+      - name: Generate release tag for master
+        if: github.ref == 'refs/heads/master'
+        id: version
+        shell: cmake -P {0}
+        env:
+          TZ: Asia/Shanghai
+        run: |
+          execute_process(COMMAND git log -1 --format=%ct OUTPUT_VARIABLE epoch
+                          OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+          set(ENV{SOURCE_DATE_EPOCH} "${epoch}")
+          include(cmake/Version.cmake)
+          version()
+          # Keep the project's major.minor.date and use a run number stable across retries.
+          string(REGEX REPLACE "[.][0-9]+$" ".$ENV{GITHUB_RUN_NUMBER}" tag "${PROJECT_VERSION}")
+          file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${tag}\n")
       - uses: actions/download-artifact@v7
         with:
           path: packages
           merge-multiple: true
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
-          files: packages/*
+          tag_name: ${{ steps.version.outputs.tag || github.ref_name }}
+          target_commitish: ${{ github.sha }}
+          files: |
+            packages/JX3DPS-windows-ucrt64.zip
+            packages/JX3DPS-windows-msvc.zip
+            packages/JX3DPS-linux-x86_64.tar.gz
+            packages/JX3DPS-macos-arm64.dmg
           fail_on_unmatched_files: true

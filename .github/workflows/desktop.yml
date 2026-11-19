@@ -27,15 +27,21 @@ jobs:
             cc: cl
             cxx: cl
             qt_arch: win64_msvc2022_64
+          - name: Windows Clang
+            id: windows-x86_64-clang
+            runner: windows-2025-vs2026
+            cc: clang-cl
+            cxx: clang-cl
+            qt_arch: win64_msvc2022_64
           - name: Ubuntu GCC
             id: linux-x86_64-gcc
             runner: ubuntu-26.04
-            cc: gcc-16
-            cxx: g++-16
+            cc: gcc
+            cxx: g++
             qt_arch: linux_gcc_64
           - name: macOS AppleClang
             id: macos-arm64-appleclang
-            runner: macos-26-intel
+            runner: xcode-27
             cc: clang
             cxx: clang++
             qt_arch: clang_64
@@ -68,7 +74,7 @@ jobs:
           qmake6 -query QT_VERSION
 
       - name: Select Visual Studio x64 environment
-        if: matrix.id == 'windows-x86_64-msvc'
+        if: matrix.cxx == 'cl' || matrix.cxx == 'clang-cl'
         shell: pwsh
         run: |
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
@@ -82,11 +88,53 @@ jobs:
             $value = [Environment]::GetEnvironmentVariable($name)
             if ($value) { Add-Content -LiteralPath $env:GITHUB_ENV -Value "$name=$value" -Encoding utf8 }
           }
-      - name: Install GCC and Qt system dependencies
+      - name: Install latest stable LLVM for the Visual Studio ABI
+        if: matrix.cxx == 'clang-cl'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = gh api repos/llvm/llvm-project/releases/latest --jq .tag_name
+          if ($LASTEXITCODE -or $tag -notmatch '^llvmorg-(\d+\.\d+\.\d+)$') { throw "Unexpected LLVM release $tag" }
+          $msi = "LLVM-$($Matches[1])-win64.msi"
+          gh release download $tag -R llvm/llvm-project -p $msi -D $env:RUNNER_TEMP
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $dest = Join-Path $env:RUNNER_TEMP 'llvm-release'
+          $install = Start-Process msiexec.exe -ArgumentList "/a `"$env:RUNNER_TEMP\$msi`" /qn TARGETDIR=`"$dest`"" -WindowStyle Hidden -Wait -PassThru
+          if ($install.ExitCode) { throw "LLVM extraction failed with $($install.ExitCode)" }
+          $driver = (Get-ChildItem -LiteralPath $dest -Recurse -File -Filter clang-cl.exe | Select-Object -First 1).FullName
+          if (!$driver) { throw 'clang-cl.exe missing from LLVM package' }
+          & $driver --version
+          "CC=$driver", "CXX=$driver" | Add-Content -LiteralPath $env:GITHUB_ENV -Encoding utf8
+          Split-Path -Parent $driver | Add-Content -LiteralPath $env:GITHUB_PATH -Encoding utf8
+      - name: Select latest stable GCC and install Qt system dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-16 ninja-build libgl-dev libegl-dev libglx-dev libxkbcommon-dev libxkbcommon-x11-0 libxcb-cursor0
+          sudo apt-get install -y ninja-build libgl-dev libegl-dev libglx-dev libxkbcommon-dev libxkbcommon-x11-0 libxcb-cursor0
+          brew=/home/linuxbrew/.linuxbrew/bin/brew
+          "$brew" update
+          "$brew" install gcc
+          prefix=$("$brew" --prefix gcc)
+          cxx=("$prefix"/bin/g++-[0-9]*)
+          cc=("$prefix"/bin/gcc-[0-9]*)
+          test -x "${cxx[0]}" && test -x "${cc[0]}"
+          echo "CC=${cc[0]}" >> "$GITHUB_ENV"
+          echo "CXX=${cxx[0]}" >> "$GITHUB_ENV"
+      - name: Select newest stable Xcode on the runner
+        if: runner.os == 'macOS'
+        run: |
+          xcode=$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          apps = Path('/Applications').glob('Xcode_*.app')
+          stable = [(tuple(map(int, m[1].split('.'))), p) for p in apps
+                    if (m := re.fullmatch(r'Xcode_(\d+(?:\.\d+)*)\.app', p.name))]
+          print(max(stable)[1])
+          PY
+          )
+          sudo xcode-select --switch "$xcode"
+          xcodebuild -version
       - name: Install Qt 6.12
         if: matrix.id != 'windows-x86_64-gcc'
         uses: jurplel/install-qt-action@v4
@@ -98,7 +146,31 @@ jobs:
           cache: true
 
       - name: Configure Release desktop
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON ${{ matrix.cmake_arch }}
+        run: |
+          cmake -E make_directory build/.cmake/api/v1/query
+          cmake -E touch build/.cmake/api/v1/query/toolchains-v1
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON ${{ matrix.cmake_arch }}
+      - name: Name package from configured C++ compiler
+        id: package
+        shell: python {0}
+        env:
+          BUILD_ID: ${{ matrix.id }}
+        run: |
+          import json, os, re
+          from pathlib import Path
+          reply = Path('build/.cmake/api/v1/reply')
+          index = json.loads(next(reply.glob('index-*.json')).read_text())
+          toolchains = json.loads((reply / index['reply']['toolchains-v1']['jsonFile']).read_text())
+          compiler = next(t['compiler'] for t in toolchains['toolchains'] if t['language'] == 'CXX')
+          family = {'GNU': 'gcc', 'MSVC': 'msvc', 'Clang': 'clang', 'AppleClang': 'appleclang'}[compiler['id']]
+          build = os.environ['BUILD_ID']
+          version = compiler['version']
+          if not build.endswith('-' + family) or not re.fullmatch(r'\d+(?:\.\d+)+', version):
+              raise ValueError(f'Unexpected compiler for {build}: {compiler}')
+          name = f'JX3DPS-{build}-{version}'
+          print(name)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              print(f'name={name}', file=out)
       - name: Build desktop
         run: cmake --build build --target JX3DPSDesktop
 
@@ -109,13 +181,13 @@ jobs:
           if (!(Test-Path -LiteralPath 'build/bin/JX3DPS Desktop.exe')) { throw 'Missing desktop executable' }
           New-Item -ItemType Directory -Path build/bin/data -Force | Out-Null
           Copy-Item -LiteralPath data/jx3box -Destination build/bin/data -Recurse
-          Compress-Archive -Path build/bin/* -DestinationPath JX3DPS-${{ matrix.id }}.zip
+          Compress-Archive -Path build/bin/* -DestinationPath ${{ steps.package.outputs.name }}.zip
       - name: Package Linux desktop
         if: runner.os == 'Linux'
         run: |
           test -x 'build/bin/JX3DPS Desktop'
           mkdir -p build/bin/data && cp -R data/jx3box build/bin/data/
-          tar -C build/bin -czf JX3DPS-${{ matrix.id }}.tar.gz .
+          tar -C build/bin -czf ${{ steps.package.outputs.name }}.tar.gz .
       - name: Package macOS desktop
         if: runner.os == 'macOS'
         run: |
@@ -125,11 +197,11 @@ jobs:
           mkdir -p "$app/Contents/Resources/data" && cp -R data/jx3box "$app/Contents/Resources/data/"
           macdeployqt "$app" -dmg
           codesign --verify --deep --strict "$app"
-          mv build/bin/JX3DPSDesktop.dmg JX3DPS-${{ matrix.id }}.dmg
+          mv build/bin/JX3DPSDesktop.dmg ${{ steps.package.outputs.name }}.dmg
       - uses: actions/upload-artifact@v6
         with:
-          name: JX3DPS-${{ matrix.id }}
-          path: JX3DPS-${{ matrix.id }}.*
+          name: ${{ steps.package.outputs.name }}
+          path: ${{ steps.package.outputs.name }}.*
           if-no-files-found: error
           retention-days: 7
 
@@ -166,8 +238,9 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag || github.ref_name }}
           target_commitish: ${{ github.sha }}
           files: |
-            packages/JX3DPS-windows-x86_64-gcc.zip
-            packages/JX3DPS-windows-x86_64-msvc.zip
-            packages/JX3DPS-linux-x86_64-gcc.tar.gz
-            packages/JX3DPS-macos-arm64-appleclang.dmg
+            packages/JX3DPS-windows-x86_64-gcc-*.zip
+            packages/JX3DPS-windows-x86_64-msvc-*.zip
+            packages/JX3DPS-windows-x86_64-clang-*.zip
+            packages/JX3DPS-linux-x86_64-gcc-*.tar.gz
+            packages/JX3DPS-macos-arm64-appleclang-*.dmg
           fail_on_unmatched_files: true

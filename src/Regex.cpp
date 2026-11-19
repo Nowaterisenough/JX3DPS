@@ -260,7 +260,7 @@ JX3DPS::Error_t JX3DPS::Regex::ParseToExprEvents(const std::list<std::string> &s
         }
     }
 
-    std::stable_sort(exprEvents.begin(), exprEvents.end(), [](const ExprEvent &a, const ExprEvent &b) {
+    exprEvents.sort([](const ExprEvent &a, const ExprEvent &b) {
         return a.first < b.first;
     });
 

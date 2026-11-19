@@ -36,4 +36,4 @@
 #define COLOR_BUTTON_BLUE_HOVER    26, 159, 255
 
 #define TO_STR(x)                  ADD_QUOTES_HELPER(x)
-#define ADD_QUOTES_HELPER(x)       #x
+#define ADD_QUOTES_HELPER(...)     #__VA_ARGS__

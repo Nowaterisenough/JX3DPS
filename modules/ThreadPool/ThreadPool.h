@@ -11,6 +11,7 @@
 #ifndef THREAD_POOL_H
 #define THREAD_POOL_H
 
+#include <functional>
 #include <vector>
 #include <queue>
 #include <atomic>

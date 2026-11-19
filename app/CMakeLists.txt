@@ -123,37 +123,6 @@ if(WIN32)
     get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
     find_program(DEPLOYQT_EXECUTABLE NAMES windeployqt macdeployqt HINTS "${_qt_bin_dir}")
 
-    add_custom_command(TARGET ${PROJECT_NAME}
-        POST_BUILD
-        COMMAND ${DEPLOYQT_EXECUTABLE}
-        --verbose 1
-        --no-svg
-        --no-network
-        #--no-opengl
-        --no-opengl-sw
-        --no-compiler-runtime
-        --no-system-d3d-compiler
-        --no-translations
-        --$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>
-        $<TARGET_FILE:${PROJECT_NAME}>
-    )
-
-    add_custom_command(
-        TARGET ${PROJECT_NAME} # 指定编译的目标名
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/config/config.json # 要复制的文件路径
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/config.json # 目标路径
-    )
-
-    # 添加一个自定义命令，用于将文件打包为zip格式
-    add_custom_command(
-        TARGET ${PROJECT_NAME} # 指定编译的目标名
-        POST_BUILD
-        COMMAND tar cf
-        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${APP_NAME} ${PROJECT_VERSION}.zip"
-        "--format=zip" 
-        "--directory=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>"
-        *.*
-    )
 endif()
+
+target_compile_options(JX3DPSSimulator PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-include>" "$<$<COMPILE_LANGUAGE:CXX>:windows.h>")

@@ -220,7 +220,7 @@ SubComboBox::SubComboBox(QWidget *parent) : QComboBox(parent)
         {
             ((ItemWidget *)listWidget->itemWidget(previous))->SetSelected(false);
         }
-        if (current == nullptr && ((ItemWidget *)listWidget->itemWidget(current)) == nullptr)
+        if (current == nullptr || listWidget->itemWidget(current) == nullptr)
         {
             return;
         }

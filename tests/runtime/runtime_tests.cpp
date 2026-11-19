@@ -230,6 +230,18 @@ void SchedulerTests() {
     queue.DispatchDue([&](auto, auto) { queue.Arm(a, 2); });
     CHECK(queue.NextDelta() == 2);
     queue.Reset(); CHECK(!queue.NextDelta() && queue.Now() == 0);
+    // Equal deadlines and priorities must stay FIFO even after a long fight
+    // exhausts the short insertion rank stored in a heap entry.
+    for (unsigned i = 0; i < 65534; ++i) queue.Arm(urgent, 1);
+    queue.Cancel(urgent);
+    queue.Arm(a, 1); queue.Arm(peer, 1); queue.Arm(cancelled, 1);
+    queue.Arm(peer, 1); // move behind the other saturated rank
+    queue.Arm(b, 1);    // higher priority still wins
+    queue.Advance(1);
+    fired.clear();
+    queue.DispatchDue([&](auto, auto id) { fired.push_back(id); });
+    CHECK((fired == std::vector<DeadlineQueue::TimerId>{b, a, cancelled, peer}));
+    queue.Reset();
     queue.Arm(a, 0);
     Throws<std::runtime_error>([&] { queue.DispatchDue([&](auto, auto id) { queue.Arm(id, 0); }, 5); });
     queue.Reset();

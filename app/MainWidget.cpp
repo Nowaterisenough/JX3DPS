@@ -18,6 +18,11 @@
 #include <functional>
 
 #include <QLayout>
+#include <QCheckBox>
+#include <QDialog>
+#include <QLabel>
+#include <QMessageBox>
+#include "fight_flame_graph.h"
 
 #include <spdlog/spdlog.h>
 
@@ -39,6 +44,7 @@
 
 #include "ImportWidget.h"
 #include "JX3DPS.h"
+#include "Global/Id.h"
 #include "JX3DPSJsonParser.h"
 #include "StatsWidget.h"
 #include "TimeLineWidget.h"
@@ -313,6 +319,60 @@ void JX3DPS::Simulator::Widget::InitWidgetOut(QWidget *parent)
     gLayout->addItem(spacerItem, 1, 0, 1, 2);
     gLayout->addWidget(buttonStats, 2, 0, 1, 1);
     gLayout->addWidget(buttonTimeLine, 2, 1, 1, 1);
+
+    auto *hotspots = new QCheckBox(tr("采集性能热点"), parent);
+    hotspots->setObjectName("collectHotspots");
+    hotspots->setToolTip(tr("模拟期间采样各工作线程；完成后显示合并火焰图。"));
+    auto *openProfile = new QPushButton(tr("查看热点"), parent);
+    openProfile->setObjectName("viewHotspots");
+    openProfile->setEnabled(false);
+    gLayout->addWidget(hotspots, 3, 0);
+    gLayout->addWidget(openProfile, 3, 1);
+    auto *dialog = new QDialog(this);
+    dialog->setWindowTitle(tr("性能热点 · 第四版"));
+    dialog->resize(900, 500);
+    auto *layout = new QVBoxLayout(dialog);
+    auto *summary = new QLabel(dialog);
+    summary->setWordWrap(true);
+    auto *graph = new FightFlameGraph(dialog);
+    layout->addWidget(summary);
+    layout->addWidget(graph, 1);
+    connect(openProfile, &QPushButton::clicked, dialog, [dialog] {
+        dialog->show();
+        dialog->raise();
+    });
+    connect(this, &Widget::Signal_UpdateParams, this, [hotspots](nlohmann::ordered_json &params) {
+        if (hotspots->isChecked())
+            params["Options"]["PerformanceHotspots"] = true;
+    });
+    connect(this, &Widget::Signal_UpdateResult, this,
+            [=, runId = quint64(0)](const nlohmann::ordered_json &result) mutable {
+                if (!result.contains("PerformanceHotspots")) {
+                    openProfile->setEnabled(false);
+                    dialog->hide();
+                    return;
+                }
+                const auto &data = result.at("PerformanceHotspots");
+                FightHotspots report;
+                report.samplePoints = data.at("samplePoints").get<quint64>();
+                report.workerMs = data.at("workerMs").get<double>();
+                for (const auto &call : data.at("calls"))
+                    report.calls.push_back({QString::fromStdString(call.at("function").get<std::string>()),
+                                            call.at("parent").get<unsigned>(), call.at("inclusive").get<quint64>(),
+                                            call.at("self").get<quint64>()});
+                summary->setText(
+                    tr("%1 场实际战斗（含收益重跑） · %2 个工作线程 · %3 点 · 批跑 %4 秒 · 线程累计 %5 秒")
+                        .arg(data.at("fights").get<quint64>())
+                        .arg(data.at("workers").get<quint64>())
+                        .arg(report.samplePoints)
+                        .arg(data.at("wallMs").get<double>() / 1000, 0, 'f', 3)
+                        .arg(report.workerMs / 1000, 0, 'f', 3) +
+                    (report.samplePoints ? QString{} : tr(" · 运行太短，未采到样本。")));
+                graph->SetReport(report, ++runId);
+                openProfile->setEnabled(true);
+                dialog->show();
+                dialog->raise();
+            });
 
     StatsWidget *statsWidget = new StatsWidget(nullptr);
     statsWidget->hide();
@@ -1219,16 +1279,32 @@ void JX3DPS::Simulator::Widget::Start()
     emit Signal_UpdateParamsClassType(json);
     emit Signal_UpdateParams(json);
 
+    if (!json.contains("SkillsExpression") || !json.contains("EventsExpression")) {
+        QMessageBox::information(this, tr("模拟配置"), tr("请先选择心法，并填写技能宏和事件脚本。"));
+        return;
+    }
     ProgressBar *progressBar = new ProgressBar(nullptr);
     progressBar->setAttribute(Qt::WA_DeleteOnClose);
     progressBar->show();
 
     ThreadPool::Instance()->Enqueue([=]() {
         char *buffer = new char[1024 * 1024 * 1024];
-        JX3DPSSimulate(json.dump().c_str(), buffer, progressBar, [](void *obj, double arg, const char *text) {
-            static_cast<ProgressBar *>(obj)->SetProgress(arg, text);
-        });
+        const int status =
+            JX3DPSSimulate(json.dump().c_str(), buffer, progressBar, [](void *obj, double arg, const char *text) {
+                auto *bar = static_cast<ProgressBar *>(obj);
+                QMetaObject::invokeMethod(
+                    bar, [bar, arg, label = QByteArray(text)] { bar->SetProgress(arg, label.constData()); },
+                    Qt::QueuedConnection);
+            });
 
+        if (status != JX3DPS::JX3DPS_SUCCESS) {
+            delete[] buffer;
+            QMetaObject::invokeMethod(this, [this, progressBar, status] {
+                progressBar->close();
+                QMessageBox::warning(this, tr("模拟失败"), tr("请检查配置和宏，错误码 %1。").arg(status));
+            });
+            return;
+        }
         std::string str = buffer;
         delete[] buffer;
 

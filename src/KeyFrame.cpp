@@ -14,6 +14,7 @@
  */
 
 #include "KeyFrame.h"
+#include "FightProfile.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -115,14 +116,14 @@ void JX3DPS::KeyFrame::UpdateKeyFrameSequence(KeyFrameSequence &keyFrameSequence
     }
 }
 
-void JX3DPS::KeyFrame::KeyFrameAdvance(
-    KeyFrameSequence &keyFrameSequence,
-    Player           *player,
-    Targets          *targets,
-    ExprEvents       &exprEvents,
-    ExprSkillsHash   &exprSkillsHash,
-    Options          &options)
-{
+namespace JX3DPS::KeyFrame {
+template <bool Measure>
+static Id_t CastImpl(Player *, Targets *, ExprSkillsHash &, ExprSkills &, Frame_t, Id_t &, Id_t &, int &&,
+                     profile::Worker *);
+template <bool Measure>
+static void AdvanceImpl(KeyFrameSequence &keyFrameSequence, Player *player, Targets *targets, ExprEvents &exprEvents,
+                        ExprSkillsHash &exprSkillsHash, Options &options, profile::Worker *worker) {
+    profile::Scope<Measure> advance(worker, profile::Advance);
     Id_t             exprSkillsId     = EXPRESSION_SKILL_PLACE_HOLDERS_1;
     Id_t             lastExprSkillsId = EXPRESSION_SKILL_PLACE_HOLDERS_1;
     ExprSkills       exprSkills       = exprSkillsHash.at(exprSkillsId);
@@ -152,15 +153,20 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         }
         TimeLine::AddTimeStamp(now);
 
-        UpdateKeyFrameSequence(keyFrameSequence, player, next);
+        {
+            profile::Scope<Measure> sample(worker, profile::Update);
+            UpdateKeyFrameSequence(keyFrameSequence, player, next);
+        }
 
         // 执行首序关键帧列
         for (auto &[type, id] : keyFrameSequence.front().second) {
             if (type == KeyFrameType::EVENT) { // 强制事件
+                profile::Scope<Measure> sample(worker, profile::Event);
                 exprEvents.front().second(player, targets);
                 exprEvents.pop_front();
             } else if (type == KeyFrameType::SKILL) { // 技能
                 spdlog::debug("{:<8} {:<5} {}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
+                profile::Scope<Measure> sample(worker, profile::SkillTrigger);
                 player->skills[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -172,6 +178,7 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
 
             } else if (type == KeyFrameType::BUFF) { // buff
                 spdlog::debug("{:<8} {:<5} {:<10}", now * 0.0625, "", JX3DPS_NAME.at(static_cast<int>(id)));
+                profile::Scope<Measure> sample(worker, profile::BuffTrigger);
                 player->buffs[id]->Trigger();
                 KeyFrame keyFrame;
                 keyFrame.first = 0;
@@ -184,9 +191,12 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
         keyFrameSequence.pop_front();
 
         if (!player->IsStop()) {
-            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId, 0);
+            profile::Scope<Measure> macro(worker, profile::Macro);
+            CastImpl<Measure>(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId, 0,
+                              worker);
         }
 
+        profile::Scope<Measure> rebuild(worker, profile::Rebuild);
         // 检查后序关键帧因为事件、技能施放或buff刷新等原因的状态变化
         for (auto it = keyFrameSequence.begin(); it != keyFrameSequence.end();) {
             for (auto iter = it->second.begin(); iter != it->second.end();) {
@@ -261,16 +271,10 @@ void JX3DPS::KeyFrame::KeyFrameAdvance(
     }
 }
 
-JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
-    Player         *player,
-    Targets        *targets,
-    ExprSkillsHash &exprSkillsHash,
-    ExprSkills     &exprSkills,
-    Frame_t         now,
-    Id_t           &exprSkillsId,
-    Id_t           &lastExprSkillsId,
-    int             &&recursiveCount)
-{
+template <bool Measure>
+static Id_t CastImpl(Player *player, Targets *targets, ExprSkillsHash &exprSkillsHash, ExprSkills &exprSkills,
+                     Frame_t now, Id_t &exprSkillsId, Id_t &lastExprSkillsId, int &&recursiveCount,
+                     profile::Worker *worker) {
     for (auto iter = exprSkills.begin(); iter != exprSkills.end();) {
         bool scast = iter->first.front().front()(player, targets);
 
@@ -316,6 +320,7 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
                               now * 0.0625,
                               "宏·" + std::to_string(exprSkillsId - EXPRESSION_SKILL_PLACE_HOLDERS_DEFAULT),
                               JX3DPS_NAME.at(static_cast<int>(id)));
+                profile::Scope<Measure> cast(worker, profile::Cast);
                 player->skills[id]->Cast();
             } else if (id > TARGET_PLACE_HOLDERS_DEFAULT) { // 转火目标
                 recursiveCount++;
@@ -339,7 +344,8 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
             if (recursiveCount > exprSkillsHash.size() * 2) {
                 return SKILL_DEFAULT;
             }
-            CastSkills(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId, std::move(recursiveCount));
+            CastImpl<Measure>(player, targets, exprSkillsHash, exprSkills, now, exprSkillsId, lastExprSkillsId,
+                              std::move(recursiveCount), worker);
             return SKILL_DEFAULT;
         } else if (scast) { // scast执行失败
             return SKILL_DEFAULT;
@@ -349,3 +355,16 @@ JX3DPS::Id_t JX3DPS::KeyFrame::CastSkills(
     }
     return SKILL_DEFAULT;
 }
+
+void KeyFrameAdvance(KeyFrameSequence &q, Player *p, Targets *t, ExprEvents &e, ExprSkillsHash &m, Options &o) {
+    AdvanceImpl<false>(q, p, t, e, m, o, nullptr);
+}
+void KeyFrameAdvanceProfiled(KeyFrameSequence &q, Player *p, Targets *t, ExprEvents &e, ExprSkillsHash &m, Options &o,
+                             profile::Worker *worker) {
+    AdvanceImpl<true>(q, p, t, e, m, o, worker);
+}
+Id_t CastSkills(Player *p, Targets *t, ExprSkillsHash &m, ExprSkills &s, Frame_t f, Id_t &id, Id_t &last,
+                int &&depth) {
+    return CastImpl<false>(p, t, m, s, f, id, last, std::move(depth), nullptr);
+}
+} // namespace JX3DPS::KeyFrame

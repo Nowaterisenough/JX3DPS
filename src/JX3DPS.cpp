@@ -28,6 +28,7 @@
 #include "Buff.h"
 #include "JsonParse.h"
 #include "KeyFrame.h"
+#include "FightProfile.hpp"
 #include "Regex.h"
 #include "Skill.h"
 #include "Target.hpp"
@@ -65,33 +66,47 @@ long long Sum(const Stats &stats)
     return sum;
 }
 
-Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents, Options &op)
-{
+template <bool Measure>
+static Stats SimulateImpl(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents, Options &op,
+                          profile::Worker *worker) {
     Options  options = op;
     Targets *targets = new Targets;
-    Player  *player  = p.Clone();
-    player->SetTargets(targets);
-
+    Player *player;
     ExprEvents events;
-    for (const auto &exprEvent : exprEvents) {
-        events.emplace_back(exprEvent);
-    }
-
     ExprSkillsHash skillsHash;
-    for (const auto &[id, exprSkills] : exprSkillsHash) {
-        ExprSkills skills;
-        for (const auto &exprSkill : exprSkills) {
-            skills.emplace_back(exprSkill);
-        }
-        skillsHash.emplace(id, skills);
-    }
+    {
+        profile::Scope<Measure> clone(worker, profile::Clone);
+        player = p.Clone();
+        player->SetTargets(targets);
 
+        for (const auto &exprEvent : exprEvents) {
+            events.emplace_back(exprEvent);
+        }
+
+        for (const auto &[id, exprSkills] : exprSkillsHash) {
+            ExprSkills skills;
+            for (const auto &exprSkill : exprSkills) {
+                skills.emplace_back(exprSkill);
+            }
+            skillsHash.emplace(id, skills);
+        }
+    }
     KeyFrame::KeyFrameSequence keyFrameSequence;
-    KeyFrame::GenerateKeyFrameSequence(keyFrameSequence, player, events, skillsHash);
-    KeyFrame::KeyFrameAdvance(keyFrameSequence, player, targets, events, skillsHash, options);
+    {
+        profile::Scope<Measure> prepare(worker, profile::Prepare);
+        KeyFrame::GenerateKeyFrameSequence(keyFrameSequence, player, events, skillsHash);
+    }
+    if constexpr (Measure)
+        KeyFrame::KeyFrameAdvanceProfiled(keyFrameSequence, player, targets, events, skillsHash, options, worker);
+    else
+        KeyFrame::KeyFrameAdvance(keyFrameSequence, player, targets, events, skillsHash, options);
 
     Stats stats;
-    SummarizeStats(*player, stats);
+    {
+        profile::Scope<Measure> summary(worker, profile::Summary);
+        SummarizeStats(*player, stats);
+    }
+    profile::Scope<Measure> cleanup(worker, profile::Cleanup);
 
     delete player;
     for (auto &[id, target] : *targets) {
@@ -102,14 +117,13 @@ Stats Simulate(Player &p, ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents
     return stats;
 }
 
-void SimulatePool(ExprSkillsHash &exprSkillsHash,
-                  ExprEvents     &exprEvents,
-                  Player         &player,
-                  Options        &options,
-                  Stats          &stats,
-                  void           *obj,
-                  void (*progress)(void *, double, const char *))
-{
+Stats Simulate(Player &p, ExprSkillsHash &m, ExprEvents &e, Options &o) {
+    return SimulateImpl<false>(p, m, e, o, nullptr);
+}
+
+void SimulatePool(ExprSkillsHash &exprSkillsHash, ExprEvents &exprEvents, Player &player, Options &options,
+                  Stats &stats, void *obj, void (*progress)(void *, double, const char *),
+                  const std::shared_ptr<profile::Session> &profileRun) {
     StatsInit(player.GetClassType(), stats);
 
     int count = 1;
@@ -124,15 +138,26 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
         step = 1;
     }
 
+    auto enqueueFight = [&](bool gain) {
+        if (!profileRun)
+            return ThreadPool::Instance()->Enqueue(Simulate, std::ref(player), std::ref(exprSkillsHash),
+                                                   std::ref(exprEvents), std::ref(options));
+        return ThreadPool::Instance()->Enqueue([&, session = profileRun, gain] {
+            auto &worker = session->Register();
+            const auto begin = std::chrono::steady_clock::now();
+            worker.current.store(gain ? profile::Count : profile::Fight, std::memory_order_relaxed);
+            auto result = SimulateImpl<true>(player, exprSkillsHash, exprEvents, options, &worker);
+            worker.current.store(-1, std::memory_order_relaxed);
+            ++worker.fights;
+            worker.elapsed += std::chrono::steady_clock::now() - begin;
+            return result;
+        });
+    };
     // 默认模拟
     {
         std::list<std::future<Stats>> results;
         for (int i = 0; i < options.simIterations; i++) {
-            auto res = ThreadPool::Instance()->Enqueue(Simulate,
-                                                       std::ref(player),
-                                                       std::ref(exprSkillsHash),
-                                                       std::ref(exprEvents),
-                                                       std::ref(options));
+            auto res = enqueueFight(false);
             results.emplace_back(std::move(res));
         }
 
@@ -164,11 +189,7 @@ void SimulatePool(ExprSkillsHash &exprSkillsHash,
 
         std::list<std::future<Stats>> results;
         for (int i = 0; i < options.simIterations; i++) {
-            auto res = ThreadPool::Instance()->Enqueue(Simulate,
-                                                       std::ref(player),
-                                                       std::ref(exprSkillsHash),
-                                                       std::ref(exprEvents),
-                                                       std::ref(options));
+            auto res = enqueueFight(true);
             results.emplace_back(std::move(res));
         }
 
@@ -297,7 +318,11 @@ Error_t Start(const nlohmann::ordered_json &in,
     }
 
     Stats stats;
-    SimulatePool(exprSkillsHash, exprEvents, *player, options, stats, obj, progress);
+    const auto session =
+        in.at("Options").value("PerformanceHotspots", false) ? std::make_shared<profile::Session>() : nullptr;
+    SimulatePool(exprSkillsHash, exprEvents, *player, options, stats, obj, progress, session);
+    if (session)
+        out["PerformanceHotspots"] = session->Report();
     delete player;
 
     out["SimIterations"] = options.simIterations;

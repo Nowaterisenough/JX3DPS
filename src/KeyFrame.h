@@ -20,6 +20,9 @@
 
 namespace JX3DPS {
 
+namespace profile {
+struct Worker;
+}
 namespace KeyFrame {
 
 enum class KeyFrameType
@@ -67,6 +70,9 @@ void KeyFrameAdvance(KeyFrameSequence &keyFrameSequence,
                      ExprEvents       &exprEvents,
                      ExprSkillsHash   &exprSkillsHash,
                      Options          &options);
+
+void KeyFrameAdvanceProfiled(KeyFrameSequence &, Player *, Targets *, ExprEvents &, ExprSkillsHash &, Options &,
+                             profile::Worker *);
 
 Id_t CastSkills(Player         *player,
                 Targets        *targets,

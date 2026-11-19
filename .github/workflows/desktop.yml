@@ -17,24 +17,24 @@ jobs:
       matrix:
         include:
           - name: Windows UCRT64 GCC
-            id: windows-ucrt64
+            id: windows-x86_64-gcc
             runner: windows-2025
             cc: gcc
             cxx: g++
           - name: Windows MSVC
-            id: windows-msvc
+            id: windows-x86_64-msvc
             runner: windows-2025-vs2026
             cc: cl
             cxx: cl
             qt_arch: win64_msvc2022_64
           - name: Ubuntu GCC
-            id: linux-x86_64
+            id: linux-x86_64-gcc
             runner: ubuntu-26.04
             cc: gcc-16
             cxx: g++-16
             qt_arch: linux_gcc_64
           - name: macOS AppleClang
-            id: macos-arm64
+            id: macos-arm64-appleclang
             runner: macos-26-intel
             cc: clang
             cxx: clang++
@@ -50,7 +50,7 @@ jobs:
           submodules: recursive
 
       - name: Install Qt and GCC from the same UCRT64 repository
-        if: matrix.id == 'windows-ucrt64'
+        if: matrix.id == 'windows-x86_64-gcc'
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
@@ -60,7 +60,7 @@ jobs:
             mingw-w64-ucrt-x86_64-qt6-tools mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
       - name: Select UCRT64 toolchain
-        if: matrix.id == 'windows-ucrt64'
+        if: matrix.id == 'windows-x86_64-gcc'
         shell: msys2 {0}
         run: |
           cygpath -w /ucrt64/bin >> "$GITHUB_PATH"
@@ -68,7 +68,7 @@ jobs:
           qmake6 -query QT_VERSION
 
       - name: Select Visual Studio x64 environment
-        if: matrix.id == 'windows-msvc'
+        if: matrix.id == 'windows-x86_64-msvc'
         shell: pwsh
         run: |
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
@@ -88,7 +88,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y g++-16 ninja-build libgl-dev libegl-dev libglx-dev libxkbcommon-dev libxkbcommon-x11-0 libxcb-cursor0
       - name: Install Qt 6.12
-        if: matrix.id != 'windows-ucrt64'
+        if: matrix.id != 'windows-x86_64-gcc'
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.12.0'
@@ -115,7 +115,7 @@ jobs:
         run: |
           test -x 'build/bin/JX3DPS Desktop'
           mkdir -p build/bin/data && cp -R data/jx3box build/bin/data/
-          tar -C build/bin -czf JX3DPS-linux-x86_64.tar.gz .
+          tar -C build/bin -czf JX3DPS-${{ matrix.id }}.tar.gz .
       - name: Package macOS desktop
         if: runner.os == 'macOS'
         run: |
@@ -125,7 +125,7 @@ jobs:
           mkdir -p "$app/Contents/Resources/data" && cp -R data/jx3box "$app/Contents/Resources/data/"
           macdeployqt "$app" -dmg
           codesign --verify --deep --strict "$app"
-          mv build/bin/JX3DPSDesktop.dmg JX3DPS-macos-arm64.dmg
+          mv build/bin/JX3DPSDesktop.dmg JX3DPS-${{ matrix.id }}.dmg
       - uses: actions/upload-artifact@v6
         with:
           name: JX3DPS-${{ matrix.id }}

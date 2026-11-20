@@ -28,8 +28,9 @@
 | `src/class/{tai_xu_jian_yi,mo_wen}/` | 两种心法的 `skills.hpp` 技能与 Buff 目录、`runtime_data.hpp` 配置及系数、`runtime_rules.hpp` 战斗行为 |
 | `apps/desktop/`、`apps/cli/`、`apps/web/` | Qt 工作台、命令行和浏览器工作台 |
 | `tests/engine/`、`tests/runtime/`、`tests/desktop/` | C 客户端、战斗内核和桌面集成回归 |
+| `tools/release/` | 发布包基准、跨端校验与性能图生成 |
 
-Web 版在浏览器 Worker 内执行相同的 C++ 引擎。用 Emscripten 构建后可直接部署静态文件。[Web 构建与使用](apps/web/README.md) · [引擎接口](docs/engine_api.md)
+Web 版在浏览器 Worker 内执行相同的 C++ 引擎。用 Emscripten 构建后可直接部署静态文件。每次发布附带五种桌面构建与 WASM/Web 的批跑耗时图、原始数据和伤害校验值。[Web 构建与使用](apps/web/README.md) · [引擎接口](docs/engine_api.md)
 
 ## For Developer
 1. git代码仓

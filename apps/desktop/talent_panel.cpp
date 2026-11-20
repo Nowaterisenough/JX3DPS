@@ -140,14 +140,14 @@ struct TalentPanel::Impl {
         headerWidget->setObjectName(QStringLiteral("talentHeader%1").arg(static_cast<int>(selected)));
         auto *header = new QHBoxLayout(headerWidget);
         header->setContentsMargins(0, 0, 0, 0);
-        auto *title = new QLabel(QStringLiteral("9\u91cd\u5947\u7a74 \u00b7 \u9884\u89c8"), panel);
+        auto *title = new QLabel(QStringLiteral("9重奇穴 · 预览"), panel);
         title->setStyleSheet(QStringLiteral("font-size: 11px; color: #a3a6ad;"));
         title->setToolTip(TalentCatalog().value("title").toString() + " / " + TalentPanel::DataVersion());
         header->addWidget(title, 1);
         auto *clear = new QToolButton(panel);
         clear->setObjectName(QStringLiteral("clearTalentPreview"));
-        clear->setText(QStringLiteral("\u6e05\u7a7a"));
-        clear->setToolTip(QStringLiteral("\u6e05\u7a7a\u65b0\u7248\u5947\u7a74\u914d\u88c5"));
+        clear->setText(QStringLiteral("清空"));
+        clear->setToolTip(QStringLiteral("清空新版奇穴配装"));
         QObject::connect(clear, &QToolButton::clicked, panel, [host] { host->ClearSelection(); });
         header->addWidget(clear);
         layout->addWidget(headerWidget);
@@ -223,8 +223,8 @@ struct TalentPanel::Impl {
     void UpdateLegacy() {
         int count = 0;
         for (auto *input : legacyInputs) if (input->isChecked()) ++count;
-        legacyToggle->setText(QStringLiteral("\u65e7\u89c4\u5219(%1)").arg(count));
-        legacyToggle->setToolTip(QStringLiteral("\u65e7\u7248\u6218\u6597\u89c4\u5219\u7684\u5947\u7a74\u6a21\u62df\u9009\u9879"));
+        legacyToggle->setText(QStringLiteral("旧规则(%1)").arg(count));
+        legacyToggle->setToolTip(QStringLiteral("旧版战斗规则的奇穴模拟选项"));
     }
     void Refresh() {
         for (int index = 0; index < static_cast<int>(talentSlots.size()); ++index) {
@@ -234,10 +234,10 @@ struct TalentPanel::Impl {
             auto *button = slot.button;
             button->artwork = GameIcon(preview.value("icon").toInt());
             button->selectedCount = slot.selected.isEmpty() ? 0 : 1;
-            button->caption = slot.selected.isEmpty() ? QStringLiteral("\u672a\u9009\u62e9") : selected.value("name").toString();
-            button->setAccessibleName(QStringLiteral("\u7b2c %1 \u91cd\u5947\u7a74\uff1a%2").arg(index + 1).arg(button->caption));
+            button->caption = slot.selected.isEmpty() ? QStringLiteral("未选择") : selected.value("name").toString();
+            button->setAccessibleName(QStringLiteral("第 %1 重奇穴：%2").arg(index + 1).arg(button->caption));
             button->setToolTip(button->accessibleName() + '\n' + selected.value("desc").toString() +
-                (Mixed(index) ? QStringLiteral("\n\u6df7\u9009\u6c60\uff1a12\u90093\uff0c\u4e0d\u53ef\u91cd\u590d") : QString{}));
+                (Mixed(index) ? QStringLiteral("\n混选池：12选3，不可重复") : QString{}));
             button->update();
         }
     }
@@ -259,8 +259,8 @@ struct TalentPanel::Impl {
             }
             delete item;
         }
-        auto *heading = new QLabel(Mixed(index) ? QStringLiteral("\u6df7\u9009\u5947\u7a74 \u00b7 12\u90093")
-            : QStringLiteral("\u7b2c %1 \u91cd").arg(index + 1), choices);
+        auto *heading = new QLabel(Mixed(index) ? QStringLiteral("混选奇穴 · 12选3")
+            : QStringLiteral("第 %1 重").arg(index + 1), choices);
         heading->setAlignment(Qt::AlignCenter);
         choiceLayout->addWidget(heading);
         auto *grid = new QGridLayout;
@@ -282,7 +282,7 @@ struct TalentPanel::Impl {
             button->setAccessibleName(button->caption);
             button->setToolTip(button->caption + '\n' + entry.value("desc").toString());
             button->setEnabled(!UsedElsewhere(index, id));
-            if (!button->isEnabled()) button->setToolTip(button->toolTip() + QStringLiteral("\n\u5df2\u5728\u5176\u4ed6\u6df7\u9009\u69fd\u9009\u62e9"));
+            if (!button->isEnabled()) button->setToolTip(button->toolTip() + QStringLiteral("\n已在其他混选槽选择"));
             grid->addWidget(button, position / columns, position % columns, Qt::AlignHCenter);
             ++position;
             QObject::connect(button, &QToolButton::clicked, panel, [this, index, id] { Select(index, id); });
@@ -291,7 +291,7 @@ struct TalentPanel::Impl {
         }
         auto *clear = new QToolButton(choices);
         clear->setFocusPolicy(Qt::StrongFocus);
-        clear->setText(QStringLiteral("\u6e05\u7a7a\u672c\u91cd"));
+        clear->setText(QStringLiteral("清空本重"));
         clear->setObjectName(QStringLiteral("clearTalentTier"));
         choiceLayout->addWidget(clear);
         QObject::connect(clear, &QToolButton::clicked, panel, [this, index] { Select(index, {}); });
@@ -343,16 +343,16 @@ bool TalentPanel::HasSelection() const {
 }
 bool TalentPanel::ValidateSelection(const QJsonArray &selection, QString &error) const {
     if (selection.size() != static_cast<int>(d->talentSlots.size())) {
-        error = QStringLiteral("\u5947\u7a74\u914d\u88c5\u5fc5\u987b\u4e3a9\u91cd"); return false;
+        error = QStringLiteral("奇穴配装必须为9重"); return false;
     }
     for (int index = 0; index < selection.size(); ++index) {
         if (!selection[index].isString() || (!selection[index].toString().isEmpty() && d->Entry(index, selection[index].toString()).isEmpty())) {
-            error = QStringLiteral("\u7b2c %1 \u91cd\u5947\u7a74\u65e0\u6548").arg(index + 1); return false;
+            error = QStringLiteral("第 %1 重奇穴无效").arg(index + 1); return false;
         }
         if (selection[index].toString().isEmpty()) continue;
         for (int previous = 0; previous < index; ++previous)
             if (d->talentSlots[previous].group == d->talentSlots[index].group && selection[previous] == selection[index]) {
-                error = QStringLiteral("\u6df7\u9009\u5947\u7a74\u4e0d\u80fd\u91cd\u590d\u9009\u62e9"); return false;
+                error = QStringLiteral("混选奇穴不能重复选择"); return false;
             }
     }
     return true;

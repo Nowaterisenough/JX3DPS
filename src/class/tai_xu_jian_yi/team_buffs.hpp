@@ -27,20 +27,20 @@ struct Definition {
 };
 // Values and replacement/refresh semantics from ba960f7 src/Buff3rd.cpp.
 inline constexpr std::array<Definition, Count> Definitions{{
-    {"han_ru_lei", "\xe6\x92\xbc\xe5\xa6\x82\xe9\x9b\xb7", 28800, 1, false, {.attack_percent=51}},
-    {"po_feng", "\xe7\xa0\xb4\xe9\xa3\x8e", 224, 1, true, {.shield=-1150}},
-    {"jing_feng", "\xe5\x8a\xb2\xe9\xa3\x8e", 224, 1, true, {.shield=-1397}},
-    {"jie_huo", "\xe6\x88\x92\xe7\x81\xab", 240, 1, true, {.vulnerable=20}},
-    {"chao_sheng", "\xe6\x9c\x9d\xe5\x9c\xa3", 128, 24, false, {.strain=400}},
-    {"sheng_yu_ming_xin", "\xe5\x9c\xa3\xe6\xb5\xb4\xe6\x98\x8e\xe5\xbf\x83", 128, 24, false, {.strain=600}},
-    {"zhen_fen", "\xe6\x8c\xaf\xe5\xa5\x8b", 160, 125, false, {.overcome_base=60}},
-    {"han_xiao_qian_jun", "\xe5\xaf\x92\xe5\x95\xb8\xe5\x8d\x83\xe5\x86\x9b", 240, 1, false, {.overcome_percent=256}},
-    {"shu_kuang", "\xe7\x96\x8f\xe7\x8b\x82", 192, 1, false, {.attack_percent=307}},
-    {"han_chang_lin_li", "\xe9\x85\xa3\xe7\x95\x85\xe6\xb7\x8b\xe6\xbc\x93", 80, 1, false, {.crit_basis_points=1000}},
-    {"ji_lei", "\xe6\xbf\x80\xe9\x9b\xb7", 96, 1, false, {.attack_percent=205, .overcome_percent=205}},
-    {"nong_mei", "\xe5\xbc\x84\xe6\xa2\x85", 96, 1, false, {.overcome_base=700, .ignore_shield=205}},
-    {"she_shen_hong_fa", "\xe8\x88\x8d\xe8\xba\xab\xe5\xbc\x98\xe6\xb3\x95", 320, 36, false, {.strain=400}},
-    {"hao_ling_san_jun", "\xe5\x8f\xb7\xe4\xbb\xa4\xe4\xb8\x89\xe5\x86\x9b", 960, 48, false, {.strain=440}}
+    {"han_ru_lei", "撼如雷", 28800, 1, false, {.attack_percent=51}},
+    {"po_feng", "破风", 224, 1, true, {.shield=-1150}},
+    {"jing_feng", "劲风", 224, 1, true, {.shield=-1397}},
+    {"jie_huo", "戒火", 240, 1, true, {.vulnerable=20}},
+    {"chao_sheng", "朝圣", 128, 24, false, {.strain=400}},
+    {"sheng_yu_ming_xin", "圣浴明心", 128, 24, false, {.strain=600}},
+    {"zhen_fen", "振奋", 160, 125, false, {.overcome_base=60}},
+    {"han_xiao_qian_jun", "寒啸千军", 240, 1, false, {.overcome_percent=256}},
+    {"shu_kuang", "疏狂", 192, 1, false, {.attack_percent=307}},
+    {"han_chang_lin_li", "酣畅淋漓", 80, 1, false, {.crit_basis_points=1000}},
+    {"ji_lei", "激雷", 96, 1, false, {.attack_percent=205, .overcome_percent=205}},
+    {"nong_mei", "弄梅", 96, 1, false, {.overcome_base=700, .ignore_shield=205}},
+    {"she_shen_hong_fa", "舍身弘法", 320, 36, false, {.strain=400}},
+    {"hao_ling_san_jun", "号令三军", 960, 48, false, {.strain=440}}
 }};
 struct Application {
     Kind kind = HanRuLei;

@@ -2890,14 +2890,14 @@ private slots:
         editor.setPlainText(QStringLiteral("/cast [buff:"));
         editor.moveCursor(QTextCursor::End);
         QInputMethodEvent ime;
-        ime.setCommitString(QStringLiteral("\u7384"));
+        ime.setCommitString(QStringLiteral("玄"));
         QCoreApplication::sendEvent(&editor, &ime);
         QVERIFY(completer->popup()->isVisible());
-        QCOMPARE(candidates(), (QStringList{QStringLiteral("\u7384\u95e8")}));
-        QVERIFY(accept(QStringLiteral("\u7384\u95e8")));
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:\u7384\u95e8"));
+        QCOMPARE(candidates(), (QStringList{QStringLiteral("玄门")}));
+        QVERIFY(accept(QStringLiteral("玄门")));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:玄门"));
         editor.undo();
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:\u7384"));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:玄"));
         for (const auto &text : {"# /ca", "// /ca", "/switch ", "/cast [qidian>=3", "/cast [buff:xuanmen>2"}) {
             input(QString::fromLatin1(text));
             QVERIFY(!completer->popup()->isVisible());
@@ -2949,7 +2949,7 @@ private slots:
         auto *all = search.findChild<QPushButton *>("macroReplaceAll");
         auto *one = search.findChild<QPushButton *>("macroReplaceOne");
         auto *status = search.findChild<QLabel *>("macroSearchStatus");
-        const QString source = QStringLiteral("/cast wuwu\n/cast WUWU\n/cast wuwu_extra\n# buff:\u7384\u95e8\n/cast wuwu");
+        const QString source = QStringLiteral("/cast wuwu\n/cast WUWU\n/cast wuwu_extra\n# buff:玄门\n/cast wuwu");
         editor.setPlainText(source);
         editor.SetBreakpoint(2, true);
         editor.SetBreakpoint(5, true);
@@ -2972,7 +2972,7 @@ private slots:
         QCOMPARE(editor.textCursor().blockNumber(), 4);
         replacement->setText(QStringLiteral("sanhuan"));
         all->click();
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast sanhuan\n/cast WUWU\n/cast wuwu_extra\n# buff:\u7384\u95e8\n/cast sanhuan"));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast sanhuan\n/cast WUWU\n/cast wuwu_extra\n# buff:玄门\n/cast sanhuan"));
         QVERIFY(editor.HasBreakpoint(2) && editor.HasBreakpoint(5));
         QVERIFY(status->text().contains(QStringLiteral("已替换 2")));
         editor.undo();
@@ -2981,11 +2981,11 @@ private slots:
         editor.redo();
         QVERIFY(editor.toPlainText().startsWith(QStringLiteral("/cast sanhuan")));
         editor.undo();
-        query->setText(QStringLiteral("\u7384\u95e8"));
+        query->setText(QStringLiteral("玄门"));
         replacement->clear();
         search.Find();
         one->click();
-        QVERIFY(!editor.toPlainText().contains(QStringLiteral("\u7384\u95e8")));
+        QVERIFY(!editor.toPlainText().contains(QStringLiteral("玄门")));
         editor.undo();
         QCOMPARE(editor.toPlainText(), source);
         query->setText(QStringLiteral("wuwu"));
@@ -3021,11 +3021,11 @@ private slots:
         search.Close();
         QCOMPARE(editor.GetCurrentDebugLine(), 2);
         QVERIFY(editor.extraSelections().size() < 3);
-        editor.setPlainText(QStringLiteral("renjian renjian_suixing \u4eba\u5251\u5408\u4e00\u00b7DOT \u4eba\u5251\u5408\u4e00"));
+        editor.setPlainText(QStringLiteral("renjian renjian_suixing 人剑合一·DOT 人剑合一"));
         search.Open();
         query->setText(QStringLiteral("renjian"));
         QVERIFY(status->text().contains(QStringLiteral("1 处匹配")));
-        query->setText(QStringLiteral("\u4eba\u5251\u5408\u4e00"));
+        query->setText(QStringLiteral("人剑合一"));
         QVERIFY(status->text().contains(QStringLiteral("1 处匹配")));
         editor.setPlainText(QStringLiteral("wuwu ").repeated(1100));
         query->setText(QStringLiteral("wuwu"));
@@ -3050,7 +3050,7 @@ private slots:
         window.findChild<QAction *>("replaceMacro")->trigger();
         QVERIFY(search->isVisible());
         query->setText(QStringLiteral("wuwu"));
-        replacement->setText(QStringLiteral("\u65e0\u6211\u65e0\u5251"));
+        replacement->setText(QStringLiteral("无我无剑"));
         search->Find();
         QCoreApplication::processEvents();
         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
@@ -3066,7 +3066,7 @@ private slots:
         session->Stop();
         QVERIFY(all->isEnabled());
         all->click();
-        QVERIFY(editor->toPlainText().contains(QStringLiteral("\u65e0\u6211\u65e0\u5251")));
+        QVERIFY(editor->toPlainText().contains(QStringLiteral("无我无剑")));
         editor->undo();
         QCOMPARE(editor->toPlainText(), source);
         QVERIFY(editor->HasBreakpoint(2));
@@ -3776,7 +3776,7 @@ private slots:
         QCoreApplication::processEvents();
         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
             QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-configuration.png")));
-        editor->setPlainText(QStringLiteral("/cast [buff:\u7384\u95e8] wuwu\n/cast [buff:\u7384\u95e8>0] wuwu\n/cast sanhuan"));
+        editor->setPlainText(QStringLiteral("/cast [buff:玄门] wuwu\n/cast [buff:玄门>0] wuwu\n/cast sanhuan"));
         check->trigger();
         QCOMPARE(problems->rowCount(), 0);
         editor->appendPlainText(QStringLiteral("/cast unknown_skill"));
@@ -4147,7 +4147,7 @@ private slots:
         talents.insert("0", duplicate);
         invalid.insert("talents", talents);
         QVERIFY(!options->RestoreSnapshot(invalid, error));
-        QVERIFY(error.contains(QStringLiteral("\u91cd\u590d")));
+        QVERIFY(error.contains(QStringLiteral("重复")));
         QCOMPARE(options->Snapshot(), valid);
         duplicate[7] = QStringLiteral("unknown");
         talents.insert("0", duplicate);

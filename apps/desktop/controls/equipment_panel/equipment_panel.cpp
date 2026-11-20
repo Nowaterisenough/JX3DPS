@@ -533,7 +533,7 @@ QString EquipmentPanel::FindSnapshotPath(const QString &requested)
     candidates << QDir::current().filePath(QStringLiteral("data/jx3box/tai_xu_jian_yi_latest.json"));
     QDir app_dir(QCoreApplication::applicationDirPath());
 #ifdef Q_OS_MACOS
-    candidates << appDir.filePath(QStringLiteral("../Resources/data/jx3box/tai_xu_jian_yi_latest.json"));
+    candidates << app_dir.filePath(QStringLiteral("../Resources/data/jx3box/tai_xu_jian_yi_latest.json"));
 #endif
     for (int i = 0; i < 5; ++i) {
         candidates << app_dir.filePath(QStringLiteral("data/jx3box/tai_xu_jian_yi_latest.json"));

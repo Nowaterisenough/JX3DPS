@@ -118,12 +118,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(${PROJECT_NAME}
         MANUAL_FINALIZATION
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-        ${CMAKE_SOURCE_DIR}/resources/win32app_icon.rc
+        ${CMAKE_SOURCE_DIR}/data/win32app_icon.rc
     )
 else()
     add_executable(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-        ${CMAKE_SOURCE_DIR}/resources/win32app_icon.rc
+        ${CMAKE_SOURCE_DIR}/data/win32app_icon.rc
     )
 endif(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 

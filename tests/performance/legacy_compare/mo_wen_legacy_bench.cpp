@@ -1,7 +1,7 @@
 #include "common.hpp"
 #include <memory>
 #include <sstream>
-#include <spdlog/spdlog.h>
+#include "legacy_log.hpp"
 #include "Class/MoWen/MoWen.h"
 #include "Class/MoWen/MoWenBuff.h"
 #include "Buff.h"
@@ -29,7 +29,7 @@ Json Describe(const Stats &stats) {
 
 int main(int argc, char **argv) try {
     Arguments args(argc, argv);
-    spdlog::set_level(spdlog::level::off);
+    legacy_compare::Logger().set_appender_enable("console", false);
     TimeLine::SetMode(Options::DEFAULT);
     MoWen::Player player;
     auto &a = player.attribute;

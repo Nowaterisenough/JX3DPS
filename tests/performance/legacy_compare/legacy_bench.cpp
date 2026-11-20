@@ -1,7 +1,7 @@
 #include "common.hpp"
 #include <memory>
 #include <sstream>
-#include <spdlog/spdlog.h>
+#include "legacy_log.hpp"
 #include "Class/TaiXuJianYi/TaiXuJianYi.h"
 #include "Class/TaiXuJianYi/TaiXuJianYiBuff.h"
 #include "Buff.h"
@@ -66,8 +66,8 @@ Json Describe(const Stats &stats) {
 
 int main(int argc, char **argv) try {
     Arguments args(argc, argv);
+    legacy_compare::Logger().set_appender_enable("console", false);
     const auto preparation_start = Clock::now();
-    spdlog::set_level(spdlog::level::off);
     TimeLine::SetMode(Options::DEFAULT);
     TaiXuJianYi::Player player;
     auto &a = player.attribute;

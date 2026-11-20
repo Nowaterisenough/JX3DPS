@@ -1,3 +1,4 @@
+#include "src/engine/client.hpp"
 #include "src/class/mo_wen/runtime_rules.hpp"
 #include "src/core/runtime/batch.hpp"
 #include <charconv>
@@ -285,7 +286,10 @@ int main(int argc, char **argv) try {
             if (!trace_path.empty()) Trace(sim, trace_path);
             stats.Add(sim.TotalDamage(), index);
         }
-    } else stats = RunBatch(macro.program, options, rules);
+    } else {
+        auto engine = JX3DPS::engine::Create();
+        stats = JX3DPS::engine::Batch(engine.get(), config, macro_text, options).primary;
+    }
     const auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     const double seconds = options.duration/16.0;
     std::cout << std::fixed << std::setprecision(3) << "fights=" << stats.count << " workers=" << options.workers

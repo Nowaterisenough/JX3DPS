@@ -1,34 +1,13 @@
-
-
-if(BUILD_TESTS)
-    add_subdirectory(googletest)
-endif()
-
-add_subdirectory(json)
-add_subdirectory(spdlog)
-
-# Performance benchmark dependencies
+# The core uses the vendored nlohmann single header. Other dependencies are
+# built only by their consumers.
 if(BUILD_PERFORMANCE)
     add_subdirectory(benchmark)
     add_subdirectory(proxy)
 endif()
 
-# Optional Qt-based components
-if(BUILD_APP)
-    find_package(QT NAMES Qt6 Qt5 QUIET COMPONENTS Widgets PrintSupport)
-    if(QT_FOUND)
-        message(STATUS "Qt found, building available Qt components")
-        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/QCustomPlot/CMakeLists.txt")
-            add_subdirectory(QCustomPlot)
-        endif()
-        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/qwindowkit/CMakeLists.txt")
-            add_subdirectory(qwindowkit)
-        endif()
-    else()
-        message(STATUS "Qt not found, skipping QCustomPlot and QWindowKit")
+if(BUILD_APP AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/qwindowkit/CMakeLists.txt")
+    find_package(Qt6 QUIET COMPONENTS Widgets)
+    if(Qt6_FOUND)
+        add_subdirectory(qwindowkit)
     endif()
-endif()
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(spdlog PRIVATE -w)
 endif()

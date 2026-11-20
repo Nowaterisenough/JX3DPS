@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <string.h>
+
+#include "jx3dps.h"
+#define CHECK(x)                                              \
+    do {                                                      \
+        if (!(x)) {                                           \
+            fprintf(stderr, "failed at line %d\n", __LINE__); \
+            return 1;                                         \
+        }                                                     \
+    } while (0)
+
+int main(void)
+{
+    jx3dps_engine *a = jx3dps_create(), *b = jx3dps_create();
+    CHECK(a && b && jx3dps_abi_version() == 1);
+    const char *start = "{\"op\":\"start\",\"scenario\":\"tx\",\"seconds\":300,\"iterations\":129,\"seed\":\"42\","
+                        "\"macro\":\"/cast sanchai\",\"attributes\":{}}";
+    CHECK(strstr(jx3dps_call(a, start), "\"completed\":0"));
+    CHECK(strstr(jx3dps_call(b, "{"), "\"error\""));
+    CHECK(strstr(jx3dps_call(a, "{\"op\":\"next\"}"), "\"completed\":128"));
+    CHECK(jx3dps_completed(a) == 128 && jx3dps_completed(b) == 0);
+    CHECK(strstr(jx3dps_call(a, "{\"op\":\"next\"}"), "\"checksum\""));
+    CHECK(strstr(jx3dps_call(a, "{\"op\":\"next\"}"), "\"error\""));
+    jx3dps_destroy(a);
+    jx3dps_destroy(b);
+    return 0;
+}

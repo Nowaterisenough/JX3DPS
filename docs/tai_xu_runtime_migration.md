@@ -280,22 +280,22 @@ TotalDamage calls after construction.
 ## Running and debugging
 
 Build with `JX3DPS_RUNTIME_ONLY=ON` as described in `new_runtime_architecture.md`.
-The CLI target is `build-runtime-verified/tests/runtime/tai_xu_runtime.exe`.
+The CLI target is `build-runtime-verified/apps/cli/tai_xu_runtime.exe`.
 
 ```powershell
 $env:PATH = 'C:\msys64\ucrt64\bin;' + $env:PATH
-./build-runtime-verified/tests/runtime/tai_xu_runtime.exe --help
-./build-runtime-verified/tests/runtime/tai_xu_runtime.exe `
+./build-runtime-verified/apps/cli/tai_xu_runtime.exe --help
+./build-runtime-verified/apps/cli/tai_xu_runtime.exe `
   --iterations 100000 --workers 4 --seconds 300 --seed 42 `
   --talents dieren,wuyi,shenmai,fengshi,wuyu,xingu
-./build-runtime-verified/tests/runtime/tai_xu_runtime.exe `
+./build-runtime-verified/apps/cli/tai_xu_runtime.exe `
   --macro my_macro.txt --debug --seed 42 --replay 123 `
   --talents dieren,wuyi --trace build-runtime-verified/fight.csv
-./build-runtime-verified/tests/runtime/tai_xu_runtime.exe `
+./build-runtime-verified/apps/cli/tai_xu_runtime.exe `
   --macro tests/runtime/macros/tai_xu_fields.txt --debug --seed 42 `
   --talents dieren,wuyi,fuyin,guchang,qisheng,changsheng `
   --recipes-shengtaiji prepare1,prepare2,prepare3,cooldown
-./build-runtime-verified/tests/runtime/tai_xu_runtime.exe `
+./build-runtime-verified/apps/cli/tai_xu_runtime.exe `
   --macro tests/runtime/macros/tai_xu_explosions.txt --iterations 100000 --workers 4 `
   --seconds 300 --seed 42 `
   --talents dieren,wuyi,shenmai,fengshi,wuyu,xingu,fuyin,guchang,qisheng,changsheng,xuanmen,lieyun,xuji `

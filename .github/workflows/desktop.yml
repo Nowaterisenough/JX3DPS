@@ -160,7 +160,7 @@ jobs:
         run: |
           cmake -E make_directory build/.cmake/api/v1/query
           cmake -E touch build/.cmake/api/v1/query/toolchains-v1
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON ${{ matrix.cmake_arch }}
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DJX3DPS_DESKTOP_WORKLOAD=ON "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON ${{ matrix.cmake_arch }}
       - name: Name package from configured C++ compiler
         id: package
         shell: python {0}
@@ -182,8 +182,29 @@ jobs:
           print(name)
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
               print(f'name={name}', file=out)
+              print(f'compiler={family} {version}', file=out)
       - name: Build desktop
         run: cmake --build build --target JX3DPSDesktop
+
+      - name: Benchmark the Release executable
+        shell: python {0}
+        env:
+          BUILD_ID: ${{ matrix.id }}
+          COMPILER: ${{ steps.package.outputs.compiler }}
+          RUNNER_LABEL: ${{ matrix.runner }}
+        run: |
+          import os, subprocess, sys
+          from pathlib import Path
+          exe = Path('build/desktop-workload-Release.txt').read_text().strip()
+          subprocess.run([sys.executable, 'tools/release/measure.py', '--desktop', exe,
+                          '--build', os.environ['BUILD_ID'], '--compiler', os.environ['COMPILER'],
+                          '--runner', os.environ['RUNNER_LABEL'], '--sha', os.environ['GITHUB_SHA'],
+                          '--output', 'benchmarks/bench-' + os.environ['BUILD_ID'] + '.json'], check=True)
+      - uses: actions/upload-artifact@v6
+        with:
+          name: bench-${{ matrix.id }}
+          path: benchmarks/bench-*.json
+          if-no-files-found: error
 
       - name: Package Windows desktop
         if: runner.os == 'Windows'
@@ -216,15 +237,55 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  web:
+    name: WebAssembly Emscripten
+    runs-on: ubuntu-24.04
+    env:
+      EMSDK_VERSION: 7.0.0
+    steps:
+      - uses: actions/checkout@v6
+      - name: Fetch engine JSON dependency
+        run: |
+          git -c 'url.https://github.com/.insteadOf=git@github.com:' submodule update --init 3rd/json
+      - name: Build static Web workbench
+        shell: bash
+        run: |
+          git clone --depth 1 --branch "$EMSDK_VERSION" https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install "$EMSDK_VERSION"
+          "$RUNNER_TEMP/emsdk/emsdk" activate "$EMSDK_VERSION"
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          emcmake cmake -S . -B build-web -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-web --target jx3dps_web
+          (cd build-web/out && zip -qr "$GITHUB_WORKSPACE/JX3DPS-web-wasm32-emscripten-$EMSDK_VERSION.zip" .)
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Benchmark the packaged Web worker in Chromium
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+          python tools/release/measure.py --site build-web/out --build web-wasm32-emscripten --compiler "Emscripten $EMSDK_VERSION" --runner ubuntu-24.04 --sha "$GITHUB_SHA" --output benchmarks/bench-web.json
+      - uses: actions/upload-artifact@v6
+        with:
+          name: JX3DPS-web-wasm32-emscripten-${{ env.EMSDK_VERSION }}
+          path: JX3DPS-web-wasm32-emscripten-*.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v6
+        with:
+          name: bench-web
+          path: benchmarks/bench-web.json
+          if-no-files-found: error
+
   release:
-    needs: build
+    needs: [build, web]
     if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v6
-        if: github.ref == 'refs/heads/master'
+        with:
+          fetch-depth: 0
       - name: Generate release tag for master
         if: github.ref == 'refs/heads/master'
         id: version
@@ -244,14 +305,34 @@ jobs:
         with:
           path: packages
           merge-multiple: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate results and render benchmark chart
+        env:
+          TAG: ${{ steps.version.outputs.tag || github.ref_name }}
+        run: |
+          python -m pip install matplotlib
+          python tools/release/test_changelog.py
+          python tools/release/chart.py --input packages --output packages --sha "$GITHUB_SHA" --repo "$GITHUB_REPOSITORY" --tag "$TAG"
+      - name: Summarize commits since the previous published release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag || github.ref_name }}
+        run: |
+          python tools/release/changelog.py --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA" --tag "$TAG" --performance packages/performance.md --output packages/release.md
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.tag || github.ref_name }}
           target_commitish: ${{ github.sha }}
+          body_path: packages/release.md
           files: |
             packages/JX3DPS-windows-x86_64-gcc-*.zip
             packages/JX3DPS-windows-x86_64-msvc-*.zip
             packages/JX3DPS-windows-x86_64-clang-*.zip
             packages/JX3DPS-linux-x86_64-gcc-*.tar.gz
             packages/JX3DPS-macos-arm64-appleclang-*.dmg
+            packages/JX3DPS-web-wasm32-emscripten-*.zip
+            packages/performance.png
+            packages/performance.json
           fail_on_unmatched_files: true

@@ -1,6 +1,6 @@
 # 桌面批处理的 GCC Release PGO
 
-PGO 使用实际战斗的执行计数帮助 GCC 决定如何内联函数、排列代码和优化常走的分支。桌面构建将 profile 应用到 `batch_worker.cpp`，两种心法的模拟器、伤害归约和八项属性收益都在这个编译单元实例化。普通构建默认使用 `JX3DPS_DESKTOP_PGO=OFF`。
+PGO 使用实际战斗的执行计数帮助 GCC 决定如何内联函数、排列代码和优化常走的分支。桌面构建将 profile 应用到 `batch_worker.cpp` 与 `src/engine/engine.cpp`，两种心法的模拟器、伤害归约和八项属性收益都在这个编译单元实例化。普通构建默认使用 `JX3DPS_DESKTOP_PGO=OFF`。
 
 在具备桌面构建依赖的环境，从仓库根目录运行以下命令。脚本使用 Python 3.8+、Ninja、CMake 和 `g++`，沿用项目的 Qt 6.12 桌面工具链。
 

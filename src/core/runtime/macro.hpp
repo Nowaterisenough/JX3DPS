@@ -46,6 +46,7 @@ struct MacroProgram {
     std::vector<Condition> conditions;
     std::size_t skill_count = 0;
     std::size_t buff_count = 0;
+    std::string source_text; // Original UTF-8 input for engine session requests.
 };
 
 struct LineSource {
@@ -81,6 +82,7 @@ public:
         std::string_view text, CompileOptions options = {}) {
         MacroCompiler compiler(std::move(options));
         compiler.CompileText(text);
+        compiler.result_.program.source_text = text;
         // A partial program must never execute after a syntax/name error.
         if (!compiler.errors_.empty()) compiler.result_ = {};
         return {std::move(compiler.result_), std::move(compiler.errors_)};

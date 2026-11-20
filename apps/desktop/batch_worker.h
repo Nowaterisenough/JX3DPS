@@ -8,6 +8,7 @@
 #include "simulation_result.h"
 
 #include "runtime_catalog.h"
+#include "src/engine/client.hpp"
 #include "src/core/runtime/batch.hpp"
 
 class BatchWorker final : public QThread
@@ -42,6 +43,7 @@ private:
     JX3DPS::runtime::BatchOptions m_options;
     desktop::Config m_config;
     JX3DPS::runtime::BatchControl m_control;
+    JX3DPS::engine::Handle m_engine = JX3DPS::engine::Create();
     bool m_captureTrace = false;
     bool m_calculateGains = false;
     desktop::GainComparisonMode m_gainMode;

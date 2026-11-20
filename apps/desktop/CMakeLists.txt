@@ -77,7 +77,7 @@ set(SOURCE_FILES
 
 add_library(DesktopWorkbench STATIC ${HEADER_FILES} ${SOURCE_FILES})
 target_include_directories(DesktopWorkbench PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(DesktopWorkbench PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Frameless Theme CodeEditor Timeline PlayerStatePanel Resources EquipmentPanel Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(DesktopWorkbench PUBLIC jx3dps_engine_client Qt${QT_VERSION_MAJOR}::Widgets Frameless Theme CodeEditor Timeline PlayerStatePanel Resources EquipmentPanel Qt${QT_VERSION_MAJOR}::Network)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND NOT "cxx_std_26" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
     # MSVC exposes its current draft standard through /std:c++latest.
     target_compile_options(DesktopWorkbench PUBLIC /std:c++latest)
@@ -99,6 +99,10 @@ if(NOT JX3DPS_DESKTOP_PGO STREQUAL "OFF")
         target_link_options(DesktopWorkbench INTERFACE "$<$<CONFIG:Release>:-fprofile-generate>")
     else()
         set(_batch_pgo_flags -fprofile-use -fprofile-partial-training -Werror=missing-profile -Werror=coverage-mismatch)
+    endif()
+    set_property(SOURCE "${CMAKE_SOURCE_DIR}/src/engine/engine.cpp" TARGET_DIRECTORY JX3DPS APPEND PROPERTY COMPILE_OPTIONS "$<$<CONFIG:Release>:${_batch_pgo_flags}>")
+    if(JX3DPS_DESKTOP_PGO STREQUAL "GENERATE")
+        target_link_options(JX3DPS INTERFACE "$<$<CONFIG:Release>:-fprofile-generate>")
     endif()
     set_property(SOURCE batch_worker.cpp APPEND PROPERTY COMPILE_OPTIONS "$<$<CONFIG:Release>:${_batch_pgo_flags}>")
 endif()
@@ -149,7 +153,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/3rd/spdlog/include
 )
 
 set(APP_NAME "JX3DPS Desktop")

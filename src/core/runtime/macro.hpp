@@ -4,6 +4,7 @@
 #include "../runtime.hpp"
 #include <charconv>
 #include <cmath>
+#include <ranges>
 #include <stdexcept>
 #include <type_traits>
 
@@ -397,8 +398,15 @@ public:
 
     template <typename Action, typename BeforeLine = NoLineHook, typename Available = AllowMacroLine>
     bool EvaluateFast(State &state, Action &&action, BeforeLine before_line = {}, Available available = {}) requires (!Debug) {
+        return EvaluateFastLines(state, action, before_line, available,
+                                 std::views::iota(Pc{0}, static_cast<Pc>(program_.lines.size())));
+    }
+
+    template <class Action, class BeforeLine, class Available, class Lines>
+    bool EvaluateFastLines(State &state, Action &action, BeforeLine &before_line, Available &available,
+                           const Lines &lines) requires (!Debug) {
         PhaseScope<Measure> frame("MacroExecutor::EvaluateFast");
-        for (Pc line_index = 0; line_index < program_.lines.size(); ++line_index) {
+        for (Pc line_index : lines) {
             if (consumed_[line_index]) continue;
             const auto &line = program_.lines[line_index];
             before_line(line);

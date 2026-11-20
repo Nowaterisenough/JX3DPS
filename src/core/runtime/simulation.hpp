@@ -59,6 +59,20 @@ struct SimulationDebugControl {
 // dispatched. Rules must immediately apply procs which affect later actions.
 template <typename Rules, bool Debug = false, bool Measure = false>
 class Simulation {
+    static constexpr bool FilterPrimaryGcd = !Debug && requires(Slot skill) { Rules::UsesPrimaryGcd(skill); }
+        && !requires(Rules &rules, Simulation &sim, const MacroLine &line) { rules.BeforeMacroLine(sim, line); };
+    struct PrimaryGcdScan {
+        std::vector<Slot> skills;
+        std::vector<Pc> remaining_lines;
+
+        bool Applies(const State &state) const {
+            // The mapping in State is mutable. Use the full macro if a skill
+            // has moved to another cooldown group.
+            return !skills.empty() && state.gcd_ready_at[0] > state.now &&
+                   std::ranges::all_of(skills, [&](Slot s) { return state.skill_gcd_group[s] == 0; });
+        }
+    };
+    struct NoGcdScan {};
 public:
     Simulation(const MacroProgram &program, Rules rules = {}, std::size_t damage_capacity = 4096,
                std::size_t mutation_capacity = 8192)
@@ -73,6 +87,17 @@ public:
         }
         if constexpr (Debug) debug_.breakpoints.resize(program.lines.size());
         rules_.Setup(*this);
+        if constexpr (FilterPrimaryGcd) {
+            // Sequential and force commands can block or interrupt before a cast.
+            if (std::ranges::all_of(program.lines, [](const MacroLine &l) { return l.command == Command::Cast; })) {
+                for (Pc i = 0; i < program.lines.size(); ++i) {
+                    const auto skill = program.lines[i].action_slot;
+                    if (!Rules::UsesPrimaryGcd(skill)) gcd_scan_.remaining_lines.push_back(i);
+                    else if (std::ranges::find(gcd_scan_.skills, skill) == gcd_scan_.skills.end())
+                        gcd_scan_.skills.push_back(skill);
+                }
+            }
+        }
     }
     Simulation(const Simulation &) = delete;
     Simulation &operator=(const Simulation &) = delete;
@@ -242,7 +267,12 @@ private:
                 else return true;
             };
             const bool scan = scan_while_busy_ || (state_.preparing_skill == INVALID_SLOT && state_.casting_skill == INVALID_SLOT);
-            success = scan && macro_.EvaluateFast(state_, cast, before_line, available);
+            if (!scan) success = false;
+            else if constexpr (FilterPrimaryGcd) {
+                success = gcd_scan_.Applies(state_)
+                    ? macro_.EvaluateFastLines(state_, cast, before_line, available, gcd_scan_.remaining_lines)
+                    : macro_.EvaluateFast(state_, cast, before_line, available);
+            } else success = macro_.EvaluateFast(state_, cast, before_line, available);
         }
         if constexpr (Debug) debug_.new_pass = true;
         if (success) {
@@ -282,6 +312,7 @@ private:
     std::size_t actions_at_frame_ = 0;
     bool dispatch_ = true, finished_ = true;
     bool has_time_conditions_ = false, scan_while_busy_ = true;
+    [[no_unique_address]] std::conditional_t<FilterPrimaryGcd, PrimaryGcdScan, NoGcdScan> gcd_scan_;
     [[no_unique_address]] std::conditional_t<Debug, SimulationDebugControl, NoDebugState> debug_;
 };
 

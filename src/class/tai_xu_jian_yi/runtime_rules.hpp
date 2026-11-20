@@ -134,6 +134,7 @@ public:
     static bool MayActWhileBusy(const MacroLine &line) {
         return IsForceCast(line.command) || !IsCastable(line.action_slot);
     }
+    static bool UsesPrimaryGcd(Slot skill) { return UsesGcd(skill); }
     static tick_t CastReadyAt(const State &s, Slot skill) {
         const auto group = s.skill_gcd_group[skill];
         if (skill == BaHuang && s.self_buff_stacks[WeaponCwBuff] && group != INVALID_SLOT)

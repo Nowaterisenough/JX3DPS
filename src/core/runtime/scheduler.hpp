@@ -23,10 +23,20 @@ public:
     using TimerId = std::uint32_t;
     static constexpr TimerId INVALID_TIMER = std::numeric_limits<TimerId>::max();
 
+    BasicDeadlineQueue() = default;
+    BasicDeadlineQueue(const BasicDeadlineQueue &) = default;
+    BasicDeadlineQueue(BasicDeadlineQueue &&other) noexcept { Swap(other); }
+    BasicDeadlineQueue &operator=(BasicDeadlineQueue other) noexcept {
+        Swap(other);
+        return *this;
+    }
+
     TimerId Create(TimerHandle handle, std::uint16_t priority = 0) {
         if (timers_.size() >= INVALID_TIMER) throw std::length_error("too many timers");
         auto id = static_cast<TimerId>(timers_.size());
-        heap_.reserve(timers_.size() + 1);
+        // Each registered timer can occupy at most one heap slot. Size the
+        // storage here so rearming only writes the final entry in SiftUp.
+        heap_.resize(timers_.size() + 1);
         timers_.push_back({0, INVALID_TIMER, priority, handle});
         return id;
     }
@@ -49,9 +59,7 @@ public:
                           (static_cast<std::uint64_t>(timer.priority) << 16) | rank, id};
         const auto pos = timer.position;
         if (pos == INVALID_TIMER) {
-            const auto end = static_cast<TimerId>(heap_.size());
-            heap_.push_back(entry);
-            SiftUp(end, entry);
+            SiftUp(pending_++, entry);
         } else if (entry.key < heap_[pos].key) {
             SiftUp(pos, entry);
         } else {
@@ -65,7 +73,7 @@ public:
     }
     std::optional<tick_t> NextDelta() const {
         PhaseScope<Measure> frame("DeadlineQueue::NextDelta");
-        if (heap_.empty()) return std::nullopt;
+        if (!pending_) return std::nullopt;
         return std::max<tick_t>(0, heap_.front().Deadline() - current_);
     }
     void Advance(tick_t delta) {
@@ -81,7 +89,7 @@ public:
     void DispatchDue(Fn &&fn, std::size_t budget = 100000) {
         PhaseScope<Measure> frame("DeadlineQueue::DispatchDue");
         std::size_t dispatched = 0;
-        while (!heap_.empty() && heap_.front().Deadline() <= current_) {
+        while (pending_ && heap_.front().Deadline() <= current_) {
             if (dispatched++ == budget) throw std::runtime_error("same-frame event budget exceeded");
             const auto id = heap_.front().id;
             const auto handle = timers_[id].handle;
@@ -90,15 +98,22 @@ public:
         }
     }
     tick_t Now() const { return current_; }
-    std::size_t Pending() const { return heap_.size(); }
+    std::size_t Pending() const { return pending_; }
     void Reset() {
         current_ = 0;
         sequence_ = 0;
-        heap_.clear();
+        pending_ = 0;
         for (auto &timer : timers_) timer.position = INVALID_TIMER;
     }
 
 private:
+    void Swap(BasicDeadlineQueue &other) noexcept {
+        std::swap(current_, other.current_);
+        std::swap(sequence_, other.sequence_);
+        std::swap(pending_, other.pending_);
+        timers_.swap(other.timers_);
+        heap_.swap(other.heap_);
+    }
     struct Timer {
         std::uint64_t order;
         TimerId position;
@@ -131,9 +146,9 @@ private:
     }
     void SiftDown(TimerId pos, Entry entry) {
         PhaseScope<Measure> frame("DeadlineQueue::SiftDown");
-        while (pos < heap_.size() / 2) {
+        while (pos < pending_ / 2) {
             auto child = pos * 2 + 1;
-            if (child + 1 < heap_.size() && Before(heap_[child + 1], heap_[child])) ++child;
+            if (child + 1 < pending_ && Before(heap_[child + 1], heap_[child])) ++child;
             const auto child_entry = heap_[child];
             if (!Before(child_entry, entry)) break;
             Place(pos, child_entry);
@@ -144,10 +159,9 @@ private:
     void Remove(TimerId pos) {
         PhaseScope<Measure> frame("DeadlineQueue::Remove");
         const auto removed = heap_[pos];
-        const auto moved = heap_.back();
-        heap_.pop_back();
+        const auto moved = heap_[--pending_];
         timers_[removed.id].position = INVALID_TIMER;
-        if (pos < heap_.size()) {
+        if (pos < pending_) {
             if (pos > 0 && Before(moved, heap_[(pos - 1) / 2]))
                 SiftUp(pos, moved);
             else
@@ -156,6 +170,7 @@ private:
     }
 
     tick_t current_ = 0;
+    TimerId pending_ = 0;
     std::uint64_t sequence_ = 0;
     std::vector<Timer> timers_;
     std::vector<Entry> heap_;

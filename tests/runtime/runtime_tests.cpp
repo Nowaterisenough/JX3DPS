@@ -200,6 +200,20 @@ void DebuggerTests() {
 }
 
 void SchedulerTests() {
+    {
+        DeadlineQueue original;
+        auto first = original.Create({});
+        original.Arm(first, 2);
+        auto second = original.Create({});
+        original.Arm(second, 1);
+        DeadlineQueue moved = std::move(original);
+        CHECK(moved.Pending() == 2 && moved.NextDelta() == 1);
+        CHECK(!original.Pending() && !original.NextDelta());
+        original.Arm(original.Create({}), 3);
+        CHECK(original.NextDelta() == 3);
+        moved.Cancel(second);
+        CHECK(moved.Pending() == 1 && moved.NextDelta() == 2);
+    }
     DeadlineQueue queue;
     auto a = queue.Create({TimerKind::BuffDuration, 1, true}, 10);
     auto b = queue.Create({TimerKind::BuffInterval, 1, true}, 0);

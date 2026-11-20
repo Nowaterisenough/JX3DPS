@@ -70,6 +70,7 @@ set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/macro_editor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/macro_search_bar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/results_panel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fight_flame_graph.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/simulation_options.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/workbench.cpp
 )

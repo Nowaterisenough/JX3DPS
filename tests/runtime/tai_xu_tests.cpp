@@ -334,6 +334,17 @@ void OffGcdDuringCooldown() {
     }
     CHECK((events == std::vector<std::pair<Slot, tick_t>>{
         {tx::BaHuang, 0}, {tx::ZiQi, 0}, {tx::SanChai, 0}, {tx::SanChai, 22}}));
+
+    // A changed group must take effect even if the original macro has only
+    // primary-GCD actions and group zero is still locked.
+    const auto macro = Compile("/cast bahuang");
+    Simulation<tx::Rules> sim(macro.program);
+    sim.Start(1, 42);
+    sim.MutableState().gcd_ready_at[0] = 24;
+    sim.MutableState().skill_gcd_group[tx::BaHuang] = 1;
+    sim.Run();
+    CHECK(!sim.Log().Intents().empty());
+    CHECK(sim.Log().Intents().front().skill == tx::BaHuang && sim.Log().Intents().front().frame == 0);
 }
 
 void PreparedFields() {

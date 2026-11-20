@@ -1,6 +1,8 @@
 #include "results_panel.h"
+#include "fight_flame_graph.h"
 
 #include <algorithm>
+#include <numeric>
 
 #include <QFileDialog>
 #include <QHeaderView>
@@ -86,7 +88,53 @@ QString Delta(double current, double baseline)
     const auto percent = (current / baseline - 1) * 100;
     return (percent > 0 ? QStringLiteral("+") : QString{}) + QString::number(percent, 'f', 2) + '%';
 }
+constexpr std::array phaseNames{"宏扫描与条件判断", "施放可用性检查", "定时器队列维护与派发", "到期事件的心法逻辑",
+    "技能施放后的效果", "状态与伤害事件记录", "时间推进与下次唤醒", "最终伤害结算", "重置、循环及其他", "属性收益伤害重算"};
+constexpr std::array phaseColors{"#3898ab", "#df9e49", "#5685b1", "#879bb4", "#4eaa8f", "#ce90ac", "#98b8c9", "#a187c3", "#a9aaad", "#c89e63"};
+static_assert(phaseNames.size() == std::tuple_size_v<decltype(FightHotspots::phaseUs)> && phaseNames.size() == phaseColors.size());
+double EstimatedUs(const FightHotspots &report) {
+    return std::accumulate(report.phaseUs.begin(), report.phaseUs.end(), 0.0);
+}
 } // namespace
+
+class FightHotspotChart final : public QWidget {
+public:
+    using QWidget::QWidget;
+    void Set(const FightHotspots &current, quint64 id, const FightHotspots *baseline, quint64 baselineId) {
+        current_ = current;
+        baseline_ = baseline ? std::optional(*baseline) : std::nullopt;
+        id_ = id;
+        baselineId_ = baselineId;
+        setFixedHeight(baseline ? 72 : 40);
+        update();
+    }
+protected:
+    void paintEvent(QPaintEvent *) override {
+        QPainter p(this);
+        const double scale = std::max(EstimatedUs(current_), baseline_ ? EstimatedUs(*baseline_) : 0.0);
+        if (scale <= 0) return;
+        const int label = fontMetrics().horizontalAdvance(QStringLiteral("基准 #00000")) + 12;
+        const int suffix = fontMetrics().horizontalAdvance(QStringLiteral("00000.0 µs")) + 12;
+        const int plot = std::max(0, width() - label - suffix);
+        auto bar = [&](const FightHotspots &report, const QString &name, int y) {
+            p.setPen(QColor(desktop::theme::Text));
+            p.drawText(QRect(0, y, label, 24), Qt::AlignVCenter, name);
+            double x = label;
+            for (std::size_t i = 0; i < phaseColors.size(); ++i) {
+                const auto span = plot * report.phaseUs[i] / scale;
+                p.fillRect(QRectF(x, y + 4, span, 16), QColor(phaseColors[i]));
+                x += span;
+            }
+            p.drawText(QRect(qRound(x) + 5, y, suffix, 24), Qt::AlignVCenter, Number(EstimatedUs(report)) + QStringLiteral(" µs"));
+        };
+        bar(current_, QStringLiteral("运行 #%1").arg(id_), 4);
+        if (baseline_) bar(*baseline_, QStringLiteral("基准 #%1").arg(baselineId_), 36);
+    }
+private:
+    FightHotspots current_;
+    std::optional<FightHotspots> baseline_;
+    quint64 id_ = 0, baselineId_ = 0;
+};
 
 ResultsPanel::ResultsPanel(QWidget *parent) : QWidget(parent)
 {
@@ -200,6 +248,10 @@ ResultsPanel::ResultsPanel(QWidget *parent) : QWidget(parent)
     gainNote->setObjectName(QStringLiteral("attributeGainDescription"));
     gainNote->setWordWrap(true);
     gainLayout->addWidget(gainNote);
+    m_runGains = new QPushButton(tr("运行并计算属性收益"), gainPage);
+    m_runGains->setObjectName("runWithGains");
+    gainLayout->addWidget(m_runGains, 0, Qt::AlignLeft);
+    connect(m_runGains, &QPushButton::clicked, this, &ResultsPanel::GainRunRequested);
     m_gains =
         Table({ QStringLiteral("属性"),
                 QStringLiteral("增加点数"),
@@ -212,6 +264,30 @@ ResultsPanel::ResultsPanel(QWidget *parent) : QWidget(parent)
               gainPage);
     gainLayout->addWidget(m_gains, 1);
     m_tabs->addTab(gainPage, QStringLiteral("属性收益"));
+    m_hotspotPage = new QWidget(m_tabs);
+    auto *performanceLayout = new QVBoxLayout(m_hotspotPage);
+    m_hotspotSummary = new QLabel(m_hotspotPage);
+    m_hotspotSummary->setWordWrap(true);
+    performanceLayout->addWidget(m_hotspotSummary);
+    m_collectHotspots = new QPushButton(tr("运行并采集性能热点"), m_hotspotPage);
+    m_collectHotspots->setObjectName("runWithHotspots");
+    performanceLayout->addWidget(m_collectHotspots, 0, Qt::AlignLeft);
+    connect(m_collectHotspots, &QPushButton::clicked, this, &ResultsPanel::HotspotRunRequested);
+    auto *hotspotViews = m_hotspotViews = new desktop::SegmentedTabs(m_hotspotPage);
+    m_flame = new FightFlameGraph(hotspotViews);
+    hotspotViews->addTab(m_flame, tr("函数火焰图"));
+    auto *phases = new QWidget(hotspotViews);
+    auto *phaseLayout = new QVBoxLayout(phases);
+    m_hotspotChart = new FightHotspotChart(phases);
+    m_hotspotTable = Table({tr("阶段"), tr("估算 µs/场"), tr("占比"), tr("基准 µs/场")}, "fightHotspotTable", phases);
+    phaseLayout->addWidget(m_hotspotChart);
+    phaseLayout->addWidget(m_hotspotTable, 1);
+    hotspotViews->addTab(phases, tr("阶段对比"));
+    performanceLayout->addWidget(hotspotViews);
+    m_tabs->addTab(m_hotspotPage, tr("性能热点"));
+    const QStringList sections{"statistics", "skills", "gains", "hotspots"};
+    for (int i = 0; i < sections.size(); ++i) m_tabs->widget(i)->setProperty("resultSection", sections[i]);
+    connect(m_tabs, &QTabWidget::currentChanged, this, &ResultsPanel::SectionChanged);
     ClearTrace(1);
     ShowDetails();
 }
@@ -223,6 +299,20 @@ const ResultsPanel::Entry *ResultsPanel::Selected() const
 }
 
 void ResultsPanel::ShowOverview() { m_tabs->setCurrentIndex(0); }
+
+void ResultsPanel::UseWorkspaceNavigation() { m_tabs->tabBar()->hide(); }
+
+QString ResultsPanel::CurrentSection() const { return m_tabs->currentWidget()->property("resultSection").toString(); }
+
+bool ResultsPanel::ShowSection(const QString &id) {
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        if (m_tabs->widget(i)->property("resultSection").toString() == id) {
+            m_tabs->setCurrentIndex(i);
+            return true;
+        }
+    }
+    return false;
+}
 
 void ResultsPanel::AddResult(const SimulationResult &result, const QString &source, const QJsonObject &configuration)
 {
@@ -238,6 +328,7 @@ void ResultsPanel::AddResult(const SimulationResult &result, const QString &sour
     if (!result.gains.isEmpty()) {
         m_tabs->setCurrentIndex(2);
     }
+    if (result.hotspots) m_tabs->setCurrentWidget(m_hotspotPage);
 }
 
 void ResultsPanel::RefreshHistory()
@@ -270,6 +361,34 @@ void ResultsPanel::RefreshHistory()
 void ResultsPanel::ShowDetails()
 {
     const auto *entry = Selected();
+    const bool hasHotspots = entry && entry->result.hotspots.has_value();
+    m_hotspotPage->layout()->setAlignment(hasHotspots ? Qt::Alignment{} : Qt::AlignTop);
+    m_collectHotspots->setVisible(!hasHotspots);
+    m_hotspotViews->setVisible(hasHotspots);
+    m_runGains->setVisible(!entry || entry->result.gains.isEmpty());
+    if (!hasHotspots) m_hotspotSummary->setText(tr("当前记录没有性能采样。使用当前宏与配置运行一次，即可查看函数火焰图和阶段耗时。"));
+    if (entry && entry->result.hotspots) {
+        const auto &report = *entry->result.hotspots;
+        m_flame->SetReport(report, entry->id);
+        const auto *base = m_baseline && m_baseline->id != entry->id && m_baseline->result.hotspots ? &*m_baseline->result.hotspots : nullptr;
+        m_hotspotChart->Set(report, entry->id, base, base ? m_baseline->id : 0);
+        m_hotspotChart->setVisible(report.samplePoints > 0);
+        m_hotspotTable->setVisible(report.samplePoints > 0);
+        const auto total = EstimatedUs(report);
+        const auto sampledWorkers = std::count_if(report.workers.begin(), report.workers.end(), [](const auto &w) { return w.samplePoints > 0; });
+        m_hotspotSummary->setText(tr("整批实采 · %1 场实际战斗 · 命中 %2/%3 个工作线程 · %4 个样本\n"
+            "整批用时 %5 秒 · 线程累计 %6 秒（含被调度等待） · 阶段表按实际战斗数折算")
+            .arg(report.fights).arg(sampledWorkers).arg(report.workers.size()).arg(report.samplePoints)
+            .arg(entry->result.elapsedSeconds, 0, 'f', 3).arg(report.workerMs / 1000, 0, 'f', 3));
+        if (!report.samplePoints) m_hotspotSummary->setText(tr("本批执行时间短于采样间隔，未命中函数。增加模拟次数可获得更多样本。"));
+        m_hotspotTable->setRowCount(phaseNames.size());
+        m_hotspotTable->setColumnHidden(3, !base);
+        for (std::size_t i = 0; i < phaseNames.size(); ++i) {
+            Row(m_hotspotTable, i, {QString::fromUtf8(phaseNames[i]), Number(report.phaseUs[i]),
+                Number(total > 0 ? 100 * report.phaseUs[i] / total : 0) + '%', base ? Number(base->phaseUs[i]) : QString{}});
+            m_hotspotTable->item(i, 0)->setData(Qt::DecorationRole, QColor(phaseColors[i]));
+        }
+    }
     m_setBaseline->setEnabled(entry && entry->result.stats.count);
     m_clearBaseline->setEnabled(m_baseline.has_value());
     m_useInputs->setEnabled(entry && m_inputsEnabled);
@@ -277,7 +396,7 @@ void ResultsPanel::ShowDetails()
     m_gains->setRowCount(0);
     auto *gainNote = findChild<QLabel *>(QStringLiteral("attributeGainDescription"));
     if (!entry) {
-        gainNote->setText(QStringLiteral("在收益卡片底部选择比较方式，选中“计算”，再开始模拟。"));
+        gainNote->setText(QStringLiteral("运行一次属性收益计算，查看八项属性各自带来的秒伤变化。"));
         m_details->setPlainText(QStringLiteral("运行批量模拟或单次记录，查看统计及本次使用的宏与配置。"));
         return;
     }
@@ -353,6 +472,8 @@ void ResultsPanel::ShowDetails()
 
 void ResultsPanel::SetInputsEnabled(bool enabled)
 {
+    m_collectHotspots->setEnabled(enabled);
+    m_runGains->setEnabled(enabled);
     m_inputsEnabled = enabled;
     m_useInputs->setEnabled(enabled && Selected());
 }
@@ -407,7 +528,7 @@ bool ResultsPanel::ExportSelected(const QString &path, QString &error) const
             {"hit", QString::number(skill.hit)}, {"critical", QString::number(skill.critical)},
             {"insight", QString::number(skill.insight)}, {"miss", QString::number(skill.miss)}});
     }
-    const QJsonObject report{
+    QJsonObject report{
         { "skills", skills },
         { "skillsCollected", r.skillsCollected },
         { "gains",         gains                             },
@@ -419,6 +540,20 @@ bool ResultsPanel::ExportSelected(const QString &path, QString &error) const
         { "configuration", entry->configuration              },
         { "result",        stats                             }
     };
+    if (r.hotspots) {
+        const auto &timing = *r.hotspots;
+        QJsonArray phases;
+        for (std::size_t i = 0; i < phaseNames.size(); ++i)
+            phases.append(QJsonObject{{"stage", QString::fromUtf8(phaseNames[i])}, {"estimatedUsPerFight", timing.phaseUs[i]}});
+        QJsonArray calls;
+        for (const auto &call : timing.calls)
+            calls.append(QJsonObject{{"function", call.function}, {"parent", qint64(call.parent)},
+                {"inclusiveSamples", qint64(call.inclusive)}, {"selfSamples", qint64(call.self)}});
+        QJsonArray workers;
+        for (const auto &w : timing.workers) workers.append(QJsonObject{{"fights", qint64(w.fights)}, {"samplePoints", qint64(w.samplePoints)}});
+        report.insert("fightHotspots", QJsonObject{{"scope", "batchWorkers"}, {"fights", qint64(timing.fights)}, {"workerMs", timing.workerMs},
+            {"wallSeconds", r.elapsedSeconds}, {"workers", workers}, {"samplePoints", qint64(timing.samplePoints)}, {"stages", phases}, {"callTree", calls}});
+    }
     const auto bytes = QJsonDocument(report).toJson();
     QSaveFile  file(path);
     if (!file.open(QIODevice::WriteOnly) || file.write(bytes) != bytes.size() || !file.commit()) {

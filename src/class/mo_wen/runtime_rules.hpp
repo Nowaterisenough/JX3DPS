@@ -99,6 +99,7 @@ public:
         return s.SkillReadyAt(skill) <= s.now;
     }
     template<typename Engine> bool Cast(Engine &e,const MacroLine &line) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::Cast");
         auto &s=e.MutableState();
         const auto k=line.action_slot;
         if (!IsCastable(k)) throw std::invalid_argument("damage-only Mo Wen skill cannot be cast");
@@ -125,6 +126,7 @@ public:
         const auto range=Range(k);
         if (s.target_distance>range)
             return Reject(e,ActionBlockReason::Distance,s.target_distance,range,k);
+        [[maybe_unused]] auto effectTimer = CastEffectTimer<Engine>();
         const auto previous=s.last_skill;
         s.last_skill=k;
         if (UsesGcd(k)) Gcd(e,0,TimingNow().gcd);
@@ -180,6 +182,7 @@ public:
         return true;
     }
     template<typename Engine> void OnTimer(Engine &e,TimerHandle h,DeadlineQueue::TimerId) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::OnTimer");
         auto &s=e.MutableState();
         switch (h.kind) {
             case TimerKind::SkillPrepare:
@@ -240,6 +243,7 @@ private:
     bool Proc(int numerator,int denominator) { return Integer(1,denominator)<=numerator; }
     AuraSnapshot Snapshot()const { return {profile_,miaoyi_power_+jingmiao_power_}; }
     template<typename Engine> void Hit(Engine &e,Effect effect,AuraSnapshot snap,bool you_ren=false) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::Hit");
         const auto key=rng_.Next();
         const bool critical=Unit(key)<Data().critical_chance[ChanceProfile(snap.profile)][effect];
         const bool shoes=effect<=EWuYin || effect==EGongCw || effect==EBianGongCw || effect==EYuCw;
@@ -301,6 +305,7 @@ private:
         s.skill_gcd_group[YangChun]=style_==Style::YangChunBaiXue?3:1;
     }
     template<typename Engine> void Aura(Engine &e,Slot b,tick_t duration,int stacks) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::Aura");
         auto &s=e.MutableState();
         const auto expiry=duration==Forever?Forever:s.now+duration;
         SetBuff(s,e.Log(),false,b,stacks||b==ZhiYinHeMing?expiry:0,0,stacks);
@@ -366,6 +371,7 @@ private:
         if (e.GetState().self_buff_stacks[XianFengMark] && e.GetState().self_buff_stacks[XianFeng]) ClearAura(e,XianFeng);
     }
     template<typename Engine> void Equipment(Engine &e) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::Equipment");
         if (Data().HasEquipment(SetAttribute) && Proc(10,100)) Aura(e,SetAttributeBuff,96,1);
         if (!Data().HasEquipment(WeaponCW)) return;
         const bool proc=Proc(25,1024);
@@ -401,6 +407,7 @@ private:
         if (Data().HasEquipment(WeaponWater)) Aura(e,WaterBuff,96,std::min(10,e.GetState().self_buff_stacks[WaterBuff]+1));
     }
     template<typename Engine> void GongDamage(Engine &e,Slot k,bool cw) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::GongDamage");
         if (!cw) AddQuFeng(e,k==Gong?3:4);
         AddXianFeng(e);
         if (!cw && k==BianGong && Data().Has(ZhiZhi)) {
@@ -446,6 +453,7 @@ private:
         Hit(e,k==Zhi?EZhi:EBianZhi,Snapshot(),true);
     }
     template<typename Engine> void TickZhi(Engine &e) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::TickZhi");
         auto &s=e.MutableState();
         const auto k=s.casting_skill;
         if (!IsZhi(k)) return;
@@ -478,6 +486,7 @@ private:
         e.Timers().ArmAt(tick_[b],next); e.Timers().ArmAt(expire_[b],expiry);
     }
     template<typename Engine> void TickDot(Engine &e,Slot b) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::TickDot");
         auto &s=e.MutableState();
         if (!s.target_buff_stacks[b]) return;
         const auto effect=b==ShangDot?EShangDot:b==JueDot?EJueDot:static_cast<Effect>(EShenBing+s.target_buff_stacks[b]-1);
@@ -531,6 +540,7 @@ private:
         SetBuff(e.MutableState(),e.Log(),false,YingZi,shadow_count_?expiry:0,shadow_count_?next:0,shadow_count_);
     }
     template<typename Engine> void AddShadow(Engine &e) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::AddShadow");
         // Legacy takes the seventh shadow's snapshot before removing the oldest.
         if (Data().Has(YunHanTalent)) Aura(e,YunHan,1600,shadow_count_+1);
         const auto snap=Snapshot();
@@ -553,6 +563,7 @@ private:
         PublishShadows(e);
     }
     template<typename Engine> void TickShadow(Engine &e,Slot slot) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("mo_wen::TickShadow");
         auto &shadow=shadows_[slot];
         const auto now=e.GetState().now;
         if (!shadow.expires_at) return;

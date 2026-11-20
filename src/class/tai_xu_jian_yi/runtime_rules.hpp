@@ -134,6 +134,7 @@ public:
     static bool MayActWhileBusy(const MacroLine &line) {
         return IsForceCast(line.command) || !IsCastable(line.action_slot);
     }
+    static bool UsesPrimaryGcd(Slot skill) { return UsesGcd(skill); }
     static tick_t CastReadyAt(const State &s, Slot skill) {
         const auto group = s.skill_gcd_group[skill];
         if (skill == BaHuang && s.self_buff_stacks[WeaponCwBuff] && group != INVALID_SLOT)
@@ -148,6 +149,7 @@ public:
         return CastReadyAt(s, line.action_slot) <= s.now;
     }
     template <typename Engine> bool Cast(Engine &e, const MacroLine &line) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::Cast");
         auto &s = e.MutableState();
         const auto skill = line.action_slot;
         if (!IsCastable(skill)) throw std::invalid_argument("damage-only or unmigrated skill cannot be cast");
@@ -197,6 +199,7 @@ public:
                 s.self_buff_stacks[JingHuaBuff], 1, JingHuaBuff);
             return false;
         }
+        [[maybe_unused]] auto effectTimer = CastEffectTimer<Engine>();
         if (skill != SanChai && !IsFieldSkill(skill)) s.last_skill = skill;
         if (UsesGcd(skill)) {
             SetGcd(s, e.Log(), 0, s.now + Data().gcd);
@@ -241,6 +244,7 @@ public:
         return true;
     }
     template <typename Engine> void OnTimer(Engine &e, TimerHandle handle, DeadlineQueue::TimerId) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::OnTimer");
         auto &s = e.MutableState();
         if (handle.kind == TimerKind::TeamApplication) {
             const auto &schedule = Data().config.team_buffs;
@@ -387,6 +391,7 @@ private:
     }
     template <typename Engine> void Record(Engine &e, std::uint16_t effect, AttributeVersionId snapshot,
                                             Rolled roll, int level = -1, int sub = -1) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::Record");
         const auto &f = Formulas[effect];
         const auto live = Snapshot(e.GetState());
         const auto profile = static_cast<std::uint16_t>((versions_[snapshot].profile & ~LiveProfileMask) |
@@ -396,16 +401,19 @@ private:
             static_cast<std::uint16_t>(sub < 0 ? f.sub : sub), snapshot, live);
     }
     template <typename Engine> RollResult Hit(Engine &e, std::uint16_t effect, AttributeVersionId snapshot, int level = -1, int sub = -1) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::Hit");
         const auto roll = Roll(effect, snapshot);
         Record(e, effect, snapshot, roll, level, sub);
         return roll.outcome;
     }
     template <typename Engine> void DotHit(Engine &e, std::uint16_t effect, AttributeVersionId snapshot, int sub = -1) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::DotHit");
         // Crit chance is snapshotted, while overcome and shield ignore are live.
         const auto roll = Roll(effect, snapshot);
         Record(e, effect, snapshot, roll, -1, sub);
     }
     template <typename Engine> void ApplyTeam(Engine &e, const team::Application &app) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::ApplyTeam");
         auto &s = e.MutableState();
         const auto slot = static_cast<Slot>(TeamBuffBegin+static_cast<Slot>(app.kind));
         const auto &d = team::Definitions[app.kind];
@@ -521,6 +529,7 @@ private:
         e.Timers().Cancel(dot_expire_);
     }
     template <typename Engine> void CastWuWo(Engine &e) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::CastWuWo");
         auto &s = e.MutableState();
         const auto qidian = s.qidian;
         const auto effect = static_cast<std::uint16_t>((s.self_buff_stacks[FengShi] ? FengWuWoEffect : WuWoEffect) + qidian - 1);
@@ -543,6 +552,7 @@ private:
         TriggerYouRen(e, roll);
     }
     template <typename Engine> void CastBaHuang(Engine &e) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::CastBaHuang");
         auto &s = e.MutableState();
         const bool weapon_window = s.self_buff_stacks[WeaponCwBuff] != 0;
         if (weapon_window) {
@@ -570,6 +580,7 @@ private:
         TriggerYouRen(e, first_roll);
     }
     template <typename Engine> void CastSanHuan(Engine &e) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::CastSanHuan");
         auto &s = e.MutableState();
         CooldownAt(e, SanHuan, s.now + Data().sanhuan_cd);
         QidianAt(e, s.qidian + 2);
@@ -752,6 +763,7 @@ private:
     }
 
     template <typename Engine> void Aura(Engine &e, Slot buff, tick_t duration, int stacks = 1) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::Aura");
         auto &s = e.MutableState();
         SetBuff(s, e.Log(), buff == TunRiBuff, buff, s.now + duration, 0, stacks);
         if (buff == SuiXingBuff) profile_ |= SuiXingProfile | (Data().Has(GuChang) ? LiveGuChangProfile : 0);
@@ -824,6 +836,7 @@ private:
         return result;
     }
     template <typename Engine> void TickField(Engine &e, Slot slot) {
+        [[maybe_unused]] auto frameScope = RuleFunctionScope<Engine>("tai_xu::TickField");
         auto &field = fields_[slot];
         const auto skill = field.skill;
         const auto now = e.GetState().now;

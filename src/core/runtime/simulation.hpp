@@ -57,8 +57,22 @@ struct SimulationDebugControl {
 // Rules is selected when constructing the simulator. Setup creates timer
 // handles once; Reset initializes a fight; Cast/OnTimer/Reduce are statically
 // dispatched. Rules must immediately apply procs which affect later actions.
-template <typename Rules, bool Debug = false>
+template <typename Rules, bool Debug = false, bool Measure = false>
 class Simulation {
+    static constexpr bool FilterPrimaryGcd = !Debug && requires(Slot skill) { Rules::UsesPrimaryGcd(skill); }
+        && !requires(Rules &rules, Simulation &sim, const MacroLine &line) { rules.BeforeMacroLine(sim, line); };
+    struct PrimaryGcdScan {
+        std::vector<Slot> skills;
+        std::vector<Pc> remaining_lines;
+
+        bool Applies(const State &state) const {
+            // The mapping in State is mutable. Use the full macro if a skill
+            // has moved to another cooldown group.
+            return !skills.empty() && state.gcd_ready_at[0] > state.now &&
+                   std::ranges::all_of(skills, [&](Slot s) { return state.skill_gcd_group[s] == 0; });
+        }
+    };
+    struct NoGcdScan {};
 public:
     Simulation(const MacroProgram &program, Rules rules = {}, std::size_t damage_capacity = 4096,
                std::size_t mutation_capacity = 8192)
@@ -73,6 +87,17 @@ public:
         }
         if constexpr (Debug) debug_.breakpoints.resize(program.lines.size());
         rules_.Setup(*this);
+        if constexpr (FilterPrimaryGcd) {
+            // Sequential and force commands can block or interrupt before a cast.
+            if (std::ranges::all_of(program.lines, [](const MacroLine &l) { return l.command == Command::Cast; })) {
+                for (Pc i = 0; i < program.lines.size(); ++i) {
+                    const auto skill = program.lines[i].action_slot;
+                    if (!Rules::UsesPrimaryGcd(skill)) gcd_scan_.remaining_lines.push_back(i);
+                    else if (std::ranges::find(gcd_scan_.skills, skill) == gcd_scan_.skills.end())
+                        gcd_scan_.skills.push_back(skill);
+                }
+            }
+        }
     }
     Simulation(const Simulation &) = delete;
     Simulation &operator=(const Simulation &) = delete;
@@ -80,6 +105,7 @@ public:
     Simulation &operator=(Simulation &&) = delete;
 
     void Start(tick_t duration, std::uint64_t seed) {
+        PhaseScope<Measure> frame("Simulation::Start");
         if (duration < 0) throw std::invalid_argument("negative fight duration");
         end_ = duration;
         finished_ = duration == 0;
@@ -96,6 +122,7 @@ public:
         actions_at_frame_ = 0;
     }
     void Run() requires (!Debug) {
+        PhaseScope<Measure> frame("Simulation::Run");
         while (!finished_) Pump(false);
     }
     bool StepInto() requires Debug {
@@ -126,6 +153,7 @@ public:
     void SetBreakpoint(Pc instruction, bool enabled = true) requires Debug {
         debug_.breakpoints.at(instruction) = enabled;
     }
+    using CastEffectScope = PhaseScope<Measure>;
     static constexpr bool debug_enabled = Debug;
     void SetDebugObserver(void (*observer)(void *, const MacroObservation &), void *context) requires Debug {
         debug_.observer = observer;
@@ -145,19 +173,23 @@ public:
     State &MutableState() { return state_; }
     const State &GetState() const { return state_; }
     const Rules &GetRules() const { return rules_; }
-    DeadlineQueue &Timers() { return queue_; }
-    DamageIntentLog &Log() { return log_; }
-    const DamageIntentLog &Log() const { return log_; }
+    auto &Timers() { return queue_; }
+    auto &Log() { return log_; }
+    const auto &Log() const { return log_; }
     value_t TotalDamage() {
         return TotalDamage([](const DamageIntent &, value_t) {});
     }
     template <class Observer>
     value_t TotalDamage(Observer observer) {
+        PhaseScope<Measure> timer(FightPhase::Damage, "Simulation::TotalDamage");
         if (!finished_) throw std::logic_error("fight must finish before deferred reduction");
         if constexpr (requires(const DamageIntent &hit) { rules_.Reduce(hit); }) {
             value_t total = 0;
             for (const auto &hit : log_.Intents()) {
-                const auto damage = rules_.Reduce(hit);
+                const auto damage = [&] {
+                    PhaseScope<Measure> frame("Rules::Reduce");
+                    return rules_.Reduce(hit);
+                }();
                 observer(hit, damage);
                 total += damage;
             }
@@ -173,12 +205,20 @@ public:
 
 private:
     void Pump(bool honor_breakpoints) {
+        PhaseScope<Measure> frame("Simulation::Pump");
         if constexpr (Debug) debug_.new_pass = false;
         if (dispatch_) {
-            queue_.DispatchDue([this](auto handle, auto id) { rules_.OnTimer(*this, handle, id); });
+            PhaseScope<Measure> timer(FightPhase::Queue);
+            queue_.DispatchDue([this](auto handle, auto id) {
+                PhaseScope<Measure> effect(FightPhase::TimerEffect);
+                rules_.OnTimer(*this, handle, id);
+            });
             dispatch_ = false;
         }
-        auto cast = [this](State &, const MacroLine &line) { return rules_.Cast(*this, line); };
+        auto cast = [this](State &, const MacroLine &line) {
+            PhaseScope<Measure> timer(FightPhase::Availability);
+            return rules_.Cast(*this, line);
+        };
         auto before_line = [this](const MacroLine &line) {
             if constexpr (requires { rules_.BeforeMacroLine(*this, line); }) rules_.BeforeMacroLine(*this, line);
             else (void)this;
@@ -220,12 +260,19 @@ private:
             macro_.BeginPass();
         } else {
             (void)honor_breakpoints;
+            PhaseScope<Measure> timer(FightPhase::Macro);
             auto available = [this](const MacroLine &line) {
+                PhaseScope<Measure> check(FightPhase::Availability, "Rules::CanAttempt");
                 if constexpr (requires { rules_.CanAttempt(state_, line); }) return rules_.CanAttempt(state_, line);
                 else return true;
             };
             const bool scan = scan_while_busy_ || (state_.preparing_skill == INVALID_SLOT && state_.casting_skill == INVALID_SLOT);
-            success = scan && macro_.EvaluateFast(state_, cast, before_line, available);
+            if (!scan) success = false;
+            else if constexpr (FilterPrimaryGcd) {
+                success = gcd_scan_.Applies(state_)
+                    ? macro_.EvaluateFastLines(state_, cast, before_line, available, gcd_scan_.remaining_lines)
+                    : macro_.EvaluateFast(state_, cast, before_line, available);
+            } else success = macro_.EvaluateFast(state_, cast, before_line, available);
         }
         if constexpr (Debug) debug_.new_pass = true;
         if (success) {
@@ -233,6 +280,7 @@ private:
             dispatch_ = true;
             return;
         }
+        PhaseScope<Measure> advance(FightPhase::Advance);
         auto next = queue_.NextDelta();
         if (has_time_conditions_) {
             if (auto boundary = NextMacroBoundary(program_, state_); boundary && (!next || *boundary - state_.now < *next)) {
@@ -256,14 +304,15 @@ private:
         if constexpr (requires { Rules::owns_last_skill; }) return !Rules::owns_last_skill;
         else return true;
     }();
-    MacroExecutor<Debug, TrackLastSkill> macro_;
+    MacroExecutor<Debug, TrackLastSkill, Measure> macro_;
     State state_, initial_, scratch_;
-    DeadlineQueue queue_;
-    DamageIntentLog log_;
+    BasicDeadlineQueue<Measure> queue_;
+    BasicDamageIntentLog<Measure> log_;
     tick_t end_ = 0;
     std::size_t actions_at_frame_ = 0;
     bool dispatch_ = true, finished_ = true;
     bool has_time_conditions_ = false, scan_while_busy_ = true;
+    [[no_unique_address]] std::conditional_t<FilterPrimaryGcd, PrimaryGcdScan, NoGcdScan> gcd_scan_;
     [[no_unique_address]] std::conditional_t<Debug, SimulationDebugControl, NoDebugState> debug_;
 };
 

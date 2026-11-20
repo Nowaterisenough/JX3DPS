@@ -120,18 +120,19 @@ struct AttributeGainBatch {
     std::array<std::optional<BatchStats>, AttributeGains.size()> gains;
 };
 
-template <class Config, class Reducer = detail::TotalDamageReducer>
+template <class Config, class Reducer = detail::TotalDamageReducer, bool Measure = false>
 AttributeGainBatch RunAttributeGainsControlled(const MacroProgram &program, const BatchOptions &options,
                                               BatchControl &control, const Config &config, Reducer reducer = {},
-                                              const AttributeGainIncrements &increments = DefaultGainIncrements) {
+                                              const AttributeGainIncrements &increments = DefaultGainIncrements,
+                                              BatchProfile *profile = nullptr) {
     for (const auto increment : increments)
         if (increment <= 0) throw std::invalid_argument("attribute gain increment must be positive");
     control.completed.store(0, std::memory_order_relaxed);
     auto rules = LoadSpecialization(config);
     DamageGainObserver<Config> observer(config, DamageOnlyGainIndexes<Config>, increments);
     const auto observed_count = observer.Count();
-    auto combined = detail::RunBatchObservedImpl(program, options, control, rules, observed_count, 1,
-                                                 std::move(observer), std::move(reducer));
+    auto combined = detail::RunBatchObservedImpl<Measure>(program, options, control, rules, observed_count, 1,
+                                                 std::move(observer), std::move(reducer), profile);
     AttributeGainBatch result{combined.first, {}};
     if (result.primary.count != options.iterations) return result;
     for (std::size_t i = 0; i < DamageOnlyGainIndexes<Config>.size(); ++i)
@@ -139,7 +140,10 @@ AttributeGainBatch RunAttributeGainsControlled(const MacroProgram &program, cons
     for (const auto index : RotationGainIndexes<Config>) {
         if (control.cancel_requested.load(std::memory_order_relaxed)) break;
         const auto changed_rules = LoadSpecialization(ApplyAttributeGain(config, index, increments[index]));
-        const auto gain = detail::RunBatchImpl<true>(program, options, changed_rules, &control);
+        const char *stage = AttributeGains[index].kind == AttributeGainKind::Critical ? "会心重跑" :
+                            AttributeGains[index].kind == AttributeGainKind::Haste ? "加速重跑" : "属性重跑";
+        const auto gain = detail::RunBatchImpl<true, Measure>(program, options, changed_rules, &control,
+            detail::TotalDamageReducer{}, profile, stage);
         if (gain.count == options.iterations) result.gains[index] = gain;
     }
     return result;

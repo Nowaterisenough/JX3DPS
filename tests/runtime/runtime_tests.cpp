@@ -200,6 +200,20 @@ void DebuggerTests() {
 }
 
 void SchedulerTests() {
+    {
+        DeadlineQueue original;
+        auto first = original.Create({});
+        original.Arm(first, 2);
+        auto second = original.Create({});
+        original.Arm(second, 1);
+        DeadlineQueue moved = std::move(original);
+        CHECK(moved.Pending() == 2 && moved.NextDelta() == 1);
+        CHECK(!original.Pending() && !original.NextDelta());
+        original.Arm(original.Create({}), 3);
+        CHECK(original.NextDelta() == 3);
+        moved.Cancel(second);
+        CHECK(moved.Pending() == 1 && moved.NextDelta() == 2);
+    }
     DeadlineQueue queue;
     auto a = queue.Create({TimerKind::BuffDuration, 1, true}, 10);
     auto b = queue.Create({TimerKind::BuffInterval, 1, true}, 0);
@@ -230,6 +244,18 @@ void SchedulerTests() {
     queue.DispatchDue([&](auto, auto) { queue.Arm(a, 2); });
     CHECK(queue.NextDelta() == 2);
     queue.Reset(); CHECK(!queue.NextDelta() && queue.Now() == 0);
+    // Equal deadlines and priorities must stay FIFO even after a long fight
+    // exhausts the short insertion rank stored in a heap entry.
+    for (unsigned i = 0; i < 65534; ++i) queue.Arm(urgent, 1);
+    queue.Cancel(urgent);
+    queue.Arm(a, 1); queue.Arm(peer, 1); queue.Arm(cancelled, 1);
+    queue.Arm(peer, 1); // move behind the other saturated rank
+    queue.Arm(b, 1);    // higher priority still wins
+    queue.Advance(1);
+    fired.clear();
+    queue.DispatchDue([&](auto, auto id) { fired.push_back(id); });
+    CHECK((fired == std::vector<DeadlineQueue::TimerId>{b, a, cancelled, peer}));
+    queue.Reset();
     queue.Arm(a, 0);
     Throws<std::runtime_error>([&] { queue.DispatchDue([&](auto, auto id) { queue.Arm(id, 0); }, 5); });
     queue.Reset();
@@ -503,6 +529,19 @@ void BatchTests() {
     CHECK(controlled.count == four.count && controlled.checksum == four.checksum);
     CHECK(control.completed == controlled.count);
     CHECK(std::abs(controlled.mean_damage - four.mean_damage) < 1e-8);
+    {
+        auto large = options;
+        large.iterations = 2053;
+        large.workers = 4;
+        BatchControl progress;
+        const auto balanced = RunBatchControlled<FixtureRules>(macro.program, large, progress);
+        CHECK(balanced.count == large.iterations && progress.completed == large.iterations);
+        const auto repeated = RunBatch<FixtureRules>(macro.program, large);
+        CHECK(repeated.checksum == balanced.checksum && repeated.mean_damage == balanced.mean_damage);
+        CHECK(repeated.m2_damage == balanced.m2_damage);
+        large.workers = 1;
+        CHECK(RunBatch<FixtureRules>(macro.program, large).checksum == balanced.checksum);
+    }
     control.cancel_requested = true;
     CHECK(RunBatchControlled<FixtureRules>(macro.program, options, control).count == 0);
     CHECK(control.completed == 0);

@@ -2,6 +2,7 @@
 #define JX3DPS_RUNTIME_BATCH_HPP
 
 #include "simulation.hpp"
+#include "batch_profile.hpp"
 #include <atomic>
 #include <exception>
 #include <span>
@@ -65,47 +66,70 @@ struct BatchControl {
 };
 
 namespace detail {
+enum class BatchAssignment { FixedRanges, SharedBlocks };
+
 struct TotalDamageReducer {
     template <class Simulation>
     value_t operator()(Simulation &simulation, unsigned) const { return simulation.TotalDamage(); }
 };
-template <bool Controlled, typename Rules, typename Reducer = TotalDamageReducer>
+template <bool Controlled, bool Measure = false, BatchAssignment Assignment = BatchAssignment::FixedRanges,
+          typename Rules, typename Reducer = TotalDamageReducer>
 BatchStats RunBatchImpl(const MacroProgram &program, const BatchOptions &options, const Rules &rules,
-                       BatchControl *control, Reducer reducer = {}) {
+                       BatchControl *control, Reducer reducer = {}, BatchProfile *profile = nullptr, const char *stage = "基准战斗") {
     if (!options.iterations || !options.workers || options.duration <= 0) {
         throw std::invalid_argument("batch iterations, workers and duration must be positive");
     }
     const auto worker_count = static_cast<unsigned>(std::min<std::uint64_t>(options.workers, options.iterations));
-    struct alignas(64) WorkerResult { BatchStats stats; std::exception_ptr error; };
-    std::vector<WorkerResult> results(worker_count);
+    // Give each worker its first block. For longer runs, distribute subsequent
+    // blocks on demand and merge in block order so floating-point statistics
+    // are reproducible regardless of which worker finishes first.
+    unsigned blocks = worker_count;
+    if constexpr (Assignment == BatchAssignment::SharedBlocks) {
+        constexpr unsigned target_size = 128, max_blocks = 1024;
+        if (worker_count > 1) {
+            const auto wanted = 1 + (options.iterations - 1) / target_size;
+            blocks = std::max(worker_count, static_cast<unsigned>(std::min<std::uint64_t>(wanted, max_blocks)));
+        }
+    }
+    std::atomic<std::uint64_t> next_block{worker_count};
+    const auto quotient = options.iterations / blocks;
+    const auto remainder = options.iterations % blocks;
+    struct alignas(64) BlockResult { BatchStats stats; };
+    std::vector<BlockResult> results(blocks);
+    std::vector<std::exception_ptr> errors(worker_count);
     auto worker = [&](unsigned index) {
         std::uint64_t pending = 0;
         try {
             if constexpr (Controlled) {
                 if (control->cancel_requested.load(std::memory_order_relaxed)) return;
             }
-            Simulation<Rules> simulation(program, rules, options.damage_capacity, options.mutation_capacity);
-            const auto quotient = options.iterations / worker_count;
-            const auto remainder = options.iterations % worker_count;
-            const auto start = quotient * index + std::min<std::uint64_t>(index, remainder);
-            const auto end = start + quotient + (index < remainder ? 1 : 0);
+            WorkerMeasurement<Measure> measurement(profile, index, stage);
+            Simulation<Rules, false, Measure> simulation(program, rules, options.damage_capacity, options.mutation_capacity);
             auto local_reducer = reducer;
-            for (auto i = start; i < end; ++i) {
-                if constexpr (Controlled) {
-                    if (control->cancel_requested.load(std::memory_order_relaxed)) break;
-                }
-                simulation.Start(options.duration, IterationSeed(options.seed, i));
-                simulation.Run();
-                results[index].stats.Add(local_reducer(simulation, index), i);
-                if constexpr (Controlled) {
-                    if (++pending == 32) {
-                        control->completed.fetch_add(pending, std::memory_order_relaxed);
-                        pending = 0;
+            for (std::uint64_t block = index; block < blocks; block = next_block.fetch_add(1, std::memory_order_relaxed)) {
+                const auto start = quotient * block + std::min(block, remainder);
+                const auto end = start + quotient + (block < remainder);
+                auto &stats = results[block].stats;
+                auto i = start;
+                for (; i < end; ++i) {
+                    if constexpr (Controlled) {
+                        if (control->cancel_requested.load(std::memory_order_relaxed)) break;
+                    }
+                    simulation.Start(options.duration, IterationSeed(options.seed, i));
+                    simulation.Run();
+                    stats.Add(local_reducer(simulation, index), i);
+                    if constexpr (Measure) ++profile->workers[index].fights;
+                    if constexpr (Controlled) {
+                        if (++pending == 32) {
+                            control->completed.fetch_add(pending, std::memory_order_relaxed);
+                            pending = 0;
+                        }
                     }
                 }
+                if (i != end || blocks == worker_count) break;
             }
         } catch (...) {
-            results[index].error = std::current_exception();
+            errors[index] = std::current_exception();
             if constexpr (Controlled) control->cancel_requested.store(true, std::memory_order_relaxed);
         }
         if constexpr (Controlled) control->completed.fetch_add(pending, std::memory_order_relaxed);
@@ -117,21 +141,19 @@ BatchStats RunBatchImpl(const MacroProgram &program, const BatchOptions &options
         worker(0);
     }
     BatchStats combined;
-    for (const auto &result : results) {
-        if (result.error) std::rethrow_exception(result.error);
-        combined.Merge(result.stats);
-    }
+    for (const auto &error : errors) if (error) std::rethrow_exception(error);
+    for (const auto &result : results) combined.Merge(result.stats);
     return combined;
 }
 
 // Run one primary batch while allowing the caller to reduce each completed
 // fight's event log into additional statistics. The observer receives a
 // reusable output span, so replay paths do not allocate per event or fight.
-template <typename Rules, typename Observer, typename Reducer = TotalDamageReducer>
+template <bool Measure = false, typename Rules, typename Observer, typename Reducer = TotalDamageReducer>
 std::pair<BatchStats, std::vector<BatchStats>> RunBatchObservedImpl(
     const MacroProgram &program, const BatchOptions &options, BatchControl &control,
     const Rules &rules, std::size_t observed_count, std::uint64_t progress_units,
-    Observer observer, Reducer reducer = {}) {
+    Observer observer, Reducer reducer = {}, BatchProfile *profile = nullptr) {
     if (!options.iterations || !options.workers || options.duration <= 0 || !progress_units)
         throw std::invalid_argument("batch iterations, workers and duration must be positive");
     const auto worker_count = static_cast<unsigned>(std::min<std::uint64_t>(options.workers, options.iterations));
@@ -146,7 +168,8 @@ std::pair<BatchStats, std::vector<BatchStats>> RunBatchObservedImpl(
         std::uint64_t pending = 0;
         try {
             if (control.cancel_requested.load(std::memory_order_relaxed)) return;
-            Simulation<Rules> simulation(program, rules, options.damage_capacity, options.mutation_capacity);
+            WorkerMeasurement<Measure> measurement(profile, index, "基准战斗");
+            Simulation<Rules, false, Measure> simulation(program, rules, options.damage_capacity, options.mutation_capacity);
             const auto quotient = options.iterations / worker_count;
             const auto remainder = options.iterations % worker_count;
             const auto start = quotient * index + std::min<std::uint64_t>(index, remainder);
@@ -161,10 +184,12 @@ std::pair<BatchStats, std::vector<BatchStats>> RunBatchObservedImpl(
                 simulation.Run();
                 results[index].primary.Add(local_reducer(simulation, index), i);
                 if (observed_count) {
+                    PhaseScope<Measure> stage(FightPhase::GainReplay, "DamageGainObserver");
                     local_observer(simulation, std::span<value_t>(values));
                     for (std::size_t j = 0; j < observed_count; ++j)
                         results[index].observed[j].Add(values[j], i);
                 }
+                if constexpr (Measure) ++profile->workers[index].fights;
                 pending += progress_units;
                 if (pending >= 32) {
                     control.completed.fetch_add(pending, std::memory_order_relaxed);
@@ -198,14 +223,14 @@ std::pair<BatchStats, std::vector<BatchStats>> RunBatchObservedImpl(
 // progress/cancellation loads, and neither path retains multiple fight logs.
 template <typename Rules>
 BatchStats RunBatch(const MacroProgram &program, const BatchOptions &options, const Rules &rules = {}) {
-    return detail::RunBatchImpl<false>(program, options, rules, nullptr);
+    return detail::RunBatchImpl<false, false, detail::BatchAssignment::SharedBlocks>(program, options, rules, nullptr);
 }
 
 template <typename Rules>
 BatchStats RunBatchControlled(const MacroProgram &program, const BatchOptions &options,
                              BatchControl &control, const Rules &rules = {}) {
     control.completed.store(0, std::memory_order_relaxed);
-    return detail::RunBatchImpl<true>(program, options, rules, &control);
+    return detail::RunBatchImpl<true, false, detail::BatchAssignment::SharedBlocks>(program, options, rules, &control);
 }
 
 template <typename Rules, typename Observer>

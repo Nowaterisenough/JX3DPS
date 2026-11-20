@@ -10,12 +10,9 @@
 [submodule "3rd/benchmark"]
 	path = 3rd/benchmark
 	url = https://github.com/google/benchmark.git
-[submodule "3rd/QCustomPlot"]
-	path = 3rd/QCustomPlot
-	url = https://github.com/dimv36/QCustomPlot-library.git
 [submodule "3rd/proxy"]
 	path = 3rd/proxy
-	url = https://github.com/microsoft/proxy.git
+	url = https://github.com/ngcpp/proxy.git
 [submodule "3rd/bqlog"]
 	path = 3rd/bqlog
 	url = https://github.com/Tencent/BqLog.git

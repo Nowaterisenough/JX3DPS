@@ -529,6 +529,19 @@ void BatchTests() {
     CHECK(controlled.count == four.count && controlled.checksum == four.checksum);
     CHECK(control.completed == controlled.count);
     CHECK(std::abs(controlled.mean_damage - four.mean_damage) < 1e-8);
+    {
+        auto large = options;
+        large.iterations = 2053;
+        large.workers = 4;
+        BatchControl progress;
+        const auto balanced = RunBatchControlled<FixtureRules>(macro.program, large, progress);
+        CHECK(balanced.count == large.iterations && progress.completed == large.iterations);
+        const auto repeated = RunBatch<FixtureRules>(macro.program, large);
+        CHECK(repeated.checksum == balanced.checksum && repeated.mean_damage == balanced.mean_damage);
+        CHECK(repeated.m2_damage == balanced.m2_damage);
+        large.workers = 1;
+        CHECK(RunBatch<FixtureRules>(macro.program, large).checksum == balanced.checksum);
+    }
     control.cancel_requested = true;
     CHECK(RunBatchControlled<FixtureRules>(macro.program, options, control).count == 0);
     CHECK(control.completed == 0);

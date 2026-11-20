@@ -221,7 +221,8 @@ void BatchWorker::run()
                                                     *calculated.gains[index]});
                     }
                 } else {
-                    result.stats = runtime::detail::RunBatchImpl<true, Measure>(m_program, m_options, desktop::MakeRules(config), &m_control, reduce, profile);
+                    result.stats = runtime::detail::RunBatchImpl<true, Measure, runtime::detail::BatchAssignment::SharedBlocks>(
+                        m_program, m_options, desktop::MakeRules(config), &m_control, reduce, profile);
                 }
                 StoreSkills(result, skillTotals, specialization);
                 if constexpr (Measure) result.hotspots = MergeHotspots(*profile);

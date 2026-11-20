@@ -16,7 +16,7 @@ add_custom_target(web_assets ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${site}/ui"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/index.html" "${site}"
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_CURRENT_SOURCE_DIR}/ui" "${site}/ui"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_SOURCE_DIR}/resources/images/JX3/Icons" "${site}/icons"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_SOURCE_DIR}/data/images/JX3/Icons" "${site}/icons"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/apps/desktop/data/icons.json" "${site}/icons.json"
     VERBATIM)
 add_dependencies(jx3dps_web web_assets)

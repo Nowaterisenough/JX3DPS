@@ -60,7 +60,7 @@ add_subdirectory(3rd)
 
 # Resources 需要 Qt，仅在 BUILD_APP 时构建
 if(BUILD_APP)
-    add_subdirectory(resources)
+    add_subdirectory(data)
 endif()
 
 set(BUILD_SHARED_LIBS true)

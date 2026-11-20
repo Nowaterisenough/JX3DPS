@@ -380,7 +380,7 @@ private:
     template <typename ProxyType, typename... Args>
     pro::proxy<spec::Node> MakeConditionProxy(Args... args)
     {
-        return pro::make_proxy<spec::Node>(ProxyType(args...));
+        return pro::make_proxy_inplace<spec::Node, ProxyType>(args...);
     }
 
     template <template <typename> class ProxyType>

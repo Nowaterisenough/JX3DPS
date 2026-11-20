@@ -1,133 +1,68 @@
+#include <array>
 #include <memory>
-#include <random>
-#include <vector>
+#include <tuple>
 
 #include <benchmark/benchmark.h>
 #include <proxy/proxy.h>
 
-// 虚函数基类
-class Base
-{
-public:
-    virtual int Calculate(int x) const = 0;
-    virtual ~Base()                    = default;
-};
+namespace {
 
-// 具体实现类
-class Derived : public Base
-{
-public:
-    int Calculate(int x) const final { return x * 2; }
-};
-
-class Derived2 : public Base
-{
-public:
-    int Calculate(int x) const final { return x * 2; }
-};
-
-class DerivedProxy
-{
-public:
-    int Calculate(int x) const { return x * 2; }
-};
-
-// CRTP基类
 template <typename Derived>
-class CRTPBase
+struct Operation
 {
-public:
     int Calculate(int x) const { return static_cast<const Derived *>(this)->CalculateImpl(x); }
 };
 
-// CRTP派生类
-class CRTPDerived : public CRTPBase<CRTPDerived>
+struct Double : Operation<Double>
 {
-public:
     int CalculateImpl(int x) const { return x * 2; }
 };
 
-// Proxy 定义
-namespace spec {
-
-PRO_DEF_MEM_DISPATCH(MemCalculate, Calculate);
-
-struct Calculatable : pro::facade_builder::add_convention<MemCalculate, int(int)>::build
+struct Increment : Operation<Increment>
 {
+    int CalculateImpl(int x) const { return x + 1; }
 };
 
-} // namespace spec
+constexpr auto OPERATIONS = std::tuple{ Double{}, Increment{}, Increment{}, Double{} };
 
-// 随机数生成器
-std::random_device              rd;
-std::mt19937                    gen(rd());
-std::uniform_int_distribution<> dis(1, 100);
+PRO_DEF_MEM_DISPATCH(MemCalculate, Calculate);
+using Calculatable = pro::facade_builder::add_convention<MemCalculate, int(int) const>::build;
 
-// 创建随机对象的函数
-std::unique_ptr<Base> CreateRandomVirtual()
+void MeasureProxy(benchmark::State &state, const auto &store)
 {
-    return std::make_unique<Derived>();
-}
-
-CRTPDerived CreateRandomCRTP()
-{
-    return CRTPDerived();
-}
-
-auto CreateRandomProxy()
-{
-    return pro::make_proxy<spec::Calculatable>(DerivedProxy());
-}
-
-// Benchmark 函数
-static void BM_Virtual(benchmark::State &state)
-{
-    std::vector<std::unique_ptr<Base>> objects;
-    for (int i = 0; i < 4; ++i) {
-        objects.push_back(CreateRandomVirtual());
-    }
-
-    for (const auto _ : state) {
-        const int X = dis(gen);
-        for (auto &obj : objects) {
-            benchmark::DoNotOptimize(obj->Calculate(X));
+    const auto objects = std::apply([&](auto... op) { return std::array{ store(op)... }; }, OPERATIONS);
+    int        input   = 42;
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(input);
+        for (const auto &object : objects) {
+            benchmark::DoNotOptimize(object->Calculate(input));
         }
     }
 }
 
-// CRTP基准测试
-static void BM_CRTP(benchmark::State &state)
+void BM_HeapProxy(benchmark::State &state)
 {
-    std::vector<CRTPDerived> objects;
-    for (int i = 0; i < 4; ++i) {
-        objects.push_back(CreateRandomCRTP());
-    }
-
-    for (const auto _ : state) {
-        const int X = dis(gen);
-        for (auto &obj : objects) {
-            benchmark::DoNotOptimize(obj.Calculate(X));
-        }
-    }
+    MeasureProxy(state, []<class T>(T op) -> pro::proxy<Calculatable> { return std::make_unique<T>(op); });
 }
 
-static void BM_Proxy(benchmark::State &state)
+void BM_Proxy(benchmark::State &state)
 {
-    std::vector<decltype(CreateRandomProxy())> objects;
-    for (int i = 0; i < 4; ++i) {
-        objects.emplace_back(CreateRandomProxy());
-    }
+    MeasureProxy(state, [](auto op) { return pro::make_proxy_inplace<Calculatable>(op); });
+}
 
-    for (const auto _ : state) {
-        const int X = dis(gen);
-        for (auto &obj : objects) {
-            benchmark::DoNotOptimize(obj->Calculate(X));
-        }
+void BM_CRTP(benchmark::State &state)
+{
+    int input = 42;
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(input);
+        std::apply([&](const auto &...op) { (benchmark::DoNotOptimize(op.Calculate(input)), ...); }, OPERATIONS);
     }
 }
 
 BENCHMARK(BM_CRTP);
-BENCHMARK(BM_Virtual);
+BENCHMARK(BM_HeapProxy);
 BENCHMARK(BM_Proxy);
+
+} // namespace
 
 BENCHMARK_MAIN();

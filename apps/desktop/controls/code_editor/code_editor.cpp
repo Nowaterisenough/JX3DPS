@@ -1,6 +1,7 @@
 ﻿#include "code_editor.h"
 
 #include <functional>
+#include <optional>
 
 #include <QApplication>
 #include <QClipboard>
@@ -229,9 +230,8 @@ class CodeEditorPrivate
 {
 public:
     explicit CodeEditorPrivate(CodeEditor *editor) :
-        lineNumberArea(new LineNumberArea(editor)),
-        currentLineColor(QColor(Qt::yellow).lighter(CURRENT_LINE_LIGHTER_VALUE)), cppHighlighter(nullptr),
-        jx3MacroHighlighter(nullptr), syntaxChecker(nullptr), syntaxCheckTimer(new QTimer(editor)), q_ptr(editor)
+        lineNumberArea(new LineNumberArea(editor)), currentLineColor(QColor(Qt::yellow).lighter(CURRENT_LINE_LIGHTER_VALUE)),
+        cppHighlighter(nullptr), jx3MacroHighlighter(nullptr), syntaxCheckTimer(new QTimer(editor)), q_ptr(editor)
     {
         // 配置语法检测定时器：延迟500ms执行，避免频繁检测
         syntaxCheckTimer->setSingleShot(true);
@@ -251,9 +251,9 @@ public:
     int                                       currentDebugLine{ -1 }; // 当前调试行（-1表示无）
 
     // 语法检测
-    bool                                               syntaxCheckEnabled{ true }; // 是否启用语法检测
-    QScopedPointer<SyntaxChecker>                      syntaxChecker;              // 语法检测器
-    QList<SyntaxError>                                 syntaxErrors;               // 当前语法错误列表
+    bool                                               syntaxCheckEnabled{ true };     // 是否启用语法检测
+    std::optional<JX3MacroSyntaxChecker>               syntaxChecker{ std::in_place }; // 语法检测器
+    QList<SyntaxError>                                 syntaxErrors;                   // 当前语法错误列表
     QList<QTextCursor>                                 searchMatches;
     std::function<QList<SyntaxError>(const QString &)> syntaxValidator;
     QTimer                                            *syntaxCheckTimer; // 延迟检测定时器
@@ -309,9 +309,6 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), d_ptr(new Code
 
     // 默认启用 C++ 语法高亮
     d->cppHighlighter.reset(new CppSyntaxHighlighter(document()));
-
-    // 默认启用 JX3Macro 语法检测器（因为默认是 C++，稍后会根据类型切换）
-    d->syntaxChecker.reset(new JX3MacroSyntaxChecker(this));
 }
 
 CodeEditor::~CodeEditor()
@@ -811,10 +808,10 @@ void CodeEditor::SetSyntaxType(SyntaxType type)
 
     // 切换语法检测器
     switch (type) {
-        case J_X3_MACRO: d->syntaxChecker.reset(new JX3MacroSyntaxChecker(this)); break;
+        case J_X3_MACRO: d->syntaxChecker.emplace(); break;
         case CPP:
             // C++ 暂时没有检测器
-            d->syntaxChecker.reset(nullptr);
+            d->syntaxChecker.reset();
             break;
     }
 
@@ -1287,8 +1284,6 @@ void CodeEditor::CheckSyntax()
 // ============================================================================
 // JX3MacroSyntaxChecker Implementation
 // ============================================================================
-
-JX3MacroSyntaxChecker::JX3MacroSyntaxChecker(QObject *parent) : SyntaxChecker(parent) { }
 
 QList<SyntaxError> JX3MacroSyntaxChecker::Check(QTextDocument *document)
 {

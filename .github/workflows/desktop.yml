@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Windows UCRT64 GCC
+          - name: Windows GCC
             id: windows-x86_64-gcc
             runner: windows-2025
             cc: gcc

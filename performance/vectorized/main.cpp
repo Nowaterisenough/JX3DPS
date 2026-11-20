@@ -1,3 +1,4 @@
+#include <cstdint>
 #if defined(__x86_64__) || defined(_M_X64)
 #    include <immintrin.h>
 #elif defined(__aarch64__) || defined(_M_ARM64)
@@ -27,22 +28,22 @@ void update_vectorized(TickCache &frame_cache, tick_t tick)
     constexpr size_t INCREMENT        = AVX_VECTOR_WIDTH / sizeof(tick_t);
     const size_t     TOTAL_ELEMENTS   = frame_cache.data.size();
 
-    __m256i frame_vec = _mm256_set1_epi16(tick);
-    __m256i zero_vec  = _mm256_setzero_si256();
-    __m256i max_vec   = _mm256_set1_epi16(std::numeric_limits<tick_t>::max());
-    __m256i all_ones  = _mm256_set1_epi32(-1);
+    const __m256i FRAME_VEC = _mm256_set1_epi16(tick);
+    const __m256i ZERO_VEC  = _mm256_setzero_si256();
+    const __m256i MAX_VEC   = _mm256_set1_epi16(std::numeric_limits<tick_t>::max());
+    const __m256i ALL_ONES  = _mm256_set1_epi32(-1);
 
     // 计算能够被向量化处理的元素数量
-    size_t vectorized_size = (TOTAL_ELEMENTS / INCREMENT) * INCREMENT;
+    const size_t VECTORIZED_SIZE = (TOTAL_ELEMENTS / INCREMENT) * INCREMENT;
 
-    for (size_t i = 0; i < vectorized_size; i += INCREMENT) {
-        __m256i data = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(&frame_cache.data[i]));
-        __m256i is_max     = _mm256_cmpeq_epi16(data, max_vec);
-        __m256i is_not_max = _mm256_xor_si256(is_max, all_ones);
-        __m256i result     = _mm256_sub_epi16(data, frame_vec);
-        __m256i mask       = _mm256_and_si256(_mm256_cmpgt_epi16(result, zero_vec), is_not_max);
-        result             = _mm256_blendv_epi8(zero_vec, result, mask);
-        result             = _mm256_blendv_epi8(data, result, is_not_max);
+    for (size_t i = 0; i < VECTORIZED_SIZE; i += INCREMENT) {
+        const __m256i DATA       = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(&frame_cache.data[i]));
+        const __m256i IS_MAX     = _mm256_cmpeq_epi16(DATA, MAX_VEC);
+        const __m256i IS_NOT_MAX = _mm256_xor_si256(IS_MAX, ALL_ONES);
+        __m256i       result     = _mm256_sub_epi16(DATA, FRAME_VEC);
+        const __m256i MASK       = _mm256_and_si256(_mm256_cmpgt_epi16(result, ZERO_VEC), IS_NOT_MAX);
+        result                   = _mm256_blendv_epi8(ZERO_VEC, result, MASK);
+        result                   = _mm256_blendv_epi8(DATA, result, IS_NOT_MAX);
         _mm256_storeu_si256(reinterpret_cast<__m256i *>(&frame_cache.data[i]), result);
     }
 }
@@ -93,30 +94,30 @@ void update_normal(TickCache &frame_cache, tick_t tick)
 
 static void BM_UpdateVectorized(benchmark::State &state)
 {
-    const size_t  cache_size = state.range(0);
-    TickCache    frame_cache(cache_size);
-    const tick_t tick = 100;
+    const size_t CACHE_SIZE = state.range(0);
+    TickCache    frame_cache(CACHE_SIZE);
+    const tick_t TICK = 100;
 
-    for (auto _ : state) {
-        update_vectorized(frame_cache, tick);
+    for (const auto _ : state) {
+        update_vectorized(frame_cache, TICK);
         benchmark::DoNotOptimize(frame_cache);
         benchmark::ClobberMemory();
     }
-    state.SetItemsProcessed(state.iterations() * cache_size);
+    state.SetItemsProcessed(state.iterations() * CACHE_SIZE);
 }
 
 static void BM_UpdateNormal(benchmark::State &state)
 {
-    const size_t  cache_size = state.range(0);
-    TickCache    frame_cache(cache_size);
-    const tick_t tick = 100;
+    const size_t CACHE_SIZE = state.range(0);
+    TickCache    frame_cache(CACHE_SIZE);
+    const tick_t TICK = 100;
 
-    for (auto _ : state) {
-        update_normal(frame_cache, tick);
+    for (const auto _ : state) {
+        update_normal(frame_cache, TICK);
         benchmark::DoNotOptimize(frame_cache);
         benchmark::ClobberMemory();
     }
-    state.SetItemsProcessed(state.iterations() * cache_size);
+    state.SetItemsProcessed(state.iterations() * CACHE_SIZE);
 }
 
 BENCHMARK(BM_UpdateVectorized)->Range(8, 8 << 10);

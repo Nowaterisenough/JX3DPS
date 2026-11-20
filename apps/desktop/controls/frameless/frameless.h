@@ -1,9 +1,10 @@
 #ifndef TFA_UI_FRAMELESS_WIDGET_H
 #define TFA_UI_FRAMELESS_WIDGET_H
 
+#include <functional>
+
 #include <QPushButton>
 #include <QWidget>
-#include <functional>
 
 #include "../export.h"
 
@@ -13,18 +14,19 @@ class WidgetWindowAgent;
 #else
 // QWindowKit is optional in source checkouts. Keep the desktop shell usable
 // with the native QWidget frame when the third-party submodule is absent.
-class WidgetWindowAgent {
+class WidgetWindowAgent
+{
 public:
-    enum class SystemButton { WindowIcon, Minimize, Maximize, Close };
-    explicit WidgetWindowAgent(QWidget *) {}
-    void setup(QWidget *) {}
-    void setHitTestVisible(QWidget *) {}
-    void setTitleBar(QWidget *) {}
-    void setSystemButton(SystemButton, QWidget *) {}
+    explicit WidgetWindowAgent(QWidget *) { }
+
+    void setup(QWidget *) { }
+
+    void setHitTestVisible(QWidget *) { }
+
+    void setTitleBar(QWidget *) { }
 };
 #endif
 } // namespace QWK
-
 
 class CONTROLS_PRIVATE FramelessPrivate;
 
@@ -34,13 +36,13 @@ class CONTROLS_API Frameless : public QWidget
 
 public:
     // TitleBar 设置函数类型：接收 Frameless* 和 QWK::WidgetWindowAgent*，返回创建的 titlebar widget
-    using TitleBarSetupFunction = std::function<QWidget*(Frameless*, QWK::WidgetWindowAgent*)>;
+    using TitleBarSetupFunction = std::function<QWidget *(Frameless *, QWK::WidgetWindowAgent *)>;
 
     explicit Frameless(QWidget *parent = nullptr);
-    virtual ~Frameless() = default;
+    ~Frameless() override = default;
 
     // 设置 titlebar（如果不调用，则不创建 titlebar）
-    void SetupTitleBar(TitleBarSetupFunction setupFunc);
+    void SetupTitleBar(TitleBarSetupFunction setup_func);
 
     // 便捷方法：使用默认的 TitleBar 实现
     void SetupDefaultTitleBar();
@@ -62,6 +64,5 @@ private:
     QWidget                *_centralWidget = nullptr;
     QWidget                *_titleBar      = nullptr;
 };
-
 
 #endif // TFA_UI_FRAMELESS_WIDGET_H

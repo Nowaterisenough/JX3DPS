@@ -1,34 +1,34 @@
 #include "dark_style.h"
 
-#include <QPalette>
-#include <QWidget>
 #include <QApplication>
 #include <QFont>
 #include <QPainter>
+#include <QPalette>
 #include <QStyleOption>
+#include <QWidget>
+
 #include "workbench_theme.h"
 
 DarkStyle::DarkStyle(QStyle *style) : QProxyStyle(style) { }
 
-void DarkStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
-                              const QWidget *widget) const
+void DarkStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
 {
-    const bool up = element == PE_IndicatorArrowUp || element == PE_IndicatorSpinUp;
-    const bool down = element == PE_IndicatorArrowDown || element == PE_IndicatorSpinDown;
-    if (!up && !down) {
+    const bool UP   = element == PE_IndicatorArrowUp || element == PE_IndicatorSpinUp;
+    const bool DOWN = element == PE_IndicatorArrowDown || element == PE_IndicatorSpinDown;
+    if (!UP && !DOWN) {
         QProxyStyle::drawPrimitive(element, option, painter, widget);
         return;
     }
-    const auto center = QRectF(option->rect).center();
-    const auto color = option->state & State_Enabled ? QColor(desktop::theme::Muted) : QColor("#777e8d");
-    const qreal direction = up ? -1.0 : 1.0;
+    const auto  CENTER    = QRectF(option->rect).center();
+    const auto  COLOR     = (option->state & State_Enabled != 0u) ? QColor(desktop::theme::Muted) : QColor("#777e8d");
+    const qreal DIRECTION = UP ? -1.0 : 1.0;
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
-    painter->setPen(QPen(color, 1.2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter->setPen(QPen(COLOR, 1.2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->setBrush(Qt::NoBrush);
-    painter->drawPolyline(QPolygonF{QPointF(center.x() - 2.5, center.y() - direction),
-                                    QPointF(center.x(), center.y() + direction * 1.5),
-                                    QPointF(center.x() + 2.5, center.y() - direction)});
+    painter->drawPolyline(QPolygonF{ QPointF(CENTER.x() - 2.5, CENTER.y() - DIRECTION),
+                                     QPointF(CENTER.x(), CENTER.y() + (DIRECTION * 1.5)),
+                                     QPointF(CENTER.x() + 2.5, CENTER.y() - DIRECTION) });
     painter->restore();
 }
 
@@ -50,8 +50,9 @@ void DarkStyle::polish(QPalette &palette)
     palette.setColor(QPalette::Accent, theme::DefaultAccent());
     palette.setColor(QPalette::Highlight, QColor(theme::Selection));
     palette.setColor(QPalette::HighlightedText, QColor("#ffffff"));
-    for (const auto role : {QPalette::WindowText, QPalette::Text, QPalette::ButtonText})
-        palette.setColor(QPalette::Disabled, role, QColor("#8a909e"));
+    for (const auto ROLE : { QPalette::WindowText, QPalette::Text, QPalette::ButtonText }) {
+        palette.setColor(QPalette::Disabled, ROLE, QColor("#8a909e"));
+    }
 
     QProxyStyle::polish(palette);
 }
@@ -65,11 +66,11 @@ void DarkStyle::polish(QApplication *app)
 {
     QProxyStyle::polish(app);
 
-    auto font = app->font();
+    auto font = QApplication::font();
     font.setFamily(QStringLiteral("Microsoft YaHei UI"));
     font.setWeight(QFont::Normal);
     font.setPixelSize(14);
-    app->setFont(font);
+    QApplication::setFont(font);
 
     // 设置全局样式表，包括 ToolTip 样式
     app->setStyleSheet(app->styleSheet() + R"(

@@ -1,23 +1,27 @@
-#include <proxy/proxy.h>
-
+#include <cstdlib>
 #include <functional>
-#include <random>
-#include <vector>
 #include <memory>
+#include <random>
+#include <tuple>
+#include <vector>
 
 #include <benchmark/benchmark.h>
+#include <proxy/proxy.h>
 
 // 模拟的上下文类
 class Context
 {
 private:
-    mutable std::mt19937 gen{42}; // 固定种子确保可重复性
-    mutable std::uniform_int_distribution<> dist{0, 99};
+    mutable std::mt19937                    gen{ 42 }; // 固定种子确保可重复性
+    mutable std::uniform_int_distribution<> dist{ 0, 99 };
 
 public:
     bool GetSkillCooldown(int skill_id) const { return skill_id % 2 == 0; }
+
     bool GetBuffDuration(int buff_id) const { return buff_id % 3 == 0; }
+
     int GetMana() const { return dist(gen); }
+
     int GetLife() const { return dist(gen); }
 };
 
@@ -108,7 +112,7 @@ class Condition
 {
 public:
     virtual bool evaluate() const = 0;
-    virtual ~Condition() = default;
+    virtual ~Condition()          = default;
 };
 
 class SkillNotinCdCondition : public Condition
@@ -117,7 +121,8 @@ private:
     int skill_id;
 
 public:
-    explicit SkillNotinCdCondition(int id) : skill_id(id) {}
+    explicit SkillNotinCdCondition(int id) : skill_id(id) { }
+
     bool evaluate() const override { return context.GetSkillCooldown(skill_id); }
 };
 
@@ -127,7 +132,8 @@ private:
     int buff_id;
 
 public:
-    explicit BuffDurationCondition(int id) : buff_id(id) {}
+    explicit BuffDurationCondition(int id) : buff_id(id) { }
+
     bool evaluate() const override { return context.GetBuffDuration(buff_id); }
 };
 
@@ -137,7 +143,8 @@ private:
     int mana_threshold;
 
 public:
-    explicit ManaLevelCondition(int threshold) : mana_threshold(threshold) {}
+    explicit ManaLevelCondition(int threshold) : mana_threshold(threshold) { }
+
     bool evaluate() const override { return context.GetMana() >= mana_threshold; }
 };
 
@@ -147,15 +154,16 @@ private:
     int life_threshold;
 
 public:
-    explicit LifeLevelCondition(int threshold) : life_threshold(threshold) {}
+    explicit LifeLevelCondition(int threshold) : life_threshold(threshold) { }
+
     bool evaluate() const override { return context.GetLife() > life_threshold; }
 };
 
 // 创建随机代理条件
 auto CreateRandomProxyCondition()
 {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
+    static std::random_device              rd;
+    static std::mt19937                    gen(rd());
     static std::uniform_int_distribution<> dis(0, 3);
 
     switch (dis(gen)) {
@@ -170,8 +178,8 @@ auto CreateRandomProxyCondition()
 // 创建随机绑定条件
 auto CreateRandomBindCondition()
 {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
+    static std::random_device              rd;
+    static std::mt19937                    gen(rd());
     static std::uniform_int_distribution<> dis(0, 3);
 
     switch (dis(gen)) {
@@ -186,8 +194,8 @@ auto CreateRandomBindCondition()
 // 创建随机虚函数条件
 std::unique_ptr<Condition> CreateRandomVirtualCondition()
 {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
+    static std::random_device              rd;
+    static std::mt19937                    gen(rd());
     static std::uniform_int_distribution<> dis(0, 3);
 
     switch (dis(gen)) {
@@ -207,7 +215,7 @@ static void BM_Proxy(benchmark::State &state)
         conditions.push_back(CreateRandomProxyCondition());
     }
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
         bool result = true;
         for (const auto &condition : conditions) {
             result &= condition->operator()();
@@ -221,10 +229,10 @@ static void BM_Bind(benchmark::State &state)
 {
     std::vector<std::function<bool()>> conditions;
     for (int i = 0; i < 4; ++i) {
-        conditions.push_back(CreateRandomBindCondition());
+        conditions.emplace_back(CreateRandomBindCondition());
     }
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
         bool result = true;
         for (const auto &condition : conditions) {
             result &= condition();
@@ -241,7 +249,7 @@ static void BM_Virtual(benchmark::State &state)
         conditions.push_back(CreateRandomVirtualCondition());
     }
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
         bool result = true;
         for (const auto &condition : conditions) {
             result &= condition->evaluate();

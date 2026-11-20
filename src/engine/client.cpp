@@ -1,5 +1,7 @@
 #include "client.hpp"
 
+#include <string>
+
 #include "config_json.hpp"
 
 namespace JX3DPS::engine {
@@ -39,29 +41,29 @@ BatchResult Batch(jx3dps_engine                          *handle,
         { "hotspots",         hotspots                          }
     };
     std::visit([&](const auto &cfg) { request["config"] = cfg; }, config);
-    if (increments) {
+    if (increments != nullptr) {
         request["increments"] = *increments;
     }
-    const auto response = Json::parse(jx3dps_call(handle, request.dump().c_str()));
-    if (response.contains("error")) {
-        throw std::runtime_error(response.at("error").get<std::string>());
+    const auto RESPONSE = Json::parse(jx3dps_call(handle, request.dump().c_str()));
+    if (RESPONSE.contains("error")) {
+        throw std::runtime_error(RESPONSE.at("error").get<std::string>());
     }
     BatchResult result;
-    result.primary = ReadStats(response.at("stats"));
-    if (increments) {
+    result.primary = ReadStats(RESPONSE.at("stats"));
+    if (increments != nullptr) {
         for (size_t i = 0; i < result.gains.size(); ++i) {
-            const auto &gain = response.at("gains").at(i);
+            const auto &gain = RESPONSE.at("gains").at(i);
             if (!gain.is_null()) {
                 result.gains[i] = ReadStats(gain);
             }
         }
     }
-    for (const auto &s : response.at("skills")) {
+    for (const auto &s : RESPONSE.at("skills")) {
         result.skills.push_back(
             { s.at("skill"), std::stoll(s.at("damage").get<std::string>()), s.at("count"), s.at("hit"), s.at("critical"), s.at("insight"), s.at("miss") });
     }
-    if (response.contains("profile")) {
-        const auto &p       = response.at("profile");
+    if (RESPONSE.contains("profile")) {
+        const auto &p       = RESPONSE.at("profile");
         auto       &summary = result.profile.emplace();
         p.at("fights").get_to(summary.fights);
         p.at("samples").get_to(summary.samplePoints);

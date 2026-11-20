@@ -13,9 +13,9 @@ int Resources::InitResources()
 QFont &Resources::Font()
 {
     static QFont font = []() {
-        static const int FONT_ID = QFontDatabase::addApplicationFont(":/resources/fonts/Microsoft-YaHei-Semibold.ttc");
-        QStringList families = QFontDatabase::applicationFontFamilies(FONT_ID);
-        QFont font;
+        static const int FONT_ID  = QFontDatabase::addApplicationFont(":/resources/fonts/Microsoft-YaHei-Semibold.ttc");
+        QStringList      families = QFontDatabase::applicationFontFamilies(FONT_ID);
+        QFont            font;
         if (!families.isEmpty()) {
             font = QFont(families.front());
         }
@@ -35,21 +35,21 @@ QFont &Resources::MonoFont()
         // 加载霞鹜文楷等宽字体（用于中文）
         static const int LXGW_FONT_ID = QFontDatabase::addApplicationFont(":/resources/fonts/LXGWWenKaiMonoScreen.ttf");
 
-        QStringList monacoFamilies = QFontDatabase::applicationFontFamilies(MONACO_FONT_ID);
-        QStringList lxgwFamilies   = QFontDatabase::applicationFontFamilies(LXGW_FONT_ID);
+        QStringList monaco_families = QFontDatabase::applicationFontFamilies(MONACO_FONT_ID);
+        QStringList lxgw_families   = QFontDatabase::applicationFontFamilies(LXGW_FONT_ID);
 
         // 创建字体回退列表：英文优先 Monaco，中文回退到霞鹜文楷等宽
-        QStringList fontFamilies;
-        if (!monacoFamilies.isEmpty()) {
-            fontFamilies << monacoFamilies.front();
+        QStringList font_families;
+        if (!monaco_families.isEmpty()) {
+            font_families << monaco_families.front();
         }
-        if (!lxgwFamilies.isEmpty()) {
-            fontFamilies << lxgwFamilies.front();
+        if (!lxgw_families.isEmpty()) {
+            font_families << lxgw_families.front();
         }
-        fontFamilies << "Consolas"; // 最后的回退字体
+        font_families << "Consolas"; // 最后的回退字体
 
         static QFont font;
-        font.setFamilies(fontFamilies);
+        font.setFamilies(font_families);
         font.setStyleHint(QFont::Monospace);
         font.setFixedPitch(true);
         font.setPointSize(11);

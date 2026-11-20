@@ -1,6 +1,8 @@
 // Export immutable formula inputs and timer descriptors, never fight outcomes.
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
+#include <vector>
 
 #include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
 using namespace JX3DPS;
@@ -32,7 +34,7 @@ struct Metadata
     }
 };
 
-int main(int argc, char **argv)
+int main(int argc, char *const *argv)
 {
     if (argc != 3) {
         return 2;
@@ -43,40 +45,40 @@ int main(int argc, char **argv)
     std::ofstream cpp(argv[2]);
     cpp.exceptions(std::ios::failbit | std::ios::badbit);
     cpp << std::setprecision(17) << std::showpoint;
-    auto          data = tai_xu::Prepare();
-    tai_xu::Rules rules(data);
+    const auto    DATA = tai_xu::Prepare();
+    tai_xu::Rules rules(DATA);
     Metadata      meta;
-    meta.state.Resize(tai_xu::SkillCount, tai_xu::BuffCount);
+    meta.state.Resize(tai_xu::SKILL_COUNT, tai_xu::BUFF_COUNT);
     rules.Setup(meta);
     out << "const TIMERS: &[(u8,u16,bool,u16)] = &[\n";
-    for (auto t : meta.timers) {
+    for (const auto t : meta.timers) {
         out << '(' << int(t.handle.kind) << ',' << t.handle.slot << ',' << (t.handle.target ? "true" : "false") << ','
             << t.priority << "),\n";
     }
     out << "];\nconst FORMULAS: &[Formula] = &[\n";
     cpp << "constexpr FixedFormula formulas[] = {\n";
-    for (size_t i = 0; i < data->formulas.size(); ++i) {
-        auto f = data->formulas[i];
-        cpp << "{" << f.skill << ',' << f.sub << ',' << f.level << ',' << int(f.kind) << ',' << f.fixed << ','
-            << f.weapon << ',' << f.count << ',' << data->coefficients[i] << ',' << data->surplus_damage[i] << ','
-            << data->damage_bonus[i] << ',' << data->power_bonus[i] << "},\n";
-        out << "Formula{skill:" << f.skill << ",sub:" << f.sub << ",level:" << f.level << ",kind:" << int(f.kind)
-            << ",fixed:" << f.fixed << ",weapon:" << f.weapon << ",count:" << f.count
-            << ",coefficient:" << data->coefficients[i] << ",surplus:" << data->surplus_damage[i]
-            << ",bonus:" << data->damage_bonus[i] << ",power:" << data->power_bonus[i] << "},\n";
+    for (size_t i = 0; i < DATA->formulas.size(); ++i) {
+        const auto F = DATA->formulas[i];
+        cpp << "{" << F.skill << ',' << F.sub << ',' << F.level << ',' << int(F.kind) << ',' << F.fixed << ','
+            << F.weapon << ',' << F.count << ',' << DATA->coefficients[i] << ',' << DATA->surplus_damage[i] << ','
+            << DATA->damage_bonus[i] << ',' << DATA->power_bonus[i] << "},\n";
+        out << "Formula{skill:" << F.skill << ",sub:" << F.sub << ",level:" << F.level << ",kind:" << int(F.kind)
+            << ",fixed:" << F.fixed << ",weapon:" << F.weapon << ",count:" << F.count
+            << ",coefficient:" << DATA->coefficients[i] << ",surplus:" << DATA->surplus_damage[i]
+            << ",bonus:" << DATA->damage_bonus[i] << ",power:" << DATA->power_bonus[i] << "},\n";
     }
     out << "];\nconst ATTRS: &[Attributes] = &[\n";
     cpp << "};\nconstexpr FixedAttributes attrs[] = {\n";
-    for (unsigned profile : { 0u, 1u }) {
-        auto a = data->Resolve(profile);
-        cpp << "{" << a.input.attack << ',' << a.input.weapon << ',' << a.input.damage_percent << ',' << a.mitigation
-            << ',' << a.critical_power + a.input.crit_power_percent << ',' << a.strain_factor << ','
-            << a.input.pve_percent << ',' << a.vulnerable << ',' << a.critical_chance << "},\n";
-        out << "Attributes{attack:" << a.input.attack << ",weapon:" << a.input.weapon << ",bonus:" << a.input.damage_percent
-            << ",mitigation:" << a.mitigation << ",power:" << a.critical_power + a.input.crit_power_percent
-            << ",strain:" << a.strain_factor << ",pve:" << a.input.pve_percent << ",vulnerable:" << a.vulnerable
-            << ",chance:" << a.critical_chance << "},\n";
+    for (const unsigned PROFILE : { 0u, 1u }) {
+        const auto A = DATA->Resolve(PROFILE);
+        cpp << "{" << A.input.attack << ',' << A.input.weapon << ',' << A.input.damage_percent << ',' << A.mitigation
+            << ',' << A.critical_power + A.input.crit_power_percent << ',' << A.strain_factor << ','
+            << A.input.pve_percent << ',' << A.vulnerable << ',' << A.critical_chance << "},\n";
+        out << "Attributes{attack:" << A.input.attack << ",weapon:" << A.input.weapon << ",bonus:" << A.input.damage_percent
+            << ",mitigation:" << A.mitigation << ",power:" << A.critical_power + A.input.crit_power_percent
+            << ",strain:" << A.strain_factor << ",pve:" << A.input.pve_percent << ",vulnerable:" << A.vulnerable
+            << ",chance:" << A.critical_chance << "},\n";
     }
-    out << "];\nconst LEVEL: f64 = " << data->level_multiplier << ";\n";
-    cpp << "};\nconstexpr double level_multiplier = " << data->level_multiplier << ";\n";
+    out << "];\nconst LEVEL: f64 = " << DATA->level_multiplier << ";\n";
+    cpp << "};\nconstexpr double level_multiplier = " << DATA->level_multiplier << ";\n";
 }

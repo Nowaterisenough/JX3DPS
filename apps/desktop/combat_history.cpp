@@ -1,5 +1,7 @@
 #include "combat_history.h"
 
+#include <optional>
+
 namespace desktop {
 void CombatHistory::Clear()
 {
@@ -40,22 +42,22 @@ std::optional<HistoricalState> CombatHistory::At(int frame) const
     if (Empty() || frame < 0 || frame > m_observed || m_attributes.empty()) {
         return {};
     }
-    const auto  end = std::upper_bound(m_mutations.begin(), m_mutations.end(), frame, [](int f, const auto &mutation) {
+    const auto  END = std::upper_bound(m_mutations.begin(), m_mutations.end(), frame, [](int f, const auto &mutation) {
         return f < mutation.frame;
     });
-    const auto  count      = static_cast<std::size_t>(end - m_mutations.begin());
+    const auto  count      = static_cast<std::size_t>(END - m_mutations.begin());
     const auto &checkpoint = m_checkpoints[count / 256];
     HistoricalState result{ checkpoint.state, {} };
     for (auto i = checkpoint.count; i < count; ++i) {
         rt::DamageIntentLog::Apply(result.state, m_mutations[i]);
     }
-    const auto attributes = std::upper_bound(m_attributes.begin(), m_attributes.end(), frame, [](int f, const auto &sample) {
+    const auto ATTRIBUTES = std::upper_bound(m_attributes.begin(), m_attributes.end(), frame, [](int f, const auto &sample) {
         return f < sample.frame;
     });
-    if (attributes == m_attributes.begin()) {
+    if (ATTRIBUTES == m_attributes.begin()) {
         return {};
     }
-    result.attributes       = std::prev(attributes)->values;
+    result.attributes       = std::prev(ATTRIBUTES)->values;
     result.state.last_skill = result.attributes.lastSkill;
     result.state.now        = frame;
     return result;

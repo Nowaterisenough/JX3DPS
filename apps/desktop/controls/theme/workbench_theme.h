@@ -1,29 +1,31 @@
 #pragma once
 
-#include <QString>
 #include <utility>
+
+#include <QString>
+
 #include "accent_color.h"
 
 namespace desktop::theme {
 // Sampled from the supplied Magpie screenshots; dimensions use Qt logical pixels.
-inline constexpr const char *Canvas = "#1a1a1e";
-inline constexpr const char *Surface = "#232327";
-inline constexpr const char *Field = "#232327";
-inline constexpr const char *Raised = "#2d2d33";
-inline constexpr const char *Border = "#333339";
-inline constexpr const char *Text = "#ededf1";
-inline constexpr const char *Muted = "#92929d";
-inline constexpr const char *Selection = "#27272c";
-inline constexpr const char *Cyan = "#6fd99b";
-inline constexpr const char *Amber = "#e6bc74";
-inline constexpr const char *Success = "#6fd99b";
-inline constexpr const char *Error = "#f08078";
-inline constexpr int NavigationHeight = 52;
-inline constexpr int TitleBarHeight = 30;
+inline constexpr const char *Canvas           = "#1a1a1e";
+inline constexpr const char *Surface          = "#232327";
+inline constexpr const char *Field            = "#232327";
+inline constexpr const char *Raised           = "#2d2d33";
+inline constexpr const char *Border           = "#333339";
+inline constexpr const char *Text             = "#ededf1";
+inline constexpr const char *Muted            = "#92929d";
+inline constexpr const char *Selection        = "#27272c";
+inline constexpr const char *Cyan             = "#6fd99b";
+inline constexpr const char *Amber            = "#e6bc74";
+inline constexpr const char *Success          = "#6fd99b";
+inline constexpr const char *Error            = "#f08078";
+inline constexpr int         NavigationHeight = 52;
+inline constexpr int         TitleBarHeight   = 30;
 
 inline QString WorkbenchStyleSheet(const QColor &accent = DefaultAccent())
 {
-    auto sheet = QStringLiteral(R"(
+    auto                                        sheet    = QStringLiteral(R"(
         QWidget { accent-color: $accent; }
         QWidget#workbenchContent, QDialog#resultAnalysis, QWidget#simulationPage,
         QWidget#workspaceBody, QWidget#settingsPage, QWidget#aboutPage {
@@ -137,14 +139,24 @@ inline QString WorkbenchStyleSheet(const QColor &accent = DefaultAccent())
         QMenu::item:selected { background: $raised; }
         QMenu::separator { height: 1px; background: $border; margin: 4px; }
     )");
-    const std::pair<const char *, const char *> tokens[] = {
-        {"$canvas", Canvas}, {"$surface", Surface}, {"$field", Field}, {"$raised", Raised},
-        {"$border", Border}, {"$text", Text}, {"$muted", Muted}, {"$selection", Selection}
+    const std::pair<const char *, const char *> TOKENS[] = {
+        { "$canvas",    Canvas    },
+        { "$surface",   Surface   },
+        { "$field",     Field     },
+        { "$raised",    Raised    },
+        { "$border",    Border    },
+        { "$text",      Text      },
+        { "$muted",     Muted     },
+        { "$selection", Selection }
     };
-    const auto colors = MakeAccentColors(accent);
-    sheet.replace("$accentHover", colors.hover.name()).replace("$accentPressed", colors.pressed.name())
-        .replace("$onAccent", colors.text.name()).replace("$accent", colors.normal.name());
-    for (const auto &[key, value] : tokens) sheet.replace(QString::fromLatin1(key), QString::fromLatin1(value));
+    const auto COLORS = MakeAccentColors(accent);
+    sheet.replace("$accentHover", COLORS.hover.name())
+        .replace("$accentPressed", COLORS.pressed.name())
+        .replace("$onAccent", COLORS.text.name())
+        .replace("$accent", COLORS.normal.name());
+    for (const auto &[KEY, VALUE] : TOKENS) {
+        sheet.replace(QString::fromLatin1(KEY), QString::fromLatin1(VALUE));
+    }
     return sheet;
 }
 } // namespace desktop::theme

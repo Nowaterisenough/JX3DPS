@@ -1,7 +1,6 @@
 #ifndef DESKTOP_RUNTIME_CATALOG_H
 #define DESKTOP_RUNTIME_CATALOG_H
 
-#include "src/engine/default_macro.hpp"
 #include <span>
 #include <variant>
 
@@ -9,13 +8,14 @@
 
 #include "src/class/mo_wen/runtime_data.hpp"
 #include "src/class/tai_xu_jian_yi/runtime_data.hpp"
+#include "src/engine/default_macro.hpp"
 
 namespace desktop {
 namespace rt = JX3DPS::runtime;
 enum class Specialization
 {
-    TaiXu,
-    MoWen
+    TAI_XU,
+    MO_WEN
 };
 using Config = std::variant<rt::tai_xu::Config, rt::mo_wen::Config>;
 
@@ -31,19 +31,19 @@ inline QString Text(std::string_view value)
 
 inline QString ClassName(Specialization value)
 {
-    return value == Specialization::MoWen ? QStringLiteral("莫问") : QStringLiteral("太虚剑意");
+    return value == Specialization::MO_WEN ? QStringLiteral("莫问") : QStringLiteral("太虚剑意");
 }
 
 inline rt::CompileOptions MacroOptions(Specialization value, bool debug = false)
 {
-    return rt::CatalogMacroOptions(value == Specialization::MoWen ? rt::mo_wen::Catalog : rt::tai_xu::Catalog, debug);
+    return rt::CatalogMacroOptions(value == Specialization::MO_WEN ? rt::mo_wen::Catalog : rt::tai_xu::Catalog, debug);
 }
 
 using Catalog = rt::SkillCatalog;
 
 inline Catalog Describe(Specialization value)
 {
-    return value == Specialization::MoWen ? rt::mo_wen::Catalog : rt::tai_xu::Catalog;
+    return value == Specialization::MO_WEN ? rt::mo_wen::Catalog : rt::tai_xu::Catalog;
 }
 
 inline QString DisplayName(std::string_view name)
@@ -53,13 +53,13 @@ inline QString DisplayName(std::string_view name)
 
 inline QString SkillName(Specialization value, rt::Slot skill)
 {
-    const auto skills = Describe(value).skills;
-    return skill < skills.size() ? DisplayName(skills[skill].name) : QStringLiteral("未知技能");
+    const auto SKILLS = Describe(value).skills;
+    return skill < SKILLS.size() ? DisplayName(SKILLS[skill].name) : QStringLiteral("未知技能");
 }
 
 inline QString DefaultMacro(Specialization value)
 {
-    return Text(JX3DPS::engine::DefaultMacro(value == Specialization::MoWen));
+    return Text(JX3DPS::engine::DefaultMacro(value == Specialization::MO_WEN));
 }
 
 inline QString FieldName(const QString &key)
@@ -100,9 +100,9 @@ inline QString FieldName(const QString &key)
         { "importedMajor",    "已含主属性"     },
         { "importedStrength", "已含力道"       }
     };
-    for (const auto &[name, label] : fields) {
-        if (key == QString::fromLatin1(name)) {
-            return QString::fromUtf8(label);
+    for (const auto &[NAME, LABEL] : fields) {
+        if (key == QString::fromLatin1(NAME)) {
+            return QString::fromUtf8(LABEL);
         }
     }
     if (key.startsWith("permanent")) {

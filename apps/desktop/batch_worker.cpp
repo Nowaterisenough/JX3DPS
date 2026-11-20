@@ -1,11 +1,14 @@
 #include "batch_worker.h"
 
+#include <atomic>
 #include <chrono>
+#include <cstddef>
 #include <exception>
 #include <limits>
 #include <stdexcept>
 #include <thread>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include <QElapsedTimer>
@@ -49,7 +52,7 @@ void StoreSkills(SimulationResult &result, const std::vector<std::vector<SkillTo
         for (const auto &worker : workers) {
             combined.Merge(worker[index]);
         }
-        if (combined.count) {
+        if (combined.count != 0u) {
             result.skills.push_back({ static_cast<int>(index),
                                       desktop::SkillName(specialization, static_cast<runtime::Slot>(index)),
                                       combined.damage,
@@ -64,7 +67,7 @@ void StoreSkills(SimulationResult &result, const std::vector<std::vector<SkillTo
 
 QString FormatStats(const runtime::BatchStats &stats, double seconds, double elapsed)
 {
-    if (!stats.count) {
+    if (stats.count == 0u) {
         return QStringLiteral("没有已完成的模拟。");
     }
     return QStringLiteral("%1 次模拟 | 平均秒伤 %2 | 秒伤标准差 %3\n最低秒伤 %4 | 最高秒伤 %5\n校验值 %6 | 耗时 %7 秒")
@@ -83,12 +86,12 @@ BatchWorker::BatchWorker(runtime::MacroProgram       program,
                          runtime::BatchOptions       options,
                          desktop::Config             config,
                          QObject                    *parent,
-                         bool                        captureTrace,
-                         bool                        calculateGains,
-                         desktop::GainComparisonMode gainMode,
+                         bool                        capture_trace,
+                         bool                        calculate_gains,
+                         desktop::GainComparisonMode gain_mode,
                          bool                        hotspots) :
     QThread(parent), m_program(std::move(program)), m_options(options), m_config(std::move(config)),
-    m_captureTrace(captureTrace), m_calculateGains(calculateGains), m_gainMode(gainMode), m_hotspots(hotspots)
+    m_captureTrace(capture_trace), m_calculateGains(calculate_gains), m_gainMode(gain_mode), m_hotspots(hotspots)
 {
     qRegisterMetaType<CombatEvents>();
     qRegisterMetaType<BuffEvents>();
@@ -121,9 +124,9 @@ std::uint64_t BatchWorker::Requested() const
     if (!m_calculateGains) {
         return m_options.iterations;
     }
-    const auto stages =
+    const auto STAGES =
         std::visit([]<class Config>(const Config &) { return runtime::AttributeGainSimulationStages<Config>; }, m_config);
-    return m_options.iterations * stages;
+    return m_options.iterations * STAGES;
 }
 
 void BatchWorker::run()
@@ -132,37 +135,38 @@ void BatchWorker::run()
     timer.start();
     try {
         if (!m_captureTrace) {
-            const auto spec = desktop::ClassOf(m_config);
-            auto increments = desktop::GainComparisonIncrements(m_gainMode, spec == desktop::Specialization::MoWen);
-            const auto calculated =
+            const auto SPEC = desktop::ClassOf(m_config);
+            auto increments = desktop::GainComparisonIncrements(m_gainMode, SPEC == desktop::Specialization::MO_WEN);
+            const auto CALCULATED =
                 JX3DPS::engine::Batch(m_engine.get(), m_config, m_program.source_text, m_options, true, m_calculateGains ? &increments : nullptr, m_hotspots);
-            SimulationResult result{ calculated.primary, m_options, timer.nsecsElapsed() / 1e9, false };
+            SimulationResult result{ CALCULATED.primary, m_options, timer.nsecsElapsed() / 1e9, false };
             result.gainsRequested  = m_calculateGains;
             result.gainMode        = m_gainMode;
             result.skillsCollected = true;
-            for (const auto &s : calculated.skills) {
-                result.skills.push_back({ s.skill, desktop::SkillName(spec, s.skill), s.damage, s.count, s.hit, s.critical, s.insight, s.miss });
+            for (const auto &s : CALCULATED.skills) {
+                result.skills.push_back({ s.skill, desktop::SkillName(SPEC, s.skill), s.damage, s.count, s.hit, s.critical, s.insight, s.miss });
             }
-            for (size_t i = 0; i < calculated.gains.size(); ++i) {
-                if (calculated.gains[i]) {
-                    result.gains.push_back({ desktop::AttributeGainName(i), increments[i], *calculated.gains[i] });
+            for (size_t i = 0; i < CALCULATED.gains.size(); ++i) {
+                const auto &gain = CALCULATED.gains[i];
+                if (gain.has_value()) {
+                    result.gains.push_back({ desktop::AttributeGainName(i), increments[i], *gain });
                 }
             }
-            if (calculated.profile) {
-                result.hotspots = DisplayProfile(*calculated.profile);
+            if (CALCULATED.profile) {
+                result.hotspots = DisplayProfile(*CALCULATED.profile);
             }
             emit StatisticsReady(result);
-            const auto status = result.Complete() ? QStringLiteral("已完成。 ") : QStringLiteral("已取消，已完成部分的结果：");
+            const auto STATUS = result.Complete() ? QStringLiteral("已完成。 ") : QStringLiteral("已取消，已完成部分的结果：");
             emit ResultReady((m_calculateGains ? QStringLiteral("属性收益：%1 / 8 项完成。 ").arg(result.gains.size()) : QString{}) +
-                             status + FormatStats(result.stats, m_options.duration / 16.0, result.elapsedSeconds));
+                             STATUS + FormatStats(result.stats, JX3DPS::FramesToSeconds(m_options.duration), result.elapsedSeconds));
             return;
         }
-        auto simulate = [&]<bool Measure>(runtime::BatchProfile *profile) {
+        const auto SIMULATE = [&]<bool Measure>(runtime::BatchProfile *profile) {
             std::visit(
                 [&](const auto &config) {
                     using Rules               = decltype(desktop::MakeRules(config));
-                    const auto specialization = desktop::ClassOf(m_config);
-                    const auto skillCount     = desktop::Describe(specialization).skills.size();
+                    const auto SPECIALIZATION = desktop::ClassOf(m_config);
+                    const auto SKILL_COUNT    = desktop::Describe(SPECIALIZATION).skills.size();
                     if (m_options.iterations != 1) {
                         throw std::invalid_argument("战斗记录模式需要设置为一次模拟");
                     }
@@ -171,29 +175,29 @@ void BatchWorker::run()
                         emit ResultReady(QStringLiteral("已取消，没有已完成的模拟。"));
                         return;
                     }
-                    auto                                rules = desktop::MakeRules(config);
+                    const auto                          RULES = desktop::MakeRules(config);
                     runtime::WorkerMeasurement<Measure> measurement(profile, 0, "单次记录");
                     runtime::Simulation<desktop::TracedRules<Rules>, false, Measure>
-                        simulation(m_program, desktop::TracedRules(rules), m_options.damage_capacity, m_options.mutation_capacity);
+                        simulation(m_program, desktop::TracedRules(RULES), m_options.damage_capacity, m_options.mutation_capacity);
                     simulation.Start(m_options.duration, runtime::IterationSeed(m_options.seed, 0));
                     desktop::HistoryChunk history;
-                    history.specialization = specialization;
+                    history.specialization = SPECIALIZATION;
                     history.initial        = simulation.GetState();
-                    auto buffs             = InitialBuffEvents(simulation.GetState(), specialization);
+                    auto buffs             = InitialBuffEvents(simulation.GetState(), SPECIALIZATION);
                     simulation.Run();
                     runtime::BatchStats                   stats;
-                    std::vector<std::vector<SkillTotals>> skillTotals(1, std::vector<SkillTotals>(skillCount));
+                    std::vector<std::vector<SkillTotals>> skill_totals(1, std::vector<SkillTotals>(SKILL_COUNT));
                     stats.Add(simulation.TotalDamage([&](const runtime::DamageIntent &hit, JX3DPS::value_t damage) {
-                        skillTotals[0].at(hit.skill).Add(damage, hit.outcome);
+                        skill_totals[0].at(hit.skill).Add(damage, hit.outcome);
                     }),
                               0);
                     CombatEvents events;
                     for (const auto &hit : simulation.Log().Intents()) {
-                        const auto name = desktop::SkillName(specialization, hit.skill);
-                        events.push_back({ hit.frame, hit.skill, name, simulation.GetRules().Reduce(hit), static_cast<int>(hit.outcome), hit.sequence });
+                        const auto NAME = desktop::SkillName(SPECIALIZATION, hit.skill);
+                        events.push_back({ hit.frame, hit.skill, NAME, simulation.GetRules().Reduce(hit), static_cast<int>(hit.outcome), hit.sequence });
                     }
-                    std::size_t mutationCursor = 0;
-                    buffs += ReadBuffEvents(simulation.Log().Mutations(), mutationCursor, specialization);
+                    std::size_t mutation_cursor = 0;
+                    buffs += ReadBuffEvents(simulation.Log().Mutations(), mutation_cursor, SPECIALIZATION);
                     m_control.completed.store(1, std::memory_order_relaxed);
                     emit TraceReady(events);
                     emit BuffTraceReady(buffs);
@@ -203,7 +207,7 @@ void BatchWorker::run()
                     history.finished      = true;
                     emit             HistoryReady(history);
                     SimulationResult result{ stats, m_options, timer.nsecsElapsed() / 1e9, true };
-                    StoreSkills(result, skillTotals, specialization);
+                    StoreSkills(result, skill_totals, SPECIALIZATION);
                     if constexpr (Measure) {
                         ++profile->workers[0].fights;
                         measurement.Finish();
@@ -211,15 +215,15 @@ void BatchWorker::run()
                     }
                     result.elapsedSeconds = timer.nsecsElapsed() / 1e9;
                     emit StatisticsReady(result);
-                    emit ResultReady(FormatStats(stats, m_options.duration / 16.0, result.elapsedSeconds));
+                    emit ResultReady(FormatStats(stats, JX3DPS::FramesToSeconds(m_options.duration), result.elapsedSeconds));
                 },
                 m_config);
         };
         if (m_hotspots) {
             runtime::BatchProfile profile(1);
-            simulate.template     operator()<true>(&profile);
+            SIMULATE.template     operator()<true>(&profile);
         } else {
-            simulate.template operator()<false>(nullptr);
+            SIMULATE.template operator()<false>(nullptr);
         }
     } catch (const std::exception &error) {
         emit Failed(desktop::Diagnostic(QString::fromUtf8(error.what())));

@@ -4,19 +4,17 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QToolButton>
+
 #include "../theme/accent_color.h"
 
 class SimulationToolbarPrivate
 {
 public:
-    explicit SimulationToolbarPrivate(SimulationToolbar *q) :
-        debugModeEnabled(false), startSimulationButton(nullptr), debugModeButton(nullptr), q_ptr(q)
-    {
-    }
+    explicit SimulationToolbarPrivate(SimulationToolbar *q) : q_ptr(q) { }
 
-    bool         debugModeEnabled;
-    QToolButton *startSimulationButton;
-    QToolButton *debugModeButton;
+    bool         debugModeEnabled{ false };
+    QToolButton *startSimulationButton{ nullptr };
+    QToolButton *debugModeButton{ nullptr };
 
 private:
     SimulationToolbar *q_ptr;
@@ -32,7 +30,7 @@ SimulationToolbar::~SimulationToolbar() = default;
 
 void SimulationToolbar::SetAccentColor(const QColor &accent)
 {
-    const auto colors = desktop::theme::MakeAccentColors(accent);
+    const auto COLORS = desktop::theme::MakeAccentColors(accent);
     setStyleSheet(QStringLiteral(R"(
         SimulationToolbar {
             background-color: transparent;
@@ -75,8 +73,11 @@ void SimulationToolbar::SetAccentColor(const QColor &accent)
             font-size: 12px;
             padding: 0px 8px;
         }
-    )").replace("$accentHover", colors.hover.name()).replace("$accentPressed", colors.pressed.name())
-        .replace("$onAccent", colors.text.name()).replace("$accent", colors.normal.name()));
+    )")
+                      .replace("$accentHover", COLORS.hover.name())
+                      .replace("$accentPressed", COLORS.pressed.name())
+                      .replace("$onAccent", COLORS.text.name())
+                      .replace("$accent", COLORS.normal.name()));
 }
 
 void SimulationToolbar::SetupUI()

@@ -1,10 +1,9 @@
-#include <proxy/proxy.h>
-
 #include <memory>
 #include <random>
 #include <vector>
 
 #include <benchmark/benchmark.h>
+#include <proxy/proxy.h>
 
 // 虚函数基类
 class Base
@@ -18,13 +17,13 @@ public:
 class Derived : public Base
 {
 public:
-    int Calculate(int x) const override final { return x * 2; }
+    int Calculate(int x) const final { return x * 2; }
 };
 
 class Derived2 : public Base
 {
 public:
-    int Calculate(int x) const override final { return x * 2; }
+    int Calculate(int x) const final { return x * 2; }
 };
 
 class DerivedProxy
@@ -88,10 +87,10 @@ static void BM_Virtual(benchmark::State &state)
         objects.push_back(CreateRandomVirtual());
     }
 
-    for (auto _ : state) {
-        int x = dis(gen);
+    for (const auto _ : state) {
+        const int X = dis(gen);
         for (auto &obj : objects) {
-            benchmark::DoNotOptimize(obj->Calculate(x));
+            benchmark::DoNotOptimize(obj->Calculate(X));
         }
     }
 }
@@ -104,10 +103,10 @@ static void BM_CRTP(benchmark::State &state)
         objects.push_back(CreateRandomCRTP());
     }
 
-    for (auto _ : state) {
-        int x = dis(gen);
+    for (const auto _ : state) {
+        const int X = dis(gen);
         for (auto &obj : objects) {
-            benchmark::DoNotOptimize(obj.Calculate(x));
+            benchmark::DoNotOptimize(obj.Calculate(X));
         }
     }
 }
@@ -119,10 +118,10 @@ static void BM_Proxy(benchmark::State &state)
         objects.emplace_back(CreateRandomProxy());
     }
 
-    for (auto _ : state) {
-        int x = dis(gen);
+    for (const auto _ : state) {
+        const int X = dis(gen);
         for (auto &obj : objects) {
-            benchmark::DoNotOptimize(obj->Calculate(x));
+            benchmark::DoNotOptimize(obj->Calculate(X));
         }
     }
 }

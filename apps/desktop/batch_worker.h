@@ -2,14 +2,15 @@
 #define BATCH_WORKER_H
 
 #include <QThread>
-#include "combat_event.h"
-#include "buff_trace.h"
-#include "combat_history.h"
-#include "simulation_result.h"
 
-#include "runtime_catalog.h"
-#include "src/engine/client.hpp"
 #include "src/core/runtime/batch.hpp"
+#include "src/engine/client.hpp"
+
+#include "buff_trace.h"
+#include "combat_event.h"
+#include "combat_history.h"
+#include "runtime_catalog.h"
+#include "simulation_result.h"
 
 class BatchWorker final : public QThread
 {
@@ -18,12 +19,15 @@ class BatchWorker final : public QThread
 public:
     BatchWorker(JX3DPS::runtime::MacroProgram program,
                 JX3DPS::runtime::BatchOptions options,
-                desktop::Config config,
-                QObject *parent = nullptr, bool captureTrace = false, bool calculateGains = false,
-                desktop::GainComparisonMode gainMode = desktop::GainComparisonMode::SameValue, bool hotspots = false);
+                desktop::Config               config,
+                QObject                      *parent          = nullptr,
+                bool                          capture_trace   = false,
+                bool                          calculate_gains = false,
+                desktop::GainComparisonMode   gain_mode       = desktop::GainComparisonMode::SAME_VALUE,
+                bool                          hotspots        = false);
     ~BatchWorker() override;
 
-    void RequestCancel();
+    void          RequestCancel();
     std::uint64_t Completed() const;
     std::uint64_t Requested() const;
 
@@ -41,13 +45,13 @@ protected:
 private:
     JX3DPS::runtime::MacroProgram m_program;
     JX3DPS::runtime::BatchOptions m_options;
-    desktop::Config m_config;
+    desktop::Config               m_config;
     JX3DPS::runtime::BatchControl m_control;
-    JX3DPS::engine::Handle m_engine = JX3DPS::engine::Create();
-    bool m_captureTrace = false;
-    bool m_calculateGains = false;
-    desktop::GainComparisonMode m_gainMode;
-    bool m_hotspots;
+    JX3DPS::engine::Handle        m_engine         = JX3DPS::engine::Create();
+    bool                          m_captureTrace   = false;
+    bool                          m_calculateGains = false;
+    desktop::GainComparisonMode   m_gainMode;
+    bool                          m_hotspots;
 };
 
 #endif // BATCH_WORKER_H

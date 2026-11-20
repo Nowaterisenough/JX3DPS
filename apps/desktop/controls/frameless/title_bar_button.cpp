@@ -5,7 +5,6 @@
 #include <QPainter>
 #include <QPaintEvent>
 
-
 // 添加字体定义
 struct IconFont
 {
@@ -14,7 +13,7 @@ struct IconFont
     QString maximize;
     QString restore;
     QString close;
-    qreal   fontSize;
+    qreal   fontSize{};
 };
 
 // 获取当前平台的图标字体配置
@@ -22,7 +21,7 @@ IconFont getIconFont()
 {
     IconFont font;
 
-#if defined(Q_OS_LINUX)
+#ifdef Q_OS_LINUX
     auto font_index = QFontDatabase::addApplicationFont(":/resources/fonts/MaterialIcons-Regular.ttf");
     font.fontFamily = QFontDatabase::applicationFontFamilies(font_index).at(0);
 
@@ -32,7 +31,7 @@ IconFont getIconFont()
     font.close    = QChar(0xE5CD); // close
     font.fontSize = 14;
 
-#elif defined(Q_OS_WIN)
+#elifdef Q_OS_WIN
     font.fontFamily = "Segoe MDL2 Assets";
     font.minimize   = QChar(0xE949);
     font.maximize   = QChar(0xE739);
@@ -40,7 +39,7 @@ IconFont getIconFont()
     font.close      = QChar(0xE8BB);
     font.fontSize   = 7.5;
 
-#elif defined(Q_OS_MAC)
+#elifdef Q_OS_MAC
     font.fontFamily = ".AppleSystemUIFont";
     font.minimize   = "−";
     font.maximize   = "+";
@@ -115,15 +114,15 @@ void TitleBarButton::paintEvent(QPaintEvent *event)
     }
 
     // 使用 tightBoundingRect 获得更精确的文本边界
-    QFontMetrics fm(font);
+    const QFontMetrics FM(font);
     // QRect        textRect = fm.tightBoundingRect(icon);
 
     // 计算绘制位置
-    int x = (width() - fm.horizontalAdvance(icon)) / 2;
-    int y = (height() + fm.ascent() - fm.descent()) / 2;
+    const int X = (width() - FM.horizontalAdvance(icon)) / 2;
+    const int Y = (height() + FM.ascent() - FM.descent()) / 2;
 
     // 绘制文本
-    painter.drawText(x, y, icon);
+    painter.drawText(X, Y, icon);
 }
 
 TitleBarButton::~TitleBarButton()
@@ -140,7 +139,7 @@ void TitleBarButton::SetBackgroundColor(const QColor &color)
     }
 }
 
-void TitleBarButton::StartAnimation(const QColor &endBackgroundColor, const QColor &endTextColor)
+void TitleBarButton::StartAnimation(const QColor &end_background_color, const QColor &end_text_color)
 {
     if (_backgroundAnimation->state() == QVariantAnimation::Running) {
         _backgroundAnimation->stop();
@@ -150,11 +149,11 @@ void TitleBarButton::StartAnimation(const QColor &endBackgroundColor, const QCol
     }
 
     _backgroundAnimation->setStartValue(_backgroundColor);
-    _backgroundAnimation->setEndValue(endBackgroundColor);
+    _backgroundAnimation->setEndValue(end_background_color);
     _backgroundAnimation->start();
 
     _textAnimation->setStartValue(_textColor);
-    _textAnimation->setEndValue(endTextColor);
+    _textAnimation->setEndValue(end_text_color);
     _textAnimation->start();
 }
 
@@ -169,9 +168,9 @@ void TitleBarButton::SetHovered(bool hovered)
 
 void TitleBarButton::enterEvent(QEnterEvent *event)
 {
-    QColor hoverBgColor   = _isCloseButton ? QColor(0xe81123) : QColor(0x3d3d3d);
-    QColor hoverTextColor = _isCloseButton ? Qt::white : QColor(0xffffff);
-    StartAnimation(hoverBgColor, hoverTextColor);
+    const QColor HOVER_BG_COLOR   = _isCloseButton ? QColor(0xe81123) : QColor(0x3d3d3d);
+    const QColor HOVER_TEXT_COLOR = _isCloseButton ? Qt::white : QColor(0xffffff);
+    StartAnimation(HOVER_BG_COLOR, HOVER_TEXT_COLOR);
     QPushButton::enterEvent(event);
 }
 
@@ -183,16 +182,16 @@ void TitleBarButton::leaveEvent(QEvent *event)
 
 void TitleBarButton::mousePressEvent(QMouseEvent *event)
 {
-    QColor pressBgColor   = _isCloseButton ? QColor(0xd71123) : QColor(0x545454);
-    QColor pressTextColor = _isCloseButton ? Qt::white : QColor(0xffffff);
-    StartAnimation(pressBgColor, pressTextColor);
+    const QColor PRESS_BG_COLOR   = _isCloseButton ? QColor(0xd71123) : QColor(0x545454);
+    const QColor PRESS_TEXT_COLOR = _isCloseButton ? Qt::white : QColor(0xffffff);
+    StartAnimation(PRESS_BG_COLOR, PRESS_TEXT_COLOR);
     QPushButton::mousePressEvent(event);
 }
 
 void TitleBarButton::mouseReleaseEvent(QMouseEvent *event)
 {
-    QColor hoverBgColor   = _isCloseButton ? QColor(0xe81123) : QColor(0x545454);
-    QColor hoverTextColor = _isCloseButton ? Qt::white : QColor(0xffffff);
-    StartAnimation(hoverBgColor, hoverTextColor);
+    const QColor HOVER_BG_COLOR   = _isCloseButton ? QColor(0xe81123) : QColor(0x545454);
+    const QColor HOVER_TEXT_COLOR = _isCloseButton ? Qt::white : QColor(0xffffff);
+    StartAnimation(HOVER_BG_COLOR, HOVER_TEXT_COLOR);
     QPushButton::mouseReleaseEvent(event);
 }

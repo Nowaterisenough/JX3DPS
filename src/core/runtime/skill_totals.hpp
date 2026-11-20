@@ -1,14 +1,15 @@
 #pragma once
 
-#include "src/global/types.h"
 #include <limits>
 #include <stdexcept>
+
+#include "src/global/types.h"
 
 namespace JX3DPS::runtime {
 struct SkillTotals
 {
-    value_t damage = 0;
-    std::uint64_t   count = 0, hit = 0, critical = 0, insight = 0, miss = 0;
+    value_t       damage = 0;
+    std::uint64_t count = 0, hit = 0, critical = 0, insight = 0, miss = 0;
 
     void Add(value_t value, RollResult outcome)
     {

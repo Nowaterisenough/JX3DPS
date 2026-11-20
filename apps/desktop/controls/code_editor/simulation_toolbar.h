@@ -1,8 +1,8 @@
 #ifndef SIMULATION_TOOLBAR_H
 #define SIMULATION_TOOLBAR_H
 
-#include <QWidget>
 #include <QToolButton>
+#include <QWidget>
 
 class SimulationToolbarPrivate;
 
@@ -26,8 +26,8 @@ public:
     void SetAccentColor(const QColor &accent);
 
 signals:
-    void StartSimulationClicked();         // 开始模拟
-    void DebugModeToggled(bool enabled);  // 调试模式切换
+    void StartSimulationClicked();       // 开始模拟
+    void DebugModeToggled(bool enabled); // 调试模式切换
 
 private:
     void SetupUI();

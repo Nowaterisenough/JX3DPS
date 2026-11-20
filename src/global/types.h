@@ -23,6 +23,13 @@ using tick_t  = int;       // 帧数/Tick
 using value_t = long long; // 属性值
 using cof_t   = double;    // 系数
 
+inline constexpr tick_t FRAMES_PER_SECOND = 16;
+
+constexpr double FramesToSeconds(tick_t frames) noexcept
+{
+    return static_cast<double>(frames) / FRAMES_PER_SECOND;
+}
+
 // ID类型
 using jx3id_t = int; // 技能/BUFF/目标 ID
 
@@ -45,27 +52,28 @@ using func_t = std::function<T>;
 
 // ============= 标签系统 =============
 
-enum class Tag : uint32_t {
+enum class Tag : uint32_t
+{
     NONE = 0,
 
     // 技能/BUFF标签
-    TARGET  = 1 << 0,  // 目标技能
-    SELF    = 1 << 1,  // 自身技能
-    PLAYER  = 1 << 2,  // 玩家BUFF
-    AOE     = 1 << 3,  // 范围技能
-    DAMAGE  = 1 << 4,  // 伤害技能
-    HEAL    = 1 << 5,  // 治疗技能
-    MELEE   = 1 << 6,  // 近战技能
-    RANGE   = 1 << 7,  // 远程技能
-    INSTANT = 1 << 8,  // 即时技能
-    DOT     = 1 << 9,  // 持续伤害
-    HOT     = 1 << 10, // 持续治疗
-    BUFF    = 1 << 11, // BUFF标记
-    HASTED  = 1 << 12, // 受加速影响
-    THIRD   = 1 << 13, // 第三方BUFF(团队增益)
-    NO_GCD  = 1 << 14, // 无GCD
-    FIELD   = 1 << 15, // 剑气场
-    TEAM    = 1 << 16, // 团队BUFF
+    TARGET    = 1 << 0,  // 目标技能
+    SELF      = 1 << 1,  // 自身技能
+    PLAYER    = 1 << 2,  // 玩家BUFF
+    AOE       = 1 << 3,  // 范围技能
+    DAMAGE    = 1 << 4,  // 伤害技能
+    HEAL      = 1 << 5,  // 治疗技能
+    MELEE     = 1 << 6,  // 近战技能
+    RANGE     = 1 << 7,  // 远程技能
+    INSTANT   = 1 << 8,  // 即时技能
+    DOT       = 1 << 9,  // 持续伤害
+    HOT       = 1 << 10, // 持续治疗
+    BUFF      = 1 << 11, // BUFF标记
+    HASTED    = 1 << 12, // 受加速影响
+    THIRD     = 1 << 13, // 第三方BUFF(团队增益)
+    NO_GCD    = 1 << 14, // 无GCD
+    FIELD     = 1 << 15, // 剑气场
+    TEAM      = 1 << 16, // 团队BUFF
     PERMANENT = 1 << 17, // 永久BUFF
 
     // 物理/魔法
@@ -74,21 +82,25 @@ enum class Tag : uint32_t {
 };
 
 // 标签位运算
-inline constexpr Tag operator|(Tag a, Tag b) {
+constexpr Tag operator|(Tag a, Tag b)
+{
     return static_cast<Tag>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
 }
 
-inline constexpr Tag operator&(Tag a, Tag b) {
+constexpr Tag operator&(Tag a, Tag b)
+{
     return static_cast<Tag>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
 }
 
-inline constexpr bool operator==(Tag a, Tag b) {
+constexpr bool operator==(Tag a, Tag b)
+{
     return static_cast<uint32_t>(a) == static_cast<uint32_t>(b);
 }
 
 // ============= 内功属性分类 =============
 
-enum class MagicType : int {
+enum class MagicType : int
+{
     NEUTRAL = 0, // 混元性内功 (紫霞功、离经易道、花间游等)
     SOLAR   = 1, // 阳性内功 (少林、明教阳性等)
     LUNAR   = 2, // 阴性内功 (七秀、明教阴性等)
@@ -97,7 +109,8 @@ enum class MagicType : int {
 
 // ============= 圆桌判定 =============
 
-enum class RollResult : int {
+enum class RollResult : int
+{
     HIT     = 0,   // 命中
     DOUBLE  = 1,   // 会心
     INSIGHT = 4,   // 识破
@@ -106,7 +119,8 @@ enum class RollResult : int {
 
 // ============= 事件类型 =============
 
-enum class EventType : int {
+enum class EventType : int
+{
     PERMANENT = 0, // 永久效果
 
     // 技能事件
@@ -140,35 +154,38 @@ enum class EventType : int {
 
 // ============= 伤害结构 =============
 
-struct Damage {
+struct Damage
+{
     long long damage        = 0; // 普通伤害
     long long surplusDamage = 0; // 破招伤害
 
     long long SumDamage() const { return damage + surplusDamage; }
 
-    Damage &operator+=(const Damage &other) {
-        damage += other.damage;
+    Damage &operator+=(const Damage &other)
+    {
+        damage        += other.damage;
         surplusDamage += other.surplusDamage;
         return *this;
     }
 };
 
 // 收益伤害
-struct GainsDamage {
-    Damage damage;                     // 总伤害
-    Damage attackPowerGain;            // 攻击收益
-    Damage criticalStrikePowerGain;    // 会效收益
-    Damage overcomeGain;               // 破防收益
-    Damage strainBaseGain;             // 无双收益
+struct GainsDamage
+{
+    Damage damage;                  // 总伤害
+    Damage attackPowerGain;         // 攻击收益
+    Damage criticalStrikePowerGain; // 会效收益
+    Damage overcomeGain;            // 破防收益
+    Damage strainBaseGain;          // 无双收益
 };
 
 // ============= 宏定义 =============
 
 // 常量定义 (编译期 + 线程本地)
-#define CONSTANT inline static thread_local constinit
+#define CONSTANT   inline static thread_local constinit
 
 // 属性定义 (线程本地)
-#define PROPERTY inline static thread_local
+#define PROPERTY   inline static thread_local
 
 // 技能静态数据 (非thread_local，共享只读数据，constexpr解决MSVC静态成员初始化问题)
 #define SKILL_DATA inline static constexpr

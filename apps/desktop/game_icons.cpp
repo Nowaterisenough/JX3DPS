@@ -19,7 +19,8 @@
 
 #include "controls/choice_popup.h"
 #include "controls/theme/accent_color.h"
-#include "resources/resources.h"
+
+#include "resources.h"
 
 static void InitIconData()
 {
@@ -39,30 +40,30 @@ QJsonObject Entry(Specialization specialization, QString name)
         }
         return QJsonDocument::fromJson(file.readAll()).object();
     }();
-    const auto entries = data.value(QString::number(static_cast<int>(specialization))).toObject();
+    const auto ENTRIES = data.value(QString::number(static_cast<int>(specialization))).toObject();
     name               = name.section(QStringLiteral("（"), 0, 0);
-    if (entries.contains(name)) {
-        return entries.value(name).toObject();
+    if (ENTRIES.contains(name)) {
+        return ENTRIES.value(name).toObject();
     }
     name.replace(QStringLiteral("持续伤害"), QStringLiteral("Dot"));
-    if (entries.contains(name)) {
-        return entries.value(name).toObject();
+    if (ENTRIES.contains(name)) {
+        return ENTRIES.value(name).toObject();
     }
     const auto parts = name.split(QStringLiteral("·"));
     for (auto it = parts.rbegin(); it != parts.rend(); ++it) {
-        if (entries.contains(*it)) {
-            return entries.value(*it).toObject();
+        if (ENTRIES.contains(*it)) {
+            return ENTRIES.value(*it).toObject();
         }
     }
     return {};
 }
 
-void Frame(QPainter &painter, const QRect &rect, bool selected, bool focus, const QColor &accent, bool showCheck = true)
+void Frame(QPainter &painter, const QRect &rect, bool selected, bool focus, const QColor &accent, bool show_check = true)
 {
     painter.setBrush(Qt::NoBrush);
     painter.setPen(QPen(selected ? accent : QColor(72, 77, 88), selected ? 1.5 : 1));
     painter.drawRoundedRect(rect.adjusted(1, 1, -2, -2), 5, 5);
-    if (selected && showCheck) {
+    if (selected && show_check) {
         painter.fillRect(QRect(rect.right() - 12, rect.bottom() - 12, 11, 11), accent);
         painter.setPen(QPen(QColor(30, 32, 36), 2));
         painter.drawPolyline(QPolygon{ QPoint(rect.right() - 10, rect.bottom() - 7),
@@ -80,48 +81,50 @@ void Frame(QPainter &painter, const QRect &rect, bool selected, bool focus, cons
 void PaintGameIcon(QPainter &painter, const QRect &bounds, const QIcon &icon, bool grayscale)
 {
     auto pixmap = icon.pixmap(QSize(64, 64), painter.device()->devicePixelRatioF());
-    if (pixmap.isNull()) return;
+    if (pixmap.isNull()) {
+        return;
+    }
     if (grayscale) {
-        const auto key = QStringLiteral("jx3dps-grayscale-%1").arg(pixmap.cacheKey());
-        QPixmap cached;
-        if (!QPixmapCache::find(key, &cached)) {
+        const auto KEY = QStringLiteral("jx3dps-grayscale-%1").arg(pixmap.cacheKey());
+        QPixmap    cached;
+        if (!QPixmapCache::find(KEY, &cached)) {
             auto image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
             // Preserve transparency and scaling when desaturating the game artwork.
             for (int y = 0; y < image.height(); ++y) {
                 auto *pixels = reinterpret_cast<QRgb *>(image.scanLine(y));
                 for (int x = 0; x < image.width(); ++x) {
-                    const int gray = qGray(pixels[x]);
-                    pixels[x] = qRgba(gray, gray, gray, qAlpha(pixels[x]));
+                    const int GRAY = qGray(pixels[x]);
+                    pixels[x]      = qRgba(GRAY, GRAY, GRAY, qAlpha(pixels[x]));
                 }
             }
             cached = QPixmap::fromImage(image);
             cached.setDevicePixelRatio(pixmap.devicePixelRatioF());
-            QPixmapCache::insert(key, cached);
+            QPixmapCache::insert(KEY, cached);
         }
         pixmap = cached;
     }
     // Trim the frame baked into the artwork before fitting the control's rounded interior.
-    const qreal horizontal = pixmap.width() / 16.0;
-    const qreal vertical = pixmap.height() / 16.0;
-    const auto source = QRectF(pixmap.rect()).adjusted(horizontal, vertical, -horizontal, -vertical);
+    const qreal  HORIZONTAL = pixmap.width() / 16.0;
+    const qreal  VERTICAL   = pixmap.height() / 16.0;
+    const auto   SOURCE     = QRectF(pixmap.rect()).adjusted(HORIZONTAL, VERTICAL, -HORIZONTAL, -VERTICAL);
     QPainterPath clip;
     clip.addRoundedRect(QRectF(bounds), 3, 3);
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
     painter.setClipPath(clip, Qt::IntersectClip);
-    painter.drawPixmap(QRectF(bounds), pixmap, source);
+    painter.drawPixmap(QRectF(bounds), pixmap, SOURCE);
     painter.restore();
 }
 
 namespace {
 constexpr int ChoiceRowHeight = 44;
-constexpr int ChoiceIconSize = 32;
+constexpr int ChoiceIconSize  = 32;
 
 class IconChoiceDelegate : public QStyledItemDelegate
 {
 public:
-    IconChoiceDelegate(QComboBox *combo, QObject *parent) : QStyledItemDelegate(parent), combo_(combo) {}
+    IconChoiceDelegate(QComboBox *combo, QObject *parent) : QStyledItemDelegate(parent), combo_(combo) { }
 
     QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const override { return { 0, ChoiceRowHeight }; }
 
@@ -130,36 +133,39 @@ public:
         p->save();
         p->setRenderHint(QPainter::Antialiasing);
         p->setFont(option.font);
-        if (!(option.state & QStyle::State_Enabled) || !(index.flags() & Qt::ItemIsEnabled)) p->setOpacity(.45);
-        if (option.state & (QStyle::State_Selected | QStyle::State_MouseOver)) {
+        if (!(option.state & QStyle::State_Enabled) || !(index.flags() & Qt::ItemIsEnabled)) {
+            p->setOpacity(.45);
+        }
+        if (option.state & (QStyle::State_Selected | QStyle::State_MouseOver) != 0u) {
             p->setPen(Qt::NoPen);
             p->setBrush(option.palette.highlight());
             p->drawRoundedRect(option.rect.adjusted(4, 2, -4, -2), 6, 6);
         }
-        const QRect iconBounds(option.rect.left() + 10, option.rect.top() + (option.rect.height() - ChoiceIconSize) / 2,
-                               ChoiceIconSize, ChoiceIconSize);
-        const auto icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-        if (!icon.isNull()) {
-            PaintGameIcon(*p, iconBounds, icon);
+        const QRect ICON_BOUNDS(option.rect.left() + 10, option.rect.top() + ((option.rect.height() - ChoiceIconSize) / 2), ChoiceIconSize, ChoiceIconSize);
+        const auto ICON = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+        if (!ICON.isNull()) {
+            PaintGameIcon(*p, ICON_BOUNDS, ICON);
         } else {
             p->setPen(Qt::NoPen);
             p->setBrush(option.palette.alternateBase());
-            p->drawRoundedRect(iconBounds, 4, 4);
+            p->drawRoundedRect(ICON_BOUNDS, 4, 4);
             p->setPen(QPen(option.palette.placeholderText().color(), 1.5, Qt::SolidLine, Qt::RoundCap));
-            p->drawLine(iconBounds.center() - QPoint(6, 0), iconBounds.center() + QPoint(6, 0));
+            p->drawLine(ICON_BOUNDS.center() - QPoint(6, 0), ICON_BOUNDS.center() + QPoint(6, 0));
         }
-        const auto textBounds = option.rect.adjusted(52, 0, -34, 0);
+        const auto TEXT_BOUNDS = option.rect.adjusted(52, 0, -34, 0);
         p->setPen(option.palette.text().color());
-        p->drawText(textBounds, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
-                    option.fontMetrics.elidedText(index.data(Qt::DisplayRole).toString(), Qt::ElideRight, textBounds.width()));
-        const auto committed = combo_->model()->index(combo_->currentIndex(), combo_->modelColumn(), combo_->rootModelIndex());
-        if (index == committed) {
+        p->drawText(TEXT_BOUNDS,
+                    Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
+                    option.fontMetrics.elidedText(index.data(Qt::DisplayRole).toString(), Qt::ElideRight, TEXT_BOUNDS.width()));
+        const auto COMMITTED = combo_->model()->index(combo_->currentIndex(), combo_->modelColumn(), combo_->rootModelIndex());
+        if (index == COMMITTED) {
             p->setPen(QPen(theme::AccentColor(combo_), 1.6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            const QPoint center(option.rect.right() - 18, option.rect.center().y());
-            p->drawPolyline(QPolygon{center + QPoint(-5, 0), center + QPoint(-1, 4), center + QPoint(6, -4)});
+            const QPoint CENTER(option.rect.right() - 18, option.rect.center().y());
+            p->drawPolyline(QPolygon{ CENTER + QPoint(-5, 0), CENTER + QPoint(-1, 4), CENTER + QPoint(6, -4) });
         }
         p->restore();
     }
+
 private:
     QComboBox *combo_;
 };
@@ -174,10 +180,12 @@ QIcon GameIcon(int id)
 
 QIcon GameIcon(Specialization specialization, const QString &name)
 {
-    const auto entry = Entry(specialization, name);
-    if (entry.isEmpty() && specialization == Specialization::TaiXu) {
+    const auto ENTRY = Entry(specialization, name);
+    if (ENTRY.isEmpty() && specialization == Specialization::TAI_XU) {
         for (const auto &buff : rt::tai_xu::team::Definitions) {
-            if (name != QString::fromUtf8(buff.name.data(), buff.name.size())) continue;
+            if (name != QString::fromUtf8(buff.name.data(), buff.name.size())) {
+                continue;
+            }
             // Team effects without a verified game icon use a named tile.
             QPixmap tile(32, 32);
             tile.fill(QColor(46, 64, 72));
@@ -188,7 +196,7 @@ QIcon GameIcon(Specialization specialization, const QString &name)
             return QIcon(tile);
         }
     }
-    return entry.isEmpty() ? QIcon{} : GameIcon(entry.value("Icon").toInt());
+    return ENTRY.isEmpty() ? QIcon{} : GameIcon(ENTRY.value("Icon").toInt());
 }
 
 QString GameDescription(Specialization specialization, const QString &name)
@@ -202,7 +210,7 @@ IconCheckBox::IconCheckBox(const QString &name, Specialization specialization, Q
     setIcon(GameIcon(specialization, name));
     setAccessibleName(name);
     setToolTip(name + '\n' + GameDescription(specialization, name));
-    setFixedSize(sizeHint());
+    setFixedSize(IconCheckBox::sizeHint());
     setCursor(Qt::PointingHandCursor);
 }
 
@@ -219,16 +227,17 @@ void IconCheckBox::paintEvent(QPaintEvent *)
     Frame(painter, rect(), isChecked(), hasFocus(), theme::AccentColor(this));
 }
 
-IconComboBox::IconComboBox(const QString &category, QWidget *parent, bool hasEmptyChoice) :
-    QComboBox(parent), m_hasEmptyChoice(hasEmptyChoice)
+IconComboBox::IconComboBox(const QString &category, QWidget *parent, bool has_empty_choice) :
+    QComboBox(parent), m_hasEmptyChoice(has_empty_choice)
 {
     setAccessibleName(category);
-    setFixedSize(sizeHint());
+    setFixedSize(IconComboBox::sizeHint());
     // Host combo-box styles must not shrink the icon in a tab corner.
-    if (!hasEmptyChoice)
+    if (!has_empty_choice) {
         setStyleSheet(QStringLiteral("QComboBox { min-height: 38px; max-height: 38px; padding: 0; border: 0; }"));
+    }
     setCursor(Qt::PointingHandCursor);
-    m_popup = new ChoicePopup(this);
+    m_popup      = new ChoicePopup(this);
     auto *layout = new QVBoxLayout(m_popup);
     layout->setContentsMargins(2, 2, 2, 2);
     auto *choices = m_choices = new QListView(m_popup);
@@ -247,7 +256,8 @@ IconComboBox::IconComboBox(const QString &category, QWidget *parent, bool hasEmp
     choices->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     choices->setMouseTracking(true);
     choices->setAccessibleName(category + QStringLiteral("选项"));
-    choices->setStyleSheet(QStringLiteral("QListView#iconChoices { background: transparent; border: 0; padding: 0; outline: 0; }"));
+    choices->setStyleSheet(
+        QStringLiteral("QListView#iconChoices { background: transparent; border: 0; padding: 0; outline: 0; }"));
     // Keep QComboBox::view() compatible for keyboard/configuration callers;
     // the view itself is still hosted by our pre-laid-out popup.
     setView(choices);
@@ -255,12 +265,14 @@ IconComboBox::IconComboBox(const QString &category, QWidget *parent, bool hasEmp
     choices->setItemDelegate(new IconChoiceDelegate(this, choices));
     layout->addWidget(choices);
     m_popup->Watch(choices);
-    m_popup->acceptChoice = [this] { AcceptChoice(); };
+    m_popup->acceptChoice = [this] {
+        AcceptChoice();
+    };
     connect(choices, &QListView::clicked, this, [this] { AcceptChoice(); });
     connect(this, &QComboBox::currentIndexChanged, this, [this, category] {
-        const auto description = currentData(Qt::ToolTipRole).toString();
+        const auto DESCRIPTION = currentData(Qt::ToolTipRole).toString();
         setToolTip(category + QStringLiteral("：") +
-                   (description.startsWith(currentText()) ? description : currentText() + '\n' + description));
+                   (DESCRIPTION.startsWith(currentText()) ? DESCRIPTION : currentText() + '\n' + DESCRIPTION));
     });
 }
 
@@ -270,36 +282,37 @@ void IconComboBox::paintEvent(QPaintEvent *)
     if (!isEnabled()) {
         painter.setOpacity(0.4);
     }
-    const bool empty = m_hasEmptyChoice && currentIndex() == 0;
-    const auto icon = itemIcon(empty ? 1 : currentIndex());
-    if (empty) {
+    const bool EMPTY = m_hasEmptyChoice && currentIndex() == 0;
+    const auto ICON  = itemIcon(EMPTY ? 1 : currentIndex());
+    if (EMPTY) {
         painter.setOpacity(isEnabled() ? 0.38 : 0.2);
     }
-    PaintGameIcon(painter, rect().adjusted(4, 4, -4, -4), icon, empty);
+    PaintGameIcon(painter, rect().adjusted(4, 4, -4, -4), ICON, EMPTY);
     painter.setOpacity(isEnabled() ? 1 : 0.4);
-    Frame(painter, rect(), currentIndex() >= 0 && !empty, hasFocus(),
-          theme::AccentColor(this), false);
+    Frame(painter, rect(), currentIndex() >= 0 && !EMPTY, hasFocus(), theme::AccentColor(this), false);
 }
 
 void IconComboBox::showPopup()
 {
-    if (!isEnabled() || count() == 0 || m_popup->isVisible()) return;
+    if (!isEnabled() || count() == 0 || m_popup->isVisible()) {
+        return;
+    }
     m_choices->setModel(model());
     m_choices->setRootIndex(rootModelIndex());
     m_choices->setModelColumn(modelColumn());
-    const auto selected = model()->index(currentIndex(), modelColumn(), rootModelIndex());
-    m_choices->setCurrentIndex(selected);
+    const auto SELECTED = model()->index(currentIndex(), modelColumn(), rootModelIndex());
+    m_choices->setCurrentIndex(SELECTED);
     m_popup->ensurePolished();
     m_choices->ensurePolished();
-    int textWidth = 0;
-    for (int index = 0; index < count(); ++index)
-        textWidth = std::max(textWidth, m_choices->fontMetrics().horizontalAdvance(itemText(index)));
-    const int width = std::clamp(textWidth + 108, 220, 360);
-    const auto margins = m_popup->layout()->contentsMargins();
-    const int chrome = 2 * (m_popup->frameWidth() + m_choices->frameWidth()) + margins.top() + margins.bottom();
-    m_popup->Open(this, { width, std::min(8, count()) * ChoiceRowHeight + chrome },
-                  m_choices, ChoicePopup::Below, ChoicePopup::Expand);
-    m_choices->scrollTo(selected);
+    int text_width = 0;
+    for (int index = 0; index < count(); ++index) {
+        text_width = std::max(text_width, m_choices->fontMetrics().horizontalAdvance(itemText(index)));
+    }
+    const int  WIDTH   = std::clamp(text_width + 108, 220, 360);
+    const auto MARGINS = m_popup->layout()->contentsMargins();
+    const int  CHROME  = (2 * (m_popup->frameWidth() + m_choices->frameWidth())) + MARGINS.top() + MARGINS.bottom();
+    m_popup->Open(this, { WIDTH, (std::min(8, count()) * ChoiceRowHeight) + CHROME }, m_choices, ChoicePopup::BELOW, ChoicePopup::EXPAND);
+    m_choices->scrollTo(SELECTED);
 }
 
 void IconComboBox::hidePopup()
@@ -309,9 +322,11 @@ void IconComboBox::hidePopup()
 
 void IconComboBox::AcceptChoice()
 {
-    const auto index = m_choices->currentIndex();
-    if (!index.isValid() || !(index.flags() & Qt::ItemIsEnabled) || !(index.flags() & Qt::ItemIsSelectable)) return;
-    setCurrentIndex(index.row());
+    const auto INDEX = m_choices->currentIndex();
+    if (!INDEX.isValid() || !(INDEX.flags() & Qt::ItemIsEnabled) || !(INDEX.flags() & Qt::ItemIsSelectable)) {
+        return;
+    }
+    setCurrentIndex(INDEX.row());
     hidePopup();
     emit activated(currentIndex());
     emit textActivated(currentText());
@@ -321,25 +336,39 @@ void IconComboBox::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         setFocus(Qt::MouseFocusReason);
-        if (m_popup->isVisible()) hidePopup();
-        else showPopup();
+        if (m_popup->isVisible()) {
+            hidePopup();
+        } else {
+            showPopup();
+        }
         event->accept();
-    } else QComboBox::mousePressEvent(event);
+    } else {
+        QComboBox::mousePressEvent(event);
+    }
 }
 
 void IconComboBox::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton) event->accept();
-    else QComboBox::mouseReleaseEvent(event);
+    if (event->button() == Qt::LeftButton) {
+        event->accept();
+    } else {
+        QComboBox::mouseReleaseEvent(event);
+    }
 }
 
 void IconComboBox::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Space || event->key() == Qt::Key_F4 ||
-        ((event->modifiers() & Qt::AltModifier) && (event->key() == Qt::Key_Down || event->key() == Qt::Key_Up))) {
-        if (m_popup->isVisible()) hidePopup();
-        else showPopup();
+        (((event->modifiers() & Qt::AltModifier) != 0u) && (event->key() == Qt::Key_Down || event->key() == Qt::Key_Up)))
+    {
+        if (m_popup->isVisible()) {
+            hidePopup();
+        } else {
+            showPopup();
+        }
         event->accept();
-    } else QComboBox::keyPressEvent(event);
+    } else {
+        QComboBox::keyPressEvent(event);
+    }
 }
 } // namespace desktop

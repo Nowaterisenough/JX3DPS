@@ -6,7 +6,7 @@
 
 namespace desktop {
 template <class Input>
-ActorAttributes AttributesFromInput(const Input &input, JX3DPS::value_t weapon, double criticalChance, double haste, int extraPower = 0)
+ActorAttributes AttributesFromInput(const Input &input, JX3DPS::value_t weapon, double critical_chance, double haste, int extra_power = 0)
 {
     ActorAttributes a;
     a.attack         = input.attack;
@@ -14,9 +14,9 @@ ActorAttributes AttributesFromInput(const Input &input, JX3DPS::value_t weapon, 
     a.overcome       = input.overcome;
     a.strain         = input.strain;
     a.surplus        = input.surplus;
-    a.criticalChance = criticalChance;
+    a.criticalChance = critical_chance;
     a.criticalMultiplier =
-        1.75 + (static_cast<int>(input.crit_power * 1024 / (3.335 * 8250)) + input.crit_power_percent + extraPower) / 1024.0;
+        1.75 + (static_cast<int>(input.crit_power * 1024 / (3.335 * 8250)) + input.crit_power_percent + extra_power) / 1024.0;
     a.haste         = haste;
     a.damagePercent = input.damage_percent;
     a.strainPercent = input.strain_percent;
@@ -28,22 +28,23 @@ ActorAttributes AttributesFromInput(const Input &input, JX3DPS::value_t weapon, 
 inline ActorAttributes CurrentAttributes(const rt::tai_xu::Rules &rules)
 {
     const auto &data    = rules.Data();
-    const auto  profile = rules.CurrentProfile();
-    return AttributesFromInput(data.Input(rt::tai_xu::ZeroEffect, profile, rules.CurrentTeamModifiers()),
+    const auto  PROFILE = rules.CurrentProfile();
+    return AttributesFromInput(data.Input(rt::tai_xu::ZeroEffect, PROFILE, rules.CurrentTeamModifiers()),
                                data.config.attributes.weapon,
-                               data.Chance(rt::tai_xu::ZeroEffect, profile, rules.CurrentTeamModifiers().crit_basis_points) + rules.CurrentCriticalBonus() / 10000.0,
+                               data.Chance(rt::tai_xu::ZeroEffect, PROFILE, rules.CurrentTeamModifiers().crit_basis_points) +
+                                   (rules.CurrentCriticalBonus() / 10000.0),
                                data.haste);
 }
 
 inline ActorAttributes CurrentAttributes(const rt::mo_wen::Rules &rules)
 {
     const auto &data = rules.Data();
-    const auto  aura = rules.CurrentAura();
-    auto result    = AttributesFromInput(data.Input(rt::mo_wen::EZeroShuYing, aura.profile),
-                                         data.config.attributes.weapon,
-                                         data.Chance(rt::mo_wen::EZeroShuYing, rt::mo_wen::ChanceProfile(aura.profile)),
-                                         rules.CurrentHaste(),
-                                         aura.extra_power);
+    const auto  AURA = rules.CurrentAura();
+    auto result = AttributesFromInput(data.Input(rt::mo_wen::E_ZERO_SHU_YING, AURA.profile),
+                                      data.config.attributes.weapon,
+                                      data.Chance(rt::mo_wen::E_ZERO_SHU_YING, rt::mo_wen::ChanceProfile(AURA.profile)),
+                                      rules.CurrentHaste(),
+                                      AURA.extra_power);
     result.style   = static_cast<int>(rules.CurrentStyle());
     result.shadows = rules.ShadowCount();
     return result;
@@ -59,6 +60,7 @@ public:
 
     // Capture also observes rejected actions after a pre-condition channel interrupt.
     static bool CanAttempt(const rt::State &, const rt::MacroLine &) { return true; }
+
     static bool MayActWhileBusy(const rt::MacroLine &) { return true; }
 
     template <class Engine>

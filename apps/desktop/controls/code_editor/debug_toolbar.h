@@ -1,8 +1,8 @@
 #ifndef DEBUG_TOOLBAR_H
 #define DEBUG_TOOLBAR_H
 
-#include <QWidget>
 #include <QToolButton>
+#include <QWidget>
 
 class DebugToolbarPrivate;
 
@@ -32,14 +32,15 @@ public:
     ~DebugToolbar() override;
 
     // 调试状态
-    enum DebugState {
-        Stopped,   // 停止状态
-        Running,   // 运行中
-        Paused,    // 已暂停
-        Finished   // 已完成，可以重新调试
+    enum DebugState
+    {
+        STOPPED, // 停止状态
+        RUNNING, // 运行中
+        PAUSED,  // 已暂停
+        FINISHED // 已完成，可以重新调试
     };
 
-    void SetDebugState(DebugState state);
+    void       SetDebugState(DebugState state);
     DebugState GetDebugState() const;
 
     // 显示/隐藏浮窗
@@ -49,13 +50,13 @@ public:
 
 signals:
     // 调试控制信号
-    void ContinueClicked();    // 继续执行
-    void PauseClicked();       // 暂停执行
-    void StepOverClicked();    // 单步跳过
-    void StepIntoClicked();    // 单步进入
-    void StepOutClicked();     // 单步跳出
-    void RestartClicked();     // 重启调试
-    void StopClicked();        // 停止调试
+    void ContinueClicked(); // 继续执行
+    void PauseClicked();    // 暂停执行
+    void StepOverClicked(); // 单步跳过
+    void StepIntoClicked(); // 单步进入
+    void StepOutClicked();  // 单步跳出
+    void RestartClicked();  // 重启调试
+    void StopClicked();     // 停止调试
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -65,10 +66,10 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
-    void SetupUI();
-    void UpdateButtonStates();
+    void  SetupUI();
+    void  UpdateButtonStates();
     QRect FloatingBounds() const;
-    void UpdateFloatingPosition();
+    void  UpdateFloatingPosition();
 
     QScopedPointer<DebugToolbarPrivate> d_ptr;
     Q_DECLARE_PRIVATE(DebugToolbar)

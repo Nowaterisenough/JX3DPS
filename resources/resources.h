@@ -2,7 +2,7 @@
 #define RESOURCE_H
 
 #if defined _WIN32 || defined __CYGWIN__
-#    if defined RESOURCES_API_EXPORT // CMake add_definitions
+#    ifdef RESOURCES_API_EXPORT // CMake add_definitions
 #        ifdef __GNUC__
 #            define RESOURCES_API __attribute__((dllexport))
 #        else
@@ -21,7 +21,7 @@
 #    endif     // RESOURCES_API_EXPORT
 #    define RESOURCES_PRIVATE
 
-#elif defined __GNUC__
+#elifdef __GNUC__
 #    if __GNUC__ >= 4
 #        define RESOURCES_API     __attribute__((visibility("default")))
 #        define RESOURCES_PRIVATE __attribute__((visibility("hidden")))

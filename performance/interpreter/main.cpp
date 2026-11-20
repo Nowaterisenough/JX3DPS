@@ -1,11 +1,11 @@
-#include <proxy/proxy.h>
-
+#include <cstdlib>
 #include <functional>
 #include <memory>
 #include <random>
 #include <vector>
 
 #include <benchmark/benchmark.h>
+#include <proxy/proxy.h>
 
 // 基础类定义
 class Player
@@ -47,10 +47,8 @@ bool CheckLifeLevel(const Player *player, const Targets *, int life)
 ConditionFunc CreateRandomBindCondition()
 {
     switch (rand() % 4) {
-        case 0:
-            return std::bind(CheckBuffDuration, std::placeholders::_1, std::placeholders::_2, 50);
-        case 1:
-            return std::bind(CheckSkillCooldown, std::placeholders::_1, std::placeholders::_2, 0);
+        case 0: return std::bind(CheckBuffDuration, std::placeholders::_1, std::placeholders::_2, 50);
+        case 1: return std::bind(CheckSkillCooldown, std::placeholders::_1, std::placeholders::_2, 0);
         case 2: return std::bind(CheckManaLevel, std::placeholders::_1, std::placeholders::_2, 30);
         case 3: return std::bind(CheckLifeLevel, std::placeholders::_1, std::placeholders::_2, 20);
     }
@@ -73,10 +71,7 @@ private:
 public:
     BuffCondition(int duration) : _duration(duration) { }
 
-    bool Evaluate(const Player *player, const Targets *) const override final
-    {
-        return player->buff_duration > _duration;
-    }
+    bool Evaluate(const Player *player, const Targets *) const final { return player->buff_duration > _duration; }
 };
 
 class CooldownCondition : public Condition
@@ -87,10 +82,7 @@ private:
 public:
     CooldownCondition(int cooldown) : _cooldown(cooldown) { }
 
-    bool Evaluate(const Player *player, const Targets *) const override final
-    {
-        return player->skill_cooldown <= _cooldown;
-    }
+    bool Evaluate(const Player *player, const Targets *) const final { return player->skill_cooldown <= _cooldown; }
 };
 
 class ManaCondition : public Condition
@@ -101,10 +93,7 @@ private:
 public:
     ManaCondition(int mana) : _mana(mana) { }
 
-    bool Evaluate(const Player *player, const Targets *) const override final
-    {
-        return player->mana >= _mana;
-    }
+    bool Evaluate(const Player *player, const Targets *) const final { return player->mana >= _mana; }
 };
 
 class LifeCondition : public Condition
@@ -115,10 +104,7 @@ private:
 public:
     LifeCondition(int life) : _life(life) { }
 
-    bool Evaluate(const Player *player, const Targets *) const override final
-    {
-        return player->life > _life;
-    }
+    bool Evaluate(const Player *player, const Targets *) const final { return player->life > _life; }
 };
 
 std::unique_ptr<Condition> CreateRandomCondition()
@@ -141,10 +127,7 @@ private:
 public:
     BuffConditionProxy(int duration) : _duration(duration) { }
 
-    bool Evaluate(const Player *player, const Targets *) const
-    {
-        return player->buff_duration > _duration;
-    }
+    bool Evaluate(const Player *player, const Targets *) const { return player->buff_duration > _duration; }
 };
 
 class CooldownConditionProxy
@@ -156,10 +139,7 @@ private:
 public:
     CooldownConditionProxy(int id, int cooldown) : _id(id), _cooldown(cooldown) { }
 
-    bool Evaluate(const Player *player, const Targets *) const
-    {
-        return player->skill_cooldown <= _cooldown;
-    }
+    bool Evaluate(const Player *player, const Targets *) const { return player->skill_cooldown <= _cooldown; }
 };
 
 class ManaConditionProxy
@@ -189,8 +169,7 @@ namespace spec {
 
 PRO_DEF_MEM_DISPATCH(MemEvaluate, Evaluate);
 
-struct Evaluatable :
-    pro::facade_builder::add_convention<MemEvaluate, bool(const Player *, const Targets *) const>::build
+struct Evaluatable : pro::facade_builder::add_convention<MemEvaluate, bool(const Player *, const Targets *) const>::build
 {
 };
 
@@ -209,17 +188,17 @@ auto CreateRandomProxyCondition()
 
 static void BM_Bind(benchmark::State &state)
 {
-    Player                     player;
-    Targets                    targets;
+    const Player               PLAYER;
+    const Targets              TARGETS;
     std::vector<ConditionFunc> conditions;
     for (int i = 0; i < 4; ++i) {
         conditions.push_back(CreateRandomBindCondition());
     }
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
         bool result = true;
         for (const auto &condition : conditions) {
-            result &= condition(&player, &targets);
+            result &= condition(&PLAYER, &TARGETS);
         }
         benchmark::DoNotOptimize(result);
     }
@@ -227,17 +206,17 @@ static void BM_Bind(benchmark::State &state)
 
 static void BM_Virtual(benchmark::State &state)
 {
-    Player                                  player;
-    Targets                                 targets;
+    const Player                            PLAYER;
+    const Targets                           TARGETS;
     std::vector<std::unique_ptr<Condition>> conditions;
     for (int i = 0; i < 4; ++i) {
         conditions.push_back(CreateRandomCondition());
     }
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
         bool result = true;
         for (const auto &condition : conditions) {
-            result &= condition->Evaluate(&player, &targets);
+            result &= condition->Evaluate(&PLAYER, &TARGETS);
         }
         benchmark::DoNotOptimize(result);
     }
@@ -245,17 +224,17 @@ static void BM_Virtual(benchmark::State &state)
 
 static void BM_Proxy(benchmark::State &state)
 {
-    Player                                              player;
-    Targets                                             targets;
+    const Player                                        PLAYER;
+    const Targets                                       TARGETS;
     std::vector<decltype(CreateRandomProxyCondition())> conditions;
     for (int i = 0; i < 4; ++i) {
         conditions.push_back(CreateRandomProxyCondition());
     }
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
         bool result = true;
         for (const auto &condition : conditions) {
-            result &= condition->Evaluate(&player, &targets);
+            result &= condition->Evaluate(&PLAYER, &TARGETS);
         }
         benchmark::DoNotOptimize(result);
     }

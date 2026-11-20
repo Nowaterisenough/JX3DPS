@@ -1,10 +1,11 @@
 #ifndef PLAYER_STATE_PANEL_H
 #define PLAYER_STATE_PANEL_H
 
-#include <QWidget>
 #include <memory>
 
-#if defined(PlayerStatePanel_EXPORTS)
+#include <QWidget>
+
+#ifdef PlayerStatePanel_EXPORTS
 #    define PLAYER_STATE_PANEL_API Q_DECL_EXPORT
 #else
 #    define PLAYER_STATE_PANEL_API Q_DECL_IMPORT
@@ -23,22 +24,23 @@ class PLAYER_STATE_PANEL_API PlayerStatePanel : public QWidget
     Q_OBJECT
 
 public:
-    struct PlayerState {
-        double lifePercent;
-        double manaPercent;
-        int qidian;
-        int rage;
-        int energy;
-        int targetId;
-        double targetLifePercent;
-        int currentFrame;
-        double currentSeconds;
+    struct PlayerState
+    {
+        double  lifePercent;
+        double  manaPercent;
+        int     qidian;
+        int     rage;
+        int     energy;
+        int     targetId;
+        double  targetLifePercent;
+        int     currentFrame;
+        double  currentSeconds;
         QString currentMacro;
         QString lastSkill;
     };
 
     explicit PlayerStatePanel(QWidget *parent = nullptr);
-    ~PlayerStatePanel();
+    ~PlayerStatePanel() override;
 
     void UpdateState(const PlayerState &state);
     void SetCursorTime(int frame, double seconds);

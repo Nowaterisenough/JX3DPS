@@ -3351,6 +3351,30 @@ private slots:
         QVERIFY(editor.extraSelections().size() <= 1002);
     }
 
+    void builtinMacroCheckerAndCustomValidator()
+    {
+        CodeEditor editor;
+        editor.setPlainText(QStringLiteral("/unknown"));
+        editor.SetSyntaxCheckEnabled(true);
+        QCOMPARE(editor.GetSyntaxErrors().size(), 1);
+        QCOMPARE(editor.GetSyntaxErrors().front().severity, SyntaxError::SYNTAX_ERROR);
+
+        editor.SetSyntaxType(CodeEditor::J_X3_MACRO);
+        editor.SetSyntaxValidator([](const QString &source) {
+            return QList<SyntaxError>{ SyntaxError(1, 0, source.size(), SyntaxError::WARNING, QStringLiteral("custom")) };
+        });
+        QCOMPARE(editor.GetSyntaxErrors().front().message, QStringLiteral("custom"));
+        editor.SetSyntaxType(CodeEditor::CPP);
+        QCOMPARE(editor.GetSyntaxErrors().front().severity, SyntaxError::WARNING);
+        editor.SetSyntaxValidator({});
+        editor.SetSyntaxCheckEnabled(false);
+        editor.SetSyntaxCheckEnabled(true);
+        QVERIFY(editor.GetSyntaxErrors().isEmpty());
+        editor.SetSyntaxType(CodeEditor::J_X3_MACRO);
+        QCOMPARE(editor.GetSyntaxErrors().size(), 1);
+        QCOMPARE(editor.GetSyntaxErrors().front().severity, SyntaxError::SYNTAX_ERROR);
+    }
+
     void workbenchEditorTools()
     {
         Workbench window;

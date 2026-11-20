@@ -10,7 +10,6 @@
 
 class CodeEditorPrivate;
 class LineNumberArea;
-class SyntaxChecker;
 
 /**
  * @brief 语法错误信息
@@ -241,26 +240,6 @@ private:
 };
 
 /**
- * @brief 语法检测器基类
- */
-class SyntaxChecker : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit SyntaxChecker(QObject *parent = nullptr) : QObject(parent) { }
-
-    ~SyntaxChecker() override = default;
-
-    /**
-     * @brief 检测文档中的语法错误
-     * @param document 要检测的文档
-     * @return 语法错误列表
-     */
-    virtual QList<SyntaxError> Check(QTextDocument *document) = 0;
-};
-
-/**
  * @brief JX3宏语法检测器
  *
  * 检测规则：
@@ -270,13 +249,10 @@ public:
  * 4. 缺失的参数
  * 5. 不匹配的方括号
  */
-class JX3MacroSyntaxChecker : public SyntaxChecker
+class JX3MacroSyntaxChecker
 {
-    Q_OBJECT
-
 public:
-    explicit JX3MacroSyntaxChecker(QObject *parent = nullptr);
-    QList<SyntaxError> Check(QTextDocument *document) override;
+    QList<SyntaxError> Check(QTextDocument *document);
 
 private:
     // 检测单行命令

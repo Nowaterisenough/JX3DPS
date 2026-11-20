@@ -216,11 +216,12 @@ of the performance gain.
 
 ## Reproduce
 
-The standalone option avoids the unfinished develop application and its empty
-worktree submodules. It adds no third-party dependency.
+The standalone option builds the native engine, CLI and runtime tests. The
+engine uses the headers from the pinned JSON submodule.
 
 ```powershell
 $env:PATH = 'C:\msys64\ucrt64\bin;' + $env:PATH
+git submodule update --init 3rd/json
 cmake -S . -B build-runtime-verified -G Ninja `
   -DCMAKE_CXX_COMPILER=C:/msys64/ucrt64/bin/clang++.exe `
   -DCMAKE_BUILD_TYPE=Release -DJX3DPS_RUNTIME_ONLY=ON

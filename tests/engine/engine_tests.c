@@ -23,6 +23,13 @@ int main(void)
     CHECK(jx3dps_completed(a) == 128 && jx3dps_completed(b) == 0);
     CHECK(strstr(jx3dps_call(a, "{\"op\":\"next\"}"), "\"checksum\""));
     CHECK(strstr(jx3dps_call(a, "{\"op\":\"next\"}"), "\"error\""));
+    const char *debug_start = "{\"op\":\"start\",\"scenario\":\"mw\",\"seconds\":5,\"iterations\":1,\"seed\":\"42\","
+                              "\"macro\":\"/cast gong\",\"debug\":true,\"breakpoints\":[]}";
+    CHECK(strstr(jx3dps_call(b, start), "\"completed\":0"));
+    CHECK(strstr(jx3dps_call(b, debug_start), "\"finished\":false"));
+    CHECK(strstr(jx3dps_call(b, "{\"op\":\"debug\",\"action\":\"continue\"}"), "\"finished\":true"));
+    CHECK(strstr(jx3dps_call(b, start), "\"completed\":0"));
+    CHECK(strstr(jx3dps_call(b, "{\"op\":\"next\"}"), "\"completed\":128"));
     jx3dps_destroy(a);
     jx3dps_destroy(b);
     return 0;

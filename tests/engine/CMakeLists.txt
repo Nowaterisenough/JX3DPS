@@ -1,0 +1,6 @@
+add_executable(engine_tests engine_tests.c)
+target_link_libraries(engine_tests PRIVATE JX3DPS)
+add_test(NAME engine_sessions COMMAND engine_tests)
+add_executable(example_api ../../example/example_api.c)
+target_link_libraries(example_api PRIVATE JX3DPS)
+add_test(NAME engine_example COMMAND example_api)

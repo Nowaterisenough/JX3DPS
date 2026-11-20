@@ -2,26 +2,14 @@
 
 ## Status
 
-The new runtime is an independently buildable, tested foundation in
-`src/core/runtime/`. It is not yet the production Tai Xu Jian Yi simulator.
-`tests/runtime/fixture_rules.hpp` contains a deliberately synthetic ruleset.
-No game coefficients or complete talent behavior are claimed for that fixture.
+The desktop, CLI and Web applications use the C++ simulation runtime in
+`src/core/runtime/`, with school-specific catalogs and rules in
+`src/class/tai_xu_jian_yi/` and `src/class/mo_wen/`. The session-based
+C ABI is defined in `include/jx3dps.h` and implemented in `src/engine/`.
+The earlier global-state C API and separate Tai Xu simulator have been retired.
 
-The first actual Tai Xu rules adapter is now implemented in
-`src/class/tai_xu_jian_yi/runtime_rules.hpp`, with a standalone CLI and pinned
-legacy arithmetic tests. It covers twelve castable skills, three-instance field
-ownership and explosions, PoZhao/DieRen/ChiYing/RenJian DOT, JianRu and the
-three YunZhongJian periodic effects, JingHuaYing's triggered preparation, plus
-nineteen selected talent hooks.
-See `tai_xu_runtime_migration.md` for exact
-coverage, supported inputs, preserved quirks, debugger commands and limitations.
-It does not yet replace full production simulation.
-
-The earlier C API experiment used an always-successful action callback. That
-experiment has been removed: `src/jx3dps.cpp` remains at the develop baseline.
-Its existing debugger is still incomplete. Core debugger/engine integration is
-verified using real state-changing test rules, not fake successful casts.
-Connecting the C API and Qt UI awaits a verified game-rules adapter.
+The following sections describe the original migration and its verification.
+See `engine_api.md` for the current application interfaces.
 
 ## Three stages, not just compile time versus runtime
 

@@ -1,5 +1,1 @@
-add_subdirectory(test_jx3dps)
-add_subdirectory(test_thread_pool)
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/TestUI/CMakeLists.txt")
-    add_subdirectory(TestUI)
-endif()
+add_subdirectory(engine)

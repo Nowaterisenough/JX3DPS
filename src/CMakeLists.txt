@@ -1,17 +1,32 @@
-# JX3DPS Source CMakeLists
-
-# 收集所有源文件
-file(GLOB_RECURSE JX3DPS_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
-)
-
-# 收集所有头文件
-file(GLOB_RECURSE JX3DPS_HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-)
-
-# 将源文件添加到父作用域
-set(JX3DPS_SOURCES ${JX3DPS_SOURCES} PARENT_SCOPE)
-set(JX3DPS_HEADERS ${JX3DPS_HEADERS} PARENT_SCOPE)
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/3rd/json/single_include/nlohmann/json.hpp")
+    message(FATAL_ERROR "Initialize the engine dependency with: git submodule update --init 3rd/json")
+endif()
+if(JX3DPS_SHARED_ENGINE AND NOT EMSCRIPTEN)
+    add_library(JX3DPS SHARED engine/engine.cpp)
+    target_compile_definitions(JX3DPS PUBLIC JX3DPS_SHARED PRIVATE JX3DPS_BUILD)
+    set_target_properties(JX3DPS PROPERTIES CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN YES)
+else()
+    add_library(JX3DPS STATIC engine/engine.cpp)
+endif()
+target_link_libraries(JX3DPS PRIVATE jx3dps_runtime_core)
+target_include_directories(JX3DPS PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:include>" PRIVATE "${PROJECT_SOURCE_DIR}/3rd/json/single_include")
+target_compile_features(JX3DPS PRIVATE cxx_std_23)
+if(EMSCRIPTEN)
+    target_compile_options(JX3DPS PRIVATE -fexceptions)
+else()
+    add_library(jx3dps_engine_client STATIC engine/client.cpp)
+    target_link_libraries(jx3dps_engine_client PUBLIC JX3DPS jx3dps_runtime_core)
+    target_include_directories(jx3dps_engine_client PRIVATE "${PROJECT_SOURCE_DIR}/3rd/json/single_include")
+    target_compile_features(jx3dps_engine_client PRIVATE cxx_std_23)
+    if(MSVC)
+        target_compile_options(jx3dps_engine_client PRIVATE /utf-8)
+    endif()
+    find_package(Threads REQUIRED)
+    target_link_libraries(JX3DPS PRIVATE Threads::Threads)
+    install(TARGETS JX3DPS ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin)
+    install(FILES "${PROJECT_SOURCE_DIR}/include/jx3dps.h" DESTINATION include)
+endif()
+if(MSVC)
+    target_compile_options(JX3DPS PRIVATE /utf-8)
+endif()

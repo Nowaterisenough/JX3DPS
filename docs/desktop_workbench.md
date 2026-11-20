@@ -229,7 +229,7 @@ Windows 本机（在主项目目录执行）：
 $env:PATH = 'C:\msys64\ucrt64\bin;' + $env:PATH
 $env:QT_QPA_PLATFORM_PLUGIN_PATH = 'C:\msys64\ucrt64\share\qt6\plugins\platforms'
 cmake -S . -B build -DBUILD_APP=ON -DBUILD_TESTS=ON -DBUILD_PERFORMANCE=OFF -DJX3DPS_DESKTOP_TESTS=ON
-cmake --build build --target JX3DPSDesktop desktop_tests test_jx3dps -j 4
+cmake --build build --target JX3DPSDesktop desktop_tests engine_tests -j 4
 ctest --test-dir build --output-on-failure -R '^(desktop_tests$|JX3DPS\.)'
 ```
 

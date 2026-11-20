@@ -1,7 +1,6 @@
 [CmdletBinding()]
 param(
     [string]$Output = "data/jx3box/tai_xu_jian_yi_latest.json",
-    [string]$Header = "src/class/tai_xu_jian_yi/tai_xu_jian_yi_live_data.h",
     [switch]$SkipNetwork
 )
 
@@ -43,13 +42,6 @@ function Get-AllItemRecords([string]$BaseUrl) {
         $rows += @($next.data.data)
     }
     return @($rows)
-}
-
-function Cpp-String([object]$Value) {
-    if ($null -eq $Value) { return '""' }
-    $text = [string]$Value
-    $text = $text.Replace('\', '\\').Replace('"', '\"').Replace("`r", '\r').Replace("`n", '\n')
-    return '"' + $text + '"'
 }
 
 function Icon-Id([object]$Icon) {
@@ -140,73 +132,7 @@ function Normalize-Snapshot($Snapshot) {
     return $Snapshot
 }
 
-function Generate-LiveHeader($Snapshot, [string]$Path) {
-    $skills = @()
-    foreach ($remark in @($Snapshot.skill.remarks)) { $skills += @($remark.forceSkills) }
-    $talents = @($Snapshot.talent.kungfuLevel | ForEach-Object { $_.kungfuSkills })
-    $recipes = @()
-    foreach ($skill in $skills) {
-        foreach ($recipe in @($skill.cheasts)) {
-            if ($recipe.name) {
-                $recipes += [pscustomobject]@{
-                    name = $recipe.name
-                    desc = $recipe.desc
-                    icon = (Icon-Id $skill.icon.FileName)
-                }
-            }
-        }
-    }
-    $recipes = @($recipes | Group-Object name | ForEach-Object { $_.Group[0] })
-    $items = @(Get-FirstArray $Snapshot.equipment_catalog)
 
-    $lines = [Collections.Generic.List[string]]::new()
-    $lines.Add('#ifndef JX3DPS_CLASS_TAI_XU_JIAN_YI_LIVE_DATA_H')
-    $lines.Add('#define JX3DPS_CLASS_TAI_XU_JIAN_YI_LIVE_DATA_H')
-    $lines.Add('')
-    $lines.Add('#include <array>')
-    $lines.Add('#include "src/global/types.h"')
-    $lines.Add('')
-    $lines.Add('namespace JX3DPS::太虚剑意::LiveData {')
-    $lines.Add('struct SkillInfo { jx3id_t id; int icon; const char *name; const char *description; };')
-    $lines.Add('struct TalentInfo { int tier; jx3id_t id; int icon; const char *name; const char *description; };')
-    $lines.Add('struct RecipeInfo { int icon; const char *name; const char *description; };')
-    $lines.Add('struct EquipmentInfo { jx3id_t id; int icon; int level; int quality; const char *slot; const char *name; const char *set_name; };')
-    $lines.Add("inline constexpr std::array<SkillInfo, $($skills.Count)> SKILLS = {{")
-    foreach ($skill in $skills) {
-        $id = [int]$skill._id
-        $icon = Icon-Id $skill.icon.FileName
-        $lines.Add("    { $id, $icon, $(Cpp-String $skill.skillName), $(Cpp-String $skill.desc) },")
-    }
-    $lines.Add('}};')
-    $lines.Add("inline constexpr std::array<TalentInfo, $($talents.Count)> TALENTS = {{")
-    foreach ($talent in $talents) {
-        $id = [int]$talent.skill_id
-        $icon = Icon-Id $talent.icon.FileName
-        $lines.Add("    { $([int]$talent.level), $id, $icon, $(Cpp-String $talent.name), $(Cpp-String $talent.desc) },")
-    }
-    $lines.Add('}};')
-    $lines.Add("inline constexpr std::array<RecipeInfo, $($recipes.Count)> RECIPES = {{")
-    foreach ($recipe in $recipes) {
-        $lines.Add("    { $([int]$recipe.icon), $(Cpp-String $recipe.name), $(Cpp-String $recipe.desc) },")
-    }
-    $lines.Add('}};')
-    $lines.Add("inline constexpr std::array<EquipmentInfo, $($items.Count)> EQUIPMENT = {{")
-    foreach ($item in $items) {
-        $id = if ($item.source_id) { [int]$item.source_id } else { 0 }
-        $icon = if ($item.icon_id) { [int]$item.icon_id } else { 0 }
-        $setName = if ($item.set -and $item.set.name) { $item.set.name } else { '' }
-        $slot = if ($item.type) { $item.type } else { '' }
-        $lines.Add("    { $id, $icon, $([int]$item.level), $([int]$item.quality), $(Cpp-String $slot), $(Cpp-String $item.name), $(Cpp-String $setName) },")
-    }
-    $lines.Add('}};')
-    $lines.Add('} // namespace JX3DPS::太虚剑意::LiveData')
-    $lines.Add('')
-    $lines.Add('#endif // JX3DPS_CLASS_TAI_XU_JIAN_YI_LIVE_DATA_H')
-
-    $parent = Split-Path -Parent $Path
-    if ($parent) { New-Item -ItemType Directory -Force $parent | Out-Null }
-    [IO.File]::WriteAllLines((Join-Path (Get-Location) $Path), $lines, $utf8)
-}
 
 $skillUrl = "https://data.jx3box.com/bps/std/4/skill.json"
 $talentUrl = "https://data.jx3box.com/bps/std/4/talent.json"
@@ -257,6 +183,4 @@ $recipes = @($recipes | Group-Object name | ForEach-Object { $_.Group[0] })
 Set-SnapshotProperty $snapshot "recipe_catalog" @($recipes)
 Write-Utf8Json $snapshot $Output
 
-Generate-LiveHeader $snapshot $Header
 Write-Host "已同步魔盒数据：$Output"
-Write-Host "已生成编译期快照头文件：$Header"

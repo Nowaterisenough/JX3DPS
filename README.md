@@ -19,6 +19,18 @@
 [issues-badge]: https://img.shields.io/badge/github-issues-red.svg?maxAge=60 "Issues"
 
 
+## 代码与入口
+
+| 目录 | 职责 |
+|---|---|
+| `include/jx3dps.h`、`src/engine/` | 会话式 C ABI、配置解析和批次结果 |
+| `src/core/runtime/` | 宏编译、模拟、事件队列、记录、批跑与属性收益 |
+| `src/class/{tai_xu_jian_yi,mo_wen}/` | 两种心法的 `skills.hpp` 技能与 Buff 目录、`runtime_data.hpp` 配置及系数、`runtime_rules.hpp` 战斗行为 |
+| `apps/desktop/`、`apps/cli/`、`apps/web/` | Qt 工作台、命令行和浏览器工作台 |
+| `tests/engine/`、`tests/runtime/`、`tests/desktop/` | C 客户端、战斗内核和桌面集成回归 |
+
+Web 版在浏览器 Worker 内执行相同的 C++ 引擎。用 Emscripten 构建后可直接部署静态文件。[Web 构建与使用](apps/web/README.md) · [引擎接口](docs/engine_api.md)
+
 ## For Developer
 1. git代码仓
 ```git

@@ -22,14 +22,14 @@ struct ProfileSummary
     std::vector<Worker>                                                 workers;
     uint64_t                                                            fights = 0, samplePoints = 0;
     double                                                              workerMs = 0;
-    std::array<double, static_cast<size_t>(runtime::FightPhase::Count)> phaseUs{};
+    std::array<double, static_cast<size_t>(runtime::FightPhase::COUNT)> phaseUs{};
 };
 
 inline ProfileSummary Summarize(const runtime::BatchProfile &profile)
 {
     ProfileSummary                           report;
     runtime::CallTree                        merged;
-    decltype(runtime::WorkerProfile::phases) phaseHits{};
+    decltype(runtime::WorkerProfile::phases) phase_hits{};
     for (const auto &worker : profile.workers) {
         if (worker.error) {
             std::rethrow_exception(worker.error);
@@ -37,15 +37,15 @@ inline ProfileSummary Summarize(const runtime::BatchProfile &profile)
         std::vector<std::uint32_t> ids(worker.calls.nodes.size());
         for (std::size_t i = 0; i < ids.size(); ++i) {
             const auto &node = worker.calls.nodes[i];
-            if (i) {
+            if (i != 0u) {
                 ids[i] = merged.Child(ids[node.parent], node.function);
             }
             merged.nodes[ids[i]].self += node.self;
         }
         uint64_t points = 0;
-        for (std::size_t i = 0; i < phaseHits.size(); ++i) {
-            phaseHits[i] += worker.phases[i];
-            points       += worker.phases[i];
+        for (std::size_t i = 0; i < phase_hits.size(); ++i) {
+            phase_hits[i] += worker.phases[i];
+            points        += worker.phases[i];
         }
         report.samplePoints += points;
         report.workers.push_back({ worker.fights, points });
@@ -58,10 +58,10 @@ inline ProfileSummary Summarize(const runtime::BatchProfile &profile)
     for (size_t i = report.calls.size() - 1; i > 0; --i) {
         report.calls[report.calls[i].parent].inclusive += report.calls[i].inclusive;
     }
-    if (report.fights && report.samplePoints) {
-        const auto usPerPoint = report.workerMs * 1000.0 / report.fights / report.samplePoints;
-        for (std::size_t i = 0; i < phaseHits.size(); ++i) {
-            report.phaseUs[i] = usPerPoint * phaseHits[i];
+    if ((report.fights != 0u) && (report.samplePoints != 0u)) {
+        const auto US_PER_POINT = report.workerMs * 1000.0 / report.fights / report.samplePoints;
+        for (std::size_t i = 0; i < phase_hits.size(); ++i) {
+            report.phaseUs[i] = US_PER_POINT * phase_hits[i];
         }
     }
     return report;

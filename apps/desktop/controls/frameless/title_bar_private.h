@@ -7,7 +7,6 @@
 class QMenu;
 class QToolButton;
 
-
 class TitleBar;
 
 class TitleBarPrivate
@@ -25,11 +24,11 @@ public:
 
     void UpdateLayout(const std::vector<int> &ids);
 
-    void AddWidgetIfExists(int id, const QMap<int, QPair<int, Qt::Alignment>> &stretchAlignmentInfo);
+    void AddWidgetIfExists(int id, const QMap<int, QPair<int, Qt::Alignment>> &stretch_alignment_info);
 
     QBoxLayout          *layout;
     QMap<int, QWidget *> widgets;
-    QWidget             *hostWidget;
+    QWidget             *hostWidget{ nullptr };
     bool                 autoTitle = true;
     bool                 autoIcon  = true;
 
@@ -37,6 +36,5 @@ private:
     TitleBar *q_ptr;
     Q_DECLARE_PUBLIC(TitleBar)
 };
-
 
 #endif // TFA_WINDOW_BAR_PRIVATE_H

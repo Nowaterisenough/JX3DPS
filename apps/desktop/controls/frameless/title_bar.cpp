@@ -1,5 +1,7 @@
 #include "title_bar.h"
 
+#include <vector>
+
 #include <QEvent>
 #include <QLabel>
 #include <QMenu>
@@ -7,10 +9,9 @@
 
 #include "title_bar_private.h"
 
-
 TitleBar::TitleBar(QWidget *parent) : QFrame(parent), d_ptr(new TitleBarPrivate(this)) { }
 
-TitleBar::~TitleBar() { }
+TitleBar::~TitleBar() = default;
 
 void TitleBar::AddWidget(int id, QWidget *widget, int stretch, Qt::Alignment alignment)
 {
@@ -45,11 +46,11 @@ void TitleBar::SetToolButton(int id, QToolButton *button)
 void TitleBar::SetHostWidget(QWidget *w)
 {
     Q_D(TitleBar);
-    if (d->hostWidget) {
+    if (d->hostWidget != nullptr) {
         d->hostWidget->removeEventFilter(this);
     }
     d->hostWidget = w;
-    if (w) {
+    if (w != nullptr) {
         w->installEventFilter(this);
     }
 }
@@ -97,16 +98,16 @@ bool TitleBar::eventFilter(QObject *obj, QEvent *event)
         switch (event->type()) {
             case QEvent::WindowIconChange:
                 if (d->autoIcon) {
-                    QLabel *icon = qobject_cast<QLabel *>(d->widgets[ICON]);
-                    if (icon) {
+                    auto *icon = qobject_cast<QLabel *>(d->widgets[ICON]);
+                    if (icon != nullptr) {
                         icon->setPixmap(d->hostWidget->windowIcon().pixmap(16, 16));
                     }
                 }
                 break;
             case QEvent::WindowTitleChange:
                 if (d->autoTitle) {
-                    QLabel *title = qobject_cast<QLabel *>(d->widgets[TITLE]);
-                    if (title) {
+                    auto *title = qobject_cast<QLabel *>(d->widgets[TITLE]);
+                    if (title != nullptr) {
                         title->setText(d->hostWidget->windowTitle());
                     }
                 }
@@ -117,9 +118,7 @@ bool TitleBar::eventFilter(QObject *obj, QEvent *event)
     return QFrame::eventFilter(obj, event);
 }
 
-TitleBarPrivate::TitleBarPrivate(TitleBar *q) :
-    layout(new QBoxLayout(QBoxLayout::LeftToRight, q)), widgets(), hostWidget(nullptr), autoTitle(true), autoIcon(true),
-    q_ptr(q)
+TitleBarPrivate::TitleBarPrivate(TitleBar *q) : layout(new QBoxLayout(QBoxLayout::LeftToRight, q)), q_ptr(q)
 {
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -154,7 +153,7 @@ QWidget *TitleBarPrivate::Widget(int id) const
 
 void TitleBarPrivate::SetMenu(int id, QMenu *menu)
 {
-    QToolButton *button = new QToolButton();
+    auto *button = new QToolButton();
     button->setMenu(menu);
     button->setPopupMode(QToolButton::InstantPopup);
     AddWidget(id, button, 0, Qt::AlignLeft);
@@ -168,41 +167,41 @@ void TitleBarPrivate::SetToolButton(int id, QToolButton *button)
 void TitleBarPrivate::UpdateLayout(const std::vector<int> &types)
 {
     // 创建一个临时map来存储原有的stretch和alignment信息
-    QMap<int, QPair<int, Qt::Alignment>> stretchAlignmentInfo;
+    QMap<int, QPair<int, Qt::Alignment>> stretch_alignment_info;
 
     // 保存原有的stretch和alignment信息
     for (int i = 0; i < layout->count(); ++i) {
-        QLayoutItem *item = layout->itemAt(i);
-        if (item->widget()) {
-            int id = widgets.key(item->widget(), -1);
-            if (id != -1) {
-                stretchAlignmentInfo[id] = qMakePair(layout->stretch(i), item->alignment());
+        const QLayoutItem *item = layout->itemAt(i);
+        if (item->widget() != nullptr) {
+            const int ID = widgets.key(item->widget(), -1);
+            if (ID != -1) {
+                stretch_alignment_info[ID] = qMakePair(layout->stretch(i), item->alignment());
             }
         }
     }
 
     // 清空现有布局
-    QLayoutItem *item;
+    const QLayoutItem *item = nullptr;
     while ((item = layout->takeAt(0)) != nullptr) {
         delete item;
     }
 
     // 添加控件，保留原有的stretch和alignment
-    for (int type : types) {
+    for (const int type : types) {
         if (type == static_cast<int>(TitleBar::SPACER_ITEM)) {
             layout->addItem(new QSpacerItem(5, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
         } else {
-            AddWidgetIfExists(type, stretchAlignmentInfo);
+            AddWidgetIfExists(type, stretch_alignment_info);
         }
     }
 }
 
-void TitleBarPrivate::AddWidgetIfExists(int id, const QMap<int, QPair<int, Qt::Alignment>> &stretchAlignmentInfo)
+void TitleBarPrivate::AddWidgetIfExists(int id, const QMap<int, QPair<int, Qt::Alignment>> &stretch_alignment_info)
 {
     if (widgets.contains(id)) {
         QWidget *widget = widgets[id];
-        if (stretchAlignmentInfo.contains(id)) {
-            const auto &info = stretchAlignmentInfo[id];
+        if (stretch_alignment_info.contains(id)) {
+            const auto &info = stretch_alignment_info[id];
             layout->addWidget(widget, info.first, info.second);
         } else {
             layout->addWidget(widget);

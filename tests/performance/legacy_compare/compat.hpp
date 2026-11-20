@@ -8,5 +8,5 @@
 #include <string>
 #include <vector>
 #ifdef LEGACY_DRAW_RECORD
-#include "legacy_draw_record.hpp"
+#    include "legacy_draw_record.hpp"
 #endif

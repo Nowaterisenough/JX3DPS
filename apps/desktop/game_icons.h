@@ -37,9 +37,10 @@ protected:
 class IconComboBox : public QComboBox
 {
 public:
-    explicit IconComboBox(const QString &category, QWidget *parent = nullptr, bool hasEmptyChoice = true);
+    explicit IconComboBox(const QString &category, QWidget *parent = nullptr, bool has_empty_choice = true);
 
-    QSize sizeHint() const override {
+    QSize sizeHint() const override
+    {
         const int extent = m_hasEmptyChoice ? 44 : 38;
         return { extent, extent };
     }
@@ -48,6 +49,7 @@ public:
 
     void showPopup() override;
     void hidePopup() override;
+
     QListView *choiceView() const { return m_choices; }
 
 protected:
@@ -58,9 +60,9 @@ protected:
 
 private:
     ChoicePopup *m_popup;
-    QListView *m_choices;
-    bool m_hasEmptyChoice;
-    void AcceptChoice();
+    QListView   *m_choices;
+    bool         m_hasEmptyChoice;
+    void         AcceptChoice();
 };
 } // namespace desktop
 #endif

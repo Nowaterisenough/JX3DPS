@@ -12,6 +12,7 @@ different Git builds.
 
 ```powershell
 $benchmarkGit = (Get-Command git).Source
+& $benchmarkGit submodule update --init 3rd/bqlog
 $env:Path = 'C:\msys64\ucrt64\bin;' + $env:Path
 cmake -S tests/performance/legacy_compare -B build-legacy-compare -G Ninja `
   -DCMAKE_BUILD_TYPE=Release `
@@ -31,6 +32,10 @@ Windows schedule freely. Each executable itself is single-threaded. Never run
 compilation or another benchmark concurrently with measurement.
 
 ## Scope
+
+The legacy executables use BqLog. A private include adapter forwards the pinned
+source's debug, info and error calls. The benchmark disables console output
+before each run so stdout contains only the JSON result.
 
 - Each fight lasts 300 seconds / 4,800 frames, with zero configured input delay,
   one stationary level-124 target, shield 30,000, distance 4, full life.

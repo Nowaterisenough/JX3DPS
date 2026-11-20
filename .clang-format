@@ -244,7 +244,7 @@ IncludeCategories:
     Priority: 4
     SortPriority: 4
     CaseSensitive: true
-  - Regex: "^<[a-z]|spdlog|opencv.*>"
+  - Regex: "^<[a-z]|opencv.*>"
     Priority: 5
     SortPriority: 5
     CaseSensitive: true

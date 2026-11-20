@@ -1,10 +1,10 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
 
-#include <QWidget>
-#include <QVector>
 #include <QColor>
 #include <QPixmap>
+#include <QVector>
+#include <QWidget>
 
 class TimelinePrivate;
 
@@ -27,30 +27,33 @@ public:
     ~Timeline() override;
 
     // 事件项数据结构
-    struct EventItem {
-        double timestamp;   // 时间戳（毫秒），保留 62.5 毫秒的逻辑帧精度
-        QString name;       // 技能名称
-        QPixmap icon;       // 技能图标
-        QColor color;       // 颜色标记
-        qint64 damage;      // 伤害值
-        int rollResult;     // 会心结果 (0=未命中, 1=普通, 2=会心, 3=识破)
-        QString macroName;  // 所属宏名称
-        QColor macroColor;  // 宏的颜色标记
+    struct EventItem
+    {
+        double  timestamp{};  // 时间戳（毫秒），保留 62.5 毫秒的逻辑帧精度
+        QString name;         // 技能名称
+        QPixmap icon;         // 技能图标
+        QColor  color;        // 颜色标记
+        qint64  damage{};     // 伤害值
+        int     rollResult{}; // 会心结果 (0=未命中, 1=普通, 2=会心, 3=识破)
+        QString macroName;    // 所属宏名称
+        QColor  macroColor;   // 宏的颜色标记
     };
 
     // Buff覆盖区间数据结构
-    struct BuffSegment {
-        double startMs;     // 起始时间（毫秒）
-        double endMs;       // 结束时间（毫秒）
-        int stacks = 1;
+    struct BuffSegment
+    {
+        double startMs{}; // 起始时间（毫秒）
+        double endMs{};   // 结束时间（毫秒）
+        int    stacks = 1;
     };
 
     // Buff项数据结构
-    struct BuffItem {
-        QString name;                    // Buff名称
-        QPixmap icon;                    // Buff图标
-        QColor color;                    // 覆盖条颜色
-        QVector<BuffSegment> segments;   // 覆盖时间段列表
+    struct BuffItem
+    {
+        QString              name;     // Buff名称
+        QPixmap              icon;     // Buff图标
+        QColor               color;    // 覆盖条颜色
+        QVector<BuffSegment> segments; // 覆盖时间段列表
     };
 
     // 设置时间轴数据
@@ -66,7 +69,7 @@ public:
     void Clear();
 
     // 设置时间范围（毫秒）
-    void SetTimeRange(int startMs, int endMs);
+    void SetTimeRange(int start_ms, int end_ms);
 
     // 缩放控制
     void ZoomIn();
@@ -78,7 +81,7 @@ signals:
     void EventClicked(int index, const EventItem &item);
 
     // 时间范围改变（用户缩放或滚动）
-    void VisibleRangeChanged(int startMs, int endMs);
+    void VisibleRangeChanged(int start_ms, int end_ms);
     void CursorTimeChanged(double milliseconds);
     void CursorLeft();
 
@@ -94,7 +97,7 @@ protected:
 private:
     void SetupUI();
     void UpdateLayout();
-    int EventAt(const QPoint &position) const;
+    int  EventAt(const QPoint &position) const;
     void UpdateCursor(const QPoint &position);
 
     // Paint helpers (拆分自paintEvent)

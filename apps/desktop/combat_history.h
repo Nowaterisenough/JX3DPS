@@ -28,7 +28,7 @@ struct AttributeSample
 // Incremental, value-owned packets; no Qt GUI objects cross the worker boundary.
 struct HistoryChunk
 {
-    Specialization                 specialization = Specialization::TaiXu;
+    Specialization                 specialization = Specialization::TAI_XU;
     std::optional<rt::State>       initial;
     std::vector<rt::StateMutation> mutations;
     std::vector<AttributeSample>   attributes;
@@ -60,11 +60,11 @@ public:
 private:
     struct Checkpoint
     {
-        std::size_t count;
+        std::size_t count{};
         rt::State   state;
     };
 
-    Specialization                 m_specialization = Specialization::TaiXu;
+    Specialization                 m_specialization = Specialization::TAI_XU;
     int                            m_observed       = 0;
     bool                           m_finished       = false;
     rt::State                      m_tail;

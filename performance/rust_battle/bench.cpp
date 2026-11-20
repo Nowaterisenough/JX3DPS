@@ -1,16 +1,19 @@
-#include "observation.hpp"
 #include <windows.h>
 
 #include <chrono>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "src/class/mo_wen/runtime_rules.hpp"
 #include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
 #include "src/core/runtime/batch.hpp"
 
 #include "bridge.hpp"
+#include "observation.hpp"
 
 using namespace JX3DPS;
 using namespace JX3DPS::runtime;
@@ -110,18 +113,18 @@ public:
         state.Resize(prog.skill_count, prog.buff_count);
         initial = state;
         rules.Setup(*this);
-        for (auto &l : prog.lines) {
-            lines.push_back({ l.condition_begin, l.condition_count, IsSequential(l.command) });
+        for (const auto &l : prog.lines) {
+            lines.push_back({ l.condition_begin, l.condition_count, static_cast<uint8_t>(IsSequential(l.command)) });
         }
-        for (auto &c : prog.conditions) {
+        for (const auto &c : prog.conditions) {
             conditions.push_back({ c.value, c.on_true, c.on_false, static_cast<uint8_t>(c.comparator) });
         }
-        const bool        busy       = std::any_of(prog.lines.begin(), prog.lines.end(), Rules::MayActWhileBusy);
-        const bool        boundaries = std::any_of(prog.conditions.begin(), prog.conditions.end(), [](auto &c) {
-            return c.kind == ValueKind::SkillCooldown || c.kind == ValueKind::BuffDuration;
+        const bool        BUSY       = std::any_of(prog.lines.begin(), prog.lines.end(), Rules::MayActWhileBusy);
+        const bool        BOUNDARIES = std::any_of(prog.conditions.begin(), prog.conditions.end(), [](auto &c) {
+            return c.kind == ValueKind::SKILL_COOLDOWN || c.kind == ValueKind::BUFF_DURATION;
         });
-        const ProgramView view{ lines.data(), conditions.data(), lines.size(), conditions.size(), busy, boundaries };
-        port.driver = api.create(port.priorities.data(), port.priorities.size(), &view);
+        const ProgramView VIEW{ lines.data(), conditions.data(), lines.size(), conditions.size(), BUSY, BOUNDARIES };
+        port.driver = api.create(port.priorities.data(), port.priorities.size(), &VIEW);
     }
 
     ~SharedRulesEngine() { port.api.destroy(port.driver); }
@@ -145,9 +148,9 @@ public:
     {
         value_t total = 0;
         for (const auto &hit : log.Intents()) {
-            auto damage = rules.Reduce(hit);
-            observe(hit, damage);
-            total += damage;
+            const auto DAMAGE = rules.Reduce(hit);
+            observe(hit, DAMAGE);
+            total += DAMAGE;
         }
         return total;
     }
@@ -183,10 +186,12 @@ template <bool Trace, class Rules>
 void execute(const std::string &mode, const MacroProgram &prog, Rules rules, uint32_t n, unsigned threads, Audit &audit)
 {
     std::vector<Result> results(threads);
-    for (auto &result : results) result.skills.resize(prog.skill_count);
-    auto                worker = [&](unsigned w) {
-        auto &r = results[w];
-        auto loop = [&](auto &sim) {
+    for (auto &result : results) {
+        result.skills.resize(prog.skill_count);
+    }
+    const auto WORKER = [&](unsigned w) {
+        auto      &r    = results[w];
+        const auto LOOP = [&](auto &sim) {
             for (uint64_t i = uint64_t(n) * w / threads; i < uint64_t(n) * (w + 1) / threads; ++i) {
                 auto seed = IterationSeed(42, i);
                 if constexpr (Trace) {
@@ -198,9 +203,9 @@ void execute(const std::string &mode, const MacroProgram &prog, Rules rules, uin
                     sim.Start(4800, seed);
                     sim.Run();
                 }
-                auto damage =
+                const auto DAMAGE =
                     sim.TotalDamage([&](const DamageIntent &h, value_t d) { r.skills.at(h.skill).add(d, h.outcome); });
-                r.batch.Add(damage, i);
+                r.batch.Add(DAMAGE, i);
                 if constexpr (Trace) {
                     dump(sim, audit);
                 }
@@ -208,10 +213,10 @@ void execute(const std::string &mode, const MacroProgram &prog, Rules rules, uin
         };
         if (mode == "native") {
             Simulation<Rules> sim(prog, rules);
-            loop(sim);
+            LOOP(sim);
         } else {
             SharedRulesEngine<Rules> sim(prog, rules, mode == "rust" ? rust : control);
-            loop(sim);
+            LOOP(sim);
         }
     };
     const auto start = std::chrono::steady_clock::now();
@@ -219,21 +224,22 @@ void execute(const std::string &mode, const MacroProgram &prog, Rules rules, uin
     if (!Trace && mode == "native") {
         BatchOptions options;
         options.iterations = n;
-        options.seed = 42;
-        options.duration = 4800;
-        options.workers = threads;
+        options.seed       = 42;
+        options.duration   = 4800;
+        options.workers    = threads;
         BatchControl control;
-        auto reduce = [&](auto &sim, unsigned w) {
-            return sim.TotalDamage([&](const DamageIntent &h, value_t d) { results[w].skills.at(h.skill).add(d, h.outcome); });
+        const auto   REDUCE = [&](auto &sim, unsigned w) {
+            return sim.TotalDamage([&](const DamageIntent &h, value_t d) {
+                results[w].skills.at(h.skill).add(d, h.outcome);
+            });
         };
-        batch = detail::RunBatchImpl<true, false, detail::BatchAssignment::SharedBlocks>(
-            prog, options, rules, &control, reduce);
+        batch = detail::RunBatchImpl<true, false, detail::BatchAssignment::SHARED_BLOCKS>(prog, options, rules, &control, REDUCE);
     } else {
         std::vector<std::jthread> pool;
         for (unsigned w = 1; w < threads; ++w) {
-            pool.emplace_back(worker, w);
+            pool.emplace_back(WORKER, w);
         }
-        worker(0);
+        WORKER(0);
     }
     std::vector<Skill> merged(prog.skill_count);
     for (auto &r : results) {
@@ -245,12 +251,12 @@ void execute(const std::string &mode, const MacroProgram &prog, Rules rules, uin
             }
         }
     }
-    double sec = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
-    std::cout << sec << ' ' << batch.count << ' ' << batch.checksum;
+    const double SEC = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+    std::cout << SEC << ' ' << batch.count << ' ' << batch.checksum;
     for (auto &s : merged) {
         std::cout << ' ' << s.damage;
-        for (auto k : s.outcomes) {
-            std::cout << ',' << k;
+        for (const auto K : s.outcomes) {
+            std::cout << ',' << K;
         }
     }
     std::cout << '\n';
@@ -263,31 +269,33 @@ void scene(const Config &cfg, const CompileOptions &options, std::string macro, 
     if (!errors.empty()) {
         throw std::runtime_error(errors.front().message);
     }
-    auto  rules = LoadSpecialization(cfg);
-    Audit audit;
+    const auto RULES = LoadSpecialization(cfg);
+    Audit      audit;
     if (trace) {
         audit.stream.exceptions(std::ios::badbit | std::ios::failbit);
         audit.stream.open(trace, std::ios::binary);
-        Traced<decltype(rules)> traced{ rules, &audit, compiled.program.lines.data() };
-        execute<true>(mode, compiled.program, traced, n, threads, audit);
+        const Traced<decltype(RULES)> TRACED{ RULES, &audit, compiled.program.lines.data() };
+        execute<true>(mode, compiled.program, TRACED, n, threads, audit);
     } else {
-        execute<false>(mode, compiled.program, rules, n, threads, audit);
+        execute<false>(mode, compiled.program, RULES, n, threads, audit);
     }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *const *argv)
 {
     if (argc < 5 || argc > 7) {
         return 2;
     }
-    const std::string mode = argv[1], which = argv[2];
-    unsigned          n = std::stoul(argv[3]), workers = std::stoul(argv[4]);
-    if ((mode != "native" && mode != "rust" && mode != "control") || !workers || workers > n || (argc >= 6 && workers != 1))
+    const std::string MODE    = argv[1];
+    const std::string WHICH   = argv[2];
+    unsigned          n       = std::stoul(argv[3]);
+    unsigned          workers = std::stoul(argv[4]);
+    if ((MODE != "native" && MODE != "rust" && MODE != "control") || (workers == 0u) || workers > n || (argc >= 6 && workers != 1))
     {
         return 2;
     }
     const char *trace = argc >= 6 ? argv[5] : nullptr;
-    if (workers == 1 && !SetThreadAffinityMask(GetCurrentThread(), 4)) {
+    if (workers == 1 && (SetThreadAffinityMask(GetCurrentThread(), 4) == 0u)) {
         return 3;
     }
     std::string custom;
@@ -298,39 +306,39 @@ int main(int argc, char **argv)
         }
         custom.assign(std::istreambuf_iterator<char>(f), {});
     }
-    if (which == "tx" || which == "tx_buffs") {
+    if (WHICH == "tx" || WHICH == "tx_buffs") {
         tx::Config t;
-        if (which == "tx_buffs") {
-            t.talents   = tx::DieRenTalent | tx::WuYi | tx::ShenMai | tx::XuanMen | tx::LieYun | tx::GuChang;
-            t.equipment = tx::WeaponCW | tx::SetAttribute;
+        if (WHICH == "tx_buffs") {
+            t.talents   = tx::DIE_REN_TALENT | tx::WU_YI | tx::SHEN_MAI | tx::XUAN_MEN | tx::LIE_YUN | tx::GU_CHANG;
+            t.equipment = tx::WEAPON_CW | tx::SET_ATTRIBUTE;
             t.attributes.overcome_base     = 20000;
             t.attributes.overcome_by_class = 5000;
             t.team_buffs                   = {
-                { tx::team::JiLei,         0,  96,  1  },
-                { tx::team::NongMei,       48, 96,  1  },
-                { tx::team::HaoLingSanJun, 16, 0,   48 },
-                { tx::team::PoFeng,        32, 160, 1  }
+                { tx::team::JI_LEI,           0,  96,  1  },
+                { tx::team::NONG_MEI,         48, 96,  1  },
+                { tx::team::HAO_LING_SAN_JUN, 16, 0,   48 },
+                { tx::team::PO_FENG,          32, 160, 1  }
             };
         }
         scene(t,
               tx::MacroOptions(false),
               argc == 7 ? custom : "/cast [nobuff:ziqi&qidian<6] ziqi\n/cast [qidian>=8] wuwu\n/cast bahuang\n/cast sanhuan\n/cast sanchai\n/cast [qidian>=1] wuwu",
-              mode,
+              MODE,
               n,
               workers,
               trace);
-    } else if (which == "mw" || which == "mw_equipped") {
+    } else if (WHICH == "mw" || WHICH == "mw_equipped") {
         mw::Config m;
-        if (which == "mw_equipped") {
-            m.talents   = mw::HaoZhong | mw::FeiFan | mw::ShiXiang | mw::ZhengLvHeMing | mw::LiuZhaoTalent | mw::KeMeng;
-            m.equipment = mw::EnchantShoes | mw::EnchantWrist | mw::EnchantBelt | mw::SetAttribute | mw::SetSkill |
-                          mw::WeaponCW | mw::WeaponWater;
-            m.team_effects = mw::YouRen | mw::JingMiao;
+        if (WHICH == "mw_equipped") {
+            m.talents = mw::HAO_ZHONG | mw::FEI_FAN | mw::SHI_XIANG | mw::ZHENG_LV_HE_MING | mw::LIU_ZHAO_TALENT | mw::KE_MENG;
+            m.equipment = mw::ENCHANT_SHOES | mw::ENCHANT_WRIST | mw::ENCHANT_BELT | mw::SET_ATTRIBUTE | mw::SET_SKILL |
+                          mw::WEAPON_CW | mw::WEAPON_WATER;
+            m.team_effects = mw::YOU_REN | mw::JING_MIAO;
         }
         scene(m,
               mw::MacroOptions(false),
               argc == 7 ? custom : "/cast [tnobuff:shang] shang\n/cast [tnobuff:jue] jue\n/cast shuying\n/cast gaoshan\n/cast [buff:qufeng=4] yu\n/cast bianzhi\n/cast biangong",
-              mode,
+              MODE,
               n,
               workers,
               trace);

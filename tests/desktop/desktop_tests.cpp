@@ -1,75 +1,83 @@
-#include <QtTest>
+#include <cstdlib>
+#include <utility>
+#include <variant>
+
 #include <QAction>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCompleter>
-#include <QDoubleSpinBox>
-#include <QGroupBox>
 #include <QDialog>
 #include <QDir>
+#include <QDoubleSpinBox>
 #include <QFile>
 #include <QFormLayout>
+#include <QGroupBox>
+#include <QInputMethodEvent>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QLineEdit>
-#include <QJsonDocument>
 #include <QListWidget>
-#include "src/class/mo_wen/runtime_rules.hpp"
-#include <QInputMethodEvent>
 #include <QPainter>
-#include <QPushButton>
 #include <QProgressBar>
+#include <QPushButton>
+#include <QScreen>
 #include <QScrollArea>
 #include <QScrollBar>
-#include <QScreen>
 #include <QSettings>
 #include <QSpinBox>
 #include <QStyleOptionGroupBox>
-#include <QTableWidget>
 #include <QTableView>
+#include <QTableWidget>
 #include <QTabWidget>
-#include <QTextBrowser>
 #include <QTemporaryDir>
+#include <QTextBrowser>
 #include <QToolButton>
-#include "apps/desktop/workbench.h"
+#include <QtTest>
+
 #include "apps/desktop/batch_worker.h"
-#include "apps/desktop/results_panel.h"
-#include "apps/desktop/simulation_options.h"
-#include "apps/desktop/talent_panel.h"
 #include "apps/desktop/buff_panel.h"
-#include "apps/desktop/macro_trace_panel.h"
-#include "apps/desktop/macro_editor.h"
-#include "apps/desktop/macro_search_bar.h"
-#include "apps/desktop/debug_simulator.h"
-#include "apps/desktop/debug_session.h"
-#include "apps/desktop/game_icons.h"
-#include "apps/desktop/history_panel.h"
-#include "apps/desktop/traced_rules.h"
+#include "apps/desktop/controls/choice_popup.h"
 #include "apps/desktop/controls/code_editor/code_editor.h"
 #include "apps/desktop/controls/code_editor/debug_toolbar.h"
 #include "apps/desktop/controls/code_editor/simulation_toolbar.h"
-#include "apps/desktop/controls/choice_popup.h"
+#include "apps/desktop/controls/equipment_panel/equipment_detail_card.h"
+#include "apps/desktop/controls/equipment_panel/equipment_panel.h"
 #include "apps/desktop/controls/theme/dark_style.h"
-#include "apps/desktop/controls/theme/segmented_tabs.h"
-#include "apps/desktop/controls/theme/magpie_shell.h"
 #include "apps/desktop/controls/theme/history_chart.h"
-#include "apps/desktop/game_attributes.h"
+#include "apps/desktop/controls/theme/magpie_shell.h"
+#include "apps/desktop/controls/theme/segmented_tabs.h"
+#include "apps/desktop/controls/timeline/timeline.h"
+#include "apps/desktop/debug_session.h"
+#include "apps/desktop/debug_simulator.h"
 #include "apps/desktop/flow_macro.h"
 #include "apps/desktop/flow_timeline_editor.h"
-#include "apps/desktop/controls/timeline/timeline.h"
-#include "apps/desktop/controls/equipment_panel/equipment_panel.h"
-#include "apps/desktop/controls/equipment_panel/equipment_detail_card.h"
-#include "resources.h"
+#include "apps/desktop/game_attributes.h"
+#include "apps/desktop/game_icons.h"
+#include "apps/desktop/history_panel.h"
+#include "apps/desktop/macro_editor.h"
+#include "apps/desktop/macro_search_bar.h"
+#include "apps/desktop/macro_trace_panel.h"
+#include "apps/desktop/results_panel.h"
+#include "apps/desktop/simulation_options.h"
+#include "apps/desktop/talent_panel.h"
+#include "apps/desktop/traced_rules.h"
+#include "apps/desktop/workbench.h"
+#include "src/class/mo_wen/runtime_rules.hpp"
 #include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
+
+#include "resources.h"
 
 namespace rt = JX3DPS::runtime;
 namespace tx = JX3DPS::runtime::tai_xu;
 
-class DesktopTests : public QObject {
+class DesktopTests : public QObject
+{
     Q_OBJECT
     QTemporaryDir settingsDirectory;
 
 private slots:
+
     void initTestCase()
     {
         QVERIFY(settingsDirectory.isValid());
@@ -92,28 +100,29 @@ private slots:
         QImage gray(64, 64, QImage::Format_ARGB32);
         gray.fill(QColor("#999999"));
         QCOMPARE(theme::IconAccent(gray), theme::DefaultAccent());
-        for (const QColor source : {QColor("#ed3020"), QColor("#20b060"), QColor("#244add"), QColor("#e4b020")}) {
+        for (const QColor SOURCE : { QColor("#ed3020"), QColor("#20b060"), QColor("#244add"), QColor("#e4b020") }) {
             QImage image(64, 64, QImage::Format_ARGB32);
             image.fill(qRgba(255, 0, 255, 0));
             QPainter painter(&image);
             painter.fillRect(QRect(4, 4, 56, 56), QColor("#080808"));
-            painter.fillRect(QRect(8, 8, 48, 48), source);
+            painter.fillRect(QRect(8, 8, 48, 48), SOURCE);
             painter.fillRect(QRect(24, 24, 16, 16), Qt::white);
             painter.end();
-            const auto accent = theme::IconAccent(image);
-            auto distance = std::abs(accent.hslHueF() - source.hslHueF());
-            QVERIFY(std::min(distance, 1 - distance) < .02);
+            const auto accent   = theme::IconAccent(image);
+            const auto DISTANCE = std::abs(accent.hslHueF() - SOURCE.hslHueF());
+            QVERIFY(std::min(DISTANCE, 1 - DISTANCE) < .02);
             QCOMPARE(theme::IconAccent(image), accent);
             QVERIFY(theme::Contrast(accent, QColor(theme::Surface)) >= 3);
-            const auto colors = theme::MakeAccentColors(accent);
-            for (const auto &background : {colors.normal, colors.hover, colors.pressed})
-                QVERIFY(theme::Contrast(background, colors.text) >= 4.5);
+            const auto COLORS = theme::MakeAccentColors(accent);
+            for (const auto &background : { COLORS.normal, COLORS.hover, COLORS.pressed }) {
+                QVERIFY(theme::Contrast(background, COLORS.text) >= 4.5);
+            }
         }
-        const auto taiXu = theme::IconAccent(desktop::GameIcon(8484).pixmap(QSize(64, 64), 1.0).toImage());
-        const auto moWen = theme::IconAccent(desktop::GameIcon(8501).pixmap(QSize(64, 64), 1.0).toImage());
-        QVERIFY(taiXu != moWen);
-        QVERIFY(taiXu != theme::DefaultAccent() && moWen != theme::DefaultAccent());
-        qInfo().noquote() << "Icon-derived accents:" << taiXu.name() << moWen.name();
+        const auto TAI_XU = theme::IconAccent(desktop::GameIcon(8484).pixmap(QSize(64, 64), 1.0).toImage());
+        const auto MO_WEN = theme::IconAccent(desktop::GameIcon(8501).pixmap(QSize(64, 64), 1.0).toImage());
+        QVERIFY(TAI_XU != MO_WEN);
+        QVERIFY(TAI_XU != theme::DefaultAccent() && MO_WEN != theme::DefaultAccent());
+        qInfo().noquote() << "Icon-derived accents:" << TAI_XU.name() << MO_WEN.name();
     }
 
     void specializationThemeTracksIcon()
@@ -122,31 +131,33 @@ private slots:
         Workbench window;
         window.resize(1206, 860);
         window.show();
-        auto *choice = window.findChild<QComboBox *>("specialization");
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *start = window.findChild<QToolButton *>("startButton");
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
+        auto       *choice  = window.findChild<QComboBox *>("specialization");
+        const auto *options = window.findChild<SimulationOptions *>();
+        auto       *start   = window.findChild<QToolButton *>("startButton");
+        auto       *editor  = window.findChild<MacroEditor *>("macroEditor");
         editor->appendPlainText(QStringLiteral("\n# 保留主题切换前的宏"));
         editor->SetBreakpoint(1, true);
-        const auto source = editor->toPlainText();
+        const auto SOURCE   = editor->toPlainText();
         const auto snapshot = options->Snapshot();
-        auto expected = [&](int index) { return theme::IconAccent(choice->itemIcon(index).pixmap(QSize(64, 64), 1.0).toImage()); };
-        auto pixel = [](QWidget *widget, QPoint point) {
-            const auto image = widget->grab().toImage();
-            return image.pixelColor(qRound(point.x() * image.devicePixelRatio()), qRound(point.y() * image.devicePixelRatio()));
+        const auto EXPECTED = [&](int index) {
+            return theme::IconAccent(choice->itemIcon(index).pixmap(QSize(64, 64), 1.0).toImage());
         };
-        for (int index : {0, 1, 0}) {
-            choice->setCurrentIndex(index);
+        const auto PIXEL = [](QWidget *widget, QPoint point) {
+            const auto IMAGE = widget->grab().toImage();
+            return IMAGE.pixelColor(qRound(point.x() * IMAGE.devicePixelRatio()), qRound(point.y() * IMAGE.devicePixelRatio()));
+        };
+        for (const int INDEX : { 0, 1, 0 }) {
+            choice->setCurrentIndex(INDEX);
             QTest::qWait(100);
-            const auto accent = expected(index);
+            const auto accent = EXPECTED(INDEX);
             QCOMPARE(theme::AccentColor(&window), accent);
             QCOMPARE(theme::AccentColor(start), accent);
             QCOMPARE(start->palette().color(QPalette::Accent), accent);
             QVERIFY(!window.styleSheet().contains("#a8b3ff"));
             start->setAttribute(Qt::WA_UnderMouse, false);
-            QCOMPARE(pixel(start, QPoint(10, start->height() / 2)), QColor(accent.name()));
-            QCOMPARE(pixel(choice, QPoint(1, choice->height() / 2)), QColor(accent.name()));
-            const auto stable = options->Snapshot();
+            QCOMPARE(PIXEL(start, QPoint(10, start->height() / 2)), QColor(accent.name()));
+            QCOMPARE(PIXEL(choice, QPoint(1, choice->height() / 2)), QColor(accent.name()));
+            const auto STABLE = options->Snapshot();
             window.findChild<QToolButton *>("openEquipment")->click();
             auto *equipment = window.findChild<QDialog *>("equipmentDialog");
             QTRY_VERIFY(equipment->isVisible());
@@ -158,37 +169,38 @@ private slots:
             QCOMPARE(theme::AccentColor(choice->view()), accent);
             QCOMPARE(choice->view()->palette().color(QPalette::Accent), accent);
             choice->hidePopup();
-            QCOMPARE(options->Snapshot(), stable);
+            QCOMPARE(options->Snapshot(), STABLE);
             QCOMPARE(QColor(theme::Success), QColor("#6fd99b"));
             QCOMPARE(QColor(theme::Error), QColor("#f08078"));
             if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
                 QTest::qWait(desktop::motion::SlideMs + 40);
-                QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-theme-class%1.png").arg(index)));
+                QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                           QStringLiteral("-theme-class%1.png").arg(INDEX)));
             }
         }
-        QCOMPARE(editor->toPlainText(), source);
+        QCOMPARE(editor->toPlainText(), SOURCE);
         QVERIFY(editor->GetBreakpoints().contains(1));
         QCOMPARE(options->Snapshot(), snapshot);
 
         // Follow the artwork actually displayed by the selector, not a hard-coded class/color mapping.
-        const auto original = choice->itemIcon(0);
-        QPixmap changed(64, 64);
+        const auto ORIGINAL = choice->itemIcon(0);
+        QPixmap    changed(64, 64);
         changed.fill(QColor("#e15f27"));
         choice->setItemIcon(0, QIcon(changed));
         choice->setCurrentIndex(1);
         choice->setCurrentIndex(0);
         QCOMPARE(theme::AccentColor(&window), theme::IconAccent(changed.toImage()));
-        choice->setItemIcon(0, original);
+        choice->setItemIcon(0, ORIGINAL);
         choice->setCurrentIndex(1);
         choice->setCurrentIndex(0);
 
-        const auto firstAccent = theme::AccentColor(&window);
+        const auto FIRST_ACCENT = theme::AccentColor(&window);
         QSettings().setValue("simulation/specialization", 1);
         Workbench restored;
         QCOMPARE(restored.findChild<QComboBox *>("specialization")->currentIndex(), 1);
-        QCOMPARE(theme::AccentColor(&restored), expected(1));
-        QCOMPARE(theme::AccentColor(&window), firstAccent);
-        QCOMPARE(theme::AccentColor(start), firstAccent);
+        QCOMPARE(theme::AccentColor(&restored), EXPECTED(1));
+        QCOMPARE(theme::AccentColor(&window), FIRST_ACCENT);
+        QCOMPARE(theme::AccentColor(start), FIRST_ACCENT);
     }
 
     void gameAttributeOrderAndEquipmentTalents()
@@ -197,15 +209,15 @@ private slots:
         window.resize(1206, 860);
         window.show();
         QTest::qWait(100);
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *attributePanel = window.findChild<QWidget *>("gameAttributePanel");
-        auto *gainsPanel = window.findChild<QWidget *>("attributeGainsModule");
-        QVERIFY(attributePanel && gainsPanel);
-        QVERIFY(std::abs(attributePanel->width() - gainsPanel->width()) <= 1);
-        for (auto *panel : {attributePanel, gainsPanel}) {
-            auto *title = panel->findChild<QLabel *>("attributeModuleTitle");
-            auto *header = panel->findChild<QWidget *>("attributeModuleHeader");
-            auto *body = panel->findChild<QWidget *>("attributeModuleBody");
+        auto *options         = window.findChild<SimulationOptions *>();
+        auto *attribute_panel = window.findChild<QWidget *>("gameAttributePanel");
+        auto *gains_panel     = window.findChild<QWidget *>("attributeGainsModule");
+        QVERIFY(attribute_panel && gains_panel);
+        QVERIFY(std::abs(attribute_panel->width() - gains_panel->width()) <= 1);
+        for (const auto *panel : { attribute_panel, gains_panel }) {
+            const auto *title  = panel->findChild<QLabel *>("attributeModuleTitle");
+            const auto *header = panel->findChild<QWidget *>("attributeModuleHeader");
+            const auto *body   = panel->findChild<QWidget *>("attributeModuleBody");
             QVERIFY(title && header && body);
             QVERIFY(!panel->findChild<QWidget *>("attributeModuleDivider"));
             QVERIFY(!body->isAncestorOf(title));
@@ -214,82 +226,86 @@ private slots:
             QVERIFY(!panel->property("statModule").toBool());
             QCOMPARE(title->font().pixelSize(), window.findChild<QLabel *>("gameAttributeValue_attack")->font().pixelSize());
             QVERIFY(title->font().weight() >= QFont::DemiBold);
-            auto *firstRow = panel->findChild<QWidget *>(panel == attributePanel ? "gameAttributeRow_major" : "gameAttributeGainRow_major");
-            QVERIFY(body->isAncestorOf(firstRow));
-            QVERIFY(firstRow->mapTo(body, QPoint()).y() >= 6);
+            const auto *first_row =
+                panel->findChild<QWidget *>(panel == attribute_panel ? "gameAttributeRow_major" : "gameAttributeGainRow_major");
+            QVERIFY(body->isAncestorOf(first_row));
+            QVERIFY(first_row->mapTo(body, QPoint()).y() >= 6);
         }
-        for (const auto *name : {"runSettings", "permanentPanel", "macroPanel"}) {
-            auto *box = window.findChild<QGroupBox *>(QString::fromLatin1(name));
+        for (const auto *name : { "runSettings", "permanentPanel", "macroPanel" }) {
+            const auto *box = window.findChild<QGroupBox *>(QString::fromLatin1(name));
             QVERIFY(box);
             QStyleOptionGroupBox option;
             option.initFrom(box);
-            option.text = box->title();
+            option.text          = box->title();
             option.textAlignment = Qt::AlignLeft;
-            option.subControls = QStyle::SC_GroupBoxFrame | QStyle::SC_GroupBoxLabel;
-            const auto title = box->style()->subControlRect(QStyle::CC_GroupBox, &option, QStyle::SC_GroupBoxLabel, box);
-            const auto frame = box->style()->subControlRect(QStyle::CC_GroupBox, &option, QStyle::SC_GroupBoxFrame, box);
-            QVERIFY2(title.bottom() < frame.top(), name);
+            option.subControls   = QStyle::SC_GroupBoxFrame | QStyle::SC_GroupBoxLabel;
+            const auto TITLE = box->style()->subControlRect(QStyle::CC_GroupBox, &option, QStyle::SC_GroupBoxLabel, box);
+            const auto FRAME = box->style()->subControlRect(QStyle::CC_GroupBox, &option, QStyle::SC_GroupBoxFrame, box);
+            QVERIFY2(TITLE.bottom() < FRAME.top(), name);
         }
         QVERIFY(!window.findChild<QTabWidget *>("attributeTabs"));
-        QVERIFY(gainsPanel->mapTo(&window, QPoint()).x() > attributePanel->mapTo(&window, attributePanel->rect().topRight()).x());
-        auto capturePair = [&](const QString &suffix) {
-            if (!qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) return;
-            const QRect left(attributePanel->mapTo(&window, QPoint()), attributePanel->size());
-            const QRect right(gainsPanel->mapTo(&window, QPoint()), gainsPanel->size());
+        QVERIFY(gains_panel->mapTo(&window, QPoint()).x() >
+                attribute_panel->mapTo(&window, attribute_panel->rect().topRight()).x());
+        const auto CAPTURE_PAIR = [&](const QString &suffix) {
+            if (!qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+                return;
+            }
+            const QRect left(attribute_panel->mapTo(&window, QPoint()), attribute_panel->size());
+            const QRect right(gains_panel->mapTo(&window, QPoint()), gains_panel->size());
             QVERIFY(window.grab(left.united(right)).save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + suffix));
         };
-        int previousY = -1;
-        for (int i = 0; i < int(desktop::GameAttributeRows.size()); ++i) {
-            const auto key = QString::fromLatin1(desktop::GameAttributeRows[i].key);
-            auto *row = window.findChild<QWidget *>("gameAttributeRow_" + key);
-            auto *value = window.findChild<QLabel *>("gameAttributeValue_" + key);
-            auto *gainRow = window.findChild<QWidget *>("gameAttributeGainRow_" + key);
-            QVERIFY(row && value && gainRow);
-            QCOMPARE(row->property("attributeKey"), gainRow->property("attributeKey"));
-            QCOMPARE(row->mapTo(&window, row->rect().center()).y(), gainRow->mapTo(&window, gainRow->rect().center()).y());
-            QCOMPARE(row->height(), gainRow->height());
-            QVERIFY(row->y() > previousY);
-            previousY = row->y();
-            QCOMPARE(row->findChildren<QLabel *>().first()->text(), desktop::GameAttributeName(i, desktop::Specialization::TaiXu));
+        int previous_y = -1;
+        for (int i = 0; std::cmp_less(i, desktop::GameAttributeRows.size()); ++i) {
+            const auto  KEY      = QString::fromLatin1(desktop::GameAttributeRows[i].key);
+            const auto *row      = window.findChild<QWidget *>("gameAttributeRow_" + KEY);
+            const auto *value    = window.findChild<QLabel *>("gameAttributeValue_" + KEY);
+            const auto *gain_row = window.findChild<QWidget *>("gameAttributeGainRow_" + KEY);
+            QVERIFY(row && value && gain_row);
+            QCOMPARE(row->property("attributeKey"), gain_row->property("attributeKey"));
+            QCOMPARE(row->mapTo(&window, row->rect().center()).y(), gain_row->mapTo(&window, gain_row->rect().center()).y());
+            QCOMPARE(row->height(), gain_row->height());
+            QVERIFY(row->y() > previous_y);
+            previous_y = row->y();
+            QCOMPARE(row->findChildren<QLabel *>().first()->text(), desktop::GameAttributeName(i, desktop::Specialization::TAI_XU));
             QVERIFY(value->alignment().testFlag(Qt::AlignRight));
             QVERIFY(row->findChildren<QLabel *>().first()->width() >= 56);
             QVERIFY(value->width() >= 88);
             QCOMPARE(value->geometry().right(), row->rect().right());
         }
-        auto *import = window.findChild<QPushButton *>("importAttributes");
-        auto *calculateButton = window.findChild<QToolButton *>("calculateInlineGains");
-        QCOMPARE(import->mapTo(attributePanel, QPoint()).x(), 12);
-        QCOMPARE(import->height(), calculateButton->height());
-        QCOMPARE(import->mapTo(&window, QPoint()).y(), calculateButton->mapTo(&window, QPoint()).y());
+        const auto *import           = window.findChild<QPushButton *>("importAttributes");
+        const auto *calculate_button = window.findChild<QToolButton *>("calculateInlineGains");
+        QCOMPARE(import->mapTo(attribute_panel, QPoint()).x(), 12);
+        QCOMPARE(import->height(), calculate_button->height());
+        QCOMPARE(import->mapTo(&window, QPoint()).y(), calculate_button->mapTo(&window, QPoint()).y());
         QVERIFY(import->property("moduleAction").toBool());
-        QVERIFY(calculateButton->property("magpieCheckable").toBool());
-        QVERIFY(calculateButton->isCheckable());
+        QVERIFY(calculate_button->property("magpieCheckable").toBool());
+        QVERIFY(calculate_button->isCheckable());
         QVERIFY(window.findChild<QLabel *>("gameAttributeGainStatus_major")->isVisible());
         QVERIFY(window.findChild<QLabel *>("gameAttributeGainStatus_hit")->isVisible());
         QVERIFY(!window.findChild<QLabel *>("gameAttributeGain_major")->isVisible());
         QCOMPARE(window.findChild<QLabel *>("gameAttributeGainChange_attack")->text(), QStringLiteral("--"));
-        auto *attributeRow = window.findChild<QWidget *>("gameAttributeRow_critical");
-        auto *gainRow = window.findChild<QWidget *>("gameAttributeGainRow_critical");
-        QEnterEvent enter(QPointF(3, 3), QPointF(3, 3), QPointF(attributeRow->mapToGlobal(QPoint(3, 3))));
-        QCoreApplication::sendEvent(attributeRow, &enter);
-        QVERIFY(attributeRow->property("comparisonHighlighted").toBool());
-        QVERIFY(gainRow->property("comparisonHighlighted").toBool());
-        capturePair(QStringLiteral("-attribute-hover.png"));
+        auto       *attribute_row = window.findChild<QWidget *>("gameAttributeRow_critical");
+        auto       *gain_row      = window.findChild<QWidget *>("gameAttributeGainRow_critical");
+        QEnterEvent enter(QPointF(3, 3), QPointF(3, 3), QPointF(attribute_row->mapToGlobal(QPoint(3, 3))));
+        QCoreApplication::sendEvent(attribute_row, &enter);
+        QVERIFY(attribute_row->property("comparisonHighlighted").toBool());
+        QVERIFY(gain_row->property("comparisonHighlighted").toBool());
+        CAPTURE_PAIR(QStringLiteral("-attribute-hover.png"));
         QEvent leave(QEvent::Leave);
-        QCoreApplication::sendEvent(attributeRow, &leave);
-        QVERIFY(!attributeRow->property("comparisonHighlighted").toBool());
-        QVERIFY(!gainRow->property("comparisonHighlighted").toBool());
-        QCoreApplication::sendEvent(gainRow, &enter);
-        QVERIFY(attributeRow->property("comparisonHighlighted").toBool());
-        QVERIFY(gainRow->property("comparisonHighlighted").toBool());
+        QCoreApplication::sendEvent(attribute_row, &leave);
+        QVERIFY(!attribute_row->property("comparisonHighlighted").toBool());
+        QVERIFY(!gain_row->property("comparisonHighlighted").toBool());
+        QCoreApplication::sendEvent(gain_row, &enter);
+        QVERIFY(attribute_row->property("comparisonHighlighted").toBool());
+        QVERIFY(gain_row->property("comparisonHighlighted").toBool());
         window.findChild<QPushButton *>("nav_macro")->click();
-        QVERIFY(!attributeRow->property("comparisonHighlighted").toBool());
-        QVERIFY(!gainRow->property("comparisonHighlighted").toBool());
+        QVERIFY(!attribute_row->property("comparisonHighlighted").toBool());
+        QVERIFY(!gain_row->property("comparisonHighlighted").toBool());
         window.findChild<QPushButton *>("nav_simulation")->click();
         QCoreApplication::processEvents();
         QCOMPARE(window.findChild<QLabel *>("gameAttributeValue_attack")->text(), QStringLiteral("12500"));
         QCOMPARE(window.findChild<QLabel *>("gameAttributeValue_hit")->text(), QStringLiteral("100.00%"));
-        capturePair(QStringLiteral("-attribute-layout.png"));
+        CAPTURE_PAIR(QStringLiteral("-attribute-layout.png"));
         window.findChild<QPushButton *>("editGameAttributes")->click();
         auto *editor = window.findChild<QDialog *>("attributeValueEditor");
         QTRY_VERIFY(editor->isVisible());
@@ -298,48 +314,53 @@ private slots:
         attack->setValue(20000);
         QTRY_COMPARE(window.findChild<QLabel *>("gameAttributeValue_attack")->text(), QStringLiteral("22500"));
         editor->close();
-        for (const QSize size : {QSize(1206, 860), QSize(1120, 820)}) {
-            window.resize(size);
-            for (int specialization : {0, 1}) {
+        for (const QSize SIZE : { QSize(1206, 860), QSize(1120, 820) }) {
+            window.resize(SIZE);
+            for (const int specialization : { 0, 1 }) {
                 window.findChild<QComboBox *>("specialization")->setCurrentIndex(specialization);
-                const auto before = options->Snapshot();
+                const auto BEFORE = options->Snapshot();
                 window.findChild<QToolButton *>("openEquipment")->click();
                 auto *equipment = window.findChild<QDialog *>("equipmentDialog");
                 QTRY_VERIFY(equipment->isVisible());
                 QVERIFY(equipment->isWindow());
                 QVERIFY(!equipment->isModal());
                 QTest::qWait(100);
-                QVERIFY(attributePanel->isVisible());
-                QVERIFY(gainsPanel->isVisible());
+                QVERIFY(attribute_panel->isVisible());
+                QVERIFY(gains_panel->isVisible());
                 QVERIFY(window.findChild<QWidget *>("configurationTabs")->isVisible());
-                auto *talents = window.findChild<QWidget *>(QStringLiteral("talents%1").arg(specialization));
+                const auto *talents = window.findChild<QWidget *>(QStringLiteral("talents%1").arg(specialization));
                 for (int tier = 1; tier <= 9; ++tier) {
-                    auto *button = talents->findChild<QToolButton *>(QStringLiteral("talentTier%1").arg(tier));
+                    const auto *button = talents->findChild<QToolButton *>(QStringLiteral("talentTier%1").arg(tier));
                     QVERIFY(button->isVisible());
                     QVERIFY(button->visibleRegion().contains(button->rect()));
                 }
-                QCOMPARE(options->Snapshot(), before);
-                if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-                    QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-equipment-talents-%1-class%2.png").arg(size.width()).arg(specialization)));
-                if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-                    QVERIFY(equipment->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-equipment-window-class%1.png").arg(specialization)));
+                QCOMPARE(options->Snapshot(), BEFORE);
+                if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+                    QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                               QStringLiteral("-equipment-talents-%1-class%2.png").arg(SIZE.width()).arg(specialization)));
+                }
+                if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+                    QVERIFY(equipment->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                                   QStringLiteral("-equipment-window-class%1.png").arg(specialization)));
+                }
                 equipment->close();
             }
         }
         SimulationResult fixture;
-        fixture.options.duration = 16;
+        fixture.options.duration   = 16;
         fixture.options.iterations = 1;
         fixture.stats.Add(1000, 0);
         fixture.gainsRequested = true;
         for (int i = 7; i >= 0; --i) {
-            rt::BatchStats stats; stats.Add(1000 + (i + 1) * 100, 0);
-            fixture.gains.push_back({desktop::AttributeGainName(i), 100, stats});
+            rt::BatchStats stats;
+            stats.Add(1000 + ((i + 1) * 100), 0);
+            fixture.gains.push_back({ desktop::AttributeGainName(i), 100, stats });
         }
         QTableWidget gains(0, 3);
-        desktop::FillGameGainTable(&gains, fixture, desktop::Specialization::MoWen, false);
+        desktop::FillGameGainTable(&gains, fixture, desktop::Specialization::MO_WEN, false);
         QCOMPARE(gains.rowCount(), 10);
         for (int i = 0; i < 10; ++i) {
-            QCOMPARE(gains.item(i, 0)->text(), desktop::GameAttributeName(i, desktop::Specialization::MoWen));
+            QCOMPARE(gains.item(i, 0)->text(), desktop::GameAttributeName(i, desktop::Specialization::MO_WEN));
             QCOMPARE(gains.item(i, 0)->data(Qt::UserRole).toString(), QString::fromLatin1(desktop::GameAttributeRows[i].key));
         }
         QCOMPARE(gains.item(0, 2)->text(), QStringLiteral("暂未支持"));
@@ -353,14 +374,14 @@ private slots:
         QVERIFY(window.findChild<QLabel *>("gameAttributeGain_haste")->isVisible());
         window.findChild<QSpinBox *>("iterations")->setValue(8);
         window.findChild<QDoubleSpinBox *>("seconds")->setValue(10);
-        auto *calculate = window.findChild<QAction *>("attributeGains");
+        const auto *calculate = window.findChild<QAction *>("attributeGains");
         window.findChild<QToolButton *>("calculateInlineGains")->click();
         window.findChild<QToolButton *>("startButton")->click();
         QTRY_VERIFY_WITH_TIMEOUT(calculate->isEnabled(), 10000);
         QVERIFY(window.findChild<QLabel *>("gameAttributeGain_haste")->text() != QStringLiteral("--"));
         QTest::qWait(320);
         QVERIFY(window.findChild<QLabel *>("gameAttributeGain_haste")->isVisible());
-        capturePair(QStringLiteral("-attribute-gains.png"));
+        CAPTURE_PAIR(QStringLiteral("-attribute-gains.png"));
         window.findChild<QToolButton *>("openEquipment")->click();
         QVERIFY(window.close());
         QVERIFY(!window.findChild<QDialog *>("equipmentDialog")->isVisible());
@@ -372,65 +393,78 @@ private slots:
         window.resize(1120, 820);
         window.show();
         auto *options = window.findChild<SimulationOptions *>();
-        auto *toggle = window.findChild<QTabBar *>("permanentsInPanel");
+        auto *toggle  = window.findChild<QTabBar *>("permanentsInPanel");
         QVERIFY(toggle && toggle->currentIndex() == 0);
         QCOMPARE(toggle->tabText(0), QStringLiteral("计入面板"));
         QCOMPARE(toggle->tabText(1), QStringLiteral("基础面板"));
         QVERIFY(toggle->property("segmentedControl").toBool());
         QCOMPARE(toggle->height(), desktop::AttributeHeaderHeight);
-        auto selectPanel = [&](bool included) {
-            const int index = included ? 0 : 1;
-            QTest::mouseClick(toggle, Qt::LeftButton, Qt::NoModifier, toggle->tabRect(index).center());
-            QCOMPARE(toggle->currentIndex(), index);
+        const auto SELECT_PANEL = [&](bool included) {
+            const int INDEX = included ? 0 : 1;
+            QTest::mouseClick(toggle, Qt::LeftButton, Qt::NoModifier, toggle->tabRect(INDEX).center());
+            QCOMPARE(toggle->currentIndex(), INDEX);
         };
-        auto *permanents = window.findChild<QWidget *>("permanentPanel");
-        auto *header = permanents->findChild<QWidget *>("groupHeaderActions");
+        auto       *permanents = window.findChild<QWidget *>("permanentPanel");
+        const auto *header     = permanents->findChild<QWidget *>("groupHeaderActions");
         QVERIFY(header);
         QCOMPARE(header->height(), desktop::AttributeHeaderHeight);
-        QStyleOptionGroupBox titleOption;
-        titleOption.initFrom(permanents);
-        titleOption.text = qobject_cast<QGroupBox *>(permanents)->title();
-        titleOption.textAlignment = Qt::AlignLeft;
-        titleOption.subControls = QStyle::SC_GroupBoxFrame | QStyle::SC_GroupBoxLabel;
-        const auto titleBounds = permanents->style()->subControlRect(QStyle::CC_GroupBox, &titleOption, QStyle::SC_GroupBoxLabel, permanents);
+        QStyleOptionGroupBox title_option;
+        title_option.initFrom(permanents);
+        title_option.text          = qobject_cast<QGroupBox *>(permanents)->title();
+        title_option.textAlignment = Qt::AlignLeft;
+        title_option.subControls   = QStyle::SC_GroupBoxFrame | QStyle::SC_GroupBoxLabel;
+        const auto TITLE_BOUNDS =
+            permanents->style()->subControlRect(QStyle::CC_GroupBox, &title_option, QStyle::SC_GroupBoxLabel, permanents);
         QCoreApplication::processEvents();
-        const auto frameBounds = permanents->style()->subControlRect(QStyle::CC_GroupBox, &titleOption, QStyle::SC_GroupBoxFrame, permanents);
-        QCOMPARE(frameBounds.top() - toggle->mapTo(permanents, QPoint(0, toggle->height())).y(), desktop::AttributeHeaderSpacing);
-        QVERIFY(std::abs(titleBounds.center().y() - toggle->mapTo(permanents, toggle->rect().center()).y()) <= 2);
-        QVERIFY(titleBounds.right() + 6 <= toggle->mapTo(permanents, QPoint()).x());
+        const auto FRAME_BOUNDS =
+            permanents->style()->subControlRect(QStyle::CC_GroupBox, &title_option, QStyle::SC_GroupBoxFrame, permanents);
+        QCOMPARE(FRAME_BOUNDS.top() - toggle->mapTo(permanents, QPoint(0, toggle->height())).y(), desktop::AttributeHeaderSpacing);
+        QVERIFY(std::abs(TITLE_BOUNDS.center().y() - toggle->mapTo(permanents, toggle->rect().center()).y()) <= 2);
+        QVERIFY(TITLE_BOUNDS.right() + 6 <= toggle->mapTo(permanents, QPoint()).x());
         QVERIFY(toggle->visibleRegion().contains(toggle->rect()));
-        for (int i = 0; i < toggle->count(); ++i)
+        for (int i = 0; i < toggle->count(); ++i) {
             QVERIFY(toggle->tabRect(i).width() - 18 >= QFontMetrics(toggle->font()).horizontalAdvance(toggle->tabText(i)));
-        auto valueLabel = [&](int i) {
-            return window.findChild<QLabel *>(QStringLiteral("gameAttributeValue_%1").arg(QString::fromLatin1(desktop::GameAttributeRows[i].key)));
+        }
+        const auto VALUE_LABEL = [&](int i) {
+            return window.findChild<QLabel *>(
+                QStringLiteral("gameAttributeValue_%1").arg(QString::fromLatin1(desktop::GameAttributeRows[i].key)));
         };
         options->findChild<QSpinBox *>("importedMajor")->setValue(8000);
         options->findChild<QDoubleSpinBox *>("attackBonus")->setValue(5);
-        for (int specialization : {0, 1}) {
+        for (const int specialization : { 0, 1 }) {
             window.findChild<QComboBox *>("specialization")->setCurrentIndex(specialization);
             QTest::qWait(60);
             std::array<QString, 10> base;
-            for (int i = 0; i < 10; ++i) base[i] = valueLabel(i)->property("displayValue").toString();
-            for (auto *input : options->findChildren<QComboBox *>())
-                if (input->objectName().startsWith(QStringLiteral("permanent%1").arg(specialization))) input->setCurrentIndex(1);
+            for (int i = 0; i < 10; ++i) {
+                base[i] = VALUE_LABEL(i)->property("displayValue").toString();
+            }
+            for (auto *input : options->findChildren<QComboBox *>()) {
+                if (input->objectName().startsWith(QStringLiteral("permanent%1").arg(specialization))) {
+                    input->setCurrentIndex(1);
+                }
+            }
             QTest::qWait(60);
             const auto snapshot = options->Snapshot();
-            const auto config = options->ActiveConfig();
-            auto attack = [](const desktop::Config &c) {
+            const auto CONFIG   = options->ActiveConfig();
+            const auto ATTACK   = [](const desktop::Config &c) {
                 return std::visit([](const auto &v) { return v.attributes.attack_base; }, c);
             };
             QVERIFY(!snapshot.value("values").toObject().contains("permanentsInPanel"));
             for (int i = 0; i < 10; ++i) {
-                auto *label = valueLabel(i);
-                const auto current = label->property("displayValue").toString();
-                auto raw = current; raw.remove('%');
-                auto original = base[i]; original.remove('%');
-                const auto delta = raw.toDouble() - original.toDouble();
-                const auto difference = label->property("permanentDelta").toString();
-                if (std::abs(delta) < .0001) QVERIFY(difference.isEmpty());
-                else {
-                    auto number = difference; number.remove('%');
-                    QVERIFY(std::abs(number.toDouble() - delta) < .0001);
+                const auto *label   = VALUE_LABEL(i);
+                const auto  current = label->property("displayValue").toString();
+                auto        raw     = current;
+                raw.remove('%');
+                auto original = base[i];
+                original.remove('%');
+                const auto DELTA      = raw.toDouble() - original.toDouble();
+                const auto DIFFERENCE = label->property("permanentDelta").toString();
+                if (std::abs(DELTA) < .0001) {
+                    QVERIFY(DIFFERENCE.isEmpty());
+                } else {
+                    auto number = DIFFERENCE;
+                    number.remove('%');
+                    QVERIFY(std::abs(number.toDouble() - DELTA) < .0001);
                     QVERIFY(label->text().contains(desktop::theme::Success));
                     QVERIFY(label->text().contains('(') && label->text().contains(')'));
                 }
@@ -439,98 +473,112 @@ private slots:
                 text.setDocumentMargin(0);
                 text.setDefaultFont(label->font());
                 text.setHtml(label->text());
-                QCOMPARE(text.toPlainText(), difference.isEmpty() ? current : '(' + difference + ") " + current);
+                QCOMPARE(text.toPlainText(), DIFFERENCE.isEmpty() ? current : '(' + DIFFERENCE + ") " + current);
                 QVERIFY2(text.idealWidth() <= label->contentsRect().width() + 1,
-                    qPrintable(QStringLiteral("%1: text %2, available %3").arg(label->objectName()).arg(text.idealWidth()).arg(label->width())));
+                         qPrintable(QStringLiteral("%1: text %2, available %3")
+                                        .arg(label->objectName())
+                                        .arg(text.idealWidth())
+                                        .arg(label->width())));
             }
-            for (const auto *name : {"attributesScroll", "configurationScroll", "permanentsScroll"}) {
-                auto *scroll = window.findChild<QScrollArea *>(QString::fromLatin1(name));
+            for (const auto *name : { "attributesScroll", "configurationScroll", "permanentsScroll" }) {
+                const auto *scroll = window.findChild<QScrollArea *>(QString::fromLatin1(name));
                 QCOMPARE(scroll->horizontalScrollBar()->maximum(), 0);
                 QCOMPARE(scroll->verticalScrollBar()->maximum(), 0);
             }
             window.findChild<QPushButton *>("nav_attributes")->click();
             QCoreApplication::processEvents();
             for (int i = 0; i < 10; ++i) {
-                auto *label = valueLabel(i);
+                const auto   *label = VALUE_LABEL(i);
                 QTextDocument text;
                 text.setDocumentMargin(0);
                 text.setDefaultFont(label->font());
                 text.setHtml(label->text());
                 QVERIFY2(text.idealWidth() <= label->contentsRect().width() + 1, qPrintable(label->text()));
                 QVERIFY(label->visibleRegion().contains(label->rect()));
-                auto *gain = window.findChild<QWidget *>(QStringLiteral("gameAttributeGainRow_%1")
-                    .arg(QString::fromLatin1(desktop::GameAttributeRows[i].key)));
+                const auto *gain = window.findChild<QWidget *>(
+                    QStringLiteral("gameAttributeGainRow_%1").arg(QString::fromLatin1(desktop::GameAttributeRows[i].key)));
                 QCOMPARE(label->mapTo(&window, label->rect().center()).y(), gain->mapTo(&window, gain->rect().center()).y());
             }
             QCOMPARE(window.findChild<QScrollArea *>("attributesScroll")->horizontalScrollBar()->maximum(), 0);
             window.findChild<QPushButton *>("nav_simulation")->click();
             QTest::qWait(desktop::motion::SlideMs + 40);
             if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
-                QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-permanents-on-class%1.png").arg(specialization)));
-                auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
-                const QRect top(permanents->mapTo(&window, QPoint()), permanents->size());
-                const QRect bottom(attributes->mapTo(&window, QPoint()), attributes->size());
-                QVERIFY(window.grab(top.united(bottom)).save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
-                    QStringLiteral("-permanents-detail-class%1.png").arg(specialization)));
+                QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                           QStringLiteral("-permanents-on-class%1.png").arg(specialization)));
+                const auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
+                const QRect TOP(permanents->mapTo(&window, QPoint()), permanents->size());
+                const QRect BOTTOM(attributes->mapTo(&window, QPoint()), attributes->size());
+                QVERIFY(window.grab(TOP.united(BOTTOM))
+                            .save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                  QStringLiteral("-permanents-detail-class%1.png").arg(specialization)));
             }
 
             SimulationResult fixture;
-            fixture.options.duration = 16;
+            fixture.options.duration   = 16;
             fixture.options.iterations = 1;
             fixture.stats.Add(1000, 0);
             fixture.gainsRequested = true;
             for (int i = 0; i < 8; ++i) {
-                rt::BatchStats stats; stats.Add(1100, 0);
-                fixture.gains.push_back({desktop::AttributeGainName(i), 100, stats});
+                rt::BatchStats stats;
+                stats.Add(1100, 0);
+                fixture.gains.push_back({ desktop::AttributeGainName(i), 100, stats });
             }
             options->SetAttributeGainResult(fixture);
-            auto *gain = window.findChild<QLabel *>("gameAttributeGain_attack");
-            const auto gainText = gain->text();
-            QVERIFY(gainText != QStringLiteral("--"));
+            const auto *gain      = window.findChild<QLabel *>("gameAttributeGain_attack");
+            const auto  GAIN_TEXT = gain->text();
+            QVERIFY(GAIN_TEXT != QStringLiteral("--"));
             options->SetInputsEnabled(false);
             QVERIFY(toggle->isEnabled());
             QVERIFY(!window.findChild<QScrollArea *>("permanentsScroll")->isEnabled());
-            selectPanel(false);
+            SELECT_PANEL(false);
             QCOMPARE(options->Snapshot(), snapshot);
-            QCOMPARE(attack(options->ActiveConfig()), attack(config));
-            QCOMPARE(gain->text(), gainText);
+            QCOMPARE(ATTACK(options->ActiveConfig()), ATTACK(CONFIG));
+            QCOMPARE(gain->text(), GAIN_TEXT);
             for (int i = 0; i < 10; ++i) {
-                QCOMPARE(valueLabel(i)->property("displayValue").toString(), base[i]);
-                QVERIFY(valueLabel(i)->property("permanentDelta").toString().isEmpty());
-                QVERIFY(!valueLabel(i)->text().contains("<span"));
+                QCOMPARE(VALUE_LABEL(i)->property("displayValue").toString(), base[i]);
+                QVERIFY(VALUE_LABEL(i)->property("permanentDelta").toString().isEmpty());
+                QVERIFY(!VALUE_LABEL(i)->text().contains("<span"));
             }
             options->SetInputsEnabled(true);
-            if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-                QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-permanents-off-class%1.png").arg(specialization)));
-            selectPanel(true);
-            QCOMPARE(gain->text(), gainText);
+            if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+                QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                           QStringLiteral("-permanents-off-class%1.png").arg(specialization)));
+            }
+            SELECT_PANEL(true);
+            QCOMPARE(gain->text(), GAIN_TEXT);
         }
         // Exercise negative effects without adding fabricated buffs to the production catalog.
-        for (auto *input : options->findChildren<QComboBox *>())
-            if (input->objectName().startsWith("permanent")) input->setCurrentIndex(0);
+        for (auto *input : options->findChildren<QComboBox *>()) {
+            if (input->objectName().startsWith("permanent")) {
+                input->setCurrentIndex(0);
+            }
+        }
         auto *food = options->findChild<QComboBox *>("permanent1FoodEnhance");
-        food->setItemData(1, QJsonArray{QJsonObject{{"Type", QStringLiteral("基础攻击")}, {"Value", -500}},
-            QJsonObject{{"Type", QStringLiteral("会心等级")}, {"Value", -1000}}});
+        food->setItemData(1,
+                          QJsonArray{
+                              QJsonObject{ { "Type", QStringLiteral("基础攻击") }, { "Value", -500 }  },
+                              QJsonObject{ { "Type", QStringLiteral("会心等级") }, { "Value", -1000 } }
+        });
         food->setCurrentIndex(1);
         QTest::qWait(60);
-        for (int i : {1, 3}) {
-            QVERIFY(valueLabel(i)->property("permanentDelta").toString().startsWith('-'));
-            QVERIFY(valueLabel(i)->text().contains(desktop::theme::Error));
+        for (const int I : { 1, 3 }) {
+            QVERIFY(VALUE_LABEL(I)->property("permanentDelta").toString().startsWith('-'));
+            QVERIFY(VALUE_LABEL(I)->text().contains(desktop::theme::Error));
             QTextDocument text;
-            text.setHtml(valueLabel(i)->text());
+            text.setHtml(VALUE_LABEL(I)->text());
             QVERIFY(text.toPlainText().startsWith("(-"));
-            QVERIFY(text.toPlainText().endsWith(valueLabel(i)->property("displayValue").toString()));
+            QVERIFY(text.toPlainText().endsWith(VALUE_LABEL(I)->property("displayValue").toString()));
         }
         food->setCurrentIndex(0);
         options->findChild<QSpinBox *>("importedMajor")->setValue(0);
         options->findChild<QComboBox *>("permanent1FoodSupport")->setCurrentIndex(1);
-        QTRY_COMPARE(valueLabel(0)->property("displayValue").toString(), QStringLiteral("--"));
-        QTRY_COMPARE(valueLabel(0)->property("permanentDelta").toString(), QStringLiteral("+347"));
-        selectPanel(false);
+        QTRY_COMPARE(VALUE_LABEL(0)->property("displayValue").toString(), QStringLiteral("--"));
+        QTRY_COMPARE(VALUE_LABEL(0)->property("permanentDelta").toString(), QStringLiteral("+347"));
+        SELECT_PANEL(false);
         options->SaveSettings();
-        SimulationOptions restored;
-        QCOMPARE(restored.findChild<QTabBar *>("permanentsInPanel")->currentIndex(), 1);
-        QCOMPARE(restored.Snapshot(), options->Snapshot());
+        const SimulationOptions RESTORED;
+        QCOMPARE(RESTORED.findChild<QTabBar *>("permanentsInPanel")->currentIndex(), 1);
+        QCOMPARE(RESTORED.Snapshot(), options->Snapshot());
     }
 
     void attributeGainComparisonModes()
@@ -541,35 +589,38 @@ private slots:
         window.findChild<QSpinBox *>("iterations")->setValue(4);
         window.findChild<QDoubleSpinBox *>("seconds")->setValue(10);
         QTest::qWait(100);
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *modes = window.findChild<QTabBar *>("attributeGainMode");
-        auto *gain = window.findChild<QLabel *>("gameAttributeGain_attack");
-        auto *action = window.findChild<QAction *>("attributeGains");
-        auto *calculate = window.findChild<QToolButton *>("calculateInlineGains");
+        auto       *options   = window.findChild<SimulationOptions *>();
+        auto       *modes     = window.findChild<QTabBar *>("attributeGainMode");
+        const auto *gain      = window.findChild<QLabel *>("gameAttributeGain_attack");
+        const auto *action    = window.findChild<QAction *>("attributeGains");
+        auto       *calculate = window.findChild<QToolButton *>("calculateInlineGains");
         QCOMPARE(modes->count(), 2);
         QCOMPARE(modes->tabText(0), QStringLiteral("同数值"));
         QCOMPARE(modes->tabText(1), QStringLiteral("同费用"));
         QVERIFY(modes->tabToolTip(1).contains(QStringLiteral("同属性费用")));
         QVERIFY(modes->visibleRegion().contains(modes->rect()));
-        for (int i = 0; i < modes->count(); ++i)
+        for (int i = 0; i < modes->count(); ++i) {
             QVERIFY(modes->tabRect(i).width() - 18 >= QFontMetrics(modes->font()).horizontalAdvance(modes->tabText(i)));
+        }
         const auto snapshot = options->Snapshot();
-        auto select = [&](int index) {
+        const auto select   = [&](int index) {
             QTest::mouseClick(modes, Qt::LeftButton, Qt::NoModifier, modes->tabRect(index).center());
             QCOMPARE(modes->currentIndex(), index);
             QCOMPARE(options->Snapshot(), snapshot);
         };
-        auto capture = [&](const QString &suffix) {
-            if (!qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) return;
+        const auto CAPTURE = [&](const QString &suffix) {
+            if (!qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+                return;
+            }
             QTest::qWait(desktop::motion::SlideMs + 40);
-            auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
-            auto *gains = window.findChild<QWidget *>("attributeGainsModule");
+            const auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
+            const auto *gains      = window.findChild<QWidget *>("attributeGainsModule");
             const QRect left(attributes->mapTo(&window, QPoint()), attributes->size());
             const QRect right(gains->mapTo(&window, QPoint()), gains->size());
             QVERIFY(window.grab(left.united(right)).save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + suffix));
         };
         select(1);
-        QCOMPARE(options->GainMode(), desktop::GainComparisonMode::SameCost);
+        QCOMPARE(options->GainMode(), desktop::GainComparisonMode::SAME_COST);
         QCOMPARE(gain->text(), QStringLiteral("--"));
         calculate->click();
         QVERIFY(calculate->isChecked());
@@ -587,18 +638,18 @@ private slots:
         select(1);
         QVERIFY(gain->text() != QStringLiteral("--"));
         QVERIFY(gain->toolTip().contains(QStringLiteral("398")));
-        const auto costValue = gain->text();
-        capture(QStringLiteral("-same-cost.png"));
-        QTemporaryDir directory;
-        QString error;
-        const auto path = directory.filePath(QStringLiteral("cost-result.json"));
-        QVERIFY(window.findChild<ResultsPanel *>()->ExportSelected(path, error));
-        QFile report(path);
+        const auto COST_VALUE = gain->text();
+        CAPTURE(QStringLiteral("-same-cost.png"));
+        const QTemporaryDir DIRECTORY;
+        QString             error;
+        const auto          PATH = DIRECTORY.filePath(QStringLiteral("cost-result.json"));
+        QVERIFY(window.findChild<ResultsPanel *>()->ExportSelected(PATH, error));
+        QFile report(PATH);
         QVERIFY(report.open(QIODevice::ReadOnly));
-        const auto data = QJsonDocument::fromJson(report.readAll()).object();
-        QCOMPARE(data.value("result").toObject().value("gainComparisonMode").toString(), QStringLiteral("same_cost"));
-        QCOMPARE(data.value("gains").toArray()[0].toObject().value("increment").toInt(), 398);
-        QCOMPARE(data.value("gains").toArray()[6].toObject().value("increment").toInt(), 883);
+        const auto DATA = QJsonDocument::fromJson(report.readAll()).object();
+        QCOMPARE(DATA.value("result").toObject().value("gainComparisonMode").toString(), QStringLiteral("same_cost"));
+        QCOMPARE(DATA.value("gains").toArray()[0].toObject().value("increment").toInt(), 398);
+        QCOMPARE(DATA.value("gains").toArray()[6].toObject().value("increment").toInt(), 883);
         select(0);
         QVERIFY(calculate->isChecked());
         window.findChild<QToolButton *>("startButton")->click();
@@ -606,9 +657,9 @@ private slots:
         QVERIFY(gain->text() != QStringLiteral("--"));
         QVERIFY(gain->toolTip().contains(QStringLiteral("增加 100 点")));
         const auto value = gain->text();
-        capture(QStringLiteral("-same-value.png"));
+        CAPTURE(QStringLiteral("-same-value.png"));
         select(1);
-        QCOMPARE(gain->text(), costValue);
+        QCOMPARE(gain->text(), COST_VALUE);
         select(0);
         QCOMPARE(gain->text(), value);
         window.findChild<MacroEditor *>("macroEditor")->appendPlainText(QStringLiteral("\n# 清除两种收益缓存"));
@@ -616,9 +667,9 @@ private slots:
         select(1);
         QCOMPARE(gain->text(), QStringLiteral("--"));
         QCOMPARE(QSettings().value("interface/gainComparisonMode").toInt(), 1);
-        desktop::AttributeGainsPanel restored;
-        QCOMPARE(restored.Mode(), desktop::GainComparisonMode::SameCost);
-        QVERIFY(restored.calculate->isChecked());
+        const desktop::AttributeGainsPanel RESTORED;
+        QCOMPARE(RESTORED.Mode(), desktop::GainComparisonMode::SAME_COST);
+        QVERIFY(RESTORED.calculate->isChecked());
     }
 
     void automaticGainsFollowSimulation()
@@ -626,11 +677,11 @@ private slots:
         Workbench window;
         window.resize(1120, 820);
         window.show();
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *calculate = window.findChild<QToolButton *>("calculateInlineGains");
-        auto *start = window.findChild<QToolButton *>("startButton");
-        auto *action = window.findChild<QAction *>("attributeGains");
-        auto *history = window.findChild<QTableWidget *>("resultHistory");
+        const auto *options   = window.findChild<SimulationOptions *>();
+        auto       *calculate = window.findChild<QToolButton *>("calculateInlineGains");
+        auto       *start     = window.findChild<QToolButton *>("startButton");
+        const auto *action    = window.findChild<QAction *>("attributeGains");
+        const auto *history   = window.findChild<QTableWidget *>("resultHistory");
         window.findChild<QSpinBox *>("iterations")->setValue(4);
         window.findChild<QSpinBox *>("workers")->setValue(2);
         window.findChild<QDoubleSpinBox *>("seconds")->setValue(5);
@@ -638,48 +689,55 @@ private slots:
         QVERIFY(calculate->isCheckable() && !calculate->isChecked());
         QVERIFY(!options->AutoCalculateGains());
         QTemporaryDir directory;
-        auto report = [&]() -> QJsonObject {
-            QString error;
-            const auto path = directory.filePath(QStringLiteral("auto-gains.json"));
-            if (!window.findChild<ResultsPanel *>()->ExportSelected(path, error)) return {};
-            QFile file(path);
-            if (!file.open(QIODevice::ReadOnly)) return {};
+        const auto    report = [&]() -> QJsonObject {
+            QString    error;
+            const auto PATH = directory.filePath(QStringLiteral("auto-gains.json"));
+            if (!window.findChild<ResultsPanel *>()->ExportSelected(PATH, error)) {
+                return {};
+            }
+            QFile file(PATH);
+            if (!file.open(QIODevice::ReadOnly)) {
+                return {};
+            }
             return QJsonDocument::fromJson(file.readAll()).object();
         };
-        auto run = [&](auto launch, quint64 requested) {
+        const auto RUN = [&](auto launch, quint64 requested) {
             launch();
-            auto *worker = window.findChild<BatchWorker *>();
+            const auto *worker = window.findChild<BatchWorker *>();
             QVERIFY(worker);
             QCOMPARE(worker->Requested(), requested);
             QVERIFY(!calculate->isEnabled());
             QTRY_VERIFY_WITH_TIMEOUT(start->isEnabled(), 10000);
             QTRY_VERIFY(window.findChildren<BatchWorker *>().isEmpty());
         };
-        run([&] { start->click(); }, 4);
+        RUN([&] { start->click(); }, 4);
         auto data = report();
         QVERIFY(!data.isEmpty());
         QVERIFY(!data.value("result").toObject().value("gainsRequested").toBool());
         QVERIFY(data.value("gains").toArray().isEmpty());
         const auto snapshot = options->Snapshot();
-        const int count = history->rowCount();
+        const int  count    = history->rowCount();
         calculate->click();
         QTest::qWait(200);
         QVERIFY(calculate->isChecked() && action->isChecked());
         QCOMPARE(history->rowCount(), count);
         QVERIFY(window.findChildren<BatchWorker *>().isEmpty());
         QCOMPARE(options->Snapshot(), snapshot);
-        const auto expected = desktop::theme::Blend(QColor(desktop::theme::Surface), desktop::theme::AccentColor(calculate), .16);
+        const auto EXPECTED = desktop::theme::Blend(QColor(desktop::theme::Surface), desktop::theme::AccentColor(calculate), .16);
         QVERIFY(calculate->isEnabled());
-        QColor checkedFill;
-        auto checkedFillSettled = [&] {
-            const auto image = calculate->grab().toImage();
-            const auto actual = checkedFill = image.pixelColor(qRound(3 * image.devicePixelRatio()), qRound(13 * image.devicePixelRatio()));
-            return std::abs(actual.red() - expected.red()) <= 1 && std::abs(actual.green() - expected.green()) <= 1
-                && std::abs(actual.blue() - expected.blue()) <= 1;
+        QColor     checked_fill;
+        const auto CHECKED_FILL_SETTLED = [&] {
+            const auto IMAGE  = calculate->grab().toImage();
+            const auto ACTUAL = checked_fill =
+                IMAGE.pixelColor(qRound(3 * IMAGE.devicePixelRatio()), qRound(13 * IMAGE.devicePixelRatio()));
+            return std::abs(ACTUAL.red() - EXPECTED.red()) <= 1 && std::abs(ACTUAL.green() - EXPECTED.green()) <= 1 &&
+                   std::abs(ACTUAL.blue() - EXPECTED.blue()) <= 1;
         };
-        QTRY_VERIFY2_WITH_TIMEOUT(checkedFillSettled(), qPrintable(QStringLiteral("checked fill %1, expected %2")
-            .arg(checkedFill.name(), expected.name())), 2000);
-        run([&] { start->click(); }, 12);
+        QTRY_VERIFY2_WITH_TIMEOUT(
+            CHECKED_FILL_SETTLED(),
+            qPrintable(QStringLiteral("checked fill %1, expected %2").arg(checked_fill.name(), EXPECTED.name())),
+            2000);
+        RUN([&] { start->click(); }, 12);
         data = report();
         QVERIFY(data.value("result").toObject().value("gainsRequested").toBool());
         QCOMPARE(data.value("gains").toArray().size(), 8);
@@ -688,11 +746,11 @@ private slots:
         window.findChild<QTabBar *>("attributeGainMode")->setCurrentIndex(1);
         window.findChild<QPushButton *>("nav_macro")->click();
         QCoreApplication::processEvents();
-        run([&] { window.findChild<QToolButton *>("runMacroButton")->click(); }, 12);
+        RUN([&] { window.findChild<QToolButton *>("runMacroButton")->click(); }, 12);
         data = report();
         QCOMPARE(data.value("result").toObject().value("gainComparisonMode").toString(), QStringLiteral("same_cost"));
         QCOMPARE(data.value("gains").toArray()[0].toObject().value("increment").toInt(), 398);
-        run([&] { window.findChild<QAction *>("singleTrace")->trigger(); }, 1);
+        RUN([&] { window.findChild<QAction *>("singleTrace")->trigger(); }, 1);
         data = report();
         QVERIFY(data.value("result").toObject().value("trace").toBool());
         QVERIFY(!data.value("result").toObject().value("gainsRequested").toBool());
@@ -700,7 +758,7 @@ private slots:
 
         window.findChild<QToolButton *>("debugButton")->setChecked(true);
         window.findChild<QAction *>("debugStart")->trigger();
-        QTRY_COMPARE(window.findChild<DebugSession *>()->GetState(), DebugSession::Paused);
+        QTRY_COMPARE(window.findChild<DebugSession *>()->GetState(), DebugSession::PAUSED);
         QVERIFY(window.findChildren<BatchWorker *>().isEmpty());
         QVERIFY(calculate->isChecked() && !calculate->isEnabled());
         window.findChild<QAction *>("debugStop")->trigger();
@@ -726,9 +784,13 @@ private slots:
         QCOMPARE(desktop::motion::TextMs, 180);
         QCOMPARE(desktop::motion::PressMs, 140);
         desktop::SegmentedTabs tabs;
-        for (const auto *name : {"Attributes", "Equipment", "Gains"}) tabs.addTab(new QWidget, QString::fromLatin1(name));
-        tabs.resize(460, 240); tabs.show(); QCoreApplication::processEvents();
-        auto *bar = static_cast<desktop::SegmentedTabBar *>(tabs.tabBar());
+        for (const auto *name : { "Attributes", "Equipment", "Gains" }) {
+            tabs.addTab(new QWidget, QString::fromLatin1(name));
+        }
+        tabs.resize(460, 240);
+        tabs.show();
+        QCoreApplication::processEvents();
+        auto      *bar   = static_cast<desktop::SegmentedTabBar *>(tabs.tabBar());
         const auto first = bar->IndicatorRect();
         QTest::mousePress(bar, Qt::LeftButton, Qt::NoModifier, bar->tabRect(1).center());
         QTest::qWait(70);
@@ -742,18 +804,20 @@ private slots:
         QVERIFY(bar->SelectionAnimating());
         QVERIFY(!bar->KeyboardFocusVisible());
         QTest::qWait(90);
-        const auto mid = bar->IndicatorRect();
-        QVERIFY(mid.left() > first.left());
+        const auto MID = bar->IndicatorRect();
+        QVERIFY(MID.left() > first.left());
         tabs.setCurrentIndex(2);
-        QVERIFY(std::abs(bar->IndicatorRect().left() - mid.left()) < 2);
+        QVERIFY(std::abs(bar->IndicatorRect().left() - MID.left()) < 2);
         QTRY_VERIFY(!bar->SelectionAnimating());
         QTest::keyClick(bar, Qt::Key_Left);
         QVERIFY(bar->KeyboardFocusVisible());
 
-        Workbench window; window.show(); QTest::qWait(100);
-        auto *nav = static_cast<desktop::NavigationStrip *>(window.findChild<QWidget *>("centeredNavigation"));
-        auto *button = static_cast<desktop::NavigationButton *>(window.findChild<QPushButton *>("nav_macro"));
-        const auto origin = nav->IndicatorRect();
+        Workbench window;
+        window.show();
+        QTest::qWait(100);
+        const auto *nav    = static_cast<desktop::NavigationStrip *>(window.findChild<QWidget *>("centeredNavigation"));
+        auto       *button = static_cast<desktop::NavigationButton *>(window.findChild<QPushButton *>("nav_macro"));
+        const auto  ORIGIN = nav->IndicatorRect();
         QTest::mousePress(button, Qt::LeftButton);
         QTest::qWait(70);
         QVERIFY(button->PressScale() < 1);
@@ -763,7 +827,7 @@ private slots:
         QVERIFY(nav->SelectionAnimating());
         QVERIFY(!button->KeyboardFocusVisible());
         QTest::qWait(90);
-        QVERIFY(nav->IndicatorRect().left() > origin.left());
+        QVERIFY(nav->IndicatorRect().left() > ORIGIN.left());
         QTRY_VERIFY(!nav->SelectionAnimating());
     }
 
@@ -788,143 +852,170 @@ private slots:
     {
         Workbench window;
         window.show();
-        auto checkModuleAlignment = [&] {
-            auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
-            auto *gains = window.findChild<QWidget *>("attributeGainsModule");
-            auto *modes = gains->findChild<QTabBar *>("attributeGainMode");
-            auto *gainHeader = gains->findChild<QWidget *>("attributeModuleHeader");
-            auto *calculate = gains->findChild<QToolButton *>("calculateInlineGains");
-            auto *actions = gains->findChild<QWidget *>("attributeModuleActions");
-            auto *talents = window.findChild<QTabWidget *>("configurationTabs");
-            auto *flow = window.findChild<QGroupBox *>("flowMacroPanel");
-            auto *tabs = talents->tabBar();
+        const auto check_module_alignment = [&] {
+            auto       *attributes  = window.findChild<QWidget *>("gameAttributePanel");
+            auto       *gains       = window.findChild<QWidget *>("attributeGainsModule");
+            const auto *modes       = gains->findChild<QTabBar *>("attributeGainMode");
+            const auto *gain_header = gains->findChild<QWidget *>("attributeModuleHeader");
+            const auto *calculate   = gains->findChild<QToolButton *>("calculateInlineGains");
+            const auto *actions     = gains->findChild<QWidget *>("attributeModuleActions");
+            const auto *talents     = window.findChild<QTabWidget *>("configurationTabs");
+            const auto *flow        = window.findChild<QGroupBox *>("flowMacroPanel");
+            const auto *tabs        = talents->tabBar();
             QCOMPARE(modes->height(), desktop::AttributeActionHeight);
             QCOMPARE(modes->height(), calculate->height());
             QVERIFY(actions->isAncestorOf(modes) && actions->isAncestorOf(calculate));
             QCOMPARE(modes->mapTo(&window, QPoint()).y(), calculate->mapTo(&window, QPoint()).y());
             QVERIFY(modes->mapTo(&window, modes->rect().topRight()).x() < calculate->mapTo(&window, QPoint()).x());
-            QCOMPARE(tabs->height(), gainHeader->height());
-            const auto talentBodyTop = talents->currentWidget()->mapTo(&window, QPoint()).y();
-            const auto gainBodyTop = gains->findChild<QWidget *>("attributeModuleBody")->mapTo(&window, QPoint()).y();
-            const auto gainGap = gainBodyTop - gainHeader->mapTo(&window, QPoint(0, gainHeader->height())).y();
-            QCOMPARE(gainGap, desktop::AttributeHeaderSpacing);
-            QCOMPARE(talentBodyTop - tabs->mapTo(&window, QPoint(0, tabs->height())).y(), desktop::AttributeHeaderSpacing);
+            QCOMPARE(tabs->height(), gain_header->height());
+            const auto TALENT_BODY_TOP = talents->currentWidget()->mapTo(&window, QPoint()).y();
+            const auto GAIN_BODY_TOP = gains->findChild<QWidget *>("attributeModuleBody")->mapTo(&window, QPoint()).y();
+            const auto GAIN_GAP = GAIN_BODY_TOP - gain_header->mapTo(&window, QPoint(0, gain_header->height())).y();
+            QCOMPARE(GAIN_GAP, desktop::AttributeHeaderSpacing);
+            QCOMPARE(TALENT_BODY_TOP - tabs->mapTo(&window, QPoint(0, tabs->height())).y(), desktop::AttributeHeaderSpacing);
             QCOMPARE(flow->mapTo(&window, QPoint()).y(), gains->mapTo(&window, QPoint()).y());
             QCOMPARE(flow->height(), gains->height());
             QCOMPARE(talents->height(), 100);
             QCOMPARE(talents->mapTo(&window, QPoint()).x(), attributes->mapTo(&window, QPoint()).x());
-            QCOMPARE(talents->mapTo(&window, talents->rect().topRight()).x(), flow->mapTo(&window, flow->rect().topRight()).x());
+            QCOMPARE(talents->mapTo(&window, talents->rect().topRight()).x(),
+                     flow->mapTo(&window, flow->rect().topRight()).x());
             auto *permanents = window.findChild<QGroupBox *>("permanentPanel");
             if (permanents->isVisible()) {
-                auto frameTop = [&](QGroupBox *box) {
+                const auto FRAME_TOP = [&](QGroupBox *box) {
                     QStyleOptionGroupBox option;
                     option.initFrom(box);
-                    option.text = box->title();
+                    option.text        = box->title();
                     option.subControls = QStyle::SC_GroupBoxFrame | QStyle::SC_GroupBoxLabel;
-                    const auto frame = box->style()->subControlRect(QStyle::CC_GroupBox, &option, QStyle::SC_GroupBoxFrame, box);
-                    return box->mapTo(&window, frame.topLeft()).y();
+                    const auto FRAME = box->style()->subControlRect(QStyle::CC_GroupBox, &option, QStyle::SC_GroupBoxFrame, box);
+                    return box->mapTo(&window, FRAME.topLeft()).y();
                 };
-                auto *permanentMode = permanents->findChild<QTabBar *>("permanentsInPanel");
-                QCOMPARE(frameTop(permanents) - permanentMode->mapTo(&window, QPoint(0, permanentMode->height())).y(), gainGap);
-                QCOMPARE(frameTop(window.findChild<QGroupBox *>("runSettings")), frameTop(permanents));
+                const auto *permanent_mode = permanents->findChild<QTabBar *>("permanentsInPanel");
+                QCOMPARE(FRAME_TOP(permanents) - permanent_mode->mapTo(&window, QPoint(0, permanent_mode->height())).y(), GAIN_GAP);
+                QCOMPARE(FRAME_TOP(window.findChild<QGroupBox *>("runSettings")), FRAME_TOP(permanents));
             }
-            for (auto *panel : {attributes, gains}) {
-                auto *body = panel->findChild<QWidget *>("attributeModuleBody");
-                QCOMPARE(body->mapTo(&window, QPoint()).y(), gainBodyTop);
+            for (const auto *panel : { attributes, gains }) {
+                const auto *body = panel->findChild<QWidget *>("attributeModuleBody");
+                QCOMPARE(body->mapTo(&window, QPoint()).y(), GAIN_BODY_TOP);
                 QCOMPARE(panel->height(), gains->height());
                 QCOMPARE(panel->mapTo(&window, panel->rect().bottomLeft()).y(),
-                    gains->mapTo(&window, gains->rect().bottomLeft()).y());
+                         gains->mapTo(&window, gains->rect().bottomLeft()).y());
                 QVERIFY(talents->mapTo(&window, QPoint()).y() >= panel->mapTo(&window, panel->rect().bottomLeft()).y() + 4);
             }
         };
-        for (const QSize size : {QSize(1206, 860), QSize(1280, 840), QSize(1120, 820)}) {
-            window.resize(size);
+        for (const QSize SIZE : { QSize(1206, 860), QSize(1280, 840), QSize(1120, 820) }) {
+            window.resize(SIZE);
             window.findChild<QPushButton *>("nav_simulation")->click();
-            for (int specialization : {0, 1}) {
+            for (const int specialization : { 0, 1 }) {
                 window.findChild<QComboBox *>("specialization")->setCurrentIndex(specialization);
                 QTest::qWait(100);
-                QCOMPARE(window.size(), size);
-                checkModuleAlignment();
-                auto *navigation = window.findChild<QWidget *>("topNavigation");
-                auto *items = window.findChild<QWidget *>("centeredNavigation");
-                const qreal center = items->mapTo(navigation, QPoint()).x() + items->width() / 2.0;
-                QVERIFY(std::abs(center - navigation->width() / 2.0) <= 1);
+                QCOMPARE(window.size(), SIZE);
+                check_module_alignment();
+                const auto *navigation = window.findChild<QWidget *>("topNavigation");
+                const auto *items      = window.findChild<QWidget *>("centeredNavigation");
+                const qreal CENTER     = items->mapTo(navigation, QPoint()).x() + (items->width() / 2.0);
+                QVERIFY(std::abs(CENTER - navigation->width() / 2.0) <= 1);
                 if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
-                    QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
-                        QStringLiteral("-complete-%1x%2-class%3.png").arg(size.width()).arg(size.height()).arg(specialization)));
-                    QVERIFY(window.findChild<QWidget *>("simulationSettingsRow")->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
-                        QStringLiteral("-upper-%1x%2-class%3.png").arg(size.width()).arg(size.height()).arg(specialization)));
-                    auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
-                    auto *talents = window.findChild<QWidget *>("configurationTabs");
+                    QVERIFY(window.grab().save(
+                        qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                        QStringLiteral("-complete-%1x%2-class%3.png").arg(SIZE.width()).arg(SIZE.height()).arg(specialization)));
+                    QVERIFY(window.findChild<QWidget *>("simulationSettingsRow")
+                                ->grab()
+                                .save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                      QStringLiteral("-upper-%1x%2-class%3.png").arg(SIZE.width()).arg(SIZE.height()).arg(specialization)));
+                    const auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
+                    const auto *talents    = window.findChild<QWidget *>("configurationTabs");
                     const QRect left(attributes->mapTo(&window, QPoint()), attributes->size());
                     const QRect right(talents->mapTo(&window, QPoint()), talents->size());
-                    QVERIFY(window.grab(left.united(right)).save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
-                        QStringLiteral("-modules-%1x%2-class%3.png").arg(size.width()).arg(size.height()).arg(specialization)));
+                    QVERIFY(window.grab(left.united(right))
+                                .save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                      QStringLiteral("-modules-%1x%2-class%3.png").arg(SIZE.width()).arg(SIZE.height()).arg(specialization)));
                 }
-                for (const auto &name : {QStringLiteral("attributesScroll"), QStringLiteral("talentsScroll%1").arg(specialization), QStringLiteral("configurationScroll")}) {
-                    auto *scroll = window.findChild<QScrollArea *>(name);
+                for (const auto &name : { QStringLiteral("attributesScroll"),
+                                          QStringLiteral("talentsScroll%1").arg(specialization),
+                                          QStringLiteral("configurationScroll") })
+                {
+                    const auto *scroll = window.findChild<QScrollArea *>(name);
                     QVERIFY(scroll);
                     QVERIFY2(scroll->verticalScrollBar()->maximum() == 0,
-                        qPrintable(QStringLiteral("%1 at %2x%3: viewport %4x%5, content %6x%7, vertical range %8")
-                        .arg(name).arg(size.width()).arg(size.height()).arg(scroll->viewport()->width()).arg(scroll->viewport()->height())
-                        .arg(scroll->widget()->width()).arg(scroll->widget()->height()).arg(scroll->verticalScrollBar()->maximum())));
+                             qPrintable(QStringLiteral("%1 at %2x%3: viewport %4x%5, content %6x%7, vertical range %8")
+                                            .arg(name)
+                                            .arg(SIZE.width())
+                                            .arg(SIZE.height())
+                                            .arg(scroll->viewport()->width())
+                                            .arg(scroll->viewport()->height())
+                                            .arg(scroll->widget()->width())
+                                            .arg(scroll->widget()->height())
+                                            .arg(scroll->verticalScrollBar()->maximum())));
                     QCOMPARE(scroll->horizontalScrollBar()->maximum(), 0);
                 }
                 for (const auto &row : desktop::GameAttributeRows) {
-                    auto *value = window.findChild<QLabel *>(QStringLiteral("gameAttributeValue_%1").arg(QString::fromLatin1(row.key)));
+                    const auto *value =
+                        window.findChild<QLabel *>(QStringLiteral("gameAttributeValue_%1").arg(QString::fromLatin1(row.key)));
                     QVERIFY2(value->isVisible() && value->visibleRegion().contains(value->rect()), row.key);
-                    auto *gainRow = window.findChild<QWidget *>(QStringLiteral("gameAttributeGainRow_%1").arg(QString::fromLatin1(row.key)));
-                    QVERIFY2(gainRow->isVisible() && gainRow->visibleRegion().contains(gainRow->rect()), row.key);
-                    QCOMPARE(value->mapTo(&window, value->rect().center()).y(), gainRow->mapTo(&window, gainRow->rect().center()).y());
+                    const auto *gain_row =
+                        window.findChild<QWidget *>(QStringLiteral("gameAttributeGainRow_%1").arg(QString::fromLatin1(row.key)));
+                    QVERIFY2(gain_row->isVisible() && gain_row->visibleRegion().contains(gain_row->rect()), row.key);
+                    QCOMPARE(value->mapTo(&window, value->rect().center()).y(),
+                             gain_row->mapTo(&window, gain_row->rect().center()).y());
                 }
-                int talentY = -1, previousX = -1;
+                int talent_y   = -1;
+                int previous_x = -1;
                 for (int tier = 1; tier <= 9; ++tier) {
-                    auto *button = window.findChild<QWidget *>(QStringLiteral("talents%1").arg(specialization))
-                        ->findChild<QToolButton *>(QStringLiteral("talentTier%1").arg(tier));
-                    QVERIFY2(button->isVisible() && button->visibleRegion().contains(button->rect()), qPrintable(button->objectName()));
-                    const auto position = button->mapTo(&window, QPoint());
-                    if (talentY >= 0) QCOMPARE(position.y(), talentY);
-                    QVERIFY(position.x() > previousX);
-                    talentY = position.y(); previousX = position.x();
+                    const auto *button = window.findChild<QWidget *>(QStringLiteral("talents%1").arg(specialization))
+                                             ->findChild<QToolButton *>(QStringLiteral("talentTier%1").arg(tier));
+                    QVERIFY2(button->isVisible() && button->visibleRegion().contains(button->rect()),
+                             qPrintable(button->objectName()));
+                    const auto POSITION = button->mapTo(&window, QPoint());
+                    if (talent_y >= 0) {
+                        QCOMPARE(POSITION.y(), talent_y);
+                    }
+                    QVERIFY(POSITION.x() > previous_x);
+                    talent_y   = POSITION.y();
+                    previous_x = POSITION.x();
                 }
-                auto *run = window.findChild<QWidget *>("runSettings");
+                const auto *run = window.findChild<QWidget *>("runSettings");
                 QVERIFY(run->findChildren<QScrollArea *>().isEmpty());
                 QVERIFY(!window.findChild<QTabWidget *>("runTabs"));
-                for (const auto *key : {"iterations", "workers", "seconds", "seed", "delay"}) {
-                    auto *input = window.findChild<QWidget *>(QString::fromLatin1(key));
+                for (const auto *key : { "iterations", "workers", "seconds", "seed", "delay" }) {
+                    const auto *input = window.findChild<QWidget *>(QString::fromLatin1(key));
                     QVERIFY2(input->visibleRegion().contains(input->rect()), key);
                 }
-                for (const auto *page : {"attributes", "talents"}) {
+                for (const auto *page : { "attributes", "talents" }) {
                     window.findChild<QPushButton *>(QStringLiteral("nav_%1").arg(QString::fromLatin1(page)))->click();
                     QCoreApplication::processEvents();
-                    const auto name = QByteArray(page) == "attributes" ? QStringLiteral("attributesScroll")
-                        : QStringLiteral("talentsScroll%1").arg(specialization);
-                    auto *scroll = window.findChild<QScrollArea *>(name);
+                    const auto  NAME   = QByteArray(page) == "attributes"
+                                             ? QStringLiteral("attributesScroll")
+                                             : QStringLiteral("talentsScroll%1").arg(specialization);
+                    const auto *scroll = window.findChild<QScrollArea *>(NAME);
                     QCOMPARE(scroll->verticalScrollBar()->maximum(), 0);
                     QCOMPARE(scroll->horizontalScrollBar()->maximum(), 0);
                     if (QByteArray(page) == "attributes") {
-                        checkModuleAlignment();
-                        auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
-                        auto *gains = window.findChild<QWidget *>("attributeGainsModule");
+                        check_module_alignment();
+                        const auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
+                        const auto *gains      = window.findChild<QWidget *>("attributeGainsModule");
                         QVERIFY(std::abs(attributes->width() - gains->width()) <= 1);
                         QVERIFY(attributes->height() <= 270 && gains->height() <= 270);
-                        auto *modes = gains->findChild<QTabBar *>("attributeGainMode");
+                        const auto *modes = gains->findChild<QTabBar *>("attributeGainMode");
                         QVERIFY(modes->visibleRegion().contains(modes->rect()));
-                        for (int i = 0; i < modes->count(); ++i)
-                            QVERIFY(modes->tabRect(i).width() - 18 >= QFontMetrics(modes->font()).horizontalAdvance(modes->tabText(i)));
-                        auto *import = window.findChild<QPushButton *>("importAttributes");
-                        auto *calculate = window.findChild<QToolButton *>("calculateInlineGains");
+                        for (int i = 0; i < modes->count(); ++i) {
+                            QVERIFY(modes->tabRect(i).width() - 18 >=
+                                    QFontMetrics(modes->font()).horizontalAdvance(modes->tabText(i)));
+                        }
+                        const auto *import    = window.findChild<QPushButton *>("importAttributes");
+                        const auto *calculate = window.findChild<QToolButton *>("calculateInlineGains");
                         QCOMPARE(import->mapTo(&window, QPoint()).y(), calculate->mapTo(&window, QPoint()).y());
                         for (const auto &row : desktop::GameAttributeRows) {
-                            const auto key = QString::fromLatin1(row.key);
-                            auto *value = window.findChild<QLabel *>("gameAttributeValue_" + key);
-                            auto *gain = window.findChild<QWidget *>("gameAttributeGainRow_" + key);
-                            QCOMPARE(value->mapTo(&window, value->rect().center()).y(), gain->mapTo(&window, gain->rect().center()).y());
+                            const auto  KEY   = QString::fromLatin1(row.key);
+                            const auto *value = window.findChild<QLabel *>("gameAttributeValue_" + KEY);
+                            const auto *gain  = window.findChild<QWidget *>("gameAttributeGainRow_" + KEY);
+                            QCOMPARE(value->mapTo(&window, value->rect().center()).y(),
+                                     gain->mapTo(&window, gain->rect().center()).y());
                         }
                         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
                             QTest::qWait(desktop::motion::SlideMs + 40);
-                            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
-                                QStringLiteral("-role-%1x%2-class%3.png").arg(size.width()).arg(size.height()).arg(specialization)));
+                            QVERIFY(window.grab().save(
+                                qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                QStringLiteral("-role-%1x%2-class%3.png").arg(SIZE.width()).arg(SIZE.height()).arg(specialization)));
                         }
                     }
                 }
@@ -937,16 +1028,16 @@ private slots:
     {
         Workbench window;
         window.show();
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *run = window.findChild<QWidget *>("runSettings");
-        auto *content = window.findChild<QWidget *>("runParameters");
-        auto *form = qobject_cast<QFormLayout *>(content->layout());
-        auto *permanents = window.findChild<QWidget *>("permanentPanel");
-        auto *upper = window.findChild<QWidget *>("simulationSettingsRow");
-        auto *seed = window.findChild<QLineEdit *>("seed");
-        const auto maxSeed = QStringLiteral("18446744073709551615");
-        seed->setText(maxSeed);
-        for (const auto *key : {"iterations", "workers", "delay"}) {
+        auto       *options    = window.findChild<SimulationOptions *>();
+        auto       *run        = window.findChild<QWidget *>("runSettings");
+        const auto *content    = window.findChild<QWidget *>("runParameters");
+        const auto *form       = qobject_cast<QFormLayout *>(content->layout());
+        const auto *permanents = window.findChild<QWidget *>("permanentPanel");
+        auto       *upper      = window.findChild<QWidget *>("simulationSettingsRow");
+        auto       *seed       = window.findChild<QLineEdit *>("seed");
+        const auto  MAX_SEED   = QStringLiteral("18446744073709551615");
+        seed->setText(MAX_SEED);
+        for (const auto *key : { "iterations", "workers", "delay" }) {
             auto *input = window.findChild<QSpinBox *>(QString::fromLatin1(key));
             input->setValue(input->maximum());
         }
@@ -955,13 +1046,13 @@ private slots:
         QVERIFY(!window.findChild<QTabWidget *>("runTabs"));
         QVERIFY(run->findChildren<QScrollArea *>().isEmpty());
         QCOMPARE(form->rowCount(), 5);
-        for (const QSize size : {QSize(1206, 860), QSize(1280, 840), QSize(1120, 820)}) {
-            window.resize(size);
-            for (int specialization : {0, 1}) {
+        for (const QSize SIZE : { QSize(1206, 860), QSize(1280, 840), QSize(1120, 820) }) {
+            window.resize(SIZE);
+            for (const int specialization : { 0, 1 }) {
                 window.findChild<QComboBox *>("specialization")->setCurrentIndex(specialization);
                 QTest::qWait(100);
                 const auto snapshot = options->Snapshot();
-                QCOMPARE(window.size(), size);
+                QCOMPARE(window.size(), SIZE);
                 QCOMPARE(run->width(), 224);
                 QCOMPARE(run->parentWidget(), upper);
                 QCOMPARE(permanents->parentWidget(), upper);
@@ -969,60 +1060,69 @@ private slots:
                 QCOMPARE(permanents->x() - run->geometry().right() - 1, 4);
                 QCOMPARE(permanents->geometry().right(), upper->rect().right());
                 QCOMPARE(run->height(), permanents->height());
-                QRect pairs, labels;
-                int fieldLeft = -1;
+                QRect pairs;
+                QRect labels;
+                int   field_left = -1;
                 for (int row = 0; row < form->rowCount(); ++row) {
-                    auto *label = form->itemAt(row, QFormLayout::LabelRole);
-                    auto *field = form->itemAt(row, QFormLayout::FieldRole);
+                    const auto *label = form->itemAt(row, QFormLayout::LabelRole);
+                    const auto *field = form->itemAt(row, QFormLayout::FieldRole);
                     QVERIFY(label && field);
                     QVERIFY(field->geometry().width() >= 128 && field->geometry().width() <= 136);
-                    if (fieldLeft >= 0) QCOMPARE(field->geometry().left(), fieldLeft);
-                    fieldLeft = field->geometry().left();
+                    if (field_left >= 0) {
+                        QCOMPARE(field->geometry().left(), field_left);
+                    }
+                    field_left = field->geometry().left();
                     QVERIFY(label->geometry().width() >= label->sizeHint().width());
                     QCOMPARE(field->widget()->font().pixelSize(), 13);
                     labels = labels.united(label->geometry());
-                    pairs = pairs.united(label->geometry()).united(field->geometry());
+                    pairs  = pairs.united(label->geometry()).united(field->geometry());
                     QVERIFY(field->widget()->visibleRegion().contains(field->widget()->rect()));
                     QVERIFY(run->rect().contains(QRect(field->widget()->mapTo(run, QPoint()), field->widget()->size())));
                 }
-                QCOMPARE(fieldLeft - labels.right() - 1, 6);
+                QCOMPARE(field_left - labels.right() - 1, 6);
                 QVERIFY(qAbs(pairs.center().x() - content->rect().center().x()) <= 1);
                 QVERIFY(pairs.left() >= 4 && pairs.left() <= 8);
                 QCOMPARE(options->Snapshot(), snapshot);
-                QSet<int> columns, rows;
-                int permanentCount = 0;
-                for (auto *choice : options->findChildren<QComboBox *>()) {
-                    if (!choice->objectName().startsWith(QStringLiteral("permanent%1").arg(specialization))) continue;
-                    ++permanentCount;
+                QSet<int> columns;
+                QSet<int> rows;
+                int       permanent_count = 0;
+                for (const auto *choice : options->findChildren<QComboBox *>()) {
+                    if (!choice->objectName().startsWith(QStringLiteral("permanent%1").arg(specialization))) {
+                        continue;
+                    }
+                    ++permanent_count;
                     QCOMPARE(choice->size(), QSize(38, 38));
                     QVERIFY(choice->visibleRegion().contains(choice->rect()));
-                    auto *caption = options->findChild<QLabel *>(choice->objectName() + QStringLiteral("Caption"));
+                    const auto *caption =
+                        options->findChild<QLabel *>(choice->objectName() + QStringLiteral("Caption"));
                     QVERIFY(caption && caption->visibleRegion().contains(caption->rect()));
                     QVERIFY(caption->width() >= caption->fontMetrics().horizontalAdvance(caption->text()));
                     QCOMPARE(caption->font().pixelSize(), 11);
-                    const auto iconPosition = choice->mapTo(permanents, QPoint());
-                    const auto textPosition = caption->mapTo(permanents, QPoint());
-                    QCOMPARE(textPosition.x() - iconPosition.x() - choice->width(), 6);
-                    columns.insert(iconPosition.x());
-                    rows.insert(iconPosition.y());
+                    const auto ICON_POSITION = choice->mapTo(permanents, QPoint());
+                    const auto TEXT_POSITION = caption->mapTo(permanents, QPoint());
+                    QCOMPARE(TEXT_POSITION.x() - ICON_POSITION.x() - choice->width(), 6);
+                    columns.insert(ICON_POSITION.x());
+                    rows.insert(ICON_POSITION.y());
                 }
-                QCOMPARE(permanentCount, 12);
+                QCOMPARE(permanent_count, 12);
                 QCOMPARE(columns.size(), 3);
                 QCOMPARE(rows.size(), 4);
-                auto *permanentScroll = options->findChild<QScrollArea *>("permanentsScroll");
-                QCOMPARE(permanentScroll->horizontalScrollBar()->maximum(), 0);
-                QCOMPARE(permanentScroll->verticalScrollBar()->maximum(), 0);
+                const auto *permanent_scroll = options->findChild<QScrollArea *>("permanentsScroll");
+                QCOMPARE(permanent_scroll->horizontalScrollBar()->maximum(), 0);
+                QCOMPARE(permanent_scroll->verticalScrollBar()->maximum(), 0);
                 QCOMPARE(options->Batch().seed, std::numeric_limits<std::uint64_t>::max());
-                QVERIFY(seed->toolTip().contains(maxSeed));
+                QVERIFY(seed->toolTip().contains(MAX_SEED));
                 seed->setFocus();
                 QTest::keyClick(seed, Qt::Key_Home);
                 QCOMPARE(seed->cursorPosition(), 0);
                 QTest::keyClick(seed, Qt::Key_End);
-                QCOMPARE(seed->cursorPosition(), maxSeed.size());
-                QCOMPARE(seed->text(), maxSeed);
-                if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-                    QVERIFY(run->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
-                        QStringLiteral("-settings-%1x%2-class%3.png").arg(size.width()).arg(size.height()).arg(specialization)));
+                QCOMPARE(seed->cursorPosition(), MAX_SEED.size());
+                QCOMPARE(seed->text(), MAX_SEED);
+                if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+                    QVERIFY(run->grab().save(
+                        qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                        QStringLiteral("-settings-%1x%2-class%3.png").arg(SIZE.width()).arg(SIZE.height()).arg(specialization)));
+                }
                 window.findChild<QPushButton *>("nav_permanents")->click();
                 QCoreApplication::processEvents();
                 QVERIFY(permanents->isVisible());
@@ -1042,10 +1142,10 @@ private slots:
         Workbench window;
         window.resize(1120, 820);
         window.show();
-        auto *seconds = window.findChild<QDoubleSpinBox *>("seconds");
-        auto *edit = seconds->findChild<QLineEdit *>();
-        auto *unit = seconds->findChild<QLabel *>("spinBoxUnit");
-        auto *seed = window.findChild<QLineEdit *>("seed");
+        auto       *seconds = window.findChild<QDoubleSpinBox *>("seconds");
+        auto       *edit    = seconds->findChild<QLineEdit *>();
+        const auto *unit    = seconds->findChild<QLabel *>("spinBoxUnit");
+        auto       *seed    = window.findChild<QLineEdit *>("seed");
         QVERIFY(edit && unit);
         QVERIFY(seconds->suffix().isEmpty());
         QCOMPARE(unit->text(), QStringLiteral("秒"));
@@ -1055,26 +1155,31 @@ private slots:
         QVERIFY(seconds->accessibleDescription().contains(QStringLiteral("秒")));
         QCOMPARE(seconds->decimals(), 4);
         QCOMPARE(seconds->singleStep(), 0.0625);
-        auto countColor = [](const QImage &image, const QColor &color) {
+        const auto COUNT_COLOR = [](const QImage &image, const QColor &color) {
             int count = 0;
-            for (int y = 0; y < image.height(); ++y)
+            for (int y = 0; y < image.height(); ++y) {
                 for (int x = 0; x < image.width(); ++x) {
-                    const auto pixel = image.pixelColor(x, y);
-                    if (qAbs(pixel.red() - color.red()) <= 2 && qAbs(pixel.green() - color.green()) <= 2
-                        && qAbs(pixel.blue() - color.blue()) <= 2) ++count;
+                    const auto PIXEL = image.pixelColor(x, y);
+                    if (qAbs(PIXEL.red() - color.red()) <= 2 && qAbs(PIXEL.green() - color.green()) <= 2 &&
+                        qAbs(PIXEL.blue() - color.blue()) <= 2)
+                    {
+                        ++count;
+                    }
                 }
+            }
             return count;
         };
-        const QColor muted(desktop::theme::Muted), text(desktop::theme::Text);
-        for (double value : {0.0625, 300.0}) {
+        const QColor MUTED(desktop::theme::Muted);
+        const QColor text(desktop::theme::Text);
+        for (const double value : { 0.0625, 300.0 }) {
             seconds->setValue(value);
             seed->setFocus();
             QTest::qWait(40);
             QCOMPARE(seconds->value(), value);
             QVERIFY(!edit->text().contains(QStringLiteral("秒")));
-            const auto image = edit->grab().toImage();
-            QVERIFY(countColor(image, muted) > 2);
-            QVERIFY(countColor(image, text) > 2);
+            const auto IMAGE = edit->grab().toImage();
+            QVERIFY(COUNT_COLOR(IMAGE, MUTED) > 2);
+            QVERIFY(COUNT_COLOR(IMAGE, text) > 2);
             QVERIFY(seconds->visibleRegion().contains(seconds->rect()));
             QVERIFY(unit->visibleRegion().contains(unit->rect()));
             QVERIFY(edit->textMargins().right() >= unit->width() + 6);
@@ -1087,14 +1192,14 @@ private slots:
         QCOMPARE(edit->selectedText(), QStringLiteral("86400.0000"));
         QTest::keyClick(edit, Qt::Key_Backspace);
         QVERIFY(edit->text().isEmpty());
-        const auto fixedUnitBounds = unit->geometry();
+        const auto FIXED_UNIT_BOUNDS = unit->geometry();
         QVERIFY(unit->isVisible());
-        QVERIFY(countColor(edit->grab().toImage(), muted) > 2);
+        QVERIFY(COUNT_COLOR(edit->grab().toImage(), MUTED) > 2);
         QTest::keyClicks(edit, "abc");
         QVERIFY(edit->text().isEmpty());
-        QInputMethodEvent unitInput;
-        unitInput.setCommitString(QStringLiteral("秒"));
-        QApplication::sendEvent(edit, &unitInput);
+        QInputMethodEvent unit_input;
+        unit_input.setCommitString(QStringLiteral("秒"));
+        QApplication::sendEvent(edit, &unit_input);
         QVERIFY(edit->text().isEmpty());
         QTest::keyClicks(edit, "12.1875");
         QTest::keyClick(edit, Qt::Key_Return);
@@ -1104,11 +1209,11 @@ private slots:
         QCOMPARE(window.findChild<SimulationOptions *>()->Batch().duration, 196);
         QTest::keyClick(edit, Qt::Key_A, Qt::ControlModifier);
         QCOMPARE(edit->selectedText(), QStringLiteral("12.2500"));
-        QVERIFY(countColor(edit->grab().toImage(), muted) > 2);
+        QVERIFY(COUNT_COLOR(edit->grab().toImage(), MUTED) > 2);
         QVERIFY(!unit->hasSelectedText());
         QTest::keyClick(edit, Qt::Key_Delete);
         QVERIFY(edit->text().isEmpty());
-        QCOMPARE(unit->geometry(), fixedUnitBounds);
+        QCOMPARE(unit->geometry(), FIXED_UNIT_BOUNDS);
         QVERIFY(unit->isVisible());
         QTest::keyClicks(edit, "10.05");
         QTest::keyClick(edit, Qt::Key_Return);
@@ -1118,9 +1223,9 @@ private slots:
         QCOMPARE(seconds->value(), 10.0625);
         seconds->setEnabled(false);
         QVERIFY(unit->isVisible());
-        QVERIFY(countColor(edit->grab().toImage(), muted.darker(140)) > 2);
+        QVERIFY(COUNT_COLOR(edit->grab().toImage(), MUTED.darker(140)) > 2);
         seconds->setEnabled(true);
-        for (const auto *page : {"nav_profiles", "nav_simulation"}) {
+        for (const auto *page : { "nav_profiles", "nav_simulation" }) {
             window.findChild<QPushButton *>(QString::fromLatin1(page))->click();
             QCoreApplication::processEvents();
             QCOMPARE(unit->font().pixelSize(), edit->font().pixelSize());
@@ -1131,8 +1236,9 @@ private slots:
         edit->deselect();
         seed->setFocus();
         QTest::qWait(40);
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(window.findChild<QWidget *>("runSettings")->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-seconds-unit.png"));
+        }
     }
 
     void talentFooterExpansion()
@@ -1140,16 +1246,17 @@ private slots:
         Workbench window;
         window.resize(1120, 820);
         window.show();
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *tabs = window.findChild<QTabWidget *>("configurationTabs");
-        auto *scroll = window.findChild<QScrollArea *>("configurationScroll");
-        for (int specialization : {0, 1}) {
+        const auto *options = window.findChild<SimulationOptions *>();
+        auto       *tabs    = window.findChild<QTabWidget *>("configurationTabs");
+        const auto *scroll  = window.findChild<QScrollArea *>("configurationScroll");
+        for (const int specialization : { 0, 1 }) {
             window.findChild<QComboBox *>("specialization")->setCurrentIndex(specialization);
             QTest::qWait(60);
-            const auto snapshot = options->Snapshot();
-            auto *panel = static_cast<desktop::TalentPanel *>(window.findChild<QWidget *>(QStringLiteral("talents%1").arg(specialization)));
-            auto *legacy = panel->HeaderWidget()->findChild<QToolButton *>("legacyTalentToggle");
-            auto *clear = panel->HeaderWidget()->findChild<QToolButton *>("clearTalentPreview");
+            const auto  snapshot = options->Snapshot();
+            const auto *panel =
+                static_cast<desktop::TalentPanel *>(window.findChild<QWidget *>(QStringLiteral("talents%1").arg(specialization)));
+            auto       *legacy = panel->HeaderWidget()->findChild<QToolButton *>("legacyTalentToggle");
+            const auto *clear  = panel->HeaderWidget()->findChild<QToolButton *>("clearTalentPreview");
             QVERIFY(legacy->visibleRegion().contains(legacy->rect()));
             QVERIFY(clear->visibleRegion().contains(clear->rect()));
             QCOMPARE(tabs->height(), 100);
@@ -1170,82 +1277,103 @@ private slots:
 
     void flowMacroCompiler()
     {
-        const auto defaults = desktop::FlowDefaults();
-        const auto source = desktop::FlowMacroFromValues(defaults);
-        const auto compiled = desktop::CompileFlowMacro(source);
-        QVERIFY(compiled.errors.isEmpty());
-        QCOMPARE(compiled.values, defaults);
-        QCOMPARE(desktop::CompileFlowMacro(QString{}).values, defaults);
-        const auto ordered = desktop::CompileFlowMacro(QStringLiteral(
+        const auto DEFAULTS = desktop::FlowDefaults();
+        const auto SOURCE   = desktop::FlowMacroFromValues(DEFAULTS);
+        const auto COMPILED = desktop::CompileFlowMacro(SOURCE);
+        QVERIFY(COMPILED.errors.isEmpty());
+        QCOMPARE(COMPILED.values, DEFAULTS);
+        QCOMPARE(desktop::CompileFlowMacro(QString{}).values, DEFAULTS);
+        const auto ORDERED = desktop::CompileFlowMacro(QStringLiteral(
             "# opening\r\n00:00.00 /set_target id=1 level=125 life=25% vulnerable=5%\n"
             "/set_target level=126 distance=3 // last assignment wins\n"
             "/set_player qidian=3 shadows=2 style=阳春白雪"));
-        QVERIFY2(ordered.errors.isEmpty(), qPrintable(ordered.ErrorText()));
-        QCOMPARE(ordered.values.value("targetLevel").toInt(), 126);
-        QCOMPARE(ordered.values.value("targetLife").toDouble(), 25.);
-        QCOMPARE(ordered.values.value("vulnerable").toDouble(), 5.);
-        QCOMPARE(ordered.values.value("mwStyle").toInt(), 0);
+        QVERIFY2(ORDERED.errors.isEmpty(), qPrintable(ORDERED.ErrorText()));
+        QCOMPARE(ORDERED.values.value("targetLevel").toInt(), 126);
+        QCOMPARE(ORDERED.values.value("targetLife").toDouble(), 25.);
+        QCOMPARE(ORDERED.values.value("vulnerable").toDouble(), 5.);
+        QCOMPARE(ORDERED.values.value("mwStyle").toInt(), 0);
         QCOMPARE(desktop::CompileFlowMacro("/set_target life=0.25 vulnerable=0.05").values.value("targetLife").toDouble(), 25.);
         for (const auto &field : desktop::FlowFields) {
-            for (double bound : {field.minimum, field.maximum}) {
-                auto values = defaults;
-                values.insert(QString::fromLatin1(field.key), bound);
-                const auto parsed = desktop::CompileFlowMacro(desktop::FlowMacroFromValues(values));
-                QVERIFY2(parsed.errors.isEmpty(), qPrintable(parsed.ErrorText()));
-                QCOMPARE(parsed.values, values);
+            for (const double BOUND : { field.minimum, field.maximum }) {
+                auto values = DEFAULTS;
+                values.insert(QString::fromLatin1(field.key), BOUND);
+                const auto PARSED = desktop::CompileFlowMacro(desktop::FlowMacroFromValues(values));
+                QVERIFY2(PARSED.errors.isEmpty(), qPrintable(PARSED.ErrorText()));
+                QCOMPARE(PARSED.values, values);
             }
         }
-        for (const auto &bad : {QStringLiteral("/set_target"), QStringLiteral("/cast 三柴剑法"),
-                QStringLiteral("/set_target typo=1"), QStringLiteral("/set_target level=124 level=125"),
-                QStringLiteral("/set_target id=2"), QStringLiteral("00:01 /set_target level=125"),
-                QStringLiteral("/set_target level=124.1"), QStringLiteral("/set_target life=0%"),
-                QStringLiteral("/set_target life=100"), QStringLiteral("/set_target level=NaN"),
-                QStringLiteral("/set_target shield=1e999"), QStringLiteral("/set_target distance=-1"),
-                QStringLiteral("/set_target shield=30%"), QStringLiteral("/set_player style=2"),
-                QStringLiteral("/set_player shadows=7"), QStringLiteral("/set_player qidian=11"),
-                QStringLiteral("/set_target life=50.001%"), QStringLiteral("/set_target level = 124")}) {
-            const auto parsed = desktop::CompileFlowMacro("# first line\n  " + bad);
-            QVERIFY2(!parsed.errors.isEmpty(), qPrintable(bad));
-            QCOMPARE(parsed.errors.front().line, 2);
-            QVERIFY(parsed.errors.front().column >= 2);
-            QVERIFY(parsed.errors.front().length > 0);
+        for (const auto &bad :
+             { QStringLiteral("/set_target"),
+               QStringLiteral("/cast 三柴剑法"),
+               QStringLiteral("/set_target typo=1"),
+               QStringLiteral("/set_target level=124 level=125"),
+               QStringLiteral("/set_target id=2"),
+               QStringLiteral("00:01 /set_target level=125"),
+               QStringLiteral("/set_target level=124.1"),
+               QStringLiteral("/set_target life=0%"),
+               QStringLiteral("/set_target life=100"),
+               QStringLiteral("/set_target level=NaN"),
+               QStringLiteral("/set_target shield=1e999"),
+               QStringLiteral("/set_target distance=-1"),
+               QStringLiteral("/set_target shield=30%"),
+               QStringLiteral("/set_player style=2"),
+               QStringLiteral("/set_player shadows=7"),
+               QStringLiteral("/set_player qidian=11"),
+               QStringLiteral("/set_target life=50.001%"),
+               QStringLiteral("/set_target level = 124") })
+        {
+            const auto PARSED = desktop::CompileFlowMacro("# first line\n  " + bad);
+            QVERIFY2(!PARSED.errors.isEmpty(), qPrintable(bad));
+            QCOMPARE(PARSED.errors.front().line, 2);
+            QVERIFY(PARSED.errors.front().column >= 2);
+            QVERIFY(PARSED.errors.front().length > 0);
         }
         QVERIFY(!desktop::CompileFlowMacro(QString(65537, ' ')).errors.isEmpty());
     }
 
     void flowTimelineCompiler()
     {
-        for (int frame : {0, 1, 8, 15, 16, 161, 959, 960, 1382400}) {
+        for (const int FRAME : { 0, 1, 8, 15, 16, 161, 959, 960, 1382400 }) {
             int parsed = -1;
-            QVERIFY(desktop::ParseFlowTime(desktop::FlowTimeText(frame), parsed));
-            QCOMPARE(parsed, frame);
+            QVERIFY(desktop::ParseFlowTime(desktop::FlowTimeText(FRAME), parsed));
+            QCOMPARE(parsed, FRAME);
         }
-        for (const auto &time : {"00:00.1", "00:60", "-1:00", "1440:00.0625", "999999999999999999999:00", "00:00.06250"}) {
-            int parsed;
+        for (const auto &time : { "00:00.1", "00:60", "-1:00", "1440:00.0625", "999999999999999999999:00", "00:00.06250" })
+        {
+            int parsed = 0;
             QVERIFY2(!desktop::ParseFlowTime(time, parsed), time);
         }
-        const auto source = QStringLiteral("# phase test\n/set_target life=100%\n"
-            "  00:10.0625 /set_target id=1 life=20% distance=3  // retained\n"
-            "00:05.5 /set_target life=50%\n00:05.5 /set_target life=40%");
-        const auto parsed = desktop::CompileFlowMacro(source);
-        QVERIFY2(parsed.errors.isEmpty(), qPrintable(parsed.ErrorText()));
-        QCOMPARE(parsed.values.value("targetLife").toDouble(), 100.);
-        const auto events = parsed.TargetEvents();
-        QCOMPARE(events.size(), size_t(3));
-        QCOMPARE(events[0].frame, 88);
-        QCOMPARE(*events[0].life_basis_points, 5000);
-        QCOMPARE(*events[1].life_basis_points, 4000);
-        QCOMPARE(events[2].frame, 161);
-        QCOMPARE(*events[2].distance_hundredths, 300);
-        const auto &node = parsed.nodes[1];
+        const auto SOURCE = QStringLiteral("# phase test\n/set_target life=100%\n"
+                                           "  00:10.0625 /set_target id=1 life=20% distance=3  // retained\n"
+                                           "00:05.5 /set_target life=50%\n00:05.5 /set_target life=40%");
+        const auto PARSED = desktop::CompileFlowMacro(SOURCE);
+        QVERIFY2(PARSED.errors.isEmpty(), qPrintable(PARSED.ErrorText()));
+        QCOMPARE(PARSED.values.value("targetLife").toDouble(), 100.);
+        const auto EVENTS = PARSED.TargetEvents();
+        QCOMPARE(EVENTS.size(), size_t(3));
+        QCOMPARE(EVENTS[0].frame, 88);
+        QCOMPARE(*EVENTS[0].life_basis_points, 5000);
+        QCOMPARE(*EVENTS[1].life_basis_points, 4000);
+        QCOMPARE(EVENTS[2].frame, 161);
+        QCOMPARE(*EVENTS[2].distance_hundredths, 300);
+        const auto &node = PARSED.nodes[1];
         QVERIFY(node.CanMove());
         QCOMPARE(node.WithTime(240), QStringLiteral("  00:15 /set_target id=1 life=20% distance=3  // retained"));
-        QCOMPARE(node.WithValues(0, "/set_target", {{"targetLife", 30}}), QStringLiteral("  00:00 /set_target id=1 life=30%  // retained"));
-        for (const auto &bad : {"00:01 /set_player qidian=5", "00:01 /set_target vulnerable=5%", "00:01 /set_target shield=100",
-                "00:01 /set_target id=1", "00:00.1 /set_target life=50%"})
+        QCOMPARE(node.WithValues(0,
+                                 "/set_target",
+                                 {
+                                     { "targetLife", 30 }
+        }),
+                 QStringLiteral("  00:00 /set_target id=1 life=30%  // retained"));
+        for (const auto &bad :
+             { "00:01 /set_player qidian=5", "00:01 /set_target vulnerable=5%", "00:01 /set_target shield=100", "00:01 /set_target id=1", "00:00.1 /set_target life=50%" })
+        {
             QVERIFY2(!desktop::CompileFlowMacro(bad).errors.isEmpty(), bad);
+        }
         QStringList lines;
-        for (int i = 0; i < 256; ++i) lines << "00:01 /set_target distance=3";
+        for (int i = 0; i < 256; ++i) {
+            lines << "00:01 /set_target distance=3";
+        }
         QVERIFY(desktop::CompileFlowMacro(lines.join('\n')).errors.isEmpty());
         lines << "/set_player qidian=5";
         QVERIFY(!desktop::CompileFlowMacro(lines.join('\n')).errors.isEmpty());
@@ -1254,98 +1382,114 @@ private slots:
     void flowTimelineEditing()
     {
         Workbench window;
-        window.resize(1120, 820); window.show();
+        window.resize(1120, 820);
+        window.show();
         auto *options = window.findChild<SimulationOptions *>();
-        auto *script = window.findChild<CodeEditor *>("flowMacroEditor");
-        auto *editor = static_cast<desktop::FlowTimelineEditor *>(window.findChild<QWidget *>("flowTimelineEditor"));
-        auto *tabs = window.findChild<QTabBar *>("flowViewMode");
+        auto *script  = window.findChild<CodeEditor *>("flowMacroEditor");
+        auto *editor  = static_cast<desktop::FlowTimelineEditor *>(window.findChild<QWidget *>("flowTimelineEditor"));
+        auto *tabs    = window.findChild<QTabBar *>("flowViewMode");
         QVERIFY(editor && tabs);
-        const auto source = QStringLiteral("# opening\n/set_target level=124 life=100% distance=4\n"
-            "  00:30 /set_target life=50%  // phase two\n00:45 /set_target distance=3\n");
-        script->setPlainText(source);
+        const auto SOURCE =
+            QStringLiteral("# opening\n/set_target level=124 life=100% distance=4\n"
+                           "  00:30 /set_target life=50%  // phase two\n00:45 /set_target distance=3\n");
+        script->setPlainText(SOURCE);
         const auto snapshot = options->Snapshot();
-        tabs->setCurrentIndex(0); tabs->setCurrentIndex(1);
+        tabs->setCurrentIndex(0);
+        tabs->setCurrentIndex(1);
         QCOMPARE(options->Snapshot(), snapshot);
         window.findChild<QToolButton *>("openFlowTimeline")->click();
         auto *dialog = window.findChild<QDialog *>("flowTimelineDialog");
         auto *canvas = static_cast<desktop::FlowTimelineCanvas *>(window.findChild<QWidget *>("flowTimelineCanvas"));
-        auto *table = window.findChild<QTableWidget *>("flowEventTable");
+        const auto *table = window.findChild<QTableWidget *>("flowEventTable");
         QTRY_VERIFY(dialog && dialog->isVisible());
         QCOMPARE(table->rowCount(), 3);
-        const auto overviewPoint = canvas->NodePoint(3, 2);
+        const auto OVERVIEW_POINT = canvas->NodePoint(3, 2);
         canvas->Zoom(2, 0);
-        QVERIFY(canvas->NodePoint(3, 2).x() > overviewPoint.x());
+        QVERIFY(canvas->NodePoint(3, 2).x() > OVERVIEW_POINT.x());
         canvas->FitAll();
-        QCOMPARE(canvas->NodePoint(3, 2), overviewPoint);
+        QCOMPARE(canvas->NodePoint(3, 2), OVERVIEW_POINT);
         QVERIFY(!editor->MoveNode(2, 16));
         QVERIFY(editor->MoveNode(3, 640));
         QVERIFY(script->toPlainText().contains("  00:40 /set_target life=50%  // phase two"));
-        script->undo(); QCOMPARE(options->Snapshot(), snapshot);
-        script->redo(); QCOMPARE(editor->Model().nodes[1].frame, 640);
+        script->undo();
+        QCOMPARE(options->Snapshot(), snapshot);
+        script->redo();
+        QCOMPARE(editor->Model().nodes[1].frame, 640);
         script->undo();
         QTest::qWait(60);
         const auto start = canvas->NodePoint(3, 2);
         QVERIFY(start.x() >= canvas->PlotRect().left());
-        const auto finish = start + QPoint(60, 0);
-        const auto expected = canvas->FrameAt(finish.x());
+        const auto FINISH   = start + QPoint(60, 0);
+        const auto EXPECTED = canvas->FrameAt(FINISH.x());
         QTest::mousePress(canvas, Qt::LeftButton, Qt::NoModifier, start);
-        QTest::mouseMove(canvas, finish, 30);
-        QTest::mouseRelease(canvas, Qt::LeftButton, Qt::NoModifier, finish);
-        QCOMPARE(editor->Model().nodes[1].frame, expected);
+        QTest::mouseMove(canvas, FINISH, 30);
+        QTest::mouseRelease(canvas, Qt::LeftButton, Qt::NoModifier, FINISH);
+        QCOMPARE(editor->Model().nodes[1].frame, EXPECTED);
         QTest::keyClick(canvas, Qt::Key_Right);
-        QCOMPARE(editor->Model().nodes[1].frame, expected + 1);
+        QCOMPARE(editor->Model().nodes[1].frame, EXPECTED + 1);
         QTest::keyClick(canvas, Qt::Key_Delete);
         QCOMPARE(editor->Model().nodes.size(), 2);
-        script->undo(); script->undo(); script->undo();
+        script->undo();
+        script->undo();
+        script->undo();
         QCOMPARE(options->Snapshot(), snapshot);
 
         editor->AddNode(80, 2);
-        auto *nodeDialog = window.findChild<QDialog *>("flowNodeDialog");
-        QTRY_VERIFY(nodeDialog && nodeDialog->isVisible());
-        auto *time = nodeDialog->findChild<QDoubleSpinBox *>("flowNodeTime");
-        auto *life = nodeDialog->findChild<QDoubleSpinBox *>("flowNodeValue_targetLife");
-        auto *apply = nodeDialog->findChild<QPushButton *>("applyFlowNode");
+        auto *node_dialog = window.findChild<QDialog *>("flowNodeDialog");
+        QTRY_VERIFY(node_dialog && node_dialog->isVisible());
+        auto *time  = node_dialog->findChild<QDoubleSpinBox *>("flowNodeTime");
+        auto *life  = node_dialog->findChild<QDoubleSpinBox *>("flowNodeValue_targetLife");
+        auto *apply = node_dialog->findChild<QPushButton *>("applyFlowNode");
         QVERIFY(time && life && apply);
-        life->setValue(25); time->setValue(5.5);
+        life->setValue(25);
+        time->setValue(5.5);
         QCOMPARE(options->Snapshot(), snapshot); // Proxy inputs must never leak into configuration.
         apply->click();
-        QTRY_VERIFY(!nodeDialog->isVisible());
+        QTRY_VERIFY(!node_dialog->isVisible());
         QVERIFY(script->toPlainText().endsWith("00:05.5 /set_target life=25%"));
         QCOMPARE(editor->Model().TargetEvents().front().frame, 88);
-        script->undo(); QCOMPARE(options->Snapshot(), snapshot);
-        editor->EditNode(2);
-        QTRY_VERIFY(nodeDialog->isVisible());
-        QVERIFY(!time->isEnabled());
-        nodeDialog->reject(); QCOMPARE(options->Snapshot(), snapshot);
-        editor->EditNode(3); life->setValue(35); nodeDialog->reject();
+        script->undo();
         QCOMPARE(options->Snapshot(), snapshot);
-        editor->EditNode(3); life->setValue(35); apply->click();
+        editor->EditNode(2);
+        QTRY_VERIFY(node_dialog->isVisible());
+        QVERIFY(!time->isEnabled());
+        node_dialog->reject();
+        QCOMPARE(options->Snapshot(), snapshot);
+        editor->EditNode(3);
+        life->setValue(35);
+        node_dialog->reject();
+        QCOMPARE(options->Snapshot(), snapshot);
+        editor->EditNode(3);
+        life->setValue(35);
+        apply->click();
         QVERIFY(script->toPlainText().contains("  00:30 /set_target life=35%  // phase two"));
-        script->undo(); QCOMPARE(options->Snapshot(), snapshot);
+        script->undo();
+        QCOMPARE(options->Snapshot(), snapshot);
 
         QTest::mouseDClick(canvas, Qt::LeftButton, Qt::NoModifier, canvas->NodePoint(3, 2));
-        QTRY_VERIFY(nodeDialog->isVisible());
+        QTRY_VERIFY(node_dialog->isVisible());
         QCOMPARE(life->value(), 50.);
-        nodeDialog->reject();
-        const auto empty = canvas->NodePoint(3, 2) + QPoint(120, 0);
-        QTest::mouseDClick(canvas, Qt::LeftButton, Qt::NoModifier, empty);
-        QTRY_VERIFY(nodeDialog->isVisible());
-        QCOMPARE(time->value(), canvas->FrameAt(empty.x()) / 16.);
+        node_dialog->reject();
+        const auto EMPTY = canvas->NodePoint(3, 2) + QPoint(120, 0);
+        QTest::mouseDClick(canvas, Qt::LeftButton, Qt::NoModifier, EMPTY);
+        QTRY_VERIFY(node_dialog->isVisible());
+        QCOMPARE(time->value(), canvas->FrameAt(EMPTY.x()) / 16.);
         QCOMPARE(life->value(), 50.);
-        nodeDialog->reject();
+        node_dialog->reject();
         QCOMPARE(options->Snapshot(), snapshot);
 
         editor->EditNode(3);
         script->appendPlainText("# concurrent edit");
-        const auto changed = script->toPlainText();
+        const auto CHANGED = script->toPlainText();
         apply->click();
-        QVERIFY(nodeDialog->isVisible() && !apply->isEnabled());
-        QCOMPARE(script->toPlainText(), changed);
-        nodeDialog->reject(); script->undo();
+        QVERIFY(node_dialog->isVisible() && !apply->isEnabled());
+        QCOMPARE(script->toPlainText(), CHANGED);
+        node_dialog->reject();
+        script->undo();
         QCOMPARE(options->Snapshot(), snapshot);
         editor->EditNode(3);
         options->SetInputsEnabled(false);
-        QVERIFY(!nodeDialog->isVisible());
+        QVERIFY(!node_dialog->isVisible());
         QVERIFY(!editor->MoveNode(3, 80) && !editor->RemoveNode(3));
         QVERIFY(!window.findChild<QToolButton *>("addFlowNode")->isEnabled());
         options->SetInputsEnabled(true);
@@ -1362,88 +1506,107 @@ private slots:
         QCOMPARE(options->Snapshot(), snapshot);
         QString error;
         QVERIFY2(options->RestoreSnapshot(snapshot, error), qPrintable(error));
-        auto legacy = snapshot; legacy.insert("version", 3);
+        auto legacy = snapshot;
+        legacy.insert("version", 3);
         QVERIFY2(options->RestoreSnapshot(legacy, error), qPrintable(error));
         QCOMPARE(options->Snapshot(), snapshot);
         dialog->close();
         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
-            script->setPlainText(desktop::FlowMacroFromValues(desktop::FlowDefaults()) + QStringLiteral(
-                "\n00:30 /set_target life=70%\n01:00 /set_target distance=20\n01:15 /set_target distance=3\n02:00 /set_target life=30%"));
+            script->setPlainText(desktop::FlowMacroFromValues(desktop::FlowDefaults()) +
+                                 QStringLiteral("\n00:30 /set_target life=70%\n01:00 /set_target distance=20\n01:15 "
+                                                "/set_target distance=3\n02:00 /set_target life=30%"));
             QTest::qWait(200);
             QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-flow-preview.png"));
-            editor->OpenEditor(); QTest::qWait(100);
+            editor->OpenEditor();
+            QTest::qWait(100);
             QVERIFY(dialog->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-flow-timeline.png"));
-            editor->EditNode(9); QTest::qWait(100);
-            QVERIFY(nodeDialog->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-flow-node.png"));
-            nodeDialog->reject(); dialog->close();
+            editor->EditNode(9);
+            QTest::qWait(100);
+            QVERIFY(node_dialog->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-flow-node.png"));
+            node_dialog->reject();
+            dialog->close();
         }
         window.close();
     }
 
     void flowMacroDrivesSimulation()
     {
-        SimulationOptions options;
-        auto *flow = options.findChild<CodeEditor *>("flowMacroEditor");
+        const SimulationOptions OPTIONS;
+        auto                   *flow = OPTIONS.findChild<CodeEditor *>("flowMacroEditor");
         QVERIFY(flow);
-        options.findChild<QSpinBox *>("iterations")->setValue(3);
-        options.findChild<QSpinBox *>("workers")->setValue(1);
-        options.findChild<QDoubleSpinBox *>("seconds")->setValue(10);
-        for (int specialization : {0, 1}) {
-            options.findChild<QComboBox *>("specialization")->setCurrentIndex(specialization);
+        OPTIONS.findChild<QSpinBox *>("iterations")->setValue(3);
+        OPTIONS.findChild<QSpinBox *>("workers")->setValue(1);
+        OPTIONS.findChild<QDoubleSpinBox *>("seconds")->setValue(10);
+        for (const int specialization : { 0, 1 }) {
+            OPTIONS.findChild<QComboBox *>("specialization")->setCurrentIndex(specialization);
             flow->clear();
-            auto referenceConfig = options.ActiveConfig();
+            auto reference_config = OPTIONS.ActiveConfig();
             flow->setPlainText(QStringLiteral(
                 "/set_target level=125 shield=45678 life=25% distance=3 vulnerable=5%\n"
                 "/set_player qidian=3 shadows=2 style=阳春白雪\n"
                 "00:02 /set_target life=50%\n00:03 /set_target distance=30\n00:06 /set_target distance=3"));
             QString error;
-            QVERIFY2(options.CheckFlowMacro(error), qPrintable(error));
-            const auto actual = options.ActiveConfig();
-            std::visit([](auto &config) {
-                config.target.level = 125;
-                config.target.shield = 45678;
-                config.target.life = .25;
-                config.target.distance = 3;
-                config.target.vulnerable = 51;
-                config.target_events = {{32, 5000, {}}, {48, {}, 3000}, {96, {}, 300}};
-                if constexpr (requires { config.initial_qidian; }) config.initial_qidian = 3;
-                else { config.initial_yingzi = 2; config.initial_style = rt::mo_wen::Style::YangChunBaiXue; }
-            }, referenceConfig);
-            std::visit([&](const auto &config) {
-                QCOMPARE(config.target.level, 125);
-                QCOMPARE(config.target.shield, JX3DPS::value_t(45678));
-                QCOMPARE(config.target.life, .25);
-                QCOMPARE(config.target.distance, 3.);
-                QCOMPARE(config.target.vulnerable, 51);
-            }, actual);
-            const auto source = desktop::DefaultMacro(options.Specialization());
-            const auto bytes = source.toUtf8();
-            const auto program = rt::MacroCompiler::Compile(std::string_view(bytes.constData(), bytes.size()), desktop::MacroOptions(options.Specialization(), false));
-            QVERIFY(program.second.empty());
-            const auto batch = options.Batch();
-            const auto expected = std::visit([&](const auto &config) {
-                return rt::RunBatch(program.first.program, batch, desktop::MakeRules(config));
-            }, referenceConfig);
-            BatchWorker worker(program.first.program, batch, actual);
-            QSignalSpy result(&worker, &BatchWorker::StatisticsReady);
+            QVERIFY2(OPTIONS.CheckFlowMacro(error), qPrintable(error));
+            const auto ACTUAL = OPTIONS.ActiveConfig();
+            std::visit(
+                [](auto &config) {
+                    config.target.level      = 125;
+                    config.target.shield     = 45678;
+                    config.target.life       = .25;
+                    config.target.distance   = 3;
+                    config.target.vulnerable = 51;
+                    config.target_events     = {
+                        { 32, 5000, {}   },
+                        { 48, {},   3000 },
+                        { 96, {},   300  }
+                    };
+                    if constexpr (requires { config.initial_qidian; }) {
+                        config.initial_qidian = 3;
+                    } else {
+                        config.initial_yingzi = 2;
+                        config.initial_style  = rt::mo_wen::Style::YANG_CHUN_BAI_XUE;
+                    }
+                },
+                reference_config);
+            std::visit(
+                [&](const auto &config) {
+                    QCOMPARE(config.target.level, 125);
+                    QCOMPARE(config.target.shield, JX3DPS::value_t(45678));
+                    QCOMPARE(config.target.life, .25);
+                    QCOMPARE(config.target.distance, 3.);
+                    QCOMPARE(config.target.vulnerable, 51);
+                },
+                ACTUAL);
+            const auto SOURCE  = desktop::DefaultMacro(OPTIONS.Specialization());
+            const auto BYTES   = SOURCE.toUtf8();
+            const auto PROGRAM = rt::MacroCompiler::Compile(std::string_view(BYTES.constData(), BYTES.size()),
+                                                            desktop::MacroOptions(OPTIONS.Specialization(), false));
+            QVERIFY(PROGRAM.second.empty());
+            const auto BATCH    = OPTIONS.Batch();
+            const auto EXPECTED = std::visit(
+                [&](const auto &config) {
+                    return rt::RunBatch(PROGRAM.first.program, BATCH, desktop::MakeRules(config));
+                },
+                reference_config);
+            BatchWorker worker(PROGRAM.first.program, BATCH, ACTUAL);
+            QSignalSpy  result(&worker, &BatchWorker::StatisticsReady);
             worker.start();
             QVERIFY(worker.wait(10000));
             QTRY_COMPARE(result.count(), 1);
-            const auto stats = qvariant_cast<SimulationResult>(result.front().front());
-            QCOMPARE(stats.stats.checksum, expected.checksum);
-            QCOMPARE(stats.stats.mean_damage, expected.mean_damage);
-            QVERIFY(stats.stats.mean_damage > 0);
+            const auto STATS = qvariant_cast<SimulationResult>(result.front().front());
+            QCOMPARE(STATS.stats.checksum, EXPECTED.checksum);
+            QCOMPARE(STATS.stats.mean_damage, EXPECTED.mean_damage);
+            QVERIFY(STATS.stats.mean_damage > 0);
             DebugSimulator debug;
-            debug.SetOptions(actual, batch.duration, batch.seed);
-            QVERIFY2(debug.Initialize(source, error), qPrintable(error));
+            debug.SetOptions(ACTUAL, BATCH.duration, BATCH.seed);
+            QVERIFY2(debug.Initialize(SOURCE, error), qPrintable(error));
             QCOMPARE(debug.GetPlayerState().targetLifePercent, .25);
             if (specialization == 0) {
-                QCOMPARE(std::get<tx::Config>(actual).initial_qidian, 3);
+                QCOMPARE(std::get<tx::Config>(ACTUAL).initial_qidian, 3);
                 QCOMPARE(debug.GetPlayerState().qidian, 4); // Existing rules add one opening qi point.
-            }
-            else {
-                QCOMPARE(std::get<rt::mo_wen::Config>(actual).initial_yingzi, 2);
-                QCOMPARE(std::get<rt::mo_wen::Config>(actual).initial_style, rt::mo_wen::Style::YangChunBaiXue);
+            } else {
+                QCOMPARE(std::get<rt::mo_wen::Config>(ACTUAL).initial_yingzi, 2);
+                QCOMPARE(std::get<rt::mo_wen::Config>(ACTUAL).initial_style, rt::mo_wen::Style::YANG_CHUN_BAI_XUE);
             }
         }
     }
@@ -1453,26 +1616,26 @@ private slots:
         Workbench window;
         window.resize(1120, 820);
         window.show();
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *flow = window.findChild<CodeEditor *>("flowMacroEditor");
-        auto *rotation = window.findChild<MacroEditor *>("macroEditor");
+        const auto *options  = window.findChild<SimulationOptions *>();
+        auto       *flow     = window.findChild<CodeEditor *>("flowMacroEditor");
+        auto       *rotation = window.findChild<MacroEditor *>("macroEditor");
         QVERIFY(!window.findChild<QDialog *>("targetSettingsDialog"));
         QVERIFY(!window.findChild<QToolButton *>("openTargetSettings"));
         QVERIFY(!window.findChild<QSpinBox *>("targetLevel"));
-        const auto source = QStringLiteral("# keep comments\n/set_target level=125 life=50%\n/set_player qidian=3");
-        flow->setPlainText(source);
+        const auto SOURCE = QStringLiteral("# keep comments\n/set_target level=125 life=50%\n/set_player qidian=3");
+        flow->setPlainText(SOURCE);
         rotation->SetBreakpoint(1, true);
-        const auto rotationSource = rotation->toPlainText();
-        QString error;
+        const auto ROTATION_SOURCE = rotation->toPlainText();
+        QString    error;
         QVERIFY2(options->CheckFlowMacro(error), qPrintable(error));
         const auto snapshot = options->Snapshot();
-        QCOMPARE(snapshot.value("flowMacro").toString(), source);
+        QCOMPARE(snapshot.value("flowMacro").toString(), SOURCE);
         QCOMPARE(snapshot.value("values").toObject().value("targetLevel").toInt(), 125);
-        QTemporaryDir directory;
-        const auto path = directory.filePath("flow.json");
-        QVERIFY2(options->ExportConfiguration(path, error), qPrintable(error));
+        const QTemporaryDir DIRECTORY;
+        const auto          PATH = DIRECTORY.filePath("flow.json");
+        QVERIFY2(options->ExportConfiguration(PATH, error), qPrintable(error));
         SimulationOptions restored;
-        QVERIFY2(restored.ImportConfiguration(path, error), qPrintable(error));
+        QVERIFY2(restored.ImportConfiguration(PATH, error), qPrintable(error));
         QCOMPARE(restored.Snapshot(), snapshot);
         auto legacy = snapshot;
         legacy.remove("flowMacro");
@@ -1483,35 +1646,35 @@ private slots:
         QVERIFY2(restored.RestoreSnapshot(legacy, error), qPrintable(error));
         QCOMPARE(restored.Config().target.level, 127);
         QCOMPARE(restored.Snapshot().value("values"), QJsonValue(values));
-        const auto migrated = restored.Snapshot();
-        auto mismatch = snapshot;
+        const auto MIGRATED = restored.Snapshot();
+        auto       mismatch = snapshot;
         mismatch.insert("values", values);
         QVERIFY(!restored.RestoreSnapshot(mismatch, error));
-        QCOMPARE(restored.Snapshot(), migrated);
+        QCOMPARE(restored.Snapshot(), MIGRATED);
         flow->appendPlainText(QStringLiteral("/set_target life=wrong"));
         QVERIFY(!options->CheckFlowMacro(error));
         QVERIFY(error.contains(QStringLiteral("第 4 行")));
-        QVERIFY_EXCEPTION_THROWN(options->ActiveConfig(), std::invalid_argument);
-        QVERIFY(!options->ExportConfiguration(path, error));
+        QVERIFY_THROWS_EXCEPTION(std::invalid_argument, options->ActiveConfig());
+        QVERIFY(!options->ExportConfiguration(PATH, error));
         window.findChild<QToolButton *>("startButton")->click();
         QVERIFY(!window.findChild<BatchWorker *>());
         QVERIFY(window.findChild<QLabel *>("simulationResult")->text().contains(QStringLiteral("流程宏")));
-        QCOMPARE(rotation->toPlainText(), rotationSource);
+        QCOMPARE(rotation->toPlainText(), ROTATION_SOURCE);
         QVERIFY(rotation->HasBreakpoint(1));
-        const auto invalidSource = flow->toPlainText();
+        const auto INVALID_SOURCE = flow->toPlainText();
         options->SaveSettings();
-        SimulationOptions draft;
-        QCOMPARE(draft.findChild<CodeEditor *>("flowMacroEditor")->toPlainText(), invalidSource);
+        const SimulationOptions draft;
+        QCOMPARE(draft.findChild<CodeEditor *>("flowMacroEditor")->toPlainText(), INVALID_SOURCE);
         QVERIFY(!draft.CheckFlowMacro(error));
         QCOMPARE(draft.Snapshot().value("values"), snapshot.value("values"));
         flow->undo();
-        QCOMPARE(flow->toPlainText(), source);
+        QCOMPARE(flow->toPlainText(), SOURCE);
         QVERIFY(options->CheckFlowMacro(error));
         QCOMPARE(options->Snapshot(), snapshot);
         window.findChild<QToolButton *>("debugButton")->click();
         window.findChild<QToolButton *>("startButton")->click();
-        auto *session = window.findChild<DebugSession *>();
-        QTRY_COMPARE(session->GetState(), DebugSession::Paused);
+        const auto *session = window.findChild<DebugSession *>();
+        QTRY_COMPARE(session->GetState(), DebugSession::PAUSED);
         QVERIFY(flow->isReadOnly());
         QCOMPARE(session->GetDebugInfo().targetLifePercent, .5);
         QCOMPARE(session->GetDebugInfo().qidian, 4);
@@ -1519,14 +1682,15 @@ private slots:
         window.findChild<QToolButton *>("openFlowMacroHelp")->click();
         auto *help = window.findChild<QDialog *>("flowMacroHelpDialog");
         QTRY_VERIFY(help->isVisible());
-        QCOMPARE(session->GetState(), DebugSession::Paused);
-        QCOMPARE(flow->toPlainText(), source);
-        QCOMPARE(rotation->toPlainText(), rotationSource);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
+        QCOMPARE(flow->toPlainText(), SOURCE);
+        QCOMPARE(rotation->toPlainText(), ROTATION_SOURCE);
         help->close();
         window.findChild<QAction *>("debugStop")->trigger();
         QVERIFY(!flow->isReadOnly());
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-flow-macro.png"));
+        }
         QVERIFY(window.close());
     }
 
@@ -1535,13 +1699,27 @@ private slots:
         desktop::HistoryChart chart;
         chart.resize(850, 310);
         chart.show();
-        chart.SetPoints({{1, 0}, {2, 0}, {3, 0}});
-        for (int i = 0; i < 3; ++i) QVERIFY(chart.PlotRect().contains(chart.PointPosition(i)));
-        chart.SetPoints({{10, 30000}, {11, 36000}, {12, 34000}});
+        chart.SetPoints({
+            { 1, 0 },
+            { 2, 0 },
+            { 3, 0 }
+        });
+        for (int i = 0; i < 3; ++i) {
+            QVERIFY(chart.PlotRect().contains(chart.PointPosition(i)));
+        }
+        chart.SetPoints({
+            { 10, 30000 },
+            { 11, 36000 },
+            { 12, 34000 }
+        });
         chart.SetReference(50000);
-        for (int i = 0; i < 3; ++i) QVERIFY(chart.PlotRect().contains(chart.PointPosition(i)));
-        quint64 selected = 0;
-        chart.runSelected = [&selected](quint64 id) { selected = id; };
+        for (int i = 0; i < 3; ++i) {
+            QVERIFY(chart.PlotRect().contains(chart.PointPosition(i)));
+        }
+        quint64 selected  = 0;
+        chart.runSelected = [&selected](quint64 id) {
+            selected = id;
+        };
         QTest::mouseClick(&chart, Qt::LeftButton, Qt::NoModifier, chart.PointPosition(0).toPoint());
         QCOMPARE(selected, quint64(10));
         QTest::keyClick(&chart, Qt::Key_Right);
@@ -1549,7 +1727,9 @@ private slots:
         QTest::keyClick(&chart, Qt::Key_Left);
         QCOMPARE(selected, quint64(10));
         chart.SetReference(std::nullopt);
-        chart.SetPoints({{13, 34000}});
+        chart.SetPoints({
+            { 13, 34000 }
+        });
         QCOMPARE(chart.PointPosition(0).x(), chart.PlotRect().center().x());
         chart.SetPoints({});
         QVERIFY(chart.accessibleDescription().contains(QStringLiteral("尚无")));
@@ -1562,10 +1742,10 @@ private slots:
         window.resize(1206, 860);
         window.show();
         QTest::qWait(100);
-        auto *navigation = window.findChild<QWidget *>("topNavigation");
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *pages = window.findChild<QStackedWidget *>("workspacePages");
+        auto       *navigation = window.findChild<QWidget *>("topNavigation");
+        auto       *editor     = window.findChild<MacroEditor *>("macroEditor");
+        const auto *options    = window.findChild<SimulationOptions *>();
+        const auto *pages      = window.findChild<QStackedWidget *>("workspacePages");
         QVERIFY(navigation);
         QVERIFY(!window.findChild<QWidget *>("navigationSidebar"));
         QCOMPARE(navigation->height(), desktop::theme::NavigationHeight);
@@ -1578,9 +1758,9 @@ private slots:
         const auto snapshot = options->Snapshot();
         editor->appendPlainText(QStringLiteral("# 导航不丢失宏草稿"));
         editor->SetBreakpoint(2, true);
-        const auto source = editor->toPlainText();
-        auto *document = editor->document();
-        auto shot = [&window](const QString &name) {
+        const auto SOURCE   = editor->toPlainText();
+        auto      *document = editor->document();
+        const auto shot     = [&window](const QString &name) {
             if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
                 QTest::qWait(180);
                 QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-magpie-" + name + ".png"));
@@ -1590,16 +1770,21 @@ private slots:
         QTest::mouseClick(window.findChild<QPushButton *>("nav_character"), Qt::LeftButton);
         QVERIFY(window.findChild<QPushButton *>("nav_attributes")->isChecked());
         QVERIFY(window.findChild<QWidget *>("characterChildren")->isVisible());
-        for (const auto *page : {"profiles", "attributes", "talents", "permanents", "macro", "general", "about", "statistics", "skills", "gains", "hotspots", "timeline", "events", "buffs"}) {
+        for (const auto *page :
+             { "profiles", "attributes", "talents", "permanents", "macro", "general", "about", "statistics", "skills", "gains", "hotspots", "timeline", "events", "buffs" })
+        {
             auto *button = window.findChild<QPushButton *>(QStringLiteral("nav_%1").arg(QString::fromLatin1(page)));
             QVERIFY(button);
-            const QString key = QString::fromLatin1(page);
-            if (key == "profiles" || key == "attributes" || key == "talents" || key == "permanents")
+            const QString KEY = QString::fromLatin1(page);
+            if (KEY == "profiles" || KEY == "attributes" || KEY == "talents" || KEY == "permanents") {
                 window.findChild<QPushButton *>("nav_character")->click();
-            if (key == "general" || key == "about")
+            }
+            if (KEY == "general" || KEY == "about") {
                 window.findChild<QPushButton *>("nav_settings")->click();
-            if (button->parentWidget()->objectName() == "analysisChildren")
+            }
+            if (button->parentWidget()->objectName() == "analysisChildren") {
                 window.findChild<QPushButton *>("nav_analysis")->click();
+            }
             QCoreApplication::processEvents();
             QVERIFY(button->isVisible());
             QTest::mouseClick(button, Qt::LeftButton);
@@ -1607,11 +1792,16 @@ private slots:
             QVERIFY(button->isChecked());
             QCOMPARE(options->Snapshot(), snapshot);
             QCOMPARE(editor->document(), document);
-            QCOMPARE(editor->toPlainText(), source);
+            QCOMPARE(editor->toPlainText(), SOURCE);
             QVERIFY(editor->HasBreakpoint(2));
             QVERIFY(pages->currentWidget()->isVisible());
-            if (key == "hotspots") QVERIFY(window.findChild<QPushButton *>("runWithHotspots")->isVisible());
-            if (key == "events") QCOMPARE(window.findChild<QTabWidget *>("analysisViews")->currentWidget(), window.findChild<QTableWidget *>("damageEvents"));
+            if (KEY == "hotspots") {
+                QVERIFY(window.findChild<QPushButton *>("runWithHotspots")->isVisible());
+            }
+            if (KEY == "events") {
+                QCOMPARE(window.findChild<QTabWidget *>("analysisViews")->currentWidget(),
+                         window.findChild<QTableWidget *>("damageEvents"));
+            }
             QVERIFY(window.findChild<QLabel *>("breadcrumb")->text().contains(button->text().trimmed()));
             shot(QString::fromLatin1(page));
         }
@@ -1642,8 +1832,8 @@ private slots:
         window.findChild<QToolButton *>("startButton")->click();
         QTRY_VERIFY_WITH_TIMEOUT(window.findChild<QToolButton *>("startButton")->isEnabled(), 10000);
         QVERIFY(window.findChild<QLabel *>("meanDps")->text().toDouble() > 0);
-        for (int attack : {11000, 10500, 12500, 14000}) {
-            window.findChild<QSpinBox *>("attackBase")->setValue(attack);
+        for (const int ATTACK : { 11000, 10500, 12500, 14000 }) {
+            window.findChild<QSpinBox *>("attackBase")->setValue(ATTACK);
             window.findChild<QToolButton *>("startButton")->click();
             QTRY_VERIFY_WITH_TIMEOUT(window.findChild<QToolButton *>("startButton")->isEnabled(), 10000);
         }
@@ -1657,7 +1847,7 @@ private slots:
         QCOMPARE(window.findChild<QTableWidget *>("resultHistory")->currentRow(), 0);
         QTest::keyClick(chart, Qt::Key_Right);
         QCOMPARE(window.findChild<QTableWidget *>("resultHistory")->currentRow(), 1);
-        auto *details = window.findChild<QTextBrowser *>("resultDetails");
+        const auto *details = window.findChild<QTextBrowser *>("resultDetails");
         QVERIFY(!details->isVisible());
         window.findChild<QPushButton *>("toggleResultDetails")->click();
         QVERIFY(details->isVisible());
@@ -1676,14 +1866,14 @@ private slots:
         QCoreApplication::processEvents();
         QCOMPARE(window.size(), QSize(1120, 820));
         QVERIFY(editor->width() >= 250);
-        auto *debugToggle = window.findChild<QToolButton *>("debugButton");
-        QTRY_VERIFY(debugToggle->isVisible());
-        QVERIFY(debugToggle->visibleRegion().contains(debugToggle->rect().center()));
-        auto *more = window.findChild<QToolButton *>("macroMore");
+        const auto *debug_toggle = window.findChild<QToolButton *>("debugButton");
+        QTRY_VERIFY(debug_toggle->isVisible());
+        QVERIFY(debug_toggle->visibleRegion().contains(debug_toggle->rect().center()));
+        const auto *more = window.findChild<QToolButton *>("macroMore");
         QVERIFY(more->isVisible());
         QVERIFY(more->visibleRegion().contains(more->rect().center()));
         shot("compact");
-        for (auto *button : navigation->findChildren<QPushButton *>()) {
+        for (const auto *button : navigation->findChildren<QPushButton *>()) {
             QVERIFY(button->isVisible());
             QVERIFY2(button->visibleRegion().boundingRect().contains(button->rect()), qPrintable(button->objectName()));
             QVERIFY(navigation->rect().contains(button->mapTo(navigation, button->rect().bottomRight())));
@@ -1701,23 +1891,23 @@ private slots:
         Workbench window;
         window.resize(1120, 820);
         window.show();
-        auto *options = window.findChild<SimulationOptions *>();
+        const auto *options = window.findChild<SimulationOptions *>();
         window.findChild<QSpinBox *>("iterations")->setValue(12);
         window.findChild<QDoubleSpinBox *>("seconds")->setValue(30);
-        auto clickPage = [&](const char *key) {
+        const auto CLICK_PAGE = [&](const char *key) {
             auto *button = window.findChild<QPushButton *>(QStringLiteral("nav_") + QString::fromLatin1(key));
             QVERIFY(button && button->isVisible());
             QTest::mouseClick(button, Qt::LeftButton);
         };
-        clickPage("analysis");
-        clickPage("hotspots");
+        CLICK_PAGE("analysis");
+        CLICK_PAGE("hotspots");
         auto *start = window.findChild<QPushButton *>("runWithHotspots");
         QVERIFY(start->isVisible());
         QTest::mouseClick(start, Qt::LeftButton);
         QTRY_COMPARE_WITH_TIMEOUT(window.findChild<QTableWidget *>("resultHistory")->rowCount(), 1, 10000);
         QVERIFY(window.findChild<QPushButton *>("nav_hotspots")->isChecked());
         QVERIFY(start->isHidden());
-        clickPage("gains");
+        CLICK_PAGE("gains");
         auto *gains = window.findChild<QPushButton *>("runWithGains");
         QTRY_VERIFY(gains->isVisible() && gains->isEnabled());
         QTest::mouseClick(gains, Qt::LeftButton);
@@ -1730,35 +1920,70 @@ private slots:
     void equipmentReferenceCard()
     {
         // Reference values exercise every visible section; production data never uses this fixture.
-        const QJsonObject set{{"name", QStringLiteral("西塞·冷辉")},
-            {"siblings", QJsonArray{QStringLiteral("西塞·冷辉护手"), QStringLiteral("西塞·冷辉腰带"),
-                QStringLiteral("西塞·冷辉履"), QStringLiteral("西塞·冷辉冠"), QStringLiteral("西塞·冷辉衣")}},
-            {"attributes", QJsonObject{{"2", QStringLiteral("装备：施展外功伤害招式，一定几率提高自身外功会心几率4%，会心效果4%，持续6秒。")},
-                {"4", QStringLiteral("<text>text=\"“无我无剑”伤害提高10%\" font=101 </text><text>text=\"“对阵招式”伤害提高5%\" font=101 </text>")}}}};
-        const auto attribute = [](const QString &label, const char *color, int bonus = 0) {
-            return QJsonObject{{"label", label}, {"color", QString::fromLatin1(color)}, {"refine_bonus", bonus}};
+        const QJsonObject set{
+            { "name",       QStringLiteral("西塞·冷辉")                                                                                                           },
+            { "siblings",
+             QJsonArray{ QStringLiteral("西塞·冷辉护手"),
+                          QStringLiteral("西塞·冷辉腰带"),
+                          QStringLiteral("西塞·冷辉履"),
+                          QStringLiteral("西塞·冷辉冠"),
+                          QStringLiteral("西塞·冷辉衣") }                                                                                                         },
+            { "attributes",
+             QJsonObject{ { "2", QStringLiteral("装备：施展外功伤害招式，一定几率提高自身外功会心几率4%，会心效果4%，持续6秒。") },
+                           { "4", QStringLiteral("<text>text=\"“无我无剑”伤害提高10%\" font=101 </text><text>text=\"“对阵招式”伤害提高5%\" font=101 </text>") } } }
         };
-        QJsonObject item{{"id", "7_101482"}, {"name", QStringLiteral("孤漠·立雪衣")},
-            {"type", QStringLiteral("上衣")}, {"quality", 4}, {"max_refine", 6}, {"refine_level", 6},
-            {"attributes", QJsonArray{attribute(QStringLiteral("外功防御等级提高1060"), "white"),
-                attribute(QStringLiteral("内功防御等级提高848"), "white"), attribute(QStringLiteral("体质提高14219"), "white", 1066),
-                attribute(QStringLiteral("身法提高1160"), "white", 87), attribute(QStringLiteral("外功攻击提高2635"), "green", 198),
-                attribute(QStringLiteral("外功会心等级提高9695"), "green", 727), attribute(QStringLiteral("无双等级提高7756"), "green", 582)}},
-            {"diamonds", QJsonArray{QStringLiteral("外功会心等级提高1317"), QStringLiteral("外功会心效果等级提高1317")}},
-            {"require_level", 130}, {"durability", 4800}, {"max_durability", 4800},
-            {"enchantments", QJsonArray{QJsonObject{{"icon_id", 9527}, {"description", QStringLiteral("无双等级提高624")}},
-                QJsonObject{{"icon_id", 18272}, {"description", QStringLiteral("自身受到的疗伤成效降低10%，基础攻击小幅提高（内功攻击提高791点，外功攻击提高710点），不在名剑大会中生效。")}}}},
-            {"set", set}, {"level", 25900}, {"level_refine_bonus", 1943}, {"score", 46620},
-            {"score_refine_bonus", 3497}, {"score_enchant_bonus", 9180},
-            {"source", QStringLiteral("套装兑换（兑换牌·纯阳） / 侠行点（侠行·纯阳，侠行·初级套装）")}};
+        const auto ATTRIBUTE = [](const QString &label, const char *color, int bonus = 0) {
+            return QJsonObject{
+                { "label",        label                      },
+                { "color",        QString::fromLatin1(color) },
+                { "refine_bonus", bonus                      }
+            };
+        };
+        QJsonObject item{
+            { "id",                  "7_101482"                                                                                                                                           },
+            { "name",                QStringLiteral("孤漠·立雪衣")                                                                                                                        },
+            { "type",                QStringLiteral("上衣")                                                                                                                               },
+            { "quality",             4                                                                                                                                                    },
+            { "max_refine",          6                                                                                                                                                    },
+            { "refine_level",        6                                                                                                                                                    },
+            { "attributes",
+             QJsonArray{ ATTRIBUTE(QStringLiteral("外功防御等级提高1060"), "white"),
+                          ATTRIBUTE(QStringLiteral("内功防御等级提高848"), "white"),
+                          ATTRIBUTE(QStringLiteral("体质提高14219"), "white", 1066),
+                          ATTRIBUTE(QStringLiteral("身法提高1160"), "white", 87),
+                          ATTRIBUTE(QStringLiteral("外功攻击提高2635"), "green", 198),
+                          ATTRIBUTE(QStringLiteral("外功会心等级提高9695"), "green", 727),
+                          ATTRIBUTE(QStringLiteral("无双等级提高7756"), "green", 582) }                                                                                                   },
+            { "diamonds",            QJsonArray{ QStringLiteral("外功会心等级提高1317"), QStringLiteral("外功会心效果等级提高1317") }                                                     },
+            { "require_level",       130                                                                                                                                                  },
+            { "durability",          4800                                                                                                                                                 },
+            { "max_durability",      4800                                                                                                                                                 },
+            { "enchantments",
+             QJsonArray{ QJsonObject{ { "icon_id", 9527 }, { "description", QStringLiteral("无双等级提高624") } },
+                          QJsonObject{ { "icon_id", 18272 },
+                                       { "description", QStringLiteral("自身受到的疗伤成效降低10%，基础攻击小幅提高（内功攻击提高791点，外功攻击提高710点），不在名剑大会中生效。") } } } },
+            { "set",                 set                                                                                                                                                  },
+            { "level",               25900                                                                                                                                                },
+            { "level_refine_bonus",  1943                                                                                                                                                 },
+            { "score",               46620                                                                                                                                                },
+            { "score_refine_bonus",  3497                                                                                                                                                 },
+            { "score_enchant_bonus", 9180                                                                                                                                                 },
+            { "source",              QStringLiteral("套装兑换（兑换牌·纯阳） / 侠行点（侠行·纯阳，侠行·初级套装）")                                                                       }
+        };
         QJsonObject equipped;
-        for (const auto &slot : {QStringLiteral("帽子"), QStringLiteral("腰带"), QStringLiteral("鞋子")})
-            equipped.insert(slot, QJsonObject{{"set", set}});
-        const QString html = desktop::EquipmentDetailCard::Html(item, equipped, QStringLiteral("上衣"));
+        for (const auto &slot : { QStringLiteral("帽子"), QStringLiteral("腰带"), QStringLiteral("鞋子") }) {
+            equipped.insert(slot,
+                            QJsonObject{
+                                { "set", set }
+            });
+        }
+        const QString                HTML = desktop::EquipmentDetailCard::Html(item, equipped, QStringLiteral("上衣"));
         desktop::EquipmentDetailCard card;
-        card.icon = [](int id) { return desktop::GameIcon(id).pixmap(32, 32); };
+        card.icon = [](int id) {
+            return desktop::GameIcon(id).pixmap(32, 32);
+        };
         card.resize(751, 1133);
-        card.setHtml(html);
+        card.SetContentHtml(HTML);
         card.show();
         QCoreApplication::processEvents();
         const auto text = card.toPlainText();
@@ -1769,26 +1994,27 @@ private slots:
         QVERIFY(!text.contains("font=101"));
         QCOMPARE(card.horizontalScrollBar()->maximum(), 0);
         QCOMPARE(card.grab().toImage().pixelColor(700, 600), QColor("#132221"));
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(card.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-reference-card.png"));
+        }
 
         // Missing metadata must not turn into invented durability, enchantments or refinement.
         item.remove("refine_level");
         item.remove("durability");
         item.remove("enchantments");
-        const QString base = desktop::EquipmentDetailCard::Html(item, {}, QStringLiteral("上衣"));
-        card.setHtml(base);
+        const QString BASE = desktop::EquipmentDetailCard::Html(item, {}, QStringLiteral("上衣"));
+        card.SetContentHtml(BASE);
         QVERIFY(card.toPlainText().contains(QStringLiteral("精炼上限: 6")));
         QVERIFY(card.toPlainText().contains(QStringLiteral("耐久度上限：4800")));
         QVERIFY(card.toPlainText().contains(QStringLiteral("西塞·冷辉(1/5)")));
         QVERIFY(!card.toPlainText().contains(QStringLiteral("无双等级提高624")));
-        QVERIFY(base.contains("color:#acaeb1'>[4]"));
+        QVERIFY(BASE.contains("color:#acaeb1'>[4]"));
         card.resize(500, 640);
         QCoreApplication::processEvents();
         QCOMPARE(card.horizontalScrollBar()->maximum(), 0);
         QVERIFY(card.verticalScrollBar()->maximum() > 0);
         item["name"] = QStringLiteral("<img src='https://example.invalid'>测试");
-        card.setHtml(desktop::EquipmentDetailCard::Html(item, {}, QStringLiteral("上衣")));
+        card.SetContentHtml(desktop::EquipmentDetailCard::Html(item, {}, QStringLiteral("上衣")));
         QVERIFY(card.toPlainText().contains(item.value("name").toString()));
     }
 
@@ -1796,75 +2022,78 @@ private slots:
     {
         Workbench window;
         window.show();
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
-        auto *pages = window.findChild<QStackedWidget *>("workspacePages");
-        auto *button = window.findChild<QToolButton *>("openMacroHelp");
-        auto *dialog = window.findChild<QDialog *>("macroHelpDialog");
-        auto *browser = window.findChild<QTextBrowser *>("macroHelpBrowser");
-        auto *panel = window.findChild<QGroupBox *>("macroPanel");
+        const auto *options = window.findChild<SimulationOptions *>();
+        auto       *editor  = window.findChild<MacroEditor *>("macroEditor");
+        const auto *pages   = window.findChild<QStackedWidget *>("workspacePages");
+        auto       *button  = window.findChild<QToolButton *>("openMacroHelp");
+        auto       *dialog  = window.findChild<QDialog *>("macroHelpDialog");
+        const auto *browser = window.findChild<QTextBrowser *>("macroHelpBrowser");
+        const auto *panel   = window.findChild<QGroupBox *>("macroPanel");
         QVERIFY(button && dialog && browser && panel);
         QVERIFY(!window.findChild<QPushButton *>("nav_help"));
         QVERIFY(!window.findChild<QWidget *>("macroHelpPage"));
         QVERIFY(panel->findChild<QWidget *>("groupHeaderActions")->isAncestorOf(button));
-        const auto original = editor->toPlainText();
+        const auto ORIGINAL = editor->toPlainText();
         editor->appendPlainText(QStringLiteral("\n# 帮助窗口不修改宏"));
         editor->SetBreakpoint(2, true);
-        const auto source = editor->toPlainText();
+        const auto SOURCE   = editor->toPlainText();
         const auto snapshot = options->Snapshot();
-        auto *document = editor->document();
-        for (const QSize size : {QSize(1206, 860), QSize(1120, 820)}) {
-            window.resize(size);
-            for (const auto *page : {"simulation", "macro"}) {
+        auto      *document = editor->document();
+        for (const QSize SIZE : { QSize(1206, 860), QSize(1120, 820) }) {
+            window.resize(SIZE);
+            for (const auto *page : { "simulation", "macro" }) {
                 auto *nav = window.findChild<QPushButton *>(QStringLiteral("nav_%1").arg(QString::fromLatin1(page)));
                 nav->click();
                 QTest::qWait(desktop::motion::SlideMs + 40);
                 QVERIFY(button->isVisible() && button->visibleRegion().contains(button->rect()));
                 QStyleOptionGroupBox style;
                 style.initFrom(panel);
-                style.text = panel->title();
+                style.text        = panel->title();
                 style.subControls = QStyle::SC_GroupBoxFrame | QStyle::SC_GroupBoxLabel;
-                const auto frame = panel->style()->subControlRect(QStyle::CC_GroupBox, &style, QStyle::SC_GroupBoxFrame, panel);
-                QVERIFY(button->mapTo(panel, button->rect().bottomLeft()).y() < frame.top());
+                const auto FRAME = panel->style()->subControlRect(QStyle::CC_GroupBox, &style, QStyle::SC_GroupBoxFrame, panel);
+                QVERIFY(button->mapTo(panel, button->rect().bottomLeft()).y() < FRAME.top());
                 QVERIFY(button->mapTo(panel, button->rect().topRight()).x() >= panel->width() - 4);
-                auto *currentPage = pages->currentWidget();
-                if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-                    QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
-                        QStringLiteral("-macro-help-entry-%1-%2.png").arg(QString::fromLatin1(page)).arg(size.width())));
+                auto *current_page = pages->currentWidget();
+                if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+                    QVERIFY(window.grab().save(
+                        qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                        QStringLiteral("-macro-help-entry-%1-%2.png").arg(QString::fromLatin1(page)).arg(SIZE.width())));
+                }
                 QTest::mouseClick(button, Qt::LeftButton);
                 QTRY_VERIFY(dialog->isVisible());
                 QVERIFY(dialog->isWindow() && !dialog->isModal());
                 QVERIFY(browser->toPlainText().contains(QStringLiteral("/cast")));
-                QCOMPARE(pages->currentWidget(), currentPage);
+                QCOMPARE(pages->currentWidget(), current_page);
                 QVERIFY(nav->isChecked());
                 QCOMPARE(options->Snapshot(), snapshot);
                 QCOMPARE(editor->document(), document);
-                QCOMPARE(editor->toPlainText(), source);
+                QCOMPARE(editor->toPlainText(), SOURCE);
                 QVERIFY(editor->HasBreakpoint(2));
                 QVERIFY(editor->document()->isUndoAvailable());
                 QTRY_VERIFY(browser->verticalScrollBar()->maximum() > 0);
                 browser->verticalScrollBar()->setValue(qMin(80, browser->verticalScrollBar()->maximum()));
-                const auto scrollPosition = browser->verticalScrollBar()->value();
+                const auto SCROLL_POSITION = browser->verticalScrollBar()->value();
                 dialog->close();
                 button->click();
                 QTRY_VERIFY(dialog->isVisible());
                 QCOMPARE(window.findChildren<QDialog *>("macroHelpDialog").size(), 1);
-                QCOMPARE(browser->verticalScrollBar()->value(), scrollPosition);
+                QCOMPARE(browser->verticalScrollBar()->value(), SCROLL_POSITION);
                 dialog->close();
             }
         }
         editor->undo();
-        QCOMPARE(editor->toPlainText(), original);
+        QCOMPARE(editor->toPlainText(), ORIGINAL);
         editor->redo();
-        QCOMPARE(editor->toPlainText(), source);
+        QCOMPARE(editor->toPlainText(), SOURCE);
         window.findChild<QAction *>("macroHelp")->trigger();
         QTRY_VERIFY(dialog->isVisible());
         window.findChild<QComboBox *>("specialization")->setCurrentIndex(1);
         QVERIFY(browser->toPlainText().contains(QStringLiteral("莫问")));
         QVERIFY(browser->toPlainText().contains(QStringLiteral("tbuff:商")));
         QCOMPARE(desktop::theme::AccentColor(dialog), desktop::theme::AccentColor(&window));
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(dialog->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-macro-help-window.png"));
+        }
         dialog->close();
         window.findChild<QPushButton *>("nav_about")->click();
         auto *about = pages->currentWidget();
@@ -1874,17 +2103,17 @@ private slots:
         dialog->close();
         window.findChild<QPushButton *>("nav_simulation")->click();
         window.findChild<QAction *>("debugStart")->trigger();
-        auto *session = window.findChild<DebugSession *>();
-        QTRY_COMPARE(session->GetState(), DebugSession::Paused);
-        const auto pausedLine = editor->GetCurrentDebugLine();
-        const auto pausedSource = editor->toPlainText();
-        const auto pausedSnapshot = options->Snapshot();
+        const auto *session = window.findChild<DebugSession *>();
+        QTRY_COMPARE(session->GetState(), DebugSession::PAUSED);
+        const auto PAUSED_LINE     = editor->GetCurrentDebugLine();
+        const auto PAUSED_SOURCE   = editor->toPlainText();
+        const auto PAUSED_SNAPSHOT = options->Snapshot();
         button->click();
         QTRY_VERIFY(dialog->isVisible());
-        QCOMPARE(session->GetState(), DebugSession::Paused);
-        QCOMPARE(editor->GetCurrentDebugLine(), pausedLine);
-        QCOMPARE(editor->toPlainText(), pausedSource);
-        QCOMPARE(options->Snapshot(), pausedSnapshot);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
+        QCOMPARE(editor->GetCurrentDebugLine(), PAUSED_LINE);
+        QCOMPARE(editor->toPlainText(), PAUSED_SOURCE);
+        QCOMPARE(options->Snapshot(), PAUSED_SNAPSHOT);
         QVERIFY(editor->isReadOnly());
         QVERIFY(window.close());
         QVERIFY(!dialog->isVisible());
@@ -1892,100 +2121,115 @@ private slots:
 
     void equipmentPreviewPreservesPausedSimulation()
     {
-        QTemporaryDir fixture;
-        QVERIFY(fixture.isValid());
-        struct RestoreDirectory {
+        const QTemporaryDir FIXTURE;
+        QVERIFY(FIXTURE.isValid());
+
+        struct RestoreDirectory
+        {
             QString previous = QDir::currentPath();
+
             ~RestoreDirectory() { QDir::setCurrent(previous); }
-        } restoreDirectory;
-        QVERIFY(QDir().mkpath(fixture.path() + "/data/jx3box"));
-        QFile snapshot(fixture.path() + "/data/jx3box/tai_xu_jian_yi_latest.json");
+        } restore_directory;
+
+        QVERIFY(QDir().mkpath(FIXTURE.path() + "/data/jx3box"));
+        QFile snapshot(FIXTURE.path() + "/data/jx3box/tai_xu_jian_yi_latest.json");
         QVERIFY(snapshot.open(QIODevice::WriteOnly));
-        const QJsonObject candidate{{"id", 1}, {"name", QStringLiteral("测试帽子")},
-                                    {"type", QStringLiteral("帽子")}, {"icon_id", 0},
-                                    {"level", 27100}, {"quality", 4}, {"max_refine", 6},
-                                    {"diamonds", QJsonArray{QStringLiteral("外功会心等级提高100")}},
-                                    {"attributes", QJsonArray{QJsonObject{
-                                        {"label", QStringLiteral("外功攻击提高1195")}, {"color", QStringLiteral("green")}}}}};
-        const auto bytes = QJsonDocument(QJsonObject{{"data_version", "merge-test"},
-            {"equipment_catalog", QJsonArray{candidate}}}).toJson();
-        QCOMPARE(snapshot.write(bytes), bytes.size());
+        const QJsonObject CANDIDATE{
+            { "id",         1                                                                                                   },
+            { "name",       QStringLiteral("测试帽子")                                                                          },
+            { "type",       QStringLiteral("帽子")                                                                              },
+            { "icon_id",    0                                                                                                   },
+            { "level",      27100                                                                                               },
+            { "quality",    4                                                                                                   },
+            { "max_refine", 6                                                                                                   },
+            { "diamonds",   QJsonArray{ QStringLiteral("外功会心等级提高100") }                                                 },
+            { "attributes",
+             QJsonArray{ QJsonObject{ { "label", QStringLiteral("外功攻击提高1195") }, { "color", QStringLiteral("green") } } } }
+        };
+        const auto BYTES =
+            QJsonDocument(QJsonObject{
+                              { "data_version",      "merge-test"            },
+                              { "equipment_catalog", QJsonArray{ CANDIDATE } }
+        })
+                .toJson();
+        QCOMPARE(snapshot.write(BYTES), BYTES.size());
         snapshot.close();
-        QVERIFY(QDir::setCurrent(fixture.path()));
+        QVERIFY(QDir::setCurrent(FIXTURE.path()));
 
         Workbench window;
         window.show();
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
-        auto *session = window.findChild<DebugSession *>();
+        const auto *options = window.findChild<SimulationOptions *>();
+        const auto *editor  = window.findChild<MacroEditor *>("macroEditor");
+        auto       *session = window.findChild<DebugSession *>();
         window.findChild<QAction *>("debugStart")->trigger();
-        QCOMPARE(session->GetState(), DebugSession::Paused);
-        const auto configuration = options->Snapshot();
-        const auto macro = editor->toPlainText();
-        const auto line = editor->GetCurrentDebugLine();
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
+        const auto CONFIGURATION = options->Snapshot();
+        const auto MACRO         = editor->toPlainText();
+        const auto LINE          = editor->GetCurrentDebugLine();
         window.findChild<QPushButton *>("nav_attributes")->click();
-        auto *openEquipment = window.findChild<QToolButton *>("openEquipment");
-        QVERIFY(openEquipment && openEquipment->isEnabled());
-        openEquipment->click();
-        auto *equipmentWindow = options->findChild<QDialog *>("equipmentDialog");
-        QVERIFY(equipmentWindow && equipmentWindow->isWindow() && !equipmentWindow->isModal());
-        auto *panel = equipmentWindow->findChild<EquipmentPanel *>();
+        auto *open_equipment = window.findChild<QToolButton *>("openEquipment");
+        QVERIFY(open_equipment && open_equipment->isEnabled());
+        open_equipment->click();
+        auto *equipment_window = options->findChild<QDialog *>("equipmentDialog");
+        QVERIFY(equipment_window && equipment_window->isWindow() && !equipment_window->isModal());
+        auto *panel = equipment_window->findChild<EquipmentPanel *>();
         QVERIFY(panel);
         QTRY_VERIFY(panel->isVisible());
         QVERIFY(!options->findChild<QSpinBox *>("crit")->isEnabled());
-        auto *effects = options->findChild<QCheckBox *>(QStringLiteral("equipment%1").arg(tx::WeaponCW));
+        auto *effects = options->findChild<QCheckBox *>(QStringLiteral("equipment%1").arg(tx::WEAPON_CW));
         QVERIFY(effects);
         QVERIFY(!effects->isEnabled());
         auto *scroll = options->findChild<QScrollArea *>("equipmentScroll");
         QVERIFY(scroll);
-        auto *slotButton = panel->findChild<QToolButton *>(QStringLiteral("equipmentSlot0"));
-        QVERIFY(slotButton);
-        QSignalSpy changed(panel, &EquipmentPanel::LoadoutChanged);
-        QVERIFY(changed.isValid());
-        slotButton->click();
-        auto *catalog = panel->findChild<QListWidget *>(QStringLiteral("equipmentChoices"));
+        auto *slot_button = panel->findChild<QToolButton *>(QStringLiteral("equipmentSlot0"));
+        QVERIFY(slot_button);
+        const QSignalSpy CHANGED(panel, &EquipmentPanel::LoadoutChanged);
+        QVERIFY(CHANGED.isValid());
+        slot_button->click();
+        const auto *catalog = panel->findChild<QListWidget *>(QStringLiteral("equipmentChoices"));
         QVERIFY(catalog);
         QTRY_VERIFY(catalog->isVisible());
         QVERIFY(catalog->screen()->availableGeometry().contains(catalog->window()->geometry()));
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(catalog->window()->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment-picker.png"));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+            QVERIFY(catalog->window()->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                                   "-equipment-picker.png"));
+        }
         QCOMPARE(catalog->count(), 1);
-        QCOMPARE(catalog->item(0)->data(Qt::UserRole).toJsonObject(), candidate);
-        QTest::mouseClick(catalog->viewport(), Qt::LeftButton, Qt::NoModifier,
-                          catalog->visualItemRect(catalog->item(0)).center());
-        QCOMPARE(changed.count(), 1);
-        QCOMPARE(panel->Loadout().value("items").toObject().value(QStringLiteral("帽子")).toObject(), candidate);
-        const auto details = panel->findChild<QTextBrowser *>(QStringLiteral("equipmentDetails"))->toHtml();
-        QVERIFY(details.contains(QStringLiteral("测试帽子")));
-        QVERIFY(details.contains(QStringLiteral("外功攻击提高1195")));
-        auto *effectDetails = panel->findChild<QToolButton *>("equipmentEffectsToggle");
-        auto *equippedEffects = panel->findChild<QListWidget *>("equipmentEffects");
-        QVERIFY(effectDetails);
-        QVERIFY(equippedEffects);
-        QVERIFY(effectDetails->isVisible());
-        QVERIFY(!equippedEffects->isVisible());
-        effectDetails->click();
-        QVERIFY(equippedEffects->isVisible());
-        effectDetails->click();
-        QVERIFY(!equippedEffects->isVisible());
-        QCOMPARE(changed.count(), 1);
-        QCOMPARE(options->Snapshot(), configuration);
-        QCOMPARE(editor->toPlainText(), macro);
-        QCOMPARE(editor->GetCurrentDebugLine(), line);
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        QCOMPARE(catalog->item(0)->data(Qt::UserRole).toJsonObject(), CANDIDATE);
+        QTest::mouseClick(catalog->viewport(), Qt::LeftButton, Qt::NoModifier, catalog->visualItemRect(catalog->item(0)).center());
+        QCOMPARE(CHANGED.count(), 1);
+        QCOMPARE(panel->Loadout().value("items").toObject().value(QStringLiteral("帽子")).toObject(), CANDIDATE);
+        const auto DETAILS = panel->findChild<QTextBrowser *>(QStringLiteral("equipmentDetails"))->toHtml();
+        QVERIFY(DETAILS.contains(QStringLiteral("测试帽子")));
+        QVERIFY(DETAILS.contains(QStringLiteral("外功攻击提高1195")));
+        auto       *effect_details   = panel->findChild<QToolButton *>("equipmentEffectsToggle");
+        const auto *equipped_effects = panel->findChild<QListWidget *>("equipmentEffects");
+        QVERIFY(effect_details);
+        QVERIFY(equipped_effects);
+        QVERIFY(effect_details->isVisible());
+        QVERIFY(!equipped_effects->isVisible());
+        effect_details->click();
+        QVERIFY(equipped_effects->isVisible());
+        effect_details->click();
+        QVERIFY(!equipped_effects->isVisible());
+        QCOMPARE(CHANGED.count(), 1);
+        QCOMPARE(options->Snapshot(), CONFIGURATION);
+        QCOMPARE(editor->toPlainText(), MACRO);
+        QCOMPARE(editor->GetCurrentDebugLine(), LINE);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         QVERIFY(editor->isReadOnly());
         QVERIFY(!window.findChild<QTabWidget *>("workspaceTabs"));
-        auto *detailButton = panel->findChild<QToolButton *>("viewEquipmentDetails");
-        QVERIFY(detailButton->isEnabled());
-        detailButton->click();
-        auto *detailPopup = panel->findChild<QWidget *>("equipmentDetailsPopup");
-        QVERIFY(detailPopup);
-        QTRY_VERIFY(detailPopup->isVisible());
-        QVERIFY(detailPopup->screen()->availableGeometry().contains(detailPopup->geometry()));
-        equipmentWindow->close();
-        QVERIFY(!detailPopup->isVisible());
-        openEquipment->click();
-        QCOMPARE(equipmentWindow->findChild<EquipmentPanel *>(), panel);
+        auto *detail_button = panel->findChild<QToolButton *>("viewEquipmentDetails");
+        QVERIFY(detail_button->isEnabled());
+        detail_button->click();
+        const auto *detail_popup = panel->findChild<QWidget *>("equipmentDetailsPopup");
+        QVERIFY(detail_popup);
+        QTRY_VERIFY(detail_popup->isVisible());
+        QVERIFY(detail_popup->screen()->availableGeometry().contains(detail_popup->geometry()));
+        equipment_window->close();
+        QVERIFY(!detail_popup->isVisible());
+        open_equipment->click();
+        QCOMPARE(equipment_window->findChild<EquipmentPanel *>(), panel);
         QCOMPARE(panel->Loadout().value("items").toObject().size(), 1);
         session->Stop();
         QVERIFY(effects->isEnabled());
@@ -1995,33 +2239,44 @@ private slots:
         specialization->setCurrentIndex(0);
         QVERIFY(panel->isVisible());
         QCOMPARE(panel->Loadout().value("items").toObject().size(), 1);
-        equipmentWindow->resize(720, 680);
+        equipment_window->resize(720, 680);
         QCoreApplication::processEvents();
         scroll->verticalScrollBar()->setValue(0);
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(equipmentWindow->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment-layout.png"));
-        for (auto *button : panel->findChildren<QToolButton *>()) {
-            if (!button->property("equipmentSlot").isValid()) continue;
-            const auto corner = button->mapTo(scroll->viewport(), button->rect().bottomRight());
-            QVERIFY2(scroll->viewport()->rect().contains(corner), qPrintable(QStringLiteral("%1 at %2,%3 outside %4x%5")
-                .arg(button->objectName()).arg(corner.x()).arg(corner.y())
-                .arg(scroll->viewport()->width()).arg(scroll->viewport()->height())));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+            QVERIFY(equipment_window->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                                  "-equipment-layout.png"));
         }
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(equipmentWindow->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment-overview.png"));
-        equipmentWindow->resize(500, 640);
+        for (const auto *button : panel->findChildren<QToolButton *>()) {
+            if (!button->property("equipmentSlot").isValid()) {
+                continue;
+            }
+            const auto CORNER = button->mapTo(scroll->viewport(), button->rect().bottomRight());
+            QVERIFY2(scroll->viewport()->rect().contains(CORNER),
+                     qPrintable(QStringLiteral("%1 at %2,%3 outside %4x%5")
+                                    .arg(button->objectName())
+                                    .arg(CORNER.x())
+                                    .arg(CORNER.y())
+                                    .arg(scroll->viewport()->width())
+                                    .arg(scroll->viewport()->height())));
+        }
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+            QVERIFY(equipment_window->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                                  "-equipment-overview.png"));
+        }
+        equipment_window->resize(500, 640);
         QCoreApplication::processEvents();
         QCOMPARE(scroll->horizontalScrollBar()->maximum(), 0);
         QVERIFY(panel->width() <= scroll->viewport()->width());
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(equipmentWindow->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment.png"));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+            QVERIFY(equipment_window->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-equipment.png"));
+        }
         scroll->ensureWidgetVisible(effects);
         QVERIFY(scroll->viewport()->rect().contains(effects->mapTo(scroll->viewport(), effects->rect().center())));
     }
 
     void optionalFightHotspots_data()
     {
-        QTest::addColumn<bool>("moWen");
+        QTest::addColumn<bool>("mo_wen");
         QTest::addColumn<bool>("trace");
         QTest::addColumn<bool>("gains");
         QTest::newRow("tai-xu-batch") << false << false << false;
@@ -2032,63 +2287,76 @@ private slots:
 
     void optionalFightHotspots()
     {
-        QFETCH(bool, moWen);
+        QFETCH(bool, mo_wen);
         QFETCH(bool, trace);
         QFETCH(bool, gains);
-        desktop::Config config = moWen ? desktop::Config{rt::mo_wen::Config{}} : desktop::Config{rt::tai_xu::Config{}};
-        const auto spec = desktop::ClassOf(config);
-        const auto source = desktop::DefaultMacro(spec);
-        const auto compiled = rt::MacroCompiler::Compile(source.toStdString(), desktop::MacroOptions(spec));
-        QVERIFY(compiled.second.empty());
-        rt::BatchOptions options{trace ? 1u : 512u, 42, 4800, 2, 4800 * 16, 4800 * 40};
-        SimulationResult plain;
-        ResultsPanel panel;
-        auto *tabs = panel.findChild<QTabWidget *>("resultTabs");
-        const int tab = tabs->count() - 1;
-        for (bool enabled : {false, true}) {
-            BatchWorker worker(compiled.first.program, options, config, nullptr, trace, gains, desktop::GainComparisonMode::SameValue, enabled);
+        const desktop::Config CONFIG = mo_wen ? desktop::Config{ rt::mo_wen::Config{} } : desktop::Config{ rt::tai_xu::Config{} };
+        const auto SPEC     = desktop::ClassOf(CONFIG);
+        const auto SOURCE   = desktop::DefaultMacro(SPEC);
+        const auto COMPILED = rt::MacroCompiler::Compile(SOURCE.toStdString(), desktop::MacroOptions(SPEC));
+        QVERIFY(COMPILED.second.empty());
+        const rt::BatchOptions OPTIONS{ trace ? 1u : 512u, 42, 4800, 2, 4800 * 16, 4800 * 40 };
+        SimulationResult       plain;
+        ResultsPanel           panel;
+        const auto            *tabs = panel.findChild<QTabWidget *>("resultTabs");
+        const int              TAB  = tabs->count() - 1;
+        for (const bool ENABLED : { false, true }) {
+            BatchWorker worker(COMPILED.first.program, OPTIONS, CONFIG, nullptr, trace, gains, desktop::GainComparisonMode::SAME_VALUE, ENABLED);
             QSignalSpy ready(&worker, &BatchWorker::StatisticsReady);
             worker.start();
             QVERIFY(worker.wait(20000));
             QTRY_COMPARE(ready.size(), 1);
             const auto result = qvariant_cast<SimulationResult>(ready.front().front());
             QVERIFY(result.Complete());
-            QCOMPARE(result.hotspots.has_value(), enabled);
-            panel.AddResult(result, source, {});
-            QVERIFY(tabs->isTabVisible(tab));
-            QCOMPARE(panel.findChild<QPushButton *>("runWithHotspots")->isHidden(), enabled);
-            if (!enabled) { plain = result; continue; }
+            QCOMPARE(result.hotspots.has_value(), ENABLED);
+            panel.AddResult(result, SOURCE, {});
+            QVERIFY(tabs->isTabVisible(TAB));
+            QCOMPARE(panel.findChild<QPushButton *>("runWithHotspots")->isHidden(), ENABLED);
+            if (!ENABLED) {
+                plain = result;
+                continue;
+            }
             QCOMPARE(result.stats.checksum, plain.stats.checksum);
             QCOMPARE(result.skills.size(), plain.skills.size());
-            for (int i = 0; i < result.gains.size(); ++i) QCOMPARE(result.gains[i].stats.checksum, plain.gains[i].stats.checksum);
-            QCOMPARE(result.hotspots->fights, options.iterations * (gains ? rt::AttributeGainSimulationStages<rt::mo_wen::Config> : 1));
+            for (int i = 0; i < result.gains.size(); ++i) {
+                QCOMPARE(result.gains[i].stats.checksum, plain.gains[i].stats.checksum);
+            }
+            QCOMPARE(result.hotspots->fights,
+                     OPTIONS.iterations * (gains ? rt::AttributeGainSimulationStages<rt::mo_wen::Config> : 1));
             QCOMPARE(result.hotspots->workers.size(), trace ? 1 : 2);
-            quint64 workerPoints = 0, workerFights = 0;
+            quint64 worker_points = 0;
+            quint64 worker_fights = 0;
             for (const auto &w : result.hotspots->workers) {
                 QVERIFY(w.fights > 0);
-                workerPoints += w.samplePoints;
-                workerFights += w.fights;
+                worker_points += w.samplePoints;
+                worker_fights += w.fights;
             }
-            QCOMPARE(workerFights, result.hotspots->fights);
-            QCOMPARE(workerPoints, result.hotspots->samplePoints);
+            QCOMPARE(worker_fights, result.hotspots->fights);
+            QCOMPARE(worker_points, result.hotspots->samplePoints);
             QVERIFY(result.hotspots->workerMs > 0);
             const auto &calls = result.hotspots->calls;
             QVERIFY(!calls.isEmpty());
             QCOMPARE(calls.front().inclusive, result.hotspots->samplePoints);
             QVector<quint64> accounted(calls.size());
             for (int i = 0; i < calls.size(); ++i) {
-                const auto &call = calls[i];
-                accounted[i] += call.self;
-                if (i) {
-                    QVERIFY(call.parent < static_cast<unsigned>(i));
+                const auto &call  = calls[i];
+                accounted[i]     += call.self;
+                if (i != 0) {
+                    QVERIFY(std::cmp_less(call.parent, i));
                     accounted[call.parent] += call.inclusive;
                 }
             }
-            for (int i = 0; i < calls.size(); ++i) QCOMPARE(calls[i].inclusive, accounted[i]);
+            for (int i = 0; i < calls.size(); ++i) {
+                QCOMPARE(calls[i].inclusive, accounted[i]);
+            }
             double estimate = 0;
-            for (double stage : result.hotspots->phaseUs) estimate += stage;
-            if (result.hotspots->samplePoints) QVERIFY(qAbs(estimate - result.hotspots->workerMs * 1000 / result.hotspots->fights) < 1e-6);
-            QCOMPARE(tabs->currentIndex(), tab);
+            for (const double STAGE : result.hotspots->phaseUs) {
+                estimate += STAGE;
+            }
+            if (result.hotspots->samplePoints != 0u) {
+                QVERIFY(qAbs(estimate - result.hotspots->workerMs * 1000 / result.hotspots->fights) < 1e-6);
+            }
+            QCOMPARE(tabs->currentIndex(), TAB);
             QCOMPARE(panel.findChild<QTableWidget *>("fightHotspotTable")->rowCount(), 10);
             panel.findChild<QTableWidget *>("resultHistory")->selectRow(0);
             QVERIFY(!panel.findChild<QPushButton *>("runWithHotspots")->isHidden());
@@ -2097,28 +2365,31 @@ private slots:
 
     void moWenDesktopParity()
     {
-        namespace mw = rt::mo_wen;
-        const auto source = desktop::DefaultMacro(desktop::Specialization::MoWen);
-        const auto bytes = source.toUtf8();
-        auto compiled = rt::MacroCompiler::Compile(std::string_view(bytes.constData(), bytes.size()), mw::MacroOptions(false));
-        QVERIFY(compiled.second.empty());
+        namespace mw      = rt::mo_wen;
+        const auto SOURCE = desktop::DefaultMacro(desktop::Specialization::MO_WEN);
+        const auto BYTES  = SOURCE.toUtf8();
+        const auto COMPILED =
+            rt::MacroCompiler::Compile(std::string_view(BYTES.constData(), BYTES.size()), mw::MacroOptions(false));
+        QVERIFY(COMPILED.second.empty());
         mw::Config config;
-        config.talents = mw::LiuZhaoTalent | mw::YunHanTalent | mw::KeMeng | mw::MingJinTalent | mw::CanLianTalent;
-        config.equipment = mw::WeaponCW | mw::EnchantBelt;
+        config.talents = mw::LIU_ZHAO_TALENT | mw::YUN_HAN_TALENT | mw::KE_MENG | mw::MING_JIN_TALENT | mw::CAN_LIAN_TALENT;
+        config.equipment      = mw::WEAPON_CW | mw::ENCHANT_BELT;
         config.initial_yingzi = 2;
-        rt::BatchOptions options{1, 913, 16 * 45, 1, 16 * 45 * 16 + 64, 16 * 45 * 40 + 128};
-        BatchWorker worker(compiled.first.program, options, config, nullptr, true);
-        QSignalSpy trace(&worker, &BatchWorker::TraceReady), buffs(&worker, &BatchWorker::BuffTraceReady);
-        QSignalSpy historySignal(&worker, &BatchWorker::HistoryReady);
-        QSignalSpy stats(&worker, &BatchWorker::StatisticsReady), failure(&worker, &BatchWorker::Failed);
+        const rt::BatchOptions OPTIONS{ 1, 913, 16 * 45, 1, (16 * 45 * 16) + 64, (16 * 45 * 40) + 128 };
+        BatchWorker            worker(COMPILED.first.program, OPTIONS, config, nullptr, true);
+        QSignalSpy             trace(&worker, &BatchWorker::TraceReady);
+        QSignalSpy             buffs(&worker, &BatchWorker::BuffTraceReady);
+        QSignalSpy             history_signal(&worker, &BatchWorker::HistoryReady);
+        QSignalSpy             stats(&worker, &BatchWorker::StatisticsReady);
+        QSignalSpy             failure(&worker, &BatchWorker::Failed);
         worker.start();
         QVERIFY(worker.wait(10000));
         QTRY_COMPARE(stats.count(), 1);
         QCOMPARE(failure.count(), 0);
         DebugSimulator debugger;
-        debugger.SetOptions(config, options.duration, options.seed);
+        debugger.SetOptions(config, OPTIONS.duration, OPTIONS.seed);
         QString error;
-        QVERIFY2(debugger.Initialize(source, error), qPrintable(error));
+        QVERIFY2(debugger.Initialize(SOURCE, error), qPrintable(error));
         QVERIFY(debugger.GetPlayerState().details.join('\n').contains(QStringLiteral("影子：2")));
         QVERIFY(debugger.SetBreakpoint(3));
         debugger.Continue();
@@ -2126,26 +2397,28 @@ private slots:
         QCOMPARE(debugger.GetPlayerState().currentMacroLine, 3);
         debugger.SetBreakpoint(3, false);
         debugger.StepInto();
-        while (!debugger.IsFinished()) debugger.Continue();
-        const auto debugEvents = debugger.TakeEvents();
-        const auto traceEvents = qvariant_cast<CombatEvents>(trace[0][0]);
-        QTRY_COMPARE(historySignal.count(), 1);
-        const auto traceHistory = qvariant_cast<desktop::HistoryChunk>(historySignal[0][0]);
-        const auto debugHistory = debugger.TakeHistory();
-        QVERIFY(traceHistory.initial.has_value());
-        QCOMPARE(traceHistory.attributes, debugHistory.attributes);
-        QCOMPARE(traceHistory.mutations, debugHistory.mutations);
+        while (!debugger.IsFinished()) {
+            debugger.Continue();
+        }
+        const auto DEBUG_EVENTS = debugger.TakeEvents();
+        const auto TRACE_EVENTS = qvariant_cast<CombatEvents>(trace[0][0]);
+        QTRY_COMPARE(history_signal.count(), 1);
+        const auto TRACE_HISTORY = qvariant_cast<desktop::HistoryChunk>(history_signal[0][0]);
+        const auto DEBUG_HISTORY = debugger.TakeHistory();
+        QVERIFY(TRACE_HISTORY.initial.has_value());
+        QCOMPARE(TRACE_HISTORY.attributes, DEBUG_HISTORY.attributes);
+        QCOMPARE(TRACE_HISTORY.mutations, DEBUG_HISTORY.mutations);
         desktop::CombatHistory recorded;
-        recorded.Append(traceHistory);
-        QVERIFY(recorded.At(options.duration).has_value());
-        QCOMPARE(recorded.At(options.duration)->attributes, debugHistory.attributes.back().values);
-        QCOMPARE(debugEvents.size(), traceEvents.size());
-        for (int index = 0; index < debugEvents.size(); ++index) {
-            QCOMPARE(debugEvents[index].frame, traceEvents[index].frame);
-            QCOMPARE(debugEvents[index].skill, traceEvents[index].skill);
-            QCOMPARE(debugEvents[index].damage, traceEvents[index].damage);
-            QCOMPARE(debugEvents[index].outcome, traceEvents[index].outcome);
-            QCOMPARE(debugEvents[index].name, traceEvents[index].name);
+        recorded.Append(TRACE_HISTORY);
+        QVERIFY(recorded.At(OPTIONS.duration).has_value());
+        QCOMPARE(recorded.At(OPTIONS.duration)->attributes, DEBUG_HISTORY.attributes.back().values);
+        QCOMPARE(DEBUG_EVENTS.size(), TRACE_EVENTS.size());
+        for (int index = 0; index < DEBUG_EVENTS.size(); ++index) {
+            QCOMPARE(DEBUG_EVENTS[index].frame, TRACE_EVENTS[index].frame);
+            QCOMPARE(DEBUG_EVENTS[index].skill, TRACE_EVENTS[index].skill);
+            QCOMPARE(DEBUG_EVENTS[index].damage, TRACE_EVENTS[index].damage);
+            QCOMPARE(DEBUG_EVENTS[index].outcome, TRACE_EVENTS[index].outcome);
+            QCOMPARE(DEBUG_EVENTS[index].name, TRACE_EVENTS[index].name);
         }
         QCOMPARE(debugger.TakeBuffEvents(), qvariant_cast<BuffEvents>(buffs[0][0]));
         QCOMPARE(debugger.TotalDamage(), qvariant_cast<SimulationResult>(stats[0][0]).stats.min_damage);
@@ -2153,42 +2426,47 @@ private slots:
         bool interruption = false;
         for (int step = 0; step < 200 && !debugger.IsFinished(); ++step) {
             debugger.StepInto();
-            for (const auto &observation : debugger.TakeMacroSteps())
-                if (observation.kind == MacroStepKind::Interruption) {
+            for (const auto &observation : debugger.TakeMacroSteps()) {
+                if (observation.kind == MacroStepKind::INTERRUPTION) {
                     interruption = true;
                     QVERIFY(observation.details.contains(QStringLiteral("判定本行条件")));
                 }
+            }
         }
         QVERIFY(interruption);
     }
 
     void teamBuffOptionsAndSnapshots()
     {
-        SimulationOptions options;
-        const auto prefix = QStringLiteral("txTeam%1_").arg(tx::team::ZhenFen);
-        options.findChild<QCheckBox *>(prefix + "enabled")->setChecked(true);
-        options.findChild<QDoubleSpinBox *>(prefix + "start")->setValue(1.0625);
-        options.findChild<QDoubleSpinBox *>(prefix + "duration")->setValue(3.125);
-        options.findChild<QSpinBox *>(prefix + "stacks")->setValue(35);
-        const auto config = options.Config();
-        QCOMPARE(config.team_buffs.size(), std::size_t(1));
-        QCOMPARE(config.team_buffs[0].frame, 17);
-        QCOMPARE(config.team_buffs[0].duration, 50);
-        QCOMPARE(config.team_buffs[0].stacks, 35);
-        const auto snapshot = options.Snapshot();
+        const SimulationOptions OPTIONS;
+        const auto              PREFIX = QStringLiteral("txTeam%1_").arg(tx::team::ZHEN_FEN);
+        OPTIONS.findChild<QCheckBox *>(PREFIX + "enabled")->setChecked(true);
+        OPTIONS.findChild<QDoubleSpinBox *>(PREFIX + "start")->setValue(1.0625);
+        OPTIONS.findChild<QDoubleSpinBox *>(PREFIX + "duration")->setValue(3.125);
+        OPTIONS.findChild<QSpinBox *>(PREFIX + "stacks")->setValue(35);
+        const auto CONFIG = OPTIONS.Config();
+        QCOMPARE(CONFIG.team_buffs.size(), std::size_t(1));
+        QCOMPARE(CONFIG.team_buffs[0].frame, 17);
+        QCOMPARE(CONFIG.team_buffs[0].duration, 50);
+        QCOMPARE(CONFIG.team_buffs[0].stacks, 35);
+        const auto        snapshot = OPTIONS.Snapshot();
         SimulationOptions restored;
-        QString error;
+        QString           error;
         QVERIFY2(restored.RestoreSnapshot(snapshot, error), qPrintable(error));
-        QCOMPARE(restored.Config().team_buffs, config.team_buffs);
-        auto old = snapshot;
+        QCOMPARE(restored.Config().team_buffs, CONFIG.team_buffs);
+        auto old    = snapshot;
         auto values = old.value("values").toObject();
-        for (const auto &key : values.keys()) if (key.startsWith("txTeam")) values.remove(key);
+        for (const auto &key : values.keys()) {
+            if (key.startsWith("txTeam")) {
+                values.remove(key);
+            }
+        }
         old.insert("values", values);
         QVERIFY2(restored.RestoreSnapshot(old, error), qPrintable(error));
         QVERIFY(restored.Config().team_buffs.empty());
         auto invalid = snapshot;
-        values = snapshot.value("values").toObject();
-        values.insert(prefix + "stacks", 126);
+        values       = snapshot.value("values").toObject();
+        values.insert(PREFIX + "stacks", 126);
         invalid.insert("values", values);
         QVERIFY(!restored.RestoreSnapshot(invalid, error));
         QVERIFY(restored.Config().team_buffs.empty());
@@ -2200,54 +2478,71 @@ private slots:
         SimulationOptions options;
         options.findChild<QComboBox *>("specialization")->setCurrentIndex(1);
         options.findChild<CodeEditor *>("flowMacroEditor")->appendPlainText(QStringLiteral("/set_player style=0 shadows=3"));
-        options.findChild<QCheckBox *>(QStringLiteral("mwTalent%1").arg(mw::LiuZhaoTalent))->setChecked(true);
-        auto before = options.Snapshot();
-        QString error;
+        options.findChild<QCheckBox *>(QStringLiteral("mwTalent%1").arg(mw::LIU_ZHAO_TALENT))->setChecked(true);
+        auto              before = options.Snapshot();
+        QString           error;
         SimulationOptions restored;
         QVERIFY2(restored.RestoreSnapshot(before, error), qPrintable(error));
         QCOMPARE(restored.Snapshot(), before);
-        const auto config = std::get<mw::Config>(restored.ActiveConfig());
-        QCOMPARE(config.initial_style, mw::Style::YangChunBaiXue);
-        QCOMPARE(config.initial_yingzi, 3);
-        QVERIFY(config.talents & mw::LiuZhaoTalent);
+        const auto CONFIG = std::get<mw::Config>(restored.ActiveConfig());
+        QCOMPARE(CONFIG.initial_style, mw::Style::YANG_CHUN_BAI_XUE);
+        QCOMPARE(CONFIG.initial_yingzi, 3);
+        QVERIFY(CONFIG.talents & mw::LIU_ZHAO_TALENT);
         auto invalid = before;
         invalid.insert("specialization", 1.5);
         QVERIFY(!options.RestoreSnapshot(invalid, error));
         QCOMPARE(options.Snapshot(), before);
         auto values = before.value("values").toObject();
-        for (auto flag : {mw::GongCrit2, mw::GongCrit3, mw::GongCrit4, mw::GongDamage3, mw::GongDamage4})
-            values.insert(QStringLiteral("mwGong%1").arg(flag), true);
+        for (const auto FLAG : { mw::GONG_CRIT2, mw::GONG_CRIT3, mw::GONG_CRIT4, mw::GONG_DAMAGE3, mw::GONG_DAMAGE4 }) {
+            values.insert(QStringLiteral("mwGong%1").arg(FLAG), true);
+        }
         invalid = before;
         invalid.insert("values", values);
         QVERIFY(!options.RestoreSnapshot(invalid, error));
         QVERIFY(error.contains(QStringLiteral("最多四本")));
         QCOMPARE(options.Snapshot(), before);
-        QJsonObject imported{{"LunarAttackPowerBase", 26522}, {"LunarCriticalStrike", 24177},
-            {"LunarCriticalDamagePower", 1170}, {"LunarOvercome", 27071}, {"SurplusValue", 26098},
-            {"Strain", 12584}, {"Haste", 7029}, {"Spirit", 8328}, {"Strength", 41},
-            {"MeleeWeaponDamage", 1609}, {"MeleeWeaponDamageRand", 965}};
+        QJsonObject imported{
+            { "LunarAttackPowerBase",     26522 },
+            { "LunarCriticalStrike",      24177 },
+            { "LunarCriticalDamagePower", 1170  },
+            { "LunarOvercome",            27071 },
+            { "SurplusValue",             26098 },
+            { "Strain",                   12584 },
+            { "Haste",                    7029  },
+            { "Spirit",                   8328  },
+            { "Strength",                 41    },
+            { "MeleeWeaponDamage",        1609  },
+            { "MeleeWeaponDamageRand",    965   }
+        };
         QVERIFY2(options.ImportAttributes(imported, error), qPrintable(error));
-        const auto importedConfig = std::get<mw::Config>(options.ActiveConfig());
-        QCOMPARE(importedConfig.attributes.attack_base, JX3DPS::value_t(26522));
-        QCOMPARE(importedConfig.attributes.attack_by_class, JX3DPS::value_t(8328 * 1895 / 1024));
-        QCOMPARE(importedConfig.attributes.weapon, JX3DPS::value_t(2091));
+        const auto IMPORTED_CONFIG = std::get<mw::Config>(options.ActiveConfig());
+        QCOMPARE(IMPORTED_CONFIG.attributes.attack_base, JX3DPS::value_t(26522));
+        QCOMPARE(IMPORTED_CONFIG.attributes.attack_by_class, JX3DPS::value_t(8328 * 1895 / 1024));
+        QCOMPARE(IMPORTED_CONFIG.attributes.weapon, JX3DPS::value_t(2091));
         before = options.Snapshot();
         imported.insert("Haste", -1);
         QVERIFY(!options.ImportAttributes(imported, error));
         QCOMPARE(options.Snapshot(), before);
         options.findChild<QComboBox *>("permanent1FoodEnhance")->setCurrentIndex(1);
-        QCOMPARE(std::get<mw::Config>(options.ActiveConfig()).attributes.attack_base, importedConfig.attributes.attack_base + 831);
+        QCOMPARE(std::get<mw::Config>(options.ActiveConfig()).attributes.attack_base, IMPORTED_CONFIG.attributes.attack_base + 831);
         options.findChild<QComboBox *>("permanent1FoodSupport")->setCurrentIndex(1);
-        const auto enhanced = std::get<mw::Config>(options.ActiveConfig());
-        QCOMPARE(enhanced.attributes.attack_by_class, JX3DPS::value_t((8328 + 347) * 1895 / 1024));
-        QCOMPARE(enhanced.attributes.crit, JX3DPS::value_t(24177 + (8328 + 347) * 389 / 1024 - 8328 * 389 / 1024
-            + (8328 + 347) * 655 / 1024 - 8328 * 655 / 1024));
-        auto legacyValues = before.value("values").toObject();
-        for (const auto &key : legacyValues.keys())
-            if (key.startsWith("mw") || key.startsWith("permanent") || key.startsWith("imported")) legacyValues.remove(key);
-        const QJsonObject legacy{{"format", "jx3dps.tai-xu.config"}, {"version", 1}, {"values", legacyValues}};
-        QVERIFY2(restored.RestoreSnapshot(legacy, error), qPrintable(error));
-        QCOMPARE(restored.Specialization(), desktop::Specialization::TaiXu);
+        const auto ENHANCED = std::get<mw::Config>(options.ActiveConfig());
+        QCOMPARE(ENHANCED.attributes.attack_by_class, JX3DPS::value_t((8328 + 347) * 1895 / 1024));
+        QCOMPARE(ENHANCED.attributes.crit,
+                 JX3DPS::value_t(24177 + (8328 + 347) * 389 / 1024 - 8328 * 389 / 1024 + (8328 + 347) * 655 / 1024 - 8328 * 655 / 1024));
+        auto legacy_values = before.value("values").toObject();
+        for (const auto &key : legacy_values.keys()) {
+            if (key.startsWith("mw") || key.startsWith("permanent") || key.startsWith("imported")) {
+                legacy_values.remove(key);
+            }
+        }
+        const QJsonObject LEGACY{
+            { "format",  "jx3dps.tai-xu.config" },
+            { "version", 1                      },
+            { "values",  legacy_values          }
+        };
+        QVERIFY2(restored.RestoreSnapshot(LEGACY, error), qPrintable(error));
+        QCOMPARE(restored.Specialization(), desktop::Specialization::TAI_XU);
         QCOMPARE(restored.Config().attributes.attack_base, JX3DPS::value_t(26522));
     }
 
@@ -2255,7 +2550,7 @@ private slots:
     {
         Workbench window;
         window.show();
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
+        auto *editor    = window.findChild<MacroEditor *>("macroEditor");
         auto *selection = window.findChild<QComboBox *>("specialization");
         editor->setPlainText(QStringLiteral("# 保留太虚草稿\n/cast 三环套月"));
         editor->SetBreakpoint(2, true);
@@ -2272,12 +2567,12 @@ private slots:
         }
         window.findChild<QToolButton *>("debugButton")->click();
         window.findChild<QToolButton *>("startButton")->click();
-        auto *session = window.findChild<DebugSession *>();
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        const auto *session = window.findChild<DebugSession *>();
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         QCOMPARE(session->GetDebugInfo().currentMacro, QStringLiteral("莫问"));
         QVERIFY(!selection->isEnabled());
         window.findChild<QAction *>("debugContinue")->trigger();
-        QTRY_COMPARE(session->GetState(), DebugSession::Paused);
+        QTRY_COMPARE(session->GetState(), DebugSession::PAUSED);
         QCOMPARE(session->GetDebugInfo().lineNumber, 3);
         QCOMPARE(window.findChild<QListWidget *>("breakpointList")->count(), 1);
         QVERIFY(window.findChild<QTextBrowser *>("debugInspector")->toPlainText().contains(QStringLiteral("影子")));
@@ -2299,10 +2594,10 @@ private slots:
         QTRY_VERIFY(selection->isEnabled());
         QVERIFY(window.findChild<QTableWidget *>("damageEvents")->rowCount() > 0);
         window.close();
-        Workbench reopened;
-        QCOMPARE(reopened.findChild<QComboBox *>("specialization")->currentIndex(), 1);
-        reopened.findChild<QComboBox *>("specialization")->setCurrentIndex(0);
-        QCOMPARE(reopened.findChild<MacroEditor *>("macroEditor")->toPlainText(), QStringLiteral("# 保留太虚草稿\n/cast 三环套月"));
+        const Workbench REOPENED;
+        QCOMPARE(REOPENED.findChild<QComboBox *>("specialization")->currentIndex(), 1);
+        REOPENED.findChild<QComboBox *>("specialization")->setCurrentIndex(0);
+        QCOMPARE(REOPENED.findChild<MacroEditor *>("macroEditor")->toPlainText(), QStringLiteral("# 保留太虚草稿\n/cast 三环套月"));
     }
 
     void workbenchResultAnalysisNavigation()
@@ -2310,52 +2605,52 @@ private slots:
         Workbench window;
         window.resize(1366, 900);
         window.show();
-        auto *analysis = window.findChild<QDialog *>("resultAnalysis");
-        auto *showAnalysis = window.findChild<QPushButton *>("showAnalysis");
-        auto *home = window.findChild<QWidget *>("simulationPage");
-        auto *debug = window.findChild<QTabWidget *>("debugTabs");
+        auto       *analysis      = window.findChild<QDialog *>("resultAnalysis");
+        auto       *show_analysis = window.findChild<QPushButton *>("showAnalysis");
+        const auto *home          = window.findChild<QWidget *>("simulationPage");
+        const auto *debug         = window.findChild<QTabWidget *>("debugTabs");
         QVERIFY(analysis);
         QVERIFY(!analysis->isVisible());
         QVERIFY(!analysis->isModal());
         QVERIFY(!window.findChild<QTabWidget *>("workspaceTabs"));
-        QVERIFY(window.findChild<QWidget *>("outputPanel")->isAncestorOf(showAnalysis));
+        QVERIFY(window.findChild<QWidget *>("outputPanel")->isAncestorOf(show_analysis));
         QVERIFY(!window.findChild<QWidget *>("debugPage"));
         QVERIFY(window.findChild<QWidget *>("macroPanel")->isAncestorOf(debug));
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
-        auto *document = editor->document();
-        auto *options = window.findChild<SimulationOptions *>();
-        auto *session = window.findChild<DebugSession *>();
-        auto *start = window.findChild<QToolButton *>("startButton");
-        auto *gains = window.findChild<QAction *>("attributeGains");
-        editor->setPlainText(desktop::DefaultMacro(desktop::Specialization::TaiXu));
+        auto       *editor   = window.findChild<MacroEditor *>("macroEditor");
+        auto       *document = editor->document();
+        const auto *options  = window.findChild<SimulationOptions *>();
+        const auto *session  = window.findChild<DebugSession *>();
+        auto       *start    = window.findChild<QToolButton *>("startButton");
+        auto       *gains    = window.findChild<QAction *>("attributeGains");
+        editor->setPlainText(desktop::DefaultMacro(desktop::Specialization::TAI_XU));
         editor->appendPlainText(QStringLiteral("# 页面切换保留撤销与断点"));
         editor->SetBreakpoint(3, true);
         window.findChild<QDoubleSpinBox *>("seconds")->setValue(20);
         window.findChild<QSpinBox *>("iterations")->setValue(20);
         const auto snapshot = options->Snapshot();
-        const auto source = editor->toPlainText();
+        const auto SOURCE   = editor->toPlainText();
         window.findChild<QToolButton *>("debugButton")->setChecked(true);
         QCOMPARE(editor->document(), document);
         QVERIFY(editor->isVisible());
         window.findChild<QAction *>("debugStart")->trigger();
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         window.findChild<QAction *>("debugStepOver")->trigger();
-        const auto phase = session->GetDebugInfo().phase;
-        const auto line = session->GetDebugInfo().lineNumber;
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        const auto PHASE = session->GetDebugInfo().phase;
+        const auto LINE  = session->GetDebugInfo().lineNumber;
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         QVERIFY(editor->isVisible());
         QVERIFY(editor->isReadOnly());
         QVERIFY(!start->isEnabled());
         QVERIFY(!window.findChild<QComboBox *>("specialization")->isEnabled());
         QVERIFY(!window.findChild<QSpinBox *>("attackBase")->isEnabled());
-        showAnalysis->click();
+        show_analysis->click();
         QTRY_VERIFY(analysis->isVisible());
         QVERIFY(!home->isVisible());
         QVERIFY(!analysis->isWindow());
         QCOMPARE(window.findChild<QTabWidget *>("analysisViews")->currentWidget(), window.findChild<ResultsPanel *>());
         window.findChild<QToolButton *>("closeAnalysis")->click();
         QVERIFY(!analysis->isVisible());
-        showAnalysis->click();
+        show_analysis->click();
         window.activateWindow();
         QTRY_VERIFY(window.isActiveWindow());
         QTest::keyClick(window.windowHandle(), Qt::Key_F, Qt::ControlModifier);
@@ -2363,10 +2658,10 @@ private slots:
         QVERIFY(editor->isVisible());
         QVERIFY(window.findChild<MacroSearchBar *>()->isVisible());
         window.findChild<MacroSearchBar *>()->Close();
-        QCOMPARE(session->GetDebugInfo().phase, phase);
-        QCOMPARE(session->GetDebugInfo().lineNumber, line);
+        QCOMPARE(session->GetDebugInfo().phase, PHASE);
+        QCOMPARE(session->GetDebugInfo().lineNumber, LINE);
         QCOMPARE(editor->document(), document);
-        QCOMPARE(editor->toPlainText(), source);
+        QCOMPARE(editor->toPlainText(), SOURCE);
         QCOMPARE(options->Snapshot(), snapshot);
         QVERIFY(editor->HasBreakpoint(3));
         window.findChild<QAction *>("debugStop")->trigger();
@@ -2378,15 +2673,17 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(start->isEnabled(), 10000);
         QVERIFY(!analysis->isVisible());
         QVERIFY(window.findChild<QLabel *>("meanDps")->text().toDouble() > 0);
-        QCOMPARE(showAnalysis->text(), QStringLiteral("技能统计"));
-        showAnalysis->click();
+        QCOMPARE(show_analysis->text(), QStringLiteral("技能统计"));
+        show_analysis->click();
         QTRY_VERIFY(analysis->isVisible());
         QCOMPARE(window.findChild<QTabWidget *>("resultTabs")->currentIndex(), 1);
-        auto *skills = window.findChild<QTableWidget *>("skillDamage");
+        const auto *skills = window.findChild<QTableWidget *>("skillDamage");
         QVERIFY(skills->rowCount() > 0);
-        double skillDps = 0;
-        for (int row = 0; row < skills->rowCount(); ++row) skillDps += skills->item(row, 4)->text().toDouble();
-        QVERIFY(std::abs(skillDps - window.findChild<QLabel *>("meanDps")->text().toDouble()) < skills->rowCount() * .1);
+        double skill_dps = 0;
+        for (int row = 0; row < skills->rowCount(); ++row) {
+            skill_dps += skills->item(row, 4)->text().toDouble();
+        }
+        QVERIFY(std::abs(skill_dps - window.findChild<QLabel *>("meanDps")->text().toDouble()) < skills->rowCount() * .1);
         QVERIFY(window.findChild<QLabel *>("skillDamageSummary")->text().contains(QStringLiteral("20 场已完成战斗")));
         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QTest::qWait(250);
@@ -2397,10 +2694,10 @@ private slots:
         start->click();
         QTRY_VERIFY_WITH_TIMEOUT(gains->isEnabled(), 10000);
         QVERIFY(!analysis->isVisible());
-        auto *detailGains = window.findChild<QTableWidget *>("attributeGainsTable");
+        const auto *detail_gains = window.findChild<QTableWidget *>("attributeGainsTable");
         QVERIFY(std::abs(window.findChild<QLabel *>("gameAttributeGain_attack")->text().toDouble() -
-            detailGains->item(1, 4)->text().toDouble()) <= .051);
-        showAnalysis->click();
+                         detail_gains->item(1, 4)->text().toDouble()) <= .051);
+        show_analysis->click();
         QTRY_VERIFY(analysis->isVisible());
         auto *history = window.findChild<QTableWidget *>("resultHistory");
         QCOMPARE(history->rowCount(), 2);
@@ -2410,7 +2707,7 @@ private slots:
         }
         analysis->close();
         QVERIFY(!analysis->isVisible());
-        showAnalysis->click();
+        show_analysis->click();
         QCOMPARE(window.findChild<QTableWidget *>("resultHistory"), history);
         QCOMPARE(history->rowCount(), 2);
         analysis->close();
@@ -2424,17 +2721,22 @@ private slots:
             QCOMPARE(window.findChild<QScrollArea *>("configurationScroll")->horizontalScrollBar()->maximum(), 0);
             window.findChild<QPushButton *>("nav_talents")->click();
             QCoreApplication::processEvents();
-            auto *talent = window.findChild<QWidget *>("talents0")->findChild<QToolButton *>("talentTier4");
+            const auto *talent = window.findChild<QWidget *>("talents0")->findChild<QToolButton *>("talentTier4");
             QVERIFY2(talent->visibleRegion().boundingRect().contains(talent->rect().center()),
-                qPrintable(QStringLiteral("Talent at %1,%2 in %3x%4; visible=%5, region=%6x%7")
-                    .arg(talent->pos().x()).arg(talent->pos().y()).arg(talent->parentWidget()->width()).arg(talent->parentWidget()->height())
-                    .arg(talent->isVisible()).arg(talent->visibleRegion().boundingRect().width()).arg(talent->visibleRegion().boundingRect().height())));
+                     qPrintable(QStringLiteral("Talent at %1,%2 in %3x%4; visible=%5, region=%6x%7")
+                                    .arg(talent->pos().x())
+                                    .arg(talent->pos().y())
+                                    .arg(talent->parentWidget()->width())
+                                    .arg(talent->parentWidget()->height())
+                                    .arg(talent->isVisible())
+                                    .arg(talent->visibleRegion().boundingRect().width())
+                                    .arg(talent->visibleRegion().boundingRect().height())));
             QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-compact.png"));
             window.findChild<QComboBox *>("specialization")->setCurrentIndex(1);
             QTest::qWait(30);
             QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-mowen-compact.png"));
         }
-        showAnalysis->click();
+        show_analysis->click();
         QVERIFY(window.close());
         QVERIFY(!analysis->isVisible());
     }
@@ -2443,10 +2745,12 @@ private slots:
     {
         desktop::SegmentedTabs tabs;
         tabs.resize(420, 220);
-        for (const auto *name : {"First", "Second", "Third"}) tabs.addTab(new QWidget, QString::fromLatin1(name));
+        for (const auto *name : { "First", "Second", "Third" }) {
+            tabs.addTab(new QWidget, QString::fromLatin1(name));
+        }
         tabs.show();
         QCoreApplication::processEvents();
-        auto *bar = static_cast<desktop::SegmentedTabBar *>(tabs.tabBar());
+        auto      *bar   = static_cast<desktop::SegmentedTabBar *>(tabs.tabBar());
         const auto first = bar->IndicatorRect();
         QTest::mouseClick(bar, Qt::LeftButton, Qt::NoModifier, bar->tabRect(1).center());
         QCOMPARE(tabs.currentIndex(), 1);
@@ -2477,21 +2781,21 @@ private slots:
         window.resize(1280, 840);
         window.show();
         QCoreApplication::processEvents();
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
-        auto *configuration = window.findChild<QScrollArea *>("configurationScroll");
-        auto *profiles = window.findChild<QWidget *>("configurationSchemes");
-        auto *start = window.findChild<QToolButton *>("startButton");
+        const auto *editor        = window.findChild<MacroEditor *>("macroEditor");
+        const auto *configuration = window.findChild<QScrollArea *>("configurationScroll");
+        const auto *profiles      = window.findChild<QWidget *>("configurationSchemes");
+        const auto *start         = window.findChild<QToolButton *>("startButton");
         QVERIFY(editor->width() >= 280);
         QCOMPARE(configuration->horizontalScrollBar()->maximum(), 0);
         QCOMPARE(window.findChild<QWidget *>("topNavigation")->height(), desktop::theme::NavigationHeight);
         QVERIFY(profiles->isAncestorOf(start));
-        for (const auto *name : {"iterations", "workers", "seconds", "seed", "delay"}) {
-            auto *input = window.findChild<QWidget *>(QString::fromLatin1(name));
+        for (const auto *name : { "iterations", "workers", "seconds", "seed", "delay" }) {
+            const auto *input = window.findChild<QWidget *>(QString::fromLatin1(name));
             QVERIFY(input);
             QVERIFY2(input->visibleRegion().boundingRect().contains(input->rect().center()), name);
         }
-        auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
-        auto *gains = window.findChild<QWidget *>("attributeGainsModule");
+        const auto *attributes = window.findChild<QWidget *>("gameAttributePanel");
+        const auto *gains      = window.findChild<QWidget *>("attributeGainsModule");
         window.findChild<SimulationOptions *>()->ShowAttributeGains();
         QVERIFY(attributes->isVisible());
         QVERIFY(gains->isVisible());
@@ -2502,9 +2806,9 @@ private slots:
         QCOMPARE(window.size(), QSize(1280, 840));
         QVERIFY(editor->width() >= 280);
         QCOMPARE(configuration->horizontalScrollBar()->maximum(), 0);
-        const auto progress = window.findChild<QProgressBar *>("batchProgress")->mapTo(&window, QPoint(0, 0));
-        const auto status = window.findChild<QLabel *>("simulationResult")->mapTo(&window, QPoint(0, 0));
-        QVERIFY(std::abs(progress.y() - status.y()) <= 8);
+        const auto PROGRESS = window.findChild<QProgressBar *>("batchProgress")->mapTo(&window, QPoint(0, 0));
+        const auto STATUS   = window.findChild<QLabel *>("simulationResult")->mapTo(&window, QPoint(0, 0));
+        QVERIFY(std::abs(PROGRESS.y() - STATUS.y()) <= 8);
         QVERIFY(window.close());
     }
 
@@ -2513,19 +2817,19 @@ private slots:
         Workbench window;
         window.resize(1366, 900);
         window.show();
-        auto *analysis = window.findChild<QDialog *>("resultAnalysis");
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
-        auto *macro = window.findChild<QWidget *>("macroPanel");
-        auto *details = window.findChild<QTabWidget *>("debugTabs");
-        auto *toggle = window.findChild<QToolButton *>("debugButton");
-        auto *floating = window.findChild<DebugToolbar *>("macroDebugToolbar");
-        auto *session = window.findChild<DebugSession *>();
-        auto *play = floating->findChild<QToolButton *>("debugContinueButton");
-        auto *pause = floating->findChild<QToolButton *>("debugPauseButton");
-        auto *step = floating->findChild<QToolButton *>("debugStepOverButton");
-        auto *into = floating->findChild<QToolButton *>("debugStepIntoButton");
-        auto *restart = floating->findChild<QToolButton *>("debugRestartButton");
-        auto *stop = floating->findChild<QToolButton *>("debugStopButton");
+        auto       *analysis = window.findChild<QDialog *>("resultAnalysis");
+        auto       *editor   = window.findChild<MacroEditor *>("macroEditor");
+        const auto *macro    = window.findChild<QWidget *>("macroPanel");
+        auto       *details  = window.findChild<QTabWidget *>("debugTabs");
+        auto       *toggle   = window.findChild<QToolButton *>("debugButton");
+        auto       *floating = window.findChild<DebugToolbar *>("macroDebugToolbar");
+        const auto *session  = window.findChild<DebugSession *>();
+        auto       *play     = floating->findChild<QToolButton *>("debugContinueButton");
+        auto       *pause    = floating->findChild<QToolButton *>("debugPauseButton");
+        auto       *step     = floating->findChild<QToolButton *>("debugStepOverButton");
+        auto       *into     = floating->findChild<QToolButton *>("debugStepIntoButton");
+        auto       *restart  = floating->findChild<QToolButton *>("debugRestartButton");
+        auto       *stop     = floating->findChild<QToolButton *>("debugStopButton");
         QVERIFY(!window.findChild<QTabWidget *>("workspaceTabs"));
         QVERIFY(!window.findChild<QWidget *>("debugPage"));
         QVERIFY(macro->isAncestorOf(toggle));
@@ -2535,8 +2839,8 @@ private slots:
         QVERIFY(!details->isVisible());
         editor->setPlainText(QStringLiteral("/cast [qidian>=8] 无我无剑\n/cast 三环套月\n/cast 三柴剑法"));
         editor->SetBreakpoint(1, true);
-        const auto source = editor->toPlainText();
-        auto *document = editor->document();
+        const auto SOURCE   = editor->toPlainText();
+        auto      *document = editor->document();
         window.findChild<QDoubleSpinBox *>("seconds")->setValue(3);
         toggle->click();
         QTRY_VERIFY(floating->isVisible());
@@ -2545,7 +2849,7 @@ private slots:
         QVERIFY(play->isEnabled());
         QVERIFY(!step->isEnabled());
         play->click();
-        QTRY_COMPARE(session->GetState(), DebugSession::Paused);
+        QTRY_COMPARE(session->GetState(), DebugSession::PAUSED);
         QCOMPARE(editor->GetCurrentDebugLine(), 1);
         QVERIFY(editor->isReadOnly());
         QVERIFY(step->isEnabled());
@@ -2553,42 +2857,44 @@ private slots:
         QVERIFY(window.findChild<QLabel *>("debugPosition")->text().contains(QStringLiteral("已暂停")));
         into->click();
         QVERIFY(session->GetDebugInfo().condition.contains(QStringLiteral("qidian")));
-        auto *steps = window.findChild<MacroTracePanel *>()->findChild<QTableView *>("macroSteps");
-        const auto beforeCondition = steps->model()->rowCount();
+        const auto *steps            = window.findChild<MacroTracePanel *>()->findChild<QTableView *>("macroSteps");
+        const auto  BEFORE_CONDITION = steps->model()->rowCount();
         window.findChild<QAction *>("debugStepInto")->trigger();
-        QCOMPARE(steps->model()->rowCount(), beforeCondition + 1);
+        QCOMPARE(steps->model()->rowCount(), BEFORE_CONDITION + 1);
         step->click();
-        const auto phase = session->GetDebugInfo().phase;
-        const auto line = session->GetDebugInfo().lineNumber;
+        const auto PHASE = session->GetDebugInfo().phase;
+        const auto LINE  = session->GetDebugInfo().lineNumber;
         QCOMPARE(editor->document(), document);
-        QCOMPARE(editor->toPlainText(), source);
+        QCOMPARE(editor->toPlainText(), SOURCE);
 
-        auto withinEditor = [&] {
+        const auto WITHIN_EDITOR = [&] {
             return QRect(editor->mapToGlobal(QPoint(0, 0)), editor->size()).contains(floating->geometry());
         };
-        QTRY_VERIFY(withinEditor());
-        const auto previousPosition = floating->pos();
-        const QPoint handle(20, floating->height() / 2);
-        const QPoint drag(-12, 60);
-        QTest::mousePress(floating, Qt::LeftButton, Qt::NoModifier, handle);
-        QMouseEvent movement(QEvent::MouseMove, QPointF(handle + drag),
-                             QPointF(floating->mapToGlobal(handle) + drag), Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+        QTRY_VERIFY(WITHIN_EDITOR());
+        const auto   PREVIOUS_POSITION = floating->pos();
+        const QPoint HANDLE(20, floating->height() / 2);
+        const QPoint DRAG(-12, 60);
+        QTest::mousePress(floating, Qt::LeftButton, Qt::NoModifier, HANDLE);
+        QMouseEvent movement(QEvent::MouseMove, QPointF(HANDLE + DRAG), QPointF(floating->mapToGlobal(HANDLE) + DRAG), Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
         QApplication::sendEvent(floating, &movement);
-        QTest::mouseRelease(floating, Qt::LeftButton, Qt::NoModifier, handle);
-        QVERIFY(floating->pos() != previousPosition);
-        QVERIFY(withinEditor());
-        const auto relativePosition = window.mapFromGlobal(floating->pos());
+        QTest::mouseRelease(floating, Qt::LeftButton, Qt::NoModifier, HANDLE);
+        QVERIFY(floating->pos() != PREVIOUS_POSITION);
+        QVERIFY(WITHIN_EDITOR());
+        const auto RELATIVE_POSITION = window.mapFromGlobal(floating->pos());
         window.move(window.pos() + QPoint(10, 10));
         QCoreApplication::processEvents();
-        QCOMPARE(window.mapFromGlobal(floating->pos()), relativePosition);
+        QCOMPARE(window.mapFromGlobal(floating->pos()), RELATIVE_POSITION);
 
-        auto screenshot = [&](const QString &suffix) {
-            if (!qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) return;
-            for (auto *bar : window.findChildren<QTabBar *>()) {
-                if (bar->isVisible() && bar->property("segmentedControl").toBool())
-                    QTRY_VERIFY(!static_cast<desktop::SegmentedTabBar *>(bar)->SelectionAnimating());
+        const auto screenshot = [&](const QString &suffix) {
+            if (!qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+                return;
             }
-            auto pixmap = window.grab();
+            for (auto *bar : window.findChildren<QTabBar *>()) {
+                if (bar->isVisible() && bar->property("segmentedControl").toBool()) {
+                    QTRY_VERIFY(!static_cast<desktop::SegmentedTabBar *>(bar)->SelectionAnimating());
+                }
+            }
+            auto     pixmap = window.grab();
             QPainter painter(&pixmap);
             painter.drawPixmap(floating->mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0)), floating->grab());
             painter.end();
@@ -2602,28 +2908,28 @@ private slots:
         window.resize(1280, 840);
         QCoreApplication::processEvents();
         QCOMPARE(window.size(), QSize(1280, 840));
-        QTRY_VERIFY(withinEditor());
+        QTRY_VERIFY(WITHIN_EDITOR());
         screenshot(QStringLiteral("-floating-compact.png"));
         window.findChild<QPushButton *>("showAnalysis")->click();
         QTRY_VERIFY(analysis->isVisible());
         QVERIFY(!floating->isVisible());
         QVERIFY(toggle->isChecked());
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         analysis->close();
         QTRY_VERIFY(floating->isVisible());
-        QCOMPARE(session->GetDebugInfo().phase, phase);
-        QCOMPARE(session->GetDebugInfo().lineNumber, line);
+        QCOMPARE(session->GetDebugInfo().phase, PHASE);
+        QCOMPARE(session->GetDebugInfo().lineNumber, LINE);
         play->click();
-        QCOMPARE(session->GetState(), DebugSession::Running);
+        QCOMPARE(session->GetState(), DebugSession::RUNNING);
         QVERIFY(pause->isVisible());
         QVERIFY(!step->isEnabled());
         pause->click();
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         restart->click();
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         QCOMPARE(session->GetDebugInfo().currentFrame, 0);
         toggle->click();
-        QCOMPARE(session->GetState(), DebugSession::Stopped);
+        QCOMPARE(session->GetState(), DebugSession::STOPPED);
         QVERIFY(!editor->isReadOnly());
         QVERIFY(!floating->isVisible());
         QVERIFY(!details->isVisible());
@@ -2631,24 +2937,25 @@ private slots:
         editor->ClearAllBreakpoints();
         toggle->click();
         play->click();
-        QTRY_COMPARE(session->GetState(), DebugSession::Finished);
-        QCOMPARE(floating->GetDebugState(), DebugToolbar::Finished);
+        QTRY_COMPARE(session->GetState(), DebugSession::FINISHED);
+        QCOMPARE(floating->GetDebugState(), DebugToolbar::FINISHED);
         QVERIFY(!step->isEnabled());
         QVERIFY(restart->isEnabled());
         QVERIFY(stop->isEnabled());
         stop->click();
-        QCOMPARE(session->GetState(), DebugSession::Stopped);
+        QCOMPARE(session->GetState(), DebugSession::STOPPED);
         QVERIFY(window.close());
         QVERIFY(!floating->isVisible());
     }
 
     void attributeGainBatch()
     {
-        auto compiled = rt::MacroCompiler::Compile("/cast biangong", rt::mo_wen::MacroOptions(false));
-        rt::BatchOptions options{12, 9, 16 * 5, 2, 2000, 4000};
-        rt::mo_wen::Config config;
-        BatchWorker worker(compiled.first.program, options, config, nullptr, false, true);
-        QSignalSpy stats(&worker, &BatchWorker::StatisticsReady), failure(&worker, &BatchWorker::Failed);
+        const auto             COMPILED = rt::MacroCompiler::Compile("/cast biangong", rt::mo_wen::MacroOptions(false));
+        const rt::BatchOptions OPTIONS{ 12, 9, 16 * 5, 2, 2000, 4000 };
+        rt::mo_wen::Config     config;
+        BatchWorker            worker(COMPILED.first.program, OPTIONS, config, nullptr, false, true);
+        QSignalSpy             stats(&worker, &BatchWorker::StatisticsReady);
+        QSignalSpy             failure(&worker, &BatchWorker::Failed);
         worker.start();
         QVERIFY(worker.wait(10000));
         QTRY_COMPARE(stats.count(), 1);
@@ -2657,13 +2964,15 @@ private slots:
         QCOMPARE(result.gains.size(), 8);
         QVERIFY(result.skillsCollected);
         QVERIFY(!result.skills.isEmpty());
-        qint64 skillDamage = 0;
-        for (const auto &skill : result.skills) skillDamage += skill.damage;
-        QVERIFY(std::abs(skillDamage - result.stats.mean_damage * result.stats.count) < .01);
+        qint64 skill_damage = 0;
+        for (const auto &skill : result.skills) {
+            skill_damage += skill.damage;
+        }
+        QVERIFY(std::abs(skill_damage - result.stats.mean_damage * result.stats.count) < .01);
         QCOMPARE(worker.Completed(), worker.Requested());
-        QCOMPARE(worker.Requested(), options.iterations * 3);
+        QCOMPARE(worker.Requested(), OPTIONS.iterations * 3);
         config.attributes.attack_base += 100;
-        const auto direct = rt::RunBatch(compiled.first.program, options, rt::mo_wen::Rules(rt::mo_wen::Prepare(config)));
+        const auto direct = rt::RunBatch(COMPILED.first.program, OPTIONS, rt::mo_wen::Rules(rt::mo_wen::Prepare(config)));
         QCOMPARE(result.gains[0].stats.checksum, direct.checksum);
         ResultsPanel panel;
         panel.AddResult(result, QStringLiteral("/cast biangong"), {});
@@ -2672,37 +2981,40 @@ private slots:
 
     void attributeGainReplayUsesCommonPipeline()
     {
-        const rt::BatchOptions options{8, 19, 16 * 4, 2, 2000, 4000};
-        auto check = [&](const auto &config, const auto &compiled) {
-          for (const auto mode : {desktop::GainComparisonMode::SameValue, desktop::GainComparisonMode::SameCost}) {
-            const auto increments = desktop::GainComparisonIncrements(mode, desktop::ClassOf(desktop::Config(config)) == desktop::Specialization::MoWen);
-            BatchWorker worker(compiled.first.program, options, config, nullptr, false, true, mode);
-            QSignalSpy stats(&worker, &BatchWorker::StatisticsReady), failure(&worker, &BatchWorker::Failed);
-            worker.start();
-            QVERIFY(worker.wait(10000));
-            QTRY_COMPARE(stats.count(), 1);
-            QCOMPARE(failure.count(), 0);
-            const auto result = qvariant_cast<SimulationResult>(stats[0][0]);
-            QCOMPARE(result.gainMode, mode);
-            QCOMPARE(result.gains.size(), 8);
-            QCOMPARE(worker.Completed(), worker.Requested());
-            QCOMPARE(worker.Requested(), options.iterations * 3);
-            for (int index = 0; index < 8; ++index) {
-                QCOMPARE(result.gains[index].increment, increments[index]);
-                const auto changed = desktop::ApplyAttributeGain(config, index, increments[index]);
-                const auto direct = rt::RunBatch(compiled.first.program, options, desktop::MakeRules(changed));
-                QCOMPARE(result.gains[index].stats.count, direct.count);
-                QCOMPARE(result.gains[index].stats.checksum, direct.checksum);
-                QCOMPARE(result.gains[index].stats.mean_damage, direct.mean_damage);
+        const rt::BatchOptions OPTIONS{ 8, 19, 16 * 4, 2, 2000, 4000 };
+        const auto             CHECK = [&](const auto &config, const auto &compiled) {
+            for (const auto MODE : { desktop::GainComparisonMode::SAME_VALUE, desktop::GainComparisonMode::SAME_COST })
+            {
+                const auto INCREMENTS =
+                    desktop::GainComparisonIncrements(MODE, desktop::ClassOf(desktop::Config(config)) == desktop::Specialization::MO_WEN);
+                BatchWorker worker(compiled.first.program, OPTIONS, config, nullptr, false, true, MODE);
+                QSignalSpy  stats(&worker, &BatchWorker::StatisticsReady);
+                QSignalSpy  failure(&worker, &BatchWorker::Failed);
+                worker.start();
+                QVERIFY(worker.wait(10000));
+                QTRY_COMPARE(stats.count(), 1);
+                QCOMPARE(failure.count(), 0);
+                const auto result = qvariant_cast<SimulationResult>(stats[0][0]);
+                QCOMPARE(result.gainMode, MODE);
+                QCOMPARE(result.gains.size(), 8);
+                QCOMPARE(worker.Completed(), worker.Requested());
+                QCOMPARE(worker.Requested(), OPTIONS.iterations * 3);
+                for (int index = 0; index < 8; ++index) {
+                    QCOMPARE(result.gains[index].increment, INCREMENTS[index]);
+                    const auto CHANGED = desktop::ApplyAttributeGain(config, index, INCREMENTS[index]);
+                    const auto direct  = rt::RunBatch(compiled.first.program, OPTIONS, desktop::MakeRules(CHANGED));
+                    QCOMPARE(result.gains[index].stats.count, direct.count);
+                    QCOMPARE(result.gains[index].stats.checksum, direct.checksum);
+                    QCOMPARE(result.gains[index].stats.mean_damage, direct.mean_damage);
+                }
             }
-          }
         };
 
-        rt::mo_wen::Config mo_wen;
-        check(mo_wen, rt::MacroCompiler::Compile("/cast biangong", rt::mo_wen::MacroOptions(false)));
+        const rt::mo_wen::Config mo_wen;
+        CHECK(mo_wen, rt::MacroCompiler::Compile("/cast biangong", rt::mo_wen::MacroOptions(false)));
         rt::tai_xu::Config tai_xu;
-        tai_xu.team_buffs.push_back({tx::team::HanRuLei, 0, 0, 1});
-        check(tai_xu, rt::MacroCompiler::Compile("/cast wuwu\n/cast sanhuan", rt::tai_xu::MacroOptions(false)));
+        tai_xu.team_buffs.push_back({ tx::team::HAN_RU_LEI, 0, 0, 1 });
+        CHECK(tai_xu, rt::MacroCompiler::Compile("/cast wuwu\n/cast sanhuan", rt::tai_xu::MacroOptions(false)));
     }
 
     void chineseWorkbenchAndMoWenCompletion()
@@ -2711,11 +3023,11 @@ private slots:
         QCOMPARE(window.findChild<QAction *>("newMacro")->text(), QStringLiteral("新建"));
         QCOMPARE(window.findChild<QAction *>("attributeGains")->text(), QStringLiteral("自动收益"));
         auto *selection = window.findChild<QComboBox *>("specialization");
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
+        auto *editor    = window.findChild<MacroEditor *>("macroEditor");
         selection->setCurrentIndex(1);
         editor->setPlainText(QStringLiteral("/cast 无我无剑"));
         window.findChild<QAction *>("checkMacro")->trigger();
-        auto *problems = window.findChild<QTableWidget *>("macroProblems");
+        const auto *problems = window.findChild<QTableWidget *>("macroProblems");
         QCOMPARE(problems->rowCount(), 1);
         QVERIFY(problems->item(0, 1)->text().contains(QStringLiteral("当前心法不支持")));
         window.show();
@@ -2724,10 +3036,11 @@ private slots:
         cursor.movePosition(QTextCursor::End);
         editor->setTextCursor(cursor);
         editor->Complete();
-        auto *completer = editor->findChild<QCompleter *>("macroCompleter");
+        const auto *completer = editor->findChild<QCompleter *>("macroCompleter");
         QStringList candidates;
-        for (int row = 0; row < completer->completionModel()->rowCount(); ++row)
+        for (int row = 0; row < completer->completionModel()->rowCount(); ++row) {
             candidates << completer->completionModel()->index(row, 0).data(Qt::UserRole).toString();
+        }
         QVERIFY(candidates.contains(QStringLiteral("变宫")));
         QVERIFY(candidates.contains(QStringLiteral("变徵")));
         QVERIFY(!candidates.contains(QStringLiteral("无我无剑")));
@@ -2740,12 +3053,12 @@ private slots:
 
     void debuggerMatchesTrace()
     {
-        const QString text = QStringLiteral("/scast ziqi\n/cast [buff:ziqi>0&qidian>5] wuwu\n/cast sanhuan");
+        const QString  text = QStringLiteral("/scast ziqi\n/cast [buff:ziqi>0&qidian>5] wuwu\n/cast sanhuan");
         DebugSimulator debugger;
-        tx::Config config;
-        config.team_effects = tx::YouRen;
-        config.equipment = tx::SetAttribute;
-        config.talents = tx::DieRenTalent | tx::XuanMen | tx::WuYu;
+        tx::Config     config;
+        config.team_effects             = tx::YOU_REN;
+        config.equipment                = tx::SET_ATTRIBUTE;
+        config.talents                  = tx::DIE_REN_TALENT | tx::XUAN_MEN | tx::WU_YU;
         config.attributes.overcome_base = 25000;
         debugger.SetOptions(config, 4800, 77);
         QString error;
@@ -2760,28 +3073,29 @@ private slots:
         debugger.SetBreakpoint(2, false);
         debugger.StepOut();
         QVERIFY(!debugger.IsFinished());
-        CombatEvents events = debugger.TakeEvents();
-        BuffEvents buffEvents = debugger.TakeBuffEvents();
-        BuffTrace debugBuffs;
-        debugBuffs.Reset(4800);
-        debugBuffs.Append(buffEvents);
-        debugBuffs.Observe(debugger.GetPlayerState().currentFrame);
+        CombatEvents events     = debugger.TakeEvents();
+        BuffEvents   buffEvents = debugger.TakeBuffEvents();
+        BuffTrace    debug_buffs;
+        debug_buffs.Reset(4800);
+        debug_buffs.Append(buffEvents);
+        debug_buffs.Observe(debugger.GetPlayerState().currentFrame);
         for (int i = 0; i < 1000 && !debugger.IsFinished(); ++i) {
             debugger.Continue(2000);
-            events += debugger.TakeEvents();
-            const auto changes = debugger.TakeBuffEvents();
-            buffEvents += changes;
-            debugBuffs.Append(changes);
-            debugBuffs.Observe(debugger.GetPlayerState().currentFrame);
+            events             += debugger.TakeEvents();
+            const auto CHANGES  = debugger.TakeBuffEvents();
+            buffEvents         += CHANGES;
+            debug_buffs.Append(CHANGES);
+            debug_buffs.Observe(debugger.GetPlayerState().currentFrame);
         }
         QVERIFY(debugger.IsFinished());
         QCOMPARE(debugger.GetPlayerState().currentMacroLine, -1);
         QVERIFY(debugger.TakeEvents().isEmpty());
         QVERIFY(debugger.TakeBuffEvents().isEmpty());
-        const auto bytes = text.toUtf8();
-        auto compiled = rt::MacroCompiler::Compile(std::string_view(bytes.constData(), bytes.size()), tx::MacroOptions(false));
-        QVERIFY(compiled.second.empty());
-        rt::Simulation<tx::Rules> reference(compiled.first.program, tx::Rules(tx::Prepare(config)), 4800*8+64, 4800*24+128);
+        const auto BYTES = text.toUtf8();
+        const auto COMPILED =
+            rt::MacroCompiler::Compile(std::string_view(BYTES.constData(), BYTES.size()), tx::MacroOptions(false));
+        QVERIFY(COMPILED.second.empty());
+        rt::Simulation<tx::Rules> reference(COMPILED.first.program, tx::Rules(tx::Prepare(config)), (4800 * 8) + 64, (4800 * 24) + 128);
         reference.Start(4800, rt::IterationSeed(77, 0));
         reference.Run();
         QCOMPARE(debugger.TotalDamage(), reference.TotalDamage());
@@ -2793,37 +3107,37 @@ private slots:
             QCOMPARE(events[i].damage, reference.GetRules().Reduce(hit));
             QCOMPARE(events[i].sequence, hit.sequence);
         }
-        std::size_t mutationCursor = 0;
-        const auto referenceBuffs = ReadBuffEvents(reference.Log().Mutations(), mutationCursor);
-        QCOMPARE(buffEvents, referenceBuffs);
-        QCOMPARE(mutationCursor, reference.Log().Mutations().size());
-        QVERIFY(ReadBuffEvents(reference.Log().Mutations(), mutationCursor).isEmpty());
+        std::size_t mutation_cursor = 0;
+        const auto  REFERENCE_BUFFS = ReadBuffEvents(reference.Log().Mutations(), mutation_cursor);
+        QCOMPARE(buffEvents, REFERENCE_BUFFS);
+        QCOMPARE(mutation_cursor, reference.Log().Mutations().size());
+        QVERIFY(ReadBuffEvents(reference.Log().Mutations(), mutation_cursor).isEmpty());
         QVERIFY(std::any_of(buffEvents.begin(), buffEvents.end(), [](const BuffEvent &buff) { return buff.target; }));
-        BuffTrace fullBuffs;
-        fullBuffs.Reset(4800);
-        fullBuffs.Append(referenceBuffs);
-        fullBuffs.Observe(4800);
-        const auto fullCoverage = fullBuffs.Coverage();
-        const auto debugCoverage = debugBuffs.Coverage();
-        QCOMPARE(debugCoverage.size(), fullCoverage.size());
-        for (int i = 0; i < fullCoverage.size(); ++i) {
-            QCOMPARE(debugCoverage[i].activeFrames, fullCoverage[i].activeFrames);
-            QCOMPARE(debugCoverage[i].stackFrames, fullCoverage[i].stackFrames);
-            QCOMPARE(debugCoverage[i].intervals, fullCoverage[i].intervals);
+        BuffTrace full_buffs;
+        full_buffs.Reset(4800);
+        full_buffs.Append(REFERENCE_BUFFS);
+        full_buffs.Observe(4800);
+        const auto FULL_COVERAGE  = full_buffs.Coverage();
+        const auto DEBUG_COVERAGE = debug_buffs.Coverage();
+        QCOMPARE(DEBUG_COVERAGE.size(), FULL_COVERAGE.size());
+        for (int i = 0; i < FULL_COVERAGE.size(); ++i) {
+            QCOMPARE(DEBUG_COVERAGE[i].activeFrames, FULL_COVERAGE[i].activeFrames);
+            QCOMPARE(DEBUG_COVERAGE[i].stackFrames, FULL_COVERAGE[i].stackFrames);
+            QCOMPARE(DEBUG_COVERAGE[i].intervals, FULL_COVERAGE[i].intervals);
         }
-        rt::BatchOptions traceOptions;
-        traceOptions.duration = 4800;
-        traceOptions.seed = 77;
-        traceOptions.damage_capacity = 4800 * 8 + 64;
-        traceOptions.mutation_capacity = 4800 * 24 + 128;
-        BatchWorker traceWorker(compiled.first.program, traceOptions, config, nullptr, true);
-        QSignalSpy traceBuffs(&traceWorker, &BatchWorker::BuffTraceReady);
-        QSignalSpy traceFailed(&traceWorker, &BatchWorker::Failed);
-        traceWorker.start();
-        QVERIFY(traceWorker.wait(10000));
-        QTRY_COMPARE(traceBuffs.count(), 1);
-        QCOMPARE(traceFailed.count(), 0);
-        QCOMPARE(qvariant_cast<BuffEvents>(traceBuffs.at(0).at(0)), buffEvents);
+        rt::BatchOptions trace_options;
+        trace_options.duration          = 4800;
+        trace_options.seed              = 77;
+        trace_options.damage_capacity   = (4800 * 8) + 64;
+        trace_options.mutation_capacity = (4800 * 24) + 128;
+        BatchWorker      trace_worker(COMPILED.first.program, trace_options, config, nullptr, true);
+        const QSignalSpy TRACE_BUFFS(&trace_worker, &BatchWorker::BuffTraceReady);
+        const QSignalSpy TRACE_FAILED(&trace_worker, &BatchWorker::Failed);
+        trace_worker.start();
+        QVERIFY(trace_worker.wait(10000));
+        QTRY_COMPARE(TRACE_BUFFS.count(), 1);
+        QCOMPARE(TRACE_FAILED.count(), 0);
+        QCOMPARE(qvariant_cast<BuffEvents>(TRACE_BUFFS.at(0).at(0)), buffEvents);
         debugger.Reset();
         QVERIFY(debugger.TakeBuffEvents().isEmpty());
     }
@@ -2836,7 +3150,7 @@ private slots:
         editor.setFocus();
         auto *completer = editor.findChild<QCompleter *>("macroCompleter");
         QVERIFY(completer);
-        auto input = [&](const QString &text, int position = -1) {
+        const auto input = [&](const QString &text, int position = -1) {
             editor.setPlainText(text);
             auto cursor = editor.textCursor();
             cursor.setPosition(position < 0 ? text.size() : position);
@@ -2845,33 +3159,36 @@ private slots:
         };
         auto candidates = [&] {
             QStringList values;
-            for (int row = 0; row < completer->completionModel()->rowCount(); ++row)
+            for (int row = 0; row < completer->completionModel()->rowCount(); ++row) {
                 values << completer->completionModel()->index(row, 0).data(Qt::UserRole).toString();
+            }
             return values;
         };
-        auto accept = [&](const QString &value) {
-            const int row = candidates().indexOf(value);
-            if (row < 0) return false;
-            const auto index = completer->completionModel()->index(row, 0);
-            return QMetaObject::invokeMethod(completer, "activated", Qt::DirectConnection, Q_ARG(QModelIndex, index));
+        const auto accept = [&](const QString &value) {
+            const int ROW = candidates().indexOf(value);
+            if (ROW < 0) {
+                return false;
+            }
+            const auto INDEX = completer->completionModel()->index(ROW, 0);
+            return QMetaObject::invokeMethod(completer, "activated", Qt::DirectConnection, Q_ARG(QModelIndex, INDEX));
         };
         input("/s");
-        QCOMPARE(candidates(), (QStringList{"/scast", "/sfcast"}));
+        QCOMPARE(candidates(), (QStringList{ "/scast", "/sfcast" }));
         QVERIFY(accept("/scast"));
         QCOMPARE(editor.toPlainText(), QStringLiteral("/scast"));
         input("/cast ");
         QCOMPARE(candidates().size(), static_cast<qsizetype>(tx::CastableSkills.size() * 2));
         QVERIFY(!candidates().contains(QStringLiteral("pozhao")));
         for (const auto &candidate : candidates()) {
-            const auto bytes = (QStringLiteral("/cast ") + candidate).toUtf8();
-            QVERIFY(rt::MacroCompiler::Compile(std::string_view(bytes.data(), bytes.size()), tx::MacroOptions()).second.empty());
+            const auto BYTES = (QStringLiteral("/cast ") + candidate).toUtf8();
+            QVERIFY(rt::MacroCompiler::Compile(std::string_view(BYTES.data(), BYTES.size()), tx::MacroOptions()).second.empty());
         }
         input("/cast [buff:");
-        QCOMPARE(candidates().size(), static_cast<qsizetype>(tx::BuffCount * 2));
+        QCOMPARE(candidates().size(), static_cast<qsizetype>(tx::BUFF_COUNT * 2));
         QVERIFY(candidates().contains(QStringLiteral("xuanmen")));
         QVERIFY(!candidates().contains(QStringLiteral("wuwu")));
         input("/cast [qidian>=6&tbuff:die>=2] wuwu", QStringLiteral("/cast [qidian>=6&tbuff:die").size());
-        QCOMPARE(candidates(), (QStringList{"dieren"}));
+        QCOMPARE(candidates(), (QStringList{ "dieren" }));
         QVERIFY(accept("dieren"));
         QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [qidian>=6&tbuff:dieren>=2] wuwu"));
         input("/cast [buff:xuanmen] wuwu", QStringLiteral("/cast [buff:xua").size());
@@ -2890,15 +3207,15 @@ private slots:
         editor.setPlainText(QStringLiteral("/cast [buff:"));
         editor.moveCursor(QTextCursor::End);
         QInputMethodEvent ime;
-        ime.setCommitString(QStringLiteral("\u7384"));
+        ime.setCommitString(QStringLiteral("玄"));
         QCoreApplication::sendEvent(&editor, &ime);
         QVERIFY(completer->popup()->isVisible());
-        QCOMPARE(candidates(), (QStringList{QStringLiteral("\u7384\u95e8")}));
-        QVERIFY(accept(QStringLiteral("\u7384\u95e8")));
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:\u7384\u95e8"));
+        QCOMPARE(candidates(), (QStringList{ QStringLiteral("玄门") }));
+        QVERIFY(accept(QStringLiteral("玄门")));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:玄门"));
         editor.undo();
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:\u7384"));
-        for (const auto &text : {"# /ca", "// /ca", "/switch ", "/cast [qidian>=3", "/cast [buff:xuanmen>2"}) {
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:玄"));
+        for (const auto &text : { "# /ca", "// /ca", "/switch ", "/cast [qidian>=3", "/cast [buff:xuanmen>2" }) {
             input(QString::fromLatin1(text));
             QVERIFY(!completer->popup()->isVisible());
         }
@@ -2911,7 +3228,7 @@ private slots:
         editor.moveCursor(QTextCursor::End);
         QTest::keyClicks(&editor, "san");
         QVERIFY(completer->popup()->isVisible());
-        QCOMPARE(candidates(), (QStringList{"sanhuan", "sanchai"}));
+        QCOMPARE(candidates(), (QStringList{ "sanhuan", "sanchai" }));
         QTest::keyClicks(&editor, "huan");
         QVERIFY(!completer->popup()->isVisible());
         QTest::keyClick(&editor, Qt::Key_Return);
@@ -2921,16 +3238,16 @@ private slots:
         QVERIFY(!completer->popup()->isVisible());
         QCOMPARE(editor.toPlainText(), QStringLiteral("/cast wu"));
         input("/cast wu");
-        const auto stale = completer->completionModel()->index(0, 0);
+        const auto STALE = completer->completionModel()->index(0, 0);
         editor.moveCursor(QTextCursor::Start);
         QVERIFY(!completer->popup()->isVisible());
-        QVERIFY(QMetaObject::invokeMethod(completer, "activated", Qt::DirectConnection, Q_ARG(QModelIndex, stale)));
+        QVERIFY(QMetaObject::invokeMethod(completer, "activated", Qt::DirectConnection, Q_ARG(QModelIndex, STALE)));
         QCOMPARE(editor.toPlainText(), QStringLiteral("/cast wu"));
         input("/cast wu");
-        const auto locked = completer->completionModel()->index(0, 0);
+        const auto LOCKED = completer->completionModel()->index(0, 0);
         editor.setReadOnly(true);
         QVERIFY(!completer->popup()->isVisible());
-        QVERIFY(QMetaObject::invokeMethod(completer, "activated", Qt::DirectConnection, Q_ARG(QModelIndex, locked)));
+        QVERIFY(QMetaObject::invokeMethod(completer, "activated", Qt::DirectConnection, Q_ARG(QModelIndex, LOCKED)));
         editor.Complete();
         QCOMPARE(editor.toPlainText(), QStringLiteral("/cast wu"));
         QVERIFY(!completer->popup()->isVisible());
@@ -2938,19 +3255,19 @@ private slots:
 
     void macroSearchAndReplace()
     {
-        QWidget host;
-        CodeEditor editor(&host);
+        QWidget        host;
+        CodeEditor     editor(&host);
         MacroSearchBar search(&editor, &host);
         host.show();
-        auto *query = search.findChild<QLineEdit *>("macroSearchQuery");
-        auto *replacement = search.findChild<QLineEdit *>("macroReplacement");
-        auto *words = search.findChild<QCheckBox *>("macroSearchWords");
-        auto *matchCase = search.findChild<QCheckBox *>("macroSearchCase");
-        auto *all = search.findChild<QPushButton *>("macroReplaceAll");
-        auto *one = search.findChild<QPushButton *>("macroReplaceOne");
-        auto *status = search.findChild<QLabel *>("macroSearchStatus");
-        const QString source = QStringLiteral("/cast wuwu\n/cast WUWU\n/cast wuwu_extra\n# buff:\u7384\u95e8\n/cast wuwu");
-        editor.setPlainText(source);
+        auto         *query       = search.findChild<QLineEdit *>("macroSearchQuery");
+        auto         *replacement = search.findChild<QLineEdit *>("macroReplacement");
+        auto         *words       = search.findChild<QCheckBox *>("macroSearchWords");
+        auto         *match_case  = search.findChild<QCheckBox *>("macroSearchCase");
+        auto         *all         = search.findChild<QPushButton *>("macroReplaceAll");
+        auto         *one         = search.findChild<QPushButton *>("macroReplaceOne");
+        const auto   *status      = search.findChild<QLabel *>("macroSearchStatus");
+        const QString SOURCE      = QStringLiteral("/cast wuwu\n/cast WUWU\n/cast wuwu_extra\n# buff:玄门\n/cast wuwu");
+        editor.setPlainText(SOURCE);
         editor.SetBreakpoint(2, true);
         editor.SetBreakpoint(5, true);
         search.Open(true);
@@ -2958,7 +3275,7 @@ private slots:
         QVERIFY(status->text().contains(QStringLiteral("4 处匹配")));
         words->setChecked(true);
         QVERIFY(status->text().contains(QStringLiteral("3 处匹配")));
-        matchCase->setChecked(true);
+        match_case->setChecked(true);
         QVERIFY(status->text().contains(QStringLiteral("2 处匹配")));
         search.Find();
         QCOMPARE(editor.textCursor().blockNumber(), 0);
@@ -2972,34 +3289,34 @@ private slots:
         QCOMPARE(editor.textCursor().blockNumber(), 4);
         replacement->setText(QStringLiteral("sanhuan"));
         all->click();
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast sanhuan\n/cast WUWU\n/cast wuwu_extra\n# buff:\u7384\u95e8\n/cast sanhuan"));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast sanhuan\n/cast WUWU\n/cast wuwu_extra\n# buff:玄门\n/cast sanhuan"));
         QVERIFY(editor.HasBreakpoint(2) && editor.HasBreakpoint(5));
         QVERIFY(status->text().contains(QStringLiteral("已替换 2")));
         editor.undo();
-        QCOMPARE(editor.toPlainText(), source);
+        QCOMPARE(editor.toPlainText(), SOURCE);
         QVERIFY(editor.HasBreakpoint(2) && editor.HasBreakpoint(5));
         editor.redo();
         QVERIFY(editor.toPlainText().startsWith(QStringLiteral("/cast sanhuan")));
         editor.undo();
-        query->setText(QStringLiteral("\u7384\u95e8"));
+        query->setText(QStringLiteral("玄门"));
         replacement->clear();
         search.Find();
         one->click();
-        QVERIFY(!editor.toPlainText().contains(QStringLiteral("\u7384\u95e8")));
+        QVERIFY(!editor.toPlainText().contains(QStringLiteral("玄门")));
         editor.undo();
-        QCOMPARE(editor.toPlainText(), source);
+        QCOMPARE(editor.toPlainText(), SOURCE);
         query->setText(QStringLiteral("wuwu"));
         replacement->setText(QStringLiteral("wuwuwuwu"));
         all->click();
         QVERIFY(status->text().contains(QStringLiteral("已替换 2")));
         editor.undo();
-        QCOMPARE(editor.toPlainText(), source);
+        QCOMPARE(editor.toPlainText(), SOURCE);
         auto cursor = editor.textCursor();
         cursor.clearSelection();
         cursor.movePosition(QTextCursor::Start);
         editor.setTextCursor(cursor);
         one->click(); // A non-matching selection first locates, rather than replaces.
-        QCOMPARE(editor.toPlainText(), source);
+        QCOMPARE(editor.toPlainText(), SOURCE);
         QCOMPARE(editor.textCursor().selectedText(), QStringLiteral("wuwu"));
         editor.setReadOnly(true);
         QVERIFY(!one->isEnabled() && !all->isEnabled() && !replacement->isEnabled());
@@ -3008,7 +3325,7 @@ private slots:
         QCOMPARE(editor.textCursor().blockNumber(), 4);
         all->click();
         QTest::keyClick(replacement, Qt::Key_Return);
-        QCOMPARE(editor.toPlainText(), source);
+        QCOMPARE(editor.toPlainText(), SOURCE);
         editor.setReadOnly(false);
         QVERIFY(all->isEnabled());
         query->clear();
@@ -3021,11 +3338,11 @@ private slots:
         search.Close();
         QCOMPARE(editor.GetCurrentDebugLine(), 2);
         QVERIFY(editor.extraSelections().size() < 3);
-        editor.setPlainText(QStringLiteral("renjian renjian_suixing \u4eba\u5251\u5408\u4e00\u00b7DOT \u4eba\u5251\u5408\u4e00"));
+        editor.setPlainText(QStringLiteral("renjian renjian_suixing 人剑合一·DOT 人剑合一"));
         search.Open();
         query->setText(QStringLiteral("renjian"));
         QVERIFY(status->text().contains(QStringLiteral("1 处匹配")));
-        query->setText(QStringLiteral("\u4eba\u5251\u5408\u4e00"));
+        query->setText(QStringLiteral("人剑合一"));
         QVERIFY(status->text().contains(QStringLiteral("1 处匹配")));
         editor.setPlainText(QStringLiteral("wuwu ").repeated(1100));
         query->setText(QStringLiteral("wuwu"));
@@ -3038,26 +3355,29 @@ private slots:
     {
         Workbench window;
         window.show();
-        auto *editor = window.findChild<MacroEditor *>("macroEditor");
-        auto *search = window.findChild<MacroSearchBar *>();
-        auto *session = window.findChild<DebugSession *>();
-        auto *query = search->findChild<QLineEdit *>("macroSearchQuery");
-        auto *replacement = search->findChild<QLineEdit *>("macroReplacement");
-        auto *all = search->findChild<QPushButton *>("macroReplaceAll");
-        const QString source = QStringLiteral("# Tai Xu macro\n/cast [buff:xuanmen&qidian>=6] wuwu\n/cast [qidian>=8] wuwu\n/cast bahuang\n/cast sanhuan");
-        editor->setPlainText(source);
+        auto         *editor      = window.findChild<MacroEditor *>("macroEditor");
+        auto         *search      = window.findChild<MacroSearchBar *>();
+        auto         *session     = window.findChild<DebugSession *>();
+        auto         *query       = search->findChild<QLineEdit *>("macroSearchQuery");
+        auto         *replacement = search->findChild<QLineEdit *>("macroReplacement");
+        auto         *all         = search->findChild<QPushButton *>("macroReplaceAll");
+        const QString SOURCE = QStringLiteral("# Tai Xu macro\n/cast [buff:xuanmen&qidian>=6] wuwu\n/cast [qidian>=8] "
+                                              "wuwu\n/cast bahuang\n/cast sanhuan");
+        editor->setPlainText(SOURCE);
         editor->SetBreakpoint(2, true);
         window.findChild<QAction *>("replaceMacro")->trigger();
         QVERIFY(search->isVisible());
         query->setText(QStringLiteral("wuwu"));
-        replacement->setText(QStringLiteral("\u65e0\u6211\u65e0\u5251"));
+        replacement->setText(QStringLiteral("无我无剑"));
         search->Find();
         QCoreApplication::processEvents();
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-macro-search.png")));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                       QStringLiteral("-macro-search.png")));
+        }
         window.findChild<QToolButton *>("debugButton")->setChecked(true);
         emit window.findChild<SimulationToolbar *>()->StartSimulationClicked();
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         QVERIFY(!all->isEnabled());
         QVERIFY(!window.findChild<QAction *>("completeMacro")->isEnabled());
         search->Find();
@@ -3066,34 +3386,37 @@ private slots:
         session->Stop();
         QVERIFY(all->isEnabled());
         all->click();
-        QVERIFY(editor->toPlainText().contains(QStringLiteral("\u65e0\u6211\u65e0\u5251")));
+        QVERIFY(editor->toPlainText().contains(QStringLiteral("无我无剑")));
         editor->undo();
-        QCOMPARE(editor->toPlainText(), source);
+        QCOMPARE(editor->toPlainText(), SOURCE);
         QVERIFY(editor->HasBreakpoint(2));
         search->Close();
-        editor->setPlainText(QStringLiteral("# Complete a buff name\n/cast [buff:xu] wuwu\n/cast bahuang\n/cast sanhuan"));
+        editor->setPlainText(
+            QStringLiteral("# Complete a buff name\n/cast [buff:xu] wuwu\n/cast bahuang\n/cast sanhuan"));
         auto cursor = editor->textCursor();
         cursor.setPosition(editor->toPlainText().indexOf(QStringLiteral("xu")) + 2);
         editor->setTextCursor(cursor);
         QCoreApplication::processEvents();
         window.findChild<QAction *>("completeMacro")->trigger();
-        auto *completer = editor->findChild<QCompleter *>("macroCompleter");
+        const auto *completer = editor->findChild<QCompleter *>("macroCompleter");
         QVERIFY(completer->popup()->isVisible());
         QCoreApplication::processEvents();
         QVERIFY(completer->popup()->isVisible());
-        const auto caret = editor->viewport()->mapToGlobal(editor->cursorRect().bottomLeft());
-        const auto popupOrigin = completer->popup()->mapToGlobal(QPoint{});
-        const auto available = editor->screen()->availableGeometry();
-        const auto popupX = qBound(available.left(), caret.x(),
-                                  qMax(available.left(), available.right() - completer->popup()->width() + 1));
-        QVERIFY(std::abs(popupOrigin.x() - popupX) < 10);
-        QVERIFY(std::abs(popupOrigin.y() - caret.y()) < 10);
+        const auto caret        = editor->viewport()->mapToGlobal(editor->cursorRect().bottomLeft());
+        const auto POPUP_ORIGIN = completer->popup()->mapToGlobal(QPoint{});
+        const auto AVAILABLE    = editor->screen()->availableGeometry();
+        const auto POPUP_X =
+            qBound(AVAILABLE.left(), caret.x(), qMax(AVAILABLE.left(), AVAILABLE.right() - completer->popup()->width() + 1));
+        QVERIFY(std::abs(POPUP_ORIGIN.x() - POPUP_X) < 10);
+        QVERIFY(std::abs(POPUP_ORIGIN.y() - caret.y()) < 10);
         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
-            auto screenshot = window.grab();
+            auto     screenshot = window.grab();
             QPainter painter(&screenshot);
-            painter.drawPixmap(completer->popup()->mapToGlobal(QPoint{}) - window.mapToGlobal(QPoint{}), completer->popup()->grab());
+            painter.drawPixmap(completer->popup()->mapToGlobal(QPoint{}) - window.mapToGlobal(QPoint{}),
+                               completer->popup()->grab());
             painter.end();
-            QVERIFY(screenshot.save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-macro-completion.png")));
+            QVERIFY(screenshot.save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                    QStringLiteral("-macro-completion.png")));
         }
         completer->popup()->hide();
         QVERIFY(window.close());
@@ -3102,10 +3425,11 @@ private slots:
     void macroStepObservations()
     {
         DebugSimulator debugger;
-        QString error;
-        const QString source = QStringLiteral("# source mapping\n/cast [qidian<1&energy>0|qidian>=6] wuwu\n/cast sanhuan");
+        QString        error;
+        const QString  SOURCE =
+            QStringLiteral("# source mapping\n/cast [qidian<1&energy>0|qidian>=6] wuwu\n/cast sanhuan");
         debugger.SetOptions({}, 16000, 7);
-        QVERIFY2(debugger.Initialize(source, error), qPrintable(error));
+        QVERIFY2(debugger.Initialize(SOURCE, error), qPrintable(error));
         QVERIFY(debugger.SetBreakpoint(2));
         debugger.Continue();
         QVERIFY(debugger.TakeMacroSteps().isEmpty());
@@ -3120,15 +3444,15 @@ private slots:
         QVERIFY(steps[0].details.contains(QStringLiteral("10 < 1")));
         QVERIFY(steps[0].details.contains(QStringLiteral("短路求值")));
         QCOMPARE(steps[0].outcome, QStringLiteral("不成立"));
-        const auto executed = debugger.GetPlayerState().lastStep;
-        QVERIFY(!executed.isEmpty());
+        const auto EXECUTED = debugger.GetPlayerState().lastStep;
+        QVERIFY(!EXECUTED.isEmpty());
         QVERIFY(debugger.TakeMacroSteps().isEmpty());
-        QCOMPARE(debugger.GetPlayerState().lastStep, executed);
+        QCOMPARE(debugger.GetPlayerState().lastStep, EXECUTED);
         debugger.StepOver();
         steps = debugger.TakeMacroSteps();
         QCOMPARE(steps.size(), 2);
         QCOMPARE(steps[0].expression, QStringLiteral("qidian>=6"));
-        QCOMPARE(steps[1].kind, MacroStepKind::Action);
+        QCOMPARE(steps[1].kind, MacroStepKind::ACTION);
         QCOMPARE(steps[1].outcome, QStringLiteral("成功"));
         QVERIFY(debugger.GetPlayerState().lastStep.contains(QStringLiteral("成功")));
         debugger.SetBreakpoint(2, false);
@@ -3137,7 +3461,9 @@ private slots:
         steps = debugger.TakeMacroSteps();
         QCOMPARE(steps.size(), MacroStepHistoryLimit);
         QVERIFY(steps.front().ordinal > 1);
-        for (int i = 1; i < steps.size(); ++i) QCOMPARE(steps[i].ordinal, steps[i-1].ordinal + 1);
+        for (int i = 1; i < steps.size(); ++i) {
+            QCOMPARE(steps[i].ordinal, steps[i - 1].ordinal + 1);
+        }
         debugger.Reset();
         QVERIFY(debugger.TakeMacroSteps().isEmpty());
         QVERIFY(debugger.GetPlayerState().lastStep.isEmpty());
@@ -3153,30 +3479,34 @@ private slots:
         MacroSteps steps;
         for (int i = 1; i <= 3000; ++i) {
             MacroStep step;
-            step.ordinal = i; step.frame = i; step.line = 2;
-            step.kind = i % 2 ? MacroStepKind::Action : MacroStepKind::Condition;
-            step.passed = i % 3 == 0;
+            step.ordinal    = i;
+            step.frame      = i;
+            step.line       = 2;
+            step.kind       = ((i % 2) != 0) ? MacroStepKind::ACTION : MacroStepKind::CONDITION;
+            step.passed     = i % 3 == 0;
             step.expression = QStringLiteral("/cast sanhuan");
-            step.outcome = step.passed ? QStringLiteral("成功") : QStringLiteral("受阻");
-            step.details = QStringLiteral("distance, \"range\" > 4");
+            step.outcome    = step.passed ? QStringLiteral("成功") : QStringLiteral("受阻");
+            step.details    = QStringLiteral("distance, \"range\" > 4");
             steps.append(step);
         }
         panel.Append(steps);
-        auto *table = panel.findChild<QTableView *>("macroSteps");
-        auto *scope = panel.findChild<QComboBox *>("macroStepScope");
-        auto *search = panel.findChild<QLineEdit *>("macroStepSearch");
-        auto *status = panel.findChild<QLabel *>("macroStepStatus");
-        auto *locate = panel.findChild<QPushButton *>("locateMacroStep");
+        auto       *table  = panel.findChild<QTableView *>("macroSteps");
+        auto       *scope  = panel.findChild<QComboBox *>("macroStepScope");
+        auto       *search = panel.findChild<QLineEdit *>("macroStepSearch");
+        const auto *status = panel.findChild<QLabel *>("macroStepStatus");
+        auto       *locate = panel.findChild<QPushButton *>("locateMacroStep");
         QCOMPARE(table->model()->rowCount(), MacroStepHistoryLimit);
         QCOMPARE(table->model()->index(0, 0).data().toULongLong(), quint64(953));
         QVERIFY(status->text().contains(QStringLiteral("已淘汰 952 条旧记录")));
         scope->setCurrentIndex(3);
         QCOMPARE(table->model()->rowCount(), MacroStepHistoryLimit / 2);
-        for (int i = 0; i < table->model()->rowCount(); ++i)
+        for (int i = 0; i < table->model()->rowCount(); ++i) {
             QCOMPARE(table->model()->index(i, 3).data().toString(), QStringLiteral("动作"));
+        }
         scope->setCurrentIndex(1);
-        for (int i = 0; i < table->model()->rowCount(); ++i)
+        for (int i = 0; i < table->model()->rowCount(); ++i) {
             QCOMPARE(table->model()->index(i, 5).data().toString(), QStringLiteral("受阻"));
+        }
         search->setText(QStringLiteral("missing"));
         QCOMPARE(table->model()->rowCount(), 0);
         search->setText(QStringLiteral("distance"));
@@ -3187,26 +3517,26 @@ private slots:
         QCOMPARE(navigation.count(), 1);
         QCOMPARE(navigation[0][0].toString(), QStringLiteral("/cast wuwu\n/cast sanhuan"));
         QCOMPARE(navigation[0][1].toInt(), 2);
-        QTemporaryDir directory;
-        QString error;
-        const auto path = directory.filePath(QStringLiteral("steps.csv"));
-        QVERIFY2(panel.ExportCsv(path, error), qPrintable(error));
-        QFile file(path);
+        const QTemporaryDir DIRECTORY;
+        QString             error;
+        const auto          PATH = DIRECTORY.filePath(QStringLiteral("steps.csv"));
+        QVERIFY2(panel.ExportCsv(PATH, error), qPrintable(error));
+        QFile file(PATH);
         QVERIFY(file.open(QIODevice::ReadOnly));
-        const auto bytes = file.readAll();
-        QCOMPARE(bytes.count('\n'), table->model()->rowCount() + 1);
-        QVERIFY(bytes.contains("distance, \"\"range\"\" > 4"));
-        QVERIFY(!bytes.contains("\"Accepted\""));
+        const auto BYTES = file.readAll();
+        QCOMPARE(BYTES.count('\n'), table->model()->rowCount() + 1);
+        QVERIFY(BYTES.contains("distance, \"\"range\"\" > 4"));
+        QVERIFY(!BYTES.contains("\"Accepted\""));
         scope->setCurrentIndex(0);
         search->clear();
         panel.findChild<QCheckBox *>()->setChecked(false);
         table->selectRow(100);
-        const auto selectedOrdinal = table->model()->index(table->currentIndex().row(), 0).data().toULongLong();
-        auto next = steps.back();
-        next.ordinal = 3001;
-        panel.Append({next});
+        const auto SELECTED_ORDINAL = table->model()->index(table->currentIndex().row(), 0).data().toULongLong();
+        auto       next             = steps.back();
+        next.ordinal                = 3001;
+        panel.Append({ next });
         QCOMPARE(table->model()->rowCount(), MacroStepHistoryLimit);
-        QCOMPARE(table->model()->index(table->currentIndex().row(), 0).data().toULongLong(), selectedOrdinal);
+        QCOMPARE(table->model()->index(table->currentIndex().row(), 0).data().toULongLong(), SELECTED_ORDINAL);
         panel.findChild<QCheckBox *>()->setChecked(true);
         QCOMPARE(table->model()->index(table->currentIndex().row(), 0).data().toULongLong(), quint64(3001));
         panel.Reset();
@@ -3218,16 +3548,17 @@ private slots:
     {
         Workbench window;
         window.show();
-        auto *editor = window.findChild<CodeEditor *>("macroEditor");
-        auto *session = window.findChild<DebugSession *>();
-        auto *toolbar = window.findChild<SimulationToolbar *>();
-        auto *panel = window.findChild<MacroTracePanel *>();
-        auto *table = panel->findChild<QTableView *>("macroSteps");
-        auto *inspector = window.findChild<QTextBrowser *>("debugInspector");
-        editor->setPlainText(QStringLiteral("# Explain conditions and blocked casts\n/cast [qidian<1&energy>0|qidian>=6] wuwu\n/cast bahuang\n/cast sanhuan"));
+        auto       *editor    = window.findChild<CodeEditor *>("macroEditor");
+        auto       *session   = window.findChild<DebugSession *>();
+        auto       *toolbar   = window.findChild<SimulationToolbar *>();
+        auto       *panel     = window.findChild<MacroTracePanel *>();
+        auto       *table     = panel->findChild<QTableView *>("macroSteps");
+        const auto *inspector = window.findChild<QTextBrowser *>("debugInspector");
+        editor->setPlainText(QStringLiteral("# Explain conditions and blocked casts\n/cast "
+                                            "[qidian<1&energy>0|qidian>=6] wuwu\n/cast bahuang\n/cast sanhuan"));
         window.findChild<QToolButton *>("debugButton")->setChecked(true);
         emit toolbar->StartSimulationClicked();
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         QCOMPARE(table->model()->rowCount(), 0);
         session->StepOver();
         QCOMPARE(table->model()->rowCount(), 3);
@@ -3241,14 +3572,16 @@ private slots:
         QCOMPARE(editor->textCursor().blockNumber(), 1);
         table->selectRow(table->model()->rowCount() - 1);
         QCoreApplication::processEvents();
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-macro-steps.png")));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                       QStringLiteral("-macro-steps.png")));
+        }
         session->Stop();
         QVERIFY(table->model()->rowCount() > 0);
         editor->setPlainText(QStringLiteral("# edited\n/cast sanhuan"));
-        const auto cursor = editor->textCursor().position();
+        const auto CURSOR = editor->textCursor().position();
         panel->findChild<QPushButton *>("locateMacroStep")->click();
-        QCOMPARE(editor->textCursor().position(), cursor);
+        QCOMPARE(editor->textCursor().position(), CURSOR);
         QVERIFY(window.findChild<QLabel *>("simulationResult")->text().contains(QStringLiteral("先前的宏")));
         emit toolbar->StartSimulationClicked();
         QCOMPARE(table->model()->rowCount(), 0);
@@ -3262,56 +3595,74 @@ private slots:
     {
         BuffTrace trace;
         trace.Reset(100);
-        const BuffEvents initial{{0, 0, 0, false, "self", 1, 64, 0, true},
-                                 {0, 0, 0, true, "target", 3, 32, 16}};
-        trace.Append(initial);
+        const BuffEvents INITIAL{
+            { 0, 0, 0, false, "self", 1, 64, 0, true },
+            { 0, 0, 0, true, "target", 3, 32, 16 }
+        };
+        trace.Append(INITIAL);
         trace.Observe(0);
         QCOMPARE(trace.Coverage()[0].activeFrames, qint64(0));
         trace.Observe(16);
         QCOMPARE(trace.Coverage()[0].activeFrames, qint64(16));
-        trace.Append({{16, 1, 0, false, "self", 3, 64, 0},
-                      {16, 2, 0, false, "self", 2, 80, 0},
-                      {32, 3, 0, false, "self", 2, 96, 0},
-                      {48, 4, 0, false, "self", 2, 96, 64}});
+        trace.Append({
+            { 16, 1, 0, false, "self", 3, 64, 0  },
+            { 16, 2, 0, false, "self", 2, 80, 0  },
+            { 32, 3, 0, false, "self", 2, 96, 0  },
+            { 48, 4, 0, false, "self", 2, 96, 64 }
+        });
         trace.Observe(64);
         auto coverage = trace.Coverage();
         QCOMPARE(coverage[0].activeFrames, qint64(64));
         QCOMPARE(coverage[0].stackFrames, qint64(112));
         QCOMPARE(coverage[0].peakStacks, 3);
         QCOMPARE(coverage[0].changes, 4);
-        QCOMPARE(coverage[0].intervals, QVector<BuffInterval>({{0, 16, 1}, {16, 64, 2}}));
+        QCOMPARE(coverage[0].intervals,
+                 QVector<BuffInterval>({
+                     { 0,  16, 1 },
+                     { 16, 64, 2 }
+        }));
         QCOMPARE(coverage[1].activeFrames, qint64(32));
         QCOMPARE(coverage[1].stackFrames, qint64(96));
         QCOMPARE(trace.Changes()[0].kind, QStringLiteral("初始"));
         QCOMPARE(trace.Changes()[4].kind, QStringLiteral("刷新"));
         QCOMPARE(trace.Changes()[5].kind, QStringLiteral("计时更新"));
-        trace.Append({{64, 5, 0, false, "self", 0, 0, 0}, {64, 6, 0, true, "target", 1, 200, 80}});
+        trace.Append({
+            { 64, 5, 0, false, "self",   0, 0,   0  },
+            { 64, 6, 0, true,  "target", 1, 200, 80 }
+        });
         trace.Observe(100);
         coverage = trace.Coverage();
         QCOMPARE(coverage[0].activeFrames, qint64(64));
         QCOMPARE(coverage[0].latest.stacks, 0);
         QCOMPARE(coverage[1].activeFrames, qint64(68));
         QCOMPARE(coverage[1].stackFrames, qint64(132));
-        QCOMPARE(coverage[1].intervals, QVector<BuffInterval>({{0, 32, 3}, {64, 100, 1}}));
+        QCOMPARE(coverage[1].intervals,
+                 QVector<BuffInterval>({
+                     { 0,  32,  3 },
+                     { 64, 100, 1 }
+        }));
         trace.Observe(200);
         QCOMPARE(trace.ObservedFrame(), 100);
         QCOMPARE(trace.Coverage()[1].activeFrames, qint64(68));
 
         rt::State state;
-        state.Resize(tx::SkillCount, tx::BuffCount);
-        state.self_buff_stacks[tx::Purple] = 1;
-        state.self_buff_expires_at[tx::Purple] = 160;
-        state.target_buff_stacks[tx::DieRen] = 3;
-        state.target_buff_expires_at[tx::DieRen] = 384;
-        const auto starting = InitialBuffEvents(state);
-        QCOMPARE(starting.size(), 2);
-        QVERIFY(starting[0].initial && starting[1].initial);
-        QVERIFY(starting[0].target);
-        QCOMPARE(starting[0].stacks, 3);
+        state.Resize(tx::SKILL_COUNT, tx::BUFF_COUNT);
+        state.self_buff_stacks[tx::PURPLE]        = 1;
+        state.self_buff_expires_at[tx::PURPLE]    = 160;
+        state.target_buff_stacks[tx::DIE_REN]     = 3;
+        state.target_buff_expires_at[tx::DIE_REN] = 384;
+        const auto STARTING                       = InitialBuffEvents(state);
+        QCOMPARE(STARTING.size(), 2);
+        QVERIFY(STARTING[0].initial && STARTING[1].initial);
+        QVERIFY(STARTING[0].target);
+        QCOMPARE(STARTING[0].stacks, 3);
         trace.Reset(16);
         QVERIFY(trace.Coverage().isEmpty());
         QVERIFY(trace.Changes().isEmpty());
-        trace.Append({{0, 0, 0, false, "pulse", 1, 0, 0}, {0, 1, 0, false, "pulse", 0, 0, 0}});
+        trace.Append({
+            { 0, 0, 0, false, "pulse", 1, 0, 0 },
+            { 0, 1, 0, false, "pulse", 0, 0, 0 }
+        });
         trace.Observe(16);
         QCOMPARE(trace.Coverage()[0].activeFrames, qint64(0));
         QVERIFY(trace.Coverage()[0].intervals.isEmpty());
@@ -3321,10 +3672,13 @@ private slots:
     {
         BuffPanel panel;
         panel.Reset(160);
-        panel.Append({{0, 1, 0, false, "Self, \"buff\"", 1, 160, 0}, {16, 3, 0, true, "Target", 2, 160, 32}});
+        panel.Append({
+            { 0,  1, 0, false, "Self, \"buff\"", 1, 160, 0  },
+            { 16, 3, 0, true,  "Target",         2, 160, 32 }
+        });
         panel.Observe(32);
-        auto *coverage = panel.findChild<QTableWidget *>("buffCoverage");
-        auto *changes = panel.findChild<QTableWidget *>("buffChanges");
+        const auto *coverage = panel.findChild<QTableWidget *>("buffCoverage");
+        auto       *changes  = panel.findChild<QTableWidget *>("buffChanges");
         QCOMPARE(coverage->rowCount(), 2);
         QCOMPARE(coverage->item(0, 5)->text(), QStringLiteral("100.00"));
         QCOMPARE(coverage->item(1, 5)->text(), QStringLiteral("50.00"));
@@ -3332,10 +3686,10 @@ private slots:
         QCOMPARE(panel.TimelineBuffs().size(), 2);
         QCOMPARE(panel.TimelineBuffs()[1].segments[0].stacks, 2);
         QCOMPARE(panel.TimelineBuffs()[1].segments[0].endMs, 2000);
-        QSignalSpy navigation(&panel, &BuffPanel::DamageRequested);
-        emit changes->cellActivated(1, 0);
-        QCOMPARE(navigation.count(), 1);
-        QCOMPARE(navigation.at(0).at(0).toUInt(), quint32(3));
+        const QSignalSpy NAVIGATION(&panel, &BuffPanel::DamageRequested);
+        emit             changes->cellActivated(1, 0);
+        QCOMPARE(NAVIGATION.count(), 1);
+        QCOMPARE(NAVIGATION.at(0).at(0).toUInt(), quint32(3));
         auto *scope = panel.findChild<QComboBox *>("buffScope");
         scope->setCurrentIndex(2);
         QVERIFY(coverage->isRowHidden(0));
@@ -3346,19 +3700,19 @@ private slots:
         QVERIFY(coverage->isRowHidden(1));
         QVERIFY(panel.TimelineBuffs().isEmpty());
         panel.findChild<QLineEdit *>("buffFilter")->clear();
-        QTemporaryDir files;
-        QString error;
-        const auto path = files.filePath(QStringLiteral("buffs.csv"));
-        QVERIFY2(panel.ExportCsv(path, true, error), qPrintable(error));
-        QFile csv(path);
+        const QTemporaryDir FILES;
+        QString             error;
+        const auto          PATH = FILES.filePath(QStringLiteral("buffs.csv"));
+        QVERIFY2(panel.ExportCsv(PATH, true, error), qPrintable(error));
+        QFile csv(PATH);
         QVERIFY(csv.open(QIODevice::ReadOnly));
-        const auto bytes = csv.readAll();
-        QVERIFY(bytes.contains(QStringLiteral("\"目标增益\",\"Target\"").toUtf8()));
-        QVERIFY(bytes.contains("\"50.000000\",\"1.000000\",\"1\",\"32\",\"160\""));
-        QVERIFY(!bytes.contains("Self"));
+        const auto BYTES = csv.readAll();
+        QVERIFY(BYTES.contains(QStringLiteral("\"目标增益\",\"Target\"").toUtf8()));
+        QVERIFY(BYTES.contains("\"50.000000\",\"1.000000\",\"1\",\"32\",\"160\""));
+        QVERIFY(!BYTES.contains("Self"));
         csv.close();
         scope->setCurrentIndex(0);
-        QVERIFY2(panel.ExportCsv(path, false, error), qPrintable(error));
+        QVERIFY2(panel.ExportCsv(PATH, false, error), qPrintable(error));
         QVERIFY(csv.open(QIODevice::ReadOnly));
         QVERIFY(csv.readAll().contains("\"Self, \"\"buff\"\"\""));
         panel.Reset(0);
@@ -3377,18 +3731,22 @@ private slots:
     void batchSkillStatistics()
     {
         QFETCH(int, specialization);
-        const auto spec = static_cast<desktop::Specialization>(specialization);
+        const auto      SPEC = static_cast<desktop::Specialization>(specialization);
         desktop::Config configuration;
-        if (spec == desktop::Specialization::MoWen) configuration = rt::mo_wen::Config{};
-        const auto source = desktop::DefaultMacro(spec);
-        auto compiled = rt::MacroCompiler::Compile(source.toStdString(), desktop::MacroOptions(spec, false));
+        if (SPEC == desktop::Specialization::MO_WEN) {
+            configuration = rt::mo_wen::Config{};
+        }
+        const auto SOURCE   = desktop::DefaultMacro(SPEC);
+        auto       compiled = rt::MacroCompiler::Compile(SOURCE.toStdString(), desktop::MacroOptions(SPEC, false));
         QVERIFY(compiled.second.empty());
-        rt::BatchOptions options{7, 181, 16 * 30, 1, 4000, 12000};
-        auto run = [&](const rt::BatchOptions &batch, bool gains, bool trace, SimulationResult &output) {
-            BatchWorker worker(compiled.first.program, batch, configuration, nullptr, trace, gains);
-            QSignalSpy stats(&worker, &BatchWorker::StatisticsReady), failure(&worker, &BatchWorker::Failed);
-            QSignalSpy events(&worker, &BatchWorker::TraceReady), buffs(&worker, &BatchWorker::BuffTraceReady);
-            QSignalSpy history(&worker, &BatchWorker::HistoryReady);
+        rt::BatchOptions options{ 7, 181, 16 * 30, 1, 4000, 12000 };
+        const auto       RUN = [&](const rt::BatchOptions &batch, bool gains, bool trace, SimulationResult &output) {
+            BatchWorker      worker(compiled.first.program, batch, configuration, nullptr, trace, gains);
+            QSignalSpy       stats(&worker, &BatchWorker::StatisticsReady);
+            QSignalSpy       failure(&worker, &BatchWorker::Failed);
+            QSignalSpy       events(&worker, &BatchWorker::TraceReady);
+            QSignalSpy       buffs(&worker, &BatchWorker::BuffTraceReady);
+            const QSignalSpy HISTORY(&worker, &BatchWorker::HistoryReady);
             worker.start();
             QVERIFY(worker.wait(10000));
             QTRY_COMPARE(stats.count(), 1);
@@ -3399,12 +3757,13 @@ private slots:
             QCOMPARE(worker.Completed(), worker.Requested());
             QCOMPARE(events.count(), trace ? 1 : 0);
             QCOMPARE(buffs.count(), trace ? 1 : 0);
-            QCOMPARE(history.count(), trace ? 1 : 0);
+            QCOMPARE(HISTORY.count(), trace ? 1 : 0);
         };
-        auto compare = [](const QVector<SkillStatistics> &actual, const QVector<SkillStatistics> &expected) {
+        const auto COMPARE = [](const QVector<SkillStatistics> &actual, const QVector<SkillStatistics> &expected) {
             QCOMPARE(actual.size(), expected.size());
             for (int index = 0; index < actual.size(); ++index) {
-                const auto &a = actual[index], &e = expected[index];
+                const auto &a = actual[index];
+                const auto &e = expected[index];
                 QCOMPARE(a.skill, e.skill);
                 QCOMPARE(a.name, e.name);
                 QCOMPARE(a.damage, e.damage);
@@ -3416,79 +3775,97 @@ private slots:
                 QCOMPARE(a.hit + a.critical + a.insight + a.miss, a.count);
             }
         };
-        SimulationResult serial, parallel, excessWorkers, gains, trace;
-        run(options, false, false, serial);
+        SimulationResult serial;
+        SimulationResult parallel;
+        SimulationResult excess_workers;
+        SimulationResult gains;
+        SimulationResult trace;
+        RUN(options, false, false, serial);
         QVERIFY(!serial.skills.isEmpty());
         options.workers = 3;
-        run(options, false, false, parallel);
-        compare(parallel.skills, serial.skills);
+        RUN(options, false, false, parallel);
+        COMPARE(parallel.skills, serial.skills);
         options.workers = 16;
-        run(options, false, false, excessWorkers);
-        compare(excessWorkers.skills, serial.skills);
+        RUN(options, false, false, excess_workers);
+        COMPARE(excess_workers.skills, serial.skills);
         options.workers = 3;
-        run(options, true, false, gains);
-        compare(gains.skills, serial.skills);
+        RUN(options, true, false, gains);
+        COMPARE(gains.skills, serial.skills);
         QCOMPARE(gains.gains.size(), 8);
         QCOMPARE(gains.stats.checksum, parallel.stats.checksum);
 
         // Independently sum seeded fight logs, including DOT ticks and zero-damage outcomes.
         QVector<SkillStatistics> expected;
-        std::visit([&](const auto &config) {
-            const auto rules = desktop::MakeRules(config);
-            const auto plain = rt::RunBatch(compiled.first.program, options, rules);
-            QCOMPARE(parallel.stats.checksum, plain.checksum);
-            QCOMPARE(parallel.stats.mean_damage, plain.mean_damage);
-            rt::Simulation simulation(compiled.first.program, rules, options.damage_capacity, options.mutation_capacity);
-            QMap<int, SkillStatistics> totals;
-            for (std::uint64_t iteration = 0; iteration < options.iterations; ++iteration) {
-                simulation.Start(options.duration, rt::IterationSeed(options.seed, iteration));
-                simulation.Run();
-                for (const auto &hit : simulation.Log().Intents()) {
-                    auto &skill = totals[hit.skill];
-                    skill.skill = hit.skill;
-                    skill.name = desktop::SkillName(spec, hit.skill);
-                    skill.damage += simulation.GetRules().Reduce(hit);
-                    ++skill.count;
-                    if (hit.outcome == JX3DPS::RollResult::HIT) ++skill.hit;
-                    else if (hit.outcome == JX3DPS::RollResult::DOUBLE) ++skill.critical;
-                    else if (hit.outcome == JX3DPS::RollResult::INSIGHT) ++skill.insight;
-                    else ++skill.miss;
+        std::visit(
+            [&](const auto &config) {
+                const auto RULES = desktop::MakeRules(config);
+                const auto PLAIN = rt::RunBatch(compiled.first.program, options, RULES);
+                QCOMPARE(parallel.stats.checksum, PLAIN.checksum);
+                QCOMPARE(parallel.stats.mean_damage, PLAIN.mean_damage);
+                rt::Simulation simulation(compiled.first.program, RULES, options.damage_capacity, options.mutation_capacity);
+                QMap<int, SkillStatistics> totals;
+                for (std::uint64_t iteration = 0; iteration < options.iterations; ++iteration) {
+                    simulation.Start(options.duration, rt::IterationSeed(options.seed, iteration));
+                    simulation.Run();
+                    for (const auto &hit : simulation.Log().Intents()) {
+                        auto &skill   = totals[hit.skill];
+                        skill.skill   = hit.skill;
+                        skill.name    = desktop::SkillName(SPEC, hit.skill);
+                        skill.damage += simulation.GetRules().Reduce(hit);
+                        ++skill.count;
+                        if (hit.outcome == JX3DPS::RollResult::HIT) {
+                            ++skill.hit;
+                        } else if (hit.outcome == JX3DPS::RollResult::DOUBLE) {
+                            ++skill.critical;
+                        } else if (hit.outcome == JX3DPS::RollResult::INSIGHT) {
+                            ++skill.insight;
+                        } else {
+                            ++skill.miss;
+                        }
+                    }
                 }
-            }
-            expected = totals.values();
-        }, configuration);
-        compare(parallel.skills, expected);
-        qint64 totalDamage = 0;
-        for (const auto &skill : parallel.skills) totalDamage += skill.damage;
-        QVERIFY(std::abs(totalDamage - parallel.stats.mean_damage * parallel.stats.count) < .01);
+                expected = totals.values();
+            },
+            configuration);
+        COMPARE(parallel.skills, expected);
+        qint64 total_damage = 0;
+        for (const auto &skill : parallel.skills) {
+            total_damage += skill.damage;
+        }
+        QVERIFY(std::abs(total_damage - parallel.stats.mean_damage * parallel.stats.count) < .01);
         options.iterations = 1;
-        run(options, false, false, serial);
-        run(options, false, true, trace);
-        compare(trace.skills, serial.skills);
+        RUN(options, false, false, serial);
+        RUN(options, false, true, trace);
+        COMPARE(trace.skills, serial.skills);
     }
 
     void skillStatisticsHistory()
     {
-        ResultsPanel panel;
+        ResultsPanel     panel;
         SimulationResult first;
-        first.options = {2, 0, 160, 1, 4096, 8192};
+        first.options = { 2, 0, 160, 1, 4096, 8192 };
         first.stats.Add(1000, 0);
         first.stats.Add(3000, 1);
         first.skillsCollected = true;
-        first.skills = {{0, "A", 3000, 3, 1, 1, 0, 1}, {1, "B", 1000, 2, 1, 0, 1, 0}};
+        first.skills          = {
+            { 0, "A", 3000, 3, 1, 1, 0, 1 },
+            { 1, "B", 1000, 2, 1, 0, 1, 0 }
+        };
         panel.AddResult(first, "first", {});
-        auto *damage = panel.findChild<QTableWidget *>("skillDamage");
-        auto *history = panel.findChild<QTableWidget *>("resultHistory");
-        auto *tabs = panel.findChild<QTabWidget *>("resultTabs");
+        const auto *damage  = panel.findChild<QTableWidget *>("skillDamage");
+        auto       *history = panel.findChild<QTableWidget *>("resultHistory");
+        const auto *tabs    = panel.findChild<QTabWidget *>("resultTabs");
         QCOMPARE(tabs->currentIndex(), 1);
         QCOMPARE(damage->rowCount(), 2);
         QCOMPARE(damage->item(0, 2)->text(), QStringLiteral("3000"));
         QCOMPARE(damage->item(0, 3)->text(), QStringLiteral("75.0%"));
         QCOMPARE(damage->item(0, 4)->text(), QStringLiteral("150.0"));
-        auto second = first;
+        auto second  = first;
         second.stats = {};
         second.stats.Add(5000, 0);
-        second.skills = {{2, "C", 5000, 10, 4, 3, 2, 1}};
+        second.skills = {
+            { 2, "C", 5000, 10, 4, 3, 2, 1 }
+        };
         panel.AddResult(second, "second", {});
         QCOMPARE(damage->rowCount(), 1);
         QCOMPARE(damage->item(0, 0)->text(), QStringLiteral("C"));
@@ -3497,27 +3874,29 @@ private slots:
         panel.ShowSkillStatistics();
         QCOMPARE(damage->rowCount(), 2);
         QCOMPARE(damage->item(0, 0)->text(), QStringLiteral("A"));
-        QTemporaryDir files;
-        QString error;
-        const auto path = files.filePath(QStringLiteral("skills.json"));
-        QVERIFY2(panel.ExportSelected(path, error), qPrintable(error));
-        QFile exported(path);
+        const QTemporaryDir FILES;
+        QString             error;
+        const auto          PATH = FILES.filePath(QStringLiteral("skills.json"));
+        QVERIFY2(panel.ExportSelected(PATH, error), qPrintable(error));
+        QFile exported(PATH);
         QVERIFY(exported.open(QIODevice::ReadOnly));
         const auto report = QJsonDocument::fromJson(exported.readAll()).object();
         QVERIFY(report.value("skillsCollected").toBool());
-        const auto skills = report.value("skills").toArray();
-        QCOMPARE(skills.size(), 2);
-        QCOMPARE(skills[0].toObject().value("damage").toString(), QStringLiteral("3000"));
-        QCOMPARE(skills[0].toObject().value("critical").toString(), QStringLiteral("1"));
+        const auto SKILLS = report.value("skills").toArray();
+        QCOMPARE(SKILLS.size(), 2);
+        QCOMPARE(SKILLS[0].toObject().value("damage").toString(), QStringLiteral("3000"));
+        QCOMPARE(SKILLS[0].toObject().value("critical").toString(), QStringLiteral("1"));
         panel.ClearTrace(10);
         QCOMPARE(damage->rowCount(), 0);
-        panel.AppendTrace({{0, 4, "debug", 100, 0}});
+        panel.AppendTrace({
+            { 0, 4, "debug", 100, 0 }
+        });
         panel.ShowSkillStatistics();
         QCOMPARE(damage->item(0, 0)->text(), QStringLiteral("debug"));
         QCOMPARE(damage->item(0, 4)->text(), QStringLiteral("10.0"));
         history->selectRow(1);
         QCOMPARE(damage->item(0, 0)->text(), QStringLiteral("C"));
-        auto empty = second;
+        auto empty  = second;
         empty.stats = {};
         empty.skills.clear();
         panel.AddResult(empty, "cancelled", {});
@@ -3527,19 +3906,19 @@ private slots:
 
     void batchCancellationAndFailure()
     {
-        auto compiled = rt::MacroCompiler::Compile("/cast wuwu\n/cast sanhuan", tx::MacroOptions(false));
+        const auto       COMPILED = rt::MacroCompiler::Compile("/cast wuwu\n/cast sanhuan", tx::MacroOptions(false));
         rt::BatchOptions options;
         options.iterations = 1000000;
-        options.duration = 4800;
-        options.workers = 2;
-        BatchWorker worker(compiled.first.program, options, {});
-        QSignalSpy result(&worker, &BatchWorker::ResultReady);
-        QSignalSpy statistics(&worker, &BatchWorker::StatisticsReady);
-        QSignalSpy noBuffTrace(&worker, &BatchWorker::BuffTraceReady);
-        QSignalSpy noHistory(&worker, &BatchWorker::HistoryReady);
-        QSignalSpy failed(&worker, &BatchWorker::Failed);
-        int heartbeats = 0;
-        QTimer timer;
+        options.duration   = 4800;
+        options.workers    = 2;
+        BatchWorker      worker(COMPILED.first.program, options, {});
+        const QSignalSpy result(&worker, &BatchWorker::ResultReady);
+        const QSignalSpy STATISTICS(&worker, &BatchWorker::StatisticsReady);
+        const QSignalSpy NO_BUFF_TRACE(&worker, &BatchWorker::BuffTraceReady);
+        const QSignalSpy NO_HISTORY(&worker, &BatchWorker::HistoryReady);
+        const QSignalSpy FAILED(&worker, &BatchWorker::Failed);
+        int              heartbeats = 0;
+        QTimer           timer;
         connect(&timer, &QTimer::timeout, this, [&] { ++heartbeats; });
         timer.start(1);
         worker.start();
@@ -3548,80 +3927,82 @@ private slots:
         worker.RequestCancel();
         QVERIFY(worker.wait(10000));
         QTRY_COMPARE(result.count(), 1);
-        QTRY_COMPARE(statistics.count(), 1);
-        const auto partial = qvariant_cast<SimulationResult>(statistics.at(0).at(0));
-        QCOMPARE(partial.stats.count, worker.Completed());
-        QVERIFY(partial.skillsCollected);
-        QVERIFY(!partial.skills.isEmpty());
-        qint64 skillDamage = 0;
-        for (const auto &skill : partial.skills) skillDamage += skill.damage;
-        QVERIFY(std::abs(skillDamage - partial.stats.mean_damage * partial.stats.count) < .01);
-        QVERIFY(!partial.Complete());
-        QCOMPARE(partial.options.seed, options.seed);
-        QCOMPARE(failed.count(), 0);
-        QCOMPARE(noBuffTrace.count(), 0);
-        QCOMPARE(noHistory.count(), 0);
+        QTRY_COMPARE(STATISTICS.count(), 1);
+        const auto PARTIAL = qvariant_cast<SimulationResult>(STATISTICS.at(0).at(0));
+        QCOMPARE(PARTIAL.stats.count, worker.Completed());
+        QVERIFY(PARTIAL.skillsCollected);
+        QVERIFY(!PARTIAL.skills.isEmpty());
+        qint64 skill_damage = 0;
+        for (const auto &skill : PARTIAL.skills) {
+            skill_damage += skill.damage;
+        }
+        QVERIFY(std::abs(skill_damage - PARTIAL.stats.mean_damage * PARTIAL.stats.count) < .01);
+        QVERIFY(!PARTIAL.Complete());
+        QCOMPARE(PARTIAL.options.seed, options.seed);
+        QCOMPARE(FAILED.count(), 0);
+        QCOMPARE(NO_BUFF_TRACE.count(), 0);
+        QCOMPARE(NO_HISTORY.count(), 0);
         QVERIFY(result.at(0).at(0).toString().contains(QStringLiteral("已取消")));
         QVERIFY(worker.Completed() < options.iterations);
-        auto invalid = tx::Config{};
+        auto invalid           = tx::Config{};
         invalid.initial_qidian = -1;
-        BatchWorker bad(compiled.first.program, options, invalid);
-        QSignalSpy errors(&bad, &BatchWorker::Failed);
+        BatchWorker      bad(COMPILED.first.program, options, invalid);
+        const QSignalSpy ERRORS(&bad, &BatchWorker::Failed);
         bad.start();
         QVERIFY(bad.wait(10000));
-        QTRY_COMPARE(errors.count(), 1);
+        QTRY_COMPARE(ERRORS.count(), 1);
 
-        BatchWorker cancelled(compiled.first.program, options, {});
-        QSignalSpy cancelledResult(&cancelled, &BatchWorker::ResultReady);
-        QSignalSpy cancelledStats(&cancelled, &BatchWorker::StatisticsReady);
+        BatchWorker      cancelled(COMPILED.first.program, options, {});
+        const QSignalSpy cancelled_result(&cancelled, &BatchWorker::ResultReady);
+        const QSignalSpy CANCELLED_STATS(&cancelled, &BatchWorker::StatisticsReady);
         cancelled.RequestCancel();
         cancelled.start();
         QVERIFY(cancelled.wait(10000));
-        QTRY_COMPARE(cancelledResult.count(), 1);
+        QTRY_COMPARE(cancelled_result.count(), 1);
         QCOMPARE(cancelled.Completed(), std::uint64_t(0));
-        QTRY_COMPARE(cancelledStats.count(), 1);
-        QCOMPARE(qvariant_cast<SimulationResult>(cancelledStats.at(0).at(0)).stats.count, std::uint64_t(0));
-        QVERIFY(qvariant_cast<SimulationResult>(cancelledStats.at(0).at(0)).skills.isEmpty());
+        QTRY_COMPARE(CANCELLED_STATS.count(), 1);
+        QCOMPARE(qvariant_cast<SimulationResult>(CANCELLED_STATS.at(0).at(0)).stats.count, std::uint64_t(0));
+        QVERIFY(qvariant_cast<SimulationResult>(CANCELLED_STATS.at(0).at(0)).skills.isEmpty());
     }
 
     void configurationRoundTrip()
     {
         SimulationOptions options;
-        auto *attack = options.findChild<QSpinBox *>("attackBase");
+        auto             *attack = options.findChild<QSpinBox *>("attackBase");
         attack->setValue(45678);
         options.findChild<QLineEdit *>("seed")->setText(QStringLiteral("18446744073709551615"));
         options.findChild<QDoubleSpinBox *>("seconds")->setValue(10.0625);
-        options.findChild<QCheckBox *>(QStringLiteral("talent%1").arg(tx::XuanMen))->setChecked(true);
-        const auto snapshot = options.Snapshot();
-        QTemporaryDir files;
-        QVERIFY(files.isValid());
-        QString error;
-        const auto path = files.filePath(QStringLiteral("config.json"));
-        QVERIFY2(options.ExportConfiguration(path, error), qPrintable(error));
+        options.findChild<QCheckBox *>(QStringLiteral("talent%1").arg(tx::XUAN_MEN))->setChecked(true);
+        const auto          snapshot = options.Snapshot();
+        const QTemporaryDir FILES;
+        QVERIFY(FILES.isValid());
+        QString    error;
+        const auto PATH = FILES.filePath(QStringLiteral("config.json"));
+        QVERIFY2(options.ExportConfiguration(PATH, error), qPrintable(error));
         attack->setValue(1);
-        QVERIFY2(options.ImportConfiguration(path, error), qPrintable(error));
+        QVERIFY2(options.ImportConfiguration(PATH, error), qPrintable(error));
         QCOMPARE(options.Snapshot(), snapshot);
         QCOMPARE(options.Config().attributes.attack_base, JX3DPS::value_t(45678));
         QCOMPARE(options.Batch().seed, std::numeric_limits<std::uint64_t>::max());
         QCOMPARE(options.Batch().duration, 161);
-        QVERIFY(options.Config().talents & tx::XuanMen);
+        QVERIFY(options.Config().talents & tx::XUAN_MEN);
 
         QSignalSpy changed(attack, &QSpinBox::valueChanged);
-        auto reject = [&](QJsonObject bad) {
+        const auto reject = [&](QJsonObject bad) {
             QVERIFY(!options.RestoreSnapshot(bad, error));
             QVERIFY(!error.isEmpty());
             QCOMPARE(options.Snapshot(), snapshot);
             QCOMPARE(changed.count(), 0);
         };
-        for (const auto &value : {QJsonValue(-1), QJsonValue(1.25), QJsonValue("100"), QJsonValue(1000001)}) {
-            auto bad = snapshot;
+        for (const auto &value : { QJsonValue(-1), QJsonValue(1.25), QJsonValue("100"), QJsonValue(1000001) }) {
+            auto bad    = snapshot;
             auto values = bad.value("values").toObject();
             values.insert("attackBase", value);
             bad.insert("values", values);
             reject(bad);
         }
-        for (const auto &value : {QJsonValue("18446744073709551616"), QJsonValue(123), QJsonValue(" 123")}) {
-            auto bad = snapshot;
+        for (const auto &value : { QJsonValue("18446744073709551616"), QJsonValue(123), QJsonValue(" 123") }) {
+            auto bad    = snapshot;
             auto values = bad.value("values").toObject();
             values.insert("seed", value);
             bad.insert("values", values);
@@ -3637,16 +4018,17 @@ private slots:
         reject(bad);
         values = snapshot.value("values").toObject();
         values.insert("attackBase", 12345);
-        for (unsigned flag : {tx::Crit2, tx::Crit3, tx::Crit4, tx::Damage3, tx::Damage4})
-            values.insert(QStringLiteral("wuwu%1").arg(flag), true);
+        for (const unsigned FLAG : { tx::CRIT2, tx::CRIT3, tx::CRIT4, tx::DAMAGE3, tx::DAMAGE4 }) {
+            values.insert(QStringLiteral("wuwu%1").arg(FLAG), true);
+        }
         bad.insert("values", values);
         reject(bad);
 
-        QFile malformed(path);
+        QFile malformed(PATH);
         QVERIFY(malformed.open(QIODevice::WriteOnly));
         malformed.write("{ broken");
         malformed.close();
-        QVERIFY(!options.ImportConfiguration(path, error));
+        QVERIFY(!options.ImportConfiguration(PATH, error));
         QCOMPARE(options.Snapshot(), snapshot);
 
         auto *profiles = options.findChild<QComboBox *>("configurationProfile");
@@ -3655,62 +4037,68 @@ private slots:
         attack->setValue(99);
         options.findChild<QPushButton *>("loadProfile")->click();
         QCOMPARE(options.Snapshot(), snapshot);
-        SimulationOptions restored;
-        restored.findChild<QComboBox *>("configurationProfile")->setCurrentText(QStringLiteral("Trial configuration"));
-        restored.findChild<QPushButton *>("loadProfile")->click();
-        QCOMPARE(restored.Snapshot(), snapshot);
+        const SimulationOptions RESTORED;
+        RESTORED.findChild<QComboBox *>("configurationProfile")->setCurrentText(QStringLiteral("Trial configuration"));
+        RESTORED.findChild<QPushButton *>("loadProfile")->click();
+        QCOMPARE(RESTORED.Snapshot(), snapshot);
     }
 
     void resultAnalysis()
     {
-        ResultsPanel panel;
-        SimulationOptions options;
-        SimulationResult first;
+        ResultsPanel            panel;
+        const SimulationOptions OPTIONS;
+        SimulationResult        first;
         first.options.iterations = 2;
-        first.options.duration = 160;
-        first.options.seed = std::numeric_limits<std::uint64_t>::max();
-        first.elapsedSeconds = .5;
+        first.options.duration   = 160;
+        first.options.seed       = std::numeric_limits<std::uint64_t>::max();
+        first.elapsedSeconds     = .5;
         first.stats.Add(1000, 0);
         first.stats.Add(3000, 1);
-        const auto config = options.Snapshot();
-        const QString source = QStringLiteral("/cast sanhuan");
-        panel.AddResult(first, source, config);
-        auto *history = panel.findChild<QTableWidget *>("resultHistory");
+        const auto    CONFIG = OPTIONS.Snapshot();
+        const QString SOURCE = QStringLiteral("/cast sanhuan");
+        panel.AddResult(first, SOURCE, CONFIG);
+        const auto *history = panel.findChild<QTableWidget *>("resultHistory");
         QCOMPARE(history->item(0, 3)->text(), QStringLiteral("200.0"));
         QCOMPARE(history->item(0, 4)->text(), QStringLiteral("100.0"));
         panel.findChild<QPushButton *>("setResultBaseline")->click();
-        auto second = first;
+        auto second  = first;
         second.stats = {};
         second.stats.Add(4000, 0);
         second.stats.Add(4000, 1);
-        panel.AddResult(second, source, config);
+        panel.AddResult(second, SOURCE, CONFIG);
         QCOMPARE(history->item(1, 5)->text(), QStringLiteral("+100.00%"));
-        QTemporaryDir files;
-        QString error;
-        const auto path = files.filePath(QStringLiteral("run.json"));
-        QVERIFY2(panel.ExportSelected(path, error), qPrintable(error));
-        QFile exported(path);
+        const QTemporaryDir FILES;
+        QString             error;
+        const auto          PATH = FILES.filePath(QStringLiteral("run.json"));
+        QVERIFY2(panel.ExportSelected(PATH, error), qPrintable(error));
+        QFile exported(PATH);
         QVERIFY(exported.open(QIODevice::ReadOnly));
         const auto report = QJsonDocument::fromJson(exported.readAll()).object();
-        QCOMPARE(report.value("macro").toString(), source);
-        QCOMPARE(report.value("configuration").toObject(), config);
-        const auto stats = report.value("result").toObject();
-        QCOMPARE(stats.value("seed").toString(), QStringLiteral("18446744073709551615"));
-        QCOMPARE(stats.value("checksum").toString(), QString::number(second.stats.checksum));
-        QCOMPARE(stats.value("meanDps").toDouble(), 400.0);
-        QCOMPARE(stats.value("minDamage").toString(), QStringLiteral("4000"));
-        QSignalSpy inputs(&panel, &ResultsPanel::InputsRequested);
+        QCOMPARE(report.value("macro").toString(), SOURCE);
+        QCOMPARE(report.value("configuration").toObject(), CONFIG);
+        const auto STATS = report.value("result").toObject();
+        QCOMPARE(STATS.value("seed").toString(), QStringLiteral("18446744073709551615"));
+        QCOMPARE(STATS.value("checksum").toString(), QString::number(second.stats.checksum));
+        QCOMPARE(STATS.value("meanDps").toDouble(), 400.0);
+        QCOMPARE(STATS.value("minDamage").toString(), QStringLiteral("4000"));
+        const QSignalSpy INPUTS(&panel, &ResultsPanel::InputsRequested);
         panel.SetInputsEnabled(false);
         QVERIFY(!panel.findChild<QPushButton *>("useResultInputs")->isEnabled());
         panel.SetInputsEnabled(true);
         panel.findChild<QPushButton *>("useResultInputs")->click();
-        QCOMPARE(inputs.count(), 1);
-        QCOMPARE(inputs.at(0).at(0).toString(), source);
+        QCOMPARE(INPUTS.count(), 1);
+        QCOMPARE(INPUTS.at(0).at(0).toString(), SOURCE);
 
         panel.ClearTrace(10);
-        panel.AppendTrace({{0, 0, "skill A", 100, 0}, {16, 0, "skill A", 200, 1}, {32, 1, "skill B", 50, 4}});
-        panel.AppendTrace({{48, 0, "skill A", 0, 126}});
-        auto *damage = panel.findChild<QTableWidget *>("skillDamage");
+        panel.AppendTrace({
+            { 0,  0, "skill A", 100, 0 },
+            { 16, 0, "skill A", 200, 1 },
+            { 32, 1, "skill B", 50,  4 }
+        });
+        panel.AppendTrace({
+            { 48, 0, "skill A", 0, 126 }
+        });
+        const auto *damage = panel.findChild<QTableWidget *>("skillDamage");
         QCOMPARE(damage->rowCount(), 2);
         QCOMPARE(damage->item(0, 1)->text(), QStringLiteral("3"));
         QCOMPARE(damage->item(0, 2)->text(), QStringLiteral("300"));
@@ -3721,15 +4109,19 @@ private slots:
         QCOMPARE(damage->item(0, 10)->text(), QStringLiteral("1"));
         QCOMPARE(damage->item(1, 9)->text(), QStringLiteral("1"));
         panel.ClearTrace(10);
-        panel.AppendTrace({{0, 0, "skill A", 0, 126}});
+        panel.AppendTrace({
+            { 0, 0, "skill A", 0, 126 }
+        });
         QCOMPARE(damage->item(0, 3)->text(), QStringLiteral("0.0%"));
 
-        auto empty = first;
+        auto empty  = first;
         empty.stats = {};
-        panel.AddResult(empty, source, config);
+        panel.AddResult(empty, SOURCE, CONFIG);
         QCOMPARE(history->item(2, 3)->text(), QStringLiteral("--"));
         QVERIFY(!panel.findChild<QPushButton *>("setResultBaseline")->isEnabled());
-        for (int i = 0; i < 50; ++i) panel.AddResult(second, source, config);
+        for (int i = 0; i < 50; ++i) {
+            panel.AddResult(second, SOURCE, CONFIG);
+        }
         QCOMPARE(history->rowCount(), 50);
         QCOMPARE(history->item(49, 5)->text(), QStringLiteral("+100.00%"));
         QVERIFY(panel.findChild<QTextBrowser *>("resultDetails")->toPlainText().contains(QStringLiteral("基准 #1")));
@@ -3737,46 +4129,48 @@ private slots:
 
     void workbenchCapturesInputs()
     {
-        Workbench window;
-        auto *editor = window.findChild<CodeEditor *>("macroEditor");
-        const QString source = QStringLiteral("/cast sanhuan");
-        editor->setPlainText(source);
-        window.findChild<QSpinBox *>("iterations")->setValue(100);
-        window.findChild<QSpinBox *>("workers")->setValue(2);
-        window.findChild<QDoubleSpinBox *>("seconds")->setValue(5);
-        auto *toolbar = window.findChild<SimulationToolbar *>();
-        emit toolbar->StartSimulationClicked();
-        QVERIFY(!window.findChild<QComboBox *>("specialization")->isEnabled());
+        const Workbench WINDOW;
+        auto           *editor = WINDOW.findChild<CodeEditor *>("macroEditor");
+        const QString   SOURCE = QStringLiteral("/cast sanhuan");
+        editor->setPlainText(SOURCE);
+        WINDOW.findChild<QSpinBox *>("iterations")->setValue(100);
+        WINDOW.findChild<QSpinBox *>("workers")->setValue(2);
+        WINDOW.findChild<QDoubleSpinBox *>("seconds")->setValue(5);
+        auto *toolbar = WINDOW.findChild<SimulationToolbar *>();
+        emit  toolbar->StartSimulationClicked();
+        QVERIFY(!WINDOW.findChild<QComboBox *>("specialization")->isEnabled());
         editor->setPlainText(QStringLiteral("/cast wuwu"));
         QTRY_VERIFY_WITH_TIMEOUT(toolbar->isEnabled(), 10000);
-        auto *results = window.findChild<ResultsPanel *>();
+        const auto *results = WINDOW.findChild<ResultsPanel *>();
         QCOMPARE(results->findChild<QTableWidget *>("resultHistory")->rowCount(), 1);
-        auto *details = results->findChild<QTextBrowser *>("resultDetails");
-        QVERIFY(details->toPlainText().contains(source));
+        const auto *details = results->findChild<QTextBrowser *>("resultDetails");
+        QVERIFY(details->toPlainText().contains(SOURCE));
         QVERIFY(!details->toPlainText().contains(QStringLiteral("/cast wuwu")));
-        window.findChild<QSpinBox *>("iterations")->setValue(1);
+        WINDOW.findChild<QSpinBox *>("iterations")->setValue(1);
         editor->document()->setModified(false);
         results->findChild<QPushButton *>("useResultInputs")->click();
-        QCOMPARE(editor->toPlainText(), source);
+        QCOMPARE(editor->toPlainText(), SOURCE);
         QVERIFY(editor->document()->isModified());
-        QCOMPARE(window.findChild<QSpinBox *>("iterations")->value(), 100);
+        QCOMPARE(WINDOW.findChild<QSpinBox *>("iterations")->value(), 100);
     }
 
     void workbenchFlow()
     {
         Workbench window;
         window.show();
-        auto *editor = window.findChild<CodeEditor *>("macroEditor");
-        auto *table = window.findChild<QTableWidget *>("damageEvents");
-        auto *problems = window.findChild<QTableWidget *>("macroProblems");
-        auto *check = window.findChild<QAction *>("checkMacro");
-        auto *trace = window.findChild<QAction *>("singleTrace");
-        auto *session = window.findChild<DebugSession *>();
+        auto       *editor   = window.findChild<CodeEditor *>("macroEditor");
+        const auto *table    = window.findChild<QTableWidget *>("damageEvents");
+        const auto *problems = window.findChild<QTableWidget *>("macroProblems");
+        auto       *check    = window.findChild<QAction *>("checkMacro");
+        auto       *trace    = window.findChild<QAction *>("singleTrace");
+        auto       *session  = window.findChild<DebugSession *>();
         QVERIFY(editor && table && problems && check && trace && session);
         QCoreApplication::processEvents();
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-configuration.png")));
-        editor->setPlainText(QStringLiteral("/cast [buff:\u7384\u95e8] wuwu\n/cast [buff:\u7384\u95e8>0] wuwu\n/cast sanhuan"));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+            QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                       QStringLiteral("-configuration.png")));
+        }
+        editor->setPlainText(QStringLiteral("/cast [buff:玄门] wuwu\n/cast [buff:玄门>0] wuwu\n/cast sanhuan"));
         check->trigger();
         QCOMPARE(problems->rowCount(), 0);
         editor->appendPlainText(QStringLiteral("/cast unknown_skill"));
@@ -3791,67 +4185,75 @@ private slots:
         trace->trigger();
         QTRY_VERIFY_WITH_TIMEOUT(trace->isEnabled(), 10000);
         QVERIFY(table->rowCount() > 1);
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(window.findChild<QDialog *>("resultAnalysis")->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-trace.png")));
+        }
         qint64 total = 0;
-        for (int i = 0; i < table->rowCount(); ++i) total += table->item(i, 3)->text().toLongLong();
+        for (int i = 0; i < table->rowCount(); ++i) {
+            total += table->item(i, 3)->text().toLongLong();
+        }
         auto *results = window.findChild<ResultsPanel *>();
         QCOMPARE(results->findChild<QTableWidget *>("resultHistory")->rowCount(), 1);
-        auto *skills = results->findChild<QTableWidget *>("skillDamage");
-        qint64 skillsTotal = 0;
-        for (int i = 0; i < skills->rowCount(); ++i) skillsTotal += skills->item(i, 2)->text().toLongLong();
-        QCOMPARE(skillsTotal, total);
+        const auto *skills       = results->findChild<QTableWidget *>("skillDamage");
+        qint64      skills_total = 0;
+        for (int i = 0; i < skills->rowCount(); ++i) {
+            skills_total += skills->item(i, 2)->text().toLongLong();
+        }
+        QCOMPARE(skills_total, total);
         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
-            auto *views = window.findChild<QTabWidget *>("analysisViews");
+            auto *views    = window.findChild<QTabWidget *>("analysisViews");
             auto *analysis = window.findChild<QDialog *>("resultAnalysis");
             views->setCurrentWidget(results);
             QTest::qWait(250);
-            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-results.png")));
+            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                          QStringLiteral("-results.png")));
             results->findChild<QTabWidget *>("resultTabs")->setCurrentIndex(1);
             QTest::qWait(250);
-            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-skills.png")));
+            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                          QStringLiteral("-skills.png")));
             views->setCurrentIndex(0);
         }
         auto *mode = window.findChild<QToolButton *>("debugButton");
         QVERIFY(mode);
         mode->setChecked(true);
         auto *toolbar = window.findChild<SimulationToolbar *>();
-        emit toolbar->StartSimulationClicked();
-        QCOMPARE(session->GetState(), DebugSession::Paused);
+        emit  toolbar->StartSimulationClicked();
+        QCOMPARE(session->GetState(), DebugSession::PAUSED);
         QVERIFY(editor->isReadOnly());
-        const auto source = editor->toPlainText();
+        const auto SOURCE = editor->toPlainText();
         QTest::keyClick(editor, Qt::Key_Tab);
         QTest::keyClick(editor, Qt::Key_Return);
         editor->FormatDocument();
-        QCOMPARE(editor->toPlainText(), source);
+        QCOMPARE(editor->toPlainText(), SOURCE);
         QVERIFY(QMetaObject::invokeMethod(editor, "CheckSyntax", Qt::DirectConnection));
         session->StepInto();
         QCOMPARE(session->GetDebugInfo().phase, QStringLiteral("条件"));
         QVERIFY(session->GetDebugInfo().condition.contains(QStringLiteral("成立")));
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT")));
+        }
         session->RemoveBreakpoint(1);
         session->Continue();
-        QTRY_COMPARE_WITH_TIMEOUT(session->GetState(), DebugSession::Finished, 10000);
+        QTRY_COMPARE_WITH_TIMEOUT(session->GetState(), DebugSession::FINISHED, 10000);
         QCOMPARE(session->TotalDamage(), total);
         QVERIFY(!editor->isReadOnly());
         session->Stop();
         QVERIFY(editor->HasBreakpoint(1));
         editor->document()->setModified(true);
         QVERIFY(window.close());
-        Workbench restored;
-        auto *restoredEditor = restored.findChild<CodeEditor *>("macroEditor");
-        QCOMPARE(restoredEditor->toPlainText(), source);
-        QVERIFY(restoredEditor->HasBreakpoint(1));
-        QVERIFY(restoredEditor->document()->isModified());
-        QCOMPARE(restored.findChild<QLineEdit *>("seed")->text(), QStringLiteral("77"));
+        const Workbench RESTORED;
+        const auto     *restored_editor = RESTORED.findChild<CodeEditor *>("macroEditor");
+        QCOMPARE(restored_editor->toPlainText(), SOURCE);
+        QVERIFY(restored_editor->HasBreakpoint(1));
+        QVERIFY(restored_editor->document()->isModified());
+        QCOMPARE(RESTORED.findChild<QLineEdit *>("seed")->text(), QStringLiteral("77"));
     }
 
     void breakpointsFollowEdits()
     {
-        Workbench window;
-        auto *editor = window.findChild<CodeEditor *>("macroEditor");
-        auto *session = window.findChild<DebugSession *>();
+        const Workbench WINDOW;
+        auto           *editor  = WINDOW.findChild<CodeEditor *>("macroEditor");
+        const auto     *session = WINDOW.findChild<DebugSession *>();
         editor->setPlainText(QStringLiteral("/cast ziqi\n/cast wuwu\n/cast sanhuan"));
         editor->SetBreakpoint(2, true);
         QTextCursor cursor(editor->document());
@@ -3869,15 +4271,19 @@ private slots:
 
     void legacyIconControls()
     {
-        for (const auto specialization : {desktop::Specialization::TaiXu, desktop::Specialization::MoWen}) {
-            const auto catalog = desktop::Describe(specialization);
-            for (const auto &skill : catalog.skills)
-                QVERIFY2(!desktop::GameIcon(specialization, desktop::DisplayName(skill.name)).pixmap(40, 40).isNull(), skill.name.data());
-            for (const auto &buff : catalog.buffs)
-                QVERIFY2(!desktop::GameIcon(specialization, desktop::DisplayName(buff.name)).pixmap(32, 32).isNull(), buff.name.data());
+        for (const auto SPECIALIZATION : { desktop::Specialization::TAI_XU, desktop::Specialization::MO_WEN }) {
+            const auto CATALOG = desktop::Describe(SPECIALIZATION);
+            for (const auto &skill : CATALOG.skills) {
+                QVERIFY2(!desktop::GameIcon(SPECIALIZATION, desktop::DisplayName(skill.name)).pixmap(40, 40).isNull(),
+                         skill.name.data());
+            }
+            for (const auto &buff : CATALOG.buffs) {
+                QVERIFY2(!desktop::GameIcon(SPECIALIZATION, desktop::DisplayName(buff.name)).pixmap(32, 32).isNull(),
+                         buff.name.data());
+            }
         }
-        QCOMPARE(desktop::GameIcon(desktop::Specialization::TaiXu, QStringLiteral("无我无剑")).pixmap(40, 40).toImage(),
-            QIcon(QStringLiteral(":/resources/images/JX3/Icons/617.png")).pixmap(40, 40).toImage());
+        QCOMPARE(desktop::GameIcon(desktop::Specialization::TAI_XU, QStringLiteral("无我无剑")).pixmap(40, 40).toImage(),
+                 QIcon(QStringLiteral(":/resources/images/JX3/Icons/617.png")).pixmap(40, 40).toImage());
         SimulationOptions options;
         options.resize(860, 800);
         options.show();
@@ -3889,58 +4295,71 @@ private slots:
         QCOMPARE(specialization->itemIcon(1).pixmap(36, 36).toImage(), desktop::GameIcon(8501).pixmap(36, 36).toImage());
         QTest::mouseClick(specialization, Qt::LeftButton);
         QTRY_VERIFY(specialization->view()->isVisible());
-        auto *classPopup = static_cast<desktop::ChoicePopup *>(specialization->view()->window());
-        QVERIFY(classPopup->ExpansionAnimating());
-        QTRY_VERIFY(!classPopup->ExpansionAnimating());
+        const auto *class_popup = static_cast<desktop::ChoicePopup *>(specialization->view()->window());
+        QVERIFY(class_popup->ExpansionAnimating());
+        QTRY_VERIFY(!class_popup->ExpansionAnimating());
         QVERIFY2(specialization->view()->verticalScrollBar()->maximum() == 0,
-            qPrintable(QStringLiteral("Popup %1x%2; view %3x%4; viewport %5x%6; scrollbar %7; frame %8")
-                .arg(classPopup->width()).arg(classPopup->height())
-                .arg(specialization->view()->width()).arg(specialization->view()->height())
-                .arg(specialization->view()->viewport()->width()).arg(specialization->view()->viewport()->height())
-                .arg(specialization->view()->verticalScrollBar()->width()).arg(specialization->view()->frameWidth())));
-        const auto moWen = specialization->model()->index(1, 0);
-        QVERIFY(specialization->view()->viewport()->rect().contains(specialization->view()->visualRect(moWen)));
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
-            QVERIFY(specialization->view()->window()->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-specialization-picker.png"));
-        QTest::mouseClick(specialization->view()->viewport(), Qt::LeftButton, {}, specialization->view()->visualRect(moWen).center());
-        QCOMPARE(options.Specialization(), desktop::Specialization::MoWen);
+                 qPrintable(QStringLiteral("Popup %1x%2; view %3x%4; viewport %5x%6; scrollbar %7; frame %8")
+                                .arg(class_popup->width())
+                                .arg(class_popup->height())
+                                .arg(specialization->view()->width())
+                                .arg(specialization->view()->height())
+                                .arg(specialization->view()->viewport()->width())
+                                .arg(specialization->view()->viewport()->height())
+                                .arg(specialization->view()->verticalScrollBar()->width())
+                                .arg(specialization->view()->frameWidth())));
+        const auto MO_WEN = specialization->model()->index(1, 0);
+        QVERIFY(specialization->view()->viewport()->rect().contains(specialization->view()->visualRect(MO_WEN)));
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
+            QVERIFY(specialization->view()->window()->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                                                  "-specialization-picker.png"));
+        }
+        QTest::mouseClick(specialization->view()->viewport(),
+                          Qt::LeftButton,
+                          {},
+                          specialization->view()->visualRect(MO_WEN).center());
+        QCOMPARE(options.Specialization(), desktop::Specialization::MO_WEN);
         QVERIFY(!specialization->view()->isVisible());
         QVERIFY(specialization->toolTip().contains(QStringLiteral("莫问")));
-        const auto selectedClass = options.Snapshot();
+        const auto SELECTED_CLASS = options.Snapshot();
         QTest::keyClick(specialization, Qt::Key_Home);
-        QCOMPARE(options.Specialization(), desktop::Specialization::TaiXu);
+        QCOMPARE(options.Specialization(), desktop::Specialization::TAI_XU);
         QVERIFY(specialization->toolTip().contains(QStringLiteral("太虚剑意")));
-        QString classError;
-        QVERIFY2(options.RestoreSnapshot(selectedClass, classError), qPrintable(classError));
-        QCOMPARE(options.Specialization(), desktop::Specialization::MoWen);
+        QString class_error;
+        QVERIFY2(options.RestoreSnapshot(SELECTED_CLASS, class_error), qPrintable(class_error));
+        QCOMPARE(options.Specialization(), desktop::Specialization::MO_WEN);
         specialization->setCurrentIndex(0);
-        for (auto *check : options.findChildren<QCheckBox *>()) {
+        for (const auto *check : options.findChildren<QCheckBox *>()) {
             if ((check->objectName().startsWith("talent") || check->objectName().startsWith("mwTalent")) &&
-                check->property("talentTier").toInt() > 0) {
+                check->property("talentTier").toInt() > 0)
+            {
                 QVERIFY2(!check->icon().pixmap(36, 36).isNull(), qPrintable(check->text()));
                 QCOMPARE(check->size(), QSize(44, 44));
                 QVERIFY(!check->toolTip().isEmpty());
             }
         }
-        for (auto *combo : options.findChildren<QComboBox *>()) {
-            if (!combo->objectName().startsWith("permanent")) continue;
+        for (const auto *combo : options.findChildren<QComboBox *>()) {
+            if (!combo->objectName().startsWith("permanent")) {
+                continue;
+            }
             for (int index = 1; index < combo->count(); ++index) {
                 QVERIFY(!combo->itemIcon(index).pixmap(36, 36).isNull());
                 QVERIFY(!combo->itemData(index, Qt::ToolTipRole).toString().isEmpty());
             }
         }
-        auto *food = options.findChild<QComboBox *>("permanent0FoodEnhance");
-        auto *talent = options.findChild<QCheckBox *>(QStringLiteral("talent%1").arg(tx::DieRenTalent));
+        auto *food   = options.findChild<QComboBox *>("permanent0FoodEnhance");
+        auto *talent = options.findChild<QCheckBox *>(QStringLiteral("talent%1").arg(tx::DIE_REN_TALENT));
         QVERIFY(food && talent);
-        auto *talentPanel = options.findChild<QWidget *>("talents0");
-        auto *legacyToggle = static_cast<desktop::TalentPanel *>(talentPanel)->HeaderWidget()->findChild<QToolButton *>("legacyTalentToggle");
-        legacyToggle->click();
+        auto *talent_panel = options.findChild<QWidget *>("talents0");
+        auto *legacy_toggle =
+            static_cast<desktop::TalentPanel *>(talent_panel)->HeaderWidget()->findChild<QToolButton *>("legacyTalentToggle");
+        legacy_toggle->click();
         talent->setFocus();
         QTest::keyClick(talent, Qt::Key_Space);
         QVERIFY(talent->isChecked());
         QTest::keyClick(talent, Qt::Key_Space);
         QVERIFY(!talent->isChecked());
-        legacyToggle->click();
+        legacy_toggle->click();
         food->setFocus();
         QCoreApplication::processEvents();
         QTest::keyClick(food, Qt::Key_Down);
@@ -3949,17 +4368,18 @@ private slots:
         food->showPopup();
         QCoreApplication::processEvents();
         QVERIFY(food->view()->isVisible());
-        auto *foodPopup = static_cast<desktop::ChoicePopup *>(food->view()->window());
-        QVERIFY(foodPopup->ExpansionAnimating());
-        QTRY_VERIFY(!foodPopup->ExpansionAnimating());
+        const auto *food_popup = static_cast<desktop::ChoicePopup *>(food->view()->window());
+        QVERIFY(food_popup->ExpansionAnimating());
+        QTRY_VERIFY(!food_popup->ExpansionAnimating());
         QVERIFY(food->view()->window()->height() >= food->count() * food->view()->sizeHintForRow(0));
         QCOMPARE(food->view()->verticalScrollBar()->maximum(), 0);
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(food->view()->window()->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-food-picker.png")));
-        const auto third = food->model()->index(2, 0);
-        const auto choice = food->view()->visualRect(third);
-        QVERIFY(!choice.isEmpty());
-        QTest::mouseClick(food->view()->viewport(), Qt::LeftButton, {}, choice.center());
+        }
+        const auto THIRD  = food->model()->index(2, 0);
+        const auto CHOICE = food->view()->visualRect(THIRD);
+        QVERIFY(!CHOICE.isEmpty());
+        QTest::mouseClick(food->view()->viewport(), Qt::LeftButton, {}, CHOICE.center());
         QCOMPARE(food->currentIndex(), 2);
         QTest::keyClick(food, Qt::Key_Home);
         QCOMPARE(food->currentIndex(), 0);
@@ -3976,18 +4396,18 @@ private slots:
         Workbench window;
         window.resize(1120, 820);
         window.show();
-        auto *options = window.findChild<SimulationOptions *>();
+        auto *options        = window.findChild<SimulationOptions *>();
         auto *specialization = static_cast<desktop::IconComboBox *>(window.findChild<QComboBox *>("specialization"));
         specialization->setCurrentIndex(1);
         QTest::qWait(80);
         auto *team = static_cast<desktop::IconComboBox *>(options->findChild<QComboBox *>("permanent1TeamCore"));
         team->setCurrentIndex(1);
         QCoreApplication::processEvents();
-        auto checkList = [&](desktop::IconComboBox *combo) {
-            const auto before = options->Snapshot();
+        const auto check_list = [&](desktop::IconComboBox *combo) {
+            const auto BEFORE = options->Snapshot();
             combo->showPopup();
-            auto *view = combo->choiceView();
-            auto *popup = static_cast<desktop::ChoicePopup *>(view->window());
+            const auto *view  = combo->choiceView();
+            auto       *popup = static_cast<desktop::ChoicePopup *>(view->window());
             QTRY_VERIFY(popup->isVisible());
             QTRY_VERIFY(!popup->ExpansionAnimating());
             QCOMPARE(view->viewMode(), QListView::ListMode);
@@ -3996,87 +4416,90 @@ private slots:
             QCOMPARE(view->horizontalScrollBar()->maximum(), 0);
             QCOMPARE(view->verticalScrollBar()->maximum(), 0);
             QVERIFY(popup->screen()->availableGeometry().contains(popup->geometry()));
-            int previousBottom = -1;
+            int previous_bottom = -1;
             for (int i = 0; i < combo->count(); ++i) {
-                const auto row = view->visualRect(combo->model()->index(i, combo->modelColumn()));
-                QCOMPARE(row.left(), 0);
-                QCOMPARE(row.width(), view->viewport()->width());
-                QCOMPARE(row.top(), previousBottom + 1);
-                QCOMPARE(row.height(), view->sizeHintForRow(i));
-                QVERIFY(view->viewport()->rect().contains(row));
-                previousBottom = row.bottom();
+                const auto ROW = view->visualRect(combo->model()->index(i, combo->modelColumn()));
+                QCOMPARE(ROW.left(), 0);
+                QCOMPARE(ROW.width(), view->viewport()->width());
+                QCOMPARE(ROW.top(), previous_bottom + 1);
+                QCOMPARE(ROW.height(), view->sizeHintForRow(i));
+                QVERIFY(view->viewport()->rect().contains(ROW));
+                previous_bottom        = ROW.bottom();
                 // The text column must actually be painted, not just available through a tooltip.
-                const auto image = view->viewport()->grab(row).toImage();
-                const auto ratio = image.devicePixelRatio();
-                int textPixels = 0;
-                for (int y = 0; y < image.height(); ++y)
-                    for (int x = qRound(52 * ratio); x < qRound((row.width() - 34) * ratio); ++x) {
-                        const auto color = image.pixelColor(x, y);
-                        textPixels += color.red() > 150 && color.green() > 150 && color.blue() > 150;
+                const auto IMAGE       = view->viewport()->grab(ROW).toImage();
+                const auto RATIO       = IMAGE.devicePixelRatio();
+                int        text_pixels = 0;
+                for (int y = 0; y < IMAGE.height(); ++y) {
+                    for (int x = qRound(52 * RATIO); x < qRound((ROW.width() - 34) * RATIO); ++x) {
+                        const auto COLOR  = IMAGE.pixelColor(x, y);
+                        text_pixels      += COLOR.red() > 150 && COLOR.green() > 150 && COLOR.blue() > 150;
                     }
-                QVERIFY2(textPixels > 3, qPrintable(combo->itemText(i)));
+                }
+                QVERIFY2(text_pixels > 3, qPrintable(combo->itemText(i)));
             }
-            QCOMPARE(options->Snapshot(), before);
-            if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+            QCOMPARE(options->Snapshot(), BEFORE);
+            if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
                 QVERIFY(popup->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
-                    QStringLiteral("-vertical-%1.png").arg(combo->objectName())));
+                                           QStringLiteral("-vertical-%1.png").arg(combo->objectName())));
+            }
         };
-        checkList(team);
+        check_list(team);
         QCOMPARE(team->itemText(0), QStringLiteral("无"));
-        auto *view = team->choiceView();
-        QSignalSpy activated(team, &QComboBox::activated);
-        const auto last = view->visualRect(team->model()->index(2, 0));
+        auto            *view = team->choiceView();
+        const QSignalSpy ACTIVATED(team, &QComboBox::activated);
+        const auto       last = view->visualRect(team->model()->index(2, 0));
         QTest::mouseClick(view->viewport(), Qt::LeftButton, Qt::NoModifier, QPoint(80, last.center().y()));
         QCOMPARE(team->currentIndex(), 2);
-        QCOMPARE(activated.count(), 1);
+        QCOMPARE(ACTIVATED.count(), 1);
         QVERIFY(!view->window()->isVisible());
         team->showPopup();
         QTest::keyClick(view, Qt::Key_Home);
         QTest::keyClick(view, Qt::Key_Return);
         QCOMPARE(team->currentIndex(), 0);
         QVERIFY(!view->window()->isVisible());
-        checkList(specialization);
+        check_list(specialization);
         QTest::keyClick(specialization->choiceView(), Qt::Key_Home);
         QTest::keyClick(specialization->choiceView(), Qt::Key_Escape);
         QCOMPARE(specialization->currentIndex(), 1);
         QVERIFY(!specialization->choiceView()->window()->isVisible());
         auto *food = static_cast<desktop::IconComboBox *>(options->findChild<QComboBox *>("permanent1FoodEnhance"));
-        checkList(food);
+        check_list(food);
         food->hidePopup();
     }
 
     void iconPopupExpansion()
     {
-        QWidget host;
-        const auto available = host.screen()->availableGeometry();
+        QWidget    host;
+        const auto AVAILABLE = host.screen()->availableGeometry();
         host.resize(180, 120);
-        host.move(available.topLeft() + QPoint(20, 20));
+        host.move(AVAILABLE.topLeft() + QPoint(20, 20));
         desktop::IconComboBox choice(QStringLiteral("图标"), &host);
         choice.move(20, 20);
-        for (int index = 0; index < 16; ++index)
+        for (int index = 0; index < 16; ++index) {
             choice.addItem(desktop::GameIcon(8484), QString::number(index));
+        }
         host.show();
         QCoreApplication::processEvents();
         choice.showPopup();
-        auto *popup = static_cast<desktop::ChoicePopup *>(choice.choiceView()->window());
-        const auto bounds = popup->geometry();
-        QVERIFY(available.contains(bounds));
+        const auto *popup  = static_cast<desktop::ChoicePopup *>(choice.choiceView()->window());
+        const auto  BOUNDS = popup->geometry();
+        QVERIFY(AVAILABLE.contains(BOUNDS));
         QVERIFY(popup->ExpansionAnimating());
         QVERIFY(popup->mask().boundingRect().height() < popup->height());
         QCOMPARE(popup->mask().boundingRect().top(), 0);
         QTRY_VERIFY(!popup->ExpansionAnimating());
-        QCOMPARE(popup->geometry(), bounds);
+        QCOMPARE(popup->geometry(), BOUNDS);
         QVERIFY(popup->mask().isEmpty());
         QCOMPARE(choice.choiceView()->viewMode(), QListView::ListMode);
         QCOMPARE(choice.choiceView()->horizontalScrollBar()->maximum(), 0);
         QVERIFY(choice.choiceView()->verticalScrollBar()->maximum() > 0);
         choice.hidePopup();
 
-        host.move(available.right() - host.width() + 1, available.bottom() - host.height() + 1);
+        host.move(AVAILABLE.right() - host.width() + 1, AVAILABLE.bottom() - host.height() + 1);
         QCoreApplication::processEvents();
         choice.showPopup();
         QVERIFY(popup->ExpansionAnimating());
-        QVERIFY(available.contains(popup->geometry()));
+        QVERIFY(AVAILABLE.contains(popup->geometry()));
         QVERIFY(popup->geometry().bottom() < choice.mapToGlobal(QPoint()).y());
         QCOMPARE(popup->mask().boundingRect().bottom(), popup->height() - 1);
         QVERIFY(popup->mask().boundingRect().top() > 0);
@@ -4095,8 +4518,8 @@ private slots:
         QVERIFY(popup->mask().isEmpty());
         choice.showPopup();
         QTRY_VERIFY(!popup->ExpansionAnimating());
-        const auto selected = choice.choiceView()->visualRect(choice.model()->index(15, 0));
-        QVERIFY(choice.choiceView()->viewport()->rect().contains(selected));
+        const auto SELECTED = choice.choiceView()->visualRect(choice.model()->index(15, 0));
+        QVERIFY(choice.choiceView()->viewport()->rect().contains(SELECTED));
         choice.hidePopup();
         choice.setEnabled(false);
         choice.showPopup();
@@ -4109,10 +4532,10 @@ private slots:
         window.resize(1280, 840);
         window.show();
         auto *options = window.findChild<SimulationOptions *>();
-        auto *panel = static_cast<desktop::TalentPanel *>(options->findChild<QWidget *>("talents0"));
-        auto *popup = static_cast<desktop::ChoicePopup *>(panel->findChild<QWidget *>("talentPopup"));
+        auto *panel   = static_cast<desktop::TalentPanel *>(options->findChild<QWidget *>("talents0"));
+        auto *popup   = static_cast<desktop::ChoicePopup *>(panel->findChild<QWidget *>("talentPopup"));
         QCOMPARE(panel->findChildren<QToolButton *>(QRegularExpression("^talentTier[0-9]+$")).size(), 9);
-        auto choose = [&](int tier, const char *id) {
+        const auto CHOOSE = [&](int tier, const char *id) {
             QTest::mouseClick(panel->findChild<QToolButton *>(QStringLiteral("talentTier%1").arg(tier)), Qt::LeftButton);
             QTRY_VERIFY(popup->isVisible());
             QTRY_VERIFY(!popup->ExpansionAnimating());
@@ -4121,86 +4544,88 @@ private slots:
             QVERIFY(button->visibleRegion().boundingRect().contains(button->rect().center()));
             button->click();
         };
-        choose(1, "14833");
+        CHOOSE(1, "14833");
         QCOMPARE(panel->Selection()[0].toString(), QStringLiteral("14833"));
-        QVERIFY(!options->findChild<QCheckBox *>(QStringLiteral("talent%1").arg(tx::XuanMen))->isChecked());
-        QVERIFY_EXCEPTION_THROWN(options->ActiveConfig(), std::invalid_argument);
-        choose(1, "38539");
+        QVERIFY(!options->findChild<QCheckBox *>(QStringLiteral("talent%1").arg(tx::XUAN_MEN))->isChecked());
+        QVERIFY_THROWS_EXCEPTION(std::invalid_argument, options->ActiveConfig());
+        CHOOSE(1, "38539");
         QCOMPARE(panel->Selection()[0].toString(), QStringLiteral("38539"));
-        choose(7, "41904");
+        CHOOSE(7, "41904");
         auto *mixed = panel->findChild<QToolButton *>("talentTier8");
         QTest::mouseClick(mixed, Qt::LeftButton);
         QTRY_VERIFY(!popup->ExpansionAnimating());
         QCOMPARE(panel->findChildren<QToolButton *>(QRegularExpression("^chooseTalent[0-9]+$")).size(), 12);
         QVERIFY(!panel->findChild<QToolButton *>("chooseTalent41904")->isEnabled());
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(popup->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-talent-picker.png"));
+        }
         panel->findChild<QToolButton *>("chooseTalent32400")->click();
-        choose(9, "17743");
-        const auto valid = options->Snapshot();
-        QCOMPARE(valid.value("version").toInt(), 4);
+        CHOOSE(9, "17743");
+        const auto VALID = options->Snapshot();
+        QCOMPARE(VALID.value("version").toInt(), 4);
         QString error;
-        auto invalid = valid;
-        auto talents = invalid.value("talents").toObject();
-        auto duplicate = talents.value("0").toArray();
-        duplicate[7] = duplicate[6];
+        auto    invalid   = VALID;
+        auto    talents   = invalid.value("talents").toObject();
+        auto    duplicate = talents.value("0").toArray();
+        duplicate[7]      = duplicate[6];
         talents.insert("0", duplicate);
         invalid.insert("talents", talents);
         QVERIFY(!options->RestoreSnapshot(invalid, error));
-        QVERIFY(error.contains(QStringLiteral("\u91cd\u590d")));
-        QCOMPARE(options->Snapshot(), valid);
+        QVERIFY(error.contains(QStringLiteral("重复")));
+        QCOMPARE(options->Snapshot(), VALID);
         duplicate[7] = QStringLiteral("unknown");
         talents.insert("0", duplicate);
         invalid.insert("talents", talents);
         QVERIFY(!options->RestoreSnapshot(invalid, error));
-        QCOMPARE(options->Snapshot(), valid);
+        QCOMPARE(options->Snapshot(), VALID);
         panel->ClearSelection();
         QVERIFY(!panel->HasSelection());
-        QVERIFY2(options->RestoreSnapshot(valid, error), qPrintable(error));
-        QCOMPARE(options->Snapshot(), valid);
-        QTemporaryDir directory;
-        QVERIFY2(options->ExportConfiguration(directory.filePath("talents.json"), error), qPrintable(error));
+        QVERIFY2(options->RestoreSnapshot(VALID, error), qPrintable(error));
+        QCOMPARE(options->Snapshot(), VALID);
+        const QTemporaryDir DIRECTORY;
+        QVERIFY2(options->ExportConfiguration(DIRECTORY.filePath("talents.json"), error), qPrintable(error));
         panel->ClearSelection();
-        QVERIFY2(options->ImportConfiguration(directory.filePath("talents.json"), error), qPrintable(error));
-        QCOMPARE(options->Snapshot(), valid);
+        QVERIFY2(options->ImportConfiguration(DIRECTORY.filePath("talents.json"), error), qPrintable(error));
+        QCOMPARE(options->Snapshot(), VALID);
         QTest::mouseClick(mixed, Qt::LeftButton);
         options->SetInputsEnabled(false);
         QVERIFY(!popup->isVisible());
         options->SetInputsEnabled(true);
-        auto old = valid;
+        auto old = VALID;
         old.insert("version", 2);
         old.remove("talents");
         auto legacy = old.value("values").toObject();
-        legacy.insert(QStringLiteral("talent%1").arg(tx::XuanMen), true);
+        legacy.insert(QStringLiteral("talent%1").arg(tx::XUAN_MEN), true);
         old.insert("values", legacy);
         QVERIFY2(options->RestoreSnapshot(old, error), qPrintable(error));
         QVERIFY(!panel->HasSelection());
-        QVERIFY(options->Config().talents & tx::XuanMen);
-        const QJsonArray txPreview{QStringLiteral("38539"),QStringLiteral("44381"),QStringLiteral("17731"),
-            QStringLiteral("14829"),QStringLiteral("310"),QStringLiteral("24972"),
-            QStringLiteral("41904"),QStringLiteral("32400"),QStringLiteral("17743")};
-        panel->RestoreSelection(txPreview);
+        QVERIFY(options->Config().talents & tx::XUAN_MEN);
+        const QJsonArray TX_PREVIEW{ QStringLiteral("38539"), QStringLiteral("44381"), QStringLiteral("17731"),
+                                     QStringLiteral("14829"), QStringLiteral("310"),   QStringLiteral("24972"),
+                                     QStringLiteral("41904"), QStringLiteral("32400"), QStringLiteral("17743") };
+        panel->RestoreSelection(TX_PREVIEW);
         options->SaveSettings();
-        SimulationOptions restored;
-        QCOMPARE(static_cast<desktop::TalentPanel *>(restored.findChild<QWidget *>("talents0"))->Selection(), txPreview);
-        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT"))
+        const SimulationOptions RESTORED;
+        QCOMPARE(static_cast<desktop::TalentPanel *>(RESTORED.findChild<QWidget *>("talents0"))->Selection(), TX_PREVIEW);
+        if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-talents.png"));
+        }
         window.findChild<QComboBox *>("specialization")->setCurrentIndex(1);
-        auto *moWen = static_cast<desktop::TalentPanel *>(options->findChild<QWidget *>("talents1"));
-        const QJsonArray mwPreview{QStringLiteral("25220"),QStringLiteral("14285"),QStringLiteral("14466"),
-            QStringLiteral("32486"),QStringLiteral("14163"),QStringLiteral("30797"),
-            QStringLiteral("40743"),QStringLiteral("14336"),QStringLiteral("14282")};
-        moWen->RestoreSelection(mwPreview);
-        QCOMPARE(moWen->Selection().size(), 9);
-        QVERIFY_EXCEPTION_THROWN(options->ActiveConfig(), std::invalid_argument);
+        auto            *mo_wen = static_cast<desktop::TalentPanel *>(options->findChild<QWidget *>("talents1"));
+        const QJsonArray MW_PREVIEW{ QStringLiteral("25220"), QStringLiteral("14285"), QStringLiteral("14466"),
+                                     QStringLiteral("32486"), QStringLiteral("14163"), QStringLiteral("30797"),
+                                     QStringLiteral("40743"), QStringLiteral("14336"), QStringLiteral("14282") };
+        mo_wen->RestoreSelection(MW_PREVIEW);
+        QCOMPARE(mo_wen->Selection().size(), 9);
+        QVERIFY_THROWS_EXCEPTION(std::invalid_argument, options->ActiveConfig());
         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             QTest::qWait(220);
             QVERIFY(window.grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + "-talents-mowen.png"));
         }
-        moWen->ClearSelection();
+        mo_wen->ClearSelection();
         panel->ClearSelection();
         window.findChild<QComboBox *>("specialization")->setCurrentIndex(0);
-        QVERIFY(options->Config().talents & tx::XuanMen);
+        QVERIFY(options->Config().talents & tx::XUAN_MEN);
     }
 
     void timelineContinuousCursor()
@@ -4208,13 +4633,16 @@ private slots:
         Timeline timeline;
         timeline.resize(800, 240);
         Timeline::BuffItem buff;
-        buff.name = QStringLiteral("自身增益：紫气东来");
-        buff.icon = desktop::GameIcon(desktop::Specialization::TaiXu, QStringLiteral("紫气东来")).pixmap(32, 32);
-        buff.segments = {{0, 1000, 1}};
-        timeline.SetBuffs({buff});
+        buff.name     = QStringLiteral("自身增益：紫气东来");
+        buff.icon     = desktop::GameIcon(desktop::Specialization::TAI_XU, QStringLiteral("紫气东来")).pixmap(32, 32);
+        buff.segments = {
+            { 0, 1000, 1 }
+        };
+        timeline.SetBuffs({ buff });
         timeline.SetTimeRange(0, 1000);
         timeline.show();
-        QSignalSpy cursor(&timeline, &Timeline::CursorTimeChanged), leave(&timeline, &Timeline::CursorLeft);
+        QSignalSpy cursor(&timeline, &Timeline::CursorTimeChanged);
+        QSignalSpy leave(&timeline, &Timeline::CursorLeft);
         QTest::mouseMove(&timeline, QPoint(420, 155));
         QVERIFY(!cursor.isEmpty());
         QCOMPARE(cursor.last()[0].toDouble(), 500.0);
@@ -4233,36 +4661,39 @@ private slots:
 
     void historicalAttributesAndSeeking()
     {
-        const QString source = QStringLiteral("/scast 紫气东来\n/cast 三柴剑法");
-        tx::Config config;
+        const QString SOURCE = QStringLiteral("/scast 紫气东来\n/cast 三柴剑法");
+        tx::Config    config;
         config.initial_qidian = 0;
         DebugSimulator debugger;
         debugger.SetOptions(config, 16 * 15, 913);
         QString error;
-        QVERIFY2(debugger.Initialize(source, error), qPrintable(error));
+        QVERIFY2(debugger.Initialize(SOURCE, error), qPrintable(error));
         desktop::CombatHistory history;
         history.Append(debugger.TakeHistory());
-        const auto initial = history.At(0);
-        QVERIFY(initial.has_value());
-        QCOMPARE(initial->state.qidian, 1);
+        const auto INITIAL = history.At(0);
+        QVERIFY(INITIAL.has_value());
+        QCOMPARE(INITIAL->state.qidian, 1);
         QVERIFY(!history.At(1).has_value());
-        const auto initialAttack = initial->attributes.attack;
-        int steps = 0;
+        const auto INITIAL_ATTACK = INITIAL->attributes.attack;
+        int        steps          = 0;
         while (!debugger.IsFinished()) {
             debugger.StepInto();
             history.Append(debugger.TakeHistory());
-            if (++steps > 10000) QFAIL("debugger did not finish");
+            if (++steps > 10000) {
+                QFAIL("debugger did not finish");
+            }
         }
-        const auto active = history.At(16), expired = history.At(16 * 11);
-        QVERIFY(active && expired);
-        QCOMPARE(active->state.self_buff_stacks[tx::Purple], 1);
-        QVERIFY(active->attributes.attack > initialAttack);
-        QCOMPARE(expired->state.self_buff_stacks[tx::Purple], 0);
-        QCOMPARE(expired->attributes.attack, initialAttack);
-        QCOMPARE(active->attributes.criticalChance - expired->attributes.criticalChance, 0.25);
-        QCOMPARE(active->attributes.criticalMultiplier - expired->attributes.criticalMultiplier, 0.25);
-        QCOMPARE(history.At(16)->attributes, active->attributes);
-        QCOMPARE(history.At(0)->state.self_buff_stacks[tx::Purple], 1);
+        const auto ACTIVE  = history.At(16);
+        const auto EXPIRED = history.At(16 * 11);
+        QVERIFY(ACTIVE && EXPIRED);
+        QCOMPARE(ACTIVE->state.self_buff_stacks[tx::PURPLE], 1);
+        QVERIFY(ACTIVE->attributes.attack > INITIAL_ATTACK);
+        QCOMPARE(EXPIRED->state.self_buff_stacks[tx::PURPLE], 0);
+        QCOMPARE(EXPIRED->attributes.attack, INITIAL_ATTACK);
+        QCOMPARE(ACTIVE->attributes.criticalChance - EXPIRED->attributes.criticalChance, 0.25);
+        QCOMPARE(ACTIVE->attributes.criticalMultiplier - EXPIRED->attributes.criticalMultiplier, 0.25);
+        QCOMPARE(history.At(16)->attributes, ACTIVE->attributes);
+        QCOMPARE(history.At(0)->state.self_buff_stacks[tx::PURPLE], 1);
         QVERIFY(!history.At(241));
         QVERIFY(!history.At(-1));
         history.Clear();
@@ -4273,18 +4704,20 @@ private slots:
     {
         desktop::HistoryChunk chunk;
         chunk.initial.emplace();
-        chunk.initial->Resize(tx::SkillCount, tx::BuffCount);
-        chunk.attributes.push_back({0, {}});
-        for (int frame = 0; frame < 900; ++frame)
-            chunk.mutations.push_back({frame, static_cast<unsigned>(frame), rt::MutationKind::Resources, rt::INVALID_SLOT, false, frame % 11, frame, frame / 10});
+        chunk.initial->Resize(tx::SKILL_COUNT, tx::BUFF_COUNT);
+        chunk.attributes.push_back({ 0, {} });
+        for (int frame = 0; frame < 900; ++frame) {
+            chunk.mutations.push_back(
+                { frame, static_cast<unsigned>(frame), rt::MutationKind::RESOURCES, rt::INVALID_SLOT, false, frame % 11, frame, frame / 10 });
+        }
         chunk.observedFrame = 900;
         desktop::CombatHistory history;
         history.Append(chunk);
-        for (const int frame : {899, 0, 255, 256, 511, 512, 257, 900, 300}) {
-            const auto result = history.At(frame);
+        for (const int FRAME : { 899, 0, 255, 256, 511, 512, 257, 900, 300 }) {
+            const auto result = history.At(FRAME);
             QVERIFY(result.has_value());
-            QCOMPARE(result->state.energy, std::min(frame, 899));
-            QCOMPARE(result->state.qidian, std::min(frame, 899) % 11);
+            QCOMPARE(result->state.energy, std::min(FRAME, 899));
+            QCOMPARE(result->state.qidian, std::min(FRAME, 899) % 11);
         }
     }
 
@@ -4292,22 +4725,26 @@ private slots:
     {
         namespace mw = rt::mo_wen;
         mw::Config config;
-        config.talents = mw::ZhengLvHeMing;
+        config.talents = mw::ZHENG_LV_HE_MING;
         DebugSimulator debugger;
         debugger.SetOptions(config, 16 * 40, 7);
         QString error;
         QVERIFY2(debugger.Initialize(QStringLiteral("/scast 正律和鸣\n/cast 五音六律"), error), qPrintable(error));
-        while (!debugger.IsFinished()) debugger.Continue();
+        while (!debugger.IsFinished()) {
+            debugger.Continue();
+        }
         desktop::CombatHistory history;
         history.Append(debugger.TakeHistory());
-        const auto before = history.At(319), during = history.At(320), after = history.At(560);
-        QVERIFY(before && during && after);
-        QCOMPARE(before->state.self_buff_stacks[mw::ZhiYinMiaoYi], 0);
-        QCOMPARE(during->state.self_buff_stacks[mw::ZhiYinMiaoYi], 1);
+        const auto BEFORE = history.At(319);
+        const auto DURING = history.At(320);
+        const auto AFTER  = history.At(560);
+        QVERIFY(BEFORE && DURING && AFTER);
+        QCOMPARE(BEFORE->state.self_buff_stacks[mw::ZHI_YIN_MIAO_YI], 0);
+        QCOMPARE(DURING->state.self_buff_stacks[mw::ZHI_YIN_MIAO_YI], 1);
         // Timeout grants one stack with 205 extra power in the pinned legacy rules.
-        QCOMPARE(during->attributes.criticalMultiplier - before->attributes.criticalMultiplier, 205 / 1024.0);
-        QCOMPARE(after->state.self_buff_stacks[mw::ZhiYinMiaoYi], 0);
-        QCOMPARE(after->attributes.criticalMultiplier, before->attributes.criticalMultiplier);
+        QCOMPARE(DURING->attributes.criticalMultiplier - BEFORE->attributes.criticalMultiplier, 205 / 1024.0);
+        QCOMPARE(AFTER->state.self_buff_stacks[mw::ZHI_YIN_MIAO_YI], 0);
+        QCOMPARE(AFTER->attributes.criticalMultiplier, BEFORE->attributes.criticalMultiplier);
     }
 
     void timelineEventSelection()
@@ -4317,11 +4754,12 @@ private slots:
         timeline.show();
         Timeline::EventItem event{};
         event.timestamp = 500;
-        event.name = QStringLiteral("命中");
-        event.damage = 123;
-        timeline.SetEvents({event, event});
+        event.name      = QStringLiteral("命中");
+        event.damage    = 123;
+        timeline.SetEvents({ event, event });
         timeline.SetTimeRange(0, 1000);
-        int selected = -1, clicks = 0;
+        int selected = -1;
+        int clicks   = 0;
         connect(&timeline, &Timeline::EventClicked, this, [&](int index, const Timeline::EventItem &item) {
             selected = index;
             ++clicks;
@@ -4337,18 +4775,24 @@ private slots:
         QTest::mouseRelease(&timeline, Qt::LeftButton, {}, QPoint(400, 120));
         QCOMPARE(clicks, 1);
         Timeline::BuffItem buff;
-        buff.name = QStringLiteral("Buff: sample");
-        buff.color = Qt::green;
-        buff.segments = {{0, 1000, 2}};
-        timeline.SetBuffs({buff});
+        buff.name     = QStringLiteral("Buff: sample");
+        buff.color    = Qt::green;
+        buff.segments = {
+            { 0, 1000, 2 }
+        };
+        timeline.SetBuffs({ buff });
         timeline.SetTimeRange(0, 1000);
         QTest::mouseClick(&timeline, Qt::LeftButton, {}, QPoint(420, 120));
         QCOMPARE(clicks, 2);
         QSignalSpy range(&timeline, &Timeline::VisibleRangeChanged);
-        for (int i = 0; i < 100; ++i) timeline.ZoomIn();
+        for (int i = 0; i < 100; ++i) {
+            timeline.ZoomIn();
+        }
         QVERIFY(!range.isEmpty());
         QCOMPARE(range.last().at(1).toInt() - range.last().at(0).toInt(), 1);
-        for (int i = 0; i < 100; ++i) timeline.ZoomOut();
+        for (int i = 0; i < 100; ++i) {
+            timeline.ZoomOut();
+        }
         QCOMPARE(range.last().at(0).toInt(), 0);
         QCOMPARE(range.last().at(1).toInt(), 1000);
         timeline.Clear();
@@ -4361,25 +4805,30 @@ private slots:
         Workbench window;
         window.show();
         auto *editor = window.findChild<CodeEditor *>("macroEditor");
-        editor->setPlainText(QStringLiteral("/scast ziqi\n/cast [nobuff:suixing] suixing\n/cast [nobuff:field_shengtaiji] shengtaiji\n"
+        editor->setPlainText(QStringLiteral(
+            "/scast ziqi\n/cast [nobuff:suixing] suixing\n/cast [nobuff:field_shengtaiji] shengtaiji\n"
             "/cast [tnobuff:tunriyue] tunriyue\n/cast [qidian>5] wuwu\n/cast sanhuan"));
-        for (unsigned flag : {tx::DieRenTalent, tx::WuYu, tx::XuanMen, tx::QiSheng, tx::GuChang})
-            window.findChild<QCheckBox *>(QStringLiteral("talent%1").arg(flag))->setChecked(true);
+        for (const unsigned FLAG : { tx::DIE_REN_TALENT, tx::WU_YU, tx::XUAN_MEN, tx::QI_SHENG, tx::GU_CHANG }) {
+            window.findChild<QCheckBox *>(QStringLiteral("talent%1").arg(FLAG))->setChecked(true);
+        }
         window.findChild<QDoubleSpinBox *>("seconds")->setValue(60);
         auto *trace = window.findChild<QAction *>("singleTrace");
         trace->trigger();
         QTRY_VERIFY_WITH_TIMEOUT(trace->isEnabled(), 10000);
-        auto *panel = window.findChild<BuffPanel *>();
-        auto *coverage = panel->findChild<QTableWidget *>("buffCoverage");
-        auto *changes = panel->findChild<QTableWidget *>("buffChanges");
-        auto *damage = window.findChild<QTableWidget *>("damageEvents");
-        auto *views = window.findChild<QTabWidget *>("analysisViews");
+        auto       *panel    = window.findChild<BuffPanel *>();
+        const auto *coverage = panel->findChild<QTableWidget *>("buffCoverage");
+        auto       *changes  = panel->findChild<QTableWidget *>("buffChanges");
+        auto       *damage   = window.findChild<QTableWidget *>("damageEvents");
+        auto       *views    = window.findChild<QTabWidget *>("analysisViews");
         QVERIFY(coverage->rowCount() >= 5);
         QVERIFY(changes->rowCount() > coverage->rowCount());
         QVERIFY(panel->findChild<QLabel *>("buffStatus")->text().contains(QStringLiteral("60.0000 / 60.0000")));
         QStringList reference;
-        for (int row = 0; row < coverage->rowCount(); ++row)
-            for (int column = 0; column < coverage->columnCount(); ++column) reference << coverage->item(row, column)->text();
+        for (int row = 0; row < coverage->rowCount(); ++row) {
+            for (int column = 0; column < coverage->columnCount(); ++column) {
+                reference << coverage->item(row, column)->text();
+            }
+        }
         emit changes->cellActivated(0, 0);
         QCOMPARE(views->currentWidget(), damage);
         QVERIFY(damage->currentRow() >= 0);
@@ -4392,30 +4841,33 @@ private slots:
         QVERIFY(scroll->verticalScrollBar()->maximum() > 0);
         scroll->setMaximumHeight(QWIDGETSIZE_MAX);
         QCoreApplication::processEvents();
-        auto *history = window.findChild<HistoryPanel *>("timelineHistory");
-        auto *timeline = window.findChild<Timeline *>("combatTimeline");
+        const auto *history  = window.findChild<HistoryPanel *>("timelineHistory");
+        auto       *timeline = window.findChild<Timeline *>("combatTimeline");
         QVERIFY(history && timeline);
         QVERIFY(!history->History().Empty());
-        const auto oldAttack = history->History().At(16)->attributes.attack;
+        const auto OLD_ATTACK = history->History().At(16)->attributes.attack;
         window.findChild<QSpinBox *>("attackBase")->setValue(50000);
-        QCOMPARE(history->History().At(16)->attributes.attack, oldAttack);
+        QCOMPARE(history->History().At(16)->attributes.attack, OLD_ATTACK);
         window.findChild<QSpinBox *>("attackBase")->setValue(10000);
         timeline->SetTimeRange(0, 16000);
-        const QPoint position(timeline->width() / 3, 195);
-        QMouseEvent move(QEvent::MouseMove, position, timeline->mapToGlobal(position), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+        const QPoint POSITION(timeline->width() / 3, 195);
+        QMouseEvent move(QEvent::MouseMove, POSITION, timeline->mapToGlobal(POSITION), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
         QApplication::sendEvent(timeline, &move);
         QCoreApplication::processEvents();
         QVERIFY(!history->findChild<QLabel *>("historyTime")->text().startsWith("0.0000"));
         if (qEnvironmentVariableIsSet("JX3DPS_TEST_SCREENSHOT")) {
             auto *analysis = window.findChild<QDialog *>("resultAnalysis");
             QTest::qWait(250);
-            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-buff-timeline.png")));
+            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                          QStringLiteral("-buff-timeline.png")));
             views->setCurrentWidget(panel);
             QTest::qWait(250);
-            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-buffs.png")));
+            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                          QStringLiteral("-buffs.png")));
             panel->findChild<QTabWidget *>("buffTabs")->setCurrentIndex(1);
             QTest::qWait(250);
-            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") + QStringLiteral("-buff-changes.png")));
+            QVERIFY(analysis->grab().save(qEnvironmentVariable("JX3DPS_TEST_SCREENSHOT") +
+                                          QStringLiteral("-buff-changes.png")));
         }
         auto *mode = window.findChild<QToolButton *>("debugButton");
         mode->setChecked(true);
@@ -4424,17 +4876,20 @@ private slots:
         emit window.findChild<SimulationToolbar *>()->StartSimulationClicked();
         QCOMPARE(coverage->rowCount(), 0);
         session->Continue();
-        QTRY_COMPARE(session->GetState(), DebugSession::Paused);
+        QTRY_COMPARE(session->GetState(), DebugSession::PAUSED);
         QCOMPARE(session->GetDebugInfo().currentFrame, 0);
         QCOMPARE(coverage->rowCount(), 1);
         QCOMPARE(coverage->item(0, 4)->text(), QStringLiteral("0.0000"));
         QCOMPARE(coverage->item(0, 5)->text(), QStringLiteral("--"));
         session->RemoveBreakpoint(2);
         session->Continue();
-        QTRY_COMPARE_WITH_TIMEOUT(session->GetState(), DebugSession::Finished, 10000);
+        QTRY_COMPARE_WITH_TIMEOUT(session->GetState(), DebugSession::FINISHED, 10000);
         QStringList debug;
-        for (int row = 0; row < coverage->rowCount(); ++row)
-            for (int column = 0; column < coverage->columnCount(); ++column) debug << coverage->item(row, column)->text();
+        for (int row = 0; row < coverage->rowCount(); ++row) {
+            for (int column = 0; column < coverage->columnCount(); ++column) {
+                debug << coverage->item(row, column)->text();
+            }
+        }
         QCOMPARE(debug, reference);
         session->Stop();
         mode->setChecked(false);
@@ -4454,7 +4909,7 @@ private slots:
         window.findChild<QSpinBox *>("iterations")->setValue(1000000);
         window.findChild<QSpinBox *>("workers")->setValue(2);
         auto *toolbar = window.findChild<SimulationToolbar *>();
-        emit toolbar->StartSimulationClicked();
+        emit  toolbar->StartSimulationClicked();
         QVERIFY(!toolbar->isEnabled());
         QVERIFY(window.findChild<QPushButton *>("cancelBatch")->isEnabled());
         QVERIFY(!window.close());

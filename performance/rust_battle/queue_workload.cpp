@@ -3,8 +3,10 @@
 #include <windows.h>
 
 #include <chrono>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include "src/core/runtime/scheduler.hpp"
 using namespace JX3DPS::runtime;
@@ -15,9 +17,9 @@ struct Op
     int32_t  value;
 };
 
-int main(int argc, char **argv)
+int main(int argc, char *const *argv)
 {
-    if (argc != 3 || !SetThreadAffinityMask(GetCurrentThread(), 4)) {
+    if (argc != 3 || (SetThreadAffinityMask(GetCurrentThread(), 4) == 0u)) {
         return 2;
     }
     std::ifstream input(argv[1], std::ios::binary);
@@ -25,20 +27,20 @@ int main(int argc, char **argv)
     input.read(reinterpret_cast<char *>(&count), 4);
     DeadlineQueue queue;
     for (uint32_t i = 0; i < count; ++i) {
-        uint16_t priority;
+        uint16_t priority = 0;
         input.read(reinterpret_cast<char *>(&priority), 2);
         queue.Create({}, priority);
     }
     std::vector<Op> ops;
-    Op              op;
+    Op              op{};
     while (input.read(reinterpret_cast<char *>(&op), sizeof(op))) {
         ops.push_back(op);
     }
-    if (ops.empty() || !input.eof() || input.gcount()) {
+    if (ops.empty() || !input.eof() || (input.gcount() != 0)) {
         return 2;
     }
-    uint64_t check  = 0;
-    auto     replay = [&] {
+    uint64_t   check  = 0;
+    const auto REPLAY = [&] {
         size_t i       = 0;
         auto   updates = [&] {
             while (i < ops.size() && (ops[i].type == 1 || ops[i].type == 2)) {
@@ -64,7 +66,7 @@ int main(int argc, char **argv)
                         if (event.type != 4 || id != event.id) {
                             throw std::logic_error("event diverged");
                         }
-                        check = check * 31 + id;
+                        check = (check * 31) + id;
                         updates();
                     });
                     if (ops.at(i++).type != 5) {
@@ -82,14 +84,14 @@ int main(int argc, char **argv)
         }
         return true;
     };
-    if (!replay()) {
+    if (!REPLAY()) {
         return 3;
     }
-    const auto repetitions = std::stoul(argv[2]);
+    const auto REPETITIONS = std::stoul(argv[2]);
     check                  = 0;
-    auto start             = std::chrono::steady_clock::now();
-    for (unsigned j = 0; j < repetitions; ++j) {
-        if (!replay()) {
+    const auto start       = std::chrono::steady_clock::now();
+    for (unsigned j = 0; j < REPETITIONS; ++j) {
+        if (!REPLAY()) {
             return 3;
         }
     }

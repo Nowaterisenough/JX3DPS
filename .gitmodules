@@ -4,9 +4,6 @@
 [submodule "3rd/googletest"]
 	path = 3rd/googletest
 	url = https://github.com/google/googletest.git
-[submodule "3rd/spdlog"]
-	path = 3rd/spdlog
-	url = https://github.com/gabime/spdlog.git
 [submodule "3rd/qwindowkit"]
 	path = 3rd/qwindowkit
 	url = https://github.com/stdware/qwindowkit
@@ -19,3 +16,6 @@
 [submodule "3rd/proxy"]
 	path = 3rd/proxy
 	url = https://github.com/microsoft/proxy.git
+[submodule "3rd/bqlog"]
+	path = 3rd/bqlog
+	url = https://github.com/Tencent/BqLog.git

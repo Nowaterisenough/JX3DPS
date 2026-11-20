@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "src/core/runtime/simulation.hpp"
 
 #include "bridge.hpp"
@@ -17,28 +19,28 @@ bool scan(Control &control, void *context, const Hooks &hooks)
     const auto &program = control.program;
     for (uint32_t i = 0; i < program.line_count; ++i) {
         const auto &line = program.lines[i];
-        if (control.consumed[i]) {
+        if (control.consumed[i] != 0u) {
             continue;
         }
         if (!hooks.available(context, i)) {
-            if (line.sequential) {
+            if (line.sequential != 0u) {
                 return false;
             }
             continue;
         }
-        auto pc = line.count ? 0U : ACCEPT;
+        auto pc = (line.count != 0u) ? 0U : ACCEPT;
         while (pc < REJECT) {
-            const auto  idx = line.begin + pc;
-            const auto &c   = program.conditions[idx];
-            pc = Compare(hooks.read(context, idx), static_cast<Comparator>(c.comparator), c.value) ? c.yes : c.no;
+            const auto  IDX = line.begin + pc;
+            const auto &c   = program.conditions[IDX];
+            pc = Compare(hooks.read(context, IDX), static_cast<Comparator>(c.comparator), c.value) ? c.yes : c.no;
         }
         if (pc == ACCEPT && hooks.cast(context, i)) {
-            if (line.sequential) {
+            if (line.sequential != 0u) {
                 control.consumed[i] = 1;
             }
             return true;
         }
-        if (line.sequential) {
+        if (line.sequential != 0u) {
             return false;
         }
     }

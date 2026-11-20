@@ -53,24 +53,24 @@ inline QString Diagnostic(const QString &message)
         { "same-frame action budget exceeded",                                                  "同一帧施放次数过多，请检查宏是否有无限循环"               },
         { "same-frame event budget exceeded",                                                   "同一帧事件次数过多，请检查配置"                           },
         { "event log capacity exhausted",                                                       "战斗记录容量不足，请缩短战斗时长或减少事件"               },
-        { "attribute version capacity exhausted", "属性快照容量不足，请缩短战斗时长或提高快照容量" },
-        { "team overcome percent requires explicit overcome_base", "团队破防加成需要分别设置基础破防和心法破防" },
-        { "invalid team buff kind, time or stack count", "团队增益的种类、时间或层数无效" },
-        { "HaoLingSanJun requires even initial stacks and its fixed 60-second duration", "号令三军使用偶数初始层数和固定 60 秒持续时间" },
+        { "attribute version capacity exhausted",                                               "属性快照容量不足，请缩短战斗时长或提高快照容量"           },
+        { "team overcome percent requires explicit overcome_base",                              "团队破防加成需要分别设置基础破防和心法破防"               },
+        { "invalid team buff kind, time or stack count",                                        "团队增益的种类、时间或层数无效"                           },
+        { "HaoLingSanJun requires even initial stacks and its fixed 60-second duration",        "号令三军使用偶数初始层数和固定 60 秒持续时间"             },
         { "macro was not compiled for Mo Wen",                                                  "此宏未按莫问心法编译"                                     },
         { "macro was not compiled for Tai Xu",                                                  "此宏未按太虚剑意心法编译"                                 }
     };
-    for (const auto &[english, chinese] : messages) {
-        const auto source = QString::fromUtf8(english);
-        if (message == source) {
-            return QString::fromUtf8(chinese);
+    for (const auto &[ENGLISH, CHINESE] : messages) {
+        const auto SOURCE = QString::fromUtf8(ENGLISH);
+        if (message == SOURCE) {
+            return QString::fromUtf8(CHINESE);
         }
-        if (source.endsWith(": ") && message.startsWith(source)) {
-            return QString::fromUtf8(chinese) + message.mid(source.size());
+        if (SOURCE.endsWith(": ") && message.startsWith(SOURCE)) {
+            return QString::fromUtf8(CHINESE) + message.mid(SOURCE.size());
         }
     }
-    for (const auto ch : message) {
-        if (ch.unicode() >= 0x4e00 && ch.unicode() <= 0x9fff) {
+    for (const auto CH : message) {
+        if (CH.unicode() >= 0x4e00 && CH.unicode() <= 0x9fff) {
             return message;
         }
     }

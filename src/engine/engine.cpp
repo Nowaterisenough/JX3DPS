@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "config_json.hpp"
 #include "default_macro.hpp"
 #include "jx3dps.h"
@@ -10,6 +12,7 @@
 #include <charconv>
 #include <memory>
 #include <numeric>
+#include <utility>
 
 #include <nlohmann/json.hpp>
 
@@ -73,8 +76,9 @@ public:
         rules(rt::LoadSpecialization(cfg)), seconds(bounded(j, "seconds", 1, MaxSeconds)),
         fights(bounded(j, "iterations", 1, MaxFights)), seed(seedOf(j)), catalog(cat), skills(cat.skills.size())
     {
-        const auto &source = j.at("macro").get_ref<const std::string &>();
-        if (source.size() > 64 * 1024) {
+        const auto           &source          = j.at("macro").get_ref<const std::string &>();
+        constexpr std::size_t MAX_MACRO_BYTES = std::size_t{ 64 } * 1024;
+        if (source.size() > MAX_MACRO_BYTES) {
             throw std::invalid_argument("宏文本超过 64 KiB");
         }
         auto [compiled, errors] = rt::MacroCompiler::Compile(source, rt::CatalogMacroOptions(cat, debug));
@@ -84,20 +88,22 @@ public:
         if (compiled.program.lines.empty()) {
             throw std::invalid_argument("请至少输入一行施放指令");
         }
-        macro            = std::move(compiled);
-        const int frames = 16 * seconds, hitCapacity = frames * 8 + 32, mutationCapacity = frames * 24 + 64;
+        macro                       = std::move(compiled);
+        const int FRAMES            = JX3DPS::FRAMES_PER_SECOND * seconds;
+        const int HIT_CAPACITY      = FRAMES * 8 + 32;
+        const int MUTATION_CAPACITY = FRAMES * 24 + 64;
         if (debug) {
-            debugger = std::make_unique<rt::Simulation<Rules, true>>(macro.program, rules, hitCapacity, mutationCapacity);
-            for (int line : j.at("breakpoints")) {
+            debugger = std::make_unique<rt::Simulation<Rules, true>>(macro.program, rules, HIT_CAPACITY, MUTATION_CAPACITY);
+            for (const int LINE : j.at("breakpoints")) {
                 for (rt::Pc i = 0; i < macro.source.size(); ++i) {
-                    if (macro.source[i].line == static_cast<unsigned>(line)) {
+                    if (std::cmp_equal(macro.source[i].line, LINE)) {
                         debugger->SetBreakpoint(i);
                     }
                 }
             }
-            debugger->Start(frames, rt::IterationSeed(seed, 0));
+            debugger->Start(FRAMES, rt::IterationSeed(seed, 0));
         } else {
-            batch = std::make_unique<rt::Simulation<Rules>>(macro.program, rules, hitCapacity, mutationCapacity);
+            batch = std::make_unique<rt::Simulation<Rules>>(macro.program, rules, HIT_CAPACITY, MUTATION_CAPACITY);
             damage.reserve(fights);
         }
     }
@@ -107,16 +113,16 @@ public:
         if (!batch || stats.count >= static_cast<unsigned>(fights)) {
             throw std::logic_error("没有待执行的批次");
         }
-        const auto end = std::min<uint64_t>(stats.count + 128, fights);
-        while (stats.count < end) {
-            const auto i = stats.count;
-            batch->Start(seconds * 16, rt::IterationSeed(seed, i));
+        const auto END = std::min<uint64_t>(stats.count + 128, fights);
+        while (stats.count < END) {
+            const auto I = stats.count;
+            batch->Start(seconds * JX3DPS::FRAMES_PER_SECOND, rt::IterationSeed(seed, I));
             batch->Run();
-            auto d = batch->TotalDamage([&](const rt::DamageIntent &hit, value_t amount) {
+            const auto D = batch->TotalDamage([&](const rt::DamageIntent &hit, value_t amount) {
                 skills.at(hit.skill).Add(amount, hit.outcome);
             });
-            damage.push_back(d);
-            stats.Add(d, i);
+            damage.push_back(D);
+            stats.Add(D, I);
         }
         if (stats.count < static_cast<unsigned>(fights)) {
             return {
@@ -126,7 +132,7 @@ public:
         Json rows = Json::array();
         for (size_t i = 0; i < skills.size(); ++i) {
             const auto &s = skills[i];
-            if (s.count) {
+            if (s.count != 0u) {
                 rows.push_back({
                     { "name",     catalog.skills[i].name   },
                     { "damage",   std::to_string(s.damage) },
@@ -136,10 +142,11 @@ public:
             }
         }
         std::array<uint32_t, 24> bins{};
-        for (auto d : damage) {
-            const auto range = stats.max_damage - stats.min_damage;
-            const auto idx = range ? std::min<size_t>(23, static_cast<size_t>(double(d - stats.min_damage) / range * 24)) : 0;
-            ++bins[idx];
+        for (const auto D : damage) {
+            const auto RANGE = stats.max_damage - stats.min_damage;
+            const auto IDX =
+                (RANGE != 0) ? std::min<size_t>(23, static_cast<size_t>(double(D - stats.min_damage) / RANGE * 24)) : 0;
+            ++bins[IDX];
         }
         return {
             { "completed", stats.count                           },
@@ -169,10 +176,10 @@ public:
         }
         const auto &state  = debugger->GetState();
         const auto &cursor = debugger->MacroDebugState();
-        const auto  line   = cursor.instruction < macro.source.size() ? macro.source[cursor.instruction].line : 0;
+        const auto  LINE   = cursor.instruction < macro.source.size() ? macro.source[cursor.instruction].line : 0;
         return {
             { "frame",      state.now                                                           },
-            { "line",       line                                                                },
+            { "line",       LINE                                                                },
             { "finished",   debugger->Finished()                                                },
             { "breakpoint", debugger->DebugControl().paused                                     },
             { "hits",       debugger->Log().Size()                                              },
@@ -223,7 +230,7 @@ Json nativeBatch(jx3dps_engine &engine, const Json &j, const C &cfg, rt::SkillCa
     if (!opts.iterations) {
         throw std::invalid_argument("invalid batch dimensions");
     }
-    auto capacity = [&](const char *key, size_t fallback) {
+    const auto CAPACITY = [&](const char *key, size_t fallback) {
         if (!j.contains(key)) {
             return fallback;
         }
@@ -233,8 +240,8 @@ Json nativeBatch(jx3dps_engine &engine, const Json &j, const C &cfg, rt::SkillCa
         }
         return value.get<size_t>();
     };
-    opts.damage_capacity   = capacity("damageCapacity", opts.damage_capacity);
-    opts.mutation_capacity = capacity("mutationCapacity", opts.mutation_capacity);
+    opts.damage_capacity   = CAPACITY("damageCapacity", opts.damage_capacity);
+    opts.mutation_capacity = CAPACITY("mutationCapacity", opts.mutation_capacity);
     auto [macro, errors] = rt::MacroCompiler::Compile(j.at("macro").get<std::string>(), rt::CatalogMacroOptions(catalog, false));
     if (!errors.empty()) {
         throw std::invalid_argument("第 " + std::to_string(errors[0].line) + " 行 · " + errors[0].message);
@@ -252,10 +259,10 @@ Json nativeBatch(jx3dps_engine &engine, const Json &j, const C &cfg, rt::SkillCa
         });
     };
     engine.control.completed.store(0, std::memory_order_relaxed);
-    Json result;
-    auto execute = [&]<bool Measure>(rt::BatchProfile *profile) {
+    Json       result;
+    const auto EXECUTE = [&]<bool Measure>(rt::BatchProfile *profile) {
         if (j.contains("increments")) {
-            auto gains = rt::RunAttributeGainsControlled<C, decltype(reducer), Measure>(
+            const auto GAINS = rt::RunAttributeGainsControlled<C, decltype(reducer), Measure>(
                 macro.program,
                 opts,
                 engine.control,
@@ -263,43 +270,43 @@ Json nativeBatch(jx3dps_engine &engine, const Json &j, const C &cfg, rt::SkillCa
                 reducer,
                 j.at("increments").get<rt::AttributeGainIncrements>(),
                 profile);
-            result["stats"] = statsJson(gains.primary);
+            result["stats"] = statsJson(GAINS.primary);
             result["gains"] = Json::array();
-            for (const auto &g : gains.gains) {
+            for (const auto &g : GAINS.gains) {
                 result["gains"].push_back(g ? statsJson(*g) : Json(nullptr));
             }
         } else {
-            auto stats = rt::detail::RunBatchImpl<true, Measure, rt::detail::BatchAssignment::SharedBlocks>(
+            const auto STATS = rt::detail::RunBatchImpl<true, Measure, rt::detail::BatchAssignment::SHARED_BLOCKS>(
                 macro.program,
                 opts,
                 rt::LoadSpecialization(cfg),
                 &engine.control,
                 reducer,
                 profile);
-            result["stats"] = statsJson(stats);
+            result["stats"] = statsJson(STATS);
         }
     };
     if (j.value("hotspots", false)) {
         rt::BatchProfile profile(static_cast<unsigned>(totals.size()));
-        execute.template operator()<true>(&profile);
-        const auto       summary = JX3DPS::engine::Summarize(profile);
+        EXECUTE.template operator()<true>(&profile);
+        const auto       SUMMARY = JX3DPS::engine::Summarize(profile);
         Json             report  = {
-            { "fights",   summary.fights       },
-            { "samples",  summary.samplePoints },
-            { "workerMs", summary.workerMs     },
-            { "phaseUs",  summary.phaseUs      },
+            { "fights",   SUMMARY.fights       },
+            { "samples",  SUMMARY.samplePoints },
+            { "workerMs", SUMMARY.workerMs     },
+            { "phaseUs",  SUMMARY.phaseUs      },
             { "workers",  Json::array()        },
             { "calls",    Json::array()        }
         };
-        for (const auto &w : summary.workers) {
+        for (const auto &w : SUMMARY.workers) {
             report["workers"].push_back({ w.fights, w.samplePoints });
         }
-        for (const auto &c : summary.calls) {
+        for (const auto &c : SUMMARY.calls) {
             report["calls"].push_back({ c.function, c.parent, c.inclusive, c.self });
         }
         result["profile"] = std::move(report);
     } else {
-        execute.template operator()<false>(nullptr);
+        EXECUTE.template operator()<false>(nullptr);
     }
     result["skills"] = Json::array();
     for (size_t i = 0; collect && i < catalog.skills.size(); ++i) {
@@ -325,61 +332,61 @@ Json nativeBatch(jx3dps_engine &engine, const Json &j, const C &cfg, rt::SkillCa
 Json handle(jx3dps_engine &session, const Json &j)
 {
     auto      &active = session.active;
-    const auto op     = j.at("op").get<std::string>();
+    const auto OP     = j.at("op").get<std::string>();
 #ifndef __EMSCRIPTEN__
-    if (op != "batch" && session.control.cancel_requested.load(std::memory_order_relaxed)) {
+    if (OP != "batch" && session.control.cancel_requested.load(std::memory_order_relaxed)) {
         throw std::runtime_error("已取消");
     }
 #endif
-    if (op == "defaults") {
+    if (OP == "defaults") {
         return {
             { "tx", engine::DefaultMacro(false) },
             { "mw", engine::DefaultMacro(true)  }
         };
     }
-    if (op == "next") {
+    if (OP == "next") {
         if (!active) {
             throw std::logic_error("批次已结束");
         }
         return active->advance();
     }
-    if (op == "debug") {
+    if (OP == "debug") {
         if (!active) {
             throw std::logic_error("调试已结束");
         }
         return active->debug(j.at("action"));
     }
-    if (op != "start" && op != "batch") {
+    if (OP != "start" && OP != "batch") {
         throw std::invalid_argument("未知请求");
     }
     active.reset();
     auto       config = engine::Scenario(j.at("scenario").get<std::string>());
-    const bool debug  = j.value("debug", false);
+    const bool DEBUG  = j.value("debug", false);
     return std::visit(
         [&](auto &cfg) {
             if (j.contains("config")) {
                 j.at("config").get_to(cfg);
             }
-            const auto attrs = j.value("attributes", Json::object());
+            const auto ATTRS = j.value("attributes", Json::object());
             auto      &a     = cfg.attributes;
-            if (attrs.contains("attack")) {
-                a.attack_base = bounded(attrs, "attack", 0, 1000000);
+            if (ATTRS.contains("attack")) {
+                a.attack_base = bounded(ATTRS, "attack", 0, 1000000);
             }
-            if (attrs.contains("crit")) {
-                a.crit = bounded(attrs, "crit", 0, 1000000);
+            if (ATTRS.contains("crit")) {
+                a.crit = bounded(ATTRS, "crit", 0, 1000000);
             }
-            if (attrs.contains("haste")) {
-                a.haste = bounded(attrs, "haste", 0, 1000000);
+            if (ATTRS.contains("haste")) {
+                a.haste = bounded(ATTRS, "haste", 0, 1000000);
             }
-            using C  = std::decay_t<decltype(cfg)>;
-            auto cat = std::is_same_v<C, rt::tai_xu::Config> ? rt::tai_xu::Catalog : rt::mo_wen::Catalog;
+            using C        = std::decay_t<decltype(cfg)>;
+            const auto cat = std::is_same_v<C, rt::tai_xu::Config> ? rt::tai_xu::Catalog : rt::mo_wen::Catalog;
 #ifndef __EMSCRIPTEN__
-            if (op == "batch") return nativeBatch(session, j, cfg, cat);
+            if (OP == "batch") return nativeBatch(session, j, cfg, cat);
 #else
-            if (op == "batch") throw std::invalid_argument("use start/next for cooperative batches");
+            if (OP == "batch") throw std::invalid_argument("use start/next for cooperative batches");
 #endif
-            active = std::make_unique<Battle<C>>(j, cfg, cat, debug);
-            return debug ? active->debug("start")
+            active = std::make_unique<Battle<C>>(j, cfg, cat, DEBUG);
+            return DEBUG ? active->debug("start")
                          : Json{
                                { "completed", 0 }
             };
@@ -409,7 +416,7 @@ extern "C" void jx3dps_destroy(jx3dps_engine *session)
 
 extern "C" void jx3dps_cancel(jx3dps_engine *session)
 {
-    if (!session) {
+    if (session == nullptr) {
         return;
     }
 #ifndef __EMSCRIPTEN__
@@ -421,7 +428,7 @@ extern "C" void jx3dps_cancel(jx3dps_engine *session)
 
 extern "C" uint64_t jx3dps_completed(const jx3dps_engine *session)
 {
-    if (!session) {
+    if (session == nullptr) {
         return 0;
     }
 #ifndef __EMSCRIPTEN__
@@ -433,18 +440,18 @@ extern "C" uint64_t jx3dps_completed(const jx3dps_engine *session)
 
 extern "C" const char *jx3dps_call(jx3dps_engine *session, const char *request)
 {
-    if (!session || !request) {
+    if ((session == nullptr) || (request == nullptr)) {
         return R"({"error":"invalid engine or request"})";
     }
     try {
         try {
-            auto j = Json::parse(request);
+            const auto J = Json::parse(request);
 #ifdef __EMSCRIPTEN__
             if (session->cancelled) {
                 throw std::runtime_error("已取消");
             }
 #endif
-            auto result = handle(*session, j);
+            auto result = handle(*session, J);
             if (result.contains("completed")) {
 #ifdef __EMSCRIPTEN__
                 session->completed = result.at("completed").get<uint64_t>();

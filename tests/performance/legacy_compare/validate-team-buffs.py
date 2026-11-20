@@ -13,9 +13,9 @@ def events(path):
     for row in rows:
         if int(row["damage"]) <= 0:
             continue
-        name = row["name"].removeprefix("Dot\u00b7").removesuffix("\u00b7\u795e\u5175")
-        if name == "\u7834":
-            name += "\u62db"
+        name = row["name"].removeprefix("Dot·").removesuffix("·神兵")
+        if name == "破":
+            name += "招"
         result.append((int(row["frame"]), name, int(row["damage"]), int(row["outcome"])))
     return sorted(result)
 

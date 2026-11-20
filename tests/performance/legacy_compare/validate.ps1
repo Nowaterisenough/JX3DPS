@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$BuildDirectory = (Join-Path $PSScriptRoot '../../../build-legacy-compare'),
     [string]$OutputDirectory = (Join-Path $PSScriptRoot '../../../build-legacy-compare/validation')
 )
@@ -23,8 +23,8 @@ foreach ($macroName in @('sanchai', 'cooldowns', 'rotation')) {
         # including duplicate hits, without relying on the engines' enum labels.
         $events[$engine] = @(Import-Csv -Encoding UTF8 $trace | Where-Object { [long]$_.damage -gt 0 } |
             ForEach-Object {
-                $name = $_.name -replace '^Dot\u00b7', ''
-                if ($name -eq [string][char]0x7834) { $name += [char]0x62db }
+                $name = $_.name -replace '^Dot·', ''
+                if ($name -eq '破') { $name += '招' }
                 '{0:D8},{1},{2},{3}' -f [int]$_.frame, $name, $_.damage, $_.outcome
             } | Sort-Object)
     }

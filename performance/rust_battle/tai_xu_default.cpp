@@ -2,8 +2,11 @@
 // active rules, two attribute profiles, deferred damage and indexed timer heap.
 #include <windows.h>
 
+#include <array>
 #include <chrono>
+#include <cstdint>
 #include <iostream>
+#include <vector>
 
 #include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
 
@@ -57,8 +60,8 @@ struct TimerDescription
     Id find(TimerKind kind, Slot slot = INVALID_SLOT) const
     {
         for (Id i = 0; i < descriptors.size(); ++i) {
-            const auto h = descriptors[i].handle;
-            if (h.kind == kind && h.slot == slot && !h.target) {
+            const auto H = descriptors[i].handle;
+            if (H.kind == kind && H.slot == slot && !H.target) {
                 return i;
             }
         }
@@ -86,14 +89,14 @@ struct Fixed
     std::array<Entry, 1024> cache{};
 
     explicit Fixed(const TimerDescription &m) :
-        gcd_timer(m.find(TimerKind::MacroWake)), regen(m.find(TimerKind::ResourceRegen)),
-        tick(m.find(TimerKind::BuffInterval, tx::Purple)), expire(m.find(TimerKind::BuffDuration, tx::Purple))
+        gcd_timer(m.find(TimerKind::MACRO_WAKE)), regen(m.find(TimerKind::RESOURCE_REGEN)),
+        tick(m.find(TimerKind::BUFF_INTERVAL, tx::PURPLE)), expire(m.find(TimerKind::BUFF_DURATION, tx::PURPLE))
     {
-        for (auto desc : m.descriptors) {
-            queue.Create(desc.handle, desc.priority);
+        for (const auto DESC : m.descriptors) {
+            queue.Create(DESC.handle, DESC.priority);
         }
         for (Slot i = 0; i < 5; ++i) {
-            cd_timer[i] = m.find(TimerKind::SkillCooldown, i);
+            cd_timer[i] = m.find(TimerKind::SKILL_COOLDOWN, i);
         }
         profiles.reserve(4096);
     }
@@ -117,126 +120,127 @@ struct Fixed
 
     void hit(uint16_t effect)
     {
-        const auto profile = uint16_t(purple_end != 0);
-        if (profiles.empty() || profiles.back() != profile) {
+        const auto PROFILE = uint16_t(purple_end != 0);
+        if (profiles.empty() || profiles.back() != PROFILE) {
             if (profiles.size() == 4096) {
                 throw std::length_error("attribute versions");
             }
-            profiles.push_back(profile);
+            profiles.push_back(PROFILE);
         }
-        const auto  version = static_cast<uint32_t>(profiles.size() - 1);
+        const auto  VERSION = static_cast<uint32_t>(profiles.size() - 1);
         const auto &f       = formulas[effect];
-        const bool  zero    = f.kind == static_cast<uint8_t>(tx::FormulaKind::Zero);
-        const auto  key     = zero ? 0 : rng.Next();
-        const bool  crit    = !zero && static_cast<double>(key >> 11) * 0x1p-53 < attrs[profile].critical_chance;
-        log.Record(queue.Now(), f.skill, zero ? INVALID_SLOT : 0, f.level, key, 0, 0, crit ? RollResult::DOUBLE : RollResult::HIT, effect, profile, f.sub, version, version);
+        const bool  ZERO    = f.kind == static_cast<uint8_t>(tx::FormulaKind::ZERO);
+        const auto  KEY     = ZERO ? 0 : rng.Next();
+        const bool  crit    = !ZERO && static_cast<double>(KEY >> 11) * 0x1p-53 < attrs[PROFILE].critical_chance;
+        log.Record(queue.Now(), f.skill, ZERO ? INVALID_SLOT : 0, f.level, KEY, 0, 0, crit ? RollResult::DOUBLE : RollResult::HIT, effect, PROFILE, f.sub, VERSION, VERSION);
     }
 
     value_t Reduce(const DamageIntent &h)
     {
-        const auto roll = 2u * h.effect + (h.outcome == RollResult::DOUBLE);
-        auto      &e    = cache[(h.snapshot_version * 0x9e3779b1u ^ h.live_version * 0x85ebca6bu ^ roll * 17u) & 1023];
-        if (e.generation != generation || e.version != h.snapshot_version || e.roll != roll) {
+        const auto ROLL = (2u * h.effect) + static_cast<unsigned int>(h.outcome == RollResult::DOUBLE);
+        auto &e = cache[((h.snapshot_version * 0x9e3779b1u) ^ (h.live_version * 0x85ebca6bu) ^ (ROLL * 17u)) & 1023];
+        if (e.generation != generation || e.version != h.snapshot_version || e.roll != ROLL) {
             const auto &a = attrs[profiles[h.snapshot_version]];
             const auto &f = formulas[h.effect];
             int64_t     raw =
-                f.kind == 1 ? f.surplus : f.fixed + static_cast<int64_t>(a.attack * f.coefficient) + a.weapon * f.weapon / 1024;
+                f.kind == 1 ? f.surplus : f.fixed + static_cast<int64_t>(a.attack * f.coefficient) + (a.weapon * f.weapon / 1024);
             raw = raw * (1024 + a.bonus + f.bonus) / 1024 * f.count * a.mitigation / 1024;
             if (h.outcome == RollResult::DOUBLE) {
-                raw = static_cast<int64_t>(raw + raw * .75 + raw * (a.power + f.power) / 1024);
+                raw = static_cast<int64_t>(raw + (raw * .75) + (raw * (a.power + f.power) / 1024));
             }
             raw = static_cast<int64_t>(raw * level_multiplier);
-            const auto damage = f.kind == 3 ? 0 : raw * a.strain / 1024 * (1024 + a.pve) / 1024 * (1024 + a.vulnerable) / 1024;
-            e = { generation, h.snapshot_version, roll, damage };
+            const auto DAMAGE = f.kind == 3 ? 0 : raw * a.strain / 1024 * (1024 + a.pve) / 1024 * (1024 + a.vulnerable) / 1024;
+            e = { generation, h.snapshot_version, ROLL, DAMAGE };
         }
         return e.damage;
     }
 
     void on_timer(uint32_t id)
     {
-        const auto now = queue.Now();
+        const auto NOW = queue.Now();
         if (id == regen) {
             if (points < 10) {
                 qidian(points + 1);
             }
-            queue.ArmAt(id, now + 16);
+            queue.ArmAt(id, NOW + 16);
         } else if (id == tick) {
             qidian(points + 2);
-            log.RecordBuff(now, false, tx::Purple, purple_end, now + 16, 1);
-            queue.ArmAt(id, now + 16);
+            log.RecordBuff(NOW, false, tx::PURPLE, purple_end, NOW + 16, 1);
+            queue.ArmAt(id, NOW + 16);
         } else if (id == expire) {
             purple_end = 0;
-            log.RecordBuff(now, false, tx::Purple, 0, 0, 0);
+            log.RecordBuff(NOW, false, tx::PURPLE, 0, 0, 0);
             queue.Cancel(tick);
-        } else if (id == cd_timer[tx::ZiQi]) {
-            log.RecordSkillEnergy(now, tx::ZiQi, ++charges);
+        } else if (id == cd_timer[tx::ZI_QI]) {
+            log.RecordSkillEnergy(NOW, tx::ZI_QI, ++charges);
             if (charges < 2) {
-                recharge = now + 1200;
+                recharge = NOW + 1200;
                 queue.ArmAt(id, recharge);
             } else {
                 recharge = 0;
             }
-            ready[tx::ZiQi] = 0;
-            log.RecordSkillCooldown(now, tx::ZiQi, 0);
+            ready[tx::ZI_QI] = 0;
+            log.RecordSkillCooldown(NOW, tx::ZI_QI, 0);
         }
     }
 
     bool cast(uint32_t line, Slot skill)
     {
-        const auto now = queue.Now();
-        if (ready[skill] > now || (skill <= tx::SanHuan && gcd > now)) {
+        const auto NOW = queue.Now();
+        if (ready[skill] > NOW || (skill <= tx::SAN_HUAN && gcd > NOW)) {
             return false;
         }
-        if ((line == 0 && (points >= 6 || purple_end || !charges)) || (line == 1 && points < 8) || (line == 5 && points < 1))
+        if ((line == 0 && (points >= 6 || (purple_end != 0) || (charges == 0))) || (line == 1 && points < 8) ||
+            (line == 5 && points < 1))
         {
             return false;
         }
-        if (skill <= tx::SanHuan) {
-            gcd = now + 24;
-            log.RecordGcd(now, 0, gcd);
+        if (skill <= tx::SAN_HUAN) {
+            gcd = NOW + 24;
+            log.RecordGcd(NOW, 0, gcd);
             queue.ArmAt(gcd_timer, gcd);
         }
         switch (skill) {
-            case tx::ZiQi:
+            case tx::ZI_QI:
                 if (charges == 2) {
-                    recharge = now + 1200;
+                    recharge = NOW + 1200;
                     queue.ArmAt(cd_timer[skill], recharge);
                 }
-                log.RecordSkillEnergy(now, skill, --charges);
-                ready[skill] = charges ? 0 : recharge;
-                log.RecordSkillCooldown(now, skill, ready[skill]);
+                log.RecordSkillEnergy(NOW, skill, --charges);
+                ready[skill] = (charges != 0) ? 0 : recharge;
+                log.RecordSkillCooldown(NOW, skill, ready[skill]);
                 qidian(10);
-                purple_end = now + 160;
-                log.RecordBuff(now, false, tx::Purple, purple_end, now + 16, 1);
-                queue.ArmAt(tick, now + 16);
+                purple_end = NOW + 160;
+                log.RecordBuff(NOW, false, tx::PURPLE, purple_end, NOW + 16, 1);
+                queue.ArmAt(tick, NOW + 16);
                 queue.ArmAt(expire, purple_end);
                 hit(tx::ZeroEffect);
                 break;
-            case tx::WuWo:
+            case tx::WU_WO:
             {
-                const auto qi = points;
+                const auto QI = points;
                 qidian(0);
-                hit(qi - 1);
-                if (qi >= 6) {
-                    hit(tx::PoZhaoEffect + (qi - 6) / 2);
+                hit(QI - 1);
+                if (QI >= 6) {
+                    hit(tx::PoZhaoEffect + ((QI - 6) / 2));
                 }
                 break;
             }
-            case tx::BaHuang:
-                cooldown(skill, now + 192);
+            case tx::BA_HUANG:
+                cooldown(skill, NOW + 192);
                 qidian(points + 2);
                 hit(tx::BaHuangEffect);
                 hit(tx::BaHuangExtraEffect);
                 break;
-            case tx::SanHuan:
-                cooldown(skill, now + 32);
+            case tx::SAN_HUAN:
+                cooldown(skill, NOW + 32);
                 qidian(points + 2);
                 for (int j = 0; j < 3; ++j) {
                     hit(tx::SanHuanEffect);
                 }
                 break;
-            case tx::SanChai:
-                cooldown(skill, now + 22);
+            case tx::SAN_CHAI:
+                cooldown(skill, NOW + 22);
                 hit(tx::SanChaiEffect);
                 break;
             default: throw std::logic_error("unsupported skill");
@@ -268,12 +272,13 @@ struct Fixed
                 }
                 on_timer(id);
             });
-            constexpr std::array<Slot, 6> skills{ tx::ZiQi, tx::WuWo, tx::BaHuang, tx::SanHuan, tx::SanChai, tx::WuWo };
+            constexpr std::array<Slot, 6> SKILLS{ tx::ZI_QI,    tx::WU_WO,    tx::BA_HUANG,
+                                                  tx::SAN_HUAN, tx::SAN_CHAI, tx::WU_WO };
             bool                          success = false;
-            for (uint32_t j = 0; j < skills.size(); ++j) {
-                if (cast(j, skills[j])) {
+            for (uint32_t j = 0; j < SKILLS.size(); ++j) {
+                if (cast(j, SKILLS[j])) {
                     if constexpr (Trace) {
-                        a.write('C', queue.Now(), j, skills[j], Command::Cast);
+                        a.write('C', queue.Now(), j, SKILLS[j], Command::CAST);
                     }
                     success = true;
                     break;
@@ -282,17 +287,17 @@ struct Fixed
             if (success) {
                 continue;
             }
-            const auto delta = queue.NextDelta();
-            if (!delta || *delta >= 4800 - queue.Now()) {
+            const auto DELTA = queue.NextDelta();
+            if (!DELTA || *DELTA >= 4800 - queue.Now()) {
                 break;
             }
-            queue.Advance(*delta);
+            queue.Advance(*DELTA);
         }
         int64_t total = 0;
         for (const auto &h : log.Intents()) {
-            const auto damage = Reduce(h);
-            result.skills[h.skill].add(damage, h.outcome);
-            total += damage;
+            const auto DAMAGE = Reduce(h);
+            result.skills[h.skill].add(DAMAGE, h.outcome);
+            total += DAMAGE;
         }
         result.batch.Add(total, i);
         if constexpr (Trace) {
@@ -301,16 +306,17 @@ struct Fixed
     }
 };
 
-int main(int argc, char **argv)
+int main(int argc, char *const *argv)
 {
     if (argc < 3 || argc > 4) {
         return 2;
     }
-    const uint32_t n = std::stoul(argv[1]), workers = std::stoul(argv[2]);
-    if (!workers || workers > n || (argc == 4 && workers != 1)) {
+    const uint32_t N       = std::stoul(argv[1]);
+    const uint32_t WORKERS = std::stoul(argv[2]);
+    if ((WORKERS == 0u) || WORKERS > N || (argc == 4 && WORKERS != 1)) {
         return 2;
     }
-    if (workers == 1 && !SetThreadAffinityMask(GetCurrentThread(), 4)) {
+    if (WORKERS == 1 && (SetThreadAffinityMask(GetCurrentThread(), 4) == 0u)) {
         return 3;
     }
     Audit audit;
@@ -318,17 +324,17 @@ int main(int argc, char **argv)
         audit.stream.exceptions(std::ios::failbit | std::ios::badbit);
         audit.stream.open(argv[3], std::ios::binary);
     }
-    auto             prepared = tx::Prepare();
+    const auto       PREPARED = tx::Prepare();
     TimerDescription meta;
-    meta.state.Resize(tx::SkillCount, tx::BuffCount);
-    tx::Rules(prepared).Setup(meta);
-    std::vector<Result> results(workers);
-    auto                start  = std::chrono::steady_clock::now();
-    auto                worker = [&](unsigned w) {
+    meta.state.Resize(tx::SKILL_COUNT, tx::BUFF_COUNT);
+    tx::Rules(PREPARED).Setup(meta);
+    std::vector<Result> results(WORKERS);
+    const auto          start  = std::chrono::steady_clock::now();
+    const auto          WORKER = [&](unsigned w) {
         Fixed fixed(meta);
         auto &r = results[w];
-        r.skills.resize(tx::SkillCount);
-        for (uint64_t i = uint64_t(n) * w / workers; i < uint64_t(n) * (w + 1) / workers; ++i) {
+        r.skills.resize(tx::SKILL_COUNT);
+        for (uint64_t i = uint64_t(N) * w / WORKERS; i < uint64_t(N) * (w + 1) / WORKERS; ++i) {
             if (argc == 4) {
                 fixed.fight<true>(i, r, audit);
             } else {
@@ -338,13 +344,13 @@ int main(int argc, char **argv)
     };
     {
         std::vector<std::jthread> pool;
-        for (unsigned w = 1; w < workers; ++w) {
-            pool.emplace_back(worker, w);
+        for (unsigned w = 1; w < WORKERS; ++w) {
+            pool.emplace_back(WORKER, w);
         }
-        worker(0);
+        WORKER(0);
     }
-    std::array<Skill, tx::SkillCount> skills{};
-    BatchStats                        stats;
+    std::array<Skill, tx::SKILL_COUNT> skills{};
+    BatchStats                         stats;
     for (const auto &r : results) {
         stats.Merge(r.batch);
         for (size_t i = 0; i < skills.size(); ++i) {
@@ -358,8 +364,8 @@ int main(int argc, char **argv)
               << ' ' << stats.checksum;
     for (auto &s : skills) {
         std::cout << ' ' << s.damage;
-        for (auto x : s.outcomes) {
-            std::cout << ',' << x;
+        for (const auto X : s.outcomes) {
+            std::cout << ',' << X;
         }
     }
     std::cout << '\n';

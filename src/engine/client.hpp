@@ -37,7 +37,7 @@ BatchResult Batch(jx3dps_engine                          *handle,
                   const ScenarioConfig                   &config,
                   std::string_view                        macro,
                   const runtime::BatchOptions            &options,
-                  bool                                    collectSkills = false,
-                  const runtime::AttributeGainIncrements *increments    = nullptr,
-                  bool                                    hotspots      = false);
+                  bool                                    collect_skills = false,
+                  const runtime::AttributeGainIncrements *increments     = nullptr,
+                  bool                                    hotspots       = false);
 } // namespace JX3DPS::engine

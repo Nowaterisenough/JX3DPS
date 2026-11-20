@@ -1,20 +1,20 @@
 #include "player_state_panel.h"
-#include <QPainter>
+
+#include <memory>
+
 #include <QFont>
 #include <QFontMetrics>
+#include <QPainter>
 
 struct PlayerStatePanel::Impl
 {
-    PlayerState state = {};
-    bool hasData = false;
+    PlayerState state   = {};
+    bool        hasData = false;
 
-    static void DrawProgressBar(QPainter &painter, int x, int y, int width, int height,
-                               double percent, const QColor &color, const QString &label);
+    static void DrawProgressBar(QPainter &painter, int x, int y, int width, int height, double percent, const QColor &color, const QString &label);
 };
 
-PlayerStatePanel::PlayerStatePanel(QWidget *parent)
-    : QWidget(parent)
-    , d(std::make_unique<Impl>())
+PlayerStatePanel::PlayerStatePanel(QWidget *parent) : QWidget(parent), d(std::make_unique<Impl>())
 {
     setMinimumSize(250, 300);
     setMinimumHeight(300);
@@ -24,15 +24,17 @@ PlayerStatePanel::~PlayerStatePanel() = default;
 
 void PlayerStatePanel::UpdateState(const PlayerState &state)
 {
-    d->state = state;
+    d->state   = state;
     d->hasData = true;
     update();
 }
 
 void PlayerStatePanel::SetCursorTime(int frame, double seconds)
 {
-    if (!d->hasData) return;
-    d->state.currentFrame = frame;
+    if (!d->hasData) {
+        return;
+    }
+    d->state.currentFrame   = frame;
     d->state.currentSeconds = seconds;
     update();
 }
@@ -40,7 +42,7 @@ void PlayerStatePanel::SetCursorTime(int frame, double seconds)
 void PlayerStatePanel::Clear()
 {
     d->hasData = false;
-    d->state = {};
+    d->state   = {};
     update();
 }
 
@@ -60,87 +62,84 @@ void PlayerStatePanel::paintEvent(QPaintEvent *event)
         return;
     }
 
-    int y = 20;
-    const int lineHeight = 22;
-    const int leftMargin = 10;
+    int       y           = 20;
+    const int LINE_HEIGHT = 22;
+    const int LEFT_MARGIN = 10;
 
     // 标题
-    QFont titleFont = painter.font();
-    titleFont.setBold(true);
-    titleFont.setPointSize(10);
-    painter.setFont(titleFont);
+    QFont title_font = painter.font();
+    title_font.setBold(true);
+    title_font.setPointSize(10);
+    painter.setFont(title_font);
     painter.setPen(QColor(100, 200, 255));
-    painter.drawText(leftMargin, y, "玩家状态");
-    y += lineHeight + 5;
+    painter.drawText(LEFT_MARGIN, y, "玩家状态");
+    y += LINE_HEIGHT + 5;
 
     // 普通字体
-    QFont normalFont = painter.font();
-    normalFont.setBold(false);
-    normalFont.setPointSize(9);
-    painter.setFont(normalFont);
+    QFont normal_font = painter.font();
+    normal_font.setBold(false);
+    normal_font.setPointSize(9);
+    painter.setFont(normal_font);
 
     // 时间信息
     painter.setPen(QColor(180, 180, 180));
-    painter.drawText(leftMargin, y, QString("时间：%1 秒（第 %2 帧）")
-        .arg(d->state.currentSeconds, 0, 'f', 2)
-        .arg(d->state.currentFrame));
-    y += lineHeight;
+    painter.drawText(LEFT_MARGIN,
+                     y,
+                     QString("时间：%1 秒（第 %2 帧）").arg(d->state.currentSeconds, 0, 'f', 2).arg(d->state.currentFrame));
+    y += LINE_HEIGHT;
 
     // 当前宏
     if (!d->state.currentMacro.isEmpty()) {
-        painter.drawText(leftMargin, y, QString("宏: %1").arg(d->state.currentMacro));
-        y += lineHeight;
+        painter.drawText(LEFT_MARGIN, y, QString("宏: %1").arg(d->state.currentMacro));
+        y += LINE_HEIGHT;
     }
 
     // 当前技能
     if (!d->state.lastSkill.isEmpty()) {
         painter.setPen(QColor(255, 200, 100));
-        painter.drawText(leftMargin, y, QString("技能: %1").arg(d->state.lastSkill));
-        y += lineHeight;
+        painter.drawText(LEFT_MARGIN, y, QString("技能: %1").arg(d->state.lastSkill));
+        y += LINE_HEIGHT;
     }
 
     y += 5;
 
     // 生命值和内力
-    Impl::DrawProgressBar(painter, leftMargin, y, width() - 20, 20,
-                          d->state.lifePercent, QColor(200, 50, 50), "生命");
+    Impl::DrawProgressBar(painter, LEFT_MARGIN, y, width() - 20, 20, d->state.lifePercent, QColor(200, 50, 50), "生命");
     y += 30;
 
-    Impl::DrawProgressBar(painter, leftMargin, y, width() - 20, 20,
-                          d->state.manaPercent, QColor(50, 100, 200), "内力");
+    Impl::DrawProgressBar(painter, LEFT_MARGIN, y, width() - 20, 20, d->state.manaPercent, QColor(50, 100, 200), "内力");
     y += 35;
 
     // 资源信息
     painter.setPen(QColor(180, 180, 180));
-    painter.drawText(leftMargin, y, QString("气点 %1   怒气 %2   能量 %3")
-        .arg(d->state.qidian).arg(d->state.rage).arg(d->state.energy));
-    y += lineHeight + 5;
+    painter.drawText(LEFT_MARGIN,
+                     y,
+                     QString("气点 %1   怒气 %2   能量 %3").arg(d->state.qidian).arg(d->state.rage).arg(d->state.energy));
+    y += LINE_HEIGHT + 5;
 
     // 目标信息
     painter.setPen(QColor(100, 200, 255));
-    titleFont.setPointSize(9);
-    painter.setFont(titleFont);
-    painter.drawText(leftMargin, y, "目标");
-    y += lineHeight;
+    title_font.setPointSize(9);
+    painter.setFont(title_font);
+    painter.drawText(LEFT_MARGIN, y, "目标");
+    y += LINE_HEIGHT;
 
-    painter.setFont(normalFont);
+    painter.setFont(normal_font);
     painter.setPen(QColor(180, 180, 180));
-    painter.drawText(leftMargin, y, QString("目标编号：%1").arg(d->state.targetId));
-    y += lineHeight;
+    painter.drawText(LEFT_MARGIN, y, QString("目标编号：%1").arg(d->state.targetId));
+    y += LINE_HEIGHT;
 
-    Impl::DrawProgressBar(painter, leftMargin, y, width() - 20, 20,
-                          d->state.targetLifePercent, QColor(150, 100, 50), "血量");
+    Impl::DrawProgressBar(painter, LEFT_MARGIN, y, width() - 20, 20, d->state.targetLifePercent, QColor(150, 100, 50), "血量");
 }
 
-void PlayerStatePanel::Impl::DrawProgressBar(QPainter &painter, int x, int y, int width, int height,
-                                             double percent, const QColor &color, const QString &label)
+void PlayerStatePanel::Impl::DrawProgressBar(QPainter &painter, int x, int y, int width, int height, double percent, const QColor &color, const QString &label)
 {
     // 背景
     painter.fillRect(x, y, width, height, QColor(50, 50, 50));
 
     // 进度条
-    int fillWidth = static_cast<int>(width * percent);
-    painter.fillRect(x, y, fillWidth, height, color);
+    const int FILL_WIDTH = static_cast<int>(width * percent);
+    painter.fillRect(x, y, FILL_WIDTH, height, color);
 
     // 边框
     painter.setPen(QColor(80, 80, 80));
@@ -148,6 +147,6 @@ void PlayerStatePanel::Impl::DrawProgressBar(QPainter &painter, int x, int y, in
 
     // 文本
     painter.setPen(QColor(255, 255, 255));
-    QString text = QString("%1: %2%").arg(label).arg(static_cast<int>(percent * 100));
+    const QString text = QString("%1: %2%").arg(label).arg(static_cast<int>(percent * 100));
     painter.drawText(x, y, width, height, Qt::AlignCenter, text);
 }

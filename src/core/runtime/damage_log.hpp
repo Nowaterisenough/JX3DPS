@@ -1,127 +1,183 @@
 #ifndef JX3DPS_RUNTIME_DAMAGE_LOG_HPP
 #define JX3DPS_RUNTIME_DAMAGE_LOG_HPP
 
-#include "../runtime.hpp"
-#include "fight_timing.hpp"
 #include <stdexcept>
+
+#include "../runtime.hpp"
+
+#include "fight_timing.hpp"
 
 namespace JX3DPS::runtime {
 
-struct DamageIntent {
-    tick_t frame = 0;
-    std::uint32_t sequence = 0;
-    Slot skill = INVALID_SLOT;
-    Slot target = INVALID_SLOT;
-    std::uint16_t level = 0;
-    RollResult outcome = RollResult::HIT;
-    std::uint64_t random_key = 0;
-    value_t base = 0;
-    cof_t coefficient = 0;
-    std::uint16_t effect = 0;
-    std::uint16_t snapshot = 0;
-    std::uint16_t sub = 0;
+struct DamageIntent
+{
+    tick_t        frame            = 0;
+    std::uint32_t sequence         = 0;
+    Slot          skill            = INVALID_SLOT;
+    Slot          target           = INVALID_SLOT;
+    std::uint16_t level            = 0;
+    RollResult    outcome          = RollResult::HIT;
+    std::uint64_t random_key       = 0;
+    value_t       base             = 0;
+    cof_t         coefficient      = 0;
+    std::uint16_t effect           = 0;
+    std::uint16_t snapshot         = 0;
+    std::uint16_t sub              = 0;
     std::uint32_t snapshot_version = 0, live_version = 0;
-    bool operator==(const DamageIntent &) const = default;
+    bool          operator==(const DamageIntent &) const = default;
 };
 
-enum class MutationKind : std::uint8_t { Buff, SkillCooldown, Resources, Gcd, SkillEnergy, Prepare, Casting, TargetLife, TargetDistance };
-struct StateMutation {
-    tick_t frame = 0;
+enum class MutationKind : std::uint8_t
+{
+    BUFF,
+    SKILL_COOLDOWN,
+    RESOURCES,
+    GCD,
+    SKILL_ENERGY,
+    PREPARE,
+    CASTING,
+    TARGET_LIFE,
+    TARGET_DISTANCE
+};
+
+struct StateMutation
+{
+    tick_t        frame    = 0;
     std::uint32_t sequence = 0;
-    MutationKind kind = MutationKind::Buff;
-    Slot slot = INVALID_SLOT;
-    bool target = false;
+    MutationKind  kind     = MutationKind::BUFF;
+    Slot          slot     = INVALID_SLOT;
+    bool          target   = false;
     // Buff: expires_at, tick_at, stacks. Cooldown: ready_at. Resources: qidian, energy, rage.
     // Prepare/Casting: absolute completion frame in a; active flag in b.
-    int a = 0, b = 0, c = 0;
-    bool operator==(const StateMutation &) const = default;
+    int           a = 0, b = 0, c = 0;
+    bool          operator==(const StateMutation &) const = default;
 };
 
 // A single owner sequences damage and mutations, including events in the same
 // frame. Capacity exhaustion is explicit, never a silent allocation or drop.
-template<bool Measure>
-class BasicDamageIntentLog {
+template <bool Measure>
+class BasicDamageIntentLog
+{
 public:
-    explicit BasicDamageIntentLog(std::size_t damage_capacity = 4096, std::size_t mutation_capacity = 4096) {
+    explicit BasicDamageIntentLog(std::size_t damage_capacity = 4096, std::size_t mutation_capacity = 4096)
+    {
         intents_.reserve(damage_capacity);
         mutations_.reserve(mutation_capacity);
     }
-    void Clear() {
+
+    void Clear()
+    {
         intents_.clear();
         mutations_.clear();
         next_sequence_ = 0;
-        last_frame_ = 0;
+        last_frame_    = 0;
     }
-    void Record(tick_t frame, Slot skill, Slot target, std::uint16_t level,
-                std::uint64_t random_key, value_t base, cof_t coefficient,
-                RollResult outcome = RollResult::HIT, std::uint16_t effect = 0, std::uint16_t snapshot = 0,
-                std::uint16_t sub = 0, std::uint32_t snapshot_version = 0, std::uint32_t live_version = 0) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::Record");
+
+    void Record(tick_t        frame,
+                Slot          skill,
+                Slot          target,
+                std::uint16_t level,
+                std::uint64_t random_key,
+                value_t       base,
+                cof_t         coefficient,
+                RollResult    outcome          = RollResult::HIT,
+                std::uint16_t effect           = 0,
+                std::uint16_t snapshot         = 0,
+                std::uint16_t sub              = 0,
+                std::uint32_t snapshot_version = 0,
+                std::uint32_t live_version     = 0)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::Record");
         CheckCapacity(intents_);
-        intents_.push_back({frame, Sequence(frame), skill, target, level, outcome, random_key, base, coefficient, effect, snapshot, sub, snapshot_version, live_version});
+        intents_.push_back({ frame, Sequence(frame), skill, target, level, outcome, random_key, base, coefficient, effect, snapshot, sub, snapshot_version, live_version });
     }
-    void RecordBuff(tick_t frame, bool target, Slot slot, tick_t expires_at, tick_t tick_at, int stacks) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::RecordBuff");
+
+    void RecordBuff(tick_t frame, bool target, Slot slot, tick_t expires_at, tick_t tick_at, int stacks)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordBuff");
         CheckCapacity(mutations_);
-        mutations_.push_back({frame, Sequence(frame), MutationKind::Buff, slot, target, expires_at, tick_at, stacks});
+        mutations_.push_back({ frame, Sequence(frame), MutationKind::BUFF, slot, target, expires_at, tick_at, stacks });
     }
-    void RecordSkillCooldown(tick_t frame, Slot slot, tick_t ready_at) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::RecordSkillCooldown");
+
+    void RecordSkillCooldown(tick_t frame, Slot slot, tick_t ready_at)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordSkillCooldown");
         CheckCapacity(mutations_);
-        mutations_.push_back({frame, Sequence(frame), MutationKind::SkillCooldown, slot, false, ready_at});
+        mutations_.push_back({ frame, Sequence(frame), MutationKind::SKILL_COOLDOWN, slot, false, ready_at });
     }
-    void RecordResources(tick_t frame, int qidian, int energy, int rage) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::RecordResources");
+
+    void RecordResources(tick_t frame, int qidian, int energy, int rage)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordResources");
         CheckCapacity(mutations_);
-        mutations_.push_back({frame, Sequence(frame), MutationKind::Resources, INVALID_SLOT, false, qidian, energy, rage});
+        mutations_.push_back({ frame, Sequence(frame), MutationKind::RESOURCES, INVALID_SLOT, false, qidian, energy, rage });
     }
-    void RecordGcd(tick_t frame, Slot group, tick_t ready_at) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::RecordGcd");
+
+    void RecordGcd(tick_t frame, Slot group, tick_t ready_at)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordGcd");
         CheckCapacity(mutations_);
-        mutations_.push_back({frame, Sequence(frame), MutationKind::Gcd, group, false, ready_at});
+        mutations_.push_back({ frame, Sequence(frame), MutationKind::GCD, group, false, ready_at });
     }
-    void RecordSkillEnergy(tick_t frame, Slot slot, int energy) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::RecordSkillEnergy");
+
+    void RecordSkillEnergy(tick_t frame, Slot slot, int energy)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordSkillEnergy");
         CheckCapacity(mutations_);
-        mutations_.push_back({frame, Sequence(frame), MutationKind::SkillEnergy, slot, false, energy});
+        mutations_.push_back({ frame, Sequence(frame), MutationKind::SKILL_ENERGY, slot, false, energy });
     }
-    void RecordPrepare(tick_t frame, Slot slot, tick_t ready_at, bool active) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::RecordPrepare");
+
+    void RecordPrepare(tick_t frame, Slot slot, tick_t ready_at, bool active)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordPrepare");
         CheckCapacity(mutations_);
-        mutations_.push_back({frame, Sequence(frame), MutationKind::Prepare, slot, false, ready_at, active});
+        mutations_.push_back({ frame, Sequence(frame), MutationKind::PREPARE, slot, false, ready_at, active });
     }
-    void RecordCasting(tick_t frame, Slot slot, tick_t ready_at, bool active) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::RecordCasting");
+
+    void RecordCasting(tick_t frame, Slot slot, tick_t ready_at, bool active)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordCasting");
         CheckCapacity(mutations_);
-        mutations_.push_back({frame, Sequence(frame), MutationKind::Casting, slot, false, ready_at, active});
+        mutations_.push_back({ frame, Sequence(frame), MutationKind::CASTING, slot, false, ready_at, active });
     }
-    void RecordTarget(tick_t frame, MutationKind kind, int value) {
-        PhaseScope<Measure> timer(FightPhase::Record, "DamageIntentLog::RecordTarget");
-        if (kind != MutationKind::TargetLife && kind != MutationKind::TargetDistance)
+
+    void RecordTarget(tick_t frame, MutationKind kind, int value)
+    {
+        const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordTarget");
+        if (kind != MutationKind::TARGET_LIFE && kind != MutationKind::TARGET_DISTANCE) {
             throw std::invalid_argument("invalid target mutation");
+        }
         CheckCapacity(mutations_);
-        mutations_.push_back({frame, Sequence(frame), kind, INVALID_SLOT, true, value});
+        mutations_.push_back({ frame, Sequence(frame), kind, INVALID_SLOT, true, value });
     }
+
     template <typename Fn>
-    value_t Reduce(const State &initial, State &scratch, Fn &&reducer) const {
-        if (&initial == &scratch) throw std::invalid_argument("replay scratch must not alias initial state");
+    value_t Reduce(const State &initial, State &scratch, Fn &&reducer) const
+    {
+        if (&initial == &scratch) {
+            throw std::invalid_argument("replay scratch must not alias initial state");
+        }
         // Give each worker a scratch State of the same shape; vector copy
         // assignment then reuses its storage for every iteration.
-        scratch = initial;
+        scratch            = initial;
         std::size_t cursor = 0;
-        value_t total = 0;
+        value_t     total  = 0;
         for (const auto &intent : intents_) {
             while (cursor < mutations_.size() && mutations_[cursor].sequence < intent.sequence) {
                 Apply(scratch, mutations_[cursor++]);
             }
-            scratch.now = intent.frame;
-            total += reducer(intent, scratch);
+            scratch.now  = intent.frame;
+            total       += reducer(intent, scratch);
         }
         return total;
     }
+
     const std::vector<DamageIntent> &Intents() const { return intents_; }
+
     const std::vector<StateMutation> &Mutations() const { return mutations_; }
+
     std::size_t Size() const { return intents_.size(); }
+
     std::size_t DamageCapacity() const { return intents_.capacity(); }
 
 private:
@@ -131,105 +187,146 @@ private:
     [[noreturn]]
 #if __has_cpp_attribute(gnu::cold)
     [[gnu::cold, gnu::noinline]]
-#elif defined(_MSC_VER)
+#elifdef _MSC_VER
     __declspec(noinline)
 #endif
-    static void ThrowLogError(const char *message) { throw Error(message); }
+    static void ThrowLogError(const char *message)
+    {
+        throw Error(message);
+    }
 
     template <typename T>
-    static void CheckCapacity(const std::vector<T> &buffer) {
-        if (buffer.size() == buffer.capacity()) ThrowLogError<std::length_error>("event log capacity exhausted");
+    static void CheckCapacity(const std::vector<T> &buffer)
+    {
+        if (buffer.size() == buffer.capacity()) {
+            ThrowLogError<std::length_error>("event log capacity exhausted");
+        }
     }
-    std::uint32_t Sequence(tick_t frame) {
-        if (frame < last_frame_) ThrowLogError<std::invalid_argument>("event frames must be monotonic");
-        if (next_sequence_ == std::numeric_limits<std::uint32_t>::max())
+
+    std::uint32_t Sequence(tick_t frame)
+    {
+        if (frame < last_frame_) {
+            ThrowLogError<std::invalid_argument>("event frames must be monotonic");
+        }
+        if (next_sequence_ == std::numeric_limits<std::uint32_t>::max()) {
             ThrowLogError<std::overflow_error>("event sequence exhausted");
+        }
         last_frame_ = frame;
         return next_sequence_++;
     }
+
 public:
     // Shared by damage reduction and desktop history replay.
-    static void Apply(State &state, const StateMutation &m) {
+    static void Apply(State &state, const StateMutation &m)
+    {
         switch (m.kind) {
-            case MutationKind::Buff: {
-                auto &expiry = m.target ? state.target_buff_expires_at : state.self_buff_expires_at;
-                auto &tick = m.target ? state.target_buff_tick_at : state.self_buff_tick_at;
-                auto &stacks = m.target ? state.target_buff_stacks : state.self_buff_stacks;
+            case MutationKind::BUFF:
+            {
+                auto &expiry      = m.target ? state.target_buff_expires_at : state.self_buff_expires_at;
+                auto &tick        = m.target ? state.target_buff_tick_at : state.self_buff_tick_at;
+                auto &stacks      = m.target ? state.target_buff_stacks : state.self_buff_stacks;
                 expiry.at(m.slot) = m.a;
-                tick.at(m.slot) = m.b;
+                tick.at(m.slot)   = m.b;
                 stacks.at(m.slot) = m.c;
                 break;
             }
-            case MutationKind::SkillCooldown: state.skill_ready_at.at(m.slot) = m.a; break;
-            case MutationKind::Resources: state.qidian = m.a; state.energy = m.b; state.rage = m.c; break;
-            case MutationKind::Gcd: state.gcd_ready_at.at(m.slot) = m.a; break;
-            case MutationKind::SkillEnergy: state.skill_energy.at(m.slot) = m.a; break;
-            case MutationKind::Prepare:
+            case MutationKind::SKILL_COOLDOWN: state.skill_ready_at.at(m.slot) = m.a; break;
+            case MutationKind::RESOURCES:
+                state.qidian = m.a;
+                state.energy = m.b;
+                state.rage   = m.c;
+                break;
+            case MutationKind::GCD: state.gcd_ready_at.at(m.slot) = m.a; break;
+            case MutationKind::SKILL_ENERGY: state.skill_energy.at(m.slot) = m.a; break;
+            case MutationKind::PREPARE:
                 state.skill_prepare_at.at(m.slot) = m.a;
-                state.preparing_skill = m.b ? m.slot : INVALID_SLOT;
+                state.preparing_skill             = (m.b != 0) ? m.slot : INVALID_SLOT;
                 break;
-            case MutationKind::Casting:
+            case MutationKind::CASTING:
                 state.skill_casting_at.at(m.slot) = m.a;
-                state.casting_skill = m.b ? m.slot : INVALID_SLOT;
+                state.casting_skill               = (m.b != 0) ? m.slot : INVALID_SLOT;
                 break;
-            case MutationKind::TargetLife: state.target_life = m.a / 10000.0; break;
-            case MutationKind::TargetDistance: state.target_distance = m.a / 100.0; break;
+            case MutationKind::TARGET_LIFE: state.target_life = m.a / 10000.0; break;
+            case MutationKind::TARGET_DISTANCE: state.target_distance = m.a / 100.0; break;
         }
     }
+
 private:
-    std::vector<DamageIntent> intents_;
+    std::vector<DamageIntent>  intents_;
     std::vector<StateMutation> mutations_;
-    std::uint32_t next_sequence_ = 0;
-    tick_t last_frame_ = 0;
+    std::uint32_t              next_sequence_ = 0;
+    tick_t                     last_frame_    = 0;
 };
 
 using DamageIntentLog = BasicDamageIntentLog<false>;
 
-inline void SetBuff(State &state, auto &log, bool target, Slot slot,
-                    tick_t expires_at, tick_t tick_at, int stacks) {
+inline void SetBuff(State &state, auto &log, bool target, Slot slot, tick_t expires_at, tick_t tick_at, int stacks)
+{
     auto &expiry = target ? state.target_buff_expires_at : state.self_buff_expires_at;
-    auto &tick = target ? state.target_buff_tick_at : state.self_buff_tick_at;
+    auto &tick   = target ? state.target_buff_tick_at : state.self_buff_tick_at;
     auto &layers = target ? state.target_buff_stacks : state.self_buff_stacks;
     if (slot >= expiry.size() || slot >= tick.size() || slot >= layers.size() || stacks < 0) {
         throw std::out_of_range("invalid buff slot or stack count");
     }
     log.RecordBuff(state.now, target, slot, expires_at, tick_at, stacks);
     expiry[slot] = expires_at;
-    tick[slot] = tick_at;
+    tick[slot]   = tick_at;
     layers[slot] = stacks;
 }
-inline void SetSkillCooldown(State &state, auto &log, Slot slot, tick_t ready_at) {
-    if (slot >= state.skill_ready_at.size()) throw std::out_of_range("invalid skill slot");
+
+inline void SetSkillCooldown(State &state, auto &log, Slot slot, tick_t ready_at)
+{
+    if (slot >= state.skill_ready_at.size()) {
+        throw std::out_of_range("invalid skill slot");
+    }
     log.RecordSkillCooldown(state.now, slot, ready_at);
     state.skill_ready_at[slot] = ready_at;
 }
-inline void SetResources(State &state, auto &log, int qidian, int energy, int rage) {
+
+inline void SetResources(State &state, auto &log, int qidian, int energy, int rage)
+{
     log.RecordResources(state.now, qidian, energy, rage);
     state.qidian = qidian;
     state.energy = energy;
-    state.rage = rage;
+    state.rage   = rage;
 }
-inline void SetGcd(State &state, auto &log, Slot group, tick_t ready_at) {
-    if (group >= state.gcd_ready_at.size()) throw std::out_of_range("invalid GCD group");
+
+inline void SetGcd(State &state, auto &log, Slot group, tick_t ready_at)
+{
+    if (group >= state.gcd_ready_at.size()) {
+        throw std::out_of_range("invalid GCD group");
+    }
     log.RecordGcd(state.now, group, ready_at);
     state.gcd_ready_at[group] = ready_at;
 }
-inline void SetSkillEnergy(State &state, auto &log, Slot slot, int energy) {
-    if (slot >= state.skill_energy.size() || energy < 0) throw std::out_of_range("invalid skill energy");
+
+inline void SetSkillEnergy(State &state, auto &log, Slot slot, int energy)
+{
+    if (slot >= state.skill_energy.size() || energy < 0) {
+        throw std::out_of_range("invalid skill energy");
+    }
     log.RecordSkillEnergy(state.now, slot, energy);
     state.skill_energy[slot] = energy;
 }
-inline void SetPrepare(State &state, auto &log, Slot slot, tick_t ready_at, bool active) {
-    if (slot >= state.skill_prepare_at.size()) throw std::out_of_range("invalid prepare slot");
+
+inline void SetPrepare(State &state, auto &log, Slot slot, tick_t ready_at, bool active)
+{
+    if (slot >= state.skill_prepare_at.size()) {
+        throw std::out_of_range("invalid prepare slot");
+    }
     log.RecordPrepare(state.now, slot, ready_at, active);
     state.skill_prepare_at[slot] = ready_at;
-    state.preparing_skill = active ? slot : INVALID_SLOT;
+    state.preparing_skill        = active ? slot : INVALID_SLOT;
 }
-inline void SetCasting(State &state, auto &log, Slot slot, tick_t ready_at, bool active) {
-    if (slot >= state.skill_casting_at.size()) throw std::out_of_range("invalid casting skill slot");
+
+inline void SetCasting(State &state, auto &log, Slot slot, tick_t ready_at, bool active)
+{
+    if (slot >= state.skill_casting_at.size()) {
+        throw std::out_of_range("invalid casting skill slot");
+    }
     log.RecordCasting(state.now, slot, ready_at, active);
     state.skill_casting_at[slot] = ready_at;
-    state.casting_skill = active ? slot : INVALID_SLOT;
+    state.casting_skill          = active ? slot : INVALID_SLOT;
 }
 
 } // namespace JX3DPS::runtime

@@ -8,7 +8,6 @@
 class QMenu;
 class QToolButton;
 
-
 class CONTROLS_PRIVATE TitleBarPrivate;
 
 class CONTROLS_API TitleBar : public QFrame
@@ -30,7 +29,7 @@ public:
     };
 
     explicit TitleBar(QWidget *parent = nullptr);
-    ~TitleBar();
+    ~TitleBar() override;
 
     void     AddWidget(int id, QWidget *widget, int stretch = 0, Qt::Alignment alignment = Qt::AlignLeft);
     QWidget *TakeWidget(int id);
@@ -57,6 +56,5 @@ private:
     Q_DECLARE_PRIVATE(TitleBar)
     TitleBarPrivate *d_ptr;
 };
-
 
 #endif // TFA_UI_WINDOW_BAR_H

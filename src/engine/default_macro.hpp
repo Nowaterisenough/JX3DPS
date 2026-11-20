@@ -3,7 +3,7 @@
 #include <string_view>
 
 namespace JX3DPS::engine {
-inline constexpr std::string_view DefaultMacro(bool mo_wen)
+constexpr std::string_view DefaultMacro(bool mo_wen)
 {
     if (mo_wen) {
         return "# 莫问：持续伤害、影子与曲风循环\n/cast [tnobuff:商] 商\n/cast [tnobuff:角] 角\n/cast "

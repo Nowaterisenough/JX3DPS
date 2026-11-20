@@ -1,12 +1,12 @@
 #ifndef JX3DPS_DESKTOP_EQUIPMENT_PANEL_H
 #define JX3DPS_DESKTOP_EQUIPMENT_PANEL_H
 
+#include <memory>
+
 #include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QPixmap>
 #include <QWidget>
-
-#include <memory>
 
 class QGridLayout;
 class QLabel;
@@ -15,10 +15,10 @@ class QListWidgetItem;
 class QNetworkReply;
 class QToolButton;
 
-#if defined(EQUIPMENT_PANEL_BUILD)
-#define EQUIPMENT_PANEL_API Q_DECL_EXPORT
+#ifdef EQUIPMENT_PANEL_BUILD
+#    define EQUIPMENT_PANEL_API Q_DECL_EXPORT
 #else
-#define EQUIPMENT_PANEL_API Q_DECL_IMPORT
+#    define EQUIPMENT_PANEL_API Q_DECL_IMPORT
 #endif
 
 /**
@@ -35,7 +35,7 @@ public:
     explicit EquipmentPanel(QWidget *parent = nullptr);
     ~EquipmentPanel() override;
 
-    void LoadLatestData(const QString &snapshotPath = QString());
+    void        LoadLatestData(const QString &snapshot_path = QString());
     QJsonObject Loadout() const;
 
 signals:
@@ -53,19 +53,19 @@ private:
     struct Impl;
     std::unique_ptr<Impl> d;
 
-    void BuildUi();
-    void PopulateFromSnapshot(const QJsonObject &snapshot);
-    void SetSlotItem(const QString &slot, const QJsonObject &item);
-    void UpdateSlotButton(const QString &slot);
-    void OpenSlot(const QString &slot);
-    void FilterCandidates();
-    void UpdateEffects();
-    QString ItemDetails(const QJsonObject &item, const QString &slot) const;
-    void AddIconItem(QListWidget *list, const QString &name, const QString &description, int iconId);
-    QIcon RequestIcon(int iconId);
+    void           BuildUi();
+    void           PopulateFromSnapshot(const QJsonObject &snapshot);
+    void           SetSlotItem(const QString &slot, const QJsonObject &item);
+    void           UpdateSlotButton(const QString &slot);
+    void           OpenSlot(const QString &slot);
+    void           FilterCandidates();
+    void           UpdateEffects();
+    QString        ItemDetails(const QJsonObject &item, const QString &slot) const;
+    void           AddIconItem(QListWidget *list, const QString &name, const QString &description, int icon_id);
+    QIcon          RequestIcon(int icon_id);
     static QString FindSnapshotPath(const QString &requested);
     static QString SlotForItem(const QJsonObject &item);
-    static QString IconUrl(int iconId);
+    static QString IconUrl(int icon_id);
 };
 
 #endif // JX3DPS_DESKTOP_EQUIPMENT_PANEL_H

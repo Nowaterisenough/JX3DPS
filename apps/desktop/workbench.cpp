@@ -1,30 +1,29 @@
 #include "workbench.h"
-#include "game_icons.h"
-#include "game_attributes.h"
-#include "history_panel.h"
+
+#include <string_view>
 
 #include <QAction>
-#include <QCloseEvent>
-#include <QClipboard>
 #include <QApplication>
+#include <QClipboard>
+#include <QCloseEvent>
 #include <QComboBox>
 #include <QDialog>
 #include <QElapsedTimer>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QGroupBox>
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QHeaderView>
 #include <QLabel>
-#include <QListWidget>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPointer>
 #include <QProgressBar>
-#include <QResizeEvent>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QSaveFile>
 #include <QScrollArea>
 #include <QSettings>
@@ -45,16 +44,19 @@
 #include "code_editor/debug_toolbar.h"
 #include "code_editor/simulation_toolbar.h"
 #include "controls/player_state_panel/player_state_panel.h"
-#include "controls/timeline/timeline.h"
-#include "controls/theme/workbench_theme.h"
-#include "controls/theme/segmented_tabs.h"
-#include "controls/theme/magpie_shell.h"
 #include "controls/theme/header_group_box.h"
+#include "controls/theme/magpie_shell.h"
+#include "controls/theme/segmented_tabs.h"
+#include "controls/theme/workbench_theme.h"
+#include "controls/timeline/timeline.h"
 
 #include "batch_worker.h"
 #include "buff_panel.h"
 #include "debug_session.h"
 #include "diagnostics.h"
+#include "game_attributes.h"
+#include "game_icons.h"
+#include "history_panel.h"
 #include "macro_editor.h"
 #include "macro_search_bar.h"
 #include "macro_trace_panel.h"
@@ -100,17 +102,17 @@ QString MacroHelp(desktop::Specialization specialization)
         "<p>Ctrl+Space 打开补全，回车或 Tab 插入；Ctrl+F 查找，Ctrl+H 替换，F3 / Shift+F3 定位。"
         "调试期间仍可查找。</p><p>单次记录与调试使用所选随机种子的第一场战斗；批量模拟保留汇总结果。</p>"
         "<h3>当前心法技能（中文名 / 拼音别名）</h3><table>");
-    if (specialization == desktop::Specialization::MoWen) {
+    if (specialization == desktop::Specialization::MO_WEN) {
         html.prepend(QStringLiteral("<p><b>莫问：</b>强制施放行会在判断条件前打断引导；调试轨迹会单独记录这一事件。"
                                     "持续伤害可使用 tbuff:商 与 tbuff:角；影子计时和当前曲风显示在调试状态中。</p>"));
     }
-    const auto catalog = desktop::Describe(specialization);
-    for (const auto slot : catalog.castable) {
-        html += QStringLiteral("<tr><td>%1</td><td>%2</td></tr>").arg(Name(catalog.skills[slot].name), Name(catalog.skillAliases[slot]));
+    const auto CATALOG = desktop::Describe(specialization);
+    for (const auto slot : CATALOG.castable) {
+        html += QStringLiteral("<tr><td>%1</td><td>%2</td></tr>").arg(Name(CATALOG.skills[slot].name), Name(CATALOG.skillAliases[slot]));
     }
     html += QStringLiteral("</table><h3>增益名称（可用于宏）</h3><table>");
-    for (std::size_t slot = 0; slot < catalog.buffs.size(); ++slot) {
-        html += QStringLiteral("<tr><td>%1</td><td>%2</td></tr>").arg(Name(catalog.buffs[slot].name), Name(catalog.buffAliases[slot]));
+    for (std::size_t slot = 0; slot < CATALOG.buffs.size(); ++slot) {
+        html += QStringLiteral("<tr><td>%1</td><td>%2</td></tr>").arg(Name(CATALOG.buffs[slot].name), Name(CATALOG.buffAliases[slot]));
     }
     return html + QStringLiteral("</table>");
 }
@@ -119,7 +121,7 @@ QString MacroHelp(desktop::Specialization specialization)
 struct Workbench::Impl
 {
     Workbench              *window;
-    desktop::MagpieShell    *shell;
+    desktop::MagpieShell   *shell;
     QWidget                *homePage;
     QWidget                *homeEditor;
     QScrollArea            *configurationScroll;
@@ -148,7 +150,7 @@ struct Workbench::Impl
     QTabWidget             *debugTabs;
     QSplitter              *macroSplit;
     QLabel                 *debugPosition;
-    desktop::Specialization documentClass = desktop::Specialization::TaiXu;
+    desktop::Specialization documentClass = desktop::Specialization::TAI_XU;
 
     struct Draft
     {
@@ -201,18 +203,19 @@ struct Workbench::Impl
         root->addWidget(shell);
         homePage = new QWidget(central);
         homePage->setObjectName(QStringLiteral("simulationPage"));
-        auto *homeLayout = new QVBoxLayout(homePage);
-        homeLayout->setContentsMargins(0, 0, 0, 0);
-        homeLayout->setSpacing(14);
-        pageNote = new QLabel(QStringLiteral("设置心法、属性与循环宏，在本地运行战斗模拟。相同配置与随机种子可复现结果。"));
+        auto *home_layout = new QVBoxLayout(homePage);
+        home_layout->setContentsMargins(0, 0, 0, 0);
+        home_layout->setSpacing(14);
+        pageNote =
+            new QLabel(QStringLiteral("设置心法、属性与循环宏，在本地运行战斗模拟。相同配置与随机种子可复现结果。"));
         pageNote->setProperty("muted", true);
         pageNote->setWordWrap(true);
         pageNote->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        homeLayout->addWidget(pageNote);
+        home_layout->addWidget(pageNote);
         body = new QSplitter(Qt::Horizontal, homePage);
         body->setObjectName(QStringLiteral("bodySplitter"));
         body->setChildrenCollapsible(false);
-        homeLayout->addWidget(body, 1);
+        home_layout->addWidget(body, 1);
         shell->pages->addWidget(homePage);
         configurationScroll = new QScrollArea(body);
         configurationScroll->setObjectName(QStringLiteral("configurationScroll"));
@@ -224,19 +227,19 @@ struct Workbench::Impl
         configurationScroll->setWidget(options);
         options->setObjectName(QStringLiteral("simulationOptions"));
         options->setStyleSheet(QStringLiteral("QWidget { font-size: 13px; }"
-                                             "QWidget#simulationOptions { background: transparent; }"
+                                              "QWidget#simulationOptions { background: transparent; }"
                                               "QComboBox, QSpinBox, QDoubleSpinBox, QLineEdit { min-height: 20px; }"
-                                             "QLineEdit { placeholder-text-color: #56565f; }"));
-        auto configurationFont = options->font();
-        configurationFont.setPixelSize(13);
-        configurationFont.setWeight(QFont::Normal);
-        options->setFont(configurationFont);
+                                              "QLineEdit { placeholder-text-color: #56565f; }"));
+        auto configuration_font = options->font();
+        configuration_font.setPixelSize(13);
+        configuration_font.setWeight(QFont::Normal);
+        options->setFont(configuration_font);
         options->setMinimumSize(610, 0);
         options->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
         homeEditor = new QWidget(body);
         homeEditor->setMinimumWidth(280);
-        auto *homeEditorLayout = new QVBoxLayout(homeEditor);
-        homeEditorLayout->setContentsMargins(0, 0, 0, 0);
+        auto *home_editor_layout = new QVBoxLayout(homeEditor);
+        home_editor_layout->setContentsMargins(0, 0, 0, 0);
         body->setHandleWidth(12);
         body->setSizes({ 664, 496 });
         body->setStretchFactor(0, 0);
@@ -253,11 +256,11 @@ struct Workbench::Impl
         newAction  = action(QStringLiteral("新建"), "newMacro", QKeySequence::New, [this] { NewMacro(); });
         openAction = action(QStringLiteral("打开"), "openMacro", QKeySequence::Open, [this] { OpenMacro(); });
         auto *save = action(QStringLiteral("保存"), "saveMacro", QKeySequence::Save, [this] { SaveMacro(false); });
-        auto *saveAs = action(QStringLiteral("另存为"), "saveMacroAs", QKeySequence::SaveAs, [this] { SaveMacro(true); });
-        auto *check  = action(QStringLiteral("检查宏"), "checkMacro", QKeySequence(Qt::CTRL | Qt::Key_Return), [this] {
+        auto *save_as = action(QStringLiteral("另存为"), "saveMacroAs", QKeySequence::SaveAs, [this] { SaveMacro(true); });
+        auto *check = action(QStringLiteral("检查宏"), "checkMacro", QKeySequence(Qt::CTRL | Qt::Key_Return), [this] {
             CheckMacro();
         });
-        traceAction  = action(QStringLiteral("记录一场战斗"), "singleTrace", {}, [this] { StartBatch(true); });
+        traceAction = action(QStringLiteral("记录一场战斗"), "singleTrace", {}, [this] { StartBatch(true); });
         gainsAction = new QAction(QStringLiteral("自动收益"), window);
         gainsAction->setObjectName(QStringLiteral("attributeGains"));
         gainsAction->setCheckable(true);
@@ -268,25 +271,26 @@ struct Workbench::Impl
         QObject::connect(options->GainsButton(), &QToolButton::toggled, gainsAction, &QAction::setChecked);
         exportAction = action(QStringLiteral("导出战斗记录"), "exportTrace", {}, [this] { ExportTrace(); });
         exportAction->setEnabled(false);
-        auto *clearBreakpoints =
+        auto *clear_breakpoints =
             action(QStringLiteral("清除断点"), "clearBreakpoints", {}, [this] { editor->ClearAllBreakpoints(); });
 
-        auto *macroPanel = new desktop::HeaderGroupBox(QStringLiteral("循环宏"));
-        editorPage = macroPanel;
+        auto *macro_panel = new desktop::HeaderGroupBox(QStringLiteral("循环宏"));
+        editorPage        = macro_panel;
         editorPage->setObjectName(QStringLiteral("macroPanel"));
-        editorPage->setStyleSheet(QStringLiteral("QGroupBox#macroPanel { margin-top: %1px; } QGroupBox#macroPanel::title { top: 5px; }")
-            .arg(desktop::AttributeHeaderHeight + desktop::AttributeHeaderSpacing));
-        auto *macroHeader = macroPanel->HeaderActions(desktop::AttributeHeaderHeight);
-        auto *openHelp = new QToolButton;
-        openHelp->setObjectName(QStringLiteral("openMacroHelp"));
-        openHelp->setText(QStringLiteral("宏语法…"));
-        openHelp->setToolTip(QStringLiteral("打开独立的宏语法帮助窗口，不切走当前页面或中断调试"));
-        macroHeader->addWidget(openHelp);
-        homeEditorLayout->addWidget(editorPage, 1);
-        homeEditorLayout->addWidget(options->TakeOutputPanel());
-        auto *editorLayout = new QVBoxLayout(editorPage);
-        editorLayout->setContentsMargins(8, 16, 8, 8);
-        editorLayout->setSpacing(5);
+        editorPage->setStyleSheet(
+            QStringLiteral("QGroupBox#macroPanel { margin-top: %1px; } QGroupBox#macroPanel::title { top: 5px; }")
+                .arg(desktop::AttributeHeaderHeight + desktop::AttributeHeaderSpacing));
+        auto *macro_header = macro_panel->HeaderActions(desktop::AttributeHeaderHeight);
+        auto *open_help    = new QToolButton;
+        open_help->setObjectName(QStringLiteral("openMacroHelp"));
+        open_help->setText(QStringLiteral("宏语法…"));
+        open_help->setToolTip(QStringLiteral("打开独立的宏语法帮助窗口，不切走当前页面或中断调试"));
+        macro_header->addWidget(open_help);
+        home_editor_layout->addWidget(editorPage, 1);
+        home_editor_layout->addWidget(options->TakeOutputPanel());
+        auto *editor_layout = new QVBoxLayout(editorPage);
+        editor_layout->setContentsMargins(8, 16, 8, 8);
+        editor_layout->setSpacing(5);
         auto *files = new QToolBar(editorPage);
         files->setStyleSheet(QStringLiteral("QToolButton { padding: 4px; }"));
         files->addActions({ newAction, openAction, save, check });
@@ -296,34 +300,34 @@ struct Workbench::Impl
         more->setPopupMode(QToolButton::InstantPopup);
         auto *menu = new QMenu(more);
         more->setMenu(menu);
-        menu->addAction(saveAs);
+        menu->addAction(save_as);
         menu->addSeparator();
-        auto *editorTools = new QHBoxLayout;
-        editorTools->setSpacing(4);
-        editorTools->addWidget(files, 1);
-        editorTools->addWidget(more);
-        editorLayout->addLayout(editorTools);
-        auto *documentInfo = new QWidget(editorPage);
-        auto *documentInfoLayout = new QHBoxLayout(documentInfo);
-        documentInfoLayout->setContentsMargins(0, 0, 0, 0);
+        auto *editor_tools = new QHBoxLayout;
+        editor_tools->setSpacing(4);
+        editor_tools->addWidget(files, 1);
+        editor_tools->addWidget(more);
+        editor_layout->addLayout(editor_tools);
+        auto *document_info        = new QWidget(editorPage);
+        auto *document_info_layout = new QHBoxLayout(document_info);
+        document_info_layout->setContentsMargins(0, 0, 0, 0);
         documentLabel = new QLabel(editorPage);
         documentLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
         documentLabel->setStyleSheet(QStringLiteral("color: #92929d; padding: 2px;"));
-        documentInfoLayout->addWidget(documentLabel, 1);
-        editorLayout->addWidget(documentInfo);
-        auto *macroEditor = new MacroEditor(editorPage);
-        editor            = macroEditor;
+        document_info_layout->addWidget(documentLabel, 1);
+        editor_layout->addWidget(document_info);
+        auto *macro_editor = new MacroEditor(editorPage);
+        editor             = macro_editor;
         editor->setObjectName(QStringLiteral("macroEditor"));
         editor->setFont(Resources::MonoFont());
-        editor->SetSyntaxType(CodeEditor::JX3Macro);
+        editor->SetSyntaxType(CodeEditor::J_X3_MACRO);
         search = new MacroSearchBar(editor, editorPage);
-        editorLayout->addWidget(search);
+        editor_layout->addWidget(search);
         macroSplit = new QSplitter(Qt::Vertical, editorPage);
         macroSplit->setObjectName(QStringLiteral("macroDebugSplitter"));
         macroSplit->setChildrenCollapsible(false);
         editor->setMinimumHeight(150);
         macroSplit->addWidget(editor);
-        editorLayout->addWidget(macroSplit, 1);
+        editor_layout->addWidget(macroSplit, 1);
         auto *find     = action(QStringLiteral("查找"), "findMacro", QKeySequence::Find, [this] {
             ShowEditor();
             search->Open();
@@ -332,34 +336,34 @@ struct Workbench::Impl
             ShowEditor();
             search->Open(true);
         });
-        completeAction = action(QStringLiteral("代码补全"), "completeMacro", {}, [this, macroEditor] {
+        completeAction = action(QStringLiteral("代码补全"), "completeMacro", {}, [this, macro_editor] {
             ShowEditor();
-            macroEditor->setFocus();
-            macroEditor->Complete();
+            macro_editor->setFocus();
+            macro_editor->Complete();
         });
-        menu->addActions({ find, replace, completeAction, clearBreakpoints });
+        menu->addActions({ find, replace, completeAction, clear_breakpoints });
         helpDialog = new QDialog(window);
         helpDialog->setObjectName(QStringLiteral("macroHelpDialog"));
         helpDialog->setModal(false);
         helpDialog->setWindowTitle(QStringLiteral("宏语法与调试帮助"));
         helpDialog->resize(760, 620);
-        auto *helpLayout = new QVBoxLayout(helpDialog);
-        help             = new QTextBrowser(helpDialog);
+        auto *help_layout = new QVBoxLayout(helpDialog);
+        help              = new QTextBrowser(helpDialog);
         help->setObjectName(QStringLiteral("macroHelpBrowser"));
-        helpLayout->addWidget(help);
-        auto *helpAction = action(QStringLiteral("宏语法帮助"), "macroHelp", {}, [this] { ShowMacroHelp(); });
-        QObject::connect(openHelp, &QToolButton::clicked, helpAction, &QAction::trigger);
+        help_layout->addWidget(help);
+        auto *help_action = action(QStringLiteral("宏语法帮助"), "macroHelp", {}, [this] { ShowMacroHelp(); });
+        QObject::connect(open_help, &QToolButton::clicked, help_action, &QAction::trigger);
         menu->addSeparator();
-        menu->addAction(helpAction);
+        menu->addAction(help_action);
         problems = Table({ QStringLiteral("宏行"), QStringLiteral("说明") }, editorPage);
         problems->setObjectName(QStringLiteral("macroProblems"));
         problems->setMaximumHeight(135);
         problems->hide();
-        editorLayout->addWidget(problems);
+        editor_layout->addWidget(problems);
         macroStatus = new QLabel(QStringLiteral("点击行号设置断点 · Ctrl+Space 补全"), editorPage);
         macroStatus->setStyleSheet(QStringLiteral("color: #92929d; font-size: 12px;"));
         macroStatus->setWordWrap(true);
-        editorLayout->addWidget(macroStatus);
+        editor_layout->addWidget(macroStatus);
 
         simToolbar = new SimulationToolbar(options);
         simToolbar->setObjectName(QStringLiteral("simulationToolbar"));
@@ -367,129 +371,130 @@ struct Workbench::Impl
         simToolbar->setMaximumWidth(140);
         options->RunActions()->addWidget(simToolbar);
         debugToggle = simToolbar->findChild<QToolButton *>(QStringLiteral("debugButton"));
-        editorTools->addWidget(debugToggle);
+        editor_tools->addWidget(debugToggle);
         macroRun = new QToolButton(editorPage);
         macroRun->setObjectName(QStringLiteral("runMacroButton"));
         macroRun->setText(QStringLiteral("开始模拟"));
         macroRun->setToolTip(QStringLiteral("运行当前循环宏（F5）"));
-        editorTools->addWidget(macroRun);
+        editor_tools->addWidget(macroRun);
         QObject::connect(macroRun, &QToolButton::clicked, window, [this] {
             simToolbar->findChild<QToolButton *>(QStringLiteral("startButton"))->click();
         });
-        auto *outputSummary = new QHBoxLayout;
-        auto *damageSummary = new QVBoxLayout;
-        damageSummary->setSpacing(2);
-        damageSummary->addWidget(new QLabel(QStringLiteral("平均秒伤")));
+        auto *output_summary = new QHBoxLayout;
+        auto *damage_summary = new QVBoxLayout;
+        damage_summary->setSpacing(2);
+        damage_summary->addWidget(new QLabel(QStringLiteral("平均秒伤")));
         meanDps = new QLabel(QStringLiteral("--"));
         meanDps->setObjectName(QStringLiteral("meanDps"));
-        auto metricFont = meanDps->font();
-        metricFont.setFamily(QStringLiteral("Bahnschrift"));
-        metricFont.setPixelSize(30);
-        metricFont.setWeight(QFont::Normal);
-        meanDps->setFont(metricFont);
-        meanDps->setStyleSheet(QStringLiteral("font-family: 'Segoe UI'; font-size: 30px; font-weight: 600; color: #ededf1;"));
+        auto metric_font = meanDps->font();
+        metric_font.setFamily(QStringLiteral("Bahnschrift"));
+        metric_font.setPixelSize(30);
+        metric_font.setWeight(QFont::Normal);
+        meanDps->setFont(metric_font);
+        meanDps->setStyleSheet(
+            QStringLiteral("font-family: 'Segoe UI'; font-size: 30px; font-weight: 600; color: #ededf1;"));
         meanDps->setMinimumWidth(100);
-        damageSummary->addWidget(meanDps);
-        outputSummary->addLayout(damageSummary);
+        damage_summary->addWidget(meanDps);
+        output_summary->addLayout(damage_summary);
         outputDetails = new QLabel(QStringLiteral("运行模拟后显示结果"));
         outputDetails->setObjectName(QStringLiteral("outputDetails"));
         outputDetails->setWordWrap(true);
         outputDetails->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-        outputSummary->addWidget(outputDetails, 1);
-        auto *outputActions = new QGridLayout;
-        outputActions->setSpacing(4);
-        int outputButtonIndex = 0;
-        auto  outputButton  = [&](const QString &label, const char *name, auto callback) {
+        output_summary->addWidget(outputDetails, 1);
+        auto *output_actions = new QGridLayout;
+        output_actions->setSpacing(4);
+        int        output_button_index = 0;
+        const auto OUTPUT_BUTTON       = [&](const QString &label, const char *name, auto callback) {
             auto *button = new QPushButton(label);
             button->setObjectName(QString::fromLatin1(name));
-            outputActions->addWidget(button, outputButtonIndex / 2, outputButtonIndex % 2);
-            ++outputButtonIndex;
+            output_actions->addWidget(button, output_button_index / 2, output_button_index % 2);
+            ++output_button_index;
             QObject::connect(button, &QPushButton::clicked, window, callback);
         };
-        outputButton(QStringLiteral("技能统计"), "showAnalysis", [this] {
+        OUTPUT_BUTTON(QStringLiteral("技能统计"), "showAnalysis", [this] {
             results->ShowSkillStatistics();
             ShowAnalysis(results);
         });
-        outputButton(QStringLiteral("时间轴"), "showTimeline", [this] { ShowAnalysis(views->widget(0)); });
-        auto *recordButton = new QToolButton;
-        recordButton->setObjectName(QStringLiteral("singleTraceButton"));
-        recordButton->setDefaultAction(traceAction);
-        recordButton->setToolTip(QStringLiteral("记录第一场战斗，查看时间轴、技能伤害和增益变化。"));
-        outputActions->addWidget(recordButton, 1, 0);
-        auto *quickGain = new desktop::MagpieCheckButton;
-        quickGain->setObjectName(QStringLiteral("calculateAttributeGains"));
-        quickGain->setDefaultAction(gainsAction);
-        outputActions->addWidget(quickGain, 1, 1);
+        OUTPUT_BUTTON(QStringLiteral("时间轴"), "showTimeline", [this] { ShowAnalysis(views->widget(0)); });
+        auto *record_button = new QToolButton;
+        record_button->setObjectName(QStringLiteral("singleTraceButton"));
+        record_button->setDefaultAction(traceAction);
+        record_button->setToolTip(QStringLiteral("记录第一场战斗，查看时间轴、技能伤害和增益变化。"));
+        output_actions->addWidget(record_button, 1, 0);
+        auto *quick_gain = new desktop::MagpieCheckButton;
+        quick_gain->setObjectName(QStringLiteral("calculateAttributeGains"));
+        quick_gain->setDefaultAction(gainsAction);
+        output_actions->addWidget(quick_gain, 1, 1);
         hotspotAction = new QAction(QStringLiteral("采集性能热点"), window);
         hotspotAction->setObjectName(QStringLiteral("collectFightHotspots"));
         hotspotAction->setCheckable(true);
         hotspotAction->setToolTip(QStringLiteral("运行期间对所有模拟线程采样，合并显示整批调用栈和阶段耗时。"));
-        auto *hotspotButton = new desktop::MagpieCheckButton;
-        hotspotButton->setDefaultAction(hotspotAction);
-        outputActions->addWidget(hotspotButton, 2, 0, 1, 2);
-        outputSummary->addLayout(outputActions);
-        outputSummary->setSpacing(10);
-        options->OutputLayout()->addLayout(outputSummary);
+        auto *hotspot_button = new desktop::MagpieCheckButton;
+        hotspot_button->setDefaultAction(hotspotAction);
+        output_actions->addWidget(hotspot_button, 2, 0, 1, 2);
+        output_summary->addLayout(output_actions);
+        output_summary->setSpacing(10);
+        options->OutputLayout()->addLayout(output_summary);
 
         analysisDialog = new QDialog(window);
         analysisDialog->setWindowFlags(Qt::Widget);
         analysisDialog->setObjectName(QStringLiteral("resultAnalysis"));
         analysisDialog->setWindowTitle(QStringLiteral("结果分析"));
         shell->pages->addWidget(analysisDialog);
-        analysisDialog->addActions({find, replace, completeAction});
-        auto *analysisLayout = new QVBoxLayout(analysisDialog);
-        analysisLayout->setContentsMargins(0, 0, 0, 0);
-        auto *analysisActions = new QHBoxLayout;
-        traceTools = new QToolBar(analysisDialog);
+        analysisDialog->addActions({ find, replace, completeAction });
+        auto *analysis_layout = new QVBoxLayout(analysisDialog);
+        analysis_layout->setContentsMargins(0, 0, 0, 0);
+        auto *analysis_actions = new QHBoxLayout;
+        traceTools             = new QToolBar(analysisDialog);
         traceTools->addAction(traceAction);
         traceTools->addAction(exportAction);
         traceHint = new QLabel(QStringLiteral("记录后可查看逐击伤害、时间轴和增益覆盖。"));
         traceHint->setProperty("muted", true);
         traceTools->addWidget(traceHint);
-        analysisActions->addWidget(traceTools);
-        analysisActions->addStretch();
-        auto *backToMacro = new QToolButton(analysisDialog);
-        backToMacro->setObjectName(QStringLiteral("closeAnalysis"));
-        backToMacro->setText(QStringLiteral("返回循环宏"));
-        QObject::connect(backToMacro, &QToolButton::clicked, window, [this] { ShowEditor(); });
-        analysisActions->addWidget(backToMacro);
-        analysisLayout->addLayout(analysisActions);
+        analysis_actions->addWidget(traceTools);
+        analysis_actions->addStretch();
+        auto *back_to_macro = new QToolButton(analysisDialog);
+        back_to_macro->setObjectName(QStringLiteral("closeAnalysis"));
+        back_to_macro->setText(QStringLiteral("返回循环宏"));
+        QObject::connect(back_to_macro, &QToolButton::clicked, window, [this] { ShowEditor(); });
+        analysis_actions->addWidget(back_to_macro);
+        analysis_layout->addLayout(analysis_actions);
         views = new desktop::SegmentedTabs(analysisDialog);
         views->setObjectName(QStringLiteral("analysisViews"));
-        analysisLayout->addWidget(views, 1);
-        auto *timelinePage = new QWidget(views);
-        timelinePage->setObjectName(QStringLiteral("timelinePage"));
-        auto *timelineLayout = new QVBoxLayout(timelinePage);
-        timelineLayout->setContentsMargins(0, 0, 0, 0);
-        auto *timelineTools = new QToolBar(timelinePage);
-        timelineLayout->addWidget(timelineTools);
-        auto *timelineScroll = new QScrollArea(timelinePage);
-        timelineScroll->setObjectName(QStringLiteral("timelineScroll"));
-        timelineScroll->setWidgetResizable(true);
-        timelineScroll->setFrameShape(QFrame::NoFrame);
+        analysis_layout->addWidget(views, 1);
+        auto *timeline_page = new QWidget(views);
+        timeline_page->setObjectName(QStringLiteral("timelinePage"));
+        auto *timeline_layout = new QVBoxLayout(timeline_page);
+        timeline_layout->setContentsMargins(0, 0, 0, 0);
+        auto *timeline_tools = new QToolBar(timeline_page);
+        timeline_layout->addWidget(timeline_tools);
+        auto *timeline_scroll = new QScrollArea(timeline_page);
+        timeline_scroll->setObjectName(QStringLiteral("timelineScroll"));
+        timeline_scroll->setWidgetResizable(true);
+        timeline_scroll->setFrameShape(QFrame::NoFrame);
         timeline = new Timeline;
         timeline->setObjectName(QStringLiteral("combatTimeline"));
         timeline->setMinimumHeight(210);
-        timelineScroll->setWidget(timeline);
-        auto *timelineSplit = new QSplitter(Qt::Horizontal);
-        timelineSplit->setChildrenCollapsible(false);
-        timelineSplit->addWidget(timelineScroll);
+        timeline_scroll->setWidget(timeline);
+        auto *timeline_split = new QSplitter(Qt::Horizontal);
+        timeline_split->setChildrenCollapsible(false);
+        timeline_split->addWidget(timeline_scroll);
         history = new HistoryPanel;
-        timelineSplit->addWidget(history);
-        timelineSplit->setStretchFactor(0, 1);
-        timelineSplit->setSizes({900, 290});
-        timelineLayout->addWidget(timelineSplit, 1);
+        timeline_split->addWidget(history);
+        timeline_split->setStretchFactor(0, 1);
+        timeline_split->setSizes({ 900, 290 });
+        timeline_layout->addWidget(timeline_split, 1);
         QObject::connect(timeline, &Timeline::CursorTimeChanged, history, &HistoryPanel::Inspect);
-        timelineTools->addSeparator();
-        timelineTools->addWidget(new QLabel(QStringLiteral("移动鼠标查看属性 · 滚轮缩放 · 拖动平移")));
-        QObject::connect(timelineTools->addAction(QStringLiteral("放大")), &QAction::triggered, timeline, &Timeline::ZoomIn);
-        QObject::connect(timelineTools->addAction(QStringLiteral("缩小")), &QAction::triggered, timeline, &Timeline::ZoomOut);
-        QObject::connect(timelineTools->addAction(QStringLiteral("适应全程")), &QAction::triggered, timeline, &Timeline::ResetZoom);
+        timeline_tools->addSeparator();
+        timeline_tools->addWidget(new QLabel(QStringLiteral("移动鼠标查看属性 · 滚轮缩放 · 拖动平移")));
+        QObject::connect(timeline_tools->addAction(QStringLiteral("放大")), &QAction::triggered, timeline, &Timeline::ZoomIn);
+        QObject::connect(timeline_tools->addAction(QStringLiteral("缩小")), &QAction::triggered, timeline, &Timeline::ZoomOut);
+        QObject::connect(timeline_tools->addAction(QStringLiteral("适应全程")), &QAction::triggered, timeline, &Timeline::ResetZoom);
         eventsTable =
             Table({ QStringLiteral("帧"), QStringLiteral("秒"), QStringLiteral("技能"), QStringLiteral("伤害"), QStringLiteral("命中结果"), QStringLiteral("序号") },
                   views);
         eventsTable->setObjectName(QStringLiteral("damageEvents"));
-        views->addTab(timelinePage, QStringLiteral("时间轴"));
+        views->addTab(timeline_page, QStringLiteral("时间轴"));
         views->addTab(eventsTable, QStringLiteral("伤害事件"));
         results = new ResultsPanel(views);
         views->addTab(results, QStringLiteral("模拟统计"));
@@ -507,43 +512,51 @@ struct Workbench::Impl
         });
         views->setCurrentWidget(results);
 
-        debugSession  = new DebugSession(window);
+        debugSession = new DebugSession(window);
         debugToolbar = new DebugToolbar(window);
         debugToolbar->setObjectName(QStringLiteral("macroDebugToolbar"));
         debugToolbar->SetAnchorWidget(editor);
-        debugPosition = new QLabel(documentInfo);
+        debugPosition = new QLabel(document_info);
         debugPosition->setObjectName(QStringLiteral("debugPosition"));
         debugPosition->setStyleSheet(QStringLiteral("color: #63cfe8; padding: 2px; font-size: 12px;"));
-        documentInfoLayout->addWidget(debugPosition);
-        auto debugAction = [&](const QString &text, const char *name, QStyle::StandardPixmap icon,
-                               const QString &tip, auto callback) {
-            auto *item = action(text, name, {}, callback);
-            item->setIcon(window->style()->standardIcon(icon));
-            item->setToolTip(tip);
-        };
-        debugAction(QStringLiteral("开始调试"), "debugStart", QStyle::SP_MediaPlay,
-                    QStringLiteral("开始调试，在首条宏前暂停"), [this] { StartDebug(); });
-        debugAction(QStringLiteral("继续"), "debugContinue", QStyle::SP_MediaPlay,
-                    QStringLiteral("继续至断点或结束（F5）"), [this] { ContinueDebug(); });
-        debugAction(QStringLiteral("暂停"), "debugPause", QStyle::SP_MediaPause,
-                    QStringLiteral("暂停（F6）"), [this] { debugSession->Pause(); });
-        debugAction(QStringLiteral("执行一行"), "debugStepOver", QStyle::SP_MediaSkipForward,
-                    QStringLiteral("执行一行（F10）"), [this] { Step(1); });
-        debugAction(QStringLiteral("条件 / 动作"), "debugStepInto", QStyle::SP_ArrowDown,
-                    QStringLiteral("执行一个条件或动作（F11）"), [this] { Step(0); });
-        debugAction(QStringLiteral("执行本轮"), "debugStepOut", QStyle::SP_MediaSeekForward,
-                    QStringLiteral("执行本轮宏（Shift+F11）"), [this] { Step(2); });
-        debugAction(QStringLiteral("重新调试"), "debugRestart", QStyle::SP_BrowserReload,
-                    QStringLiteral("重新调试当前宏"), [this] { StartDebug(); });
-        debugAction(QStringLiteral("停止"), "debugStop", QStyle::SP_MediaStop,
-                    QStringLiteral("停止调试（Shift+F5）"), [this] { debugSession->Stop(); });
+        document_info_layout->addWidget(debugPosition);
+        const auto DEBUG_ACTION =
+            [&](const QString &text, const char *name, QStyle::StandardPixmap icon, const QString &tip, auto callback) {
+                auto *item = action(text, name, {}, callback);
+                item->setIcon(window->style()->standardIcon(icon));
+                item->setToolTip(tip);
+            };
+        DEBUG_ACTION(QStringLiteral("开始调试"), "debugStart", QStyle::SP_MediaPlay, QStringLiteral("开始调试，在首条宏前暂停"), [this] {
+            StartDebug();
+        });
+        DEBUG_ACTION(QStringLiteral("继续"), "debugContinue", QStyle::SP_MediaPlay, QStringLiteral("继续至断点或结束（F5）"), [this] {
+            ContinueDebug();
+        });
+        DEBUG_ACTION(QStringLiteral("暂停"), "debugPause", QStyle::SP_MediaPause, QStringLiteral("暂停（F6）"), [this] {
+            debugSession->Pause();
+        });
+        DEBUG_ACTION(QStringLiteral("执行一行"), "debugStepOver", QStyle::SP_MediaSkipForward, QStringLiteral("执行一行（F10）"), [this] {
+            Step(1);
+        });
+        DEBUG_ACTION(QStringLiteral("条件 / 动作"), "debugStepInto", QStyle::SP_ArrowDown, QStringLiteral("执行一个条件或动作（F11）"), [this] {
+            Step(0);
+        });
+        DEBUG_ACTION(QStringLiteral("执行本轮"), "debugStepOut", QStyle::SP_MediaSeekForward, QStringLiteral("执行本轮宏（Shift+F11）"), [this] {
+            Step(2);
+        });
+        DEBUG_ACTION(QStringLiteral("重新调试"), "debugRestart", QStyle::SP_BrowserReload, QStringLiteral("重新调试当前宏"), [this] {
+            StartDebug();
+        });
+        DEBUG_ACTION(QStringLiteral("停止"), "debugStop", QStyle::SP_MediaStop, QStringLiteral("停止调试（Shift+F5）"), [this] {
+            debugSession->Stop();
+        });
         debugTabs = new desktop::SegmentedTabs(macroSplit);
         debugTabs->setObjectName(QStringLiteral("debugTabs"));
         debugTabs->setMinimumHeight(300);
         macroSplit->addWidget(debugTabs);
         macroSplit->setStretchFactor(0, 3);
         macroSplit->setStretchFactor(1, 2);
-        macroSplit->setSizes({400, 270});
+        macroSplit->setSizes({ 400, 270 });
         inspector = new QTextBrowser(debugTabs);
         inspector->setObjectName(QStringLiteral("debugInspector"));
         inspector->setPlaceholderText(
@@ -551,34 +564,34 @@ struct Workbench::Impl
         debugTabs->addTab(inspector, QStringLiteral("运行状态"));
         macroSteps = new MacroTracePanel(debugTabs);
         debugTabs->addTab(macroSteps, QStringLiteral("执行轨迹"));
-        auto *playerPage = new QScrollArea(debugTabs);
-        playerPage->setFrameShape(QFrame::NoFrame);
-        playerPage->setWidgetResizable(true);
+        auto *player_page = new QScrollArea(debugTabs);
+        player_page->setFrameShape(QFrame::NoFrame);
+        player_page->setWidgetResizable(true);
         statePanel = new PlayerStatePanel;
-        playerPage->setWidget(statePanel);
-        debugTabs->addTab(playerPage, QStringLiteral("玩家与目标"));
-        auto *breakpointPage   = new QWidget(debugTabs);
-        auto *breakpointLayout = new QVBoxLayout(breakpointPage);
-        breakpointList         = new QListWidget(breakpointPage);
+        player_page->setWidget(statePanel);
+        debugTabs->addTab(player_page, QStringLiteral("玩家与目标"));
+        auto *breakpoint_page   = new QWidget(debugTabs);
+        auto *breakpoint_layout = new QVBoxLayout(breakpoint_page);
+        breakpointList          = new QListWidget(breakpoint_page);
         breakpointList->setObjectName(QStringLiteral("breakpointList"));
-        breakpointLayout->addWidget(breakpointList);
-        auto *clearButton = new QToolButton(breakpointPage);
-        clearButton->setDefaultAction(clearBreakpoints);
-        breakpointLayout->addWidget(clearButton);
-        debugTabs->addTab(breakpointPage, QStringLiteral("断点"));
-        auto updateBreakpoints = [this] {
+        breakpoint_layout->addWidget(breakpointList);
+        auto *clear_button = new QToolButton(breakpoint_page);
+        clear_button->setDefaultAction(clear_breakpoints);
+        breakpoint_layout->addWidget(clear_button);
+        debugTabs->addTab(breakpoint_page, QStringLiteral("断点"));
+        const auto UPDATE_BREAKPOINTS = [this] {
             breakpointList->clear();
             auto lines = editor->GetBreakpoints().values();
             std::sort(lines.begin(), lines.end());
-            for (int line : lines) {
+            for (const int LINE : lines) {
                 auto *item = new QListWidgetItem(
-                    QStringLiteral("第 %1 行 · %2").arg(line).arg(editor->document()->findBlockByNumber(line - 1).text()),
+                    QStringLiteral("第 %1 行 · %2").arg(LINE).arg(editor->document()->findBlockByNumber(LINE - 1).text()),
                     breakpointList);
-                item->setData(Qt::UserRole, line);
+                item->setData(Qt::UserRole, LINE);
             }
         };
-        QObject::connect(editor, &CodeEditor::BreakpointAdded, window, updateBreakpoints);
-        QObject::connect(editor, &CodeEditor::BreakpointRemoved, window, updateBreakpoints);
+        QObject::connect(editor, &CodeEditor::BreakpointAdded, window, UPDATE_BREAKPOINTS);
+        QObject::connect(editor, &CodeEditor::BreakpointRemoved, window, UPDATE_BREAKPOINTS);
         QObject::connect(breakpointList, &QListWidget::itemActivated, window, [this](QListWidgetItem *item) {
             editor->setTextCursor(QTextCursor(editor->document()->findBlockByNumber(item->data(Qt::UserRole).toInt() - 1)));
             editor->centerCursor();
@@ -588,12 +601,12 @@ struct Workbench::Impl
                 result->setText(QStringLiteral("此记录属于先前的宏；修改后无法定位原代码，请重新调试当前宏。"));
                 return;
             }
-            const auto block = editor->document()->findBlockByNumber(line - 1);
-            if (!block.isValid()) {
+            const auto BLOCK = editor->document()->findBlockByNumber(line - 1);
+            if (!BLOCK.isValid()) {
                 return;
             }
             ShowEditor();
-            editor->setTextCursor(QTextCursor(block));
+            editor->setTextCursor(QTextCursor(BLOCK));
             editor->centerCursor();
             editor->setFocus();
         });
@@ -608,10 +621,10 @@ struct Workbench::Impl
                 result->setText(QStringLiteral("此增益变化后尚未记录伤害事件。"));
                 return;
             }
-            const int row = static_cast<int>(hit - events.cbegin());
+            const int ROW = static_cast<int>(hit - events.cbegin());
             ShowAnalysis(eventsTable);
-            eventsTable->selectRow(row);
-            eventsTable->scrollToItem(eventsTable->item(row, 0));
+            eventsTable->selectRow(ROW);
+            eventsTable->scrollToItem(eventsTable->item(ROW, 0));
         });
         QObject::connect(analysisDialog, &QDialog::finished, window, [this] { ShowEditor(); });
 
@@ -627,7 +640,7 @@ struct Workbench::Impl
         auto *status = new QHBoxLayout(statusBar);
         status->setContentsMargins(0, 0, 0, 0);
         status->addWidget(result, 1);
-        progress     = new QProgressBar(central);
+        progress = new QProgressBar(central);
         progress->setObjectName(QStringLiteral("batchProgress"));
         progress->setRange(0, 1000);
         progress->setValue(0);
@@ -668,19 +681,19 @@ struct Workbench::Impl
         QObject::connect(editor, &CodeEditor::BreakpointRemoved, debugSession, &DebugSession::RemoveBreakpoint);
         QObject::connect(debugSession, &DebugSession::LineChanged, editor, &CodeEditor::SetCurrentDebugLine);
         QObject::connect(debugSession, &DebugSession::StateChanged, window, [this](DebugSession::State state) {
-            if (state == DebugSession::Stopped) {
+            if (state == DebugSession::STOPPED) {
                 statePanel->Clear();
                 inspector->clear();
             }
             UpdateControls();
         });
         QObject::connect(debugSession, &DebugSession::DebugInfoUpdated, window, [this](const DebugSession::DebugInfo &info) {
-            PlayerStatePanel::PlayerState state{
+            const PlayerStatePanel::PlayerState STATE{
                 info.lifePercent, info.manaPercent,       info.qidian,       info.rage,           info.energy,
                 info.targetId,    info.targetLifePercent, info.currentFrame, info.currentSeconds, info.currentMacro,
                 info.currentSkill
             };
-            statePanel->UpdateState(state);
+            statePanel->UpdateState(STATE);
             inspector->setPlainText(QStringLiteral("下一阶段：%1\n%2\n\n上一步执行结果：\n%3\n\n%4")
                                         .arg(info.phase,
                                              info.condition,
@@ -704,7 +717,7 @@ struct Workbench::Impl
         QObject::connect(debugSession, &DebugSession::ExecutionFinished, window, [this] {
             result->setText(QStringLiteral("调试完成 | 总伤害 %1 | 秒伤 %2 | 共 %3 条事件")
                                 .arg(debugSession->TotalDamage())
-                                .arg(debugSession->TotalDamage() / (activeOptions.duration / 16.0), 0, 'f', 1)
+                                .arg(debugSession->TotalDamage() / (JX3DPS::FramesToSeconds(activeOptions.duration)), 0, 'f', 1)
                                 .arg(events.size()));
         });
         QObject::connect(debugToolbar, &DebugToolbar::ContinueClicked, window, [this] { ContinueDebug(); });
@@ -715,15 +728,15 @@ struct Workbench::Impl
         QObject::connect(debugToolbar, &DebugToolbar::RestartClicked, window, [this] { StartDebug(); });
         QObject::connect(debugToolbar, &DebugToolbar::StopClicked, debugSession, &DebugSession::Stop);
 
-        auto shortcut = [&](const QKeySequence &key, auto callback) {
-            for (auto *owner : {static_cast<QWidget *>(window), static_cast<QWidget *>(analysisDialog)}) {
-                auto *item = new QShortcut(key, owner);
+        const auto shortcut = [&](const QKeySequence &key, auto callback) {
+            for (auto *owner : { static_cast<QWidget *>(window), static_cast<QWidget *>(analysisDialog) }) {
+                const auto *item = new QShortcut(key, owner);
                 QObject::connect(item, &QShortcut::activated, window, callback);
             }
         };
         shortcut(QKeySequence(Qt::Key_F5), [this] {
-            if (simToolbar->IsDebugModeEnabled() || debugSession->GetState() == DebugSession::Paused ||
-                debugSession->GetState() == DebugSession::Running)
+            if (simToolbar->IsDebugModeEnabled() || debugSession->GetState() == DebugSession::PAUSED ||
+                debugSession->GetState() == DebugSession::RUNNING)
             {
                 ShowEditor();
                 ContinueDebug();
@@ -743,28 +756,30 @@ struct Workbench::Impl
             }
         });
         shortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F5), [this] {
-            if (!batch && simToolbar->IsDebugModeEnabled()) StartDebug();
+            if (!batch && simToolbar->IsDebugModeEnabled()) {
+                StartDebug();
+            }
         });
         shortcut(QKeySequence(Qt::Key_F3), [this] { search->Find(); });
         shortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), [this] { search->Find(true); });
 
         QObject::connect(editor, &CodeEditor::SyntaxErrorsChanged, window, [this](int) { ShowProblems(); });
         editor->SetSyntaxValidator([this](const QString &source) {
-            const auto bytes    = source.toUtf8();
-            const auto compiled = rt::MacroCompiler::Compile(std::string_view(bytes.constData(), bytes.size()),
+            const auto BYTES    = source.toUtf8();
+            const auto COMPILED = rt::MacroCompiler::Compile(std::string_view(BYTES.constData(), BYTES.size()),
                                                              desktop::MacroOptions(options->Specialization(), false));
             QList<SyntaxError> errors;
-            const auto         lines = source.split('\n');
-            for (const auto &error : compiled.second) {
-                const int line = static_cast<int>(error.line);
-                const int length = line > 0 && line <= lines.size() ? std::max(1, static_cast<int>(lines[line - 1].size())) : 1;
-                errors.append(SyntaxError(line, 0, length, SyntaxError::Error, desktop::Diagnostic(Name(error.message))));
+            const auto         LINES = source.split('\n');
+            for (const auto &error : COMPILED.second) {
+                const int LINE = static_cast<int>(error.line);
+                const int LENGTH = LINE > 0 && LINE <= LINES.size() ? std::max(1, static_cast<int>(LINES[LINE - 1].size())) : 1;
+                errors.append(SyntaxError(LINE, 0, LENGTH, SyntaxError::SYNTAX_ERROR, desktop::Diagnostic(Name(error.message))));
             }
             return errors;
         });
         QObject::connect(problems, &QTableWidget::cellActivated, window, [this](int row, int) {
-            const int line = problems->item(row, 0)->text().toInt();
-            editor->setTextCursor(QTextCursor(editor->document()->findBlockByNumber(line - 1)));
+            const int LINE = problems->item(row, 0)->text().toInt();
+            editor->setTextCursor(QTextCursor(editor->document()->findBlockByNumber(LINE - 1)));
             editor->setFocus();
         });
         QObject::connect(timeline, &Timeline::EventClicked, window, [this](int index, const Timeline::EventItem &) {
@@ -797,9 +812,9 @@ struct Workbench::Impl
         });
 
         documentClass = options->Specialization();
-        macroEditor->SetSpecialization(documentClass);
+        macro_editor->SetSpecialization(documentClass);
         help->setHtml(MacroHelp(documentClass));
-        QObject::connect(options, &SimulationOptions::SpecializationChanged, window, [this, macroEditor] {
+        QObject::connect(options, &SimulationOptions::SpecializationChanged, window, [this, macro_editor] {
             drafts[static_cast<int>(documentClass)] =
                 Draft{ editor->toPlainText(), filePath, editor->document()->isModified(), editor->GetBreakpoints().values() };
             documentClass     = options->Specialization();
@@ -810,11 +825,11 @@ struct Workbench::Impl
             filePath = draft ? draft->path : QString{};
             editor->document()->setModified(draft && draft->modified);
             if (draft) {
-                for (int line : draft->breakpoints) {
-                    editor->SetBreakpoint(line, true);
+                for (const int LINE : draft->breakpoints) {
+                    editor->SetBreakpoint(LINE, true);
                 }
             }
-            macroEditor->SetSpecialization(documentClass);
+            macro_editor->SetSpecialization(documentClass);
             help->setHtml(MacroHelp(documentClass));
             ClearEvents();
             meanDps->setText(QStringLiteral("--"));
@@ -825,51 +840,57 @@ struct Workbench::Impl
             UpdateTitle();
             QMetaObject::invokeMethod(editor, "CheckSyntax", Qt::DirectConnection);
         });
-        QSettings settings;
-        const bool restoreDrafts = settings.value(QStringLiteral("workspace/restoreDrafts"), true).toBool();
-        for (int i = 0; restoreDrafts && i < 2; ++i) {
-            const auto key = QStringLiteral("macro/class%1/").arg(i);
-            if (!settings.contains(key + "draft")) {
+        const QSettings SETTINGS;
+        const bool      RESTORE_DRAFTS = SETTINGS.value(QStringLiteral("workspace/restoreDrafts"), true).toBool();
+        for (int i = 0; RESTORE_DRAFTS && i < 2; ++i) {
+            const auto KEY = QStringLiteral("macro/class%1/").arg(i);
+            if (!SETTINGS.contains(KEY + "draft")) {
                 continue;
             }
-            Draft draft{ settings.value(key + "draft").toString(),
-                         settings.value(key + "file").toString(),
-                         settings.value(key + "modified").toBool(),
+            Draft draft{ SETTINGS.value(KEY + "draft").toString(),
+                         SETTINGS.value(KEY + "file").toString(),
+                         SETTINGS.value(KEY + "modified").toBool(),
                          {} };
-            for (const auto &line : settings.value(key + "breakpoints").toList()) {
+            for (const auto &line : SETTINGS.value(KEY + "breakpoints").toList()) {
                 draft.breakpoints << line.toInt();
             }
             drafts[i] = draft;
         }
-        filePath = restoreDrafts ? settings.value(QStringLiteral("macro/file")).toString() : QString{};
-        editor->setPlainText(restoreDrafts ? settings.value(QStringLiteral("macro/draft"), desktop::DefaultMacro(documentClass)).toString()
-                                          : desktop::DefaultMacro(documentClass));
-        editor->document()->setModified(restoreDrafts && settings.value(QStringLiteral("macro/modified"), false).toBool());
-        for (const auto &value : restoreDrafts ? settings.value(QStringLiteral("macro/breakpoints")).toList() : QVariantList{}) {
-            const int line = value.toInt();
-            if (line > 0 && line <= editor->blockCount()) {
-                editor->SetBreakpoint(line, true);
+        filePath = RESTORE_DRAFTS ? SETTINGS.value(QStringLiteral("macro/file")).toString() : QString{};
+        editor->setPlainText(RESTORE_DRAFTS
+                                 ? SETTINGS.value(QStringLiteral("macro/draft"), desktop::DefaultMacro(documentClass)).toString()
+                                 : desktop::DefaultMacro(documentClass));
+        editor->document()->setModified(RESTORE_DRAFTS && SETTINGS.value(QStringLiteral("macro/modified"), false).toBool());
+        for (const auto &value : RESTORE_DRAFTS ? SETTINGS.value(QStringLiteral("macro/breakpoints")).toList() : QVariantList{})
+        {
+            const int LINE = value.toInt();
+            if (LINE > 0 && LINE <= editor->blockCount()) {
+                editor->SetBreakpoint(LINE, true);
             }
         }
-        auto editorFont = editor->font();
-        editorFont.setPixelSize(std::clamp(settings.value(QStringLiteral("appearance/editorSize"), 14).toInt(), 12, 20));
-        editor->setFont(editorFont);
+        auto editor_font = editor->font();
+        editor_font.setPixelSize(std::clamp(SETTINGS.value(QStringLiteral("appearance/editorSize"), 14).toInt(), 12, 20));
+        editor->setFont(editor_font);
         settingsPage = BuildSettingsPage(false);
-        aboutPage = BuildSettingsPage(true);
+        aboutPage    = BuildSettingsPage(true);
         shell->pages->addWidget(settingsPage);
         shell->pages->addWidget(aboutPage);
         QObject::connect(options, &SimulationOptions::SpecializationChanged, window, [this] {
             ApplySpecializationTheme();
         });
-        shell->navigate = [this](const QString &page) { Navigate(page); };
-        auto syncAnalysisNavigation = [this] {
-            if (shell->pages->currentWidget() != analysisDialog) return;
+        shell->navigate = [this](const QString &page) {
+            Navigate(page);
+        };
+        const auto SYNC_ANALYSIS_NAVIGATION = [this] {
+            if (shell->pages->currentWidget() != analysisDialog) {
+                return;
+            }
             currentPage = AnalysisSection();
             shell->Select(currentPage);
             traceTools->setVisible(views->currentWidget() != results);
         };
-        QObject::connect(views, &QTabWidget::currentChanged, window, syncAnalysisNavigation);
-        QObject::connect(results, &ResultsPanel::SectionChanged, window, syncAnalysisNavigation);
+        QObject::connect(views, &QTabWidget::currentChanged, window, SYNC_ANALYSIS_NAVIGATION);
+        QObject::connect(results, &ResultsPanel::SectionChanged, window, SYNC_ANALYSIS_NAVIGATION);
         QObject::connect(shell->refresh, &QToolButton::clicked, window, [this] { CheckMacro(); });
         ApplySpecializationTheme();
         Navigate(QStringLiteral("simulation"));
@@ -888,9 +909,11 @@ struct Workbench::Impl
     void ApplySpecializationTheme()
     {
         const auto *choice = options->findChild<QComboBox *>(QStringLiteral("specialization"));
-        const auto image = choice->itemIcon(choice->currentIndex()).pixmap(QSize(64, 64), 1.0).toImage();
-        const auto accent = desktop::theme::IconAccent(image);
-        if (window->property("workbenchAccent").value<QColor>() == accent) return;
+        const auto  IMAGE  = choice->itemIcon(choice->currentIndex()).pixmap(QSize(64, 64), 1.0).toImage();
+        const auto  accent = desktop::theme::IconAccent(IMAGE);
+        if (window->property("workbenchAccent").value<QColor>() == accent) {
+            return;
+        }
         window->setProperty("workbenchAccent", accent);
         auto colors = window->palette();
         colors.setColor(QPalette::Accent, accent);
@@ -902,10 +925,10 @@ struct Workbench::Impl
             // QSS accent-color handles descendants; native child windows also need their own palette.
             if (widget->isWindow()) {
                 widget->setAttribute(Qt::WA_WindowPropagation);
-                auto childColors = widget->palette();
-                childColors.setColor(QPalette::Accent, accent);
-                childColors.setColor(QPalette::Link, accent);
-                widget->setPalette(childColors);
+                auto child_colors = widget->palette();
+                child_colors.setColor(QPalette::Accent, accent);
+                child_colors.setColor(QPalette::Link, accent);
+                widget->setPalette(child_colors);
             }
             widget->update();
         }
@@ -921,20 +944,20 @@ struct Workbench::Impl
         auto *layout = new QVBoxLayout(page);
         layout->setContentsMargins(0, 0, 8, 0);
         layout->setSpacing(18);
-        auto *searchSettings = new QLineEdit;
-        searchSettings->setObjectName(about ? QStringLiteral("searchAbout") : QStringLiteral("searchSettings"));
-        searchSettings->setPlaceholderText(QStringLiteral("查找设置"));
-        searchSettings->setClearButtonEnabled(true);
-        searchSettings->setFixedWidth(200);
-        searchSettings->setAccessibleName(QStringLiteral("查找设置"));
-        shell->headerLayout->insertWidget(shell->headerLayout->count() - 1, searchSettings);
-        searchSettings->hide();
+        auto *search_settings = new QLineEdit;
+        search_settings->setObjectName(about ? QStringLiteral("searchAbout") : QStringLiteral("searchSettings"));
+        search_settings->setPlaceholderText(QStringLiteral("查找设置"));
+        search_settings->setClearButtonEnabled(true);
+        search_settings->setFixedWidth(200);
+        search_settings->setAccessibleName(QStringLiteral("查找设置"));
+        shell->headerLayout->insertWidget(shell->headerLayout->count() - 1, search_settings);
+        search_settings->hide();
         auto *card = new QFrame;
         card->setProperty("settingsCard", true);
         auto *rows = new QVBoxLayout(card);
         rows->setContentsMargins(1, 1, 1, 1);
         rows->setSpacing(0);
-        auto add = [rows](const QString &title, const QString &description, QWidget *control) {
+        const auto ADD = [rows](const QString &title, const QString &description, QWidget *control) {
             auto *row = new QFrame;
             row->setProperty("settingsRow", true);
             row->setProperty("searchText", title + ' ' + description);
@@ -958,33 +981,39 @@ struct Workbench::Impl
             content->addWidget(control);
             rows->addWidget(row);
         };
-        auto value = [](const QString &text) {
+        const auto value = [](const QString &text) {
             auto *label = new QLabel(text);
             label->setProperty("muted", true);
             label->setTextInteractionFlags(Qt::TextSelectableByMouse);
             return label;
         };
-        auto toggle = [this](const char *name, const char *key, bool fallback, std::function<void(bool)> changed = {}) {
+        const auto TOGGLE = [this](const char *name, const char *key, bool fallback, std::function<void(bool)> changed = {}) {
             auto *control = new desktop::ToggleSwitch;
             control->setObjectName(QString::fromLatin1(name));
             control->setChecked(QSettings().value(QString::fromLatin1(key), fallback).toBool());
             QObject::connect(control, &QAbstractButton::toggled, window, [key = QString::fromLatin1(key), changed](bool enabled) {
                 QSettings().setValue(key, enabled);
-                if (changed) changed(enabled);
+                if (changed) {
+                    changed(enabled);
+                }
             });
             return control;
         };
         if (about) {
-            add(QStringLiteral("版本"), QStringLiteral("JX3DPS · 剑网三战斗模拟器"), value(QStringLiteral("桌面工作台")));
-            add(QStringLiteral("Qt 版本"), QStringLiteral("原生 Qt Widgets 界面，不嵌入网页"), value(QString::fromLatin1(qVersion())));
-            add(QStringLiteral("支持心法"), QStringLiteral("独立保存心法配置与循环宏草稿"), value(QStringLiteral("太虚剑意 / 莫问")));
-            add(QStringLiteral("模拟引擎"), QStringLiteral("本地多线程计算；随机种子、战斗记录与断点调试可复现"), value(QStringLiteral("本地运行")));
-            add(QStringLiteral("规则与数据"), QStringLiteral("战斗使用已迁移的旧版规则。新版九重奇穴仅用于配装预览，尚未接入伤害计算。"), value(QStringLiteral("旧规则")));
+            ADD(QStringLiteral("版本"), QStringLiteral("JX3DPS · 剑网三战斗模拟器"), value(QStringLiteral("桌面工作台")));
+            ADD(QStringLiteral("Qt 版本"), QStringLiteral("原生 Qt Widgets 界面，不嵌入网页"), value(QString::fromLatin1(qVersion())));
+            ADD(QStringLiteral("支持心法"), QStringLiteral("独立保存心法配置与循环宏草稿"), value(QStringLiteral("太虚剑意 / 莫问")));
+            ADD(QStringLiteral("模拟引擎"),
+                QStringLiteral("本地多线程计算；随机种子、战斗记录与断点调试可复现"),
+                value(QStringLiteral("本地运行")));
+            ADD(QStringLiteral("规则与数据"),
+                QStringLiteral("战斗使用已迁移的旧版规则。新版九重奇穴仅用于配装预览，尚未接入伤害计算。"),
+                value(QStringLiteral("旧规则")));
             auto *syntax = new QToolButton;
             syntax->setObjectName(QStringLiteral("openMacroHelpFromAbout"));
             syntax->setText(QStringLiteral("打开"));
             QObject::connect(syntax, &QToolButton::clicked, window, [this] { ShowMacroHelp(); });
-            add(QStringLiteral("宏语法"), QStringLiteral("查看宏命令、条件表达式和断点调试快捷键"), syntax);
+            ADD(QStringLiteral("宏语法"), QStringLiteral("查看宏命令、条件表达式和断点调试快捷键"), syntax);
             auto *copy = new QToolButton;
             copy->setObjectName(QStringLiteral("copySettingsLocation"));
             copy->setText(QStringLiteral("复制位置"));
@@ -993,25 +1022,29 @@ struct Workbench::Impl
                 QApplication::clipboard()->setText(QSettings().fileName());
                 result->setText(QStringLiteral("已复制设置存储位置。"));
             });
-            add(QStringLiteral("配置存储"), QStringLiteral("宏草稿、窗口设置与模拟配置通过 QSettings 保存在本机"), copy);
-            add(QStringLiteral("界面"), QStringLiteral("按提供的 Magpie 截图还原视觉样式，功能为剑三模拟器"), value(QStringLiteral("Qt 6.12")));
+            ADD(QStringLiteral("配置存储"), QStringLiteral("宏草稿、窗口设置与模拟配置通过 QSettings 保存在本机"), copy);
+            ADD(QStringLiteral("界面"),
+                QStringLiteral("按提供的 Magpie 截图还原视觉样式，功能为剑三模拟器"),
+                value(QStringLiteral("Qt 6.12")));
         } else {
-            add(QStringLiteral("外观"), QStringLiteral("与参考截图一致的炭灰色背景、列表卡片与分段控件"), value(QStringLiteral("深色")));
-            auto *remember = toggle("rememberGeometry", "workspace/rememberGeometry", true);
+            ADD(QStringLiteral("外观"), QStringLiteral("与参考截图一致的炭灰色背景、列表卡片与分段控件"), value(QStringLiteral("深色")));
+            auto *remember = TOGGLE("rememberGeometry", "workspace/rememberGeometry", true);
             remember->setAccessibleName(QStringLiteral("记住窗口尺寸"));
-            add(QStringLiteral("记住窗口尺寸"), QStringLiteral("下次启动时恢复窗口的大小与位置"), remember);
-            auto *drafts = toggle("restoreDrafts", "workspace/restoreDrafts", true);
+            ADD(QStringLiteral("记住窗口尺寸"), QStringLiteral("下次启动时恢复窗口的大小与位置"), remember);
+            auto *drafts = TOGGLE("restoreDrafts", "workspace/restoreDrafts", true);
             drafts->setAccessibleName(QStringLiteral("恢复宏草稿"));
-            add(QStringLiteral("恢复宏草稿"), QStringLiteral("启动时恢复各心法的宏、断点和未保存内容；关闭后使用默认宏"), drafts);
-            auto *status = toggle("showStatus", "appearance/showStatus", true, [this](bool enabled) {
-                const auto state = debugSession->GetState();
-                statusBar->setVisible(enabled || batch || state == DebugSession::Running || state == DebugSession::Paused);
+            ADD(QStringLiteral("恢复宏草稿"), QStringLiteral("启动时恢复各心法的宏、断点和未保存内容；关闭后使用默认宏"), drafts);
+            auto *status = TOGGLE("showStatus", "appearance/showStatus", true, [this](bool enabled) {
+                const auto STATE = debugSession->GetState();
+                statusBar->setVisible(enabled || batch || STATE == DebugSession::RUNNING || STATE == DebugSession::PAUSED);
             });
             status->setAccessibleName(QStringLiteral("运行状态栏"));
-            add(QStringLiteral("运行状态栏"), QStringLiteral("在页面底部显示语法诊断与模拟状态；运行时始终显示取消按钮"), status);
+            ADD(QStringLiteral("运行状态栏"), QStringLiteral("在页面底部显示语法诊断与模拟状态；运行时始终显示取消按钮"), status);
             auto *size = new QComboBox;
             size->setObjectName(QStringLiteral("editorFontSize"));
-            for (int pixels : {12, 13, 14, 16, 18, 20}) size->addItem(QStringLiteral("%1 px").arg(pixels), pixels);
+            for (const int PIXELS : { 12, 13, 14, 16, 18, 20 }) {
+                size->addItem(QStringLiteral("%1 px").arg(PIXELS), PIXELS);
+            }
             size->setCurrentIndex(size->findData(editor->font().pixelSize()));
             QObject::connect(size, &QComboBox::currentIndexChanged, window, [this, size] {
                 auto font = editor->font();
@@ -1019,28 +1052,30 @@ struct Workbench::Impl
                 editor->setFont(font);
                 QSettings().setValue(QStringLiteral("appearance/editorSize"), size->currentData());
             });
-            add(QStringLiteral("编辑器字号"), QStringLiteral("仅调整循环宏编辑器，不改变界面布局与系统缩放"), size);
-            add(QStringLiteral("配置导入与导出"), QStringLiteral("在「角色配置 → 配置方案」中保存方案，导入或导出 JSON 配置"), [&] {
+            ADD(QStringLiteral("编辑器字号"), QStringLiteral("仅调整循环宏编辑器，不改变界面布局与系统缩放"), size);
+            ADD(QStringLiteral("配置导入与导出"), QStringLiteral("在「角色配置 → 配置方案」中保存方案，导入或导出 JSON 配置"), [&] {
                 auto *button = new QToolButton;
                 button->setText(QStringLiteral("打开"));
                 QObject::connect(button, &QToolButton::clicked, window, [this] { Navigate(QStringLiteral("profiles")); });
                 return button;
             }());
         }
-        if (rows->count()) rows->itemAt(rows->count() - 1)->widget()->setProperty("settingsLastRow", true);
+        if (rows->count() != 0) {
+            rows->itemAt(rows->count() - 1)->widget()->setProperty("settingsLastRow", true);
+        }
         layout->addWidget(card);
         auto *empty = new QLabel(QStringLiteral("没有匹配的设置"));
         empty->setProperty("muted", true);
         empty->hide();
         layout->addWidget(empty);
         layout->addStretch();
-        QObject::connect(searchSettings, &QLineEdit::textChanged, page, [rows, card, empty](const QString &text) {
+        QObject::connect(search_settings, &QLineEdit::textChanged, page, [rows, card, empty](const QString &text) {
             int found = 0;
             for (int i = 0; i < rows->count(); ++i) {
                 auto *row = rows->itemAt(i)->widget();
-                const bool matches = row->property("searchText").toString().contains(text.trimmed(), Qt::CaseInsensitive);
-                row->setVisible(matches);
-                found += matches;
+                const bool MATCHES = row->property("searchText").toString().contains(text.trimmed(), Qt::CaseInsensitive);
+                row->setVisible(MATCHES);
+                found += MATCHES;
             }
             card->setVisible(found > 0);
             empty->setVisible(found == 0);
@@ -1061,23 +1096,32 @@ struct Workbench::Impl
             ShowAnalysis(results);
             return;
         } else if (page == "timeline" || page == "events" || page == "buffs") {
-            ShowAnalysis(page == "events" ? static_cast<QWidget *>(eventsTable) : page == "buffs" ? buffs : views->widget(0));
+            ShowAnalysis(page == "events"  ? static_cast<QWidget *>(eventsTable)
+                         : page == "buffs" ? buffs
+                                           : views->widget(0));
             return;
         } else {
             shell->pages->setCurrentWidget(homePage);
-            const bool macro = page == "macro";
-            const bool overview = page == "simulation";
-            configurationScroll->setVisible(!macro);
-            configurationScroll->setMaximumWidth(overview ? 760 : QWIDGETSIZE_MAX);
-            homeEditor->setVisible(macro || overview);
-            options->ShowSection(overview || macro ? QStringLiteral("simulation") : page);
-            if (overview) body->setSizes({664, qMax(280, body->width() - 676)});
-            pageNote->setText(macro ? QStringLiteral("编辑循环宏，点击行号设置断点。Ctrl+Space 补全 · F5 运行 · F10 单步。")
-                : overview ? QStringLiteral("设置心法、属性与循环宏，在本地运行战斗模拟。相同配置与随机种子可复现结果。")
-                : page == "attributes" ? QStringLiteral("属性与收益逐行对应；点击“配装…”打开独立窗口，数值和加成在“编辑数值”中调整。")
+            const bool MACRO    = page == "macro";
+            const bool OVERVIEW = page == "simulation";
+            configurationScroll->setVisible(!MACRO);
+            configurationScroll->setMaximumWidth(OVERVIEW ? 760 : QWIDGETSIZE_MAX);
+            homeEditor->setVisible(MACRO || OVERVIEW);
+            options->ShowSection(OVERVIEW || MACRO ? QStringLiteral("simulation") : page);
+            if (OVERVIEW) {
+                body->setSizes({ 664, qMax(280, body->width() - 676) });
+            }
+            pageNote->setText(
+                MACRO ? QStringLiteral("编辑循环宏，点击行号设置断点。Ctrl+Space 补全 · F5 运行 · F10 单步。")
+                : OVERVIEW
+                    ? QStringLiteral("设置心法、属性与循环宏，在本地运行战斗模拟。相同配置与随机种子可复现结果。")
+                : page == "attributes"
+                    ? QStringLiteral("属性与收益逐行对应；点击“配装…”打开独立窗口，数值和加成在“编辑数值”中调整。")
                 : page == "talents" ? QStringLiteral("新版九重奇穴仅用于配装预览；战斗模拟使用已迁移的旧规则。")
-                : page == "permanents" ? QStringLiteral("选择阵法、食品、药品与宴席。常驻属性在每场战斗开始前应用。")
-                : QStringLiteral("保存、切换或导入配置方案。修改后点击开始模拟，在「结果分析 → 模拟历史」查看记录。"));
+                : page == "permanents"
+                    ? QStringLiteral("选择阵法、食品、药品与宴席。常驻属性在每场战斗开始前应用。")
+                    : QStringLiteral(
+                          "保存、切换或导入配置方案。修改后点击开始模拟，在「结果分析 → 模拟历史」查看记录。"));
         }
         UpdateLayout();
         UpdateControls();
@@ -1092,8 +1136,12 @@ struct Workbench::Impl
 
     QString AnalysisSection() const
     {
-        if (views->currentWidget() == results) return results->CurrentSection();
-        if (views->currentWidget() == eventsTable) return QStringLiteral("events");
+        if (views->currentWidget() == results) {
+            return results->CurrentSection();
+        }
+        if (views->currentWidget() == eventsTable) {
+            return QStringLiteral("events");
+        }
         return views->currentWidget() == buffs ? QStringLiteral("buffs") : QStringLiteral("timeline");
     }
 
@@ -1114,7 +1162,9 @@ struct Workbench::Impl
 
     void ShowEditor()
     {
-        if (shell->pages->currentWidget() != homePage || !homeEditor->isVisible()) Navigate(QStringLiteral("macro"));
+        if (shell->pages->currentWidget() != homePage || !homeEditor->isVisible()) {
+            Navigate(QStringLiteral("macro"));
+        }
     }
 
     void ShowMacroHelp()
@@ -1126,7 +1176,7 @@ struct Workbench::Impl
 
     void UpdateOutput(const SimulationResult &stats)
     {
-        meanDps->setText(stats.stats.count ? QString::number(stats.MeanDps(), 'f', 1) : QStringLiteral("--"));
+        meanDps->setText((stats.stats.count != 0u) ? QString::number(stats.MeanDps(), 'f', 1) : QStringLiteral("--"));
         outputDetails->setText(
             QStringLiteral("%1 · %2\n%3 次 · 耗时 %4 秒")
                 .arg(desktop::ClassName(documentClass))
@@ -1147,90 +1197,99 @@ struct Workbench::Impl
 
     void UpdateTitle()
     {
-        const auto name = filePath.isEmpty() ? QStringLiteral("未命名宏") : QFileInfo(filePath).fileName();
+        const auto NAME = filePath.isEmpty() ? QStringLiteral("未命名宏") : QFileInfo(filePath).fileName();
         documentLabel->setText(
             QStringLiteral("%1 · %2%3")
-                .arg(desktop::ClassName(documentClass), name, editor->document()->isModified() ? QStringLiteral(" *") : QString{}));
+                .arg(desktop::ClassName(documentClass), NAME, editor->document()->isModified() ? QStringLiteral(" *") : QString{}));
         documentLabel->setToolTip(filePath.isEmpty() ? QStringLiteral("下次启动时恢复宏草稿和配置。") : filePath);
         window->setWindowTitle(QStringLiteral("JX3DPS"));
     }
 
     void UpdateControls()
     {
-        const auto state     = debugSession->GetState();
-        const bool debugging = state == DebugSession::Running || state == DebugSession::Paused;
-        editor->setReadOnly(debugging);
-        completeAction->setEnabled(!debugging);
-        options->SetInputsEnabled(!batch && !debugging);
-        results->SetInputsEnabled(!batch && !debugging);
-        newAction->setEnabled(!debugging);
-        openAction->setEnabled(!debugging);
+        const auto STATE     = debugSession->GetState();
+        const bool DEBUGGING = STATE == DebugSession::RUNNING || STATE == DebugSession::PAUSED;
+        editor->setReadOnly(DEBUGGING);
+        completeAction->setEnabled(!DEBUGGING);
+        options->SetInputsEnabled(!batch && !DEBUGGING);
+        results->SetInputsEnabled(!batch && !DEBUGGING);
+        newAction->setEnabled(!DEBUGGING);
+        openAction->setEnabled(!DEBUGGING);
         simToolbar->setEnabled(!batch);
-        simToolbar->findChild<QToolButton *>(QStringLiteral("startButton"))
-            ->setEnabled(!batch && !debugging);
-        macroRun->setEnabled(!batch && !debugging);
+        simToolbar->findChild<QToolButton *>(QStringLiteral("startButton"))->setEnabled(!batch && !DEBUGGING);
+        macroRun->setEnabled(!batch && !DEBUGGING);
         macroRun->setText(simToolbar->IsDebugModeEnabled() ? QStringLiteral("开始调试") : QStringLiteral("开始模拟"));
         macroRun->setVisible(currentPage == QStringLiteral("macro"));
-        traceAction->setEnabled(!batch && !debugging);
-        gainsAction->setEnabled(!batch && !debugging);
-        hotspotAction->setEnabled(!batch && !debugging);
+        traceAction->setEnabled(!batch && !DEBUGGING);
+        gainsAction->setEnabled(!batch && !DEBUGGING);
+        hotspotAction->setEnabled(!batch && !DEBUGGING);
         cancel->setEnabled(batch && !cancelling);
-        cancel->setVisible(batch);
-        progress->setVisible(batch || debugging);
-        statusBar->setVisible(batch || debugging || QSettings().value(QStringLiteral("appearance/showStatus"), true).toBool());
+        cancel->setVisible(batch != nullptr);
+        progress->setVisible(batch || DEBUGGING);
+        statusBar->setVisible(batch || DEBUGGING || QSettings().value(QStringLiteral("appearance/showStatus"), true).toBool());
         shell->engineStatus->setText(QStringLiteral("<span style='color:#6fd99b'>●</span> &nbsp;本地引擎 · %1")
-            .arg(batch ? QStringLiteral("计算中") : debugging ? QStringLiteral("调试中") : QStringLiteral("就绪")));
+                                         .arg(batch       ? QStringLiteral("计算中")
+                                              : DEBUGGING ? QStringLiteral("调试中")
+                                                          : QStringLiteral("就绪")));
         exportAction->setEnabled(!events.isEmpty());
-        const bool debugMode = simToolbar->IsDebugModeEnabled();
-        options->OutputLayout()->parentWidget()->setVisible(currentPage == QStringLiteral("simulation") && !debugMode);
+        const bool DEBUG_MODE = simToolbar->IsDebugModeEnabled();
+        options->OutputLayout()->parentWidget()->setVisible(currentPage == QStringLiteral("simulation") && !DEBUG_MODE);
         debugToggle->setEnabled(!batch);
-        const bool openingDetails = debugMode && debugTabs->isHidden();
-        debugTabs->setVisible(debugMode);
-        if (openingDetails) macroSplit->setSizes({qMax(150, macroSplit->height() - 315), 315});
-        debugPosition->setVisible(debugMode);
-        UpdateDebugPosition();
-        window->findChild<QAction *>(QStringLiteral("debugStart"))->setVisible(state == DebugSession::Stopped);
-        window->findChild<QAction *>(QStringLiteral("debugRestart"))->setVisible(state != DebugSession::Stopped);
-        window->findChild<QAction *>(QStringLiteral("debugContinue"))->setEnabled(!batch && state == DebugSession::Paused);
-        window->findChild<QAction *>(QStringLiteral("debugPause"))->setEnabled(!batch && state == DebugSession::Running);
-        for (const auto *name : { "debugStepOver", "debugStepInto", "debugStepOut" }) {
-            window->findChild<QAction *>(QString::fromLatin1(name))->setEnabled(!batch && state == DebugSession::Paused);
+        const bool OPENING_DETAILS = DEBUG_MODE && debugTabs->isHidden();
+        debugTabs->setVisible(DEBUG_MODE);
+        if (OPENING_DETAILS) {
+            macroSplit->setSizes({ qMax(150, macroSplit->height() - 315), 315 });
         }
-        window->findChild<QAction *>(QStringLiteral("debugStop"))->setEnabled(!batch && state != DebugSession::Stopped);
-        debugToolbar->SetDebugState(state == DebugSession::Running ? DebugToolbar::Running
-                                    : state == DebugSession::Paused ? DebugToolbar::Paused
-                                    : state == DebugSession::Finished ? DebugToolbar::Finished
-                                                                     : DebugToolbar::Stopped);
-        if (debugMode && !batch && shell->pages->currentWidget() == homePage && homeEditor->isVisible()) debugToolbar->ShowFloating();
-        else debugToolbar->HideFloating();
+        debugPosition->setVisible(DEBUG_MODE);
+        UpdateDebugPosition();
+        window->findChild<QAction *>(QStringLiteral("debugStart"))->setVisible(STATE == DebugSession::STOPPED);
+        window->findChild<QAction *>(QStringLiteral("debugRestart"))->setVisible(STATE != DebugSession::STOPPED);
+        window->findChild<QAction *>(QStringLiteral("debugContinue"))->setEnabled(!batch && STATE == DebugSession::PAUSED);
+        window->findChild<QAction *>(QStringLiteral("debugPause"))->setEnabled(!batch && STATE == DebugSession::RUNNING);
+        for (const auto *name : { "debugStepOver", "debugStepInto", "debugStepOut" }) {
+            window->findChild<QAction *>(QString::fromLatin1(name))->setEnabled(!batch && STATE == DebugSession::PAUSED);
+        }
+        window->findChild<QAction *>(QStringLiteral("debugStop"))->setEnabled(!batch && STATE != DebugSession::STOPPED);
+        debugToolbar->SetDebugState(STATE == DebugSession::RUNNING    ? DebugToolbar::RUNNING
+                                    : STATE == DebugSession::PAUSED   ? DebugToolbar::PAUSED
+                                    : STATE == DebugSession::FINISHED ? DebugToolbar::FINISHED
+                                                                      : DebugToolbar::STOPPED);
+        if (DEBUG_MODE && !batch && shell->pages->currentWidget() == homePage && homeEditor->isVisible()) {
+            debugToolbar->ShowFloating();
+        } else {
+            debugToolbar->HideFloating();
+        }
     }
 
     void UpdateDebugPosition()
     {
-        const auto state = debugSession->GetState();
-        if (state == DebugSession::Stopped) {
+        const auto STATE = debugSession->GetState();
+        if (STATE == DebugSession::STOPPED) {
             debugPosition->setText(QStringLiteral("点击行号设置断点 · 浮动工具条开始调试"));
             return;
         }
-        const auto info = debugSession->GetDebugInfo();
-        const auto label = state == DebugSession::Paused ? QStringLiteral("已暂停")
-                         : state == DebugSession::Running ? QStringLiteral("运行中") : QStringLiteral("已完成");
+        const auto INFO  = debugSession->GetDebugInfo();
+        const auto LABEL = STATE == DebugSession::PAUSED    ? QStringLiteral("已暂停")
+                           : STATE == DebugSession::RUNNING ? QStringLiteral("运行中")
+                                                            : QStringLiteral("已完成");
         debugPosition->setText(QStringLiteral("%1 · 第 %2 帧 · %3 秒%4")
-                                   .arg(label).arg(info.currentFrame).arg(info.currentSeconds, 0, 'f', 2)
-                                   .arg(info.lineNumber > 0 ? QStringLiteral(" · 第 %1 行").arg(info.lineNumber) : QString{}));
+                                   .arg(LABEL)
+                                   .arg(INFO.currentFrame)
+                                   .arg(INFO.currentSeconds, 0, 'f', 2)
+                                   .arg(INFO.lineNumber > 0 ? QStringLiteral(" · 第 %1 行").arg(INFO.lineNumber) : QString{}));
     }
 
     void ShowProblems()
     {
-        const auto errors = editor->GetSyntaxErrors();
-        problems->setRowCount(errors.size());
-        for (int row = 0; row < errors.size(); ++row) {
-            problems->setItem(row, 0, new QTableWidgetItem(QString::number(errors[row].line)));
-            problems->setItem(row, 1, new QTableWidgetItem(errors[row].message));
+        const auto ERRORS = editor->GetSyntaxErrors();
+        problems->setRowCount(ERRORS.size());
+        for (int row = 0; row < ERRORS.size(); ++row) {
+            problems->setItem(row, 0, new QTableWidgetItem(QString::number(ERRORS[row].line)));
+            problems->setItem(row, 1, new QTableWidgetItem(ERRORS[row].message));
         }
-        macroStatus->setText(errors.isEmpty() ? QStringLiteral("语法检查通过 · 点击行号设置断点 · Ctrl+Space 补全")
-                                              : QStringLiteral("宏有 %1 处错误，点击“检查宏”查看详情").arg(errors.size()));
-        if (errors.isEmpty()) {
+        macroStatus->setText(ERRORS.isEmpty() ? QStringLiteral("语法检查通过 · 点击行号设置断点 · Ctrl+Space 补全")
+                                              : QStringLiteral("宏有 %1 处错误，点击“检查宏”查看详情").arg(ERRORS.size()));
+        if (ERRORS.isEmpty()) {
             problems->hide();
         }
     }
@@ -1240,17 +1299,17 @@ struct Workbench::Impl
         // Force validation immediately, including edits still awaiting the debounce timer.
         QMetaObject::invokeMethod(editor, "CheckSyntax", Qt::DirectConnection);
         ShowProblems();
-        if (problems->rowCount()) {
+        if (problems->rowCount() != 0) {
             ShowEditor();
             problems->show();
             result->setText(QStringLiteral("宏有 %1 处错误；点击诊断可定位对应行。").arg(problems->rowCount()));
             return false;
         }
-        QString flowError;
-        if (!options->CheckFlowMacro(flowError)) {
+        QString flow_error;
+        if (!options->CheckFlowMacro(flow_error)) {
             Navigate(QStringLiteral("simulation"));
             options->FocusFlowMacro();
-            result->setText(flowError);
+            result->setText(flow_error);
             return false;
         }
         result->setText(QStringLiteral("宏检查通过。"));
@@ -1263,45 +1322,45 @@ struct Workbench::Impl
         traceHint->show();
         history->Clear();
         timeline->Clear();
-        timeline->SetTimeRange(0, static_cast<int>((static_cast<qint64>(activeOptions.duration) * 1000 + 15) / 16));
+        timeline->SetTimeRange(0, static_cast<int>(((static_cast<qint64>(activeOptions.duration) * 1000) + 15) / 16));
         buffs->Reset(activeOptions.duration, documentClass);
         macroSteps->Reset();
         eventsTable->setRowCount(0);
-        results->ClearTrace(activeOptions.duration / 16.0);
+        results->ClearTrace(JX3DPS::FramesToSeconds(activeOptions.duration));
         exportAction->setEnabled(false);
     }
 
     void AppendEvents(const CombatEvents &hits)
     {
         eventsTable->setUpdatesEnabled(false);
-        const int begin  = static_cast<int>(events.size());
+        const int BEGIN  = static_cast<int>(events.size());
         events          += hits;
         eventsTable->setRowCount(events.size());
         for (int index = 0; index < hits.size(); ++index) {
             const auto   &hit = hits[index];
-            const QString outcome =
+            const QString OUTCOME =
                 hit.outcome == 1   ? QStringLiteral("会心")
                 : hit.outcome == 0 ? QStringLiteral("命中")
                 : hit.outcome == 4 ? QStringLiteral("识破")
                                    : QStringLiteral("未命中");
-            const QStringList cells{ QString::number(hit.frame),
-                                     QString::number(hit.frame / 16.0, 'f', 4),
+            const QStringList CELLS{ QString::number(hit.frame),
+                                     QString::number(JX3DPS::FramesToSeconds(hit.frame), 'f', 4),
                                      hit.name,
                                      QString::number(hit.damage),
-                                     outcome,
+                                     OUTCOME,
                                      QString::number(hit.sequence) };
-            for (int column = 0; column < cells.size(); ++column) {
-                eventsTable->setItem(begin + index, column, new QTableWidgetItem(cells[column]));
+            for (int column = 0; column < CELLS.size(); ++column) {
+                eventsTable->setItem(BEGIN + index, column, new QTableWidgetItem(CELLS[column]));
             }
             Timeline::EventItem event{};
             event.timestamp  = hit.frame * 62.5;
             event.name       = hit.name;
             event.damage     = hit.damage;
             event.rollResult = hit.outcome == 1 ? 2 : hit.outcome == 0 ? 1 : hit.outcome == 4 ? 3 : 0;
-            event.color      = QColor::fromHsv((hit.skill * 37 + 190) % 360, 140, 210);
+            event.color      = QColor::fromHsv(((hit.skill * 37) + 190) % 360, 140, 210);
             event.macroName  = desktop::ClassName(documentClass);
             event.macroColor = QColor(100, 180, 150);
-            event.icon = desktop::GameIcon(documentClass, hit.name).pixmap(40, 40);
+            event.icon       = desktop::GameIcon(documentClass, hit.name).pixmap(40, 40);
             timeline->AddEvent(event);
         }
         eventsTable->setUpdatesEnabled(true);
@@ -1310,9 +1369,9 @@ struct Workbench::Impl
         exportAction->setEnabled(!events.isEmpty());
     }
 
-    void StartBatch(bool trace, const QString &requestedReport = {})
+    void StartBatch(bool trace, const QString &requested_report = {})
     {
-        if (batch || debugSession->GetState() == DebugSession::Running || debugSession->GetState() == DebugSession::Paused)
+        if (batch || debugSession->GetState() == DebugSession::RUNNING || debugSession->GetState() == DebugSession::PAUSED)
         {
             return;
         }
@@ -1320,21 +1379,21 @@ struct Workbench::Impl
             return;
         }
         try {
-            const bool gains = !trace && options->AutoCalculateGains();
-            auto run = options->Batch();
+            const bool GAINS = !trace && options->AutoCalculateGains();
+            auto       run   = options->Batch();
             if (trace) {
                 run.iterations = 1;
                 run.workers    = 1;
             }
-            const auto source   = editor->toPlainText().toUtf8();
-            auto       compiled = rt::MacroCompiler::Compile(std::string_view(source.constData(), source.size()),
+            const auto SOURCE   = editor->toPlainText().toUtf8();
+            auto       compiled = rt::MacroCompiler::Compile(std::string_view(SOURCE.constData(), SOURCE.size()),
                                                              desktop::MacroOptions(options->Specialization(), false));
-            auto       config   = options->ActiveConfig();
+            const auto CONFIG   = options->ActiveConfig();
             auto       snapshot = options->Snapshot();
             auto       values   = snapshot.value("values").toObject();
             values.insert("iterations", static_cast<int>(run.iterations));
             values.insert("workers", static_cast<int>(run.workers));
-            values.insert("seconds", run.duration / 16.0);
+            values.insert("seconds", JX3DPS::FramesToSeconds(run.duration));
             snapshot.insert("values", values);
             debugSession->Stop();
             activeOptions = run;
@@ -1345,19 +1404,28 @@ struct Workbench::Impl
             cancelling = false;
             progress->setValue(0);
             progress->setFormat(QStringLiteral("%p%"));
-            batch        = new BatchWorker(std::move(compiled.first.program), run, config, window, trace, gains, options->GainMode(), hotspotAction->isChecked());
+            batch        = new BatchWorker(std::move(compiled.first.program),
+                                           run,
+                                           CONFIG,
+                                           window,
+                                           trace,
+                                           GAINS,
+                                           options->GainMode(),
+                                           hotspotAction->isChecked());
             auto *worker = batch.data();
             QObject::connect(worker,
                              &BatchWorker::StatisticsReady,
                              window,
-                             [this, source = editor->toPlainText(), snapshot, trace, requestedReport](const SimulationResult &stats) {
+                             [this, source = editor->toPlainText(), snapshot, trace, requested_report](const SimulationResult &stats) {
                                  results->AddResult(stats, source, snapshot);
                                  UpdateOutput(stats);
-                                 if (source == editor->toPlainText() && snapshot == options->Snapshot())
+                                 if (source == editor->toPlainText() && snapshot == options->Snapshot()) {
                                      options->SetAttributeGainResult(stats);
-                                 else options->ClearAttributeGains();
-                                 if (!requestedReport.isEmpty()) {
-                                     results->ShowSection(requestedReport);
+                                 } else {
+                                     options->ClearAttributeGains();
+                                 }
+                                 if (!requested_report.isEmpty()) {
+                                     results->ShowSection(requested_report);
                                      ShowAnalysis(results);
                                  } else if (stats.hotspots) {
                                      ShowAnalysis(results);
@@ -1378,7 +1446,7 @@ struct Workbench::Impl
             });
             QObject::connect(worker, &BatchWorker::TraceReady, window, [this](const CombatEvents &hits) {
                 AppendEvents(hits);
-                timeline->SetTimeRange(0, static_cast<int>((static_cast<qint64>(activeOptions.duration) * 1000 + 15) / 16));
+                timeline->SetTimeRange(0, static_cast<int>(((static_cast<qint64>(activeOptions.duration) * 1000) + 15) / 16));
             });
             QObject::connect(worker, &BatchWorker::BuffTraceReady, window, [this](const BuffEvents &events) {
                 buffs->Append(events);
@@ -1409,18 +1477,18 @@ struct Workbench::Impl
         if (!batch) {
             return;
         }
-        const auto completed = batch->Completed();
-        progress->setValue(static_cast<int>(completed * 1000 / batch->Requested()));
-        const auto seconds = elapsed.elapsed() / 1000.0;
-        const auto rate    = seconds > 0 ? completed / seconds : 0;
-        const auto eta = rate > 0 ? QString::number((batch->Requested() - completed) / rate, 'f', 1) : QStringLiteral("--");
+        const auto COMPLETED = batch->Completed();
+        progress->setValue(static_cast<int>(COMPLETED * 1000 / batch->Requested()));
+        const auto SECONDS = elapsed.elapsed() / 1000.0;
+        const auto RATE    = SECONDS > 0 ? COMPLETED / SECONDS : 0;
+        const auto ETA = RATE > 0 ? QString::number((batch->Requested() - COMPLETED) / RATE, 'f', 1) : QStringLiteral("--");
         result->setText(QStringLiteral("%1 %2 / %3 次 | 每秒 %4 次 | 已用 %5 秒 | 剩余 %6 秒")
                             .arg(cancelling ? QStringLiteral("当前战斗完成后取消：") : QStringLiteral("运行中"))
-                            .arg(completed)
+                            .arg(COMPLETED)
                             .arg(batch->Requested())
-                            .arg(rate, 0, 'f', 0)
-                            .arg(seconds, 0, 'f', 1)
-                            .arg(eta));
+                            .arg(RATE, 0, 'f', 0)
+                            .arg(SECONDS, 0, 'f', 1)
+                            .arg(ETA));
     }
 
     void CancelBatch()
@@ -1450,7 +1518,7 @@ struct Workbench::Impl
             progress->setFormat(QStringLiteral("调试 %p%"));
             macroSteps->Reset(editor->toPlainText());
             debugSession->Start(editor->toPlainText());
-            return debugSession->GetState() == DebugSession::Paused;
+            return debugSession->GetState() == DebugSession::PAUSED;
         } catch (const std::exception &error) {
             Error(desktop::Diagnostic(QString::fromUtf8(error.what())));
             return false;
@@ -1463,7 +1531,7 @@ struct Workbench::Impl
             return;
         }
         ShowEditor();
-        if (debugSession->GetState() == DebugSession::Stopped || debugSession->GetState() == DebugSession::Finished) {
+        if (debugSession->GetState() == DebugSession::STOPPED || debugSession->GetState() == DebugSession::FINISHED) {
             if (!StartDebug()) {
                 return;
             }
@@ -1477,7 +1545,7 @@ struct Workbench::Impl
             return;
         }
         ShowEditor();
-        if (debugSession->GetState() == DebugSession::Stopped || debugSession->GetState() == DebugSession::Finished) {
+        if (debugSession->GetState() == DebugSession::STOPPED || debugSession->GetState() == DebugSession::FINISHED) {
             if (!StartDebug()) {
                 return;
             }
@@ -1491,18 +1559,18 @@ struct Workbench::Impl
         }
     }
 
-    bool SaveMacro(bool saveAs)
+    bool SaveMacro(bool save_as)
     {
         auto path = filePath;
-        if (saveAs || path.isEmpty()) {
+        if (save_as || path.isEmpty()) {
             path = QFileDialog::getSaveFileName(window, QStringLiteral("保存宏"), path, QStringLiteral("宏文件 (*.txt);;所有文件 (*)"));
         }
         if (path.isEmpty()) {
             return false;
         }
         QSaveFile  file(path);
-        const auto bytes = editor->toPlainText().toUtf8();
-        if (!file.open(QIODevice::WriteOnly) || file.write(bytes) != bytes.size() || !file.commit()) {
+        const auto BYTES = editor->toPlainText().toUtf8();
+        if (!file.open(QIODevice::WriteOnly) || file.write(BYTES) != BYTES.size() || !file.commit()) {
             Error(QStringLiteral("无法保存宏：%1").arg(file.errorString()));
             return false;
         }
@@ -1518,16 +1586,16 @@ struct Workbench::Impl
         if (!editor->document()->isModified()) {
             return true;
         }
-        const auto choice =
+        const auto CHOICE =
             QMessageBox::question(window,
                                   QStringLiteral("宏尚未保存"),
                                   QStringLiteral("替换前是否保存当前宏？"),
                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
                                   QMessageBox::Save);
-        if (choice == QMessageBox::Save) {
+        if (CHOICE == QMessageBox::Save) {
             return SaveMacro(false);
         }
-        return choice == QMessageBox::Discard;
+        return CHOICE == QMessageBox::Discard;
     }
 
     void NewMacro()
@@ -1549,12 +1617,12 @@ struct Workbench::Impl
         if (!ReplaceDraft()) {
             return;
         }
-        const auto path =
+        const auto PATH =
             QFileDialog::getOpenFileName(window, QStringLiteral("打开宏"), filePath, QStringLiteral("宏文件 (*.txt);;所有文件 (*)"));
-        if (path.isEmpty()) {
+        if (PATH.isEmpty()) {
             return;
         }
-        QFile file(path);
+        QFile file(PATH);
         if (!file.open(QIODevice::ReadOnly)) {
             Error(file.errorString());
             return;
@@ -1568,7 +1636,7 @@ struct Workbench::Impl
             bytes.remove(0, 3);
         }
         debugSession->Stop();
-        filePath = path;
+        filePath = PATH;
         editor->ClearAllBreakpoints();
         editor->setPlainText(QString::fromUtf8(bytes));
         editor->document()->setModified(false);
@@ -1578,12 +1646,12 @@ struct Workbench::Impl
 
     void ExportTrace()
     {
-        const auto path =
+        const auto PATH =
             QFileDialog::getSaveFileName(window, QStringLiteral("导出伤害记录"), QStringLiteral("trace.csv"), QStringLiteral("表格文件 (*.csv)"));
-        if (path.isEmpty()) {
+        if (PATH.isEmpty()) {
             return;
         }
-        QSaveFile file(path);
+        QSaveFile file(PATH);
         if (!file.open(QIODevice::WriteOnly)) {
             Error(file.errorString());
             return;
@@ -1592,16 +1660,16 @@ struct Workbench::Impl
         for (const auto &event : events) {
             auto skill = event.name;
             skill.replace('"', QStringLiteral("\"\""));
-            const auto row =
+            const auto ROW =
                 QStringLiteral("%1,%2,\"%3\",%4,%5,%6\n")
                     .arg(event.frame)
-                    .arg(event.frame / 16.0, 0, 'f', 4)
+                    .arg(JX3DPS::FramesToSeconds(event.frame), 0, 'f', 4)
                     .arg(skill)
                     .arg(event.damage)
                     .arg(event.outcome)
                     .arg(event.sequence)
                     .toUtf8();
-            valid = valid && file.write(row) == row.size();
+            valid = valid && file.write(ROW) == ROW.size();
         }
         if (!valid || !file.commit()) {
             Error(QStringLiteral("无法导出记录：%1").arg(file.errorString()));
@@ -1615,26 +1683,28 @@ struct Workbench::Impl
         settings.setValue(QStringLiteral("macro/file"), filePath);
         settings.setValue(QStringLiteral("macro/modified"), editor->document()->isModified());
         QVariantList breakpoints;
-        for (int line : editor->GetBreakpoints()) {
-            breakpoints << line;
+        for (const int LINE : editor->GetBreakpoints()) {
+            breakpoints << LINE;
         }
         settings.setValue(QStringLiteral("macro/breakpoints"), breakpoints);
-        if (settings.value(QStringLiteral("workspace/rememberGeometry"), true).toBool())
+        if (settings.value(QStringLiteral("workspace/rememberGeometry"), true).toBool()) {
             settings.setValue(QStringLiteral("window/geometry"), window->saveGeometry());
+        }
         drafts[static_cast<int>(documentClass)] =
             Draft{ editor->toPlainText(), filePath, editor->document()->isModified(), editor->GetBreakpoints().values() };
         for (int i = 0; i < 2; ++i) {
-            if (drafts[i]) {
-                const auto  key   = QStringLiteral("macro/class%1/").arg(i);
-                const auto &draft = *drafts[i];
-                settings.setValue(key + "draft", draft.text);
-                settings.setValue(key + "file", draft.path);
-                settings.setValue(key + "modified", draft.modified);
+            const auto &saved = drafts[i];
+            if (saved.has_value()) {
+                const auto  KEY   = QStringLiteral("macro/class%1/").arg(i);
+                const auto &draft = *saved;
+                settings.setValue(KEY + "draft", draft.text);
+                settings.setValue(KEY + "file", draft.path);
+                settings.setValue(KEY + "modified", draft.modified);
                 QVariantList lines;
-                for (int line : draft.breakpoints) {
-                    lines << line;
+                for (const int LINE : draft.breakpoints) {
+                    lines << LINE;
                 }
-                settings.setValue(key + "breakpoints", lines);
+                settings.setValue(KEY + "breakpoints", lines);
             }
         }
         options->SaveSettings();
@@ -1644,13 +1714,15 @@ struct Workbench::Impl
 Workbench::Workbench(QWidget *parent) : Frameless(parent)
 {
     SetupDefaultTitleBar();
-    setWindowIcon(desktop::LineIcon(desktop::ShellIcon::Terminal));
+    setWindowIcon(desktop::LineIcon(desktop::ShellIcon::TERMINAL));
     resize(1206, 860);
     setMinimumSize(1120, 820);
     d = std::make_unique<Impl>(this);
-    QSettings settings;
-    if (settings.value(QStringLiteral("workspace/rememberGeometry"), true).toBool() && settings.contains(QStringLiteral("window/geometry"))) {
-        restoreGeometry(settings.value(QStringLiteral("window/geometry")).toByteArray());
+    const QSettings SETTINGS;
+    if (SETTINGS.value(QStringLiteral("workspace/rememberGeometry"), true).toBool() &&
+        SETTINGS.contains(QStringLiteral("window/geometry")))
+    {
+        restoreGeometry(SETTINGS.value(QStringLiteral("window/geometry")).toByteArray());
     }
 }
 
@@ -1659,7 +1731,9 @@ Workbench::~Workbench() = default;
 void Workbench::resizeEvent(QResizeEvent *event)
 {
     Frameless::resizeEvent(event);
-    if (d) d->UpdateLayout();
+    if (d) {
+        d->UpdateLayout();
+    }
 }
 
 void Workbench::closeEvent(QCloseEvent *event)

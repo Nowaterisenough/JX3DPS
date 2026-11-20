@@ -12,7 +12,8 @@
 
 int main(void)
 {
-    jx3dps_engine *a = jx3dps_create(), *b = jx3dps_create();
+    jx3dps_engine *a = jx3dps_create();
+    jx3dps_engine *b = jx3dps_create();
     CHECK(a && b && jx3dps_abi_version() == 1);
     const char *start = "{\"op\":\"start\",\"scenario\":\"tx\",\"seconds\":300,\"iterations\":129,\"seed\":\"42\","
                         "\"macro\":\"/cast sanchai\",\"attributes\":{}}";

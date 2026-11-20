@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$BuildDirectory = (Join-Path $PSScriptRoot '../../../build-legacy-compare'),
     [string]$OutputDirectory = (Join-Path $PSScriptRoot '../../../build-legacy-compare/draw-validation'),
     [int[]]$Phases = @(0..15),
@@ -38,9 +38,9 @@ $metadataName = if ($ReplayExisting) { 'replay-metadata.json' } else { 'record-m
 [IO.File]::WriteAllText((Join-Path $OutputDirectory $metadataName), ($metadata | ConvertTo-Json -Depth 8), $utf8)
 function Read-Events([string]$Path) {
     @(Import-Csv -Encoding UTF8 $Path | Where-Object { [long]$_.damage -gt 0 } | ForEach-Object {
-        $name = $_.name -replace '^Dot\u00b7', ''
-        $name = $name -replace '\u00b7\u795e\u5175$', ''
-        if ($name -eq [string][char]0x7834) { $name += [char]0x62db }
+        $name = $_.name -replace '^Dot·', ''
+        $name = $name -replace '·神兵$', ''
+        if ($name -eq '破') { $name += '招' }
         '{0:D8},{1},{2},{3}' -f [int]$_.frame, $name, $_.damage, $_.outcome
     } | Sort-Object)
 }

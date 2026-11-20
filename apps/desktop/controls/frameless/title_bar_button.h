@@ -4,7 +4,6 @@
 #include <QPushButton>
 #include <QVariantAnimation>
 
-
 class TitleBarButton : public QPushButton
 {
     Q_OBJECT
@@ -20,12 +19,12 @@ public:
     };
 
     explicit TitleBarButton(ButtonType type, QWidget *parent = nullptr);
-    virtual ~TitleBarButton() override;
+    ~TitleBarButton() override;
 
     QColor BackgroundColor() const { return _backgroundColor; }
 
     void SetBackgroundColor(const QColor &color);
-    void StartAnimation(const QColor &endBackgroundColor, const QColor &endTextColor);
+    void StartAnimation(const QColor &end_background_color, const QColor &end_text_color);
 
     void SetHovered(bool hovered);
 
@@ -46,6 +45,5 @@ private:
     QColor             _backgroundColor;
     QColor             _textColor;
 };
-
 
 #endif // TFA_UI_CONTROLS_TITLE_BAR_BUTTON_H

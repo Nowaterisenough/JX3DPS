@@ -1,6 +1,9 @@
 #ifndef DESKTOP_CHOICE_POPUP_H
 #define DESKTOP_CHOICE_POPUP_H
 
+#include <algorithm>
+#include <functional>
+
 #include <QFrame>
 #include <QHideEvent>
 #include <QKeyEvent>
@@ -10,8 +13,6 @@
 #include <QVariantAnimation>
 #include <QWidget>
 
-#include <algorithm>
-#include <functional>
 #include "theme/accent_color.h"
 
 namespace desktop {
@@ -20,8 +21,18 @@ namespace desktop {
 class ChoicePopup final : public QFrame
 {
 public:
-    enum Placement { Below, Beside };
-    enum Transition { Immediate, Expand };
+    enum Placement
+    {
+        BELOW,
+        BESIDE
+    };
+
+    enum Transition
+    {
+        IMMEDIATE,
+        EXPAND
+    };
+
     explicit ChoicePopup(QWidget *owner) : QFrame(owner, Qt::Popup | Qt::FramelessWindowHint), m_expansion(this)
     {
         setObjectName(QStringLiteral("choicePopup"));
@@ -38,7 +49,7 @@ public:
         connect(&m_expansion, &QVariantAnimation::finished, this, [this] { clearMask(); });
     }
 
-    void Open(QWidget *anchor, QSize preferred, QWidget *focus, Placement placement = Below, Transition transition = Immediate)
+    void Open(QWidget *anchor, QSize preferred, QWidget *focus, Placement placement = BELOW, Transition transition = IMMEDIATE)
     {
         auto colors = anchor->palette();
         colors.setColor(QPalette::Accent, theme::AccentColor(anchor));
@@ -46,29 +57,37 @@ public:
         setPalette(colors);
         m_expansion.stop();
         clearMask();
-        const QRect available = anchor->screen()->availableGeometry();
-        const QPoint top = anchor->mapToGlobal(QPoint());
-        const QPoint bottom = anchor->mapToGlobal(QPoint(0, anchor->height()));
-        const int below = std::max(0, available.bottom() - bottom.y() + 1);
-        const int above = std::max(0, top.y() - available.top());
-        const bool upwards = preferred.height() > below && above > below;
-        preferred.setWidth(std::min(preferred.width(), available.width()));
-        preferred.setHeight(std::min(preferred.height(), placement == Beside ? available.height() : std::max(1, upwards ? above : below)));
-        int left = top.x();
-        if (placement == Beside) {
-            const int right = top.x() + anchor->width() + 8;
-            left = right + preferred.width() <= available.right() + 1 ? right : top.x() - preferred.width() - 8;
+        const QRect  AVAILABLE   = anchor->screen()->availableGeometry();
+        const QPoint TOP         = anchor->mapToGlobal(QPoint());
+        const QPoint BOTTOM      = anchor->mapToGlobal(QPoint(0, anchor->height()));
+        const int    SPACE_BELOW = std::max(0, AVAILABLE.bottom() - BOTTOM.y() + 1);
+        const int    SPACE_ABOVE = std::max(0, TOP.y() - AVAILABLE.top());
+        const bool   UPWARDS     = preferred.height() > SPACE_BELOW && SPACE_ABOVE > SPACE_BELOW;
+        preferred.setWidth(std::min(preferred.width(), AVAILABLE.width()));
+        preferred.setHeight(std::min(preferred.height(),
+                                     placement == BESIDE ? AVAILABLE.height() : std::max(1, UPWARDS ? SPACE_ABOVE : SPACE_BELOW)));
+        int left = TOP.x();
+        if (placement == BESIDE) {
+            const int right = TOP.x() + anchor->width() + 8;
+            left = right + preferred.width() <= AVAILABLE.right() + 1 ? right : TOP.x() - preferred.width() - 8;
         }
-        const int x = std::clamp(left, available.left(), available.right() - preferred.width() + 1);
-        const int y = std::clamp(placement == Beside ? top.y() : upwards ? top.y() - preferred.height() : bottom.y(),
-                                 available.top(), available.bottom() - preferred.height() + 1);
-        setGeometry(QRect(QPoint(x, y), preferred));
-        if (layout()) layout()->activate();
-        m_upwards = placement == Below && upwards;
-        if (transition == Expand) Reveal(0);
+        const int X = std::clamp(left, AVAILABLE.left(), AVAILABLE.right() - preferred.width() + 1);
+        const int Y = std::clamp(placement == BESIDE ? TOP.y()
+                                 : UPWARDS           ? TOP.y() - preferred.height()
+                                                     : BOTTOM.y(),
+                                 AVAILABLE.top(),
+                                 AVAILABLE.bottom() - preferred.height() + 1);
+        setGeometry(QRect(QPoint(X, Y), preferred));
+        if (layout() != nullptr) {
+            layout()->activate();
+        }
+        m_upwards = placement == Placement::BELOW && UPWARDS;
+        if (transition == EXPAND) {
+            Reveal(0);
+        }
         show();
         focus->setFocus(Qt::PopupFocusReason);
-        if (transition == Expand) {
+        if (transition == EXPAND) {
             m_expansion.setStartValue(0.0);
             m_expansion.setEndValue(1.0);
             m_expansion.start();
@@ -76,7 +95,9 @@ public:
     }
 
     bool ExpansionAnimating() const { return m_expansion.state() == QAbstractAnimation::Running; }
+
     void Watch(QWidget *widget) { widget->installEventFilter(this); }
+
     std::function<void()> acceptChoice;
 
 protected:
@@ -90,12 +111,12 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (event->type() == QEvent::KeyPress) {
-            const auto key = static_cast<QKeyEvent *>(event)->key();
-            if (key == Qt::Key_Escape || key == Qt::Key_Tab || key == Qt::Key_Backtab) {
+            const auto KEY = static_cast<QKeyEvent *>(event)->key();
+            if (KEY == Qt::Key_Escape || KEY == Qt::Key_Tab || KEY == Qt::Key_Backtab) {
                 hide();
                 return true;
             }
-            if ((key == Qt::Key_Return || key == Qt::Key_Enter) && acceptChoice) {
+            if ((KEY == Qt::Key_Return || KEY == Qt::Key_Enter) && acceptChoice) {
                 acceptChoice();
                 return true;
             }
@@ -112,7 +133,7 @@ private:
     }
 
     QVariantAnimation m_expansion;
-    bool m_upwards = false;
+    bool              m_upwards = false;
 };
 
 } // namespace desktop

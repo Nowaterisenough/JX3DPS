@@ -20,8 +20,8 @@ TALENT_INDEX = "https://data.jx3box.com/talent/std/index.json"
 CHANGE_INDEX = "https://cms.jx3box.com/api/cms/pve/skill/changelog?client=std"
 LUA_INDEX = "https://lua.jx3box.com/api/lua/bps/index.json?client=std"
 PROFILES = (
-    {"key": "0", "name": "\u592a\u865a\u5251\u610f", "force": 4, "kungfu": "4", "mount": 10015},
-    {"key": "1", "name": "\u83ab\u95ee", "force": 22, "kungfu": "22", "mount": 10447},
+    {"key": "0", "name": "太虚剑意", "force": 4, "kungfu": "4", "mount": 10015},
+    {"key": "1", "name": "莫问", "force": 22, "kungfu": "22", "mount": 10447},
 )
 
 

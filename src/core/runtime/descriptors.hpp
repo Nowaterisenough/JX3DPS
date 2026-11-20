@@ -5,39 +5,60 @@
 
 namespace JX3DPS::runtime {
 
-struct SkillDescriptor {
-    jx3id_t id;
+struct SkillDescriptor
+{
+    jx3id_t          id;
     std::string_view name;
-    tick_t cooldown;
-    tick_t gcd;
-    tick_t cast_time;
+    tick_t           cooldown;
+    tick_t           gcd;
+    tick_t           cast_time;
 };
-struct BuffDescriptor {
-    jx3id_t id;
+
+struct BuffDescriptor
+{
+    jx3id_t          id;
     std::string_view name;
-    tick_t duration;
-    tick_t interval;
-    int max_stacks;
+    tick_t           duration;
+    tick_t           interval;
+    int              max_stacks;
 };
 
 template <typename Descriptor, std::size_t Count>
-struct DescriptorTable {
+struct DescriptorTable
+{
     static_assert(Count < INVALID_SLOT);
     std::array<Descriptor, Count> entries;
 
-    constexpr Slot FindId(jx3id_t id) const {
-        for (Slot i = 0; i < Count; ++i) if (entries[i].id == id) return i;
+    constexpr Slot FindId(jx3id_t id) const
+    {
+        for (Slot i = 0; i < Count; ++i) {
+            if (entries[i].id == id) {
+                return i;
+            }
+        }
         return INVALID_SLOT;
     }
-    constexpr Slot FindName(std::string_view name) const {
-        for (Slot i = 0; i < Count; ++i) if (entries[i].name == name) return i;
+
+    constexpr Slot FindName(std::string_view name) const
+    {
+        for (Slot i = 0; i < Count; ++i) {
+            if (entries[i].name == name) {
+                return i;
+            }
+        }
         return INVALID_SLOT;
     }
-    constexpr bool Valid() const {
+
+    constexpr bool Valid() const
+    {
         for (std::size_t i = 0; i < Count; ++i) {
-            if (entries[i].name.empty()) return false;
+            if (entries[i].name.empty()) {
+                return false;
+            }
             for (std::size_t j = 0; j < i; ++j) {
-                if (entries[i].id == entries[j].id || entries[i].name == entries[j].name) return false;
+                if (entries[i].id == entries[j].id || entries[i].name == entries[j].name) {
+                    return false;
+                }
             }
         }
         return true;

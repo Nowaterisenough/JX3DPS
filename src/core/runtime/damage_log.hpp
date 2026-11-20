@@ -125,13 +125,25 @@ public:
     std::size_t DamageCapacity() const { return intents_.capacity(); }
 
 private:
+    // Keep exception construction out of the append path so the sequence check
+    // can inline between the capacity check and vector::push_back.
+    template <class Error>
+    [[noreturn]]
+#if __has_cpp_attribute(gnu::cold)
+    [[gnu::cold, gnu::noinline]]
+#elif defined(_MSC_VER)
+    __declspec(noinline)
+#endif
+    static void ThrowLogError(const char *message) { throw Error(message); }
+
     template <typename T>
     static void CheckCapacity(const std::vector<T> &buffer) {
-        if (buffer.size() == buffer.capacity()) throw std::length_error("event log capacity exhausted");
+        if (buffer.size() == buffer.capacity()) ThrowLogError<std::length_error>("event log capacity exhausted");
     }
     std::uint32_t Sequence(tick_t frame) {
-        if (frame < last_frame_) throw std::invalid_argument("event frames must be monotonic");
-        if (next_sequence_ == std::numeric_limits<std::uint32_t>::max()) throw std::overflow_error("event sequence exhausted");
+        if (frame < last_frame_) ThrowLogError<std::invalid_argument>("event frames must be monotonic");
+        if (next_sequence_ == std::numeric_limits<std::uint32_t>::max())
+            ThrowLogError<std::overflow_error>("event sequence exhausted");
         last_frame_ = frame;
         return next_sequence_++;
     }

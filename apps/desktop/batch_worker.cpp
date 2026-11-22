@@ -136,7 +136,8 @@ void BatchWorker::run()
     try {
         if (!m_captureTrace) {
             const auto SPEC = desktop::ClassOf(m_config);
-            auto increments = desktop::GainComparisonIncrements(m_gainMode, SPEC == desktop::Specialization::MO_WEN);
+            auto       increments =
+                desktop::GainComparisonIncrements(m_gainMode, desktop::Info(SPEC).damage != "Physics", static_cast<int>(SPEC) < 0);
             const auto CALCULATED =
                 JX3DPS::engine::Batch(m_engine.get(), m_config, m_program.source_text, m_options, true, m_calculateGains ? &increments : nullptr, m_hotspots);
             SimulationResult result{ CALCULATED.primary, m_options, timer.nsecsElapsed() / 1e9, false };

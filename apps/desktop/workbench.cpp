@@ -2,6 +2,7 @@
 
 #include <string_view>
 
+#include <QCryptographicHash>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
@@ -102,11 +103,10 @@ QString MacroHelp(desktop::Specialization specialization)
         "<p>Ctrl+Space 打开补全，回车或 Tab 插入；Ctrl+F 查找，Ctrl+H 替换，F3 / Shift+F3 定位。"
         "调试期间仍可查找。</p><p>单次记录与调试使用所选随机种子的第一场战斗；批量模拟保留汇总结果。</p>"
         "<h3>当前心法技能（中文名 / 拼音别名）</h3><table>");
-    if (specialization == desktop::Specialization::MO_WEN) {
-        html.prepend(QStringLiteral("<p><b>莫问：</b>强制施放行会在判断条件前打断引导；调试轨迹会单独记录这一事件。"
-                                    "持续伤害可使用 tbuff:商 与 tbuff:角；影子计时和当前曲风显示在调试状态中。</p>"));
-    }
+    html.prepend(QStringLiteral("<p><b>%1 · 苍生铸世 50 级</b></p>").arg(desktop::ClassName(specialization)));
     const auto CATALOG = desktop::Describe(specialization);
+    html               += QStringLiteral("<tr><th>招式</th><th>宏名称</th></tr>");
+
     for (const auto slot : CATALOG.castable) {
         html += QStringLiteral("<tr><td>%1</td><td>%2</td></tr>").arg(Name(CATALOG.skills[slot].name), Name(CATALOG.skillAliases[slot]));
     }
@@ -114,7 +114,9 @@ QString MacroHelp(desktop::Specialization specialization)
     for (std::size_t slot = 0; slot < CATALOG.buffs.size(); ++slot) {
         html += QStringLiteral("<tr><td>%1</td><td>%2</td></tr>").arg(Name(CATALOG.buffs[slot].name), Name(CATALOG.buffAliases[slot]));
     }
-    return html + QStringLiteral("</table>");
+    html += QStringLiteral("</table><h3>当前心法默认宏</h3><pre>") +
+            desktop::DefaultMacro(specialization).toHtmlEscaped() + QStringLiteral("</pre>");
+    return html;
 }
 } // namespace
 
@@ -159,7 +161,7 @@ struct Workbench::Impl
         QList<int> breakpoints;
     };
 
-    std::array<std::optional<Draft>, 2> drafts;
+    std::vector<std::optional<Draft>> drafts = std::vector<std::optional<Draft>>(desktop::rt::season50::Books().size());
     QTableWidget                       *eventsTable;
     QTableWidget                       *problems;
     ResultsPanel                       *results;
@@ -842,30 +844,68 @@ struct Workbench::Impl
         });
         const QSettings SETTINGS;
         const bool      RESTORE_DRAFTS = SETTINGS.value(QStringLiteral("workspace/restoreDrafts"), true).toBool();
-        for (int i = 0; RESTORE_DRAFTS && i < 2; ++i) {
-            const auto KEY = QStringLiteral("macro/class%1/").arg(i);
-            if (!SETTINGS.contains(KEY + "draft")) {
-                continue;
+        for (int i = 0; RESTORE_DRAFTS && i < static_cast<int>(drafts.size()); ++i) {
+            const auto spec = static_cast<desktop::Specialization>(i);
+            QString    key  = QStringLiteral("macro/season50/%1/").arg(desktop::Text(desktop::School(spec).code));
+            if (!SETTINGS.contains(key + "draft")) {
+                if (i > 1) {
+                    continue;
+                }
+                key = QStringLiteral("macro/class%1/").arg(i);
+                if (!SETTINGS.contains(key + "draft")) {
+                    continue;
+                }
+                const auto source = SETTINGS.value(key + "draft").toString().toStdString();
+                if (!desktop::rt::MacroCompiler::Compile(source, desktop::MacroOptions(spec)).second.empty()) {
+                    continue;
+                }
             }
-            Draft draft{ SETTINGS.value(KEY + "draft").toString(),
-                         SETTINGS.value(KEY + "file").toString(),
-                         SETTINGS.value(KEY + "modified").toBool(),
+            Draft draft{ SETTINGS.value(key + "draft").toString(),
+                         SETTINGS.value(key + "file").toString(),
+                         SETTINGS.value(key + "modified").toBool(),
                          {} };
-            for (const auto &line : SETTINGS.value(KEY + "breakpoints").toList()) {
+            for (const auto &line : SETTINGS.value(key + "breakpoints").toList()) {
                 draft.breakpoints << line.toInt();
+            }
+            // Early 50-level builds saved untouched factory macros as ordinary drafts.
+            if (!draft.modified && draft.path.isEmpty() && draft.breakpoints.empty()) {
+                static const QHash<QString, QByteArray> previousDefaults{
+                    { "tx", "77fd56e5273e9ee1b658a9b607fb95166d181fe81c9c254e4916fc7d68738e27" },
+                    { "mw", "704b3cbc7d19e8a619484738991b5e90fc3848b4b4eb286d75bb9c9aa8986316" },
+                    { "axzy", "ed87668ffe3d261042abd4c90eb5bf4fed7a3f1e6a4f9b78b598e638da21bcb0" },
+                    { "baj", "501076f52221019673bd0fee9c6a3df804fa270e43ecb79d04ab3064a11f05a4" },
+                    { "bxj", "8507508384005949a430c52b94e006da0a260347fdca979cba63a22618e20ae1" },
+                    { "dj", "9e809afcdcb476bfd716c7cf4715e737dc45a5e44d70204cd73807b261e41193" },
+                    { "fsj", "990005fb24c0416d58282c3176eeafec32684144834748cb5a77d96293930158" },
+                    { "fysj", "95f0522c3a722d81a671bfd3c4fb9368de4d0b5bed256bb9638c1e09266be0ec" },
+                    { "gfj", "b8994be3458ba1faeea52f0f1e3b61e2e9b0b11836723031a8769130203257c3" },
+                    { "hjy", "16e3ec8e2fa00f8d0184bcfb81f8b87ab2cffbc5993045ef0b121b03e1a282dc" },
+                    { "lhj", "b96877684a1c0edea5f1b3139eae7ea3e8b286cb756fe364a445c3653e0258f8" },
+                    { "shxj", "25102961b4d02df43acc2ddd8689efa3199977fb1253092eae348ca9b8594d73" },
+                    { "txj", "4f591684563c573ad224fd139326b62bddbff618c680016aab9da7967f7fa445" },
+                    { "tlgd", "eb4c07585d5be0ffbcd7fc2a703dc21d3cc63bbe66496216a360e3d1c5fe76f1" },
+                    { "wf", "372540b178db146ab4b2675aca6a4cacb862f56ac4c0271dfb4e11e5d7e4e466" },
+                    { "xcj", "ca323c363d1f3a17c95df6002b877d977623edf124c0fcdadbb709f814eedbb3" },
+                    { "yjj", "ecb0a04cbe3b8220a5bc4a12c33f7c70242c1891a1229f56c81621767e55f838" },
+                    { "yly", "cbfacdcf2dc3c05fab6bbd8589f6877a26e17b78268b84364921081cedaaf0fe" },
+                    { "ztg", "2a4f19072df853c3f55db3762cd12dd1af79227e0813327fe6319a252963f908" },
+                    { "zxg", "795a4a975e43d752f6d9f82f983c74bc2c7ca72393d1c4e7a5de11bce0c78456" },
+                };
+                const auto digest = QCryptographicHash::hash(draft.text.toUtf8(), QCryptographicHash::Sha256).toHex();
+                if (SETTINGS.value(key + "factoryDefault").toBool() ||
+                    digest == previousDefaults.value(desktop::Text(desktop::School(spec).code))) continue;
             }
             drafts[i] = draft;
         }
-        filePath = RESTORE_DRAFTS ? SETTINGS.value(QStringLiteral("macro/file")).toString() : QString{};
-        editor->setPlainText(RESTORE_DRAFTS
-                                 ? SETTINGS.value(QStringLiteral("macro/draft"), desktop::DefaultMacro(documentClass)).toString()
-                                 : desktop::DefaultMacro(documentClass));
-        editor->document()->setModified(RESTORE_DRAFTS && SETTINGS.value(QStringLiteral("macro/modified"), false).toBool());
-        for (const auto &value : RESTORE_DRAFTS ? SETTINGS.value(QStringLiteral("macro/breakpoints")).toList() : QVariantList{})
-        {
-            const int LINE = value.toInt();
-            if (LINE > 0 && LINE <= editor->blockCount()) {
-                editor->SetBreakpoint(LINE, true);
+        const auto &current = drafts.at(static_cast<int>(documentClass));
+        filePath            = current ? current->path : QString{};
+        editor->setPlainText(current ? current->text : desktop::DefaultMacro(documentClass));
+        editor->document()->setModified(current && current->modified);
+        if (current) {
+            for (int line : current->breakpoints) {
+                if (line > 0 && line <= editor->blockCount()) {
+                    editor->SetBreakpoint(line, true);
+                }
             }
         }
         auto editor_font = editor->font();
@@ -1002,13 +1042,15 @@ struct Workbench::Impl
         if (about) {
             ADD(QStringLiteral("版本"), QStringLiteral("JX3DPS · 剑网三战斗模拟器"), value(QStringLiteral("桌面工作台")));
             ADD(QStringLiteral("Qt 版本"), QStringLiteral("原生 Qt Widgets 界面，不嵌入网页"), value(QString::fromLatin1(qVersion())));
-            ADD(QStringLiteral("支持心法"), QStringLiteral("独立保存心法配置与循环宏草稿"), value(QStringLiteral("太虚剑意 / 莫问")));
+            ADD(QStringLiteral("支持心法"),
+                QStringLiteral("独立保存心法配置与循环宏草稿"),
+                value(QStringLiteral("%1 个旗舰心法").arg(desktop::rt::season50::Books().size())));
             ADD(QStringLiteral("模拟引擎"),
                 QStringLiteral("本地多线程计算；随机种子、战斗记录与断点调试可复现"),
                 value(QStringLiteral("本地运行")));
             ADD(QStringLiteral("规则与数据"),
-                QStringLiteral("战斗使用已迁移的旧版规则。新版九重奇穴仅用于配装预览，尚未接入伤害计算。"),
-                value(QStringLiteral("旧规则")));
+                QStringLiteral("当前心法的可选奇穴、秘籍及装备效果参与逐帧战斗模拟。"),
+                value(QStringLiteral("苍生铸世 · 50级")));
             auto *syntax = new QToolButton;
             syntax->setObjectName(QStringLiteral("openMacroHelpFromAbout"));
             syntax->setText(QStringLiteral("打开"));
@@ -1117,7 +1159,7 @@ struct Workbench::Impl
                     ? QStringLiteral("设置心法、属性与循环宏，在本地运行战斗模拟。相同配置与随机种子可复现结果。")
                 : page == "attributes"
                     ? QStringLiteral("属性与收益逐行对应；点击“配装…”打开独立窗口，数值和加成在“编辑数值”中调整。")
-                : page == "talents" ? QStringLiteral("新版九重奇穴仅用于配装预览；战斗模拟使用已迁移的旧规则。")
+                : page == "talents" ? QStringLiteral("选择当前心法已接入模拟的奇穴与秘籍。")
                 : page == "permanents"
                     ? QStringLiteral("选择阵法、食品、药品与宴席。常驻属性在每场战斗开始前应用。")
                     : QStringLiteral(
@@ -1679,25 +1721,19 @@ struct Workbench::Impl
     void SaveDraft()
     {
         QSettings settings;
-        settings.setValue(QStringLiteral("macro/draft"), editor->toPlainText());
-        settings.setValue(QStringLiteral("macro/file"), filePath);
-        settings.setValue(QStringLiteral("macro/modified"), editor->document()->isModified());
-        QVariantList breakpoints;
-        for (const int LINE : editor->GetBreakpoints()) {
-            breakpoints << LINE;
-        }
-        settings.setValue(QStringLiteral("macro/breakpoints"), breakpoints);
         if (settings.value(QStringLiteral("workspace/rememberGeometry"), true).toBool()) {
             settings.setValue(QStringLiteral("window/geometry"), window->saveGeometry());
         }
         drafts[static_cast<int>(documentClass)] =
             Draft{ editor->toPlainText(), filePath, editor->document()->isModified(), editor->GetBreakpoints().values() };
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < static_cast<int>(drafts.size()); ++i) {
             const auto &saved = drafts[i];
             if (saved.has_value()) {
-                const auto  KEY   = QStringLiteral("macro/class%1/").arg(i);
+                const auto KEY = QStringLiteral("macro/season50/%1/")
+                                     .arg(desktop::Text(desktop::School(static_cast<desktop::Specialization>(i)).code));
                 const auto &draft = *saved;
                 settings.setValue(KEY + "draft", draft.text);
+                settings.setValue(KEY + "factoryDefault", draft.text == desktop::DefaultMacro(static_cast<desktop::Specialization>(i)));
                 settings.setValue(KEY + "file", draft.path);
                 settings.setValue(KEY + "modified", draft.modified);
                 QVariantList lines;

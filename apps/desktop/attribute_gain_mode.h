@@ -16,10 +16,14 @@ inline QString GainComparisonName(GainComparisonMode mode)
     return mode == GainComparisonMode::SAME_COST ? QStringLiteral("同属性费用") : QStringLiteral("同数值");
 }
 
-inline std::array<int, 8> GainComparisonIncrements(GainComparisonMode mode, bool magical)
+inline std::array<int, 8> GainComparisonIncrements(GainComparisonMode mode, bool magical, bool historical = false)
 {
     if (mode == GainComparisonMode::SAME_VALUE) {
         return { 100, 100, 100, 100, 100, 100, 100, 100 };
+    }
+    // Same grade and slot: level-six five-colour stone third effect, Cangsheng.
+    if (!historical) {
+        return { 208, 208, 208, 208, 208, 208, 208, 35 };
     }
     // Level-120 budget samples linked by JX3BOX bps/71692, IcyTide/Simulator base/constant.py.
     // These are a common comparison budget, not one equipment-score point.
@@ -29,9 +33,8 @@ inline std::array<int, 8> GainComparisonIncrements(GainComparisonMode mode, bool
 inline QString GainComparisonDescription(GainComparisonMode mode)
 {
     return mode == GainComparisonMode::SAME_COST
-               ? QStringLiteral("同属性费用：按 120 级模型的同预算参考增量分别计算，外功基础攻击 +398、内功基础攻击 "
-                                "+475、会心/会效/破防/无双/破招/加速等级 +883、武器伤害 +597。此预算对应参考主属性 "
-                                "+198，不是 1 装分。来源：JX3BOX 文章 71692 所链接的模拟器。")
+               ? QStringLiteral("同属性费用：按本赛季六级五彩石第三属性的同档参考值，攻击和属性等级 +208、武器伤害 "
+                                "+35；破招按同档等级增量比较。")
                : QStringLiteral("同数值：每项基础数值或属性等级分别增加 100 点，不是增加 100% 面板属性。");
 }
 } // namespace desktop

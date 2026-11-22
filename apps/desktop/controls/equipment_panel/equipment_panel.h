@@ -37,6 +37,7 @@ public:
 
     void        LoadLatestData(const QString &snapshot_path = QString());
     QJsonObject Loadout() const;
+    void SetSeasonSchool(const QString &name, const QString &faction, const QString &major, const QString &kind, const QJsonObject &reference);
 
 signals:
     void LoadoutChanged(const QJsonObject &loadout);

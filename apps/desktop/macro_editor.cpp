@@ -194,11 +194,16 @@ void MacroEditor::UpdateCompletion(bool requested)
         ADD("/scast", "每场只执行一次；成功前阻止后续行");
         ADD("/sfcast", "每场只执行一次；允许打断引导");
     } else if (context.scope == Scope::CONDITION) {
+        for (const auto &resource : CATALOG.resources) {
+            if (!resource.name.empty()) {
+                ADD(desktop::Text(resource.name), QStringLiteral("当前心法资源"));
+            }
+        }
         for (const auto &kind : BuffConditions) {
             ADD(kind + ':',
-                kind.endsWith("time")     ? "剩余秒数，例如 bufftime:玄门>1.5"
+                kind.endsWith("time")     ? "剩余秒数，例如 bufftime:增益名>1.5"
                 : kind.contains("nobuff") ? "增益不存在，不带比较符"
-                                          : "增益层数；buff:玄门 等价于 buff:玄门>0");
+                                          : "增益层数；buff:增益名 等价于 buff:增益名>0");
         }
         for (const auto &kind : SkillConditions) {
             ADD(kind + ':',

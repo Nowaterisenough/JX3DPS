@@ -65,6 +65,7 @@ struct EquipmentPanel::Impl
     QString                         activeSlot;
     QHash<QString, QToolButton *>   slotButtons;
     QHash<QString, QJsonObject>     loadout;
+    QHash<QString, QHash<QString, QJsonObject>> schoolLoadouts;
     QHash<QString, QPixmap>         iconCache;
     QHash<QNetworkReply *, QString> replies;
     QJsonArray                      catalogData;
@@ -265,6 +266,7 @@ void EquipmentPanel::BuildUi()
 
     auto *title_row = new QHBoxLayout();
     auto *title     = new QLabel(QStringLiteral("太虚剑意"), this);
+    title->setObjectName("equipmentSchool");
     title->setStyleSheet(QStringLiteral("font-size: 13px; font-weight: 600; color: #c4d9d2;"));
     d->equippedCount = new QLabel(QStringLiteral("0 / 12"), this);
     d->equippedCount->setObjectName(QStringLiteral("equippedCount"));
@@ -551,6 +553,47 @@ QString EquipmentPanel::FindSnapshotPath(const QString &requested)
     return QString();
 }
 
+void EquipmentPanel::SetSeasonSchool(const QString &name, const QString &faction, const QString &major, const QString &kind, const QJsonObject &reference)
+{
+    const auto prior = property("seasonSchool").toString();
+    if (prior == name) {
+        return;
+    }
+    if (!prior.isEmpty()) {
+        d->schoolLoadouts[prior] = d->loadout;
+    }
+    d->detailsPopup->hide();
+    d->loaded = true;
+    setProperty("seasonSchool", name);
+    static const QJsonArray catalog = [] {
+        QFile f(":/desktop/equipment50.z");
+        if (!f.open(QIODevice::ReadOnly)) {
+            throw std::runtime_error("missing 50-level equipment");
+        }
+        return QJsonDocument::fromJson(qUncompress(f.readAll())).array();
+    }();
+    QJsonArray items;
+    for (const auto &value : catalog) {
+        auto       item   = value.toObject();
+        const auto school = item["school"].toString();
+        const auto stat   = item["kind"].toString();
+        if ((school == faction || school == "精简" || school == "通用") && (stat == major || stat == kind)) {
+            items.append(item);
+        }
+    }
+    auto snapshot                 = reference;
+    snapshot["equipment_catalog"] = items;
+    PopulateFromSnapshot(snapshot);
+    d->loadout = d->schoolLoadouts.value(name);
+    for (const auto &slot : kSlots) {
+        UpdateSlotButton(slot);
+    }
+    UpdateEffects();
+    findChild<QLabel *>("equipmentSchool")->setText(name);
+    d->referenceDialog->setWindowTitle(name + " · 技能资料");
+    findChild<QToolButton *>("equipmentReferences")->setToolTip(name + " · 技能、奇穴与秘籍");
+    d->sourceLabel->setText(QStringLiteral("苍生铸世 · %1 件候选").arg(items.size()));
+}
 void EquipmentPanel::LoadLatestData(const QString &snapshot_path)
 {
     d->loaded          = true;

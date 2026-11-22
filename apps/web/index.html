@@ -30,20 +30,13 @@
                         <h2>模拟配置</h2>
                         <fieldset>
                             <legend>心法</legend>
-                            <div class="schools">
-                                <label
-                                    ><input type="radio" name="school" value="tx" checked /><span
-                                        ><img src="./icons/8484.png" alt="" />太虚剑意</span
-                                    ></label
-                                >
-                                <label
-                                    ><input type="radio" name="school" value="mw" /><span
-                                        ><img src="./icons/8501.png" alt="" />莫问</span
-                                    ></label
-                                >
-                            </div>
+                            <select id="school" aria-label="心法与规则版本">
+                            </select>
                         </fieldset>
-                        <label>配置预设<select id="scenario"></select></label>
+                        <details id="schoolRules" hidden><summary>已实现的招式与配置</summary>
+                            <p id="schoolSkills"></p><div id="schoolChoices"></div>
+                        </details>
+
                         <div class="pair">
                             <label
                                 >战斗时长
@@ -83,24 +76,19 @@
                         <details>
                             <summary>角色属性</summary>
                             <div class="pair">
-                                <label
-                                    >基础攻击<input
-                                        type="number"
-                                        id="attack"
-                                        min="0"
-                                        max="1000000"
-                                        value="10000" /></label
-                                ><label
-                                    >会心等级<input
-                                        type="number"
-                                        id="crit"
-                                        min="0"
-                                        max="1000000"
-                                        value="20000" /></label
-                                ><label
-                                    >加速等级<input type="number" id="haste" min="0" max="1000000" value="0"
-                                /></label>
+                                <label>基础攻击<input type="number" id="attack" data-stat="attack_base" min="0" max="1000000" /></label>
+                                <label>心法攻击<input type="number" id="attackClass" data-stat="attack_by_class" min="0" max="1000000" /></label>
+                                <label>武器伤害<input type="number" id="weapon" data-stat="weapon" min="0" max="1000000" /></label>
+                                <label>会心等级<input type="number" id="crit" data-stat="crit" min="0" max="1000000" /></label>
+                                <label>会效等级<input type="number" id="critPower" data-stat="crit_power" min="0" max="1000000" /></label>
+                                <label>破防等级<input type="number" id="overcome" data-stat="overcome" min="0" max="1000000" /></label>
+                                <label>无双等级<input type="number" id="strain" data-stat="strain" min="0" max="1000000" /></label>
+                                <label>加速等级<input type="number" id="haste" data-stat="haste" min="0" max="1000000" /></label>
                             </div>
+                        </details>
+                        <details>
+                            <summary>小药、食品与阵法</summary>
+                            <div id="permanentChoices" class="pair"></div>
                         </details>
                         <button id="run" class="run" disabled>
                             <span aria-hidden="true">▶</span> 运行模拟</button

@@ -3,19 +3,30 @@
 #include <variant>
 
 #include "src/class/mo_wen/runtime_data.hpp"
+#include "src/class/season50/book.hpp"
 #include "src/class/tai_xu_jian_yi/runtime_data.hpp"
 
 namespace JX3DPS::engine {
-using ScenarioConfig = std::variant<runtime::tai_xu::Config, runtime::mo_wen::Config>;
+using ScenarioConfig = std::variant<runtime::tai_xu::Config, runtime::mo_wen::Config, runtime::season50::Config>;
 
 inline ScenarioConfig Scenario(std::string_view name)
 {
     namespace tx = JX3DPS::runtime::tai_xu;
     namespace mw = JX3DPS::runtime::mo_wen;
-    if (name == "tx") {
+    if (const auto *book = runtime::season50::Find(name)) {
+        runtime::season50::Config cfg;
+        cfg.book = book;
+        cfg.precombat = runtime::season50::DefaultPrecombat(book->code);
+        cfg.attributes = book->default_attributes;
+        cfg.recipes.assign(book->default_recipes.begin(), book->default_recipes.end());
+        cfg.equipment.assign(book->default_equipment.begin(), book->default_equipment.end());
+        cfg.talents.assign(book->default_talents.begin(), book->default_talents.end());
+        return cfg;
+    }
+    if (name == "legacy_tx") {
         return tx::Config{};
     }
-    if (name == "mw") {
+    if (name == "legacy_mw") {
         return mw::Config{};
     }
     if (name == "tx_buffs") {

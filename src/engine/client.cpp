@@ -28,19 +28,31 @@ BatchResult Batch(jx3dps_engine                          *handle,
                   bool                                    hotspots)
 {
     Json request = {
-        { "op",               "batch"                           },
-        { "scenario",         config.index() == 0 ? "tx" : "mw" },
-        { "macro",            macro                             },
-        { "iterations",       o.iterations                      },
-        { "frames",           o.duration                        },
-        { "workers",          o.workers                         },
-        { "seed",             std::to_string(o.seed)            },
-        { "damageCapacity",   o.damage_capacity                 },
-        { "mutationCapacity", o.mutation_capacity               },
-        { "collectSkills",    collect                           },
-        { "hotspots",         hotspots                          }
+        { "op",               "batch"                },
+
+        { "macro",            macro                  },
+        { "iterations",       o.iterations           },
+        { "frames",           o.duration             },
+        { "workers",          o.workers              },
+        { "seed",             std::to_string(o.seed) },
+        { "damageCapacity",   o.damage_capacity      },
+        { "mutationCapacity", o.mutation_capacity    },
+        { "collectSkills",    collect                },
+        { "hotspots",         hotspots               }
     };
-    std::visit([&](const auto &cfg) { request["config"] = cfg; }, config);
+    std::visit(
+        [&](const auto &cfg) {
+            if constexpr (requires { cfg.book; }) {
+                if (!cfg.book) {
+                    throw std::invalid_argument("missing specialization");
+                }
+                request["scenario"] = cfg.book->code;
+            } else {
+                request["scenario"] = std::is_same_v<std::decay_t<decltype(cfg)>, runtime::tai_xu::Config> ? "legacy_tx" : "legacy_mw";
+            }
+            request["config"] = cfg;
+        },
+        config);
     if (increments != nullptr) {
         request["increments"] = *increments;
     }

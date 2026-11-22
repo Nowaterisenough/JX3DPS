@@ -78,6 +78,9 @@ void ValidationAndPriority()
              { 1,                    10001, {}     },
              { 1,                    {},    -1     },
              { 1,                    {},    100001 },
+             { 1,                    {},    {}, 10001, {} },
+             { 1,                    {},    {}, {}, 0 },
+             { 1,                    {},    {}, {}, 10001 },
              { MaximumFlowFrame + 1, 100,   {}     }
     })
     {
@@ -115,8 +118,8 @@ void ValidationAndPriority()
     const auto               SKILL = e.queue.Create({ TimerKind::SKILL_PREPARE }, 1);
     TargetTimeline           timeline;
     std::vector<TargetEvent> events{
-        { 5, 5000, {}  },
-        { 5, 2500, 200 },
+        { 5, 5000, {}, 8000, 1500 },
+        { 5, 2500, 200, {}, 1500 },
         { 6, 100,  {}  }
     };
     timeline.Setup(e, events);
@@ -128,7 +131,7 @@ void ValidationAndPriority()
         if (handle.kind == TimerKind::TARGET_CHANGE) {
             timeline.Dispatch(e, events);
         } else {
-            CHECK(e.state.target_life == .25 && e.state.target_distance == 2);
+            CHECK(e.state.target_life == .25 && e.state.target_distance == 2 && e.state.life == .5);
             e.log.Record(5, 0, 0, 0, 0, 0, 0);
         }
     });
@@ -136,11 +139,11 @@ void ValidationAndPriority()
     State scratch;
     int   hits = 0;
     e.log.Reduce(initial, scratch, [&](const auto &, const auto &state) {
-        CHECK(state.target_life == .25 && state.target_distance == 2);
+        CHECK(state.target_life == .25 && state.target_distance == 2 && state.life == .5);
         ++hits;
         return 1;
     });
-    CHECK(hits == 1 && e.log.Mutations().size() == 3);
+    CHECK(hits == 1 && e.log.Mutations().size() == 5);
     CHECK(e.queue.NextDelta() == 1);
 }
 

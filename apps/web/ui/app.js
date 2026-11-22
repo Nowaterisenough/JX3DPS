@@ -1,16 +1,15 @@
 const $ = (id) => document.getElementById(id);
 const fmt = (n, digits = 0) => new Intl.NumberFormat("zh-CN", { maximumFractionDigits: digits }).format(n);
-const presets = {
-    tx: [
-        ["tx", "默认配置"],
-        ["tx_buffs", "团队增益"],
-    ],
-    mw: [
-        ["mw", "默认配置"],
-        ["mw_equipped", "多装备"],
-    ],
-};
-const names = { tx: "太虚剑意", mw: "莫问" };
+const names = {};
+const schools = new Map();
+const selections = new Map();
+const panels = new Map();
+const permanentDrafts = new Map();
+function selectedPermanents() {
+    return Object.fromEntries([...$("permanentChoices").querySelectorAll("select")]
+        .filter(input => input.value).map(input => [input.dataset.category, input.value]));
+}
+const panelInputs = () => [...document.querySelectorAll("#settings [data-stat]")];
 const colors = ["#216753", "#448e71", "#76a97a", "#b7c98a", "#caab6f", "#91a5a1", "#7b8a74"];
 const records = [],
     drafts = {};
@@ -40,9 +39,60 @@ function syncEditor() {
     $("gutter").scrollTop = $("macro").scrollTop;
 }
 function setSchool(next) {
-    if (defaults) drafts[school] = $("macro").value;
+    if (schools.has(school) && $("schoolSkills").textContent) {
+        drafts[school] = $("macro").value;
+        panels.set(school, Object.fromEntries(panelInputs().map(input => [input.dataset.stat, input.value])));
+        permanentDrafts.set(school, selectedPermanents());
+        selections.set(school, new Set([...$("schoolChoices").querySelectorAll("input:checked")].map(input=>input.value)));
+    }
     school = next;
-    $("scenario").replaceChildren(...presets[school].map(([v, n]) => new Option(n, v)));
+    const spec = schools.get(next);
+    $("schoolRules").hidden = !spec;
+    $("schoolSkills").textContent = spec?.skills.join("、") ?? "";
+    $("schoolChoices").replaceChildren();
+    $("permanentChoices").replaceChildren();
+    if (spec) {
+        const draft = permanentDrafts.get(next) ?? {};
+        for (const category of ["阵法","食品增强","食品辅助","药品增强","药品辅助","武器磨石","团队宴席","家园酒品","家园菜品","家园香水"]) {
+            const options = spec.permanents[category];
+            if (!options?.length) continue;
+            const label = el("label", category), select = el("select");
+            select.dataset.category = category;
+            select.append(new Option("无", ""), ...options.map(name => new Option(name, name)));
+            select.value = draft[category] ?? "";
+            label.append(select);
+            $("permanentChoices").append(label);
+        }
+        const panel = panels.get(next) ?? spec.attributes;
+        for (const input of panelInputs()) input.value = panel[input.dataset.stat];
+        for (const group of ["talents", "recipes", "equipment"]) {
+            for (const name of spec[group]) {
+                const label = el("label"), input = el("input");
+                input.type = "checkbox";
+                input.dataset.group = group;
+                input.value = name;
+                input.checked = selections.has(next) ? selections.get(next).has(name)
+                    : ({talents: spec.defaultTalents, recipes: spec.defaultRecipes, equipment: spec.defaultEquipment})[group].includes(name);
+                if (group === "equipment" && spec.equipmentSlots[name]) {
+                    input.dataset.slot = spec.equipmentSlots[name];
+                    input.onchange = () => {
+                        if (!input.checked) return;
+                        const others = [...$("schoolChoices").querySelectorAll("input[data-slot]:checked")]
+                            .filter(other => other !== input && other.dataset.slot === input.dataset.slot);
+                        const capacity = input.dataset.slot === "戒指" ? 2 : 1;
+                        while (others.length >= capacity) others.shift().checked = false;
+                    };
+                }
+                if (group === "recipes" && spec.presetOnlyRecipes?.includes(name)) {
+                    label.title = "方案中保留此秘籍，当前木桩模拟尚未结算此效果。";
+                }
+                if (group === "recipes" && spec.singleTargetRecipeNotes?.[name]) label.title = spec.singleTargetRecipeNotes[name];
+                label.append(input, document.createTextNode(name));
+                $("schoolChoices").append(label);
+            }
+        }
+    }
+
     $("macro").value = drafts[school] ?? defaults?.[school] ?? "";
     syncEditor();
 }
@@ -60,14 +110,16 @@ function config() {
     if (!$("settings").reportValidity()) throw new Error("请检查模拟配置");
     if (BigInt($("seed").value) > 18446744073709551615n) throw new Error("随机种子超出 64 位范围");
     return {
-        scenario: $("scenario").value,
+        scenario: school,
+        ...(schools.has(school) ? {config: {permanents: selectedPermanents(), attributes: Object.fromEntries(panelInputs()
+            .filter(input => input.value !== "").map(input => [input.dataset.stat, +input.value])),
+            ...Object.fromEntries(["talents", "recipes", "equipment"].map(
+            (group) => [group, [...$("schoolChoices").querySelectorAll("input:checked")].filter(
+                (input) => input.dataset.group === group).map((input) => input.value)]))}} : {}),
         macro: $("macro").value,
         seconds: +$("seconds").value,
         iterations: +$("iterations").value,
         seed: $("seed").value,
-        attributes: Object.fromEntries(
-            ["attack", "crit", "haste"].filter((k) => $(k).value !== "").map((k) => [k, +$(k).value]),
-        ),
     };
 }
 function manual(type) {
@@ -124,7 +176,7 @@ function display(rec) {
     selected = rec;
     const r = rec.result,
         q = rec.request,
-        cls = q.scenario.startsWith("tx") ? "tx" : "mw";
+        cls = q.scenario;
     $("dps").textContent = fmt(r.meanDps, 1);
     $("low").textContent = fmt(Number(r.minDamage) / q.seconds, 1);
     $("high").textContent = fmt(Number(r.maxDamage) / q.seconds, 1);
@@ -132,7 +184,7 @@ function display(rec) {
     $("resultMeta").textContent =
         names[cls] +
         " · " +
-        presets[cls].find(([v]) => v === q.scenario)[1] +
+        "50 级" +
         " · " +
         fmt(r.completed) +
         " 场";
@@ -148,7 +200,7 @@ function display(rec) {
             const tr = el("tr"),
                 cell = el("td"),
                 name = el("div", undefined, "skill");
-            const icon = iconMap[cls === "tx" ? "0" : "1"]?.[s.name]?.Icon;
+            const icon = ["tx","mw"].includes(cls) && iconMap[cls === "tx" ? "0" : "1"]?.[s.name]?.Icon;
             if (icon) {
                 const img = el("img");
                 img.src = "./icons/" + Number(icon) + ".png";
@@ -212,7 +264,14 @@ function boot() {
         switch (data.type) {
             case "ready":
                 defaults = data.defaults;
-                if (!$("macro").value) $("macro").value = defaults[school];
+                $("school").replaceChildren(...data.schools.map((spec) => {
+                    schools.set(spec.code, spec);
+                    names[spec.code] = spec.name;
+
+                    return new Option(spec.name, spec.code);
+                }));
+                $("school").value = school;
+                setSchool(school);
                 syncEditor();
                 pending(false);
                 $("status").textContent = "WASM 内核就绪";
@@ -255,8 +314,8 @@ function boot() {
         }
     };
 }
-setSchool("tx");
-document.querySelectorAll("[name=school]").forEach((n) => (n.onchange = () => setSchool(n.value)));
+
+$("school").onchange = (event) => setSchool(event.target.value);
 $("restore").onclick = () => {
     if (defaults) {
         $("macro").value = defaults[school];
@@ -283,7 +342,7 @@ $("historyOpen").onclick = () => {
                       "button",
                       rec.time +
                           "　" +
-                          names[rec.request.scenario.startsWith("tx") ? "tx" : "mw"] +
+                          names[rec.request.scenario] +
                           " · " +
                           fmt(rec.result.completed) +
                           " 场　" +

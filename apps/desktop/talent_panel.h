@@ -3,19 +3,23 @@
 #include <memory>
 
 #include <QJsonArray>
+#include <QStringList>
 #include <QWidget>
 
 #include "runtime_catalog.h"
 
-class QCheckBox;
 
 namespace desktop {
 class TalentPanel final : public QWidget
 {
+    Q_OBJECT
+
 public:
     explicit TalentPanel(Specialization specialization, QWidget *parent = nullptr);
     ~TalentPanel() override;
-    QCheckBox     *AddTalent(const QString &name, const QString &key);
+    QJsonArray         DefaultSelection() const;
+    static QStringList Names(Specialization spec, const QJsonArray &selection);
+
     static QString DataVersion();
     QJsonArray     Selection() const;
     bool           ValidateSelection(const QJsonArray &selection, QString &error) const;
@@ -25,6 +29,9 @@ public:
     void           SetColumns(int columns);
     QWidget       *HeaderWidget() const;
     QWidget       *TakeHeader();
+
+signals:
+    void SelectionChanged();
 
 protected:
     void hideEvent(QHideEvent *event) override;

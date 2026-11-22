@@ -18,7 +18,7 @@ const ready = createModule()
         module = instance;
         session = module._jx3dps_create();
         if (!session || module._jx3dps_abi_version() !== 1) throw new Error("内核初始化失败");
-        self.postMessage({ type: "ready", defaults: call({ op: "defaults" }) });
+        self.postMessage({ type: "ready", defaults: call({ op: "defaults" }), schools: call({ op: "schools" }) });
     })
     .catch((error) => self.postMessage({ type: "fatal", error: error.message }));
 

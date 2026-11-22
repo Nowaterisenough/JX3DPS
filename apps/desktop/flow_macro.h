@@ -21,23 +21,25 @@ struct FlowField
     double      initial{}, minimum{}, maximum{};
     int         decimals{};
     bool        percentage = false;
+    bool        during_combat = false, combat_only = false;
 };
 
 inline constexpr std::array<FlowField, 8> FlowFields{
-    { { "/set_target", "level", "targetLevel", 124, 110, 130, 0 },
-     { "/set_target", "shield", "shield", 30000, 0, 10000000, 0 },
-     { "/set_target", "life", "targetLife", 100, 1, 100, 2, true },
-     { "/set_target", "distance", "distance", 4, 0, 1000, 2 },
+    { { "/set_target", "level", "targetLevel", 54, 50, 54, 0 },
+     { "/set_target", "shield", "shield", 6592, 0, 100000, 0 },
+     { "/set_target", "life", "targetLife", 100, 1, 100, 2, true, true },
+     { "/set_target", "distance", "distance", 4, 0, 1000, 2, false, true },
      { "/set_target", "vulnerable", "vulnerable", 0, 0, 976.5625, 4, true },
      { "/set_player", "qidian", "qidian", 10, 0, 10, 0 },
-     { "/set_player", "shadows", "mwShadows", 0, 0, 6, 0 },
-     { "/set_player", "style", "mwStyle", 1, 0, 1, 0 } }
+     { "/set_player", "life", "playerLife", 100, 0, 100, 2, true, true },
+     { "/set_player", "hit", "incomingDamage", 30, 0.01, 100, 2, true, true, true } }
 };
 
 inline QJsonObject FlowDefaults()
 {
     QJsonObject values;
     for (const auto &field : FlowFields) {
+        if (field.combat_only) continue;
         values.insert(QString::fromLatin1(field.key), field.initial);
     }
     return values;
@@ -45,8 +47,8 @@ inline QJsonObject FlowDefaults()
 
 inline QString FlowFieldName(int index)
 {
-    static const std::array<const char *, 8> names{ "目标等级", "目标防御", "目标气血", "目标距离",
-                                                    "目标易伤", "初始气点", "初始影子", "初始曲目" };
+    static const std::array<const char *, FlowFields.size()> names{ "目标等级", "目标防御", "目标气血",
+                                                    "目标距离", "目标易伤", "纯阳初始气点", "自身气血", "单次受击" };
     return QString::fromUtf8(names.at(index));
 }
 
@@ -62,9 +64,6 @@ inline int FlowFieldIndex(const QString &key)
 
 inline QString FlowValueText(const FlowField &field, double value)
 {
-    if (QByteArray(field.key) == "mwStyle" && (value == 0 || value == 1)) {
-        return value == 0 ? QStringLiteral("阳春白雪") : QStringLiteral("高山流水");
-    }
     return QString::number(value, 'g', 15) + (field.percentage ? QStringLiteral("%") : QString{});
 }
 
@@ -111,11 +110,12 @@ struct FlowNode
 
     bool CanMove() const
     {
-        if (command != "/set_target" || values.isEmpty()) {
+        if (values.isEmpty()) {
             return false;
         }
         for (const auto &key : values.keys()) {
-            if (key != "targetLife" && key != "distance") {
+            const int index = FlowFieldIndex(key);
+            if (index < 0 || !FlowFields[index].during_combat) {
                 return false;
             }
         }
@@ -177,6 +177,7 @@ inline QString FlowMacroFromValues(const QJsonObject &values)
 {
     QStringList lines;
     for (const auto &field : FlowFields) {
+        if (field.combat_only) continue;
         const auto value   = values.value(QString::fromLatin1(field.key)).toDouble(field.initial);
         const auto LITERAL = FlowValueText(field, value);
         lines << QStringLiteral("%1 %2=%3").arg(QString::fromLatin1(field.command), QString::fromLatin1(field.parameter), LITERAL);
@@ -214,6 +215,8 @@ struct CompiledFlow
             if (node.values.contains("distance")) {
                 event.distance_hundredths = qRound(node.values.value("distance").toDouble() * 100);
             }
+            if (node.values.contains("playerLife")) event.player_life_basis_points = qRound(node.values.value("playerLife").toDouble() * 100);
+            if (node.values.contains("incomingDamage")) event.incoming_damage_basis_points = qRound(node.values.value("incomingDamage").toDouble() * 100);
             events.push_back(event);
         }
         std::stable_sort(events.begin(), events.end(), [](const auto &left, const auto &right) {
@@ -331,17 +334,17 @@ inline CompiledFlow CompileFlowMacro(const QString &source)
                 FAIL(index, QStringLiteral("未知参数：%1。").arg(PARAMETER));
                 continue;
             }
-            if (node.frame > 0 && (COMMAND != "/set_target" || (PARAMETER != "life" && PARAMETER != "distance"))) {
-                FAIL(index, QStringLiteral("战中仅支持目标气血 life 和距离 distance；其他参数须放在 0 秒。"));
+            if (node.frame > 0 && !field->during_combat) {
+                FAIL(index, QStringLiteral("此参数只能在开场设置。"));
+                continue;
+            }
+            if (node.frame == 0 && field->combat_only) {
+                FAIL(index, QStringLiteral("单次受击需要指定大于 0 秒的战中时刻。"));
                 continue;
             }
             double number = 0;
             bool   valid  = false;
-            if (QByteArray(field->key) == "mwStyle" && (literal == QStringLiteral("阳春白雪") || literal == QStringLiteral("高山流水")))
             {
-                number = literal == QStringLiteral("阳春白雪") ? 0 : 1;
-                valid  = true;
-            } else {
                 const bool percent = literal.endsWith('%');
                 if (percent) {
                     literal.chop(1);
@@ -358,10 +361,6 @@ inline CompiledFlow CompileFlowMacro(const QString &source)
                 }
             }
             if (!valid || !ValidFlowValue(*field, number)) {
-                if (QByteArray(field->key) == "mwStyle") {
-                    FAIL(index, QStringLiteral("style 只能为阳春白雪/高山流水，或对应的 0/1。"));
-                    continue;
-                }
                 FAIL(index,
                      QStringLiteral("%1 必须在 %2–%3%4 之间，最多 %5 位小数。")
                          .arg(PARAMETER)
@@ -374,7 +373,7 @@ inline CompiledFlow CompileFlowMacro(const QString &source)
             node.values.insert(QString::fromLatin1(field->key), number);
         }
         if (node.frame > 0 && node.values.isEmpty() && result.errors.size() == PREVIOUS_ERRORS) {
-            FAIL(command_index, QStringLiteral("战中节点必须设置目标气血或距离。"));
+            FAIL(command_index, QStringLiteral("战中节点需要设置气血、受击或距离。"));
         }
         if (result.errors.size() != PREVIOUS_ERRORS) {
             continue;

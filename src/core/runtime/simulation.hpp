@@ -250,6 +250,7 @@ public:
     State &MutableState() { return state_; }
 
     const State &GetState() const { return state_; }
+    const State &StartingState() const { return initial_; }
 
     const Rules &GetRules() const { return rules_; }
 

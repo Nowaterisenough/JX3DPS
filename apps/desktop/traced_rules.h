@@ -50,6 +50,25 @@ inline ActorAttributes CurrentAttributes(const rt::mo_wen::Rules &rules)
     return result;
 }
 
+inline ActorAttributes CurrentAttributes(const rt::season50::Rules &rules)
+{
+    const auto     &p = rules.Data();
+    const auto     &a = p.config.attributes;
+    ActorAttributes v;
+    v.attack         = a.attack_base * (1024 + a.attack_percent) / 1024 + a.attack_by_class;
+    v.weapon         = a.weapon;
+    v.overcome       = a.overcome * (1024 + a.overcome_percent) / 1024;
+    v.strain         = a.strain;
+    v.surplus        = a.surplus;
+    v.criticalChance = std::clamp(p.crit_basis_points, 0, 10000) / 10000.;
+    v.haste          = p.haste;
+    v.criticalMultiplier = 1.75 + std::min(1280, rt::season50::Rating(a.crit_power, 3.54) + a.crit_power_percent) / 1024.;
+    v.damagePercent = a.damage_percent;
+    v.strainPercent = a.strain_percent;
+    v.pvePercent    = a.pve_percent;
+    v.ignoreShield  = a.ignore_shield;
+    return v;
+}
 // Only single-fight trace/debug instantiate this type. Batch uses the base Rules
 // directly, so it has no recording storage, callbacks, or runtime mode branch.
 template <class Rules>

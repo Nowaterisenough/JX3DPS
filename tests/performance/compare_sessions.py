@@ -70,8 +70,8 @@ def main(resources):
     if defaults[0] != defaults[1]:
         raise ValueError("Different default macros")
     report = {}
-    for scene in ("tx", "tx_buffs", "mw", "mw_equipped"):
-        request = dict(op="start", scenario=scene, seconds=300, seed="42", macro=defaults[0][scene[:2]])
+    for scene in ("tx", "mw", "gfj", "yly"):
+        request = dict(op="start", scenario=scene, seconds=300, seed="42", macro=defaults[0][scene])
         for engine in engines:
             run(engine, json.dumps(dict(request, iterations=256)).encode())
         encoded = json.dumps(dict(request, iterations=args.iterations), ensure_ascii=False).encode()

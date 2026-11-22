@@ -2,6 +2,7 @@
 
 #include "config_json.hpp"
 #include "default_macro.hpp"
+#include "src/class/season50/permanents.hpp"
 #include "jx3dps.h"
 #ifndef __EMSCRIPTEN__
 #    include "src/core/runtime/attribute_gains.hpp"
@@ -17,6 +18,7 @@
 #include <nlohmann/json.hpp>
 
 #include "src/class/mo_wen/runtime_rules.hpp"
+#include "src/class/season50/runtime_rules.hpp"
 #include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
 #include "src/core/runtime/batch_statistics.hpp"
 #include "src/core/runtime/simulation.hpp"
@@ -57,6 +59,15 @@ struct Session
 };
 
 template <class Config>
+std::string_view MacroSource(const Json &request, const Config &config)
+{
+    if (!request.contains("macro")) {
+        if constexpr (std::is_same_v<Config, rt::season50::Config>) return config.book->default_macro;
+    }
+    return request.at("macro").get_ref<const std::string &>();
+}
+
+template <class Config>
 class Battle final : public Session
 {
     using Rules = typename Config::RuntimeModule::Rules;
@@ -76,7 +87,7 @@ public:
         rules(rt::LoadSpecialization(cfg)), seconds(bounded(j, "seconds", 1, MaxSeconds)),
         fights(bounded(j, "iterations", 1, MaxFights)), seed(seedOf(j)), catalog(cat), skills(cat.skills.size())
     {
-        const auto           &source          = j.at("macro").get_ref<const std::string &>();
+        const auto            source          = MacroSource(j, cfg);
         constexpr std::size_t MAX_MACRO_BYTES = std::size_t{ 64 } * 1024;
         if (source.size() > MAX_MACRO_BYTES) {
             throw std::invalid_argument("宏文本超过 64 KiB");
@@ -165,6 +176,68 @@ public:
         if (!debugger) {
             throw std::logic_error("没有调试会话");
         }
+        if (action == "trace") {
+            if (!debugger->Finished()) {
+                throw std::logic_error("请先完成本场模拟");
+            }
+            Json hits = Json::array(), changes = Json::array();
+            debugger->TotalDamage([&](const rt::DamageIntent &h, value_t damage) {
+                hits.push_back({
+                    { "frame",    h.frame                         },
+                    { "sequence", h.sequence                      },
+                    { "level",    h.level                         },
+                    { "snapshot", h.snapshot_version              },
+                    { "live",     h.live_version                  },
+                    { "name",     catalog.skills[h.skill].name    },
+                    { "critical", h.outcome == RollResult::DOUBLE },
+                    { "damage",   std::to_string(damage)          }
+                });
+                if constexpr (std::is_same_v<Config, rt::season50::Config>) {
+                    hits.back()["multiplier"] = h.sub;
+                }
+            });
+            for (const auto &m : debugger->Log().Mutations()) {
+                if (m.kind == rt::MutationKind::BUFF) {
+                    changes.push_back({
+                        { "frame",    m.frame                    },
+                        { "sequence", m.sequence                 },
+                        { "buff",     catalog.buffs[m.slot].name },
+                        { "target",   m.target                   },
+                        { "stacks",   m.c                        },
+                        { "expires",  m.a                        },
+                        { "nextTick", m.b                        }
+                    });
+                } else if (m.kind == rt::MutationKind::SKILL_COOLDOWN || m.kind == rt::MutationKind::SKILL_ENERGY) {
+                    changes.push_back({{"frame", m.frame}, {"sequence", m.sequence}, {"skill", catalog.skills[m.slot].name},
+                                       {m.kind == rt::MutationKind::SKILL_COOLDOWN ? "readyAt" : "charges", m.a}});
+                } else if (m.kind == rt::MutationKind::GCD) {
+                    changes.push_back({{"frame", m.frame}, {"sequence", m.sequence}, {"gcdGroup", m.slot}, {"readyAt", m.a}});
+                } else if (m.kind == rt::MutationKind::RESOURCES) {
+                    changes.push_back({
+                        { "frame",    m.frame    },
+                        { "sequence", m.sequence },
+                        { "qidian",   m.a        },
+                        { "energy",   m.b        },
+                        { "rage",     m.c        }
+                    });
+                }
+            }
+            const auto &opening = debugger->StartingState();
+            Json initialBuffs = Json::array();
+            for (std::size_t i=0; i<catalog.buffs.size(); ++i) {
+                for (bool target : {false, true}) {
+                    const auto stacks = (target ? opening.target_buff_stacks : opening.self_buff_stacks)[i];
+                    if (stacks)
+                        initialBuffs.push_back({{"buff",catalog.buffs[i].name},{"target",target},{"stacks",stacks},
+                            {"expires",(target ? opening.target_buff_expires_at : opening.self_buff_expires_at)[i]}});
+                }
+            }
+            return {
+                { "initial", {{"qidian", opening.qidian}, {"energy", opening.energy}, {"rage", opening.rage}, {"buffs",std::move(initialBuffs)}} },
+                { "hits",    std::move(hits)    },
+                { "changes", std::move(changes) }
+            };
+        }
         if (action == "into") {
             debugger->StepInto();
         } else if (action == "over") {
@@ -188,6 +261,12 @@ public:
         };
     }
 };
+#ifdef __EMSCRIPTEN__
+// Emit the virtual entry points used through Session in the WASM archive.
+template class Battle<rt::tai_xu::Config>;
+template class Battle<rt::mo_wen::Config>;
+template class Battle<rt::season50::Config>;
+#endif
 } // namespace
 
 struct jx3dps_engine
@@ -240,9 +319,11 @@ Json nativeBatch(jx3dps_engine &engine, const Json &j, const C &cfg, rt::SkillCa
         }
         return value.get<size_t>();
     };
-    opts.damage_capacity   = CAPACITY("damageCapacity", opts.damage_capacity);
-    opts.mutation_capacity = CAPACITY("mutationCapacity", opts.mutation_capacity);
-    auto [macro, errors] = rt::MacroCompiler::Compile(j.at("macro").get<std::string>(), rt::CatalogMacroOptions(catalog, false));
+    // Size an implicit log for the requested fight. Equipment procs may refresh several auras on one hit.
+    const auto frames = static_cast<size_t>(opts.duration);
+    opts.damage_capacity   = CAPACITY("damageCapacity", std::max(opts.damage_capacity, frames * 2));
+    opts.mutation_capacity = CAPACITY("mutationCapacity", std::max(opts.mutation_capacity, frames * 6));
+    auto [macro, errors] = rt::MacroCompiler::Compile(MacroSource(j, cfg), rt::CatalogMacroOptions(catalog, false));
     if (!errors.empty()) {
         throw std::invalid_argument("第 " + std::to_string(errors[0].line) + " 行 · " + errors[0].message);
     }
@@ -317,6 +398,7 @@ Json nativeBatch(jx3dps_engine &engine, const Json &j, const C &cfg, rt::SkillCa
         if (sum.count) {
             result["skills"].push_back({
                 { "skill",    i                          },
+                { "name",     catalog.skills[i].name     },
                 { "damage",   std::to_string(sum.damage) },
                 { "count",    sum.count                  },
                 { "hit",      sum.hit                    },
@@ -339,10 +421,52 @@ Json handle(jx3dps_engine &session, const Json &j)
     }
 #endif
     if (OP == "defaults") {
-        return {
-            { "tx", engine::DefaultMacro(false) },
-            { "mw", engine::DefaultMacro(true)  }
-        };
+        Json defaults = Json::object();
+        for (const auto &book : rt::season50::Books()) {
+            defaults[book.code] = book.default_macro;
+        }
+        return defaults;
+    }
+    if (OP == "schools") {
+        Json schools = Json::array();
+        for (const auto &book : rt::season50::Books()) {
+            Json skills = Json::array();
+            for (auto slot : book.castable) {
+                skills.push_back(book.skills[slot].name);
+            }
+            Json resources = Json::array();
+            for (const auto &resource : book.resources) {
+                resources.push_back(resource.name);
+            }
+            Json equipmentSlots = Json::object();
+            for (auto gear : book.equipment) {
+                const auto slot = rt::season50::EquipmentSlot(gear);
+                if (!slot.empty()) equipmentSlots[gear] = slot;
+            }
+            Json permanents = Json::object();
+            for (const auto &item : rt::season50::PermanentOptions(book)) permanents[item.category].push_back(item.name);
+            schools.push_back({
+                { "code",      book.code            },
+                { "name",      book.name            },
+                { "ruleset",   "cangsheng-50"       },
+                { "resources", std::move(resources) },
+                { "skills",    std::move(skills)    },
+                { "talents",   book.talents         },
+                { "recipes",   book.recipes         },
+                { "equipment", book.equipment       },
+                { "attributes", book.default_attributes },
+                { "defaultRecipes", book.default_recipes },
+                { "presetOnlyRecipes", book.preset_only_recipes },
+                { "singleTargetRecipeNotes", book.single_target_recipe_notes },
+                { "defaultEquipment", book.default_equipment },
+                { "equipmentSlots", equipmentSlots },
+                { "permanents", permanents },
+                { "defaultTalents", book.default_talents },
+                { "major", book.default_major },
+                { "macro",     book.default_macro   }
+            });
+        }
+        return schools;
     }
     if (OP == "next") {
         if (!active) {
@@ -360,36 +484,44 @@ Json handle(jx3dps_engine &session, const Json &j)
         throw std::invalid_argument("未知请求");
     }
     active.reset();
-    auto       config = engine::Scenario(j.at("scenario").get<std::string>());
+    const auto scenario = j.at("scenario").get<std::string>();
     const bool DEBUG  = j.value("debug", false);
+    const auto start    = [&](auto &cfg, rt::SkillCatalog cat) -> Json {
+        if (j.contains("config")) {
+            j.at("config").get_to(cfg);
+        }
+        const auto ATTRS = j.value("attributes", Json::object());
+        auto      &a     = cfg.attributes;
+        if (ATTRS.contains("attack")) {
+            a.attack_base = bounded(ATTRS, "attack", 0, 1000000);
+        }
+        if (ATTRS.contains("crit")) {
+            a.crit = bounded(ATTRS, "crit", 0, 1000000);
+        }
+        if (ATTRS.contains("haste")) {
+            a.haste = bounded(ATTRS, "haste", 0, 1000000);
+        }
+        using C = std::decay_t<decltype(cfg)>;
+#ifndef __EMSCRIPTEN__
+        if (OP == "batch") return nativeBatch(session, j, cfg, cat);
+#else
+        if (OP == "batch") throw std::invalid_argument("use start/next for cooperative batches");
+#endif
+        active = std::make_unique<Battle<C>>(j, cfg, cat, DEBUG);
+        return DEBUG ? active->debug("start")
+                     : Json{
+                           { "completed", 0 }
+        };
+    };
+    auto config = engine::Scenario(scenario);
     return std::visit(
         [&](auto &cfg) {
-            if (j.contains("config")) {
-                j.at("config").get_to(cfg);
+            using C = std::decay_t<decltype(cfg)>;
+            if constexpr (std::is_same_v<C, rt::season50::Config>) {
+                return start(cfg, cfg.book->Catalog());
+            } else {
+                return start(cfg, std::is_same_v<C, rt::tai_xu::Config> ? rt::tai_xu::Catalog : rt::mo_wen::Catalog);
             }
-            const auto ATTRS = j.value("attributes", Json::object());
-            auto      &a     = cfg.attributes;
-            if (ATTRS.contains("attack")) {
-                a.attack_base = bounded(ATTRS, "attack", 0, 1000000);
-            }
-            if (ATTRS.contains("crit")) {
-                a.crit = bounded(ATTRS, "crit", 0, 1000000);
-            }
-            if (ATTRS.contains("haste")) {
-                a.haste = bounded(ATTRS, "haste", 0, 1000000);
-            }
-            using C        = std::decay_t<decltype(cfg)>;
-            const auto cat = std::is_same_v<C, rt::tai_xu::Config> ? rt::tai_xu::Catalog : rt::mo_wen::Catalog;
-#ifndef __EMSCRIPTEN__
-            if (OP == "batch") return nativeBatch(session, j, cfg, cat);
-#else
-            if (OP == "batch") throw std::invalid_argument("use start/next for cooperative batches");
-#endif
-            active = std::make_unique<Battle<C>>(j, cfg, cat, DEBUG);
-            return DEBUG ? active->debug("start")
-                         : Json{
-                               { "completed", 0 }
-            };
         },
         config);
 }

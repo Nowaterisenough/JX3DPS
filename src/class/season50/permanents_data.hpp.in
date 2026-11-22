@@ -1,0 +1,2 @@
+#pragma once
+constexpr char PermanentData[] = R"jx3(@PERMANENTS_JSON@)jx3";

@@ -15,6 +15,14 @@ int main(void)
     jx3dps_engine *a = jx3dps_create();
     jx3dps_engine *b = jx3dps_create();
     CHECK(a && b && jx3dps_abi_version() == 1);
+    const char *preset = "{\"op\":\"start\",\"scenario\":\"mw\",\"seconds\":10,\"iterations\":1,\"seed\":\"42\"}";
+    CHECK(strstr(jx3dps_call(a, preset), "\"completed\":0"));
+    char reference[8192];
+    snprintf(reference, sizeof(reference), "%s", jx3dps_call(a, "{\"op\":\"next\"}"));
+    CHECK(strstr(reference, "\"checksum\""));
+    CHECK(strstr(jx3dps_call(a, "{\"op\":\"start\",\"scenario\":\"mw\",\"seconds\":10,\"iterations\":1,\"seed\":\"42\","
+                                "\"config\":{\"attributes\":{\"crit\":2741}}}"), "\"completed\":0"));
+    CHECK(strcmp(reference, jx3dps_call(a, "{\"op\":\"next\"}")) == 0);
     const char *start = "{\"op\":\"start\",\"scenario\":\"tx\",\"seconds\":300,\"iterations\":129,\"seed\":\"42\","
                         "\"macro\":\"/cast sanchai\",\"attributes\":{}}";
     CHECK(strstr(jx3dps_call(a, start), "\"completed\":0"));

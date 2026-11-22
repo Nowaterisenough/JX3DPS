@@ -33,7 +33,7 @@ QString ActionDetails(const rt::ActionDiagnostic &action, bool success, desktop:
             text = success ? QStringLiteral("施放成功（伤害可能延后结算）。") : QStringLiteral("施放失败。");
             break;
         case Reason::PREPARING:
-            text = QStringLiteral("正在运功 %1：剩余 %2 帧；强制施放不能跳过运功。")
+            text = QStringLiteral("正在运功 %1：剩余 %2 帧。")
                        .arg(desktop::SkillName(specialization, action.subject))
                        .arg(action.actual);
             break;
@@ -45,7 +45,13 @@ QString ActionDetails(const rt::ActionDiagnostic &action, bool success, desktop:
         case Reason::SKILL_COOLDOWN: text = QStringLiteral("技能冷却：剩余 %1 帧。").arg(action.actual); break;
         case Reason::GLOBAL_COOLDOWN: text = QStringLiteral("公共冷却：剩余 %1 帧。").arg(action.actual); break;
         case Reason::QIDIAN:
-            text = QStringLiteral("当前气点 %1；至少需要 %2。").arg(action.actual).arg(action.required);
+            text = QStringLiteral("当前%1 %2；至少需要 %3。")
+                       .arg(static_cast<int>(specialization) >= 0 &&
+                                    action.subject < desktop::School(specialization).resources.size()
+                                ? desktop::Text(desktop::School(specialization).resources[action.subject].name)
+                                : QStringLiteral("气点"))
+                       .arg(action.actual)
+                       .arg(action.required);
             break;
         case Reason::CHARGES:
             text = QStringLiteral("当前充能 %1；至少需要 %2。").arg(action.actual).arg(action.required);
@@ -129,7 +135,7 @@ struct DebugSimulator::Impl
 {
     JX3DPS::runtime::CompiledMacro macro;
     using MoWenSimulator = rt::Simulation<desktop::TracedRules<rt::mo_wen::Rules>, true>;
-    std::variant<std::unique_ptr<Simulator>, std::unique_ptr<MoWenSimulator>> simulation;
+    std::variant<std::unique_ptr<Simulator>, std::unique_ptr<MoWenSimulator>, std::unique_ptr<rt::Simulation<desktop::TracedRules<rt::season50::Rules>, true>>> simulation;
 
     template <class F>
     decltype(auto) Visit(F &&function)
@@ -303,6 +309,13 @@ DebugSimulator::PlayerState DebugSimulator::GetPlayerState() const
         result.currentSeconds    = JX3DPS::FramesToSeconds(state.now);
         result.currentMacro      = desktop::ClassName(d->Class());
         const auto CATALOG       = desktop::Describe(d->Class());
+        if (static_cast<int>(d->Class()) >= 0) {
+            const int values[]{ state.qidian, state.energy, state.rage };
+            for (std::size_t i = 0; i < desktop::School(d->Class()).resources.size(); ++i) {
+                result.details
+                    << QStringLiteral("%1：%2").arg(desktop::Text(desktop::School(d->Class()).resources[i].name)).arg(values[i]);
+            }
+        }
         result.details << QStringLiteral("目标气血 %1% · 距离 %2").arg(state.target_life * 100, 0, 'f', 2).arg(state.target_distance, 0, 'f', 2);
 
         if (state.last_skill != JX3DPS::runtime::INVALID_SLOT && state.last_skill < CATALOG.skills.size()) {

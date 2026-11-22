@@ -40,7 +40,24 @@ QJsonObject Entry(Specialization specialization, QString name)
         }
         return QJsonDocument::fromJson(file.readAll()).object();
     }();
-    const auto ENTRIES = data.value(QString::number(static_cast<int>(specialization))).toObject();
+    static const auto current = [] {
+        QFile file(":/desktop/skill_icons50.json");
+        file.open(QIODevice::ReadOnly);
+        return QJsonDocument::fromJson(file.readAll()).object();
+    }();
+    auto ENTRIES = current.value(Text(Info(specialization).code)).toObject();
+    if (ENTRIES.isEmpty() && (Info(specialization).code == "mw" || Info(specialization).code == "tx")) {
+        ENTRIES = data.value(Info(specialization).code == "mw" ? "1" : "0").toObject();
+    }
+    if (name.endsWith("(DOT)")) {
+        name.chop(5);
+    }
+    if (name.endsWith("持续伤害")) {
+        name.chop(4);
+    }
+    if (name.endsWith("()")) {
+        name.chop(2);
+    }
     name               = name.section(QStringLiteral("（"), 0, 0);
     if (ENTRIES.contains(name)) {
         return ENTRIES.value(name).toObject();
@@ -171,17 +188,32 @@ private:
 };
 } // namespace
 
+static QIcon AtlasIcon(const QString &key)
+{
+    static const auto index = [] {
+        QFile f(":/desktop/season50_icons.json");
+        f.open(QIODevice::ReadOnly);
+        return QJsonDocument::fromJson(f.readAll()).object();
+    }();
+    static const QPixmap sheet(":/desktop/season50_icons.png");
+    const int            cell = index.value(key).toInt(-1);
+    return cell < 0 ? QIcon{} : QIcon(sheet.copy((cell % 24) * 48, (cell / 24) * 48, 48, 48));
+}
 QIcon GameIcon(int id)
 {
     static const int initialized = Resources::InitResources();
     Q_UNUSED(initialized);
-    return QIcon(QStringLiteral(":/resources/images/JX3/Icons/%1.png").arg(id));
+    const auto path = QStringLiteral(":/resources/images/JX3/Icons/%1.png").arg(id);
+    return QFile::exists(path) ? QIcon(path) : AtlasIcon(QString::number(id));
 }
 
 QIcon GameIcon(Specialization specialization, const QString &name)
 {
     const auto ENTRY = Entry(specialization, name);
-    if (ENTRY.isEmpty() && specialization == Specialization::TAI_XU) {
+    if (name == ClassName(specialization) && static_cast<int>(specialization) >= 0) {
+        return AtlasIcon(Text(School(specialization).code));
+    }
+    if (ENTRY.isEmpty() && specialization == Specialization::LEGACY_TX) {
         for (const auto &buff : rt::tai_xu::team::Definitions) {
             if (name != QString::fromUtf8(buff.name.data(), buff.name.size())) {
                 continue;

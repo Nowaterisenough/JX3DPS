@@ -46,10 +46,7 @@ inline constexpr std::array<GameAttributeRow, 10> GameAttributeRows{
 
 inline QString GameAttributeName(int row, Specialization specialization)
 {
-    return (row != 0) ? QString::fromUtf8(GameAttributeRows.at(row).label)
-           : specialization == Specialization::MO_WEN
-               ? QStringLiteral("根骨")
-               : QStringLiteral("身法");
+    return (row != 0) ? QString::fromUtf8(GameAttributeRows.at(row).label) : Text(Info(specialization).major);
 }
 
 inline const AttributeGain *GameAttributeGain(const SimulationResult &result, int row)
@@ -329,11 +326,10 @@ public:
         values_[0]->setToolTip(MODE_TIP +
                                QStringLiteral("\n导入属性中已经计入攻击和会心的主属性。未记录时总值显示 "
                                               "--，括号仅为已知的常驻主属性增量，不从攻击反推；请通过导入属性补充。"));
-        values_[2]->setToolTip(
-            QStringLiteral("当前旧规则引擎仅判定命中和会心，按固定命中处理，不提供可调整的命中等级。"));
+        values_[2]->setToolTip(QStringLiteral("当前模拟仅判定命中和会心，按固定命中处理，不提供可调整的命中等级。"));
         for (int i = 3; i <= 7; ++i) {
             values_[i]->setToolTip(MODE_TIP +
-                                   QStringLiteral("\n按模拟器当前旧规则折算的静态面板百分比，不含战斗中的临时增益。"));
+                                   QStringLiteral("\n按 50 级规则折算的静态面板百分比，不含战斗中的临时增益。"));
         }
     }
 

@@ -9,7 +9,7 @@ import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-SCENES = ("tx", "tx_buffs", "mw", "mw_equipped")
+SCENES = ("tx", "mw", "gfj", "yly")
 FIGHTS, SECONDS, SEED, REPEATS = 100000, 300, "42", 3
 
 
@@ -73,7 +73,7 @@ def browser(site, channel):
                                 damage:r.skills.reduce((n,s)=>n+BigInt(s.damage),0n).toString()});
                         };
                         worker.postMessage({type:'run',request:{scenario:scene,iterations,seconds,seed,
-                            attributes:{},macro:window.macros[scene.startsWith('tx')?'tx':'mw']}});
+                            attributes:{},macro:window.macros[scene]}});
                     });
                 }""", [scene,count,SECONDS,SEED])
             result = collect(once)

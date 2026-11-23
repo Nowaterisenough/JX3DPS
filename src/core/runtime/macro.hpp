@@ -141,13 +141,13 @@ private:
 
     static std::string_view Trim(std::string_view value)
     {
-        while (!value.empty() && (std::isspace(static_cast<unsigned char>(value.front())) != 0)) {
-            value.remove_prefix(1);
+        // Macro separators are ASCII. A locale's whitespace bytes can occur inside UTF-8 skill names.
+        constexpr std::string_view whitespace = " \t\n\r\f\v";
+        const auto first = value.find_first_not_of(whitespace);
+        if (first == std::string_view::npos) {
+            return {};
         }
-        while (!value.empty() && (std::isspace(static_cast<unsigned char>(value.back())) != 0)) {
-            value.remove_suffix(1);
-        }
-        return value;
+        return value.substr(first, value.find_last_not_of(whitespace) - first + 1);
     }
 
     bool Fail(std::string message)

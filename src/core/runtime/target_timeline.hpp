@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <span>
+#include <cmath>
 
 #include "../runtime.hpp"
 
@@ -14,6 +15,8 @@ struct TargetEvent
     tick_t             frame = 0;
     std::optional<int> life_basis_points;
     std::optional<int> distance_hundredths;
+    std::optional<int> player_life_basis_points{};
+    std::optional<int> incoming_damage_basis_points{};
     bool               operator==(const TargetEvent &) const = default;
 };
 
@@ -25,7 +28,9 @@ inline void ValidateTargetEvents(std::span<const TargetEvent> events)
     tick_t previous = 0;
     for (const auto &event : events) {
         if (event.frame <= 0 || event.frame > MaximumFlowFrame || event.frame < previous ||
-            (!event.life_basis_points && !event.distance_hundredths) ||
+            (!event.life_basis_points && !event.distance_hundredths && !event.player_life_basis_points && !event.incoming_damage_basis_points) ||
+            (event.player_life_basis_points && (*event.player_life_basis_points < 0 || *event.player_life_basis_points > 10000)) ||
+            (event.incoming_damage_basis_points && (*event.incoming_damage_basis_points <= 0 || *event.incoming_damage_basis_points > 10000)) ||
             (event.life_basis_points && (*event.life_basis_points < 100 || *event.life_basis_points > 10000)) ||
             (event.distance_hundredths && (*event.distance_hundredths < 0 || *event.distance_hundredths > 100000)))
         {
@@ -56,8 +61,8 @@ public:
         }
     }
 
-    template <class Engine>
-    void Dispatch(Engine &engine, std::span<const TargetEvent> events)
+    template <class Engine, class OnIncomingHit = decltype([](int) {})>
+    void Dispatch(Engine &engine, std::span<const TargetEvent> events, OnIncomingHit on_hit = {})
     {
         auto &state = engine.MutableState();
         while (cursor_ < events.size() && events[cursor_].frame == state.now) {
@@ -69,6 +74,13 @@ public:
             if (event.distance_hundredths) {
                 engine.Log().RecordTarget(state.now, MutationKind::TARGET_DISTANCE, *event.distance_hundredths);
                 state.target_distance = *event.distance_hundredths / 100.0;
+            }
+            if (event.player_life_basis_points || event.incoming_damage_basis_points) {
+                const int before = event.player_life_basis_points.value_or(static_cast<int>(std::lround(state.life * 10000)));
+                const int after = std::max(0, before - event.incoming_damage_basis_points.value_or(0));
+                state.life = after / 10000.;
+                engine.Log().RecordTarget(state.now, MutationKind::PLAYER_LIFE, after);
+                if (event.incoming_damage_basis_points) on_hit(*event.incoming_damage_basis_points);
             }
         }
         if (cursor_ < events.size()) {

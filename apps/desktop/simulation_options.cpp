@@ -30,6 +30,7 @@
 #include <QSaveFile>
 #include <QScrollArea>
 #include <QSettings>
+#include <QSignalBlocker>
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QTabWidget>
@@ -38,6 +39,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QToolButton>
+#include <QToolTip>
 #include <QVBoxLayout>
 
 #include "controls/code_editor/code_editor.h"
@@ -54,11 +56,35 @@
 #include "runtime_backend.h"
 #include "talent_panel.h"
 
-namespace mw = JX3DPS::runtime::mo_wen;
-namespace tx = JX3DPS::runtime::tai_xu;
 using namespace JX3DPS;
 
 namespace {
+QString FoodFamily(desktop::Specialization spec);
+QJsonObject SchoolPanel(const runtime::season50::Book &book)
+{
+    const auto &a = book.default_attributes;
+    return { { "attackBase", int(a.attack_base) }, { "attackClass", int(a.attack_by_class) },
+             { "weapon", int(a.weapon) }, { "crit", int(a.crit) }, { "critPower", int(a.crit_power) },
+             { "overcomeBase", int(a.overcome) }, { "strain", int(a.strain) }, { "surplus", int(a.surplus) },
+             { "haste", int(a.haste) }, { "importedMajor", book.default_major },
+             { "attackBonus", a.attack_percent * 100.0 / 1024 }, { "overcomeBonus", 0 }, { "critBonus", 0 }, { "critPowerBonus", 0 },
+             { "hasteBonus", 0 }, { "damageBonus", 0 }, { "strainBonus", 0 }, { "pveBonus", 0 }, { "ignoreShield", 0 } };
+}
+
+void ApplySchoolPanel(QWidget *form, const QJsonObject &defaults, const QJsonObject &draft)
+{
+    for (auto it = defaults.begin(); it != defaults.end(); ++it) {
+        const auto value = draft.value(it.key()).isDouble() ? draft.value(it.key()) : it.value();
+        if (auto *integer = form->findChild<QSpinBox *>(it.key())) {
+            integer->setProperty("defaultValue", it.value().toInt());
+            integer->setValue(value.toInt());
+        } else if (auto *decimal = form->findChild<QDoubleSpinBox *>(it.key())) {
+            decimal->setProperty("defaultValue", it.value().toDouble());
+            decimal->setValue(value.toDouble());
+        }
+    }
+}
+
 class ConfigurationRows final : public QFormLayout
 {
 public:
@@ -337,6 +363,10 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     m_permanentsInPanel->setTabToolTip(0, PANEL_HINT);
     m_permanentsInPanel->setTabToolTip(1, PANEL_HINT);
     permanent_header->addWidget(m_permanentsInPanel);
+    auto *raid = new QCheckBox(QStringLiteral("开荒拉满"));
+    raid->setObjectName("raidFull");
+    raid->setToolTip(QStringLiteral("套用本心法的副本阵眼、小药和团队增益。手选同类项目可覆盖预设。"));
+    permanent_header->addWidget(raid);
     auto *settings_row = new QWidget(this);
     settings_row->setObjectName(QStringLiteral("simulationSettingsRow"));
     auto *settings_row_layout = new QHBoxLayout(settings_row);
@@ -351,9 +381,12 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     SetupProfiles(profile_layout);
     m_specialization = new desktop::IconComboBox(QStringLiteral("心法"), this, false);
     m_specialization->setObjectName(QStringLiteral("specialization"));
-    m_specialization->addItem(desktop::GameIcon(desktop::Specialization::TAI_XU, QStringLiteral("太虚剑意")),
-                              QStringLiteral("太虚剑意 · 纯阳"));
-    m_specialization->addItem(desktop::GameIcon(desktop::Specialization::MO_WEN, QStringLiteral("莫问")), QStringLiteral("莫问 · 长歌"));
+    for (const auto &book : runtime::season50::Books()) {
+        const auto spec = static_cast<desktop::Specialization>(m_specialization->count());
+        m_specialization->addItem(desktop::GameIcon(spec, desktop::Text(book.name)),
+                                  desktop::Text(book.name) + " · " + desktop::Text(desktop::Info(spec).faction),
+                                  desktop::Text(book.code));
+    }
     for (int index = 0; index < m_specialization->count(); ++index) {
         m_specialization->setItemData(index, m_specialization->itemText(index) + QStringLiteral("\n点击图标切换心法"), Qt::ToolTipRole);
     }
@@ -415,12 +448,11 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
             "省略的参数采用默认值，分行重复赋值以后面的值为准。支持 # 和 // 注释。</p><pre>%1</pre>"
             "<p><b>/set_target</b>：level 等级、shield 防御、life 气血、distance 距离、vulnerable 易伤。"
             "life 和 vulnerable 建议带百分号；不带百分号时按比例解释，例如 life=0.5 等于 life=50%。</p>"
-            "<p><b>/set_player</b>：qidian 太虚初始气点；shadows 莫问初始影子；style 可写阳春白雪/高山流水或 0/1。"
-            "各心法仅使用对应的初始资源；太虚沿用旧规则的开场 +1 气点，上限 10。</p><p>一行可写多个 "
+            "<p><b>/set_player</b> 可用 life 设置自身气血，hit 按最大气血百分比扣除一次伤害。qidian 设置太虚、紫霞的初始气点，范围 0 至 10。</p><p>一行可写多个 "
             "参数=值；等号两侧不要留空格。"
             "可使用 00:00 或 00:00.00 前缀表示开场。当前只有一个目标，id 仅接受 1。</p>"
-            "<p><b>战中节点仅支持目标气血和距离：</b></p><pre>00:30 /set_target life=50%\n00:45.0625 /set_target "
-            "distance=3</pre>"
+            "<p>战中可设置目标气血和距离、自身气血和单次受击。同一行先设置气血再扣除伤害。</p><pre>00:30 /set_target life=50%\n00:45.0625 /set_target "
+            "distance=3\n00:50 /set_player hit=31%</pre>"
             "<p>时间格式为 分:秒，最多四位小数，精度 1/16 秒。节点按时间执行，相同时间按源码顺序执行。"
             "等级、防御、易伤和角色初始资源只能在 0 秒设置。距离沿用技能现有的判距规则，不自动取消读条或持续伤害。</p>"
             "<p>时间轴支持双击添加/编辑、拖动调整时间、滚轮缩放和空白处拖动平移；修改与脚本同步，可撤销。"
@@ -462,7 +494,7 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     };
     m_attributeEditor = new QDialog(this);
     m_attributeEditor->setObjectName(QStringLiteral("attributeValueEditor"));
-    m_attributeEditor->setWindowTitle(QStringLiteral("属性输入 · 旧规则"));
+    m_attributeEditor->setWindowTitle(QStringLiteral("属性输入 · 50级"));
     m_attributeEditor->setWindowModality(Qt::WindowModal);
     m_attributeEditor->resize(540, 510);
     auto *attribute_editor_layout = new QVBoxLayout(m_attributeEditor);
@@ -509,38 +541,17 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     m_equipmentDialog->resize(720, 680);
     m_equipmentDialog->setModal(false);
     auto *equipment_dialog_layout = new QVBoxLayout(m_equipmentDialog);
-    auto *equipment_note =
-        new QLabel(QStringLiteral("配装预览不会自动覆盖模拟属性；装备特效用于下一次模拟。关闭窗口后保留本次选择。"));
-    equipment_note->setWordWrap(true);
-    equipment_dialog_layout->addWidget(equipment_note);
     connect(m_gameAttributes->equipment, &QToolButton::clicked, this, &SimulationOptions::ShowEquipment);
-    auto *equipment_page = new QWidget;
-    equipment_page->setObjectName(QStringLiteral("equipmentPage"));
-    auto *equipment_layout = new QVBoxLayout(equipment_page);
-    equipment_layout->setContentsMargins(7, 7, 7, 7);
-    equipment_layout->setSpacing(6);
-    equipment_layout->setAlignment(Qt::AlignTop);
-    auto *equipment_panel = new EquipmentPanel(equipment_page);
-    equipment_layout->addWidget(equipment_panel);
-    const auto EQUIPMENT_EFFECTS = [&] {
-        auto *content = new QWidget(equipment_page);
-        content->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
-        auto *form = new QFormLayout(content);
-        form->setContentsMargins(0, 0, 0, 0);
-        form->setVerticalSpacing(6);
-        form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-        equipment_layout->addWidget(content);
-        m_inputPanels.push_back(content);
-        return form;
-    };
-    auto *equipment_scroll = new QScrollArea;
-    equipment_scroll->setObjectName(QStringLiteral("equipmentScroll"));
-    equipment_scroll->setWidgetResizable(true);
-    equipment_scroll->setFrameShape(QFrame::NoFrame);
-    equipment_scroll->setWidget(equipment_page);
-    equipment_dialog_layout->addWidget(equipment_scroll, 1);
+    auto *equipmentScroll = new QScrollArea(m_equipmentDialog);
+    equipmentScroll->setObjectName("equipmentScroll");
+    equipmentScroll->setWidgetResizable(true);
+    auto *preview = new EquipmentPanel;
+    equipmentScroll->setWidget(preview);
+    equipment_dialog_layout->addWidget(equipmentScroll, 1);
+    auto *equipment_stack = new QStackedWidget;
+    equipment_dialog_layout->addWidget(equipment_stack);
+    m_inputPanels.push_back(equipment_stack);
     auto *equipment_buttons = new QDialogButtonBox(QDialogButtonBox::Close);
-    equipment_buttons->button(QDialogButtonBox::Close)->setText(QStringLiteral("关闭"));
     equipment_dialog_layout->addWidget(equipment_buttons);
     connect(equipment_buttons, &QDialogButtonBox::rejected, m_equipmentDialog, &QDialog::close);
     auto *talent_stack   = new QStackedWidget;
@@ -566,27 +577,98 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
         owner->addWidget(scroll);
         return form;
     };
-    const auto TALENT_PAGE = [&](desktop::Specialization specialization) {
-        auto *panel = new desktop::TalentPanel(specialization);
-        panel->setObjectName(QStringLiteral("talents%1").arg(static_cast<int>(specialization)));
-        m_talentPanels[static_cast<int>(specialization)] = panel;
+    for (int index = 0; index < m_specialization->count(); ++index) {
+        const auto  spec  = static_cast<desktop::Specialization>(index);
+        const auto &book  = desktop::School(spec);
+        const auto  code  = desktop::Text(book.code);
+        auto       *panel = new desktop::TalentPanel(spec);
+        m_talentPanels.push_back(panel);
         panel->SetColumns(9);
+        panel->RestoreSelection(panel->DefaultSelection());
+        panel->setObjectName(QStringLiteral("talents%1").arg(index));
+        panel->setProperty("schoolCode", code);
         talent_headers->addWidget(panel->TakeHeader());
-        connect(panel->HeaderWidget()->findChild<QToolButton *>(QStringLiteral("legacyTalentToggle")),
-                &QToolButton::toggled,
-                this,
-                [this] { UpdateTalentHeight(); });
         auto *scroll = new QScrollArea;
-        scroll->setObjectName(QStringLiteral("talentsScroll%1").arg(static_cast<int>(specialization)));
         scroll->setWidgetResizable(true);
         scroll->setFrameShape(QFrame::NoFrame);
+        scroll->setObjectName(QStringLiteral("talentsScroll%1").arg(index));
         scroll->setWidget(panel);
         talent_stack->addWidget(scroll);
-        return panel;
-    };
-    auto *tx_talents   = TALENT_PAGE(desktop::Specialization::TAI_XU);
-    auto *tx_recipes   = EFFECT_PAGE(recipe_stack);
-    auto *tx_equipment = EQUIPMENT_EFFECTS();
+        auto                        *recipe_form = EFFECT_PAGE(recipe_stack);
+        auto                        *gear_form   = EFFECT_PAGE(equipment_stack);
+        QMap<QString, QGridLayout *> recipe_groups;
+        for (auto name : book.recipes) {
+            auto binding = std::ranges::find(book.recipe_groups, name, &std::pair<std::string_view, std::string_view>::first);
+            auto groupName = binding == book.recipe_groups.end() ? desktop::Text(name) : desktop::Text(binding->second);
+            if (!recipe_groups.contains(groupName)) {
+                auto *group              = new QGroupBox(groupName);
+                auto *grid               = new QGridLayout(group);
+                recipe_groups[groupName] = grid;
+                recipe_form->addRow(group);
+            }
+            auto *input = new QCheckBox(desktop::Text(name).section("·", -1));
+            if (std::ranges::contains(book.preset_only_recipes, name)) {
+                input->setToolTip(QStringLiteral("方案中保留此秘籍，当前木桩模拟尚未结算此效果。"));
+            }
+            if (auto info = book.single_target_recipe_notes.find(name); info != book.single_target_recipe_notes.end()) {
+                input->setToolTip(desktop::Text(info->second));
+            }
+            input->setObjectName("recipe/" + code + "/" + desktop::Text(name));
+            input->setChecked(std::ranges::find(book.default_recipes, name) != book.default_recipes.end());
+            input->setProperty("defaultChecked", input->isChecked());
+            auto *grid = recipe_groups[groupName];
+            int   pos  = grid->count();
+            grid->addWidget(input, pos / 3, pos % 3);
+            connect(input, &QCheckBox::toggled, this, [grid, input](bool on) {
+                if (!on) {
+                    return;
+                }
+                int count = 0;
+                for (int i = 0; i < grid->count(); ++i) {
+                    count += static_cast<QCheckBox *>(grid->itemAt(i)->widget())->isChecked();
+                }
+                if (count > 4) {
+                    input->setChecked(false);
+                    QToolTip::showText(input->mapToGlobal(QPoint(0, 0)), QStringLiteral("每个技能最多选择四本秘籍"), input);
+                }
+            });
+        }
+        if (book.recipes.empty()) {
+            recipe_form->addRow(new QLabel(QStringLiteral("此心法暂无已接入的秘籍")));
+        }
+        for (auto name : book.equipment) {
+            auto *box = new QCheckBox(desktop::Text(name));
+            box->setObjectName("equipment/" + code + "/" + desktop::Text(name));
+            box->setChecked(std::ranges::find(book.default_equipment, name) != book.default_equipment.end());
+            box->setProperty("defaultChecked", box->isChecked());
+            const auto slot = runtime::season50::EquipmentSlot(name);
+            if (!slot.empty()) {
+                box->setProperty("enchantSlot", desktop::Text(slot));
+                connect(box, &QCheckBox::toggled, this, [box, gear_form](bool on) {
+                    if (!on) return;
+                    const auto slot = box->property("enchantSlot");
+                    QList<QCheckBox *> others;
+                    for (auto *other : gear_form->parentWidget()->findChildren<QCheckBox *>()) {
+                        if (other != box && other->isChecked() && other->property("enchantSlot") == slot) others.append(other);
+                    }
+                    const int capacity = slot.toString() == QStringLiteral("戒指") ? 2 : 1;
+                    while (others.size() >= capacity) others.takeFirst()->setChecked(false);
+                });
+            }
+            gear_form->addRow(box);
+        }
+        if (book.equipment.empty()) {
+            gear_form->addRow(new QLabel(QStringLiteral("此心法暂无已接入的装备特效")));
+        } else if (!book.default_equipment.empty()) {
+            auto *restore = new QPushButton(QStringLiteral("使用本心法默认特效"));
+            restore->setObjectName("restoreGear/" + code);
+            gear_form->addRow(restore);
+            connect(restore, &QPushButton::clicked, this, [gear_form] {
+                for (auto *box : gear_form->parentWidget()->findChildren<QCheckBox *>())
+                    box->setChecked(box->property("defaultChecked").toBool());
+            });
+        }
+    }
     m_iterations       = Integer(run, "iterations", QStringLiteral("模拟次数"), 1000, 1, 1000000000);
     m_workers = Integer(run, "workers", QStringLiteral("工作线程"), std::max(1, QThread::idealThreadCount() / 2), 1, 256);
     auto *seconds = Decimal<desktop::FixedUnitDoubleSpinBox>(run, "seconds", QStringLiteral("战斗时长"), 300, 0.0625, 86400, 4);
@@ -612,370 +694,36 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     for (int row = 0; row < run->rowCount(); ++row) {
         run->itemAt(row, QFormLayout::FieldRole)->widget()->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     }
-    m_bindings.emplace_back([](tx::Config &config, const QJsonObject &values) {
-        config.initial_qidian  = values.value("qidian").toInt();
-        config.delay           = values.value("delay").toInt();
-        config.target.level    = values.value("targetLevel").toInt();
-        config.target.shield   = values.value("shield").toInt();
-        config.target.life     = values.value("targetLife").toDouble() / 100.0;
-        config.target.distance = values.value("distance").toDouble();
-    });
-    const tx::Config DEFAULTS;
-    const auto ATTRIBUTE = [&](const char *key, const QString &label, value_t tx::Attributes::*member, int initial = -1) {
-        const auto *input =
-            Integer(attributes, key, label, initial < 0 ? static_cast<int>(DEFAULTS.attributes.*member) : initial, 0, 1000000);
-        m_bindings.emplace_back([key = input->objectName(), member](tx::Config &config, const QJsonObject &values) {
-            config.attributes.*member = values.value(key).toInt();
-        });
-    };
-    ATTRIBUTE("attackBase", QStringLiteral("基础攻击"), &tx::Attributes::attack_base);
-    ATTRIBUTE("attackClass", QStringLiteral("心法攻击"), &tx::Attributes::attack_by_class);
-    ATTRIBUTE("weapon", QStringLiteral("武器伤害"), &tx::Attributes::weapon);
-    ATTRIBUTE("crit", QStringLiteral("会心等级"), &tx::Attributes::crit);
-    ATTRIBUTE("critPower", QStringLiteral("会效等级"), &tx::Attributes::crit_power);
-    ATTRIBUTE("overcomeBase", QStringLiteral("基础破防"), &tx::Attributes::overcome_base, 25000);
-    ATTRIBUTE("overcomeClass", QStringLiteral("心法破防"), &tx::Attributes::overcome_by_class);
-    ATTRIBUTE("strain", QStringLiteral("无双等级"), &tx::Attributes::strain);
-    ATTRIBUTE("surplus", QStringLiteral("破招等级"), &tx::Attributes::surplus);
-    ATTRIBUTE("haste", QStringLiteral("加速等级"), &tx::Attributes::haste);
-    const auto BONUS = [&](const char *key, const QString &label, int tx::Attributes::*member, int scale = 1024, int maximum = 10000) {
-        auto *input = Decimal(bonuses, key, label, 0, 0, maximum * 100.0 / scale, 3);
-        input->setSuffix(QStringLiteral(" %"));
-        m_bindings.emplace_back([key = input->objectName(), member, scale](tx::Config &config, const QJsonObject &values) {
-            config.attributes.*member = static_cast<int>(std::llround(values.value(key).toDouble() * scale / 100.0));
-        });
-    };
-    BONUS("attackBonus", QStringLiteral("攻击加成"), &tx::Attributes::attack_percent);
-    BONUS("overcomeBonus", QStringLiteral("破防加成"), &tx::Attributes::overcome_percent);
-    BONUS("critBonus", QStringLiteral("会心几率加成"), &tx::Attributes::crit_basis_points, 10000);
-    BONUS("critPowerBonus", QStringLiteral("会效加成"), &tx::Attributes::crit_power_percent);
-    BONUS("hasteBonus", QStringLiteral("加速加成"), &tx::Attributes::haste_percent);
-    BONUS("damageBonus", QStringLiteral("伤害加成"), &tx::Attributes::damage_percent);
-    BONUS("strainBonus", QStringLiteral("无双加成"), &tx::Attributes::strain_percent);
-    BONUS("pveBonus", QStringLiteral("非侠士伤害加成"), &tx::Attributes::pve_percent);
-    BONUS("ignoreShield", QStringLiteral("无视防御"), &tx::Attributes::ignore_shield, 1024, 1024);
-    m_bindings.emplace_back([](tx::Config &config, const QJsonObject &values) {
-        config.target.vulnerable = static_cast<int>(std::llround(values.value("vulnerable").toDouble() * 1024 / 100));
-    });
 
-    const auto FLAGS = [&](const QString                                           &title,
-                           const char                                              *prefix,
-                           std::initializer_list<std::pair<const char *, unsigned>> entries,
-                           std::function<void(tx::Config &, unsigned)>              assign) {
-        const bool talent = QString::fromLatin1(prefix) == QStringLiteral("talent");
-        auto      *group  = talent ? nullptr : new QGroupBox(title);
-        auto      *rows   = group ? new QGridLayout(group) : nullptr;
-        if (rows) {
-            rows->setVerticalSpacing(5);
-        }
-        const bool equipment =
-            QString::fromLatin1(prefix) == QStringLiteral("equipment") || QString::fromLatin1(prefix) == QStringLiteral("team");
-        if (!talent && !equipment) {
-            group->setTitle(QString(title).replace(QStringLiteral("秘籍（最多四本）"), QStringLiteral("（最多四本）")));
-        }
-        int                                       index = 0;
-        std::vector<std::pair<QString, unsigned>> inputs;
-        for (const auto &[LABEL, FLAG] : entries) {
-            auto *input =
-                talent ? tx_talents->AddTalent(QString::fromUtf8(LABEL), QString::fromLatin1(prefix) + QString::number(FLAG))
-                       : new QCheckBox(QString::fromUtf8(LABEL), group);
-            input->setObjectName(QString::fromLatin1(prefix) + QString::number(FLAG));
-            input->setProperty("defaultValue", false);
-            if (rows) {
-                rows->addWidget(input, index, 0);
-            }
-            ++index;
-            inputs.emplace_back(input->objectName(), FLAG);
-        }
-        if (!talent) {
-            (equipment ? tx_equipment : tx_recipes)->addRow(group);
-        }
-        m_bindings.emplace_back([inputs, assign](tx::Config &config, const QJsonObject &values) {
-            unsigned result = 0;
-            for (const auto &[KEY, FLAG] : inputs) {
-                if (values.value(KEY).toBool()) {
-                    result |= FLAG;
-                }
-            }
-            assign(config, result);
-        });
+    const struct
+    {
+        const char *key;
+        const char *label;
+    } baseFields[] = {
+        { "attackBase", "基础攻击" }, { "attackClass", "心法攻击" }, { "weapon", "武器伤害" },
+        { "crit", "会心等级" }, { "critPower", "会效等级" }, { "overcomeBase", "基础破防" },
+        { "strain", "无双等级" }, { "surplus", "破招等级" }, { "haste", "加速等级" }, { "importedMajor", "已计入的主属性" }
     };
-    FLAGS(QStringLiteral("装备特效"),
-          "equipment",
-          {
-              { "橙武特效",  tx::WEAPON_CW     },
-              { "套装·剑鸣", tx::SET_ATTRIBUTE }
-    },
-          [](tx::Config &c, unsigned v) { c.equipment = v; });
-    FLAGS(QStringLiteral("团队增益"),
-          "team",
-          {
-              { "游刃", tx::YOU_REN }
-    },
-          [](tx::Config &c, unsigned v) { c.team_effects = v; });
-    auto *team_group = new QGroupBox(QStringLiteral("外部增益时间表（太虚）"));
-    auto *team_rows  = new QGridLayout(team_group);
-    team_rows->addWidget(new QLabel(QStringLiteral("增益")), 0, 0);
-    team_rows->addWidget(new QLabel(QStringLiteral("开始（秒）")), 0, 1);
-    team_rows->addWidget(new QLabel(QStringLiteral("持续（秒）")), 0, 2);
-    team_rows->addWidget(new QLabel(QStringLiteral("层数")), 0, 3);
-    for (unsigned i = 0; i < tx::team::COUNT; ++i) {
-        const auto &definition = tx::team::Definitions[i];
-        const auto  PREFIX     = QStringLiteral("txTeam%1_").arg(i);
-        auto       *enabled    = new QCheckBox(QString::fromUtf8(definition.name.data(), definition.name.size()));
-        enabled->setObjectName(PREFIX + "enabled");
-        enabled->setProperty("defaultValue", false);
-        team_rows->addWidget(enabled, i + 1, 0);
-        for (const auto &field : { QStringLiteral("start"), QStringLiteral("duration") }) {
-            auto *input = new QDoubleSpinBox;
-            input->setObjectName(PREFIX + field);
-            input->setDecimals(4);
-            input->setSingleStep(0.0625);
-            input->setRange(field == "start" ? 0 : 0.0625, 86400);
-            input->setValue(field == "start" ? 0 : JX3DPS::FramesToSeconds(definition.duration));
-            if (i == tx::team::HAO_LING_SAN_JUN && field == "duration") {
-                input->setRange(60, 60);
-            }
-            input->setProperty("defaultValue", input->value());
-            team_rows->addWidget(input, i + 1, field == "start" ? 1 : 2);
-        }
-        auto *stacks = new QSpinBox;
-        stacks->setObjectName(PREFIX + "stacks");
-        stacks->setRange(1, definition.max_stacks);
-        stacks->setProperty("defaultValue", 1);
-        if (i == tx::team::HAO_LING_SAN_JUN) {
-            stacks->setMinimum(2);
-            stacks->setSingleStep(2);
-            stacks->setValue(48);
-            stacks->setProperty("defaultValue", 48);
-            stacks->setToolTip(QStringLiteral(
-                "旧版奇数层扣除不一致，当前支持偶数初始层数；30 秒后减半，60 秒结束，期间重复施加无效。"));
-        }
-        team_rows->addWidget(stacks, i + 1, 3);
-        m_bindings.emplace_back([i, PREFIX](tx::Config &config, const QJsonObject &values) {
-            if (values.value(PREFIX + "enabled").toBool()) {
-                config.team_buffs.push_back({ static_cast<tx::team::Kind>(i),
-                                              static_cast<tick_t>(std::llround(values.value(PREFIX + "start").toDouble() * 16)),
-                                              static_cast<tick_t>(std::llround(values.value(PREFIX + "duration").toDouble() * 16)),
-                                              values.value(PREFIX + "stacks").toInt() });
-            }
-        });
+    const auto initialPanel = SchoolPanel(desktop::School(Specialization()));
+    for (const auto &field : baseFields) {
+        Integer(attributes, field.key, QString::fromUtf8(field.label), initialPanel[field.key].toInt(), 0, 1000000);
     }
-    tx_equipment->addRow(team_group);
-    FLAGS(QStringLiteral("奇穴"),
-          "talent",
-          {
-              { "叠刃",   tx::DIE_REN_TALENT  },
-              { "无意",   tx::WU_YI           },
-              { "深埋",   tx::SHEN_MAI        },
-              { "若水",   tx::RUO_SHUI        },
-              { "风逝",   tx::FENG_SHI_TALENT },
-              { "无欲",   tx::WU_YU           },
-              { "环月",   tx::HUAN_YUE        },
-              { "切玉",   tx::QIE_YU          },
-              { "心固",   tx::XIN_GU          },
-              { "同根",   tx::TONG_GEN        },
-              { "负阴",   tx::FU_YIN          },
-              { "故长",   tx::GU_CHANG        },
-              { "期声",   tx::QI_SHENG        },
-              { "长生",   tx::CHANG_SHENG     },
-              { "玄门",   tx::XUAN_MEN        },
-              { "裂云",   tx::LIE_YUN         },
-              { "虚极",   tx::XU_JI           },
-              { "剑入",   tx::JIAN_RU         },
-              { "镜花影", tx::JING_HUA_TALENT }
-    },
-          [](tx::Config &c, unsigned v) { c.talents = v; });
-    FLAGS(QStringLiteral("无我无剑秘籍（最多四本）"),
-          "wuwu",
-          {
-              { "会心 +2%", tx::CRIT2   },
-              { "会心 +3%", tx::CRIT3   },
-              { "会心 +4%", tx::CRIT4   },
-              { "伤害 +3%", tx::DAMAGE3 },
-              { "伤害 +4%", tx::DAMAGE4 },
-              { "伤害 +5%", tx::DAMAGE5 },
-              { "气点",     tx::QIDIAN  }
-    },
-          [](tx::Config &c, unsigned v) { c.recipes[tx::WU_WO] = v; });
-    FLAGS(QStringLiteral("八荒归元秘籍（最多四本）"),
-          "bahuang",
-          {
-              { "伤害 +3%", tx::DAMAGE3  },
-              { "伤害 +4%", tx::DAMAGE4  },
-              { "伤害 +5%", tx::DAMAGE5  },
-              { "气点",     tx::QIDIAN   },
-              { "冷却缩短", tx::COOLDOWN }
-    },
-          [](tx::Config &c, unsigned v) { c.recipes[tx::BA_HUANG] = v; });
-    FLAGS(QStringLiteral("三环套月秘籍（最多四本）"),
-          "sanhuan",
-          {
-              { "会心 +2%", tx::CRIT2    },
-              { "会心 +3%", tx::CRIT3    },
-              { "会心 +4%", tx::CRIT4    },
-              { "伤害 +3%", tx::DAMAGE3  },
-              { "伤害 +4%", tx::DAMAGE4  },
-              { "伤害 +5%", tx::DAMAGE5  },
-              { "冷却缩短", tx::COOLDOWN }
-    },
-          [](tx::Config &c, unsigned v) { c.recipes[tx::SAN_HUAN] = v; });
-    FLAGS(QStringLiteral("生太极秘籍"),
-          "shengtaiji",
-          {
-              { "运功缩短一", tx::PREPARE1 },
-              { "运功缩短二", tx::PREPARE2 },
-              { "运功缩短三", tx::PREPARE3 },
-              { "冷却缩短",   tx::COOLDOWN }
-    },
-          [](tx::Config &c, unsigned v) { c.shengtaiji_recipes = v; });
-    FLAGS(QStringLiteral("人剑合一秘籍（最多四本）"),
-          "renjian",
-          {
-              { "冷却缩短",    tx::COOLDOWN            },
-              { "距离增加一",  tx::RANGE1              },
-              { "距离增加二",  tx::RANGE2              },
-              { "距离增加三",  tx::RANGE3              },
-              { "伤害 +40%",   tx::DAMAGE40            },
-              { "伤害 +60%",   tx::DAMAGE60            },
-              { "持续伤害",    tx::DOT                 },
-              { "云中·碎星",   tx::YUN_ZHONG_SUI_XING  },
-              { "云中·生太极", tx::YUN_ZHONG_SHENG_TAI },
-              { "云中·吞日月", tx::YUN_ZHONG_TUN_RI    }
-    },
-          [](tx::Config &c, unsigned v) { c.renjian_recipes = v; });
-
-    auto      *mw_talents   = TALENT_PAGE(desktop::Specialization::MO_WEN);
-    auto      *mw_recipes   = EFFECT_PAGE(recipe_stack);
-    auto      *mw_equipment = EQUIPMENT_EFFECTS();
-    const auto MW_FLAGS     = [&](const QString                                           &title,
-                                  const char                                              *prefix,
-                                  std::initializer_list<std::pair<const char *, unsigned>> entries,
-                                  std::function<void(mw::Config &, unsigned)>              assign) {
-        const bool talent = QString::fromLatin1(prefix) == QStringLiteral("mwTalent");
-        auto      *group  = talent ? nullptr : new QGroupBox(title);
-        auto      *rows   = group ? new QGridLayout(group) : nullptr;
-        if (rows) {
-            rows->setVerticalSpacing(5);
-        }
-        const bool equipment = QString::fromLatin1(prefix) == QStringLiteral("mwEquipment") ||
-                               QString::fromLatin1(prefix) == QStringLiteral("mwTeam");
-        if (!talent && !equipment) {
-            group->setTitle(QString(title).replace(QStringLiteral("秘籍（最多四本）"), QStringLiteral("（最多四本）")));
-        }
-        int                                       index = 0;
-        std::vector<std::pair<QString, unsigned>> inputs;
-        for (const auto &[LABEL, FLAG] : entries) {
-            const auto text  = QString::fromUtf8(LABEL);
-            auto      *input = talent ? mw_talents->AddTalent(text, QString::fromLatin1(prefix) + QString::number(FLAG))
-                                      : new QCheckBox(text.section(QStringLiteral("（"), 0, 0), group);
-            if (!talent) {
-                input->setToolTip(text);
-            }
-            input->setObjectName(QString::fromLatin1(prefix) + QString::number(FLAG));
-            input->setProperty("defaultValue", false);
-            if (rows) {
-                rows->addWidget(input, index, 0);
-            }
-            ++index;
-            inputs.emplace_back(input->objectName(), FLAG);
-        }
-        if (!talent) {
-            (equipment ? mw_equipment : mw_recipes)->addRow(group);
-        }
-        m_mowenBindings.emplace_back([inputs, assign](mw::Config &config, const QJsonObject &values) {
-            unsigned result = 0;
-            for (const auto &[KEY, FLAG] : inputs) {
-                if (values.value(KEY).toBool()) {
-                    result |= FLAG;
-                }
-            }
-            assign(config, result);
-        });
-    };
-    MW_FLAGS(QStringLiteral("装备特效"),
-             "mwEquipment",
-             {
-                 { "大附魔·鞋", mw::ENCHANT_SHOES },
-                 { "大附魔·腰", mw::ENCHANT_BELT  },
-                 { "大附魔·腕", mw::ENCHANT_WRIST },
-                 { "套装·属性", mw::SET_ATTRIBUTE },
-                 { "套装·技能", mw::SET_SKILL     },
-                 { "橙武特效",  mw::WEAPON_CW     },
-                 { "水·斩流",   mw::WEAPON_WATER  }
-    },
-             [](mw::Config &c, unsigned v) { c.equipment = v; });
-    MW_FLAGS(QStringLiteral("团队增益"),
-             "mwTeam",
-             {
-                 { "游刃", mw::YOU_REN   },
-                 { "精妙", mw::JING_MIAO }
-    },
-             [](mw::Config &c, unsigned v) { c.team_effects = v; });
-    MW_FLAGS(QStringLiteral("奇穴"),
-             "mwTalent",
-             {
-                 { "号钟",               mw::HAO_ZHONG        },
-                 { "飞帆",               mw::FEI_FAN          },
-                 { "长清（旧版无效果）", mw::CHANG_QING       },
-                 { "弦风",               mw::XIAN_FENG_TALENT },
-                 { "流照",               mw::LIU_ZHAO_TALENT  },
-                 { "豪情",               mw::HAO_QING         },
-                 { "师襄",               mw::SHI_XIANG        },
-                 { "知止",               mw::ZHI_ZHI          },
-                 { "刻梦",               mw::KE_MENG          },
-                 { "争鸣",               mw::ZHENG_MING       },
-                 { "明津",               mw::MING_JIN_TALENT  },
-                 { "修期（旧版无效果）", mw::XIU_QI           },
-                 { "云汉",               mw::YUN_HAN_TALENT   },
-                 { "参连",               mw::CAN_LIAN_TALENT  },
-                 { "正律和鸣",           mw::ZHENG_LV_HE_MING }
-    },
-             [](mw::Config &c, unsigned v) { c.talents = v; });
-    MW_FLAGS(QStringLiteral("宫秘籍（最多四本）"),
-             "mwGong",
-             {
-                 { "会心 +2%",   mw::GONG_CRIT2    },
-                 { "会心 +3%",   mw::GONG_CRIT3    },
-                 { "会心 +4%",   mw::GONG_CRIT4    },
-                 { "伤害 +3%",   mw::GONG_DAMAGE3  },
-                 { "伤害 +4%",   mw::GONG_DAMAGE4  },
-                 { "运功缩短一", mw::GONG_PREPARE1 },
-                 { "运功缩短二", mw::GONG_PREPARE2 },
-                 { "距离增加",   mw::GONG_RANGE    }
-    },
-             [](mw::Config &c, unsigned v) { c.recipes[0] = v; });
-    MW_FLAGS(QStringLiteral("商秘籍（最多四本）"),
-             "mwShang",
-             {
-                 { "会心 +2%", mw::SHANG_CRIT2   },
-                 { "会心 +3%", mw::SHANG_CRIT3   },
-                 { "会心 +4%", mw::SHANG_CRIT4   },
-                 { "伤害 +3%", mw::SHANG_DAMAGE3 },
-                 { "伤害 +4%", mw::SHANG_DAMAGE4 },
-                 { "伤害 +5%", mw::SHANG_DAMAGE5 }
-    },
-             [](mw::Config &c, unsigned v) { c.recipes[1] = v; });
-    MW_FLAGS(QStringLiteral("徵秘籍（最多四本）"),
-             "mwZhi",
-             {
-                 { "会心 +2%", mw::ZHI_CRIT2   },
-                 { "会心 +3%", mw::ZHI_CRIT3   },
-                 { "会心 +4%", mw::ZHI_CRIT4   },
-                 { "伤害 +3%", mw::ZHI_DAMAGE3 },
-                 { "伤害 +4%", mw::ZHI_DAMAGE4 },
-                 { "距离增加", mw::ZHI_RANGE   }
-    },
-             [](mw::Config &c, unsigned v) { c.recipes[2] = v; });
-    MW_FLAGS(QStringLiteral("羽秘籍（最多四本）"),
-             "mwYu",
-             {
-                 { "会心 +3%", mw::YU_CRIT3   },
-                 { "会心 +4%", mw::YU_CRIT4   },
-                 { "伤害 +3%", mw::YU_DAMAGE3 },
-                 { "伤害 +4%", mw::YU_DAMAGE4 }
-    },
-             [](mw::Config &c, unsigned v) { c.recipes[3] = v; });
+    for (const auto &[key, label] :
+         std::initializer_list<std::pair<const char *, const char *>>{
+             { "attackBonus",    "攻击加成"       },
+             { "overcomeBonus",  "破防加成"       },
+             { "critBonus",      "会心几率加成"   },
+             { "critPowerBonus", "会效加成"       },
+             { "hasteBonus",     "加速加成"       },
+             { "damageBonus",    "伤害加成"       },
+             { "strainBonus",    "无双加成"       },
+             { "pveBonus",       "非侠士伤害加成" },
+             { "ignoreShield",   "无视防御"       }
+    })
+    {
+        Decimal(bonuses, key, QString::fromUtf8(label), 0, 0, QString::fromLatin1(key) == "ignoreShield" ? 100 : 976.562, 3)
+            ->setSuffix(" %");
+    }
     auto *permanent_scroll = new QScrollArea;
     permanent_scroll->setObjectName(QStringLiteral("permanentsScroll"));
     m_inputPanels.push_back(permanent_scroll);
@@ -984,76 +732,46 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     auto *permanent_stack = new QStackedWidget;
     permanent_scroll->setWidget(permanent_stack);
     permanent_layout->addWidget(permanent_scroll);
-    permanent_scroll->setToolTip(QStringLiteral("沿用旧版常驻增益数值。动态游刃、精妙在配装中选择。"));
-    QFile permanent_file(QStringLiteral(":/desktop/permanents.json"));
+    QFile permanent_file(":/desktop/permanents50.json");
     if (!permanent_file.open(QIODevice::ReadOnly)) {
-        throw std::runtime_error("缺少常驻增益数据资源");
+        throw std::runtime_error("missing level-50 consumables");
     }
-    const auto PERMANENT_DATA = QJsonDocument::fromJson(permanent_file.readAll()).object();
-    const std::pair<const char *, const char *> CATEGORIES[] = {
-        { "TeamCore",        "阵法"     },
-        { "FoodEnhance",     "增强食品" },
-        { "FoodSupport",     "辅助食品" },
-        { "MedEnhance",      "增强药品" },
-        { "MedSupport",      "辅助药品" },
-        { "HomeCook",        "家园炊事" },
-        { "HomeWine",        "家园酿造" },
-        { "WeaponWhetstone", "武器磨石" },
-        { "Others",          "宴席"     }
-    };
-    for (int specialization = 0; specialization < 2; ++specialization) {
+    const auto        consumables = QJsonDocument::fromJson(permanent_file.readAll()).object();
+    const QStringList categories{ "阵法",     "食品增强", "食品辅助", "药品增强", "药品辅助",
+                                  "家园菜品", "家园酒品", "武器磨石", "团队宴席", "家园香水" };
+    for (const auto &family : QStringList{ "外功", "内功", "天罗诡道" }) {
         auto *content = new QWidget;
         content->setProperty("permanentChoices", true);
         auto *grid = new QGridLayout(content);
         grid->setContentsMargins(0, 0, 0, 0);
-        grid->setHorizontalSpacing(10);
-        grid->setVerticalSpacing(6);
-        grid->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+        grid->setSpacing(4);
         permanent_stack->addWidget(content);
-        int        position = 0;
-        const auto GROUPS   = PERMANENT_DATA.value(QString::number(specialization)).toObject();
-        for (const auto &[CATEGORY, LABEL] : CATEGORIES) {
-            const auto ITEMS = GROUPS.value(QString::fromLatin1(CATEGORY)).toArray();
-            const bool feast = QString::fromLatin1(CATEGORY) == "Others";
-            const auto ADD   = [&](const QJsonArray &entries, const QString &suffix, const QString &title) {
-                auto *cell        = new QWidget;
-                auto *cell_layout = new QHBoxLayout(cell);
-                cell_layout->setContentsMargins(0, 0, 0, 0);
-                cell_layout->setSpacing(6);
-                auto *combo = new desktop::IconComboBox(title);
-                combo->setObjectName(QStringLiteral("permanent%1%2%3").arg(specialization).arg(QString::fromLatin1(CATEGORY), suffix));
-                combo->setFixedSize(38, 38);
-                combo->setStyleSheet(
-                    QStringLiteral("QComboBox { min-height: 38px; max-height: 38px; padding: 0; border: 0; }"));
-                combo->setProperty("specialization", specialization);
-                combo->addItem(QStringLiteral("无"), QJsonArray{});
-                combo->setItemData(0, QStringLiteral("不使用此项增益"), Qt::ToolTipRole);
-                for (const auto &value : entries) {
-                    const auto ENTRY = value.toObject();
-                    const auto LABEL = ENTRY.value("Name").toString();
-                    combo->addItem(desktop::GameIcon(ENTRY.value("Icon").toInt()),
-                                   LABEL,
-                                   ENTRY.value("AttributeAdditional").toArray());
-                    combo->setItemData(combo->count() - 1, LABEL + '\n' + ENTRY.value("Description").toString(), Qt::ToolTipRole);
-                }
-                combo->setToolTip(title + QStringLiteral("：无；点击图标选择"));
-                cell_layout->addWidget(combo);
-                auto *caption = new QLabel(feast ? QStringLiteral("宴席") : title);
-                caption->setObjectName(combo->objectName() + QStringLiteral("Caption"));
-                caption->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-                caption->setStyleSheet(QStringLiteral("font-size: 11px; color: #92929d;"));
-                cell_layout->addWidget(caption);
-                grid->addWidget(cell, position / 3, position % 3);
-                ++position;
-                m_permanents.push_back(combo);
-            };
-            if (feast) {
-                for (int index = 0; index < ITEMS.size(); ++index) {
-                    ADD({ ITEMS[index] }, QString::number(index), ITEMS[index].toObject().value("Name").toString());
-                }
-            } else {
-                ADD(ITEMS, {}, QString::fromUtf8(LABEL));
+        for (const auto &category : categories) {
+            auto entries = consumables[family].toObject()[category].toArray();
+            if (entries.isEmpty()) {
+                continue;
             }
+            auto *cell = new QWidget;
+            auto *row  = new QHBoxLayout(cell);
+            row->setContentsMargins(0, 0, 0, 0);
+            auto *combo = new desktop::IconComboBox(category);
+            combo->setObjectName("permanent/" + family + "/" + category);
+            combo->setFixedSize(38, 38);
+            combo->setProperty("family", family);
+            combo->addItem(QStringLiteral("无"), QJsonObject{});
+            for (const auto &v : entries) {
+                auto e = v.toObject();
+                combo->addItem(desktop::GameIcon(e["icon"].toInt()), e["name"].toString(), e["stats"].toObject());
+            }
+            row->setSpacing(6);
+            row->addWidget(combo);
+            auto *caption = new QLabel(category);
+            caption->setObjectName(combo->objectName() + "Caption");
+            caption->setStyleSheet("font-size:11px; color:#92929d");
+            row->addWidget(caption);
+            const auto pos = grid->count();
+            grid->addWidget(cell, pos / 3, pos % 3);
+            m_permanents.push_back(combo);
         }
     }
     auto *import_attributes = new QPushButton(QStringLiteral("导入魔盒属性"));
@@ -1066,7 +784,7 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
         dialog.setWindowTitle(QStringLiteral("导入魔盒属性"));
         dialog.resize(620, 480);
         auto *rows = new QVBoxLayout(&dialog);
-        auto *note = new QLabel(QStringLiteral("粘贴魔盒导出的属性对象。按当前心法读取外功或阴性内功属性；导入会替换属"
+        auto *note = new QLabel(QStringLiteral("粘贴魔盒导出的属性对象。按当前心法读取对应伤害类型的属性；导入会替换属"
                                                "性并清空常驻增益选择，避免重复叠加。"));
         note->setWordWrap(true);
         rows->addWidget(note);
@@ -1094,109 +812,108 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
         });
         dialog.exec();
     });
-    Integer(bonuses, "importedMajor", QStringLiteral("已含身法 / 根骨"), 0, 0, 1000000)
-        ->setToolTip(QStringLiteral("当前会心与心法攻击已包含此主属性；用于精确计算食品、药品增加的主属性收益。"));
-    Integer(bonuses, "importedStrength", QStringLiteral("已含力道"), 41, 0, 1000000);
-    const auto UPDATE_CLASS = [=, this] {
-        const bool MO_WEN = Specialization() == desktop::Specialization::MO_WEN;
-        m_equipmentDialog->setWindowTitle(desktop::ClassName(Specialization()) + QStringLiteral(" · 配装"));
-        talent_stack->setCurrentIndex(MO_WEN ? 1 : 0);
-        talent_headers->setCurrentIndex(MO_WEN ? 1 : 0);
+    const auto updateSchool = [=, this] {
+        auto spec  = Specialization();
+        int  index = static_cast<int>(spec);
+        const auto code = m_specialization->currentData().toString();
+        if (m_panelSchool != code) {
+            const auto defaults = SchoolPanel(desktop::School(spec));
+            if (!m_panelSchool.isEmpty()) {
+                const auto values = Values();
+                QJsonObject panel;
+                for (auto it = defaults.begin(); it != defaults.end(); ++it) panel.insert(it.key(), values[it.key()]);
+                m_panelDrafts.insert(m_panelSchool, panel);
+            }
+            m_panelSchool = code;
+            ApplySchoolPanel(this, defaults, m_panelDrafts.value(code).toObject());
+        }
+        m_equipmentDialog->setWindowTitle(desktop::ClassName(spec) + " · 配装");
+        talent_stack->setCurrentIndex(index);
+        talent_headers->setCurrentIndex(index);
+        recipe_stack->setCurrentIndex(index);
+        equipment_stack->setCurrentIndex(index);
+        permanent_stack->setCurrentIndex(desktop::School(spec).code == "tlgd"      ? 2
+                                         : desktop::Info(spec).damage == "Physics" ? 0
+                                                                                   : 1);
+        if (m_equipmentDialog->isVisible()) {
+            ShowEquipment();
+        }
+        m_specialization->setToolTip(m_specialization->currentText());
         UpdateTalentHeight();
-        recipe_stack->setCurrentIndex(MO_WEN ? 1 : 0);
-        tx_equipment->parentWidget()->setVisible(!MO_WEN);
-        mw_equipment->parentWidget()->setVisible(MO_WEN);
-        equipment_panel->setVisible(!MO_WEN);
-        attributes->setRowVisible(findChild<QSpinBox *>("overcomeClass"), !MO_WEN);
-        permanent_stack->setCurrentIndex(m_specialization->currentIndex());
         emit SpecializationChanged();
     };
-    connect(m_specialization, &QComboBox::currentIndexChanged, this, UPDATE_CLASS);
-    const QSettings SETTINGS;
-    for (auto *input : m_permanents) {
-        input->setCurrentIndex(std::clamp(SETTINGS.value("simulation/" + input->objectName(), 0).toInt(), 0, input->count() - 1));
-    }
-    m_specialization->setCurrentIndex(SETTINGS.value("simulation/specialization", 0).toInt() == 1 ? 1 : 0);
-    UPDATE_CLASS();
-    for (auto *input : findChildren<QSpinBox *>()) {
-        if (input->property("flowViewOnly").toBool()) {
-            continue;
+    connect(m_specialization, &QComboBox::currentIndexChanged, this, updateSchool);
+    QSettings SETTINGS;
+    m_panelDrafts = QJsonDocument::fromJson(SETTINGS.value("simulation/schoolPanels").toByteArray()).object();
+    updateSchool();
+    m_flowEditor->setPlainText(desktop::FlowMacroFromValues(desktop::FlowDefaults()));
+    const auto saved = SETTINGS.value("simulation/season50").toByteArray();
+    if (!saved.isEmpty()) {
+        QString error;
+        auto snapshot = QJsonDocument::fromJson(saved).object();
+        auto values = snapshot.value("values").toObject();
+        const int index = m_specialization->findData(snapshot.value("specialization").toString());
+        if (!SETTINGS.contains("simulation/schoolPanels") && index >= 0 && snapshot["version"] == 5) {
+            const auto defaults = SchoolPanel(desktop::School(static_cast<desktop::Specialization>(index)));
+            bool placeholder = true;
+            for (auto it = defaults.begin(); it != defaults.end(); ++it)
+                placeholder &= values[it.key()].isDouble() && values[it.key()].toDouble() == (it.key() == "attackBase" ? 10000 : 0);
+            if (placeholder) {
+                for (auto it = defaults.begin(); it != defaults.end(); ++it) values[it.key()] = it.value();
+                for (const auto &school : runtime::season50::Books()) {
+                    const auto prefix = "recipe/" + desktop::Text(school.code) + "/";
+                    const bool chosen = std::ranges::any_of(school.recipes, [&](auto recipe) {
+                        return values[prefix + desktop::Text(recipe)].toBool();
+                    });
+                    if (!chosen) {
+                        for (auto recipe : school.default_recipes) values[prefix + desktop::Text(recipe)] = true;
+                    }
+                }
+                snapshot["values"] = values;
+            }
         }
-        input->setValue(SETTINGS.value("simulation/" + input->objectName(), input->value()).toInt());
-    }
-    for (auto *input : findChildren<QDoubleSpinBox *>()) {
-        if (input->property("flowViewOnly").toBool()) {
-            continue;
-        }
-        input->setValue(SETTINGS.value("simulation/" + input->objectName(), input->value()).toDouble());
-    }
-    for (auto *input : findChildren<QCheckBox *>()) {
-        if (input->property("flowViewOnly").toBool()) {
-            continue;
-        }
-        input->setChecked(SETTINGS.value("simulation/" + input->objectName(), false).toBool());
-    }
-    for (int index = 0; index < 2; ++index) {
-        const auto STORED = SETTINGS.value(QStringLiteral("simulation/talentPreview%1").arg(index)).toByteArray();
-        if (STORED.isEmpty()) {
-            continue;
-        }
-        const auto SELECTED = QJsonDocument::fromJson(STORED).array();
-        QString    error;
-        if (m_talentPanels[index]->ValidateSelection(SELECTED, error)) {
-            m_talentPanels[index]->RestoreSelection(SELECTED);
+        if (!RestoreSnapshot(snapshot, error)) {
+            qWarning() << "Invalid saved 50-level configuration:" << error;
         }
     }
-    m_seed->setText(SETTINGS.value(QStringLiteral("simulation/seed"), QStringLiteral("0")).toString());
-    auto legacy_flow = desktop::FlowDefaults();
-    for (const auto &field : desktop::FlowFields) {
-        legacy_flow.insert(QString::fromLatin1(field.key),
-                           SETTINGS.value("simulation/" + QString::fromLatin1(field.key), field.initial).toDouble());
+    if (saved.isEmpty()) {
+        m_specialization->setCurrentIndex(SETTINGS.value("simulation/specialization", 0).toInt() == 1 ? 1 : 0);
     }
-    if (std::all_of(desktop::FlowFields.begin(),
-                    desktop::FlowFields.end(),
-                    [&](const auto &field) {
-                        return desktop::ValidFlowValue(field, legacy_flow.value(QString::fromLatin1(field.key)));
-                    }))
-    {
-        m_flowValues = legacy_flow;
+    if (SETTINGS.contains("simulation/season50FlowDraft")) {
+        m_flowEditor->setPlainText(SETTINGS.value("simulation/season50FlowDraft").toString());
     }
-    m_flowEditor->setPlainText(
-        SETTINGS.value(QStringLiteral("simulation/flowMacro"), desktop::FlowMacroFromValues(legacy_flow)).toString());
-    auto *reset = findChild<QMenu *>(QStringLiteral("configurationMenu"))->addAction(QStringLiteral("重置配置"));
-    reset->setObjectName(QStringLiteral("resetConfiguration"));
-    layout->setColumnStretch(0, 1);
-    layout->setColumnStretch(1, 0);
-    layout->setRowMinimumHeight(1, 235);
-    layout->setRowStretch(2, 1);
+    updateSchool();
+    auto *reset = findChild<QMenu *>("configurationMenu")->addAction(QStringLiteral("重置配置"));
+    reset->setObjectName("resetConfiguration");
     connect(reset, &QAction::triggered, this, [this] {
         for (auto *panel : m_talentPanels) {
-            panel->ClearSelection();
+            panel->RestoreSelection(panel->DefaultSelection());
         }
         for (auto *input : findChildren<QSpinBox *>()) {
-            if (input->property("flowViewOnly").toBool()) {
-                continue;
+            if (input->property("defaultValue").isValid()) {
+                input->setValue(input->property("defaultValue").toInt());
             }
-            input->setValue(input->property("defaultValue").toInt());
         }
         for (auto *input : findChildren<QDoubleSpinBox *>()) {
-            if (input->property("flowViewOnly").toBool()) {
-                continue;
+            if (input->property("defaultValue").isValid()) {
+                input->setValue(input->property("defaultValue").toDouble());
             }
-            input->setValue(input->property("defaultValue").toDouble());
         }
         for (auto *input : findChildren<QCheckBox *>()) {
-            if (input->property("flowViewOnly").toBool()) {
-                continue;
+            if (!input->property("flowViewOnly").toBool()) {
+                const QSignalBlocker blocker(input->property("defaultChecked").isValid() ? input : nullptr);
+                input->setChecked(input->property("defaultChecked").toBool());
             }
-            input->setChecked(false);
         }
-        m_seed->setText(QStringLiteral("0"));
+        for (auto *cb : m_permanents) {
+            cb->setCurrentIndex(0);
+        }
         m_flowEditor->setPlainText(desktop::FlowMacroFromValues(desktop::FlowDefaults()));
-        for (auto *input : m_permanents) {
-            input->setCurrentIndex(0);
-        }
+        m_seed->setText("0");
     });
+    layout->setColumnStretch(0, 1);
+    layout->setRowMinimumHeight(1, 235);
+    layout->setRowStretch(2, 1);
     const auto REFRESH = [this] {
         if (m_refreshQueued) {
             return;
@@ -1218,6 +935,9 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     }
     for (const auto *input : findChildren<QCheckBox *>()) {
         connect(input, &QCheckBox::toggled, this, REFRESH);
+    }
+    for (auto *panel : m_talentPanels) {
+        connect(panel, &desktop::TalentPanel::SelectionChanged, this, REFRESH);
     }
     connect(m_seed, &QLineEdit::textChanged, this, REFRESH);
     connect(m_permanentsInPanel, &QTabBar::currentChanged, this, [this](int index) {
@@ -1249,49 +969,37 @@ void SimulationOptions::RefreshGameAttributes()
     const auto VALUES   = Values();
     const bool INCLUDED = m_permanentsInPanel->currentIndex() == 0;
     try {
-        const auto READ_PANEL = [&](const QJsonObject &input_values) {
-            const auto CONFIG = ActiveConfigFromValues(input_values, Specialization());
-            value_t    major  = input_values.value("importedMajor").toInt();
-            for (const auto *input : m_permanents) {
-                if (input->property("specialization").toInt() != static_cast<int>(Specialization())) {
-                    continue;
-                }
-                for (const auto &entry : input->itemData(input_values.value(input->objectName()).toInt()).value<QJsonArray>())
-                {
-                    const auto effect = entry.toObject();
-                    if (effect.value("Type").toString() == QStringLiteral("身法") ||
-                        effect.value("Type").toString() == QStringLiteral("根骨"))
-                    {
-                        major += effect.value("Value").toInt();
-                    }
-                }
-            }
-            return std::visit(
-                [&](const auto &configuration) -> std::array<double, 10> {
-                    const auto &a        = configuration.attributes;
-                    value_t     overcome = 0;
-                    if constexpr (requires { a.overcome_base; }) {
-                        overcome = a.overcome_base * (1024 + a.overcome_percent) / 1024 + a.overcome_by_class;
-                    } else {
-                        overcome = a.overcome * (1024 + a.overcome_percent) / 1024;
-                    }
-                    return { double(major),
-                             double(a.attack_base * (1024 + a.attack_percent) / 1024 + a.attack_by_class),
-                             100.0,
-                             100 * (a.crit / (9.530 * 8250) + a.crit_basis_points / 10000.0),
-                             100 * (1.75 + (static_cast<int>(a.crit_power * 1024 / (3.335 * 8250)) + a.crit_power_percent) / 1024.0),
-                             100 * (static_cast<int>(a.haste * 1024 / (11.695 * 8250)) + a.haste_percent) / 1024.0,
-                             100 * static_cast<int>(overcome * 1024 / (9.530 * 8250)) / 1024.0,
-                             100 * (static_cast<int>(a.strain * 1024 / (9.189 * 8250)) + a.strain_percent) / 1024.0,
-                             double(a.surplus),
-                             double(a.weapon) };
-                },
-                CONFIG);
+        const auto READ_PANEL = [&](const QJsonObject &values) -> std::array<double, 10> {
+            auto cfg = ConfigFromValues(values, Specialization(), {});
+            auto &a = cfg.attributes;
+            const double major = cfg.raid_full ? runtime::season50::ApplyPermanents(*cfg.book, a, *cfg.base_major, cfg.permanents, true)
+                                               : values["importedMajor"].toDouble() + PermanentMajor(values, Specialization());
+            return { major,
+                     double(a.attack_base * (1024 + a.attack_percent) / 1024 + a.attack_by_class),
+                     100.,
+                     std::min(100., 100 * a.crit / (9.609 * 990) + a.crit_basis_points / 100.),
+                     175. + 100 * std::min(1280, runtime::season50::Rating(a.crit_power, 3.54) + a.crit_power_percent) / 1024.,
+                     100. * std::min(256, runtime::season50::Rating(a.haste, 10.21) + a.haste_percent) / 1024.,
+                     100. * runtime::season50::Rating(a.overcome * (1024 + a.overcome_percent) / 1024, 10.483) / 1024.,
+                     100. * (runtime::season50::Rating(a.strain, 7.117) + a.strain_percent) / 1024.,
+                     double(a.surplus),
+                     double(a.weapon) };
         };
         // Clear only permanent selections in a copy; both projections retain manual bonuses and integer rounding.
         auto base_values = VALUES;
+        base_values.insert("raidFull", false);
+        const auto defaults = runtime::season50::FullRaidPermanents(desktop::School(Specialization()));
         for (const auto *input : m_permanents) {
             base_values.insert(input->objectName(), 0);
+        }
+        for (auto *input : m_permanents) {
+            if (input->property("family").toString() != FoodFamily(Specialization())) continue;
+            const auto &name = defaults.at(input->objectName().section('/', -1).toStdString());
+            const auto label = VALUES["raidFull"].toBool() ? desktop::Text(name) : QStringLiteral("无");
+            if (input->itemText(0) != label) {
+                const QSignalBlocker blocker(input);
+                input->setItemText(0, label);
+            }
         }
         const auto BASE    = READ_PANEL(base_values);
         const auto current = INCLUDED ? READ_PANEL(VALUES) : BASE;
@@ -1368,13 +1076,12 @@ void SimulationOptions::UpdateTalentHeight()
     if (m_section != QStringLiteral("simulation") && m_section != QStringLiteral("attributes")) {
         return;
     }
-    const auto *panel = m_talentPanels[static_cast<int>(Specialization())];
-    if (panel == nullptr) {
+    if (m_talentPanels.empty()) {
         return;
     }
     auto *tabs = findChild<QTabWidget *>(QStringLiteral("configurationTabs"));
-    const bool LEGACY = panel->HeaderWidget()->findChild<QToolButton *>(QStringLiteral("legacyTalentToggle"))->isChecked();
-    tabs->setFixedHeight(tabs->currentIndex() == 0 && !LEGACY ? 100 : 270);
+
+    tabs->setFixedHeight(tabs->currentIndex() == 0 ? 100 : 270);
 }
 
 void SimulationOptions::SetAttributeGainResult(const SimulationResult &result)
@@ -1425,6 +1132,54 @@ QToolButton *SimulationOptions::GainsButton() const
 
 void SimulationOptions::ShowEquipment()
 {
+    const auto  spec = Specialization();
+    const auto &book = desktop::School(spec);
+    auto        info = desktop::Info(spec);
+    QJsonArray  skills, recipes;
+    for (auto slot : book.castable) {
+        skills.append(QJsonObject{
+            { "skillName", desktop::Text(book.skills[slot].name) }
+        });
+    }
+    for (auto name : book.recipes) {
+        recipes.append(QJsonObject{
+            { "name", desktop::Text(name) }
+        });
+    }
+    QFile f(":/desktop/talents50.json");
+    f.open(QIODevice::ReadOnly);
+    const auto groups =
+        QJsonDocument::fromJson(f.readAll())
+            .object()["profiles"]
+            .toObject()[desktop::Text(book.code)]
+            .toObject()["groups"]
+            .toArray();
+    QJsonArray tiers;
+    for (int i = 0; i < groups.size(); ++i) {
+        QJsonArray entries;
+        for (const auto &v : groups[i].toObject()["choices"].toArray()) {
+            auto t     = v.toObject();
+            t["level"] = i + 1;
+            t["icon"]  = QJsonObject{
+                { "FileName", QString::number(t["icon"].toInt()) + ".png" }
+            };
+            entries.append(t);
+        }
+        tiers.append(QJsonObject{
+            { "kungfuSkills", entries }
+        });
+    }
+    QJsonObject ref{
+        { "skill",          QJsonObject{ { "remarks", QJsonArray{ QJsonObject{ { "forceSkills", skills } } } } } },
+        { "talent",         QJsonObject{ { "kungfuLevel", tiers } }                                              },
+        { "recipe_catalog", recipes                                                                              }
+    };
+    m_equipmentDialog->findChild<EquipmentPanel *>()->SetSeasonSchool(
+        desktop::Text(book.name),
+        desktop::Text(info.faction),
+        desktop::Text(info.major),
+        info.damage == "Physics" ? "外功" : "内功",
+        ref);
     m_equipmentDialog->show();
     m_equipmentDialog->raise();
     m_equipmentDialog->activateWindow();
@@ -1572,147 +1327,113 @@ void SimulationOptions::ShowSection(const QString &section)
     updateGeometry();
 }
 
-tx::Config SimulationOptions::Config() const
+namespace {
+QString FoodFamily(desktop::Specialization spec)
 {
-    QString flow_error;
-    if (!CheckFlowMacro(flow_error)) {
-        throw std::invalid_argument(flow_error.toUtf8().constData());
+    return desktop::Text(runtime::season50::PermanentFamily(desktop::School(spec)));
+}
+} // namespace
+
+int SimulationOptions::PermanentMajor(const QJsonObject &v, desktop::Specialization spec) const
+{
+    int result = 0;
+    for (auto *combo : m_permanents) {
+        if (combo->property("family").toString() == FoodFamily(spec)) {
+            const auto stats  = combo->itemData(v[combo->objectName()].toInt()).toJsonObject();
+            result           += stats["major"].toInt() + stats[desktop::Text(desktop::Info(spec).major)].toInt();
+        }
     }
-    if (m_talentPanels[0]->HasSelection()) {
-        throw std::invalid_argument(
-            "新版九重奇穴目前仅支持配装预览，战斗机制尚未迁移。请清空新版配装后使用旧规则模拟选项。");
-    }
-    return std::get<tx::Config>(ActiveConfigFromValues(Values(), desktop::Specialization::TAI_XU, m_flowEvents));
+    return result;
 }
 
-tx::Config SimulationOptions::ConfigFromValues(const QJsonObject &values) const
+runtime::season50::Config SimulationOptions::Config() const
 {
-    tx::Config config;
-    for (const auto &assign : m_bindings) {
-        assign(config, values);
+    QString error;
+    if (!CheckFlowMacro(error)) {
+        throw std::invalid_argument(error.toStdString());
     }
-    return config;
-}
-
-desktop::Specialization SimulationOptions::Specialization() const
-{
-    return m_specialization->currentIndex() == 1 ? desktop::Specialization::MO_WEN : desktop::Specialization::TAI_XU;
+    return ConfigFromValues(Values(), Specialization(), m_talentPanels.at(static_cast<int>(Specialization()))->Selection(), m_flowEvents);
 }
 
 desktop::Config SimulationOptions::ActiveConfig() const
 {
-    QString flow_error;
-    if (!CheckFlowMacro(flow_error)) {
-        throw std::invalid_argument(flow_error.toUtf8().constData());
-    }
-    if (m_talentPanels[static_cast<int>(Specialization())]->HasSelection()) {
-        throw std::invalid_argument(
-            "新版九重奇穴目前仅支持配装预览，战斗机制尚未迁移。请清空新版配装后使用旧规则模拟选项。");
-    }
-    return ActiveConfigFromValues(Values(), Specialization(), m_flowEvents);
+    return Config();
 }
 
-desktop::Config SimulationOptions::ActiveConfigFromValues(const QJsonObject                    &values,
-                                                          desktop::Specialization               specialization,
-                                                          std::span<const runtime::TargetEvent> events) const
+desktop::Specialization SimulationOptions::Specialization() const
 {
-    auto tai_xu = ConfigFromValues(values);
-    tai_xu.target_events.assign(events.begin(), events.end());
-    auto &attr           = tai_xu.attributes;
-    int   major_added    = 0;
-    int   strength_bonus = 0;
-    for (const auto *input : m_permanents) {
-        if (input->property("specialization").toInt() != static_cast<int>(specialization)) {
-            continue;
-        }
-        const auto EFFECTS = input->itemData(values.value(input->objectName()).toInt()).value<QJsonArray>();
-        for (const auto &effect : EFFECTS) {
-            const auto object = effect.toObject();
-            const auto type   = object.value("Type").toString();
-            const auto amount = object.value("Value").toInt();
-            if (type == QStringLiteral("基础攻击")) {
-                attr.attack_base += amount;
-            } else if (type == QStringLiteral("基础破防等级")) {
-                attr.overcome_base += amount;
-            } else if (type == QStringLiteral("会心等级")) {
-                attr.crit += amount;
-            } else if (type == QStringLiteral("无双")) {
-                attr.strain += amount;
-            } else if (type == QStringLiteral("破招值")) {
-                attr.surplus += amount;
-            } else if (type == QStringLiteral("加速等级")) {
-                attr.haste += amount;
-            } else if (type == QStringLiteral("身法") || type == QStringLiteral("根骨")) {
-                major_added += amount;
-            } else if (type == QStringLiteral("力道加成")) {
-                strength_bonus += amount;
-            } else if (type == QStringLiteral("基础攻击加成")) {
-                attr.attack_percent += amount;
-            } else if (type == QStringLiteral("无双加成")) {
-                attr.strain_percent += amount;
-            } else if (type == QStringLiteral("伤害加成")) {
-                attr.damage_percent += amount;
-            } else if (type == QStringLiteral("外功会效加成")) {
-                attr.crit_power_percent += amount;
-            } else if (type == QStringLiteral("外功破防加成")) {
-                attr.overcome_percent += amount;
-            } else if (type.endsWith(QStringLiteral("会心加成"))) {
-                attr.crit_basis_points += amount;
-            } else {
-                throw std::invalid_argument("常驻增益包含不支持的属性");
-            }
-        }
-    }
-    const value_t MAJOR              = values.value("importedMajor").toInt();
-    const auto    ATTACK_COEFFICIENT = specialization == desktop::Specialization::MO_WEN ? 1895 : 1485;
-    const auto    CRIT_COEFFICIENT   = specialization == desktop::Specialization::MO_WEN ? 389 : 594;
-    attr.attack_by_class   += ((MAJOR + major_added) * ATTACK_COEFFICIENT / 1024) - (MAJOR * ATTACK_COEFFICIENT / 1024);
-    attr.crit              += ((MAJOR + major_added) * CRIT_COEFFICIENT / 1024) - (MAJOR * CRIT_COEFFICIENT / 1024) +
-                              ((MAJOR + major_added) * 655 / 1024) - (MAJOR * 655 / 1024);
-    const value_t STRENGTH  = values.value("importedStrength").toInt();
-    const value_t NEW_STRENGTH  = STRENGTH * (1024 + strength_bonus) / 1024;
-    attr.attack_base           += (NEW_STRENGTH * 153 / 1024) - (STRENGTH * 153 / 1024);
-    attr.overcome_base         += (NEW_STRENGTH * 307 / 1024) - (STRENGTH * 307 / 1024);
-    if (specialization == desktop::Specialization::TAI_XU) {
-        return tai_xu;
-    }
-    mw::Config  config;
-    const auto &a     = tai_xu.attributes;
-    config.attributes = {
-        a.attack_base,
-        a.attack_by_class,
-        a.weapon,
-        a.crit,
-        a.crit_power,
-        a.overcome_base,
-        a.strain,
-        a.surplus,
-        a.haste,
-        a.attack_percent,
-        a.overcome_percent,
-        a.haste_percent,
-        a.crit_basis_points,
-        a.crit_power_percent,
-        a.damage_percent,
-        a.strain_percent,
-        a.pve_percent,
-        a.ignore_shield
-    };
-    config.target         = { tai_xu.target.level,
-                              tai_xu.target.shield,
-                              tai_xu.target.vulnerable,
-                              tai_xu.target.life,
-                              tai_xu.target.distance };
-    config.target_events  = std::move(tai_xu.target_events);
-    config.delay          = tai_xu.delay;
-    config.initial_yingzi = values.value("mwShadows").toInt();
-    config.initial_style  = static_cast<mw::Style>(values.value("mwStyle").toInt());
-    for (const auto &assign : m_mowenBindings) {
-        assign(config, values);
-    }
-    return config;
+    return static_cast<desktop::Specialization>(std::max(0, m_specialization->currentIndex()));
 }
 
+runtime::season50::Config SimulationOptions::ConfigFromValues(
+    const QJsonObject                    &values,
+    desktop::Specialization               spec,
+    const QJsonArray                     &talents,
+    std::span<const runtime::TargetEvent> events) const
+{
+    runtime::season50::Config cfg;
+    cfg.book                = &desktop::School(spec);
+    cfg.precombat = runtime::season50::DefaultPrecombat(cfg.book->code);
+    const auto &book        = *cfg.book;
+    const auto &v = values;
+    std::map<std::string, std::string> selected;
+    for (auto *combo : m_permanents) {
+        const int index = v[combo->objectName()].toInt();
+        if (index > 0 && combo->property("family").toString() == FoodFamily(spec))
+            selected.emplace(combo->objectName().section('/', -1).toStdString(), combo->itemText(index).toStdString());
+    }
+    const auto pct = [&](const char *key, int scale = 1024) {
+        return qRound(v[key].toDouble() * scale / 100.);
+    };
+    cfg.delay = v["delay"].toInt();
+    cfg.player_life = v["playerLife"].toDouble(100.) / 100.;
+    cfg.target = { v["targetLevel"].toInt(), v["shield"].toInt(), v["targetLife"].toDouble() / 100., v["distance"].toDouble(), pct("vulnerable") };
+    cfg.target_events.assign(events.begin(), events.end());
+    if (book.code == "tx" || book.code == "zxg") {
+        cfg.initial_qidian = v["qidian"].toInt();
+    }
+    auto &a             = cfg.attributes;
+    a.attack_base       = v["attackBase"].toInt();
+    a.weapon            = v["weapon"].toInt();
+    a.crit              = v["crit"].toInt();
+    a.crit_power        = v["critPower"].toInt();
+    a.overcome          = v["overcomeBase"].toInt();
+    a.strain            = v["strain"].toInt();
+    a.surplus           = v["surplus"].toInt();
+    a.haste             = v["haste"].toInt();
+    a.attack_by_class    = v["attackClass"].toInt();
+    a.attack_percent     = pct("attackBonus");
+    a.overcome_percent   = pct("overcomeBonus");
+    a.crit_basis_points  = pct("critBonus", 10000);
+    a.crit_power_percent = pct("critPowerBonus");
+    a.haste_percent      = pct("hasteBonus");
+    a.damage_percent     = pct("damageBonus");
+    a.strain_percent     = pct("strainBonus");
+    a.pve_percent        = pct("pveBonus");
+    a.ignore_shield      = pct("ignoreShield");
+    cfg.raid_full = v["raidFull"].toBool();
+    if (cfg.raid_full) {
+        cfg.base_major = v["importedMajor"].toInt();
+        cfg.permanents = std::move(selected);
+    } else {
+        runtime::season50::ApplyPermanents(book, a, v["importedMajor"].toInt(), selected);
+    }
+    for (const auto &name : desktop::TalentPanel::Names(spec, talents)) {
+        cfg.talents.push_back(name.toStdString());
+    }
+    const auto code = desktop::Text(book.code);
+    for (auto name : book.recipes) {
+        if (v["recipe/" + code + "/" + desktop::Text(name)].toBool()) {
+            cfg.recipes.emplace_back(name);
+        }
+    }
+    for (auto name : book.equipment) {
+        if (v["equipment/" + code + "/" + desktop::Text(name)].toBool()) {
+            cfg.equipment.emplace_back(name);
+        }
+    }
+    return cfg;
+}
 runtime::BatchOptions SimulationOptions::Batch() const
 {
     runtime::BatchOptions batch;
@@ -1731,41 +1452,15 @@ runtime::BatchOptions SimulationOptions::Batch() const
 
 void SimulationOptions::SaveSettings() const
 {
+    auto      snapshot = Snapshot();
     QSettings settings;
-    for (int index = 0; index < 2; ++index) {
-        settings.setValue(QStringLiteral("simulation/talentPreview%1").arg(index),
-                          QJsonDocument(m_talentPanels[index]->Selection()).toJson(QJsonDocument::Compact));
+    settings.setValue("simulation/schoolPanels", QJsonDocument(m_panelDrafts).toJson(QJsonDocument::Compact));
+    settings.setValue("simulation/season50FlowDraft", m_flowEditor->toPlainText());
+    if (!desktop::CompileFlowMacro(m_flowEditor->toPlainText()).errors.isEmpty()) {
+        snapshot["flowMacro"] = desktop::FlowMacroFromValues(m_flowValues);
     }
-    for (const auto *input : findChildren<QSpinBox *>()) {
-        if (input->property("flowViewOnly").toBool()) {
-            continue;
-        }
-        settings.setValue("simulation/" + input->objectName(), input->value());
-    }
-    for (const auto *input : findChildren<QDoubleSpinBox *>()) {
-        if (input->property("flowViewOnly").toBool()) {
-            continue;
-        }
-        settings.setValue("simulation/" + input->objectName(), input->value());
-    }
-    for (const auto *input : findChildren<QCheckBox *>()) {
-        if (input->property("flowViewOnly").toBool()) {
-            continue;
-        }
-        settings.setValue("simulation/" + input->objectName(), input->isChecked());
-    }
-    settings.setValue(QStringLiteral("simulation/seed"), m_seed->text());
-    settings.setValue("simulation/specialization", m_specialization->currentIndex());
-    settings.setValue(QStringLiteral("simulation/flowMacro"), m_flowEditor->toPlainText());
-    for (const auto &field : desktop::FlowFields) {
-        settings.setValue("simulation/" + QString::fromLatin1(field.key),
-                          m_flowValues.value(QString::fromLatin1(field.key)).toVariant());
-    }
-    for (const auto *input : m_permanents) {
-        settings.setValue("simulation/" + input->objectName(), input->currentIndex());
-    }
+    settings.setValue("simulation/season50", QJsonDocument(snapshot).toJson(QJsonDocument::Compact));
 }
-
 QJsonObject SimulationOptions::Values() const
 {
     QJsonObject values = m_flowValues;
@@ -1797,30 +1492,27 @@ QJsonObject SimulationOptions::Values() const
 
 QJsonObject SimulationOptions::Snapshot() const
 {
+    QJsonObject talents;
+    for (int i = 0; i < m_specialization->count(); ++i) {
+        talents.insert(m_specialization->itemData(i).toString(), m_talentPanels[i]->Selection());
+    }
     return {
-        { "format",         "jx3dps.desktop.config"              },
-        { "version",        4                                    },
-        { "specialization", m_specialization->currentIndex()     },
-        { "values",         Values()                             },
-        { "flowMacro",      m_flowEditor->toPlainText()          },
-        { "talents",
-         QJsonObject{ { "version", desktop::TalentPanel::DataVersion() },
-                       { "0", m_talentPanels[0]->Selection() },
-                       { "1", m_talentPanels[1]->Selection() } } }
+        { "format",         "jx3dps.desktop.config"                    },
+        { "version",        8                                          },
+        { "specialization", m_specialization->currentData().toString() },
+        { "values",         Values()                                   },
+        { "flowMacro",      m_flowEditor->toPlainText()                },
+        { "talents",        talents                                    }
     };
 }
 
 bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &error) const
 {
     error.clear();
-    if (snapshot.value("format") != QJsonValue("jx3dps.desktop.config") || snapshot.value("version") != QJsonValue(4) ||
-        !snapshot.value("values").isObject())
+    const int index = m_specialization->findData(snapshot.value("specialization").toString());
+    if (snapshot["version"] != 8 || snapshot["format"] != "jx3dps.desktop.config" || index < 0 || !snapshot["values"].isObject())
     {
-        error = QStringLiteral("不支持此配置格式或版本。");
-        return false;
-    }
-    if (snapshot.value("specialization") != QJsonValue(0) && snapshot.value("specialization") != QJsonValue(1)) {
-        error = QStringLiteral("心法编号无效。");
+        error = QStringLiteral("配置版本或心法无效");
         return false;
     }
     const auto VALUES = snapshot.value("values").toObject();
@@ -1834,6 +1526,7 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
         return false;
     }
     for (const auto &field : desktop::FlowFields) {
+        if (field.combat_only) continue;
         const auto KEY = QString::fromLatin1(field.key);
         if (!desktop::ValidFlowValue(field, VALUES.value(KEY)) || VALUES.value(KEY) != FLOW.values.value(KEY)) {
             error = QStringLiteral("流程宏与配置值不一致：%1").arg(desktop::FieldName(KEY));
@@ -1841,23 +1534,14 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
         }
     }
     const auto TALENTS = snapshot.value("talents").toObject();
-    if (TALENTS.value("version") != QJsonValue(desktop::TalentPanel::DataVersion())) {
-        error = QStringLiteral("奇穴数据版本不匹配。");
-        return false;
-    }
-    for (int index = 0; index < 2; ++index) {
-        const auto SELECTED = TALENTS.value(QString::number(index));
-        if (!SELECTED.isArray()) {
-            error = QStringLiteral("奇穴配装字段无效。");
+    for (int i = 0; i < m_specialization->count(); ++i) {
+        const auto t = TALENTS.value(m_specialization->itemData(i).toString());
+        if (!t.isArray() || !m_talentPanels[i]->ValidateSelection(t.toArray(), error)) {
+            if (error.isEmpty()) {
+                error = QStringLiteral("奇穴配置无效");
+            }
             return false;
         }
-        if (!m_talentPanels[index]->ValidateSelection(SELECTED.toArray(), error)) {
-            return false;
-        }
-    }
-    if (VALUES.value("mwStyle") != QJsonValue(0) && VALUES.value("mwStyle") != QJsonValue(1)) {
-        error = QStringLiteral("初始曲目无效。");
-        return false;
     }
     if (VALUES.keys() != Values().keys()) {
         error = QStringLiteral("配置缺少字段或包含未知字段。");
@@ -1914,10 +1598,11 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
     }
     try {
         // Validate coupled rules (recipes, haste, etc.) before changing any control.
-        std::visit([](const auto &config) { desktop::MakeRules(config); },
-                   ActiveConfigFromValues(VALUES,
-                                          static_cast<desktop::Specialization>(snapshot.value("specialization").toInt()),
-                                          FLOW.TargetEvents()));
+        for (int i = 0; i < m_specialization->count(); ++i) {
+            auto spec = static_cast<desktop::Specialization>(i);
+            runtime::season50::Prepare(
+                ConfigFromValues(VALUES, spec, TALENTS[m_specialization->itemData(i).toString()].toArray(), FLOW.TargetEvents()));
+        }
     } catch (const std::exception &exception) {
         error = desktop::Diagnostic(QString::fromUtf8(exception.what()));
         return false;
@@ -1927,86 +1612,231 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
 
 QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) const
 {
-    const auto WITH_TEAM_DEFAULTS = [this](QJsonObject result) {
-        if (result.value("version") == QJsonValue(2)) {
-            result.remove("flowMacro");
-            QJsonObject talents{
-                { "version", desktop::TalentPanel::DataVersion() }
-            };
-            for (int index = 0; index < 2; ++index) {
-                QJsonArray empty;
-                for (int slot = 0; slot < m_talentPanels[index]->Selection().size(); ++slot) {
-                    empty.append(QString{});
+    // A pre-compression configuration has incompatible combat stats and option IDs.
+    // Carry only portable run settings and dated target movements into a fresh 50-level profile.
+    const int version = snapshot["version"].toInt();
+    if (version >= 5 && version <= 8 && snapshot["format"] == "jx3dps.desktop.config") {
+        auto values = snapshot.value("values").toObject();
+        bool migrated = false;
+        if (!values.contains("playerLife")) {
+            values.insert("playerLife", 100.);
+            migrated = true;
+        }
+        if (version == 8) {
+            const auto add_unselected = [&](const QString &key) {
+                if (!values.contains(key)) {
+                    values.insert(key, false);
+                    migrated = true;
                 }
-                talents.insert(QString::number(index), empty);
+            };
+            for (const auto &book : runtime::season50::Books()) {
+                const auto prefix = "equipment/" + desktop::Text(book.code) + "/";
+                for (const auto &item : runtime::season50::InstanceEquipment) add_unselected(prefix + desktop::Text(item.name));
+                for (const auto &tier : runtime::season50::LegendaryWeapons) add_unselected(prefix + desktop::Text(tier.name));
             }
-            result.insert("version", 3);
-            result.insert("talents", talents);
+            add_unselected("recipe/fsj/盾击·三段回怒");
+            add_unselected("raidFull");
         }
-        auto values = result.value("values").toObject();
-        for (auto *input : findChildren<QWidget *>()) {
-            const auto KEY = input->objectName();
-            if (!KEY.startsWith("txTeam") || values.contains(KEY)) {
-                continue;
+        for (auto [from, to] : { std::pair{"recipe/txj/返闭惊魂·调息减16帧", "recipe/txj/返闭惊魂·调息减3秒"},
+                                 {"recipe/txj/返闭惊魂·调息减32帧", "recipe/txj/返闭惊魂·调息减4秒"} }) {
+            if (!values.contains(from)) continue;
+            auto previous = values.take(from);
+            if (!values.contains(to)) values.insert(to, previous);
+            migrated = true;
+        }
+        if (migrated) {
+            auto next = snapshot;
+            next["values"] = values;
+            return NormalizeSnapshot(next);
+        }
+    }
+    if (version == 7 && snapshot["format"] == "jx3dps.desktop.config" && snapshot["values"].isObject()) {
+        auto upgraded = snapshot;
+        auto values = snapshot["values"].toObject();
+        auto selections = snapshot["talents"].toObject();
+        static const QMap<QString, QStringList> previousTalents{
+            { "lhj", { "梦悠", "清源", "驰行", "游仙", "风驰", "抟空", "天行", "击浪", "青冥" } },
+            { "tx", { "负阴" } },
+            { "mw", { "斩长鲸", "鹿鸣", "青崖间", "参连", "凌冬", "豪情", "师襄" } },
+            { "axzy", { "龙血", "战心", "镇远", "风虎" } },
+            { "baj", { "临江", "冥鼓", "碎影", "斩狂枭", "分疆", "见尘" } },
+            { "fysj", { "崇光斩恶", "日月同辉", "明焰续夜", "夷数神光" } },
+            { "gfj", { "流溯", "滔天", "裂海横天", "洄涛", "择行", "涣衍", "流岚", "潋风" } },
+            { "hjy", { "青歌", "雪弃", "丹鼎", "青冠", "墨海临源", "生风" } },
+            { "shxj", { "聚势摧霆", "贯侯", "桑柘", "于狩", "佩弦" } },
+            { "txj", { "鬼遁", "御前星", "世降", "焚如", "连极阵", "知微", "顺祝", "亘天" } },
+            { "tlgd", { "化血迷心", "千机之威", "神威穿彻", "天风汲雨", "凝气淬机", "擘两分星" } },
+            { "yly", { "钤束", "绞网", "寄意" } },
+            { "ztg", { "封府", "风萦", "涣风" } },
+            { "zxg", { "正气", "归元", "同尘" } }
+        };
+        for (int i = 0; i < m_specialization->count(); ++i) {
+            const auto spec = static_cast<desktop::Specialization>(i);
+            const auto &book = desktop::School(spec);
+            const auto code = desktop::Text(book.code);
+            const auto prior = selections.value(code).toArray();
+            QString error;
+            if (!m_talentPanels[i]->ValidateSelection(prior, error)) continue;
+            const auto current = m_talentPanels[i]->DefaultSelection();
+            const auto priorNames = desktop::TalentPanel::Names(spec, prior);
+            const auto expected = previousTalents.value(code, desktop::TalentPanel::Names(spec, current));
+            const bool factoryTalents = std::ranges::is_permutation(priorNames, expected);
+            const auto prefix = "recipe/" + code + "/";
+            bool factoryRecipes = true;
+            for (auto recipe : book.recipes) {
+                const auto key = prefix + desktop::Text(recipe);
+                if (!values.contains(key)) continue;
+                const bool added = code == "tx" || recipe == "两仪回豆" || recipe == "停云势·4%会心" || recipe == "饮羽簇·3%伤害";
+                const bool removed = recipe == "行云势·3%伤害" || recipe == "饮羽簇·4%会心";
+                const bool previouslySelected = removed || (!added && std::ranges::contains(book.default_recipes, recipe));
+                if (!values[key].isBool() || values[key].toBool() != previouslySelected) factoryRecipes = false;
             }
-            if (qobject_cast<QCheckBox *>(input)) {
-                values.insert(KEY, false);
-            } else if (qobject_cast<QSpinBox *>(input) || qobject_cast<QDoubleSpinBox *>(input)) {
-                values.insert(KEY, QJsonValue::fromVariant(input->property("defaultValue")));
+            if (factoryTalents) selections[code] = current;
+            for (auto recipe : book.recipes) {
+                const auto key = prefix + desktop::Text(recipe);
+                if (factoryRecipes && factoryTalents) values[key] = std::ranges::contains(book.default_recipes, recipe);
+                else if (!values.contains(key)) values[key] = false;
             }
         }
-        result.insert("values", values);
-        if (!result.contains("flowMacro")) {
-            result.insert("flowMacro", desktop::FlowMacroFromValues(values));
-        }
-        result.insert("version", 4);
-        return result;
-    };
-    if (snapshot.value("format") != QJsonValue("jx3dps.tai-xu.config") || snapshot.value("version") != QJsonValue(1)) {
-        return snapshot.value("format") == QJsonValue("jx3dps.desktop.config") &&
-                       (snapshot.value("version") == QJsonValue(2) || snapshot.value("version") == QJsonValue(3) ||
-                        snapshot.value("version") == QJsonValue(4))
-                   ? WITH_TEAM_DEFAULTS(snapshot)
-                   : snapshot;
+        upgraded["talents"] = selections;
+        upgraded["values"] = values;
+        upgraded["version"] = 8;
+        return NormalizeSnapshot(upgraded);
     }
-    auto converted = snapshot;
-    auto values    = snapshot.value("values").toObject();
-    for (const auto &key : values.keys()) {
-        if (key.startsWith("mw") || key.startsWith("permanent") || key.startsWith("imported")) {
-            return snapshot;
+    if (version == 6 && snapshot["format"] == "jx3dps.desktop.config" && snapshot["values"].isObject() && snapshot["talents"].isObject()) {
+        // Upgrade factory loadouts; custom talent choices and explicitly selected recipes are preserved.
+        static const QMap<QString, QStringList> previousTalents{
+            {"tx", {"负阴"}},
+            {"mw", {"鹿鸣", "青崖间", "参连", "凌冬", "豪情", "师襄"}},
+            {"axzy", {"龙血", "战心"}},
+            {"baj", {"临江", "冥鼓"}},
+            {"bxj", {}},
+            {"dj", {"蛛魄", "残香"}},
+            {"fsj", {"阵云结晦", "惊涌", "嗜血"}},
+            {"fysj", {}},
+            {"gfj", {"流溯", "滔天", "裂海横天"}},
+            {"hjy", {"青歌", "雪弃", "丹鼎"}},
+            {"lhj", {"青冥"}},
+            {"shxj", {"聚势摧霆", "贯侯", "桑柘"}},
+            {"txj", {"连极阵", "知微", "顺祝", "亘天"}},
+            {"tlgd", {"化血迷心", "千机之威"}},
+            {"wf", {"相使"}},
+            {"xcj", {"雨龙"}},
+            {"yjj", {}},
+            {"yly", {"钤束"}},
+            {"ztg", {"封府"}},
+            {"zxg", {}}
+        };
+        auto upgraded=snapshot;
+        auto values=snapshot["values"].toObject(), selections=snapshot["talents"].toObject();
+        for(int i=0;i<m_specialization->count();++i){
+            const auto spec=static_cast<desktop::Specialization>(i);
+            const auto &book=desktop::School(spec);
+            const auto code=desktop::Text(book.code);
+            const auto prior=selections[code].toArray();
+            QString error;
+            if(!m_talentPanels[i]->ValidateSelection(prior,error)) continue;
+            const auto names=desktop::TalentPanel::Names(spec,prior);
+            const bool factory=std::ranges::is_permutation(names,previousTalents.value(code));
+            const auto prefix="recipe/"+code+"/";
+            bool factoryRecipes=true;
+            for(auto recipe:book.recipes){
+                auto key=prefix+desktop::Text(recipe);
+                bool recommended=std::ranges::find(book.default_recipes,recipe)!=book.default_recipes.end();
+                if(values.contains(key) && (!values[key].isBool() || values[key].toBool()!=recommended))factoryRecipes=false;
+            }
+            if(factory) selections[code]=m_talentPanels[i]->DefaultSelection();
+            for(auto recipe:book.recipes){
+                auto key=prefix+desktop::Text(recipe);
+                if(!values.contains(key))
+                    values[key]=factory && factoryRecipes && std::ranges::find(book.default_recipes,recipe)!=book.default_recipes.end();
+            }
+        }
+        upgraded["values"]=values;
+        upgraded["talents"]=selections;
+        upgraded["version"]=8;
+        return NormalizeSnapshot(upgraded);
+    }
+    if (version == 5 && snapshot["format"] == "jx3dps.desktop.config" && snapshot["values"].isObject()) {
+        auto upgraded = snapshot;
+        auto values = snapshot["values"].toObject();
+        // Newly supported equipment was inactive when the saved fight was created.
+        for (const auto &book : runtime::season50::Books()) {
+            for (auto gear : book.equipment) {
+                const auto key = "equipment/" + desktop::Text(book.code) + "/" + desktop::Text(gear);
+                if (gear == runtime::season50::WindPendant || gear == runtime::season50::WaterWeapon || gear == runtime::season50::BeltEnchant ||
+                    gear == runtime::season50::ClassSet || std::ranges::any_of(runtime::season50::DamageEnchants,
+                        [&](const auto &enchant) { return enchant.name == gear; })) {
+                    if (!values.contains(key)) values[key] = false;
+                }
+            }
+        }
+        upgraded["values"] = values;
+        upgraded["version"] = 6;
+        return NormalizeSnapshot(upgraded);
+    }
+    if (snapshot["format"] != "jx3dps.desktop.config" || version < 1 || version > 4) {
+        return snapshot;
+    }
+    const auto id = snapshot["specialization"];
+    if (!id.isUndefined() && id != 0 && id != 1) {
+        return snapshot;
+    }
+    auto index = id.toInt(0);
+    if (index != 0 && index != 1) {
+        return snapshot;
+    }
+    auto migrated = Snapshot();
+    auto values   = migrated["values"].toObject();
+    for (auto *input : findChildren<QSpinBox *>()) {
+        if (input->property("defaultValue").isValid()) {
+            values[input->objectName()] = input->property("defaultValue").toInt();
         }
     }
-    // Older Tai Xu snapshots predate the Mo Wen fields; fill only these new keys.
-    for (const auto *input : findChildren<QSpinBox *>()) {
-        if (input->property("flowViewOnly").toBool()) {
-            continue;
-        }
-        if (input->objectName().startsWith("mw")) {
-            values.insert(input->objectName(), input->property("defaultValue").toInt());
+    for (auto *input : findChildren<QDoubleSpinBox *>()) {
+        if (input->property("defaultValue").isValid()) {
+            values[input->objectName()] = input->property("defaultValue").toDouble();
         }
     }
-    for (const auto *input : findChildren<QCheckBox *>()) {
-        if (input->property("flowViewOnly").toBool()) {
-            continue;
-        }
-        if (input->objectName().startsWith("mw")) {
-            values.insert(input->objectName(), false);
+    for (auto *input : findChildren<QCheckBox *>()) {
+        if (values.contains(input->objectName())) {
+            values[input->objectName()] = input->property("defaultChecked").toBool();
         }
     }
-    values.insert("mwStyle", 1);
-    values.insert("mwShadows", 0);
-    values.insert("importedMajor", 0);
-    values.insert("importedStrength", 41);
-    for (const auto *input : m_permanents) {
-        values.insert(input->objectName(), 0);
+    for (auto *combo : m_permanents) {
+        values[combo->objectName()] = 0;
     }
-    converted.insert("format", "jx3dps.desktop.config");
-    converted.insert("version", 2);
-    converted.insert("specialization", 0);
-    converted.insert("values", values);
-    return WITH_TEAM_DEFAULTS(converted);
+    if (!snapshot["values"].isObject()) {
+        return snapshot;
+    }
+    auto old = snapshot["values"].toObject();
+    const auto defaults = SchoolPanel(desktop::School(static_cast<desktop::Specialization>(index)));
+    for (auto it = defaults.begin(); it != defaults.end(); ++it) values[it.key()] = it.value();
+    for (const auto key : { "seed", "iterations", "workers", "seconds", "delay" }) {
+        if (old.contains(key)) {
+            values[key] = old[key];
+        }
+    }
+    auto flow = desktop::FlowDefaults();
+    for (auto &field : desktop::FlowFields) {
+        if (field.combat_only) continue;
+        values[field.key] = flow[field.key];
+    }
+    QString macro = desktop::FlowMacroFromValues(flow);
+    for (const auto &line : snapshot["flowMacro"].toString().split('\n')) {
+        if (QRegularExpression(QStringLiteral("^\\s*[0-9]+:[0-9]+")).match(line).hasMatch()) {
+            macro += '\n' + line;
+        }
+    }
+    auto       ts = migrated["talents"].toObject();
+    for (int i = 0; i < m_specialization->count(); ++i)
+        ts[m_specialization->itemData(i).toString()] = m_talentPanels[i]->DefaultSelection();
+    migrated["talents"]        = ts;
+    migrated["values"]         = values;
+    migrated["flowMacro"]      = macro;
+    migrated["specialization"] = index ? "mw" : "tx";
+    return migrated;
 }
-
 bool SimulationOptions::RestoreSnapshot(const QJsonObject &original, QString &error)
 {
     const auto snapshot = NormalizeSnapshot(original);
@@ -2015,8 +1845,9 @@ bool SimulationOptions::RestoreSnapshot(const QJsonObject &original, QString &er
     }
     const auto VALUES  = snapshot.value("values").toObject();
     const auto TALENTS = snapshot.value("talents").toObject();
-    for (int index = 0; index < 2; ++index) {
-        m_talentPanels[index]->RestoreSelection(TALENTS.value(QString::number(index)).toArray());
+    m_specialization->setCurrentIndex(m_specialization->findData(snapshot.value("specialization").toString()));
+    for (int index = 0; index < m_specialization->count(); ++index) {
+        m_talentPanels[index]->RestoreSelection(TALENTS.value(m_specialization->itemData(index).toString()).toArray());
     }
     for (auto *input : findChildren<QSpinBox *>()) {
         if (input->property("flowViewOnly").toBool()) {
@@ -2034,6 +1865,7 @@ bool SimulationOptions::RestoreSnapshot(const QJsonObject &original, QString &er
         if (input->property("flowViewOnly").toBool()) {
             continue;
         }
+        const QSignalBlocker blocker(input->property("defaultChecked").isValid() ? input : nullptr);
         input->setChecked(VALUES.value(input->objectName()).toBool());
     }
     m_seed->setText(VALUES.value("seed").toString());
@@ -2041,7 +1873,8 @@ bool SimulationOptions::RestoreSnapshot(const QJsonObject &original, QString &er
     for (auto *input : m_permanents) {
         input->setCurrentIndex(VALUES.value(input->objectName()).toInt());
     }
-    m_specialization->setCurrentIndex(snapshot.value("specialization").toInt());
+    UpdateFlowMacro();
+    RefreshGameAttributes();
     return true;
 }
 
@@ -2089,20 +1922,24 @@ bool SimulationOptions::ImportAttributes(const QJsonObject &attributes, QString 
 {
     auto                              snapshot  = Snapshot();
     auto                              values    = snapshot.value("values").toObject();
-    const bool                        MO_WEN    = Specialization() == desktop::Specialization::MO_WEN;
-    const QString                     PREFIX    = MO_WEN ? QStringLiteral("Lunar") : QStringLiteral("Physics");
-    const QString                     MAJOR_KEY = MO_WEN ? QStringLiteral("Spirit") : QStringLiteral("Agility");
-    const std::pair<QString, QString> FIELDS[]  = {
-        { PREFIX + "AttackPowerBase",     "attackBase"       },
-        { PREFIX + "CriticalStrike",      "crit"             },
-        { PREFIX + "CriticalDamagePower", "critPower"        },
-        { PREFIX + "Overcome",            "overcomeBase"     },
-        { "SurplusValue",                 "surplus"          },
-        { "Strain",                       "strain"           },
-        { "Haste",                        "haste"            },
-        { MAJOR_KEY,                      "importedMajor"    },
-        { "Strength",                     "importedStrength" },
-        { "MeleeWeaponDamage",            "weapon"           }
+    const auto                        info      = desktop::Info(Specialization());
+    const auto                        PREFIX    = desktop::Text(info.damage);
+    const auto                        MAJOR_KEY =
+        info.major == "身法"   ? "Agility"
+        : info.major == "力道" ? "Strength"
+        : info.major == "元气" ? "Spunk"
+                               : "Spirit";
+    const std::pair<QString, QString> FIELDS[] = {
+        { PREFIX + "AttackPowerBase",     "attackBase"    },
+        { PREFIX + "CriticalStrike",      "crit"          },
+        { PREFIX + "CriticalDamagePower", "critPower"     },
+        { PREFIX + "Overcome",            "overcomeBase"  },
+        { "SurplusValue",                 "surplus"       },
+        { "Strain",                       "strain"        },
+        { "Haste",                        "haste"         },
+        { MAJOR_KEY,                      "importedMajor" },
+
+        { "MeleeWeaponDamage",            "weapon"        }
     };
     const auto READ = [&](const QString &key, int &number) {
         const auto value = attributes.value(key);
@@ -2128,14 +1965,14 @@ bool SimulationOptions::ImportAttributes(const QJsonObject &attributes, QString 
     }
     values.insert("weapon", values.value("weapon").toInt() + (random_weapon / 2));
     const auto MAJOR = static_cast<value_t>(values.value("importedMajor").toInt());
-    values.insert("attackClass", static_cast<int>(MAJOR * (MO_WEN ? 1895 : 1485) / 1024));
-    values.insert("overcomeClass", 0);
+    values.insert("attackClass", static_cast<int>(MAJOR * info.attack_from_major / 1024));
+
     for (const char *key :
          { "attackBonus", "overcomeBonus", "critBonus", "critPowerBonus", "hasteBonus", "damageBonus", "strainBonus", "ignoreShield" })
     {
         values.insert(key, 0);
     }
-    values.insert("pveBonus", std::round((MO_WEN ? 61 : 184) * 100000.0 / 1024) / 1000);
+    values.insert("pveBonus", 0);
     for (const auto *input : m_permanents) {
         values.insert(input->objectName(), 0);
     }

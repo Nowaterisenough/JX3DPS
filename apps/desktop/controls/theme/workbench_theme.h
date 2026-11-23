@@ -80,7 +80,7 @@ inline QString WorkbenchStyleSheet(const QColor &accent = DefaultAccent())
         QToolButton#runMacroButton:hover { background: $accentHover; }
         QToolButton#runMacroButton:pressed { background: $accentPressed; }
         QToolButton#runMacroButton:disabled { background: $raised; color: #72727d; }
-        QToolButton#legacyTalentToggle, QToolButton#clearTalentPreview { padding: 2px 3px; font-size: 12px; }
+        QToolButton#clearTalentPreview { padding: 2px 3px; font-size: 12px; }
         QPushButton {
             min-height: 23px; padding: 2px 10px; border-radius: 7px;
             background: $surface; color: #b6b6c0; border: 1px solid $border; font-weight: 400;

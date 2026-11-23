@@ -9,19 +9,37 @@
 #include "src/class/mo_wen/runtime_data.hpp"
 #include "src/class/tai_xu_jian_yi/runtime_data.hpp"
 #include "src/engine/default_macro.hpp"
+#include "src/engine/scenarios.hpp"
+#include "src/class/season50/permanents.hpp"
 
 namespace desktop {
 namespace rt = JX3DPS::runtime;
 enum class Specialization
 {
-    TAI_XU,
-    MO_WEN
+    LEGACY_TX = -2,
+    LEGACY_MW = -1,
+    TAI_XU    = 0,
+    MO_WEN    = 1
 };
-using Config = std::variant<rt::tai_xu::Config, rt::mo_wen::Config>;
+using Config = JX3DPS::engine::ScenarioConfig;
 
-inline Specialization ClassOf(const Config &config)
+inline const rt::season50::Book &School(Specialization s)
 {
-    return static_cast<Specialization>(config.index());
+    return rt::season50::Books()[static_cast<std::size_t>(s)];
+}
+
+inline Specialization ClassOf(const Config &c)
+{
+    if (const auto *current = std::get_if<rt::season50::Config>(&c)) {
+        const auto schools = rt::season50::Books();
+        for (std::size_t i = 0; i < schools.size(); ++i) {
+            if (current->book == &schools[i]) {
+                return static_cast<Specialization>(i);
+            }
+        }
+        throw std::invalid_argument("invalid school");
+    }
+    return c.index() == 0 ? Specialization::LEGACY_TX : Specialization::LEGACY_MW;
 }
 
 inline QString Text(std::string_view value)
@@ -29,21 +47,51 @@ inline QString Text(std::string_view value)
     return QString::fromUtf8(value.data(), value.size());
 }
 
-inline QString ClassName(Specialization value)
+inline Specialization SchoolFromId(const QString &code)
 {
-    return value == Specialization::MO_WEN ? QStringLiteral("莫问") : QStringLiteral("太虚剑意");
+    const auto books = rt::season50::Books();
+    for (std::size_t i = 0; i < books.size(); ++i) {
+        if (Text(books[i].code) == code) {
+            return static_cast<Specialization>(i);
+        }
+    }
+    throw std::invalid_argument("unknown school code");
 }
 
-inline rt::CompileOptions MacroOptions(Specialization value, bool debug = false)
+inline QString ClassName(Specialization s)
 {
-    return rt::CatalogMacroOptions(value == Specialization::MO_WEN ? rt::mo_wen::Catalog : rt::tai_xu::Catalog, debug);
+    if (s == Specialization::LEGACY_TX) {
+        return QStringLiteral("太虚剑意");
+    }
+    if (s == Specialization::LEGACY_MW) {
+        return QStringLiteral("莫问");
+    }
+    return Text(School(s).name);
 }
 
 using Catalog = rt::SkillCatalog;
 
-inline Catalog Describe(Specialization value)
+inline Catalog Describe(Specialization s)
 {
-    return value == Specialization::MO_WEN ? rt::mo_wen::Catalog : rt::tai_xu::Catalog;
+    if (s == Specialization::LEGACY_TX) {
+        return rt::tai_xu::Catalog;
+    }
+    if (s == Specialization::LEGACY_MW) {
+        return rt::mo_wen::Catalog;
+    }
+    return School(s).Catalog();
+}
+
+inline rt::CompileOptions MacroOptions(Specialization s, bool debug = false)
+{
+    return rt::CatalogMacroOptions(Describe(s), debug);
+}
+
+using SchoolInfo = rt::season50::SchoolInfo;
+
+inline SchoolInfo Info(Specialization s)
+{
+    return rt::season50::Info(s == Specialization::LEGACY_TX ? "tx" : s == Specialization::LEGACY_MW ? "mw" : School(s).code);
 }
 
 inline QString DisplayName(std::string_view name)
@@ -59,7 +107,10 @@ inline QString SkillName(Specialization value, rt::Slot skill)
 
 inline QString DefaultMacro(Specialization value)
 {
-    return Text(JX3DPS::engine::DefaultMacro(value == Specialization::MO_WEN));
+    if (static_cast<int>(value) < 0) {
+        return Text(JX3DPS::engine::DefaultMacro(value == Specialization::LEGACY_MW));
+    }
+    return Text(School(value).default_macro);
 }
 
 inline QString FieldName(const QString &key)
@@ -70,6 +121,8 @@ inline QString FieldName(const QString &key)
         { "seconds",          "战斗时长"       },
         { "seed",             "随机种子"       },
         { "qidian",           "初始气点"       },
+        { "playerLife",       "自身气血"       },
+        { "incomingDamage",   "单次受击"       },
         { "delay",            "输入延迟"       },
         { "targetLevel",      "目标等级"       },
         { "shield",           "目标防御"       },

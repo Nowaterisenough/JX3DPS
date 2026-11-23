@@ -225,6 +225,22 @@ fieldset {
     margin: 0;
     padding: 0;
 }
+#schoolChoices {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: .25rem .5rem;
+    max-height: 12rem;
+    overflow: auto;
+}
+#schoolChoices label {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+}
+#schoolChoices input {
+    width: auto;
+    margin: 0;
+}
 legend {
     padding: 0;
     margin-bottom: 6px;

@@ -2,13 +2,11 @@
 #define DESKTOP_SIMULATION_OPTIONS_H
 
 #include <array>
-#include <functional>
 #include <vector>
 
 #include <QJsonObject>
 #include <QWidget>
 
-#include "src/class/tai_xu_jian_yi/runtime_data.hpp"
 #include "src/core/runtime/batch.hpp"
 
 #include "attribute_gain_mode.h"
@@ -48,7 +46,7 @@ public:
     // Wrapped descriptions must not expand the entire workspace.
     int heightForWidth(int) const override { return minimumSizeHint().height(); }
 
-    JX3DPS::runtime::tai_xu::Config Config() const;
+    JX3DPS::runtime::season50::Config Config() const;
     desktop::Config                 ActiveConfig() const;
     desktop::Specialization         Specialization() const;
     JX3DPS::runtime::BatchOptions   Batch() const;
@@ -81,11 +79,12 @@ signals:
     void SpecializationChanged();
 
 private:
-    QJsonObject                     Values() const;
-    JX3DPS::runtime::tai_xu::Config ConfigFromValues(const QJsonObject &values) const;
-    desktop::Config ActiveConfigFromValues(const QJsonObject                            &values,
-                                           desktop::Specialization                       specialization,
-                                           std::span<const JX3DPS::runtime::TargetEvent> events = {}) const;
+    int                               PermanentMajor(const QJsonObject &, desktop::Specialization) const;
+    QJsonObject                       Values() const;
+    JX3DPS::runtime::season50::Config ConfigFromValues(const QJsonObject                            &values,
+                                                       desktop::Specialization                       spec,
+                                                       const QJsonArray                             &talents,
+                                                       std::span<const JX3DPS::runtime::TargetEvent> events = {}) const;
     QJsonObject     NormalizeSnapshot(const QJsonObject &snapshot) const;
     bool            ValidateSnapshot(const QJsonObject &snapshot, QString &error) const;
     void            SetupProfiles(QVBoxLayout *layout);
@@ -108,13 +107,13 @@ private:
     QString                                   m_flowSource;
     bool                                      m_flowInitialized = false;
     QJsonObject                               m_gainSnapshot;
+    QString                                   m_panelSchool;
+    QJsonObject                               m_panelDrafts;
     bool                                      m_refreshQueued  = false;
     QString                                   m_section        = QStringLiteral("simulation");
     bool                                      m_externalOutput = false;
-    std::array<desktop::TalentPanel *, 2>     m_talentPanels{};
+    std::vector<desktop::TalentPanel *>       m_talentPanels{};
     std::vector<QWidget *>                    m_inputPanels;
-    std::vector<std::function<void(JX3DPS::runtime::tai_xu::Config &, const QJsonObject &)>> m_bindings;
-    std::vector<std::function<void(JX3DPS::runtime::mo_wen::Config &, const QJsonObject &)>> m_mowenBindings;
     QComboBox                                                                               *m_specialization;
     std::vector<QComboBox *>                                                                 m_permanents;
     QSpinBox                                                                                *m_iterations;

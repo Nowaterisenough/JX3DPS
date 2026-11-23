@@ -19,6 +19,7 @@ struct SkillCatalog
     std::span<const Slot>             castable;
     std::span<const std::string_view> skillAliases, buffAliases;
     std::span<const NameBinding>      extraBuffNames{};
+    std::array<CompileOptions::ResourceName, 3> resources{};
 };
 
 inline CompileOptions CatalogMacroOptions(SkillCatalog catalog, bool debug = true)
@@ -27,6 +28,7 @@ inline CompileOptions CatalogMacroOptions(SkillCatalog catalog, bool debug = tru
     options.skill_count     = catalog.skills.size();
     options.buff_count      = catalog.buffs.size();
     options.keep_debug_info = debug;
+    options.resources       = catalog.resources;
     options.resolve_skill   = [catalog](std::string_view name) {
         for (const auto slot : catalog.castable) {
             if (name == catalog.skills[slot].name || name == catalog.skillAliases[slot]) {

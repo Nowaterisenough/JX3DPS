@@ -48,13 +48,15 @@ QRect FlowTimelineCanvas::PlotRect() const
 
 int FlowTimelineCanvas::Track(int field) const
 {
-    return !compact_ ? field : field == 2 ? 1 : field == 3 ? 2 : 0;
+    return !compact_ ? field : field == 3 ? 2 : FlowFields[field].during_combat ? 1 : 0;
 }
 
 int FlowTimelineCanvas::FieldAt(int y) const
 {
     const auto plot = PlotRect();
-    const int  ROW  = std::clamp((y - plot.y()) * (compact_ ? 3 : 8) / plot.height(), 0, compact_ ? 2 : 7);
+    const int  ROW  = std::clamp((y - plot.y()) * (compact_ ? 3 : int(FlowFields.size())) / plot.height(),
+                                 0,
+                                 compact_ ? 2 : int(FlowFields.size()) - 1);
     return compact_ ? (ROW == 1 ? 2 : ROW == 2 ? 3 : 0) : ROW;
 }
 
@@ -172,7 +174,7 @@ QVector<FlowTimelineCanvas::Marker> FlowTimelineCanvas::Markers() const
                 node.line,
                 field,
                 FRAME,
-                { XAt(FRAME), plot.top() + (((2 * TRACK) + 1) * plot.height() / (2 * (compact_ ? 3 : 8))) }
+                { XAt(FRAME), plot.top() + (((2 * TRACK) + 1) * plot.height() / (2 * (compact_ ? 3 : int(FlowFields.size())))) }
             });
         }
     }
@@ -212,7 +214,7 @@ void FlowTimelineCanvas::paintEvent(QPaintEvent *)
     font.setPixelSize(11);
     p.setFont(font);
     const auto plot   = PlotRect();
-    const int  TRACKS = compact_ ? 3 : 8;
+    const int  TRACKS = compact_ ? 3 : int(FlowFields.size());
     const auto accent = theme::AccentColor(this);
     p.fillRect(QRect(0, 0, width(), 24), QColor(theme::Raised));
     p.setPen(QColor(theme::Muted));
@@ -497,8 +499,8 @@ struct FlowTimelineEditor::Impl
     QComboBox                 *kind        = nullptr;
     FixedUnitDoubleSpinBox    *time        = nullptr;
     QDialogButtonBox          *nodeButtons = nullptr;
-    std::array<QCheckBox *, 8> checks{};
-    std::array<QWidget *, 8>   inputs{};
+    std::array<QCheckBox *, FlowFields.size()> checks{};
+    std::array<QWidget *, FlowFields.size()>   inputs{};
     CompiledFlow               model;
     QString                    source, draftSource;
     FlowNode                   draft;
@@ -728,7 +730,7 @@ struct FlowTimelineEditor::Impl
             layout->addWidget(canvas, 1);
             auto *hint =
                 new QLabel(QStringLiteral("双击空白添加 / 节点编辑 · 拖动节点调整时间 · 滚轮缩放，拖动空白平移 · ←/→ "
-                                          "一帧，Shift 加速 · 仅气血、距离可移至战中"));
+                                          "一帧，Shift 加速 · 战中可设置气血、受击和距离"));
             hint->setWordWrap(true);
             hint->setProperty("muted", true);
             layout->addWidget(hint);
@@ -798,27 +800,29 @@ struct FlowTimelineEditor::Impl
             return;
         }
         const auto COMMAND = kind->currentData().toString();
-        bool       locked  = COMMAND == "/set_player";
+        bool       locked = false, combat_only = false;
         for (int i = 0; std::cmp_less(i, FlowFields.size()); ++i) {
-            if (COMMAND == QLatin1String(FlowFields[i].command) && checks[i]->isChecked() && i != 2 && i != 3) {
-                locked = true;
+            if (COMMAND == QLatin1String(FlowFields[i].command) && checks[i]->isChecked()) {
+                locked |= !FlowFields[i].during_combat;
+                combat_only |= FlowFields[i].combat_only;
             }
         }
-        if (locked && time->value() != 0) {
+        {
             const QSignalBlocker BLOCKER(time);
-            time->setValue(0);
+            time->setMinimum(combat_only ? 1. / 16 : 0.);
+            if (locked) time->setValue(0);
         }
         time->setEnabled(!locked);
         for (int i = 0; std::cmp_less(i, FlowFields.size()); ++i) {
             const bool VISIBLE = COMMAND == QLatin1String(FlowFields[i].command);
             checks[i]->setVisible(VISIBLE);
             inputs[i]->setVisible(VISIBLE);
-            checks[i]->setEnabled(VISIBLE && (time->value() == 0 || i == 2 || i == 3));
+            checks[i]->setEnabled(VISIBLE && (time->value() == 0 || FlowFields[i].during_combat) && (!locked || !FlowFields[i].combat_only));
             inputs[i]->setEnabled(checks[i]->isEnabled() && checks[i]->isChecked());
         }
         nodeHint->setText(
             locked
-                ? QStringLiteral("此节点包含开场参数，时间固定为 0 秒。战中仅支持目标气血和距离。")
+                ? QStringLiteral("此节点包含开场参数，时间固定为 0 秒。")
                 : QStringLiteral("时间吸附到 1/16 秒；在本次战斗结束时或之后的事件不会执行。气血/易伤按百分数填写。"));
     }
 
@@ -844,18 +848,14 @@ struct FlowTimelineEditor::Impl
         kind->setObjectName(QStringLiteral("flowNodeKind"));
         kind->setProperty("flowViewOnly", true);
         kind->addItem(QStringLiteral("目标参数"), "/set_target");
-        kind->addItem(QStringLiteral("角色初始资源"), "/set_player");
+        kind->addItem(QStringLiteral("角色参数"), "/set_player");
         form->addRow(QStringLiteral("节点类型"), kind);
         for (int i = 0; std::cmp_less(i, FlowFields.size()); ++i) {
             const auto &field = FlowFields[i];
             checks[i]         = new QCheckBox(FlowFieldName(i));
             checks[i]->setObjectName("flowNodeEnabled_" + QString::fromLatin1(field.key));
             checks[i]->setProperty("flowViewOnly", true);
-            if (i == 7) {
-                auto *input = new QComboBox;
-                input->addItems({ QStringLiteral("阳春白雪"), QStringLiteral("高山流水") });
-                inputs[i] = input;
-            } else if (field.decimals == 0) {
+            if (field.decimals == 0) {
                 auto *input = new QSpinBox;
                 input->setRange(qRound(field.minimum), qRound(field.maximum));
                 inputs[i] = input;
@@ -883,7 +883,7 @@ struct FlowTimelineEditor::Impl
             }
             populating = true;
             for (int i = 0; std::cmp_less(i, FlowFields.size()); ++i) {
-                checks[i]->setChecked(i == (kind->currentIndex() == 0 ? 2 : 5));
+                checks[i]->setChecked(i == (kind->currentIndex() == 0 ? 2 : time->value() > 0 ? 6 : 5));
             }
             populating = false;
             Availability();
@@ -924,6 +924,7 @@ struct FlowTimelineEditor::Impl
         draftSource = script->toPlainText();
         populating  = true;
         kind->setCurrentIndex(node.command == "/set_player" ? 1 : 0);
+        time->setMinimum(0);
         time->setValue(node.frame / 16.);
         for (int i = 0; std::cmp_less(i, FlowFields.size()); ++i) {
             const auto KEY = QString::fromLatin1(FlowFields[i].key);
@@ -1102,14 +1103,14 @@ void FlowTimelineEditor::AddNode(int frame, int field)
     }
     FlowNode node;
     node.command      = QString::fromLatin1(FlowFields[field].command);
-    node.frame        = field == 2 || field == 3 ? std::clamp(frame, 0, int(JX3DPS::runtime::MaximumFlowFrame)) : 0;
+    node.frame        = FlowFields[field].during_combat ? std::clamp(frame, int(FlowFields[field].combat_only), int(JX3DPS::runtime::MaximumFlowFrame)) : 0;
     const auto KEY    = QString::fromLatin1(FlowFields[field].key);
-    auto       value  = d->model.values.value(KEY);
+    auto       value  = d->model.values.value(KEY).toDouble(FlowFields[field].initial);
     int        latest = 0;
     for (const auto &existing : d->model.nodes) {
         if (existing.frame > 0 && existing.frame <= node.frame && existing.frame >= latest && existing.values.contains(KEY))
         {
-            value  = existing.values.value(KEY);
+            value  = existing.values.value(KEY).toDouble();
             latest = existing.frame;
         }
     }
@@ -1131,6 +1132,7 @@ bool FlowTimelineEditor::MoveNode(int line, int frame)
     {
         return false;
     }
+    if (frame == 0 && node->values.contains("incomingDamage")) frame = 1;
     return node->frame == frame || d->Replace(line, node->WithTime(frame));
 }
 

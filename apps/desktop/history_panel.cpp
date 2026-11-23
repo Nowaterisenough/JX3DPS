@@ -156,12 +156,20 @@ void HistoryPanel::Refresh()
                       (m_history.Finished() ? QStringLiteral(" · 本场战斗历史状态") : QStringLiteral(" · 调试记录（当前帧仅含已执行部分）")));
     const auto &state = snapshot->state;
     const auto &a     = snapshot->attributes;
-    QString     resource =
-        m_history.Class() == desktop::Specialization::TAI_XU
-            ? QStringLiteral("气点 %1 / 10").arg(state.qidian)
-            : QStringLiteral("%1 · 影子 %2 / 6")
-                  .arg(a.style == 1 ? QStringLiteral("高山流水") : QStringLiteral("阳春白雪"))
-                  .arg(a.shadows);
+    QString     resource;
+    if (static_cast<int>(m_history.Class()) >= 0) {
+        const int   values[]{ state.qidian, state.energy, state.rage };
+        const auto &slotsList = School(m_history.Class()).resources;
+        QStringList parts;
+        for (std::size_t i = 0; i < slotsList.size(); ++i) {
+            parts << QStringLiteral("%1 %2 / %3").arg(desktop::Text(slotsList[i].name)).arg(values[i]).arg(slotsList[i].high);
+        }
+        resource = parts.join(" · ");
+    } else {
+        resource = m_history.Class() == desktop::Specialization::LEGACY_TX
+                       ? QStringLiteral("气点 %1 / 10").arg(state.qidian)
+                       : QStringLiteral("影子 %1 / 6").arg(a.shadows);
+    }
     if (state.preparing_skill != desktop::rt::INVALID_SLOT) {
         resource += QStringLiteral("\n运功 %1 · %2")
                         .arg(desktop::SkillName(m_history.Class(), state.preparing_skill),

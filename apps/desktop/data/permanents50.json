@@ -1,0 +1,1439 @@
+{
+  "外功": {
+    "食品增强": [
+      {
+        "name": "渝州小面·精（会心)",
+        "icon": 27999,
+        "stats": {
+          "crit": 158
+        }
+      },
+      {
+        "name": "山城毛血旺·精（破防)",
+        "icon": 28000,
+        "stats": {
+          "overcomeBase": 158
+        }
+      },
+      {
+        "name": "藤椒鱼片·精（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 158
+        }
+      },
+      {
+        "name": "云州刀削面·精（攻击)",
+        "icon": 28002,
+        "stats": {
+          "attackBase": 158
+        }
+      },
+      {
+        "name": "渝州小面（会心)",
+        "icon": 27999,
+        "stats": {
+          "crit": 126
+        }
+      },
+      {
+        "name": "山城毛血旺（破防)",
+        "icon": 28000,
+        "stats": {
+          "overcomeBase": 126
+        }
+      },
+      {
+        "name": "藤椒鱼片（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 126
+        }
+      },
+      {
+        "name": "云州刀削面（攻击)",
+        "icon": 28002,
+        "stats": {
+          "attackBase": 126
+        }
+      },
+      {
+        "name": "渝州酸辣粉（会心)",
+        "icon": 28005,
+        "stats": {
+          "crit": 63
+        }
+      },
+      {
+        "name": "曲香羊肉泡馍（破防)",
+        "icon": 28006,
+        "stats": {
+          "overcomeBase": 63
+        }
+      },
+      {
+        "name": "萱草蒸鱼（加速)",
+        "icon": 28007,
+        "stats": {
+          "haste": 63
+        }
+      },
+      {
+        "name": "羊肉臊子面（攻击)",
+        "icon": 28008,
+        "stats": {
+          "attackBase": 63
+        }
+      }
+    ],
+    "食品辅助": [
+      {
+        "name": "云芝竹沥羹·精（主属）",
+        "icon": 28011,
+        "stats": {
+          "major": 158
+        }
+      },
+      {
+        "name": "云芝竹沥羹（主属）",
+        "icon": 28011,
+        "stats": {
+          "major": 126
+        }
+      },
+      {
+        "name": "荏香豆腐羹（主属）",
+        "icon": 28012,
+        "stats": {
+          "major": 63
+        }
+      }
+    ],
+    "药品增强": [
+      {
+        "name": "巴山凝神丹·精（会心)",
+        "icon": 28015,
+        "stats": {
+          "crit": 203
+        }
+      },
+      {
+        "name": "渝州摧锋丹·精（破防)",
+        "icon": 28017,
+        "stats": {
+          "overcomeBase": 203
+        }
+      },
+      {
+        "name": "函谷疾咏丹·精（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 203
+        }
+      },
+      {
+        "name": "中原破阵丹·精（攻击)",
+        "icon": 28018,
+        "stats": {
+          "attackBase": 203
+        }
+      },
+      {
+        "name": "巴山凝神丹（会心)",
+        "icon": 28015,
+        "stats": {
+          "crit": 162
+        }
+      },
+      {
+        "name": "渝州摧锋丹（破防)",
+        "icon": 28017,
+        "stats": {
+          "overcomeBase": 162
+        }
+      },
+      {
+        "name": "函谷疾咏丹（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 162
+        }
+      },
+      {
+        "name": "中原破阵丹（攻击)",
+        "icon": 28018,
+        "stats": {
+          "attackBase": 162
+        }
+      },
+      {
+        "name": "巴山凝神散（会心)",
+        "icon": 28021,
+        "stats": {
+          "crit": 81
+        }
+      },
+      {
+        "name": "渝州摧锋散（破防)",
+        "icon": 28022,
+        "stats": {
+          "overcomeBase": 81
+        }
+      },
+      {
+        "name": "函谷疾咏散（加速)",
+        "icon": 28023,
+        "stats": {
+          "haste": 81
+        }
+      },
+      {
+        "name": "中原破阵散（攻击)",
+        "icon": 28024,
+        "stats": {
+          "attackBase": 81
+        }
+      }
+    ],
+    "药品辅助": [
+      {
+        "name": "五气归元丹·精（主属）",
+        "icon": 28027,
+        "stats": {
+          "major": 203
+        }
+      },
+      {
+        "name": "五气归元丹（主属）",
+        "icon": 28027,
+        "stats": {
+          "major": 162
+        }
+      },
+      {
+        "name": "五气培元丸（主属）",
+        "icon": 28028,
+        "stats": {
+          "major": 81
+        }
+      }
+    ],
+    "武器磨石": [
+      {
+        "name": "苍生·坠宵淬晶（攻击）",
+        "icon": 7596,
+        "stats": {
+          "attackBase": 135
+        }
+      },
+      {
+        "name": "苍生·坠宵熔锭（攻击）",
+        "icon": 7596,
+        "stats": {
+          "attackBase": 108
+        }
+      },
+      {
+        "name": "苍生·瀑沙焠晶（武伤）",
+        "icon": 7595,
+        "stats": {
+          "weapon": 22
+        }
+      },
+      {
+        "name": "苍生·瀑沙熔锭（武伤）",
+        "icon": 7595,
+        "stats": {
+          "weapon": 18
+        }
+      }
+    ],
+    "家园酒品": [
+      {
+        "name": "女儿红·旬又三（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 92
+        }
+      },
+      {
+        "name": "女儿红·六日醉（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 69
+        }
+      },
+      {
+        "name": "女儿红·今朝醉（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 46
+        }
+      },
+      {
+        "name": "女儿红（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 23
+        }
+      },
+      {
+        "name": "汾酒·旬又三（力道）",
+        "icon": 88,
+        "stats": {
+          "力道": 92
+        }
+      },
+      {
+        "name": "关外白酒·旬又三（身法）",
+        "icon": 1396,
+        "stats": {
+          "身法": 92
+        }
+      }
+    ],
+    "团队宴席": [
+      {
+        "name": "云中珍馐宴",
+        "icon": 7640,
+        "stats": {
+          "major": 72
+        }
+      },
+      {
+        "name": "巴渝珍馐宴",
+        "icon": 7629,
+        "stats": {
+          "major": 143
+        }
+      },
+      {
+        "name": "长安珍馐宴",
+        "icon": 7629,
+        "stats": {
+          "major": 179
+        }
+      },
+      {
+        "name": "巴山夜雨宴",
+        "icon": 9407,
+        "stats": {
+          "strain": 72,
+          "crit": 72,
+          "attackBase": 72
+        }
+      },
+      {
+        "name": "华岳开锋宴",
+        "icon": 9407,
+        "stats": {
+          "strain": 90,
+          "crit": 90,
+          "attackBase": 90
+        }
+      }
+    ],
+    "家园香水": [
+      {
+        "name": "煦风·宁为秋霜（破防）",
+        "icon": 21602,
+        "stats": {
+          "overcomeBase": 16
+        }
+      },
+      {
+        "name": "煦风·燕燕于飞（会心）",
+        "icon": 21602,
+        "stats": {
+          "crit": 16
+        }
+      }
+    ],
+    "家园菜品": [
+      {
+        "name": "创意料理（-气血+无双）",
+        "icon": 549,
+        "stats": {
+          "strain": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+破防）",
+        "icon": 549,
+        "stats": {
+          "overcomeBase": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+会心）",
+        "icon": 549,
+        "stats": {
+          "crit": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+攻击）",
+        "icon": 549,
+        "stats": {
+          "attackBase": 156
+        }
+      }
+    ],
+    "阵法": [
+      {
+        "name": "刀宗阵",
+        "icon": 18185,
+        "stats": {
+          "strainBonus": 20,
+          "overcomeBonus": 256,
+          "attackBonus": 50
+        }
+      },
+      {
+        "name": "蓬莱阵",
+        "icon": 11194,
+        "stats": {
+          "criticalChance": 0.03,
+          "attackBonus": 133,
+          "overcomeBonus": 102
+        }
+      },
+      {
+        "name": "天策阵（常驻）",
+        "icon": 1804,
+        "stats": {
+          "attackBonus": 50,
+          "overcomeBonus": 200
+        }
+      },
+      {
+        "name": "霸刀阵（常驻）",
+        "icon": 8426,
+        "stats": {
+          "attackBonus": 50,
+          "strainBonus": 20,
+          "overcomeBonus": 102
+        }
+      },
+      {
+        "name": "剑纯阵（常驻）",
+        "icon": 1798,
+        "stats": {
+          "criticalChance": 0.03,
+          "strainBonus": 20,
+          "criticalPower": 150
+        }
+      },
+      {
+        "name": "凌雪阵（常驻）",
+        "icon": 12130,
+        "stats": {
+          "attackBonus": 50,
+          "criticalChance": 0.03,
+          "criticalPower": 154
+        }
+      },
+      {
+        "name": "苍云阵（常驻）",
+        "icon": 6446,
+        "stats": {
+          "criticalChance": 0.03,
+          "strainBonus": 20
+        }
+      },
+      {
+        "name": "丐帮阵（常驻）",
+        "icon": 4612,
+        "stats": {
+          "attackBonus": 50,
+          "overcomeBonus": 102
+        }
+      },
+      {
+        "name": "天罗阵（常驻）",
+        "icon": 3152,
+        "stats": {
+          "ignoreShield": 52,
+          "criticalPower": 150
+        }
+      },
+      {
+        "name": "万灵阵（常驻）",
+        "icon": 20426,
+        "stats": {
+          "criticalChance": 0.03,
+          "strainBonus": 20,
+          "damageBonus": 0.060546875
+        }
+      }
+    ]
+  },
+  "内功": {
+    "食品增强": [
+      {
+        "name": "渝州小面·精（会心)",
+        "icon": 27999,
+        "stats": {
+          "crit": 158
+        }
+      },
+      {
+        "name": "山城毛血旺·精（破防)",
+        "icon": 28000,
+        "stats": {
+          "overcomeBase": 158
+        }
+      },
+      {
+        "name": "藤椒鱼片·精（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 158
+        }
+      },
+      {
+        "name": "云州刀削面·精（攻击)",
+        "icon": 28002,
+        "stats": {
+          "attackBase": 158
+        }
+      },
+      {
+        "name": "渝州小面（会心)",
+        "icon": 27999,
+        "stats": {
+          "crit": 126
+        }
+      },
+      {
+        "name": "山城毛血旺（破防)",
+        "icon": 28000,
+        "stats": {
+          "overcomeBase": 126
+        }
+      },
+      {
+        "name": "藤椒鱼片（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 126
+        }
+      },
+      {
+        "name": "云州刀削面（攻击)",
+        "icon": 28002,
+        "stats": {
+          "attackBase": 126
+        }
+      },
+      {
+        "name": "渝州酸辣粉（会心)",
+        "icon": 28005,
+        "stats": {
+          "crit": 63
+        }
+      },
+      {
+        "name": "曲香羊肉泡馍（破防)",
+        "icon": 28006,
+        "stats": {
+          "overcomeBase": 63
+        }
+      },
+      {
+        "name": "萱草蒸鱼（加速)",
+        "icon": 28007,
+        "stats": {
+          "haste": 63
+        }
+      },
+      {
+        "name": "羊肉臊子面（攻击)",
+        "icon": 28008,
+        "stats": {
+          "attackBase": 63
+        }
+      }
+    ],
+    "食品辅助": [
+      {
+        "name": "云芝竹沥羹·精（主属）",
+        "icon": 28011,
+        "stats": {
+          "major": 158
+        }
+      },
+      {
+        "name": "云芝竹沥羹（主属）",
+        "icon": 28011,
+        "stats": {
+          "major": 126
+        }
+      },
+      {
+        "name": "荏香豆腐羹（主属）",
+        "icon": 28012,
+        "stats": {
+          "major": 63
+        }
+      }
+    ],
+    "药品增强": [
+      {
+        "name": "巴山凝神丹·精（会心)",
+        "icon": 28015,
+        "stats": {
+          "crit": 203
+        }
+      },
+      {
+        "name": "渝州摧锋丹·精（破防)",
+        "icon": 28017,
+        "stats": {
+          "overcomeBase": 203
+        }
+      },
+      {
+        "name": "函谷疾咏丹·精（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 203
+        }
+      },
+      {
+        "name": "中原破阵丹·精（攻击)",
+        "icon": 28018,
+        "stats": {
+          "attackBase": 203
+        }
+      },
+      {
+        "name": "巴山凝神丹（会心)",
+        "icon": 28015,
+        "stats": {
+          "crit": 162
+        }
+      },
+      {
+        "name": "渝州摧锋丹（破防)",
+        "icon": 28017,
+        "stats": {
+          "overcomeBase": 162
+        }
+      },
+      {
+        "name": "函谷疾咏丹（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 162
+        }
+      },
+      {
+        "name": "中原破阵丹（攻击)",
+        "icon": 28018,
+        "stats": {
+          "attackBase": 162
+        }
+      },
+      {
+        "name": "巴山凝神散（会心)",
+        "icon": 28021,
+        "stats": {
+          "crit": 81
+        }
+      },
+      {
+        "name": "渝州摧锋散（破防)",
+        "icon": 28022,
+        "stats": {
+          "overcomeBase": 81
+        }
+      },
+      {
+        "name": "函谷疾咏散（加速)",
+        "icon": 28023,
+        "stats": {
+          "haste": 81
+        }
+      },
+      {
+        "name": "中原破阵散（攻击)",
+        "icon": 28024,
+        "stats": {
+          "attackBase": 81
+        }
+      }
+    ],
+    "药品辅助": [
+      {
+        "name": "五气归元丹·精（主属）",
+        "icon": 28027,
+        "stats": {
+          "major": 203
+        }
+      },
+      {
+        "name": "五气归元丹（主属）",
+        "icon": 28027,
+        "stats": {
+          "major": 162
+        }
+      },
+      {
+        "name": "五气培元丸（主属）",
+        "icon": 28028,
+        "stats": {
+          "major": 81
+        }
+      }
+    ],
+    "武器磨石": [
+      {
+        "name": "苍生·坠宵淬晶（攻击）",
+        "icon": 7596,
+        "stats": {
+          "attackBase": 135
+        }
+      },
+      {
+        "name": "苍生·坠宵熔锭（攻击）",
+        "icon": 7596,
+        "stats": {
+          "attackBase": 108
+        }
+      }
+    ],
+    "家园酒品": [
+      {
+        "name": "女儿红·旬又三（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 92
+        }
+      },
+      {
+        "name": "女儿红·六日醉（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 69
+        }
+      },
+      {
+        "name": "女儿红·今朝醉（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 46
+        }
+      },
+      {
+        "name": "女儿红（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 23
+        }
+      },
+      {
+        "name": "高粱酒·旬又三（根骨）",
+        "icon": 237,
+        "stats": {
+          "根骨": 92
+        }
+      },
+      {
+        "name": "状元红·旬又三（元气）",
+        "icon": 10134,
+        "stats": {
+          "元气": 92
+        }
+      }
+    ],
+    "团队宴席": [
+      {
+        "name": "云中珍馐宴",
+        "icon": 7640,
+        "stats": {
+          "major": 72
+        }
+      },
+      {
+        "name": "巴渝珍馐宴",
+        "icon": 7629,
+        "stats": {
+          "major": 143
+        }
+      },
+      {
+        "name": "长安珍馐宴",
+        "icon": 7629,
+        "stats": {
+          "major": 179
+        }
+      },
+      {
+        "name": "嘉陵月夜宴",
+        "icon": 9408,
+        "stats": {
+          "strain": 72,
+          "crit": 72,
+          "attackBase": 72
+        }
+      },
+      {
+        "name": "未央宫庭宴",
+        "icon": 9408,
+        "stats": {
+          "strain": 90,
+          "crit": 90,
+          "attackBase": 90
+        }
+      }
+    ],
+    "家园香水": [
+      {
+        "name": "煦风·宁为秋霜（破防）",
+        "icon": 21602,
+        "stats": {
+          "overcomeBase": 16
+        }
+      },
+      {
+        "name": "煦风·燕燕于飞（会心）",
+        "icon": 21602,
+        "stats": {
+          "crit": 16
+        }
+      }
+    ],
+    "家园菜品": [
+      {
+        "name": "创意料理（-气血+无双）",
+        "icon": 549,
+        "stats": {
+          "strain": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+破防）",
+        "icon": 549,
+        "stats": {
+          "overcomeBase": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+会心）",
+        "icon": 549,
+        "stats": {
+          "crit": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+攻击）",
+        "icon": 549,
+        "stats": {
+          "attackBase": 156
+        }
+      }
+    ],
+    "阵法": [
+      {
+        "name": "花间阵",
+        "icon": 1806,
+        "stats": {
+          "attackBonus": 51,
+          "overcomeBonus": 300
+        }
+      },
+      {
+        "name": "衍天阵",
+        "icon": 14159,
+        "stats": {
+          "attackBonus": 51,
+          "strainBonus": 20,
+          "criticalPower": 102
+        }
+      },
+      {
+        "name": "无方阵",
+        "icon": 15642,
+        "stats": {
+          "attackBonus": 51,
+          "damageBonus": 0.0302734375,
+          "criticalChance": 0.03
+        }
+      },
+      {
+        "name": "无相阵（常驻）",
+        "icon": 25442,
+        "stats": {
+          "criticalChance": 0.03,
+          "criticalPower": 51,
+          "overcomeBonus": 102
+        }
+      },
+      {
+        "name": "段氏阵（常驻）",
+        "icon": 23441,
+        "stats": {
+          "strainBonus": 20,
+          "attackBonus": 51,
+          "criticalChance": 0.05
+        }
+      },
+      {
+        "name": "冰心阵（常驻）",
+        "icon": 1800,
+        "stats": {
+          "attackBonus": 50,
+          "criticalChance": 0.03,
+          "criticalPower": 51
+        }
+      },
+      {
+        "name": "莫问阵（常驻）",
+        "icon": 7047,
+        "stats": {
+          "attackBonus": 102,
+          "strainBonus": 20,
+          "criticalChance": 0.03
+        }
+      },
+      {
+        "name": "易筋阵（常驻）",
+        "icon": 1802,
+        "stats": {
+          "attackBonus": 51,
+          "strainBonus": 20,
+          "overcomeBonus": 102
+        }
+      },
+      {
+        "name": "气纯阵（常驻）",
+        "icon": 1797,
+        "stats": {
+          "criticalChance": 0.03,
+          "strainBonus": 20,
+          "criticalPower": 154
+        }
+      },
+      {
+        "name": "毒经阵（常驻）",
+        "icon": 2714,
+        "stats": {
+          "attackBonus": 51,
+          "criticalChance": 0.03,
+          "criticalPower": 102
+        }
+      },
+      {
+        "name": "天罗阵（常驻）",
+        "icon": 3152,
+        "stats": {
+          "attackBonus": 51,
+          "ignoreShield": 52,
+          "criticalPower": 150
+        }
+      },
+      {
+        "name": "焚影阵（常驻）",
+        "icon": 3878,
+        "stats": {
+          "attackBonus": 51,
+          "criticalChance": 0.03
+        }
+      },
+      {
+        "name": "万灵阵（常驻）",
+        "icon": 20426,
+        "stats": {
+          "criticalChance": 0.03,
+          "strainBonus": 20,
+          "damageBonus": 0.060546875
+        }
+      }
+    ]
+  },
+  "天罗诡道": {
+    "食品增强": [
+      {
+        "name": "渝州小面·精（会心)",
+        "icon": 27999,
+        "stats": {
+          "crit": 158
+        }
+      },
+      {
+        "name": "山城毛血旺·精（破防)",
+        "icon": 28000,
+        "stats": {
+          "overcomeBase": 158
+        }
+      },
+      {
+        "name": "藤椒鱼片·精（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 158
+        }
+      },
+      {
+        "name": "云州刀削面·精（攻击)",
+        "icon": 28002,
+        "stats": {
+          "attackBase": 158
+        }
+      },
+      {
+        "name": "渝州小面（会心)",
+        "icon": 27999,
+        "stats": {
+          "crit": 126
+        }
+      },
+      {
+        "name": "山城毛血旺（破防)",
+        "icon": 28000,
+        "stats": {
+          "overcomeBase": 126
+        }
+      },
+      {
+        "name": "藤椒鱼片（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 126
+        }
+      },
+      {
+        "name": "云州刀削面（攻击)",
+        "icon": 28002,
+        "stats": {
+          "attackBase": 126
+        }
+      },
+      {
+        "name": "渝州酸辣粉（会心)",
+        "icon": 28005,
+        "stats": {
+          "crit": 63
+        }
+      },
+      {
+        "name": "曲香羊肉泡馍（破防)",
+        "icon": 28006,
+        "stats": {
+          "overcomeBase": 63
+        }
+      },
+      {
+        "name": "萱草蒸鱼（加速)",
+        "icon": 28007,
+        "stats": {
+          "haste": 63
+        }
+      },
+      {
+        "name": "羊肉臊子面（攻击)",
+        "icon": 28008,
+        "stats": {
+          "attackBase": 63
+        }
+      }
+    ],
+    "食品辅助": [
+      {
+        "name": "云芝竹沥羹·精（主属）",
+        "icon": 28011,
+        "stats": {
+          "major": 158
+        }
+      },
+      {
+        "name": "云芝竹沥羹（主属）",
+        "icon": 28011,
+        "stats": {
+          "major": 126
+        }
+      },
+      {
+        "name": "荏香豆腐羹（主属）",
+        "icon": 28012,
+        "stats": {
+          "major": 63
+        }
+      }
+    ],
+    "药品增强": [
+      {
+        "name": "巴山凝神丹·精（会心)",
+        "icon": 28015,
+        "stats": {
+          "crit": 203
+        }
+      },
+      {
+        "name": "渝州摧锋丹·精（破防)",
+        "icon": 28017,
+        "stats": {
+          "overcomeBase": 203
+        }
+      },
+      {
+        "name": "函谷疾咏丹·精（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 203
+        }
+      },
+      {
+        "name": "中原破阵丹·精（攻击)",
+        "icon": 28018,
+        "stats": {
+          "attackBase": 203
+        }
+      },
+      {
+        "name": "巴山凝神丹（会心)",
+        "icon": 28015,
+        "stats": {
+          "crit": 162
+        }
+      },
+      {
+        "name": "渝州摧锋丹（破防)",
+        "icon": 28017,
+        "stats": {
+          "overcomeBase": 162
+        }
+      },
+      {
+        "name": "函谷疾咏丹（加速)",
+        "icon": 28001,
+        "stats": {
+          "haste": 162
+        }
+      },
+      {
+        "name": "中原破阵丹（攻击)",
+        "icon": 28018,
+        "stats": {
+          "attackBase": 162
+        }
+      },
+      {
+        "name": "巴山凝神散（会心)",
+        "icon": 28021,
+        "stats": {
+          "crit": 81
+        }
+      },
+      {
+        "name": "渝州摧锋散（破防)",
+        "icon": 28022,
+        "stats": {
+          "overcomeBase": 81
+        }
+      },
+      {
+        "name": "函谷疾咏散（加速)",
+        "icon": 28023,
+        "stats": {
+          "haste": 81
+        }
+      },
+      {
+        "name": "中原破阵散（攻击)",
+        "icon": 28024,
+        "stats": {
+          "attackBase": 81
+        }
+      }
+    ],
+    "药品辅助": [
+      {
+        "name": "五气归元丹·精（主属）",
+        "icon": 28027,
+        "stats": {
+          "major": 203
+        }
+      },
+      {
+        "name": "五气归元丹（主属）",
+        "icon": 28027,
+        "stats": {
+          "major": 162
+        }
+      },
+      {
+        "name": "五气培元丸（主属）",
+        "icon": 28028,
+        "stats": {
+          "major": 81
+        }
+      }
+    ],
+    "武器磨石": [
+      {
+        "name": "苍生·坠宵淬晶（攻击）",
+        "icon": 7596,
+        "stats": {
+          "attackBase": 135
+        }
+      },
+      {
+        "name": "苍生·坠宵熔锭（攻击）",
+        "icon": 7596,
+        "stats": {
+          "attackBase": 108
+        }
+      }
+    ],
+    "家园酒品": [
+      {
+        "name": "女儿红·旬又三（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 92
+        }
+      },
+      {
+        "name": "女儿红·六日醉（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 69
+        }
+      },
+      {
+        "name": "女儿红·今朝醉（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 46
+        }
+      },
+      {
+        "name": "女儿红（加速）",
+        "icon": 10134,
+        "stats": {
+          "haste": 23
+        }
+      },
+      {
+        "name": "高粱酒·旬又三（根骨）",
+        "icon": 237,
+        "stats": {
+          "根骨": 92
+        }
+      },
+      {
+        "name": "状元红·旬又三（元气）",
+        "icon": 10134,
+        "stats": {
+          "元气": 92
+        }
+      }
+    ],
+    "团队宴席": [
+      {
+        "name": "云中珍馐宴",
+        "icon": 7640,
+        "stats": {
+          "major": 72
+        }
+      },
+      {
+        "name": "巴渝珍馐宴",
+        "icon": 7629,
+        "stats": {
+          "major": 143
+        }
+      },
+      {
+        "name": "长安珍馐宴",
+        "icon": 7629,
+        "stats": {
+          "major": 179
+        }
+      },
+      {
+        "name": "嘉陵月夜宴",
+        "icon": 9408,
+        "stats": {
+          "strain": 72,
+          "crit": 72,
+          "attackBase": 72
+        }
+      },
+      {
+        "name": "未央宫庭宴",
+        "icon": 9408,
+        "stats": {
+          "strain": 90,
+          "crit": 90,
+          "attackBase": 90
+        }
+      }
+    ],
+    "家园香水": [
+      {
+        "name": "煦风·宁为秋霜（破防）",
+        "icon": 21602,
+        "stats": {
+          "overcomeBase": 16
+        }
+      },
+      {
+        "name": "煦风·燕燕于飞（会心）",
+        "icon": 21602,
+        "stats": {
+          "crit": 16
+        }
+      }
+    ],
+    "家园菜品": [
+      {
+        "name": "创意料理（-气血+无双）",
+        "icon": 549,
+        "stats": {
+          "strain": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+破防）",
+        "icon": 549,
+        "stats": {
+          "overcomeBase": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+会心）",
+        "icon": 549,
+        "stats": {
+          "crit": 156
+        }
+      },
+      {
+        "name": "创意料理（-气血+攻击）",
+        "icon": 549,
+        "stats": {
+          "attackBase": 156
+        }
+      }
+    ],
+    "阵法": [
+      {
+        "name": "花间阵",
+        "icon": 1806,
+        "stats": {
+          "attackBonus": 51,
+          "overcomeBonus": 300
+        }
+      },
+      {
+        "name": "莫问阵",
+        "icon": 7047,
+        "stats": {
+          "attackBonus": 102,
+          "strainBonus": 20
+        }
+      },
+      {
+        "name": "气纯阵",
+        "icon": 1797,
+        "stats": {
+          "strainBonus": 20
+        }
+      },
+      {
+        "name": "焚影阵",
+        "icon": 3878,
+        "stats": {
+          "attackBonus": 51
+        }
+      },
+      {
+        "name": "衍天阵",
+        "icon": 14159,
+        "stats": {
+          "attackBonus": 51,
+          "strainBonus": 20
+        }
+      },
+      {
+        "name": "无方阵",
+        "icon": 15642,
+        "stats": {
+          "attackBonus": 51,
+          "damageBonus": 0.0302734375,
+          "criticalChance": 0.03
+        }
+      },
+      {
+        "name": "无相阵（常驻）",
+        "icon": 25442,
+        "stats": {
+          "criticalPower": 51,
+          "overcomeBonus": 102
+        }
+      },
+      {
+        "name": "段氏阵（常驻）",
+        "icon": 23441,
+        "stats": {
+          "strainBonus": 20,
+          "attackBonus": 51,
+          "criticalChance": 0.05
+        }
+      },
+      {
+        "name": "冰心阵（常驻）",
+        "icon": 1800,
+        "stats": {
+          "attackBonus": 50,
+          "criticalPower": 51
+        }
+      },
+      {
+        "name": "易筋阵（常驻）",
+        "icon": 1802,
+        "stats": {
+          "attackBonus": 51,
+          "strainBonus": 20,
+          "overcomeBonus": 102
+        }
+      },
+      {
+        "name": "毒经阵（常驻）",
+        "icon": 2714,
+        "stats": {
+          "attackBonus": 51
+        }
+      },
+      {
+        "name": "天罗阵（常驻）",
+        "icon": 3152,
+        "stats": {
+          "attackBonus": 51,
+          "ignoreShield": 52,
+          "criticalPower": 150
+        }
+      },
+      {
+        "name": "剑纯阵（常驻）",
+        "icon": 1798,
+        "stats": {
+          "criticalChance": 0.03,
+          "strainBonus": 20,
+          "criticalPower": 150
+        }
+      },
+      {
+        "name": "万灵阵（常驻）",
+        "icon": 20426,
+        "stats": {
+          "criticalChance": 0.03,
+          "strainBonus": 20,
+          "damageBonus": 0.060546875
+        }
+      }
+    ]
+  }
+}

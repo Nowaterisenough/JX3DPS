@@ -4,6 +4,7 @@
 #include <bit>
 #include <memory>
 
+#include "src/core/runtime/attack_coefficient.hpp"
 #include "src/core/runtime/target_timeline.hpp"
 
 #include "skills.hpp"
@@ -298,8 +299,8 @@ inline value_t BeforeCritical(const Formula &f, const DamageInput &a, const Targ
     } else {
         const double coefficient =
             f.kind == FormulaKind::DOT
-                ? f.channel * std::max(16, f.dot_count * f.dot_interval / 12) * 1.0 / f.dot_count / 12 / 16 / 16
-                : std::max(f.channel, 16) * 1.0 / 12 / 16;
+                ? DotAttackCoefficient(f.channel, f.dot_count, f.dot_interval, 12)
+                : DirectAttackCoefficient(f.channel, 12);
         raw = f.fixed + static_cast<value_t>(a.attack * coefficient);
     }
     raw                 = raw * (1024 + a.damage_percent) / 1024;

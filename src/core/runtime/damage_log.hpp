@@ -37,7 +37,8 @@ enum class MutationKind : std::uint8_t
     PREPARE,
     CASTING,
     TARGET_LIFE,
-    TARGET_DISTANCE
+    TARGET_DISTANCE,
+    PLAYER_LIFE
 };
 
 struct StateMutation
@@ -144,7 +145,7 @@ public:
     void RecordTarget(tick_t frame, MutationKind kind, int value)
     {
         const PhaseScope<Measure> TIMER(FightPhase::RECORD, "DamageIntentLog::RecordTarget");
-        if (kind != MutationKind::TARGET_LIFE && kind != MutationKind::TARGET_DISTANCE) {
+        if (kind != MutationKind::TARGET_LIFE && kind != MutationKind::TARGET_DISTANCE && kind != MutationKind::PLAYER_LIFE) {
             throw std::invalid_argument("invalid target mutation");
         }
         CheckCapacity(mutations_);
@@ -248,6 +249,7 @@ public:
                 break;
             case MutationKind::TARGET_LIFE: state.target_life = m.a / 10000.0; break;
             case MutationKind::TARGET_DISTANCE: state.target_distance = m.a / 100.0; break;
+            case MutationKind::PLAYER_LIFE: state.life = m.a / 10000.0; break;
         }
     }
 

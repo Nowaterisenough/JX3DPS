@@ -27,7 +27,8 @@
 |---|---|
 | `include/jx3dps.h`、`src/engine/` | 会话式 C ABI、配置解析和批次结果 |
 | `src/core/runtime/` | 宏编译、模拟、事件队列、记录、批跑与属性收益 |
-| `src/class/{tai_xu_jian_yi,mo_wen}/` | 两种心法的 `skills.hpp` 技能与 Buff 目录、`runtime_data.hpp` 配置及系数、`runtime_rules.hpp` 战斗行为 |
+| `src/class/{tai_xu_jian_yi,mo_wen}/` | 120 级历史回归使用的 `skills.hpp` 技能与 Buff 目录、`runtime_data.hpp` 配置及系数、`runtime_rules.hpp` 战斗行为 |
+| `src/class/season50/` | 主工作台 20 个苍生铸世旗舰心法的逐帧施法、资源、DOT 和增益规则。[使用与覆盖范围](docs/season50_runtime.md) · [默认宏、面板与在线木桩实测](docs/season50_presets.md) · [分山与各心法循环复盘](docs/season50_rotations.md) |
 | `apps/desktop/`、`apps/cli/`、`apps/web/` | Qt 工作台、命令行和浏览器工作台 |
 | `tests/engine/`、`tests/runtime/`、`tests/desktop/` | C 客户端、战斗内核和桌面集成回归 |
 | `tools/release/` | 发布包基准、跨端校验与性能图生成 |

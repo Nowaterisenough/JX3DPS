@@ -37,7 +37,7 @@ const QJsonObject &TalentCatalog()
 {
     static const auto data = [] {
         InitTalentData();
-        QFile file(QStringLiteral(":/desktop/talents.json"));
+        QFile file(QStringLiteral(":/desktop/talents50.json"));
         if (!file.open(QIODevice::ReadOnly)) {
             throw std::runtime_error("Missing current talent catalog");
         }
@@ -152,18 +152,13 @@ struct TalentPanel::Impl
     QScrollArea       *scroll;
     QWidget           *choices;
     QVBoxLayout       *choiceLayout;
-    QWidget           *legacy;
-    QVBoxLayout       *legacyLayout;
-    QToolButton       *legacyToggle;
-    QList<QCheckBox *> legacyInputs;
     QWidget           *headerWidget;
     QGridLayout       *slotsLayout;
     int                activeTier = -1;
 
     Impl(TalentPanel *host, Specialization selected) : panel(host), specialization(selected)
     {
-        const auto PROFILE =
-            TalentCatalog().value("profiles").toObject().value(QString::number(static_cast<int>(selected))).toObject();
+        const auto PROFILE = TalentCatalog().value("profiles").toObject().value(Text(School(selected).code)).toObject();
         groups       = PROFILE.value("groups").toArray();
         auto *layout = new QVBoxLayout(panel);
         layout->setContentsMargins(4, 4, 4, 4);
@@ -172,7 +167,7 @@ struct TalentPanel::Impl
         headerWidget->setObjectName(QStringLiteral("talentHeader%1").arg(static_cast<int>(selected)));
         auto *header = new QHBoxLayout(headerWidget);
         header->setContentsMargins(0, 0, 0, 0);
-        auto *title = new QLabel(QStringLiteral("9重奇穴 · 预览"), panel);
+        auto *title = new QLabel(QStringLiteral("50级 · 九重奇穴"), panel);
         title->setStyleSheet(QStringLiteral("font-size: 11px; color: #a3a6ad;"));
         title->setToolTip(TalentCatalog().value("title").toString() + " / " + TalentPanel::DataVersion());
         header->addWidget(title, 1);
@@ -196,20 +191,6 @@ struct TalentPanel::Impl
             grid->addWidget(button, index / 3, index % 3);
             QObject::connect(button, &QToolButton::clicked, panel, [this, index] { Open(index); });
         }
-        legacyToggle = new QToolButton(panel);
-        legacyToggle->setObjectName(QStringLiteral("legacyTalentToggle"));
-        legacyToggle->setCheckable(true);
-        header->insertWidget(1, legacyToggle);
-        legacy       = new QWidget(panel);
-        legacyLayout = new QVBoxLayout(legacy);
-        legacyLayout->setContentsMargins(2, 2, 2, 2);
-        legacyLayout->setSpacing(2);
-        legacy->hide();
-        layout->addWidget(legacy);
-        QObject::connect(legacyToggle, &QToolButton::toggled, legacy, &QWidget::setVisible);
-        layout->addStretch();
-        UpdateLegacy();
-
         popup = new ChoicePopup(panel);
         popup->setObjectName(QStringLiteral("talentPopup"));
         popup->setStyleSheet(QStringLiteral(
@@ -272,18 +253,6 @@ struct TalentPanel::Impl
         return false;
     }
 
-    void UpdateLegacy()
-    {
-        int count = 0;
-        for (const auto *input : legacyInputs) {
-            if (input->isChecked()) {
-                ++count;
-            }
-        }
-        legacyToggle->setText(QStringLiteral("旧规则(%1)").arg(count));
-        legacyToggle->setToolTip(QStringLiteral("旧版战斗规则的奇穴模拟选项"));
-    }
-
     void Refresh()
     {
         for (int index = 0; std::cmp_less(index, talentSlots.size()); ++index) {
@@ -307,6 +276,7 @@ struct TalentPanel::Impl
             return;
         }
         talentSlots[index].selected = id;
+        emit panel->SelectionChanged();
         popup->hide();
         Refresh();
     }
@@ -355,8 +325,12 @@ struct TalentPanel::Impl
             button->setObjectName(QStringLiteral("chooseTalent") + ID);
             button->setAccessibleName(button->caption);
             button->setToolTip(button->caption + '\n' + ENTRY.value("desc").toString());
-            button->setEnabled(!UsedElsewhere(index, ID));
-            if (!button->isEnabled()) {
+            const auto &supported = School(specialization).talents;
+            const bool  active    = std::ranges::find(supported, button->caption.toStdString()) != supported.end();
+            button->setEnabled(active && !UsedElsewhere(index, ID));
+            if (!active) {
+                button->setToolTip(button->toolTip() + QStringLiteral("\n当前模拟尚未实现"));
+            } else if (!button->isEnabled()) {
                 button->setToolTip(button->toolTip() + QStringLiteral("\n已在其他混选槽选择"));
             }
             grid->addWidget(button, position / COLUMNS, position % COLUMNS, Qt::AlignHCenter);
@@ -420,15 +394,39 @@ QWidget *TalentPanel::TakeHeader()
     return d->headerWidget;
 }
 
-QCheckBox *TalentPanel::AddTalent(const QString &name, const QString &key)
+QJsonArray TalentPanel::DefaultSelection() const
 {
-    auto *input = new QCheckBox(name, d->legacy);
-    input->setObjectName(key);
-    input->setToolTip(name + '\n' + GameDescription(d->specialization, name));
-    d->legacyInputs << input;
-    d->legacyLayout->addWidget(input);
-    connect(input, &QCheckBox::toggled, this, [this] { d->UpdateLegacy(); });
-    return input;
+    QJsonArray  result;
+    const auto &known = School(d->specialization).default_talents;
+    for (int i = 0; i < int(d->talentSlots.size()); ++i) {
+        QString selected;
+        for (const auto entry : d->Candidates(i)) {
+            const auto candidate = entry.toObject();
+            const auto id        = candidate["id"].toString();
+            if (!result.contains(id) && std::ranges::find(known, candidate["name"].toString().toStdString()) != known.end())
+            {
+                selected = id;
+                break;
+            }
+        }
+        result.append(selected);
+    }
+    return result;
+}
+
+QStringList TalentPanel::Names(Specialization spec, const QJsonArray &selected)
+{
+    const auto  profile = TalentCatalog().value("profiles").toObject().value(Text(School(spec).code)).toObject();
+    const auto  groups = profile.value("groups").toArray(), slotsMap = profile.value("slot_groups").toArray();
+    QStringList names;
+    for (int i = 0; i < selected.size() && i < slotsMap.size(); ++i) {
+        for (const auto &entry : groups[slotsMap[i].toInt()].toObject().value("choices").toArray()) {
+            if (entry.toObject().value("id") == selected[i]) {
+                names.append(entry.toObject().value("name").toString());
+            }
+        }
+    }
+    return names;
 }
 
 QString TalentPanel::DataVersion()
@@ -468,6 +466,11 @@ bool TalentPanel::ValidateSelection(const QJsonArray &selection, QString &error)
         if (selection[index].toString().isEmpty()) {
             continue;
         }
+        const auto chosen = d->Entry(index, selection[index].toString()).value("name").toString().toStdString();
+        if (std::ranges::find(School(d->specialization).talents, chosen) == School(d->specialization).talents.end()) {
+            error = QStringLiteral("当前模拟尚未实现该奇穴：") + QString::fromStdString(chosen);
+            return false;
+        }
         for (int previous = 0; previous < index; ++previous) {
             if (d->talentSlots[previous].group == d->talentSlots[index].group && selection[previous] == selection[index])
             {
@@ -490,6 +493,7 @@ void TalentPanel::RestoreSelection(const QJsonArray &selection)
         d->talentSlots[index].selected = selection[index].toString();
     }
     d->Refresh();
+    emit SelectionChanged();
 }
 
 void TalentPanel::ClearSelection()
@@ -499,6 +503,7 @@ void TalentPanel::ClearSelection()
         slot.selected.clear();
     }
     d->Refresh();
+    emit SelectionChanged();
 }
 
 void TalentPanel::hideEvent(QHideEvent *event)

@@ -107,6 +107,14 @@ struct CompileOptions
     std::size_t                           buff_count        = 0;
     std::function<Slot(std::string_view)> resolve_skill;
     std::function<Slot(std::string_view)> resolve_buff;
+
+    struct ResourceName
+    {
+        std::string_view name{};
+        bool             signed_value = false;
+    };
+
+    std::array<ResourceName, 3> resources{};
 };
 
 class MacroCompiler
@@ -178,7 +186,17 @@ private:
         const auto COLON    = text.find(':');
         const bool NAMED = COLON != std::string_view::npos && (op_start == std::string_view::npos || COLON < op_start);
         const auto TYPE_END = NAMED ? COLON : op_start;
-        const auto type     = Trim(text.substr(0, TYPE_END));
+        auto       type     = Trim(text.substr(0, TYPE_END));
+        constexpr std::array<std::string_view, 3> resource_fields{ "qidian", "energy", "rage" };
+        bool                                      signed_resource = false;
+        for (std::size_t i = 0; i < resource_fields.size(); ++i) {
+            const auto &alias = options_.resources[i];
+            if (!alias.name.empty() && (type == alias.name || type == resource_fields[i])) {
+                type            = resource_fields[i];
+                signed_resource = alias.signed_value;
+                break;
+            }
+        }
         const auto NAME =
             NAMED ? Trim(text.substr(COLON + 1, op_start == std::string_view::npos ? std::string_view::npos : op_start - COLON - 1))
                   : std::string_view{};
@@ -209,7 +227,8 @@ private:
             }
             const auto PARSED = std::from_chars(number.data(), number.data() + number.size(), value);
             if (PARSED.ec != std::errc{} || PARSED.ptr != number.data() + number.size() || !std::isfinite(value) ||
-                value < 0 || value > std::numeric_limits<tick_t>::max())
+                (value < 0 && !signed_resource) || value < std::numeric_limits<int>::min() ||
+                value > std::numeric_limits<tick_t>::max())
             {
                 return Fail("invalid numeric value");
             }

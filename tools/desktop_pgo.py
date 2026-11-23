@@ -13,12 +13,12 @@ import time
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCENES = ("tx", "tx_buffs", "mw", "mw_equipped")
+SCENES = ("tx", "mw", "gfj", "yly")
 MODES = ("batch", "gains")
 HOLDOUT_MACROS = {
-    "tx": ("tx_chain", "tx_sequence"),
+    "legacy_tx": ("tx_chain", "tx_sequence"),
     "tx_buffs": ("tx_chain", "tx_sequence", "tx_dot"),
-    "mw": ("mw_chain", "mw_sequence", "mw_interrupt", "mw_dot"),
+    "legacy_mw": ("mw_chain", "mw_sequence", "mw_interrupt", "mw_dot"),
     "mw_equipped": ("mw_chain", "mw_sequence", "mw_interrupt", "mw_dot"),
 }
 

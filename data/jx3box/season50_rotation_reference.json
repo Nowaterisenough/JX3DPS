@@ -1,0 +1,1145 @@
+{
+  "checked": "2026-11-22",
+  "main_version": "3.0.5",
+  "mowen_version": "3.0.3",
+  "target_level": 54,
+  "target_shield": 6592,
+  "schools": {
+    "tx": {
+      "name": "太虚剑意",
+      "seconds": 300,
+      "source": "https://www.jx3box.com/bps/79885",
+      "online_dps": null,
+      "skills": []
+    },
+    "mw": {
+      "name": "莫问",
+      "seconds": 279.9375,
+      "source": "https://www.jx3box.com/bps/105022",
+      "loop": "紫武_二段",
+      "online_dps": 25796,
+      "skills": [
+        {
+          "name": "徵",
+          "count": 105,
+          "total_damage": 1670439.426,
+          "local_names": [
+            "徵",
+            "徵·凌冬"
+          ]
+        },
+        {
+          "name": "阳春白雪·曲",
+          "count": 13,
+          "total_damage": 1472595.25
+        },
+        {
+          "name": "放鹿",
+          "count": 88,
+          "total_damage": 1170561.414
+        },
+        {
+          "name": "斩长鲸",
+          "count": 8,
+          "total_damage": 966301.205
+        }
+      ]
+    },
+    "axzy": {
+      "name": "傲血战意",
+      "seconds": 300.375,
+      "source": "https://dps.btcsg.top/dps/axzy",
+      "loop": "默认循环",
+      "online_dps": 27453,
+      "skills": [
+        {
+          "name": "龙牙",
+          "count": 89,
+          "total_damage": 2499945.743
+        },
+        {
+          "name": "破军",
+          "count": 333,
+          "total_damage": 1055636.705
+        },
+        {
+          "name": "流血(DOT)",
+          "count": 165,
+          "total_damage": 774575.623
+        }
+      ]
+    },
+    "baj": {
+      "name": "北傲诀",
+      "seconds": 300.5625,
+      "source": "https://dps.btcsg.top/dps/baj",
+      "loop": "紫武见霜5min",
+      "online_dps": 24394,
+      "skills": [
+        {
+          "name": "破釜沉舟",
+          "count": 80,
+          "total_damage": 2359412.507
+        },
+        {
+          "name": "碎江天",
+          "count": 51,
+          "total_damage": 575429.707
+        },
+        {
+          "name": "碎影",
+          "count": 51,
+          "total_damage": 507436.18
+        }
+      ]
+    },
+    "bxj": {
+      "name": "冰心诀",
+      "seconds": 299.4375,
+      "source": "https://dps.btcsg.top/dps/bxj",
+      "loop": "武学助手",
+      "online_dps": 24684,
+      "skills": [
+        {
+          "name": "玳弦急曲·2",
+          "count": 355,
+          "total_damage": 1743108.622,
+          "local_names": [
+            "玳弦急曲"
+          ]
+        },
+        {
+          "name": "急曲(DOT)·2",
+          "count": 124,
+          "total_damage": 1154823.248,
+          "local_names": [
+            "急曲(DOT)·1"
+          ]
+        },
+        {
+          "name": "剑破虚空",
+          "count": 62,
+          "total_damage": 780472.603
+        },
+        {
+          "name": "玳弦急曲·1",
+          "count": 355,
+          "total_damage": 756338.483,
+          "local_names": [
+            "玳弦急曲·一"
+          ]
+        },
+        {
+          "name": "钗燕",
+          "count": 93,
+          "total_damage": 629518.202
+        },
+        {
+          "name": "化冰",
+          "count": 353,
+          "total_damage": 587824.633
+        },
+        {
+          "name": "盈袖",
+          "count": 135,
+          "total_damage": 468337.552,
+          "local_names": [
+            "盈袖",
+            "盈袖·剑气",
+            "盈袖·江海"
+          ]
+        },
+        {
+          "name": "江海凝光",
+          "count": 61,
+          "total_damage": 410941.517
+        },
+        {
+          "name": "留芳仙姿·剑破",
+          "count": 55,
+          "total_damage": 314967.001
+        },
+        {
+          "name": "留芳仙姿·玳弦",
+          "count": 249,
+          "total_damage": 285370.584
+        },
+        {
+          "name": "破·霜降",
+          "count": 183,
+          "total_damage": 259754.737
+        }
+      ]
+    },
+    "dj": {
+      "name": "毒经",
+      "seconds": 273.625,
+      "source": "https://dps.btcsg.top/dps/dj",
+      "loop": "连令",
+      "online_dps": 25440,
+      "skills": [
+        {
+          "name": "蝎心",
+          "count": 138,
+          "total_damage": 1322353.331
+        },
+        {
+          "name": "百足(DOT)",
+          "count": 274,
+          "total_damage": 1029802.273
+        },
+        {
+          "name": "令怖",
+          "count": 50,
+          "total_damage": 846726.226
+        },
+        {
+          "name": "连缘蛊",
+          "count": 50,
+          "total_damage": 702868.966
+        },
+        {
+          "name": "千丝",
+          "count": 19,
+          "total_damage": 555856.096
+        },
+        {
+          "name": "蛇影(DOT)",
+          "count": 275,
+          "total_damage": 427402.613
+        },
+        {
+          "name": "蟾啸(DOT)",
+          "count": 266,
+          "total_damage": 390479.201
+        },
+        {
+          "name": "释灵(DOT)",
+          "count": 270,
+          "total_damage": 320442.054
+        },
+        {
+          "name": "虫魄",
+          "count": 100,
+          "total_damage": 306943.69
+        },
+        {
+          "name": "连缘蛊·额外",
+          "count": 10,
+          "total_damage": 179745.691,
+          "local_names": [
+            "连缘蛊·额外·零",
+            "连缘蛊·额外·一",
+            "连缘蛊·额外·二",
+            "连缘蛊·额外·三",
+            "连缘蛊·额外·四"
+          ]
+        },
+        {
+          "name": "荒息",
+          "count": 130,
+          "total_damage": 169045.825
+        },
+        {
+          "name": "攻击",
+          "count": 68,
+          "total_damage": 145043.798
+        },
+        {
+          "name": "百足",
+          "count": 10,
+          "total_damage": 142109.742
+        },
+        {
+          "name": "不鸣",
+          "count": 10,
+          "total_damage": 131018.058
+        },
+        {
+          "name": "残香",
+          "count": 50,
+          "total_damage": 119117.416
+        },
+        {
+          "name": "蛇影",
+          "count": 10,
+          "total_damage": 108656.897
+        },
+        {
+          "name": "幻击",
+          "count": 22,
+          "total_damage": 63494.522
+        },
+        {
+          "name": "破",
+          "count": 230,
+          "total_damage": 0
+        }
+      ]
+    },
+    "fsj": {
+      "name": "分山劲",
+      "seconds": 303.3125,
+      "source": "https://dps.btcsg.top/dps/fsj",
+      "loop": "紫武",
+      "online_dps": 62164,
+      "skills": [
+        {
+          "name": "绝刀",
+          "count": 54,
+          "total_damage": 5817739.555
+        },
+        {
+          "name": "盾猛",
+          "count": 30,
+          "total_damage": 2155593.391
+        },
+        {
+          "name": "盾压",
+          "count": 30,
+          "total_damage": 775997.032
+        },
+        {
+          "name": "盾刀·一",
+          "count": 30,
+          "total_damage": 342936.761
+        },
+        {
+          "name": "盾刀·二",
+          "count": 22,
+          "total_damage": 260610.122
+        },
+        {
+          "name": "盾刀·三",
+          "count": 17,
+          "total_damage": 217398.699
+        },
+        {
+          "name": "阵云结晦",
+          "count": 16,
+          "total_damage": 2034080.497
+        },
+        {
+          "name": "月照连营",
+          "count": 17,
+          "total_damage": 2752602.084
+        },
+        {
+          "name": "雁门迢递",
+          "count": 17,
+          "total_damage": 3315172.243
+        },
+        {
+          "name": "盾飞",
+          "count": 175,
+          "total_damage": 338532.432
+        },
+        {
+          "name": "卷雪刀",
+          "count": 202,
+          "total_damage": 212686.432
+        }
+      ],
+      "input_sequence": "一段紫武4+3",
+      "online_latency_band": 1,
+      "haste_range": [
+        445,
+        928
+      ],
+      "sequence_commands": {
+        "盾飞": 31,
+        "盾回": 30,
+        "血怒": 16,
+        "重置盾压": 9
+      },
+      "finishers": {
+        "嗜血绝返·9": 51,
+        "嗜血绝返·3": 3,
+        "血怒·惊涌": 54
+      }
+    },
+    "fysj": {
+      "name": "焚影圣诀",
+      "seconds": 289.1875,
+      "source": "https://dps.btcsg.top/dps/fysj",
+      "loop": "固定轴_基础循环_诛邪",
+      "online_dps": 28321,
+      "skills": [
+        {
+          "name": "崇光斩恶",
+          "count": 38,
+          "total_damage": 1553389.817
+        },
+        {
+          "name": "崇光斩恶·月破魔",
+          "count": 36,
+          "total_damage": 1520704.058
+        },
+        {
+          "name": "驱夜断愁",
+          "count": 52,
+          "total_damage": 720760.36
+        }
+      ],
+      "previous_loop": {
+        "loop": "固定轴_基础循环",
+        "seconds": 289.1875,
+        "online_dps": 28092,
+        "skills": [
+          {
+            "name": "崇光斩恶",
+            "count": 38,
+            "total_damage": 1725171.412
+          },
+          {
+            "name": "崇光斩恶·月破魔",
+            "count": 36,
+            "total_damage": 1691297.917
+          },
+          {
+            "name": "驱夜断愁",
+            "count": 52,
+            "total_damage": 802477.315
+          }
+        ]
+      }
+    },
+    "gfj": {
+      "name": "孤锋诀",
+      "seconds": 304.1875,
+      "source": "https://dps.btcsg.top/dps/gfj",
+      "loop": "紫武_长短轴",
+      "online_dps": 26633,
+      "skills": [
+        {
+          "name": "孤锋破浪",
+          "count": 268,
+          "total_damage": 3364903.987
+        },
+        {
+          "name": "滔天",
+          "count": 268,
+          "total_damage": 1686443.903
+        },
+        {
+          "name": "行云势·三",
+          "count": 37,
+          "total_damage": 463330.454
+        }
+      ]
+    },
+    "hjy": {
+      "name": "花间游",
+      "seconds": 299.75,
+      "source": "https://dps.btcsg.top/dps/hjy",
+      "loop": "紫武流离",
+      "online_dps": 25962,
+      "skills": [
+        {
+          "name": "临源·一",
+          "count": 26,
+          "total_damage": 2407218.057
+        },
+        {
+          "name": "快雪时晴",
+          "count": 126,
+          "total_damage": 1505914.986
+        },
+        {
+          "name": "兰摧玉折(DOT)",
+          "count": 135,
+          "total_damage": 1042396.259
+        }
+      ]
+    },
+    "lhj": {
+      "name": "凌海诀",
+      "seconds": 298.875,
+      "source": "https://dps.btcsg.top/dps/lhj",
+      "loop": "休想调休",
+      "online_dps": 25637,
+      "skills": [
+        {
+          "name": "振翅图南",
+          "count": 1018,
+          "total_damage": 3542202.2
+        },
+        {
+          "name": "海运南冥·近",
+          "count": 55,
+          "total_damage": 901511.219
+        },
+        {
+          "name": "木落雁归",
+          "count": 35,
+          "total_damage": 676749.316
+        }
+      ],
+      "previous_loop": {
+        "loop": "紫啸东来循天行",
+        "seconds": 299.1875,
+        "online_dps": 26085,
+        "skills": [
+          {
+            "name": "振翅图南",
+            "count": 859,
+            "total_damage": 2908181.252
+          },
+          {
+            "name": "海运南冥·近",
+            "count": 72,
+            "total_damage": 1099213.77
+          },
+          {
+            "name": "天行",
+            "count": 49,
+            "total_damage": 833885.874
+          },
+          {
+            "name": "青冥(DOT)",
+            "count": 263,
+            "total_damage": 681809.08
+          },
+          {
+            "name": "风驰",
+            "count": 37,
+            "total_damage": 447338.206
+          },
+          {
+            "name": "溟海御波",
+            "count": 36,
+            "total_damage": 445707.406
+          },
+          {
+            "name": "木落雁归",
+            "count": 18,
+            "total_damage": 383299.016
+          },
+          {
+            "name": "逐波灵游",
+            "count": 36,
+            "total_damage": 217632.002
+          },
+          {
+            "name": "击水三千·一",
+            "count": 35,
+            "total_damage": 203121.705
+          },
+          {
+            "name": "击水三千·二",
+            "count": 34,
+            "total_damage": 187486.463
+          },
+          {
+            "name": "飘遥伞击",
+            "count": 138,
+            "total_damage": 104589.464
+          },
+          {
+            "name": "击水三千·三",
+            "count": 18,
+            "total_damage": 100993.693
+          },
+          {
+            "name": "翼绝云天",
+            "count": 35,
+            "total_damage": 81485.966
+          },
+          {
+            "name": "飘遥伞击·物化",
+            "count": 93,
+            "total_damage": 62810.637
+          },
+          {
+            "name": "浮游天地",
+            "count": 18,
+            "total_damage": 46820.094
+          },
+          {
+            "name": "破",
+            "count": 18,
+            "total_damage": 0
+          }
+        ]
+      }
+    },
+    "shxj": {
+      "name": "山海心诀",
+      "seconds": 305.875,
+      "source": "https://dps.btcsg.top/dps/shxj",
+      "loop": "紫武_襄尺_桑柘",
+      "online_dps": 24739,
+      "skills": [
+        {
+          "name": "标鹄",
+          "count": 158,
+          "total_damage": 1670289.851
+        },
+        {
+          "name": "聚势摧霆",
+          "count": 160,
+          "total_damage": 1359351.724
+        },
+        {
+          "name": "领胡",
+          "count": 23,
+          "total_damage": 1107673.142
+        },
+        {
+          "name": "聚势摧霆·蓄力",
+          "count": 8,
+          "total_damage": 10641.689
+        },
+        {
+          "name": "风矢",
+          "count": 185,
+          "total_damage": 117143.486
+        },
+        {
+          "name": "攻击-虎",
+          "count": 4,
+          "total_damage": 39245.36
+        },
+        {
+          "name": "攻击-鹰",
+          "count": 4,
+          "total_damage": 28798.25
+        },
+        {
+          "name": "重击",
+          "count": 3,
+          "total_damage": 10817.776
+        },
+        {
+          "name": "践踏",
+          "count": 3,
+          "total_damage": 21598.688
+        },
+        {
+          "name": "攻击-熊",
+          "count": 3,
+          "total_damage": 7101.546
+        },
+        {
+          "name": "攻击-狼",
+          "count": 9,
+          "total_damage": 29603.093
+        }
+      ]
+    },
+    "txj": {
+      "name": "太玄经",
+      "seconds": 299.8125,
+      "source": "https://dps.btcsg.top/dps/txj",
+      "loop": "星神降世镇苍生 紫武",
+      "online_dps": 24975,
+      "skills": [
+        {
+          "name": "世降",
+          "count": 213,
+          "total_damage": 1992122.019
+        },
+        {
+          "name": "天斗旋·水",
+          "count": 63,
+          "total_damage": 1367760.359,
+          "local_names": [
+            "天斗旋",
+            "天斗旋·镇星环"
+          ]
+        },
+        {
+          "name": "御前星山",
+          "count": 213,
+          "total_damage": 1281228.012,
+          "local_names": [
+            "御前星"
+          ]
+        }
+      ]
+    },
+    "tlgd": {
+      "name": "天罗诡道",
+      "seconds": 241.0,
+      "source": "https://dps.btcsg.top/dps/tlgd",
+      "loop": "紫武_苍生铸世_星离雨散_正式服1031",
+      "online_dps": 24876,
+      "skills": [
+        {
+          "name": "重弩·二",
+          "count": 75,
+          "total_damage": 1554347.754
+        },
+        {
+          "name": "封喉",
+          "count": 26,
+          "total_damage": 625540.7428
+        },
+        {
+          "name": "星离雨散",
+          "count": 26,
+          "total_damage": 627289.4313
+        },
+        {
+          "name": "化血迷心",
+          "count": 208,
+          "total_damage": 1043332.651
+        },
+        {
+          "name": "化血(DOT)",
+          "count": 79,
+          "total_damage": 106112.273
+        },
+        {
+          "name": "蚀肌弹",
+          "count": 58,
+          "total_damage": 340140.4216
+        },
+        {
+          "name": "暴雨梨花针",
+          "count": 150,
+          "total_damage": 395734.3596
+        },
+        {
+          "name": "天女散花",
+          "count": 14,
+          "total_damage": 55198.0456
+        },
+        {
+          "name": "天绝地灭",
+          "count": 59,
+          "total_damage": 69851.5186
+        },
+        {
+          "name": "天风汲雨",
+          "count": 150,
+          "total_damage": 381612.1919
+        }
+      ],
+      "previous_loop": {
+        "loop": "紫武_苍生铸世_体服1017",
+        "seconds": 240,
+        "online_dps": 20528,
+        "skills": [
+          {
+            "name": "重弩·二",
+            "count": 75,
+            "total_damage": 1537571.034
+          },
+          {
+            "name": "化血(DOT)·引爆",
+            "count": 40,
+            "total_damage": 1311601.452
+          },
+          {
+            "name": "暴雨梨花针",
+            "count": 145,
+            "total_damage": 387269.541
+          }
+        ]
+      }
+    },
+    "wf": {
+      "name": "无方",
+      "seconds": 300.8125,
+      "source": "https://dps.btcsg.top/dps/wf",
+      "loop": "武学助手",
+      "online_dps": 24007,
+      "skills": [
+        {
+          "name": "无方中和",
+          "count": 407,
+          "total_damage": 2362438.475
+        },
+        {
+          "name": "紫伏",
+          "count": 407,
+          "total_damage": 1191543.383
+        },
+        {
+          "name": "苍棘缚地",
+          "count": 135,
+          "total_damage": 847217.631
+        },
+        {
+          "name": "川乌射罔",
+          "count": 169,
+          "total_damage": 781919.713
+        },
+        {
+          "name": "商陆缀寒",
+          "count": 149,
+          "total_damage": 546800.492
+        },
+        {
+          "name": "六微",
+          "count": 51,
+          "total_damage": 506511.491
+        },
+        {
+          "name": "逆乱(DOT)",
+          "count": 165,
+          "total_damage": 484903.937
+        },
+        {
+          "name": "凄骨",
+          "count": 45,
+          "total_damage": 336028.427
+        },
+        {
+          "name": "沾衣未妨",
+          "count": 85,
+          "total_damage": 126624.467
+        },
+        {
+          "name": "钩吻断肠",
+          "count": 23,
+          "total_damage": 37859.887
+        }
+      ]
+    },
+    "xcj": {
+      "name": "笑尘诀",
+      "seconds": 184.6875,
+      "source": "https://dps.btcsg.top/dps/xcj",
+      "loop": "紫武苍狂",
+      "online_dps": 26261,
+      "skills": [
+        {
+          "name": "灼烧(DOT)·雨龙",
+          "count": 100,
+          "total_damage": 977781.985,
+          "local_names": [
+            "灼烧(DOT)"
+          ]
+        },
+        {
+          "name": "苍龙",
+          "count": 64,
+          "total_damage": 657362.33
+        },
+        {
+          "name": "祭湘君",
+          "count": 72,
+          "total_damage": 542662.511
+        },
+        {
+          "name": "醉影·一",
+          "count": 47,
+          "total_damage": 536590.572,
+          "local_names": [
+            "落水·醉影",
+            "酩酊·醉影",
+            "触类·醉影"
+          ]
+        },
+        {
+          "name": "灵隼击",
+          "count": 87,
+          "total_damage": 370460.294
+        },
+        {
+          "name": "追远",
+          "count": 51,
+          "total_damage": 326335.664
+        },
+        {
+          "name": "亢龙有悔·六",
+          "count": 24,
+          "total_damage": 177893.701
+        },
+        {
+          "name": "苍龙戾天",
+          "count": 6,
+          "total_damage": 166720.95
+        },
+        {
+          "name": "龙战于野·三",
+          "count": 10,
+          "total_damage": 125687.254
+        },
+        {
+          "name": "拨狗朝天·真实",
+          "count": 17,
+          "total_damage": 106084.74
+        },
+        {
+          "name": "横打双獒·二",
+          "count": 17,
+          "total_damage": 85286.908
+        },
+        {
+          "name": "蜀犬吠日·四",
+          "count": 6,
+          "total_damage": 71125.539
+        },
+        {
+          "name": "亢龙有悔·一",
+          "count": 24,
+          "total_damage": 70352.536
+        },
+        {
+          "name": "亢龙有悔·二",
+          "count": 24,
+          "total_damage": 70352.536
+        },
+        {
+          "name": "亢龙有悔·三",
+          "count": 24,
+          "total_damage": 70352.536
+        },
+        {
+          "name": "亢龙有悔·四",
+          "count": 24,
+          "total_damage": 70352.536
+        },
+        {
+          "name": "亢龙有悔·五",
+          "count": 24,
+          "total_damage": 70352.536
+        },
+        {
+          "name": "横打双獒·一",
+          "count": 17,
+          "total_damage": 63813.438
+        },
+        {
+          "name": "龙战于野·一",
+          "count": 10,
+          "total_damage": 46916.196
+        },
+        {
+          "name": "龙战于野·二",
+          "count": 10,
+          "total_damage": 43593.692
+        },
+        {
+          "name": "时乘六龙",
+          "count": 6,
+          "total_damage": 30867.446
+        },
+        {
+          "name": "龙跃于渊·一",
+          "count": 12,
+          "total_damage": 27777.515
+        },
+        {
+          "name": "龙跃于渊·三",
+          "count": 12,
+          "total_damage": 23856.086
+        },
+        {
+          "name": "龙跃于渊·二",
+          "count": 12,
+          "total_damage": 19774.827
+        },
+        {
+          "name": "狂龙乱舞·一",
+          "count": 25,
+          "total_damage": 14240.477
+        },
+        {
+          "name": "狂龙乱舞·三",
+          "count": 25,
+          "total_damage": 14240.477
+        },
+        {
+          "name": "狂龙乱舞·四",
+          "count": 25,
+          "total_damage": 14240.477
+        },
+        {
+          "name": "蜀犬吠日·三",
+          "count": 6,
+          "total_damage": 12670.321
+        },
+        {
+          "name": "狂龙乱舞·二",
+          "count": 25,
+          "total_damage": 12066.932
+        },
+        {
+          "name": "蜀犬吠日·二",
+          "count": 6,
+          "total_damage": 11842.454
+        },
+        {
+          "name": "蜀犬吠日·一",
+          "count": 6,
+          "total_damage": 9464.736
+        },
+        {
+          "name": "落水打狗·命中",
+          "count": 7,
+          "total_damage": 9040.639
+        }
+      ]
+    },
+    "yjj": {
+      "name": "易筋经",
+      "seconds": 300.8125,
+      "source": "https://dps.btcsg.top/dps/yjj",
+      "loop": "紫武",
+      "online_dps": 24788,
+      "skills": [
+        {
+          "name": "果报",
+          "count": 72,
+          "total_damage": 1656223.704
+        },
+        {
+          "name": "降魔",
+          "count": 243,
+          "total_damage": 1216945.034,
+          "local_names": [
+            "降魔",
+            "降魔·拿云",
+            "降魔·清贪"
+          ]
+        },
+        {
+          "name": "拿云式·三",
+          "count": 97,
+          "total_damage": 1196487.064
+        },
+        {
+          "name": "金刚龙爪功",
+          "count": 152,
+          "total_damage": 881012.097
+        },
+        {
+          "name": "横扫六合(DOT)",
+          "count": 320,
+          "total_damage": 721087.468
+        },
+        {
+          "name": "布泽",
+          "count": 52,
+          "total_damage": 573431.277
+        },
+        {
+          "name": "守缺式",
+          "count": 43,
+          "total_damage": 349682.96
+        },
+        {
+          "name": "横扫六合",
+          "count": 27,
+          "total_damage": 343414.727
+        },
+        {
+          "name": "韦陀献杵·三",
+          "count": 25,
+          "total_damage": 323021.748
+        },
+        {
+          "name": "普渡四方",
+          "count": 16,
+          "total_damage": 138681.874
+        },
+        {
+          "name": "捕风式",
+          "count": 12,
+          "total_damage": 31613.858
+        },
+        {
+          "name": "韦陀献杵·武伤",
+          "count": 25,
+          "total_damage": 13630.075
+        },
+        {
+          "name": "横扫六合·武伤",
+          "count": 27,
+          "total_damage": 7279.241
+        },
+        {
+          "name": "普渡四方·武伤",
+          "count": 16,
+          "total_damage": 4313.624
+        },
+        {
+          "name": "拿云式·武伤",
+          "count": 97,
+          "total_damage": 0
+        }
+      ]
+    },
+    "yly": {
+      "name": "幽罗引",
+      "seconds": 193.25,
+      "source": "https://dps.btcsg.top/dps/yly",
+      "loop": "紫武2段宏",
+      "online_dps": 25106,
+      "skills": [
+        {
+          "name": "勾线",
+          "count": 170,
+          "total_damage": 1253759.292
+        },
+        {
+          "name": "绊线",
+          "count": 59,
+          "total_damage": 893613.015
+        },
+        {
+          "name": "寄线",
+          "count": 142,
+          "total_damage": 678414.527
+        },
+        {
+          "name": "谐调",
+          "count": 17,
+          "total_damage": 456564.768
+        }
+      ]
+    },
+    "ztg": {
+      "name": "周天功",
+      "seconds": 319.125,
+      "source": "https://dps.btcsg.top/dps/ztg",
+      "loop": "紫武_风萦",
+      "online_dps": 26222,
+      "skills": [
+        {
+          "name": "风籁",
+          "count": 324,
+          "total_damage": 1665927.354
+        },
+        {
+          "name": "引窍",
+          "count": 33,
+          "total_damage": 1071140.567
+        },
+        {
+          "name": "劈风令",
+          "count": 84,
+          "total_damage": 905473.619
+        }
+      ]
+    },
+    "zxg": {
+      "name": "紫霞功",
+      "seconds": 293.625,
+      "source": "https://dps.btcsg.top/dps/zxg",
+      "loop": "紫武",
+      "online_dps": 23743,
+      "skills": [
+        {
+          "name": "颠越苍穹击",
+          "count": 154,
+          "total_damage": 1456418.755
+        },
+        {
+          "name": "六合独尊",
+          "count": 70,
+          "total_damage": 1327232.323
+        },
+        {
+          "name": "万世不竭·一",
+          "count": 49,
+          "total_damage": 1177440.411
+        }
+      ]
+    }
+  }
+}

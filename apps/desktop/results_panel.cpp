@@ -469,13 +469,14 @@ void ResultsPanel::ShowDetails()
                            .arg(desktop::GainComparisonName(r.gainMode)));
     m_chart->SetSelectedRun(entry->id);
     ShowResultSkills(r);
-    desktop::FillGameGainTable(m_gains,
-                               r,
-                               static_cast<desktop::Specialization>(entry->configuration.value("specialization").toInt()),
-                               true);
+    const auto schoolId = entry->configuration.value("specialization");
+    const auto specialization =
+        schoolId.isString()
+            ? desktop::SchoolFromId(schoolId.toString())
+            : (schoolId.toInt() == 1 ? desktop::Specialization::LEGACY_MW : desktop::Specialization::LEGACY_TX);
+    desktop::FillGameGainTable(m_gains, r, specialization, true);
     QString text =
-        desktop::ClassName(static_cast<desktop::Specialization>(entry->configuration.value("specialization").toInt())) +
-        QStringLiteral(" | ") +
+        desktop::ClassName(specialization) + QStringLiteral(" | ") +
         QStringLiteral("模拟 #%1 | %2 | 时长 %3 秒 | 种子 %4 | 线程 %5\n")
             .arg(entry->id)
             .arg(entry->time.toLocalTime().toString(Qt::ISODate))

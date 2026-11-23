@@ -35,7 +35,6 @@ public:
     explicit EquipmentPanel(QWidget *parent = nullptr);
     ~EquipmentPanel() override;
 
-    void        LoadLatestData(const QString &snapshot_path = QString());
     QJsonObject Loadout() const;
     void SetSeasonSchool(const QString &name, const QString &faction, const QString &major, const QString &kind, const QJsonObject &reference);
 
@@ -43,7 +42,6 @@ signals:
     void LoadoutChanged(const QJsonObject &loadout);
 
 protected:
-    void showEvent(QShowEvent *event) override;
     void hideEvent(QHideEvent *event) override;
 
 private slots:
@@ -64,7 +62,6 @@ private:
     QString        ItemDetails(const QJsonObject &item, const QString &slot) const;
     void           AddIconItem(QListWidget *list, const QString &name, const QString &description, int icon_id);
     QIcon          RequestIcon(int icon_id);
-    static QString FindSnapshotPath(const QString &requested);
     static QString SlotForItem(const QJsonObject &item);
     static QString IconUrl(int icon_id);
 };

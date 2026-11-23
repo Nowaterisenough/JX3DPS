@@ -1,5 +1,5 @@
-/cast [tnobuff:dieren&qidian>=1] wuwu
-/cast [tbufftime:dieren<4&qidian>=2] wuwu
+/cast [tnobuff:叠刃&qidian>=1] wuwu
+/cast [tbufftime:叠刃<4&qidian>=2] wuwu
 /cast bahuang
 /cast [qidian<8] sanhuan
 /cast sanchai

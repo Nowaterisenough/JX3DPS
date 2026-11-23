@@ -5,16 +5,14 @@
 #include <utility>
 #include <vector>
 
-#include "src/class/mo_wen/runtime_rules.hpp"
-#include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
+#include "src/class/common/runtime_rules.hpp"
+#include "src/engine/scenarios.hpp"
 #include "src/core/runtime/attribute_gains.hpp"
 
 #include "check.hpp"
 
 using namespace JX3DPS;
 using namespace JX3DPS::runtime;
-namespace tx = JX3DPS::runtime::tai_xu;
-namespace mw = JX3DPS::runtime::mo_wen;
 
 static bool        counting    = false;
 static std::size_t allocations = 0;
@@ -84,12 +82,7 @@ void ValidationAndPriority()
              { MaximumFlowFrame + 1, 100,   {}     }
     })
     {
-        tx::Config a;
-        a.target_events = { event };
-        Rejects([&] { tx::Prepare(a); });
-        mw::Config b;
-        b.target_events = { event };
-        Rejects([&] { mw::Prepare(b); });
+        Rejects([&] { ValidateTargetEvents(std::vector<TargetEvent>{event}); });
     }
     std::vector<TargetEvent> reversed{
         { 20, 100, {} },
@@ -227,8 +220,12 @@ void SpecializationSchedule(Config config, CompileOptions options, const char *s
 int main()
 {
     ValidationAndPriority();
-    SpecializationSchedule(tx::Config{}, tx::MacroOptions(), "sanchai");
-    SpecializationSchedule(mw::Config{}, mw::MacroOptions(), "yu");
+    for (auto [code, skill] : {std::pair{"tx", "sanchai"}, {"mw", "yu"}}) {
+        auto cfg = JX3DPS::engine::Scenario(code);
+        cfg.precombat = false;
+        cfg.equipment.clear();
+        SpecializationSchedule(cfg, CatalogMacroOptions(cfg.book->Catalog(), false), skill);
+    }
     std::cout
         << "Target timeline validation, order, wakeups, replay, reset, parity, gains and allocation tests passed\n";
 }

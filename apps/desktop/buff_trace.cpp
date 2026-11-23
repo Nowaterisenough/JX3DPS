@@ -5,11 +5,9 @@
 #include <utility>
 #include <vector>
 
-#include "src/class/tai_xu_jian_yi/runtime_data.hpp"
 #include "src/core/runtime/damage_log.hpp"
 
 namespace rt = JX3DPS::runtime;
-namespace tx = rt::tai_xu;
 
 namespace {
 QString BuffName(int slot, desktop::Specialization specialization)

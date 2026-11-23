@@ -4,7 +4,7 @@
 
 The desktop, CLI and Web applications use the C++ simulation runtime in
 `src/core/runtime/`, with school-specific catalogs and rules in
-`src/class/tai_xu_jian_yi/` and `src/class/mo_wen/`. The session-based
+`src/class/`. The session-based
 C ABI is defined in `include/jx3dps.h` and implemented in `src/engine/`.
 The earlier global-state C API and separate Tai Xu simulator have been retired.
 
@@ -209,11 +209,6 @@ expiring Buff, and has no production game formulas/equipment/talent callbacks.
 
 The full-fight checksums for both worker counts were 9702113828277989130.
 These synthetic results do not establish a speedup over the old KeyFrame engine.
-The later [legacy comparison](legacy_runtime_performance.md) uses shared Chinese
-macros, verifies selected damage timelines, and documents remaining rule/output
-differences. Neither benchmark isolates deferred computation as the sole cause
-of the performance gain.
-
 ## Reproduce
 
 The standalone option builds the native engine, CLI and runtime tests. The

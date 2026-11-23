@@ -1,3 +1,3 @@
-/cast [notlast_skill:bianzhi] bianzhi
+/cast [notlast_skill:徵] 徵
 /fcast [notlast_skill:yu] yu
-/cast biangong
+/cast 宫

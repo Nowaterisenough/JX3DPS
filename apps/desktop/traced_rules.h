@@ -5,51 +5,6 @@
 #include "runtime_backend.h"
 
 namespace desktop {
-template <class Input>
-ActorAttributes AttributesFromInput(const Input &input, JX3DPS::value_t weapon, double critical_chance, double haste, int extra_power = 0)
-{
-    ActorAttributes a;
-    a.attack         = input.attack;
-    a.weapon         = weapon;
-    a.overcome       = input.overcome;
-    a.strain         = input.strain;
-    a.surplus        = input.surplus;
-    a.criticalChance = critical_chance;
-    a.criticalMultiplier =
-        1.75 + (static_cast<int>(input.crit_power * 1024 / (3.335 * 8250)) + input.crit_power_percent + extra_power) / 1024.0;
-    a.haste         = haste;
-    a.damagePercent = input.damage_percent;
-    a.strainPercent = input.strain_percent;
-    a.pvePercent    = input.pve_percent;
-    a.ignoreShield  = input.ignore_shield;
-    return a;
-}
-
-inline ActorAttributes CurrentAttributes(const rt::tai_xu::Rules &rules)
-{
-    const auto &data    = rules.Data();
-    const auto  PROFILE = rules.CurrentProfile();
-    return AttributesFromInput(data.Input(rt::tai_xu::ZeroEffect, PROFILE, rules.CurrentTeamModifiers()),
-                               data.config.attributes.weapon,
-                               data.Chance(rt::tai_xu::ZeroEffect, PROFILE, rules.CurrentTeamModifiers().crit_basis_points) +
-                                   (rules.CurrentCriticalBonus() / 10000.0),
-                               data.haste);
-}
-
-inline ActorAttributes CurrentAttributes(const rt::mo_wen::Rules &rules)
-{
-    const auto &data = rules.Data();
-    const auto  AURA = rules.CurrentAura();
-    auto result = AttributesFromInput(data.Input(rt::mo_wen::E_ZERO_SHU_YING, AURA.profile),
-                                      data.config.attributes.weapon,
-                                      data.Chance(rt::mo_wen::E_ZERO_SHU_YING, rt::mo_wen::ChanceProfile(AURA.profile)),
-                                      rules.CurrentHaste(),
-                                      AURA.extra_power);
-    result.style   = static_cast<int>(rules.CurrentStyle());
-    result.shadows = rules.ShadowCount();
-    return result;
-}
-
 inline ActorAttributes CurrentAttributes(const rt::season50::Rules &rules)
 {
     const auto     &p = rules.Data();

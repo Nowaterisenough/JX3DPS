@@ -2,22 +2,16 @@
 #define DESKTOP_RUNTIME_CATALOG_H
 
 #include <span>
-#include <variant>
 
 #include <QString>
 
-#include "src/class/mo_wen/runtime_data.hpp"
-#include "src/class/tai_xu_jian_yi/runtime_data.hpp"
-#include "src/engine/default_macro.hpp"
 #include "src/engine/scenarios.hpp"
-#include "src/class/season50/permanents.hpp"
+#include "src/class/common/permanents.hpp"
 
 namespace desktop {
 namespace rt = JX3DPS::runtime;
 enum class Specialization
 {
-    LEGACY_TX = -2,
-    LEGACY_MW = -1,
     TAI_XU    = 0,
     MO_WEN    = 1
 };
@@ -30,16 +24,10 @@ inline const rt::season50::Book &School(Specialization s)
 
 inline Specialization ClassOf(const Config &c)
 {
-    if (const auto *current = std::get_if<rt::season50::Config>(&c)) {
-        const auto schools = rt::season50::Books();
-        for (std::size_t i = 0; i < schools.size(); ++i) {
-            if (current->book == &schools[i]) {
-                return static_cast<Specialization>(i);
-            }
-        }
-        throw std::invalid_argument("invalid school");
-    }
-    return c.index() == 0 ? Specialization::LEGACY_TX : Specialization::LEGACY_MW;
+    const auto books = rt::season50::Books();
+    for (std::size_t i = 0; i < books.size(); ++i)
+        if (c.book == &books[i]) return static_cast<Specialization>(i);
+    throw std::invalid_argument("invalid school");
 }
 
 inline QString Text(std::string_view value)
@@ -60,12 +48,6 @@ inline Specialization SchoolFromId(const QString &code)
 
 inline QString ClassName(Specialization s)
 {
-    if (s == Specialization::LEGACY_TX) {
-        return QStringLiteral("太虚剑意");
-    }
-    if (s == Specialization::LEGACY_MW) {
-        return QStringLiteral("莫问");
-    }
     return Text(School(s).name);
 }
 
@@ -73,12 +55,6 @@ using Catalog = rt::SkillCatalog;
 
 inline Catalog Describe(Specialization s)
 {
-    if (s == Specialization::LEGACY_TX) {
-        return rt::tai_xu::Catalog;
-    }
-    if (s == Specialization::LEGACY_MW) {
-        return rt::mo_wen::Catalog;
-    }
     return School(s).Catalog();
 }
 
@@ -91,7 +67,7 @@ using SchoolInfo = rt::season50::SchoolInfo;
 
 inline SchoolInfo Info(Specialization s)
 {
-    return rt::season50::Info(s == Specialization::LEGACY_TX ? "tx" : s == Specialization::LEGACY_MW ? "mw" : School(s).code);
+    return School(s).info;
 }
 
 inline QString DisplayName(std::string_view name)
@@ -107,9 +83,6 @@ inline QString SkillName(Specialization value, rt::Slot skill)
 
 inline QString DefaultMacro(Specialization value)
 {
-    if (static_cast<int>(value) < 0) {
-        return Text(JX3DPS::engine::DefaultMacro(value == Specialization::LEGACY_MW));
-    }
     return Text(School(value).default_macro);
 }
 

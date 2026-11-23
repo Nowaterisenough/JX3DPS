@@ -112,6 +112,7 @@ struct CompileOptions
     {
         std::string_view name{};
         bool             signed_value = false;
+        std::string_view game_alias{};
     };
 
     std::array<ResourceName, 3> resources{};
@@ -191,7 +192,7 @@ private:
         bool                                      signed_resource = false;
         for (std::size_t i = 0; i < resource_fields.size(); ++i) {
             const auto &alias = options_.resources[i];
-            if (!alias.name.empty() && (type == alias.name || type == resource_fields[i])) {
+            if (!alias.name.empty() && (type == alias.name || (!alias.game_alias.empty() && type == alias.game_alias) || type == resource_fields[i])) {
                 type            = resource_fields[i];
                 signed_resource = alias.signed_value;
                 break;

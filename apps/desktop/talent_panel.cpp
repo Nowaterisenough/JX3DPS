@@ -158,7 +158,7 @@ struct TalentPanel::Impl
 
     Impl(TalentPanel *host, Specialization selected) : panel(host), specialization(selected)
     {
-        const auto PROFILE = TalentCatalog().value("profiles").toObject().value(Text(School(selected).code)).toObject();
+        const auto PROFILE = TalentPanel::Profile(selected);
         groups       = PROFILE.value("groups").toArray();
         auto *layout = new QVBoxLayout(panel);
         layout->setContentsMargins(4, 4, 4, 4);
@@ -394,6 +394,22 @@ QWidget *TalentPanel::TakeHeader()
     return d->headerWidget;
 }
 
+QJsonObject TalentPanel::Profile(Specialization spec)
+{
+    const auto &book = School(spec);
+    auto profile = TalentCatalog().value("profiles").toObject().value(Text(book.code)).toObject();
+    if (!profile.isEmpty()) return profile;
+
+    QJsonArray groups, slotGroups;
+    for (auto talent : book.talents) {
+        const auto name = Text(talent);
+        const QJsonObject choice{{"id", name}, {"name", name}};
+        slotGroups.append(groups.size());
+        groups.append(QJsonObject{{"choices", QJsonArray{choice}}});
+    }
+    return {{"groups", groups}, {"slot_groups", slotGroups}};
+}
+
 QJsonArray TalentPanel::DefaultSelection() const
 {
     QJsonArray  result;
@@ -416,7 +432,7 @@ QJsonArray TalentPanel::DefaultSelection() const
 
 QStringList TalentPanel::Names(Specialization spec, const QJsonArray &selected)
 {
-    const auto  profile = TalentCatalog().value("profiles").toObject().value(Text(School(spec).code)).toObject();
+    const auto  profile = Profile(spec);
     const auto  groups = profile.value("groups").toArray(), slotsMap = profile.value("slot_groups").toArray();
     QStringList names;
     for (int i = 0; i < selected.size() && i < slotsMap.size(); ++i) {
@@ -453,7 +469,7 @@ bool TalentPanel::HasSelection() const
 bool TalentPanel::ValidateSelection(const QJsonArray &selection, QString &error) const
 {
     if (selection.size() != static_cast<int>(d->talentSlots.size())) {
-        error = QStringLiteral("奇穴配装必须为9重");
+        error = QStringLiteral("奇穴配装必须为 %1 重").arg(d->talentSlots.size());
         return false;
     }
     for (int index = 0; index < selection.size(); ++index) {

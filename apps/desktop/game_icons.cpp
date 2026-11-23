@@ -213,21 +213,6 @@ QIcon GameIcon(Specialization specialization, const QString &name)
     if (name == ClassName(specialization) && static_cast<int>(specialization) >= 0) {
         return AtlasIcon(Text(School(specialization).code));
     }
-    if (ENTRY.isEmpty() && specialization == Specialization::LEGACY_TX) {
-        for (const auto &buff : rt::tai_xu::team::Definitions) {
-            if (name != QString::fromUtf8(buff.name.data(), buff.name.size())) {
-                continue;
-            }
-            // Team effects without a verified game icon use a named tile.
-            QPixmap tile(32, 32);
-            tile.fill(QColor(46, 64, 72));
-            QPainter painter(&tile);
-            painter.setPen(QColor(225, 233, 235));
-            painter.drawText(tile.rect(), Qt::AlignCenter, name.left(1));
-            painter.end();
-            return QIcon(tile);
-        }
-    }
     return ENTRY.isEmpty() ? QIcon{} : GameIcon(ENTRY.value("Icon").toInt());
 }
 

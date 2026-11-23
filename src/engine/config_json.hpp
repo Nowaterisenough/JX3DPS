@@ -1,7 +1,7 @@
 #pragma once
 #include <nlohmann/json.hpp>
 
-#include "src/class/season50/book.hpp"
+#include "src/class/common/book.hpp"
 
 #include "scenarios.hpp"
 
@@ -34,42 +34,6 @@ inline void from_json(const nlohmann::json &j, TargetEvent &e)
     if (j.contains("player_life")) e.player_life_basis_points = j.at("player_life").get<int>();
     if (j.contains("incoming_damage")) e.incoming_damage_basis_points = j.at("incoming_damage").get<int>();
 }
-
-namespace tai_xu::team {
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Application, kind, frame, duration, stacks)
-} // namespace tai_xu::team
-
-#define JX3_COMMON_ATTRS                                                                                                        \
-    attack_base, attack_by_class, weapon, crit, crit_power, overcome, strain, surplus, haste, attack_percent, overcome_percent, \
-        haste_percent, crit_basis_points, crit_power_percent, damage_percent, strain_percent, pve_percent, ignore_shield
-
-namespace tai_xu {
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Attributes, JX3_COMMON_ATTRS, overcome_base, overcome_by_class)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Target, level, shield, vulnerable, life, distance)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
-    Config,
-    attributes,
-    target,
-    talents,
-    equipment,
-    team_effects,
-    recipes,
-    shengtaiji_recipes,
-    renjian_recipes,
-    initial_qidian,
-    delay,
-    team_buffs,
-    attribute_version_capacity,
-    target_events)
-} // namespace tai_xu
-
-namespace mo_wen {
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Attributes, JX3_COMMON_ATTRS)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Target, level, shield, vulnerable, life, distance)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Config, attributes, target, talents, equipment, team_effects, recipes, initial_style, initial_yingzi, delay, target_events)
-} // namespace mo_wen
-
-#undef JX3_COMMON_ATTRS
 
 namespace season50 {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(

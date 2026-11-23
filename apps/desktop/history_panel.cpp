@@ -14,6 +14,7 @@
 #include <QVBoxLayout>
 
 #include "game_icons.h"
+#include "src/class/common/damage.hpp"
 
 namespace {
 void TrimGrid(const QGridLayout *layout, int count)
@@ -165,10 +166,7 @@ void HistoryPanel::Refresh()
             parts << QStringLiteral("%1 %2 / %3").arg(desktop::Text(slotsList[i].name)).arg(values[i]).arg(slotsList[i].high);
         }
         resource = parts.join(" · ");
-    } else {
-        resource = m_history.Class() == desktop::Specialization::LEGACY_TX
-                       ? QStringLiteral("气点 %1 / 10").arg(state.qidian)
-                       : QStringLiteral("影子 %1 / 6").arg(a.shadows);
+
     }
     if (state.preparing_skill != desktop::rt::INVALID_SLOT) {
         resource += QStringLiteral("\n运功 %1 · %2")
@@ -192,9 +190,9 @@ void HistoryPanel::Refresh()
         { QStringLiteral("会心几率"),   percent(a.criticalChance)                                                                           },
         { QStringLiteral("会心效果"),   percent(a.criticalMultiplier)                                                                       },
         { QStringLiteral("破防等级"),   QString::number(a.overcome)                                                                         },
-        { QStringLiteral("无双"),       percent((static_cast<int>(a.strain * 1024 / (9.189 * 8250)) / 1024.0) + (a.strainPercent / 1024.0)) },
+        { QStringLiteral("无双"),       percent((JX3DPS::runtime::season50::Rating(a.strain, 7.117) / 1024.0) + (a.strainPercent / 1024.0)) },
         { QStringLiteral("破招等级"),   QString::number(a.surplus)                                                                          },
-        { QStringLiteral("加速"),       percent((1.0 / a.haste) - 1)                                                                        },
+        { QStringLiteral("加速"),       percent(a.haste - 1.0)                                                                        },
         { QStringLiteral("伤害加成"),   percent(a.damagePercent / 1024.0)                                                                   },
         { QStringLiteral("非侠士加成"), percent(a.pvePercent / 1024.0)                                                                      },
         { QStringLiteral("无视防御"),   percent(a.ignoreShield / 1024.0)                                                                    }

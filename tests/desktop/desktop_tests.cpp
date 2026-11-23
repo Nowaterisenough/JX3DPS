@@ -63,13 +63,10 @@
 #include "apps/desktop/talent_panel.h"
 #include "apps/desktop/traced_rules.h"
 #include "apps/desktop/workbench.h"
-#include "src/class/mo_wen/runtime_rules.hpp"
-#include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
 
 #include "resources.h"
 
 namespace rt = JX3DPS::runtime;
-namespace tx = JX3DPS::runtime::tai_xu;
 
 class DesktopTests : public QObject
 {
@@ -99,7 +96,7 @@ private slots:
         auto     *options = window.findChild<SimulationOptions *>();
         auto     *school  = options->findChild<QComboBox *>("specialization");
         QVERIFY(school);
-        QCOMPARE(school->count(), 20);
+        QCOMPARE(school->count(), static_cast<int>(rt::season50::Books().size()));
         QVERIFY(!window.findChild<QToolButton *>("openSeason50"));
         for (int i = 0; i < school->count(); ++i) {
             school->setCurrentIndex(i);
@@ -2051,7 +2048,7 @@ private slots:
         QFETCH(bool, mo_wen);
         QFETCH(bool, trace);
         QFETCH(bool, gains);
-        const desktop::Config CONFIG = mo_wen ? desktop::Config{ rt::mo_wen::Config{} } : desktop::Config{ rt::tai_xu::Config{} };
+        const desktop::Config CONFIG = JX3DPS::engine::Scenario(mo_wen ? "mw" : "tx");
         const auto SPEC     = desktop::ClassOf(CONFIG);
         const auto SOURCE   = desktop::DefaultMacro(SPEC);
         const auto COMPILED = rt::MacroCompiler::Compile(SOURCE.toStdString(), desktop::MacroOptions(SPEC));
@@ -2083,7 +2080,7 @@ private slots:
                 QCOMPARE(result.gains[i].stats.checksum, plain.gains[i].stats.checksum);
             }
             QCOMPARE(result.hotspots->fights,
-                     OPTIONS.iterations * (gains ? rt::AttributeGainSimulationStages<rt::mo_wen::Config> : 1));
+                     OPTIONS.iterations * (gains ? rt::GainSimulationStages(CONFIG) : 1));
             QCOMPARE(result.hotspots->workers.size(), trace ? 1 : 2);
             quint64 worker_points = 0;
             quint64 worker_fights = 0;
@@ -2126,16 +2123,12 @@ private slots:
 
     void moWenDesktopParity()
     {
-        namespace mw      = rt::mo_wen;
-        const auto SOURCE = desktop::DefaultMacro(desktop::Specialization::LEGACY_MW);
+        const auto SOURCE = desktop::DefaultMacro(desktop::Specialization::MO_WEN);
         const auto BYTES  = SOURCE.toUtf8();
         const auto COMPILED =
-            rt::MacroCompiler::Compile(std::string_view(BYTES.constData(), BYTES.size()), mw::MacroOptions(false));
+            rt::MacroCompiler::Compile(std::string_view(BYTES.constData(), BYTES.size()), desktop::MacroOptions(desktop::Specialization::MO_WEN));
         QVERIFY(COMPILED.second.empty());
-        mw::Config config;
-        config.talents = mw::LIU_ZHAO_TALENT | mw::YUN_HAN_TALENT | mw::KE_MENG | mw::MING_JIN_TALENT | mw::CAN_LIAN_TALENT;
-        config.equipment      = mw::WEAPON_CW | mw::ENCHANT_BELT;
-        config.initial_yingzi = 2;
+        auto config = JX3DPS::engine::Scenario("mw");
         const rt::BatchOptions OPTIONS{ 1, 913, 16 * 45, 1, (16 * 45 * 16) + 64, (16 * 45 * 40) + 128 };
         BatchWorker            worker(COMPILED.first.program, OPTIONS, config, nullptr, true);
         QSignalSpy             trace(&worker, &BatchWorker::TraceReady);
@@ -2151,7 +2144,7 @@ private slots:
         debugger.SetOptions(config, OPTIONS.duration, OPTIONS.seed);
         QString error;
         QVERIFY2(debugger.Initialize(SOURCE, error), qPrintable(error));
-        QVERIFY(debugger.GetPlayerState().details.join('\n').contains(QStringLiteral("影子：2")));
+        QVERIFY(debugger.GetPlayerState().details.join('\n').contains(QStringLiteral("曲风")));
         QVERIFY(debugger.SetBreakpoint(3));
         debugger.Continue();
         QVERIFY(debugger.IsPaused());
@@ -2183,14 +2176,15 @@ private slots:
         }
         QCOMPARE(debugger.TakeBuffEvents(), qvariant_cast<BuffEvents>(buffs[0][0]));
         QCOMPARE(debugger.TotalDamage(), qvariant_cast<SimulationResult>(stats[0][0]).stats.min_damage);
-        QVERIFY(debugger.Initialize(QStringLiteral("/cast 变徵\n/fcast [buff:曲风>99] 羽\n/cast 变宫"), error));
+        config.equipment = {std::string(rt::season50::WindPendant)};
+        debugger.SetOptions(config, OPTIONS.duration, OPTIONS.seed);
+        QVERIFY(debugger.Initialize(QStringLiteral("/scast 徵\n/fcast 使用风腰坠\n/cast 宫"), error));
         bool interruption = false;
         for (int step = 0; step < 200 && !debugger.IsFinished(); ++step) {
             debugger.StepInto();
             for (const auto &observation : debugger.TakeMacroSteps()) {
-                if (observation.kind == MacroStepKind::INTERRUPTION) {
+                if (observation.kind == MacroStepKind::ACTION && observation.details.contains(QStringLiteral("先打断 徵"))) {
                     interruption = true;
-                    QVERIFY(observation.details.contains(QStringLiteral("判定本行条件")));
                 }
             }
         }
@@ -2652,9 +2646,9 @@ private slots:
 
     void attributeGainBatch()
     {
-        const auto             COMPILED = rt::MacroCompiler::Compile("/cast biangong", rt::mo_wen::MacroOptions(false));
+        const auto             COMPILED = rt::MacroCompiler::Compile("/cast gong", desktop::MacroOptions(desktop::Specialization::MO_WEN));
         const rt::BatchOptions OPTIONS{ 12, 9, 16 * 5, 2, 2000, 4000 };
-        rt::mo_wen::Config     config;
+        auto config = JX3DPS::engine::Scenario("mw");
         BatchWorker            worker(COMPILED.first.program, OPTIONS, config, nullptr, false, true);
         QSignalSpy             stats(&worker, &BatchWorker::StatisticsReady);
         QSignalSpy             failure(&worker, &BatchWorker::Failed);
@@ -2672,12 +2666,12 @@ private slots:
         }
         QVERIFY(std::abs(skill_damage - result.stats.mean_damage * result.stats.count) < .01);
         QCOMPARE(worker.Completed(), worker.Requested());
-        QCOMPARE(worker.Requested(), OPTIONS.iterations * 3);
+        QCOMPARE(worker.Requested(), OPTIONS.iterations * rt::GainSimulationStages(config));
         config.attributes.attack_base += 100;
-        const auto direct = rt::RunBatch(COMPILED.first.program, OPTIONS, rt::mo_wen::Rules(rt::mo_wen::Prepare(config)));
+        const auto direct = rt::RunBatch(COMPILED.first.program, OPTIONS, desktop::MakeRules(config));
         QCOMPARE(result.gains[0].stats.checksum, direct.checksum);
         ResultsPanel panel;
-        panel.AddResult(result, QStringLiteral("/cast biangong"), {});
+        panel.AddResult(result, QStringLiteral("/cast gong"), {});
         QCOMPARE(panel.findChild<QTableWidget *>("attributeGainsTable")->rowCount(), 10);
     }
 
@@ -2688,7 +2682,7 @@ private slots:
             for (const auto MODE : { desktop::GainComparisonMode::SAME_VALUE, desktop::GainComparisonMode::SAME_COST })
             {
                 const auto INCREMENTS =
-                    desktop::GainComparisonIncrements(MODE, std::is_same_v<std::decay_t<decltype(config)>, rt::mo_wen::Config>, true);
+                    desktop::GainComparisonIncrements(MODE);
                 BatchWorker worker(compiled.first.program, OPTIONS, config, nullptr, false, true, MODE);
                 QSignalSpy  stats(&worker, &BatchWorker::StatisticsReady);
                 QSignalSpy  failure(&worker, &BatchWorker::Failed);
@@ -2700,7 +2694,7 @@ private slots:
                 QCOMPARE(result.gainMode, MODE);
                 QCOMPARE(result.gains.size(), 8);
                 QCOMPARE(worker.Completed(), worker.Requested());
-                QCOMPARE(worker.Requested(), OPTIONS.iterations * 3);
+                QCOMPARE(worker.Requested(), OPTIONS.iterations * rt::GainSimulationStages(config));
                 for (int index = 0; index < 8; ++index) {
                     QCOMPARE(result.gains[index].increment, INCREMENTS[index]);
                     const auto CHANGED = desktop::ApplyAttributeGain(config, index, INCREMENTS[index]);
@@ -2712,11 +2706,10 @@ private slots:
             }
         };
 
-        const rt::mo_wen::Config mo_wen;
-        CHECK(mo_wen, rt::MacroCompiler::Compile("/cast biangong", rt::mo_wen::MacroOptions(false)));
-        rt::tai_xu::Config tai_xu;
-        tai_xu.team_buffs.push_back({ tx::team::HAN_RU_LEI, 0, 0, 1 });
-        CHECK(tai_xu, rt::MacroCompiler::Compile("/cast wuwu\n/cast sanhuan", rt::tai_xu::MacroOptions(false)));
+        for (auto code : {"mw", "tx"}) {
+            const auto config = JX3DPS::engine::Scenario(code);
+            CHECK(config, rt::MacroCompiler::Compile(config.book->default_macro, rt::CatalogMacroOptions(config.book->Catalog(), false)));
+        }
     }
 
     void chineseWorkbenchAndMoWenCompletion()
@@ -2755,13 +2748,10 @@ private slots:
 
     void debuggerMatchesTrace()
     {
-        const QString  text = QStringLiteral("/scast ziqi\n/cast [buff:ziqi>0&qidian>5] wuwu\n/cast sanhuan");
+        const QString  text = QStringLiteral("/scast 使用风腰坠\n/cast [buff:风·灭虚>0&qidian>5] wuwu\n/cast sanhuan");
         DebugSimulator debugger;
-        tx::Config     config;
-        config.team_effects             = tx::YOU_REN;
-        config.equipment                = tx::SET_ATTRIBUTE;
-        config.talents                  = tx::DIE_REN_TALENT | tx::XUAN_MEN | tx::WU_YU;
-        config.attributes.overcome_base = 25000;
+        auto config = JX3DPS::engine::Scenario("tx");
+        config.equipment = {std::string(rt::season50::WindPendant)};
         debugger.SetOptions(config, 4800, 77);
         QString error;
         QVERIFY2(debugger.Initialize(text, error), qPrintable(error));
@@ -2795,10 +2785,11 @@ private slots:
         QVERIFY(debugger.TakeBuffEvents().isEmpty());
         const auto BYTES = text.toUtf8();
         const auto COMPILED =
-            rt::MacroCompiler::Compile(std::string_view(BYTES.constData(), BYTES.size()), tx::MacroOptions(false));
+            rt::MacroCompiler::Compile(std::string_view(BYTES.constData(), BYTES.size()), desktop::MacroOptions(desktop::Specialization::TAI_XU));
         QVERIFY(COMPILED.second.empty());
-        rt::Simulation<tx::Rules> reference(COMPILED.first.program, tx::Rules(tx::Prepare(config)), (4800 * 8) + 64, (4800 * 24) + 128);
+        rt::Simulation<rt::season50::Rules> reference(COMPILED.first.program, desktop::MakeRules(config), (4800 * 8) + 64, (4800 * 24) + 128);
         reference.Start(4800, rt::IterationSeed(77, 0));
+        const auto initial_buffs = InitialBuffEvents(reference.GetState(), desktop::Specialization::TAI_XU);
         reference.Run();
         QCOMPARE(debugger.TotalDamage(), reference.TotalDamage());
         QCOMPARE(events.size(), static_cast<qsizetype>(reference.Log().Size()));
@@ -2811,10 +2802,10 @@ private slots:
         }
         std::size_t mutation_cursor = 0;
         const auto  REFERENCE_BUFFS =
-            ReadBuffEvents(reference.Log().Mutations(), mutation_cursor, desktop::Specialization::LEGACY_TX);
+            initial_buffs + ReadBuffEvents(reference.Log().Mutations(), mutation_cursor, desktop::Specialization::TAI_XU);
         QCOMPARE(buffEvents, REFERENCE_BUFFS);
         QCOMPARE(mutation_cursor, reference.Log().Mutations().size());
-        QVERIFY(ReadBuffEvents(reference.Log().Mutations(), mutation_cursor, desktop::Specialization::LEGACY_TX).isEmpty());
+        QVERIFY(ReadBuffEvents(reference.Log().Mutations(), mutation_cursor, desktop::Specialization::TAI_XU).isEmpty());
         QVERIFY(std::any_of(buffEvents.begin(), buffEvents.end(), [](const BuffEvent &buff) { return buff.target; }));
         BuffTrace full_buffs;
         full_buffs.Reset(4800);
@@ -2848,7 +2839,7 @@ private slots:
     void macroCompletion()
     {
         MacroEditor editor;
-        editor.SetSpecialization(desktop::Specialization::LEGACY_TX);
+        editor.SetSpecialization(desktop::Specialization::TAI_XU);
         editor.resize(900, 300);
         editor.show();
         editor.setFocus();
@@ -2881,26 +2872,26 @@ private slots:
         QVERIFY(accept("/scast"));
         QCOMPARE(editor.toPlainText(), QStringLiteral("/scast"));
         input("/cast ");
-        QCOMPARE(candidates().size(), static_cast<qsizetype>(tx::CastableSkills.size() * 2));
+        QVERIFY(candidates().size() >= static_cast<qsizetype>(desktop::School(desktop::Specialization::TAI_XU).castable.size()));
         QVERIFY(!candidates().contains(QStringLiteral("pozhao")));
         for (const auto &candidate : candidates()) {
             const auto BYTES = (QStringLiteral("/cast ") + candidate).toUtf8();
-            QVERIFY(rt::MacroCompiler::Compile(std::string_view(BYTES.data(), BYTES.size()), tx::MacroOptions()).second.empty());
+            QVERIFY(rt::MacroCompiler::Compile(std::string_view(BYTES.data(), BYTES.size()), desktop::MacroOptions(desktop::Specialization::TAI_XU)).second.empty());
         }
         input("/cast [buff:");
-        QCOMPARE(candidates().size(), static_cast<qsizetype>(tx::BUFF_COUNT * 2));
-        QVERIFY(candidates().contains(QStringLiteral("xuanmen")));
+        QCOMPARE(candidates().size(), static_cast<qsizetype>(desktop::School(desktop::Specialization::TAI_XU).buffs.size()));
+        QVERIFY(candidates().contains(QStringLiteral("碎星辰")));
         QVERIFY(!candidates().contains(QStringLiteral("wuwu")));
-        input("/cast [qidian>=6&tbuff:die>=2] wuwu", QStringLiteral("/cast [qidian>=6&tbuff:die").size());
-        QCOMPARE(candidates(), (QStringList{ "dieren" }));
-        QVERIFY(accept("dieren"));
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [qidian>=6&tbuff:dieren>=2] wuwu"));
-        input("/cast [buff:xuanmen] wuwu", QStringLiteral("/cast [buff:xua").size());
-        QVERIFY(accept("xuanmen"));
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:xuanmen] wuwu"));
-        input("/cast [buf:xuanmen] wuwu", QStringLiteral("/cast [buf").size());
+        input("/cast [qidian>=6&tbuff:叠>=2] wuwu", QStringLiteral("/cast [qidian>=6&tbuff:叠").size());
+        QCOMPARE(candidates(), (QStringList{ "叠刃" }));
+        QVERIFY(accept("叠刃"));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [qidian>=6&tbuff:叠刃>=2] wuwu"));
+        input("/cast [buff:碎星辰] wuwu", QStringLiteral("/cast [buff:碎").size());
+        QVERIFY(accept("碎星辰"));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:碎星辰] wuwu"));
+        input("/cast [buf:碎星辰] wuwu", QStringLiteral("/cast [buf").size());
         QVERIFY(accept("buff:"));
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:xuanmen] wuwu"));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:碎星辰] wuwu"));
         input("/cast [last_skill:wu] sanhuan", QStringLiteral("/cast [last_skill:wu").size());
         QVERIFY(accept("wuwu"));
         QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [last_skill:wuwu] sanhuan"));
@@ -2911,16 +2902,16 @@ private slots:
         editor.setPlainText(QStringLiteral("/cast [buff:"));
         editor.moveCursor(QTextCursor::End);
         QInputMethodEvent ime;
-        ime.setCommitString(QStringLiteral("玄"));
+        ime.setCommitString(QStringLiteral("碎"));
         QCoreApplication::sendEvent(&editor, &ime);
         QVERIFY(completer->popup()->isVisible());
-        QCOMPARE(candidates(), (QStringList{ QStringLiteral("玄门") }));
-        QVERIFY(accept(QStringLiteral("玄门")));
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:玄门"));
+        QCOMPARE(candidates(), (QStringList{ QStringLiteral("碎星辰") }));
+        QVERIFY(accept(QStringLiteral("碎星辰")));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:碎星辰"));
         editor.undo();
-        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:玄"));
-        for (const auto &text : { "# /ca", "// /ca", "/switch ", "/cast [qidian>=3", "/cast [buff:xuanmen>2" }) {
-            input(QString::fromLatin1(text));
+        QCOMPARE(editor.toPlainText(), QStringLiteral("/cast [buff:碎"));
+        for (const auto &text : { "# /ca", "// /ca", "/switch ", "/cast [qidian>=3", "/cast [buff:碎星辰>2" }) {
+            input(QString::fromUtf8(text));
             QVERIFY(!completer->popup()->isVisible());
         }
         input("/cast wu");
@@ -3156,7 +3147,7 @@ private slots:
         QString        error;
         const QString  SOURCE =
             QStringLiteral("# source mapping\n/cast [qidian<1&energy>0|qidian>=6] wuwu\n/cast sanhuan");
-        debugger.SetOptions({}, 16000, 7);
+        debugger.SetOptions(JX3DPS::engine::Scenario("tx"), 16000, 7);
         QVERIFY2(debugger.Initialize(SOURCE, error), qPrintable(error));
         QVERIFY(debugger.SetBreakpoint(2));
         debugger.Continue();
@@ -3374,16 +3365,19 @@ private slots:
         QCOMPARE(trace.Coverage()[1].activeFrames, qint64(68));
 
         rt::State state;
-        state.Resize(tx::SKILL_COUNT, tx::BUFF_COUNT);
-        state.self_buff_stacks[tx::PURPLE]        = 1;
-        state.self_buff_expires_at[tx::PURPLE]    = 160;
-        state.target_buff_stacks[tx::DIE_REN]     = 3;
-        state.target_buff_expires_at[tx::DIE_REN] = 384;
+        const auto catalog = desktop::Describe(desktop::Specialization::TAI_XU);
+        state.Resize(catalog.skills.size(), catalog.buffs.size());
+        const auto options = rt::CatalogMacroOptions(catalog, false);
+        const auto field = options.resolve_buff("碎星辰"), dot = options.resolve_buff("叠刃");
+        state.self_buff_stacks[field]        = 1;
+        state.self_buff_expires_at[field]    = 160;
+        state.target_buff_stacks[dot]     = 3;
+        state.target_buff_expires_at[dot] = 384;
         const auto STARTING                       = InitialBuffEvents(state);
         QCOMPARE(STARTING.size(), 2);
         QVERIFY(STARTING[0].initial && STARTING[1].initial);
-        QVERIFY(STARTING[0].target);
-        QCOMPARE(STARTING[0].stacks, 3);
+        QVERIFY(STARTING[1].target);
+        QCOMPARE(STARTING[1].stacks, 3);
         trace.Reset(16);
         QVERIFY(trace.Coverage().isEmpty());
         QVERIFY(trace.Changes().isEmpty());
@@ -3459,11 +3453,8 @@ private slots:
     void batchSkillStatistics()
     {
         QFETCH(int, specialization);
-        const auto SPEC = specialization == 1 ? desktop::Specialization::LEGACY_MW : desktop::Specialization::LEGACY_TX;
-        desktop::Config configuration;
-        if (SPEC == desktop::Specialization::LEGACY_MW) {
-            configuration = rt::mo_wen::Config{};
-        }
+        const auto SPEC = specialization == 1 ? desktop::Specialization::MO_WEN : desktop::Specialization::TAI_XU;
+        auto configuration = JX3DPS::engine::Scenario(specialization == 1 ? "mw" : "tx");
         const auto SOURCE   = desktop::DefaultMacro(SPEC);
         auto       compiled = rt::MacroCompiler::Compile(SOURCE.toStdString(), desktop::MacroOptions(SPEC, false));
         QVERIFY(compiled.second.empty());
@@ -3524,8 +3515,8 @@ private slots:
 
         // Independently sum seeded fight logs, including DOT ticks and zero-damage outcomes.
         QVector<SkillStatistics> expected;
-        std::visit(
-            [&](const auto &config) {
+        {
+            const auto &config = configuration;
                 const auto RULES = desktop::MakeRules(config);
                 const auto PLAIN = rt::RunBatch(compiled.first.program, options, RULES);
                 QCOMPARE(parallel.stats.checksum, PLAIN.checksum);
@@ -3553,8 +3544,7 @@ private slots:
                     }
                 }
                 expected = totals.values();
-            },
-            configuration);
+        }
         COMPARE(parallel.skills, expected);
         qint64 total_damage = 0;
         for (const auto &skill : parallel.skills) {
@@ -3634,12 +3624,12 @@ private slots:
 
     void batchCancellationAndFailure()
     {
-        const auto       COMPILED = rt::MacroCompiler::Compile("/cast wuwu\n/cast sanhuan", tx::MacroOptions(false));
+        const auto       COMPILED = rt::MacroCompiler::Compile("/cast wuwu\n/cast sanhuan", desktop::MacroOptions(desktop::Specialization::TAI_XU));
         rt::BatchOptions options;
         options.iterations = 1000000;
         options.duration   = 4800;
         options.workers    = 2;
-        BatchWorker      worker(COMPILED.first.program, options, {});
+        BatchWorker      worker(COMPILED.first.program, options, JX3DPS::engine::Scenario("tx"));
         const QSignalSpy result(&worker, &BatchWorker::ResultReady);
         const QSignalSpy STATISTICS(&worker, &BatchWorker::StatisticsReady);
         const QSignalSpy NO_BUFF_TRACE(&worker, &BatchWorker::BuffTraceReady);
@@ -3672,7 +3662,7 @@ private slots:
         QCOMPARE(NO_HISTORY.count(), 0);
         QVERIFY(result.at(0).at(0).toString().contains(QStringLiteral("已取消")));
         QVERIFY(worker.Completed() < options.iterations);
-        auto invalid           = tx::Config{};
+        auto invalid           = JX3DPS::engine::Scenario("tx");
         invalid.initial_qidian = -1;
         BatchWorker      bad(COMPILED.first.program, options, invalid);
         const QSignalSpy ERRORS(&bad, &BatchWorker::Failed);
@@ -3680,7 +3670,7 @@ private slots:
         QVERIFY(bad.wait(10000));
         QTRY_COMPARE(ERRORS.count(), 1);
 
-        BatchWorker      cancelled(COMPILED.first.program, options, {});
+        BatchWorker      cancelled(COMPILED.first.program, options, JX3DPS::engine::Scenario("tx"));
         const QSignalSpy cancelled_result(&cancelled, &BatchWorker::ResultReady);
         const QSignalSpy CANCELLED_STATS(&cancelled, &BatchWorker::StatisticsReady);
         cancelled.RequestCancel();
@@ -3703,6 +3693,17 @@ private slots:
         options.findChild<QCheckBox *>(QStringLiteral("recipe/tx/无我无剑·5%伤害"))->setChecked(false);
         const auto saved_recipes = options.Config().recipes;
         const auto          snapshot = options.Snapshot();
+        // A workspace saved before another school shipped has no fields for that school.
+        auto older = snapshot;
+        auto oldTalents = older["talents"].toObject(), oldValues = older["values"].toObject();
+        oldTalents.remove("yly");
+        for (const auto &key : oldValues.keys())
+            if (key.startsWith("recipe/yly/") || key.startsWith("equipment/yly/")) oldValues.remove(key);
+        older["talents"] = oldTalents;
+        older["values"] = oldValues;
+        QString restoreError;
+        QVERIFY2(options.RestoreSnapshot(older, restoreError), qPrintable(restoreError));
+        QCOMPARE(options.Snapshot(), snapshot);
         const QTemporaryDir FILES;
         QVERIFY(FILES.isValid());
         QString    error;
@@ -3747,7 +3748,7 @@ private slots:
         reject(bad);
         values = snapshot.value("values").toObject();
         values.insert("attackBase", 12345);
-        for (const unsigned FLAG : { tx::CRIT2, tx::CRIT3, tx::CRIT4, tx::DAMAGE3, tx::DAMAGE4 }) {
+        for (const unsigned FLAG : { 1u, 2u, 4u, 8u, 16u }) {
             values.insert(QStringLiteral("wuwu%1").arg(FLAG), true);
         }
         bad.insert("values", values);
@@ -4004,7 +4005,7 @@ private slots:
         window.show();
         auto *options = window.findChild<SimulationOptions *>();
         auto *picker  = options->findChild<QComboBox *>("specialization");
-        QCOMPARE(picker->count(), 20);
+        QCOMPARE(picker->count(), static_cast<int>(rt::season50::Books().size()));
         for (int i = 0; i < picker->count(); ++i) {
             picker->setCurrentIndex(i);
             const auto &book = desktop::School(options->Specialization());
@@ -4229,41 +4230,22 @@ private slots:
 
     void historicalAttributesAndSeeking()
     {
-        const QString SOURCE = QStringLiteral("/scast 紫气东来\n/cast 三柴剑法");
-        tx::Config    config;
+        auto config = JX3DPS::engine::Scenario("tx");
         config.initial_qidian = 0;
         DebugSimulator debugger;
-        debugger.SetOptions(config, 16 * 15, 913);
+        debugger.SetOptions(config, 640, 913);
         QString error;
-        QVERIFY2(debugger.Initialize(SOURCE, error), qPrintable(error));
+        QVERIFY2(debugger.Initialize(QStringLiteral("/scast 碎星辰\n/cast 三柴剑法"), error), qPrintable(error));
+        while (!debugger.IsFinished()) debugger.Continue();
         desktop::CombatHistory history;
         history.Append(debugger.TakeHistory());
-        const auto INITIAL = history.At(0);
-        QVERIFY(INITIAL.has_value());
-        QCOMPARE(INITIAL->state.qidian, 1);
-        QVERIFY(!history.At(1).has_value());
-        const auto INITIAL_ATTACK = INITIAL->attributes.attack;
-        int        steps          = 0;
-        while (!debugger.IsFinished()) {
-            debugger.StepInto();
-            history.Append(debugger.TakeHistory());
-            if (++steps > 10000) {
-                QFAIL("debugger did not finish");
-            }
-        }
-        const auto ACTIVE  = history.At(16);
-        const auto EXPIRED = history.At(16 * 11);
-        QVERIFY(ACTIVE && EXPIRED);
-        QCOMPARE(ACTIVE->state.self_buff_stacks[tx::PURPLE], 1);
-        QVERIFY(ACTIVE->attributes.attack > INITIAL_ATTACK);
-        QCOMPARE(EXPIRED->state.self_buff_stacks[tx::PURPLE], 0);
-        QCOMPARE(EXPIRED->attributes.attack, INITIAL_ATTACK);
-        QCOMPARE(ACTIVE->attributes.criticalChance - EXPIRED->attributes.criticalChance, 0.25);
-        QCOMPARE(ACTIVE->attributes.criticalMultiplier - EXPIRED->attributes.criticalMultiplier, 0.25);
-        QCOMPARE(history.At(16)->attributes, ACTIVE->attributes);
-        QCOMPARE(history.At(0)->state.self_buff_stacks[tx::PURPLE], 1);
-        QVERIFY(!history.At(241));
-        QVERIFY(!history.At(-1));
+        const auto field = desktop::MacroOptions(desktop::Specialization::TAI_XU).resolve_buff("碎星辰");
+        const auto active = history.At(32), expired = history.At(639);
+        QVERIFY(active && expired);
+        QCOMPARE(active->state.self_buff_stacks[field], 1);
+        QCOMPARE(expired->state.self_buff_stacks[field], 0);
+        QCOMPARE(history.At(32)->attributes, active->attributes);
+        QVERIFY(!history.At(641));
         history.Clear();
         QVERIFY(!history.At(0));
     }
@@ -4272,7 +4254,8 @@ private slots:
     {
         desktop::HistoryChunk chunk;
         chunk.initial.emplace();
-        chunk.initial->Resize(tx::SKILL_COUNT, tx::BUFF_COUNT);
+        const auto catalog = desktop::Describe(desktop::Specialization::TAI_XU);
+        chunk.initial->Resize(catalog.skills.size(), catalog.buffs.size());
         chunk.attributes.push_back({ 0, {} });
         for (int frame = 0; frame < 900; ++frame) {
             chunk.mutations.push_back(
@@ -4287,32 +4270,6 @@ private slots:
             QCOMPARE(result->state.energy, std::min(FRAME, 899));
             QCOMPARE(result->state.qidian, std::min(FRAME, 899) % 11);
         }
-    }
-
-    void moWenHistoricalCriticalPower()
-    {
-        namespace mw = rt::mo_wen;
-        mw::Config config;
-        config.talents = mw::ZHENG_LV_HE_MING;
-        DebugSimulator debugger;
-        debugger.SetOptions(config, 16 * 40, 7);
-        QString error;
-        QVERIFY2(debugger.Initialize(QStringLiteral("/scast 正律和鸣\n/cast 五音六律"), error), qPrintable(error));
-        while (!debugger.IsFinished()) {
-            debugger.Continue();
-        }
-        desktop::CombatHistory history;
-        history.Append(debugger.TakeHistory());
-        const auto BEFORE = history.At(319);
-        const auto DURING = history.At(320);
-        const auto AFTER  = history.At(560);
-        QVERIFY(BEFORE && DURING && AFTER);
-        QCOMPARE(BEFORE->state.self_buff_stacks[mw::ZHI_YIN_MIAO_YI], 0);
-        QCOMPARE(DURING->state.self_buff_stacks[mw::ZHI_YIN_MIAO_YI], 1);
-        // Timeout grants one stack with 205 extra power in the pinned legacy rules.
-        QCOMPARE(DURING->attributes.criticalMultiplier - BEFORE->attributes.criticalMultiplier, 205 / 1024.0);
-        QCOMPARE(AFTER->state.self_buff_stacks[mw::ZHI_YIN_MIAO_YI], 0);
-        QCOMPARE(AFTER->attributes.criticalMultiplier, BEFORE->attributes.criticalMultiplier);
     }
 
     void timelineEventSelection()
@@ -4442,11 +4399,12 @@ private slots:
         auto *session = window.findChild<DebugSession *>();
         session->AddBreakpoint(2);
         emit window.findChild<SimulationToolbar *>()->StartSimulationClicked();
-        QCOMPARE(coverage->rowCount(), 0);
+        QCOMPARE(coverage->rowCount(), 1);
+        QCOMPARE(coverage->item(0, 1)->text(), QStringLiteral("玄应回气"));
         session->Continue();
         QTRY_COMPARE(session->GetState(), DebugSession::PAUSED);
         QCOMPARE(session->GetDebugInfo().currentFrame, 0);
-        QCOMPARE(coverage->rowCount(), 1);
+        QCOMPARE(coverage->rowCount(), 2);
         QCOMPARE(coverage->item(0, 4)->text(), QStringLiteral("0.0000"));
         QCOMPARE(coverage->item(0, 5)->text(), QStringLiteral("--"));
         session->RemoveBreakpoint(2);

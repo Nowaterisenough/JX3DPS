@@ -1,5 +1,5 @@
-/cast [tlife>0.2&mana>0.1&life>0.5&rage=0&energy=0&qidian>=6&notlast_skill:wuwu|buff:ziqi&qidian>=4] wuwu
-/cast [nobuff:ziqi&qidian<=4&skill_energy:ziqi>=1] ziqi
+/cast [tlife>0.2&mana>0.1&life>0.5&rage=0&energy=0&qidian>=6&notlast_skill:wuwu|buff:碎星辰&qidian>=4] wuwu
+/cast [nobuff:碎星辰&qidian<=4&skill_notin_cd:suixing] suixing
 /cast [qidian<8&notlast_skill:bahuang] bahuang
 /cast [tlife>0.2&qidian<=9&notlast_skill:sanhuan] sanhuan
 /cast sanchai

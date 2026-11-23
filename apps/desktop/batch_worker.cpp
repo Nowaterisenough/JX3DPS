@@ -125,7 +125,7 @@ std::uint64_t BatchWorker::Requested() const
         return m_options.iterations;
     }
     const auto STAGES =
-        std::visit([](const auto &config) { return runtime::GainSimulationStages(config); }, m_config);
+        runtime::GainSimulationStages(m_config);
     return m_options.iterations * STAGES;
 }
 
@@ -137,7 +137,7 @@ void BatchWorker::run()
         if (!m_captureTrace) {
             const auto SPEC = desktop::ClassOf(m_config);
             auto       increments =
-                desktop::GainComparisonIncrements(m_gainMode, desktop::Info(SPEC).damage != "Physics", static_cast<int>(SPEC) < 0);
+                desktop::GainComparisonIncrements(m_gainMode);
             const auto CALCULATED =
                 JX3DPS::engine::Batch(m_engine.get(), m_config, m_program.source_text, m_options, true, m_calculateGains ? &increments : nullptr, m_hotspots);
             SimulationResult result{ CALCULATED.primary, m_options, timer.nsecsElapsed() / 1e9, false };
@@ -163,62 +163,59 @@ void BatchWorker::run()
             return;
         }
         const auto SIMULATE = [&]<bool Measure>(runtime::BatchProfile *profile) {
-            std::visit(
-                [&](const auto &config) {
-                    using Rules               = decltype(desktop::MakeRules(config));
-                    const auto SPECIALIZATION = desktop::ClassOf(m_config);
-                    const auto SKILL_COUNT    = desktop::Describe(SPECIALIZATION).skills.size();
-                    if (m_options.iterations != 1) {
-                        throw std::invalid_argument("战斗记录模式需要设置为一次模拟");
-                    }
-                    if (m_control.cancel_requested.load(std::memory_order_relaxed)) {
-                        emit StatisticsReady({ {}, m_options, timer.nsecsElapsed() / 1e9, true });
-                        emit ResultReady(QStringLiteral("已取消，没有已完成的模拟。"));
-                        return;
-                    }
-                    const auto                          RULES = desktop::MakeRules(config);
-                    runtime::WorkerMeasurement<Measure> measurement(profile, 0, "单次记录");
-                    runtime::Simulation<desktop::TracedRules<Rules>, false, Measure>
-                        simulation(m_program, desktop::TracedRules(RULES), m_options.damage_capacity, m_options.mutation_capacity);
-                    simulation.Start(m_options.duration, runtime::IterationSeed(m_options.seed, 0));
-                    desktop::HistoryChunk history;
-                    history.specialization = SPECIALIZATION;
-                    history.initial        = simulation.GetState();
-                    auto buffs             = InitialBuffEvents(simulation.GetState(), SPECIALIZATION);
-                    simulation.Run();
-                    runtime::BatchStats                   stats;
-                    std::vector<std::vector<SkillTotals>> skill_totals(1, std::vector<SkillTotals>(SKILL_COUNT));
-                    stats.Add(simulation.TotalDamage([&](const runtime::DamageIntent &hit, JX3DPS::value_t damage) {
-                        skill_totals[0].at(hit.skill).Add(damage, hit.outcome);
-                    }),
-                              0);
-                    CombatEvents events;
-                    for (const auto &hit : simulation.Log().Intents()) {
-                        const auto NAME = desktop::SkillName(SPECIALIZATION, hit.skill);
-                        events.push_back({ hit.frame, hit.skill, NAME, simulation.GetRules().Reduce(hit), static_cast<int>(hit.outcome), hit.sequence });
-                    }
-                    std::size_t mutation_cursor = 0;
-                    buffs += ReadBuffEvents(simulation.Log().Mutations(), mutation_cursor, SPECIALIZATION);
-                    m_control.completed.store(1, std::memory_order_relaxed);
-                    emit TraceReady(events);
-                    emit BuffTraceReady(buffs);
-                    history.mutations     = simulation.Log().Mutations();
-                    history.attributes    = simulation.GetRules().AttributeHistory();
-                    history.observedFrame = simulation.GetState().now;
-                    history.finished      = true;
-                    emit             HistoryReady(history);
-                    SimulationResult result{ stats, m_options, timer.nsecsElapsed() / 1e9, true };
-                    StoreSkills(result, skill_totals, SPECIALIZATION);
-                    if constexpr (Measure) {
-                        ++profile->workers[0].fights;
-                        measurement.Finish();
-                        result.hotspots = DisplayProfile(JX3DPS::engine::Summarize(*profile));
-                    }
-                    result.elapsedSeconds = timer.nsecsElapsed() / 1e9;
-                    emit StatisticsReady(result);
-                    emit ResultReady(FormatStats(stats, JX3DPS::FramesToSeconds(m_options.duration), result.elapsedSeconds));
-                },
-                m_config);
+            const auto &config = m_config;
+            using Rules               = decltype(desktop::MakeRules(config));
+            const auto SPECIALIZATION = desktop::ClassOf(m_config);
+            const auto SKILL_COUNT    = desktop::Describe(SPECIALIZATION).skills.size();
+            if (m_options.iterations != 1) {
+                throw std::invalid_argument("战斗记录模式需要设置为一次模拟");
+            }
+            if (m_control.cancel_requested.load(std::memory_order_relaxed)) {
+                emit StatisticsReady({ {}, m_options, timer.nsecsElapsed() / 1e9, true });
+                emit ResultReady(QStringLiteral("已取消，没有已完成的模拟。"));
+                return;
+            }
+            const auto                          RULES = desktop::MakeRules(config);
+            runtime::WorkerMeasurement<Measure> measurement(profile, 0, "单次记录");
+            runtime::Simulation<desktop::TracedRules<Rules>, false, Measure>
+                simulation(m_program, desktop::TracedRules(RULES), m_options.damage_capacity, m_options.mutation_capacity);
+            simulation.Start(m_options.duration, runtime::IterationSeed(m_options.seed, 0));
+            desktop::HistoryChunk history;
+            history.specialization = SPECIALIZATION;
+            history.initial        = simulation.GetState();
+            auto buffs             = InitialBuffEvents(simulation.GetState(), SPECIALIZATION);
+            simulation.Run();
+            runtime::BatchStats                   stats;
+            std::vector<std::vector<SkillTotals>> skill_totals(1, std::vector<SkillTotals>(SKILL_COUNT));
+            stats.Add(simulation.TotalDamage([&](const runtime::DamageIntent &hit, JX3DPS::value_t damage) {
+                skill_totals[0].at(hit.skill).Add(damage, hit.outcome);
+            }),
+                      0);
+            CombatEvents events;
+            for (const auto &hit : simulation.Log().Intents()) {
+                const auto NAME = desktop::SkillName(SPECIALIZATION, hit.skill);
+                events.push_back({ hit.frame, hit.skill, NAME, simulation.GetRules().Reduce(hit), static_cast<int>(hit.outcome), hit.sequence });
+            }
+            std::size_t mutation_cursor = 0;
+            buffs += ReadBuffEvents(simulation.Log().Mutations(), mutation_cursor, SPECIALIZATION);
+            m_control.completed.store(1, std::memory_order_relaxed);
+            emit TraceReady(events);
+            emit BuffTraceReady(buffs);
+            history.mutations     = simulation.Log().Mutations();
+            history.attributes    = simulation.GetRules().AttributeHistory();
+            history.observedFrame = simulation.GetState().now;
+            history.finished      = true;
+            emit             HistoryReady(history);
+            SimulationResult result{ stats, m_options, timer.nsecsElapsed() / 1e9, true };
+            StoreSkills(result, skill_totals, SPECIALIZATION);
+            if constexpr (Measure) {
+                ++profile->workers[0].fights;
+                measurement.Finish();
+                result.hotspots = DisplayProfile(JX3DPS::engine::Summarize(*profile));
+            }
+            result.elapsedSeconds = timer.nsecsElapsed() / 1e9;
+            emit StatisticsReady(result);
+            emit ResultReady(FormatStats(stats, JX3DPS::FramesToSeconds(m_options.duration), result.elapsedSeconds));
         };
         if (m_hotspots) {
             runtime::BatchProfile profile(1);

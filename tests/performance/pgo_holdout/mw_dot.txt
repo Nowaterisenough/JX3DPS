@@ -1,4 +1,4 @@
-/cast [tnobuff:shang|tbufftime:shang<2] shang
-/cast [tnobuff:jue|tbufftime:jue<2] jue
-/cast [buff:qufeng>=3] yu
-/cast biangong
+/cast [tnobuff:商|tbufftime:商<2] shang
+/cast [tnobuff:角|tbufftime:角<2] jue
+/cast [曲风>=3] yu
+/cast 宫

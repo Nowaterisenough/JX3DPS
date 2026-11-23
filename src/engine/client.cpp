@@ -40,19 +40,9 @@ BatchResult Batch(jx3dps_engine                          *handle,
         { "collectSkills",    collect                },
         { "hotspots",         hotspots               }
     };
-    std::visit(
-        [&](const auto &cfg) {
-            if constexpr (requires { cfg.book; }) {
-                if (!cfg.book) {
-                    throw std::invalid_argument("missing specialization");
-                }
-                request["scenario"] = cfg.book->code;
-            } else {
-                request["scenario"] = std::is_same_v<std::decay_t<decltype(cfg)>, runtime::tai_xu::Config> ? "legacy_tx" : "legacy_mw";
-            }
-            request["config"] = cfg;
-        },
-        config);
+    if (!config.book) throw std::invalid_argument("missing specialization");
+    request["scenario"] = config.book->code;
+    request["config"] = config;
     if (increments != nullptr) {
         request["increments"] = *increments;
     }

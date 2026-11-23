@@ -1,6 +1,6 @@
-/scast shuying
+/scast 孤影化双
 /scast shang
 /scast jue
 /scast yu
-/cast [buff:qufeng>=2] bianzhi
-/cast biangong
+/cast [曲风>=2] 徵
+/cast 宫

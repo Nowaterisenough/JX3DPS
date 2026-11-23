@@ -55,7 +55,6 @@ struct EquipmentPanel::Impl
     QDialog                        *referenceDialog = nullptr;
     QLabel                         *selectedLabel   = nullptr;
     QToolButton                    *viewDetails     = nullptr;
-    bool                            loaded          = false;
     QLabel                         *pickerTitle     = nullptr;
     QLabel                         *emptyResults    = nullptr;
     QLineEdit                      *search          = nullptr;
@@ -241,14 +240,6 @@ EquipmentPanel::EquipmentPanel(QWidget *parent) : QWidget(parent), d(std::make_u
 }
 
 EquipmentPanel::~EquipmentPanel() = default;
-
-void EquipmentPanel::showEvent(QShowEvent *event)
-{
-    QWidget::showEvent(event);
-    if (!d->loaded) {
-        LoadLatestData();
-    }
-}
 
 void EquipmentPanel::hideEvent(QHideEvent *event)
 {
@@ -526,33 +517,6 @@ void EquipmentPanel::BuildUi()
     root->addWidget(d->sourceLabel);
 }
 
-QString EquipmentPanel::FindSnapshotPath(const QString &requested)
-{
-    QStringList candidates;
-    if (!requested.isEmpty()) {
-        candidates << requested;
-    }
-    candidates << QDir::current().filePath(QStringLiteral("data/jx3box/tai_xu_jian_yi_latest.json"));
-    QDir app_dir(QCoreApplication::applicationDirPath());
-#ifdef Q_OS_MACOS
-    candidates << app_dir.filePath(QStringLiteral("../Resources/data/jx3box/tai_xu_jian_yi_latest.json"));
-#endif
-    for (int i = 0; i < 5; ++i) {
-        candidates << app_dir.filePath(QStringLiteral("data/jx3box/tai_xu_jian_yi_latest.json"));
-        candidates << app_dir.filePath(QStringLiteral("../../data/jx3box/tai_xu_jian_yi_latest.json"));
-        if (!app_dir.cdUp()) {
-            break;
-        }
-    }
-    for (const auto &candidate : candidates) {
-        const QFileInfo INFO(candidate);
-        if (INFO.exists() && INFO.isFile()) {
-            return INFO.absoluteFilePath();
-        }
-    }
-    return QString();
-}
-
 void EquipmentPanel::SetSeasonSchool(const QString &name, const QString &faction, const QString &major, const QString &kind, const QJsonObject &reference)
 {
     const auto prior = property("seasonSchool").toString();
@@ -563,7 +527,6 @@ void EquipmentPanel::SetSeasonSchool(const QString &name, const QString &faction
         d->schoolLoadouts[prior] = d->loadout;
     }
     d->detailsPopup->hide();
-    d->loaded = true;
     setProperty("seasonSchool", name);
     static const QJsonArray catalog = [] {
         QFile f(":/desktop/equipment50.z");
@@ -594,30 +557,6 @@ void EquipmentPanel::SetSeasonSchool(const QString &name, const QString &faction
     findChild<QToolButton *>("equipmentReferences")->setToolTip(name + " · 技能、奇穴与秘籍");
     d->sourceLabel->setText(QStringLiteral("苍生铸世 · %1 件候选").arg(items.size()));
 }
-void EquipmentPanel::LoadLatestData(const QString &snapshot_path)
-{
-    d->loaded          = true;
-    const QString PATH = FindSnapshotPath(snapshot_path);
-    if (PATH.isEmpty()) {
-        d->sourceLabel->setText(QStringLiteral("魔盒快照缺失"));
-        return;
-    }
-    QFile file(PATH);
-    if (!file.open(QIODevice::ReadOnly)) {
-        d->sourceLabel->setText(QStringLiteral("快照读取失败"));
-        return;
-    }
-    QJsonParseError error;
-    const auto      document = QJsonDocument::fromJson(file.readAll(), &error);
-    if (error.error != QJsonParseError::NoError || !document.isObject()) {
-        d->sourceLabel->setText(QStringLiteral("快照格式错误"));
-        return;
-    }
-    d->sourceLabel->setText(
-        QStringLiteral("装备预览 · 魔盒 %1").arg(document.object().value(QStringLiteral("data_version")).toString()));
-    PopulateFromSnapshot(document.object());
-}
-
 QString EquipmentPanel::SlotForItem(const QJsonObject &item)
 {
     QString type = item.value(QStringLiteral("type")).toString();

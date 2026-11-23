@@ -1,7 +1,7 @@
 /scast suixing
-/scast shengtaiji
-/scast renjian
-/scast ziqi
+/scast 吞日月
+/scast 人剑合一
+/scast suixing
 /cast [qidian>=7] wuwu
 /cast sanhuan
 /cast sanchai

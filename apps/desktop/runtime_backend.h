@@ -1,9 +1,7 @@
 #ifndef DESKTOP_RUNTIME_BACKEND_H
 #define DESKTOP_RUNTIME_BACKEND_H
 
-#include "src/class/mo_wen/runtime_rules.hpp"
-#include "src/class/season50/runtime_rules.hpp"
-#include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
+#include "src/class/common/runtime_rules.hpp"
 #include "src/core/runtime/attribute_gains.hpp"
 
 #include "runtime_catalog.h"

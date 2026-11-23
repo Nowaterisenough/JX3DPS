@@ -473,7 +473,7 @@ void ResultsPanel::ShowDetails()
     const auto specialization =
         schoolId.isString()
             ? desktop::SchoolFromId(schoolId.toString())
-            : (schoolId.toInt() == 1 ? desktop::Specialization::LEGACY_MW : desktop::Specialization::LEGACY_TX);
+            : (schoolId.toInt() == 1 ? desktop::Specialization::MO_WEN : desktop::Specialization::TAI_XU);
     desktop::FillGameGainTable(m_gains, r, specialization, true);
     QString text =
         desktop::ClassName(specialization) + QStringLiteral(" | ") +
@@ -568,7 +568,7 @@ bool ResultsPanel::ExportSelected(const QString &path, QString &error) const
         { "trace",              r.trace                                                                           },
         { "gainsRequested",     r.gainsRequested                                                                  },
         { "gainComparisonMode", r.gainMode == desktop::GainComparisonMode::SAME_COST ? "same_cost" : "same_value" },
-        { "gainBudgetModel",    "jx3box_71692_level120"                                                           },
+        { "gainBudgetModel",    "cangsheng50_sixth_grade_stone"                                                           },
         { "durationFrames",     r.options.duration                                                                },
         { "seed",               QString::number(r.options.seed)                                                   },
         { "workers",            static_cast<int>(r.options.workers)                                               }

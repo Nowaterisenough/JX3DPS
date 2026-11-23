@@ -1,8 +1,7 @@
 #include <stdexcept>
 
 #include "config_json.hpp"
-#include "default_macro.hpp"
-#include "src/class/season50/permanents.hpp"
+#include "src/class/common/permanents.hpp"
 #include "jx3dps.h"
 #ifndef __EMSCRIPTEN__
 #    include "src/core/runtime/attribute_gains.hpp"
@@ -17,9 +16,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "src/class/mo_wen/runtime_rules.hpp"
-#include "src/class/season50/runtime_rules.hpp"
-#include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
+#include "src/class/common/runtime_rules.hpp"
 #include "src/core/runtime/batch_statistics.hpp"
 #include "src/core/runtime/simulation.hpp"
 #include "src/core/runtime/skill_totals.hpp"
@@ -58,19 +55,17 @@ struct Session
     virtual Json debug(const std::string &action) = 0;
 };
 
-template <class Config>
-std::string_view MacroSource(const Json &request, const Config &config)
+std::string_view MacroSource(const Json &request, const rt::season50::Config &config)
 {
     if (!request.contains("macro")) {
-        if constexpr (std::is_same_v<Config, rt::season50::Config>) return config.book->default_macro;
+        return config.book->default_macro;
     }
     return request.at("macro").get_ref<const std::string &>();
 }
 
-template <class Config>
 class Battle final : public Session
 {
-    using Rules = typename Config::RuntimeModule::Rules;
+    using Rules = rt::season50::Rules;
     rt::CompiledMacro                            macro;
     Rules                                        rules;
     int                                          seconds, fights;
@@ -83,7 +78,7 @@ class Battle final : public Session
     std::unique_ptr<rt::Simulation<Rules, true>> debugger;
 
 public:
-    Battle(const Json &j, const Config &cfg, rt::SkillCatalog cat, bool debug) :
+    Battle(const Json &j, const rt::season50::Config &cfg, rt::SkillCatalog cat, bool debug) :
         rules(rt::LoadSpecialization(cfg)), seconds(bounded(j, "seconds", 1, MaxSeconds)),
         fights(bounded(j, "iterations", 1, MaxFights)), seed(seedOf(j)), catalog(cat), skills(cat.skills.size())
     {
@@ -192,9 +187,7 @@ public:
                     { "critical", h.outcome == RollResult::DOUBLE },
                     { "damage",   std::to_string(damage)          }
                 });
-                if constexpr (std::is_same_v<Config, rt::season50::Config>) {
-                    hits.back()["multiplier"] = h.sub;
-                }
+                hits.back()["multiplier"] = h.sub;
             });
             for (const auto &m : debugger->Log().Mutations()) {
                 if (m.kind == rt::MutationKind::BUFF) {
@@ -261,10 +254,6 @@ public:
         };
     }
 };
-// Emit the virtual entry points called through Session in every engine build.
-template class Battle<rt::tai_xu::Config>;
-template class Battle<rt::mo_wen::Config>;
-template class Battle<rt::season50::Config>;
 } // namespace
 
 struct jx3dps_engine
@@ -438,7 +427,7 @@ Json handle(jx3dps_engine &session, const Json &j)
             }
             Json equipmentSlots = Json::object();
             for (auto gear : book.equipment) {
-                const auto slot = rt::season50::EquipmentSlot(gear);
+                const auto slot = rt::season50::EquipmentSlot(book, gear);
                 if (!slot.empty()) equipmentSlots[gear] = slot;
             }
             Json permanents = Json::object();
@@ -485,44 +474,33 @@ Json handle(jx3dps_engine &session, const Json &j)
     active.reset();
     const auto scenario = j.at("scenario").get<std::string>();
     const bool DEBUG  = j.value("debug", false);
-    const auto start    = [&](auto &cfg, rt::SkillCatalog cat) -> Json {
-        if (j.contains("config")) {
-            j.at("config").get_to(cfg);
-        }
-        const auto ATTRS = j.value("attributes", Json::object());
-        auto      &a     = cfg.attributes;
-        if (ATTRS.contains("attack")) {
-            a.attack_base = bounded(ATTRS, "attack", 0, 1000000);
-        }
-        if (ATTRS.contains("crit")) {
-            a.crit = bounded(ATTRS, "crit", 0, 1000000);
-        }
-        if (ATTRS.contains("haste")) {
-            a.haste = bounded(ATTRS, "haste", 0, 1000000);
-        }
-        using C = std::decay_t<decltype(cfg)>;
+    auto cfg = engine::Scenario(scenario);
+    const auto cat = cfg.book->Catalog();
+    if (j.contains("config")) {
+        j.at("config").get_to(cfg);
+    }
+    const auto ATTRS = j.value("attributes", Json::object());
+    auto      &a     = cfg.attributes;
+    if (ATTRS.contains("attack")) {
+        a.attack_base = bounded(ATTRS, "attack", 0, 1000000);
+    }
+    if (ATTRS.contains("crit")) {
+        a.crit = bounded(ATTRS, "crit", 0, 1000000);
+    }
+    if (ATTRS.contains("haste")) {
+        a.haste = bounded(ATTRS, "haste", 0, 1000000);
+    }
+
 #ifndef __EMSCRIPTEN__
-        if (OP == "batch") return nativeBatch(session, j, cfg, cat);
+    if (OP == "batch") return nativeBatch(session, j, cfg, cat);
+
 #else
-        if (OP == "batch") throw std::invalid_argument("use start/next for cooperative batches");
+    if (OP == "batch") throw std::invalid_argument("use start/next for cooperative batches");
+
 #endif
-        active = std::make_unique<Battle<C>>(j, cfg, cat, DEBUG);
-        return DEBUG ? active->debug("start")
-                     : Json{
-                           { "completed", 0 }
-        };
-    };
-    auto config = engine::Scenario(scenario);
-    return std::visit(
-        [&](auto &cfg) {
-            using C = std::decay_t<decltype(cfg)>;
-            if constexpr (std::is_same_v<C, rt::season50::Config>) {
-                return start(cfg, cfg.book->Catalog());
-            } else {
-                return start(cfg, std::is_same_v<C, rt::tai_xu::Config> ? rt::tai_xu::Catalog : rt::mo_wen::Catalog);
-            }
-        },
-        config);
+    active = std::make_unique<Battle>(j, cfg, cat, DEBUG);
+    return DEBUG ? active->debug("start") : Json{{"completed", 0}};
+
 }
 } // namespace
 

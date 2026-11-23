@@ -66,7 +66,6 @@
 #include "simulation_options.h"
 
 namespace rt = JX3DPS::runtime;
-namespace tx = JX3DPS::runtime::tai_xu;
 
 namespace {
 QString Name(std::string_view text)
@@ -869,31 +868,9 @@ struct Workbench::Impl
             }
             // Early 50-level builds saved untouched factory macros as ordinary drafts.
             if (!draft.modified && draft.path.isEmpty() && draft.breakpoints.empty()) {
-                static const QHash<QString, QByteArray> previousDefaults{
-                    { "tx", "77fd56e5273e9ee1b658a9b607fb95166d181fe81c9c254e4916fc7d68738e27" },
-                    { "mw", "704b3cbc7d19e8a619484738991b5e90fc3848b4b4eb286d75bb9c9aa8986316" },
-                    { "axzy", "ed87668ffe3d261042abd4c90eb5bf4fed7a3f1e6a4f9b78b598e638da21bcb0" },
-                    { "baj", "501076f52221019673bd0fee9c6a3df804fa270e43ecb79d04ab3064a11f05a4" },
-                    { "bxj", "8507508384005949a430c52b94e006da0a260347fdca979cba63a22618e20ae1" },
-                    { "dj", "9e809afcdcb476bfd716c7cf4715e737dc45a5e44d70204cd73807b261e41193" },
-                    { "fsj", "990005fb24c0416d58282c3176eeafec32684144834748cb5a77d96293930158" },
-                    { "fysj", "95f0522c3a722d81a671bfd3c4fb9368de4d0b5bed256bb9638c1e09266be0ec" },
-                    { "gfj", "b8994be3458ba1faeea52f0f1e3b61e2e9b0b11836723031a8769130203257c3" },
-                    { "hjy", "16e3ec8e2fa00f8d0184bcfb81f8b87ab2cffbc5993045ef0b121b03e1a282dc" },
-                    { "lhj", "b96877684a1c0edea5f1b3139eae7ea3e8b286cb756fe364a445c3653e0258f8" },
-                    { "shxj", "25102961b4d02df43acc2ddd8689efa3199977fb1253092eae348ca9b8594d73" },
-                    { "txj", "4f591684563c573ad224fd139326b62bddbff618c680016aab9da7967f7fa445" },
-                    { "tlgd", "eb4c07585d5be0ffbcd7fc2a703dc21d3cc63bbe66496216a360e3d1c5fe76f1" },
-                    { "wf", "372540b178db146ab4b2675aca6a4cacb862f56ac4c0271dfb4e11e5d7e4e466" },
-                    { "xcj", "ca323c363d1f3a17c95df6002b877d977623edf124c0fcdadbb709f814eedbb3" },
-                    { "yjj", "ecb0a04cbe3b8220a5bc4a12c33f7c70242c1891a1229f56c81621767e55f838" },
-                    { "yly", "cbfacdcf2dc3c05fab6bbd8589f6877a26e17b78268b84364921081cedaaf0fe" },
-                    { "ztg", "2a4f19072df853c3f55db3762cd12dd1af79227e0813327fe6319a252963f908" },
-                    { "zxg", "795a4a975e43d752f6d9f82f983c74bc2c7ca72393d1c4e7a5de11bce0c78456" },
-                };
                 const auto digest = QCryptographicHash::hash(draft.text.toUtf8(), QCryptographicHash::Sha256).toHex();
                 if (SETTINGS.value(key + "factoryDefault").toBool() ||
-                    digest == previousDefaults.value(desktop::Text(desktop::School(spec).code))) continue;
+                    digest.toStdString() == desktop::School(spec).saved.macro_digest) continue;
             }
             drafts[i] = draft;
         }

@@ -1,4 +1,4 @@
-#include "src/class/season50/runtime_rules.hpp"
+#include "src/class/common/runtime_rules.hpp"
 
 #include "src/core/runtime/batch_statistics.hpp"
 #include "src/core/runtime/attribute_gains.hpp"
@@ -26,7 +26,7 @@ struct Fight
     {
         cfg.book = s50::Find(code);
         CHECK(cfg.book != nullptr);
-        cfg.talents.assign(cfg.book->talents.begin(), cfg.book->talents.end());
+        cfg.talents.assign(cfg.book->default_talents.begin(), cfg.book->default_talents.end());
         cfg.attributes.crit  = crit;
         cfg.attributes.haste = haste;
         auto [m, errors]     = rt::MacroCompiler::Compile(source.empty() ? cfg.book->default_macro : source,
@@ -70,7 +70,9 @@ struct Fight
 
 void CheckAllBooks()
 {
-    CHECK(s50::Books().size() == 20);
+    for (const auto code : {"tx", "mw", "axzy", "baj", "bxj", "dj", "fsj", "fysj", "gfj", "hjy",
+                            "lhj", "shxj", "txj", "tlgd", "wf", "xcj", "yjj", "yly", "ztg", "zxg"})
+        CHECK(s50::Find(code) != nullptr);
     for (const auto &b : s50::Books()) {
         Fight f(b.code);
         f.run(960);
@@ -111,9 +113,142 @@ void CheckDotAndCastOrder()
     CHECK(clipped.sim->Log().Size() == 0);
 }
 
+void CheckDamageHooksAndDotSnapshot()
+{
+    Fight fight("hjy", "/scast 商阳指");
+    auto book = *fight.cfg.book;
+    const auto options = rt::CatalogMacroOptions(book.Catalog());
+    const auto cast = options.resolve_skill("商阳指");
+    const auto aura = options.resolve_buff("流离");
+    const auto dot = book.auras[options.resolve_buff("商阳指")].damage;
+    // A one-cast bonus is captured when the DOT is applied, then removed at cast completion.
+    book.actions[cast].pre_cast.push_back({s50::Op::Add, aura});
+    book.actions[cast].post_cast.push_back({s50::Op::Remove, aura});
+    book.hits[dot].modifiers.push_back({.aura = aura, .stats = {.attack_flat = 256}});
+    fight.cfg.book = &book;
+    fight.prepare();
+    fight.run(100);
+    const auto &versions = fight.sim->GetRules().Versions();
+    auto ticks = fight.hits("商阳指(DOT)");
+    CHECK(ticks.size() == 2);
+    for (const auto &tick : ticks) {
+        CHECK(versions[tick.snapshot_version].attack_flat == 256);
+        CHECK(versions[tick.live_version].attack_flat == 0);
+    }
+    // Each tick can change live state before damage and undo it after the hit.
+    book.hits[dot].pre_damage.push_back({s50::Op::Add, aura});
+    book.hits[dot].post_damage.push_back({s50::Op::Remove, aura});
+    fight.prepare();
+    fight.run(100);
+    ticks = fight.hits("商阳指(DOT)");
+    CHECK(ticks.size() == 2);
+    const auto &updated = fight.sim->GetRules().Versions();
+    for (const auto &tick : ticks) {
+        CHECK(updated[tick.snapshot_version].attack_flat == 256);
+        CHECK(updated[tick.live_version].attack_flat == 256);
+    }
+    CHECK(fight.sim->GetState().self_buff_stacks[aura] == 0);
+}
+
+void CheckTaiXuTalentWindows()
+{
+    Fight blade("tx", "/cast 八荒归元");
+    for (bool winds : {false, true}) {
+        for (bool charges : {false, true}) {
+            blade.cfg.talents.clear();
+            if (winds) blade.cfg.talents.emplace_back("风逝");
+            if (charges) blade.cfg.talents.emplace_back("和光");
+            blade.prepare();
+            blade.run(4800);
+            CHECK(blade.hits(winds ? "八荒归元·斩杀" : "八荒归元").size() == (charges ? 35 : 25));
+        }
+    }
+    Fight ignore("tx", "/scast 碎星辰\n/scast 人剑合一");
+    ignore.cfg.talents = {"故长"};
+    ignore.cfg.recipes = {"人剑合一·持续伤害12秒"};
+    ignore.prepare();
+    ignore.run(160);
+    for (auto name : {"人剑合一", "人剑合一(DOT)"}) {
+        const auto hits = ignore.hits(name);
+        CHECK(!hits.empty());
+        for (auto h : hits) CHECK(ignore.sim->GetRules().Versions()[h.snapshot_version].ignore == 614);
+    }
+    Fight swords("tx", "/scast 紫气东来\n/scast 八荒归元\n/scast 紫气东来\n/scast 八荒归元\n/cast 八荒归元");
+    swords.cfg.talents = {"剑入", "和光"};
+    swords.prepare();
+    swords.run(145);
+    CHECK((swords.frames("剑入") == std::vector<tick_t>{0, 144}));
+    CHECK((swords.frames("剑入·引爆") == std::vector<tick_t>{24}));
+    Fight stance("tx", "/scast 碎星辰\n/scast [rage>=20] 人剑合一\n/cast [buff:人剑合一&气点=10] 无我无剑");
+    stance.cfg.talents = {"玄门", "一彻", "风逝"};
+    stance.prepare();
+    stance.run(180);
+    CHECK(stance.frames("人剑合一").size() == 1);
+    CHECK(!stance.frames("一彻").empty());
+    CHECK(stance.frames("一彻") == stance.frames("无我无剑·十"));
+    CHECK(stance.sim->GetState().energy < 20);
+}
+
+void CheckConditionalTalentEffects()
+{
+    for (bool selected : {false, true}) {
+        Fight puppet("yly", "/cast 勾线\n/cast 挑丝");
+        puppet.cfg.talents = selected ? std::vector<std::string>{"鼓关", "谐调"} : std::vector<std::string>{};
+        puppet.prepare();
+        puppet.run(1200);
+        CHECK(!puppet.hits("勾线").empty());
+        CHECK(!puppet.hits("千里急·肆").empty() == selected);
+        CHECK(!puppet.hits("谐调").empty() == selected);
+        Fight venom("dj", "/scast 蝎心");
+        venom.cfg.talents = selected ? std::vector<std::string>{"蝎毒"} : std::vector<std::string>{};
+        venom.prepare();
+        venom.run(200);
+        CHECK(venom.hits("蝎心").size() == (selected ? 0 : 1));
+        CHECK(venom.hits("蝎心(DOT)").size() == (selected ? 6 : 0));
+        if (selected) CHECK(venom.frames("蝎心(DOT)").front() == 32);
+    }
+    Fight refresh("txj", "/scast 起火卦\n/scast 祝由·火离\n/scast 奇门飞宫\n/scast 鬼星开穴");
+    refresh.cfg.talents.clear();
+    refresh.prepare();
+    refresh.run(480);
+    auto refreshed = refresh.frames("卦象·火离");
+    CHECK(refreshed.size() == 14 && refreshed[0] == 0 && refreshed[1] == 24);
+    for (int i = 1; i <= 12; ++i) CHECK(refreshed[i + 1] == i * 32);
+    Fight extend("txj", "/scast 起火卦\n/scast 祝由·火离\n/scast 御前星");
+    extend.cfg.talents = {"御前星", "世降"};
+    extend.prepare();
+    extend.run(960);
+    auto extended = extend.frames("卦象·火离");
+    const auto extensions = extend.frames("世降").size();
+    CHECK(extensions > 0 && extended.size() == 13 + extensions);
+    for (std::size_t i = 0; i < extended.size(); ++i) CHECK(extended[i] == static_cast<tick_t>(i * 32));
+    for (bool enhanced : {false, true}) {
+        Fight bleed("fsj", "/scast 盾飞\n/scast 斩刀");
+        bleed.cfg.talents = enhanced ? std::vector<std::string>{"登锋"} : std::vector<std::string>{};
+        bleed.cfg.initial_qidian = 100;
+        bleed.prepare();
+        bleed.run(640);
+        auto frames = bleed.frames(enhanced ? "流血·登锋(DOT)" : "流血(DOT)");
+        CHECK(frames.size() == (enhanced ? 26 : 13));
+        CHECK(frames[1] - frames[0] == (enhanced ? 16 : 32));
+    }
+    for (auto [haste, spacing] : {std::pair{0, 32}, {928, 29}, {1452, 27}}) {
+        Fight fire("txj", "/scast 起火卦\n/scast 祝由·火离", 0, haste);
+        fire.cfg.talents = {"焚如"};
+        fire.prepare();
+        fire.run(480);
+        auto frames = fire.frames("焚如·火离");
+        CHECK(frames.size() == 13);
+        for (int i = 0; i < 13; ++i) CHECK(frames[i] == i * spacing);
+        CHECK(fire.frames("卦象·火离").empty());
+    }
+}
+
 void CheckNovemberChanges()
 {
     Fight fsj("fsj", "/cast 偃守孤旌\n/cast 斩刀");
+    fsj.cfg.talents = {"偃守孤旌", "阵云结晦"};
+    fsj.prepare();
     fsj.run(145);
     const auto hits = fsj.hits("斩刀");
     CHECK(hits.size() == 6);
@@ -125,6 +260,8 @@ void CheckNovemberChanges()
         CHECK(stats.pve == 154);
     }
     Fight gfj("gfj", "/cast 灭影追风\n/cast 孤锋破浪");
+    gfj.cfg.talents.push_back("威声");
+    gfj.prepare();
     gfj.run(193);
     const auto slashes = gfj.hits("孤锋破浪");
     CHECK(slashes.size() == 2);
@@ -817,7 +954,7 @@ public:
         if (!native_rolls_ && replay_data_->config.book->code == "yjj") {
             // Condition only the random opportunity on the recorded buttons. All spends, gates and cooldowns run normally.
             bool granted = false;
-            for (auto &step : replay_data_->finishes[line.action_slot]) {
+            for (auto &step : replay_data_->post_cast[line.action_slot]) {
                 if (step.op == s50::Op::ChanceAura) {
                     step.amount = button.grant_opportunity && !granted ? 10000 : 0;
                     granted     = true;
@@ -1011,7 +1148,7 @@ void CheckInputReplay(std::string_view                       code,
     if (code == "bxj") {
         // The online channel trace grants 枕上 after every eligible hit. Keep the native
         // damage rolls independent while conditioning only this haste/ignore window.
-        for (auto &list : replay->on_hit) {
+        for (auto &list : replay->post_damage) {
             for (auto &step : list) {
                 if (step.op == s50::Op::AddOnCrit && book.buffs[step.slot].name == "待结算枕上") {
                     step.op = s50::Op::Add;
@@ -1630,6 +1767,9 @@ int main(int argc, char **argv)
     CheckPublishedInputs();
     CheckAllBooks();
     CheckDotAndCastOrder();
+    CheckDamageHooksAndDotSnapshot();
+    CheckTaiXuTalentWindows();
+    CheckConditionalTalentEffects();
     CheckNovemberChanges();
     CheckResources();
     CheckUpdatedLegacySchools();

@@ -11,10 +11,8 @@
 #include <QStandardItemModel>
 #include <QTextBlock>
 
-#include "src/class/tai_xu_jian_yi/runtime_data.hpp"
 
 namespace {
-namespace tx = JX3DPS::runtime::tai_xu;
 enum class Scope
 {
     NONE,
@@ -220,12 +218,12 @@ void MacroEditor::UpdateCompletion(bool requested)
     } else if (context.scope == Scope::SKILL) {
         for (const auto SKILL : CATALOG.castable) {
             ADD(Name(CATALOG.skills[SKILL].name), Name(CATALOG.skillAliases[SKILL]));
-            ADD(Name(CATALOG.skillAliases[SKILL]), Name(CATALOG.skills[SKILL].name));
+            if (CATALOG.skillAliases[SKILL] != CATALOG.skills[SKILL].name) ADD(Name(CATALOG.skillAliases[SKILL]), Name(CATALOG.skills[SKILL].name));
         }
     } else {
         for (std::size_t buff = 0; buff < CATALOG.buffs.size(); ++buff) {
             ADD(Name(CATALOG.buffs[buff].name), Name(CATALOG.buffAliases[buff]));
-            ADD(Name(CATALOG.buffAliases[buff]), Name(CATALOG.buffs[buff].name));
+            if (CATALOG.buffAliases[buff] != CATALOG.buffs[buff].name) ADD(Name(CATALOG.buffAliases[buff]), Name(CATALOG.buffs[buff].name));
         }
     }
     if (m_candidates->rowCount() == 0) {

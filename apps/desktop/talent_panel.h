@@ -3,6 +3,7 @@
 #include <memory>
 
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QStringList>
 #include <QWidget>
 
@@ -20,6 +21,7 @@ public:
     QJsonArray         DefaultSelection() const;
     static QStringList Names(Specialization spec, const QJsonArray &selection);
 
+    static QJsonObject Profile(Specialization spec);
     static QString DataVersion();
     QJsonArray     Selection() const;
     bool           ValidateSelection(const QJsonArray &selection, QString &error) const;

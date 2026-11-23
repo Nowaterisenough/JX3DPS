@@ -5,16 +5,14 @@
 #include <new>
 #include <stdexcept>
 
-#include "src/class/mo_wen/runtime_rules.hpp"
-#include "src/class/tai_xu_jian_yi/runtime_rules.hpp"
+#include "src/class/common/runtime_rules.hpp"
+#include "src/engine/scenarios.hpp"
 #include "src/core/runtime/attribute_gains.hpp"
 
 #include "check.hpp"
 
 using namespace JX3DPS;
 using namespace JX3DPS::runtime;
-namespace tx = JX3DPS::runtime::tai_xu;
-namespace mw = JX3DPS::runtime::mo_wen;
 
 static bool        count_allocations = false;
 static std::size_t allocations       = 0;
@@ -148,48 +146,6 @@ void StatisticsKeys()
     Throws<std::invalid_argument>([&] { statistics.Reserve(0); });
 }
 
-void MoWenGrouping()
-{
-    mw::Config config;
-    config.equipment = mw::WEAPON_WATER | mw::ENCHANT_BELT;
-    mw::DamageReducer reducer(mw::Prepare(config));
-    auto              statistics = MakeDamageStatistics<mw::Module>();
-    statistics.Reserve(16);
-    DamageIntent hit;
-    hit.effect          = mw::E_GONG;
-    value_t    expected = 0;
-    const auto RECORD   = [&] {
-        statistics.Record(hit);
-        expected += reducer.Reduce(hit);
-        CHECK(statistics.Reduce(reducer) == expected);
-    };
-    RECORD();
-    hit.snapshot   |= mw::YouRenProfile;
-    hit.base        = 410;
-    hit.frame       = 80;
-    hit.random_key  = 31;
-    RECORD();
-    CHECK(statistics.Entries().size() == 1);
-    hit.outcome = RollResult::DOUBLE;
-    RECORD();
-    hit.snapshot ^= mw::YouRenProfile;
-    RECORD();
-    CHECK(statistics.Entries().size() == 2);
-    hit.base += 82;
-    RECORD();
-    hit.snapshot += mw::WaterUnit;
-    RECORD();
-    hit.snapshot += mw::BeltUnit;
-    RECORD();
-    hit.snapshot |= mw::SetProfile;
-    RECORD();
-    hit.effect = mw::E_SHANG_DOT;
-    RECORD();
-    CHECK(statistics.Entries().size() == 7);
-}
-
-// A third module proves that the framework has no Tai Xu/Mo Wen dispatch or
-// hidden full simulations for the five damage-only gains.
 namespace probe {
 struct Module;
 
@@ -341,7 +297,7 @@ void CompareGains(const Config &config, std::string_view source, CompileOptions 
     BatchControl control;
     const auto   SINGLE =
         RunAttributeGainsControlled(macro.program, options, control, config, detail::TotalDamageReducer{}, increments);
-    CHECK(control.completed == options.iterations * 3);
+    CHECK(control.completed == options.iterations * GainSimulationStages(config));
     SameStats(SINGLE.primary, RunBatch(macro.program, options, LoadSpecialization(config)));
     for (std::size_t i = 0; i < SINGLE.gains.size(); ++i) {
         CHECK(SINGLE.gains[i]);
@@ -352,7 +308,7 @@ void CompareGains(const Config &config, std::string_view source, CompileOptions 
     options.workers = 4;
     const auto PARALLEL =
         RunAttributeGainsControlled(macro.program, options, control, config, detail::TotalDamageReducer{}, increments);
-    CHECK(control.completed == options.iterations * 3);
+    CHECK(control.completed == options.iterations * GainSimulationStages(config));
     SameStats(PARALLEL.primary, SINGLE.primary);
     for (std::size_t i = 0; i < SINGLE.gains.size(); ++i) {
         CHECK(PARALLEL.gains[i]);
@@ -364,6 +320,12 @@ void CompareGains(const Config &config, std::string_view source, CompileOptions 
     DamageGainObserver<Config> observer(config, DamageOnlyGainIndexes<Config>, increments);
     observer.Setup(simulation);
     std::array<std::array<value_t, DamageOnlyGainIndexes<Config>.size()>, 4> replay_damage{};
+    // Grow the fight's snapshot and timer storage before measuring steady-state replay.
+    for (unsigned i = 0; i < replay_damage.size(); ++i) {
+        simulation.Start(options.duration, IterationSeed(options.seed, i));
+        simulation.Run();
+        observer(simulation, replay_damage[i]);
+    }
     allocations       = 0;
     count_allocations = true;
     for (unsigned i = 0; i < replay_damage.size(); ++i) {
@@ -399,46 +361,15 @@ void GameModules()
 {
     constexpr auto ROTATION = "/cast [nobuff:ziqi&qidian<6] ziqi\n/cast [qidian>=8] wuwu\n/cast bahuang\n"
                               "/cast sanhuan\n/cast sanchai\n/cast [qidian>=1] wuwu";
-    tx::Config     tai_xu;
-    CompareGains(tai_xu, ROTATION, tx::MacroOptions(false));
-    CompareGains(tai_xu, ROTATION, tx::MacroOptions(false), { 398, 883, 883, 883, 883, 883, 883, 597 });
-    tai_xu.talents   = tx::DIE_REN_TALENT | tx::WU_YI | tx::SHEN_MAI | tx::XUAN_MEN | tx::LIE_YUN | tx::GU_CHANG;
-    tai_xu.equipment = tx::WEAPON_CW | tx::SET_ATTRIBUTE;
-    tai_xu.attributes.overcome_base     = 20000;
-    tai_xu.attributes.overcome_by_class = 5000;
-    tai_xu.recipes[tx::WU_WO]           = tx::CRIT2 | tx::DAMAGE4 | tx::DAMAGE5;
-    tai_xu.team_buffs                   = {
-        { tx::team::JI_LEI,           0,   96,  1  },
-        { tx::team::JI_LEI,           160, 96,  1  },
-        { tx::team::NONG_MEI,         48,  96,  1  },
-        { tx::team::HAO_LING_SAN_JUN, 16,  0,   48 },
-        { tx::team::PO_FENG,          32,  160, 1  },
-        { tx::team::JIE_HUO,          96,  160, 1  }
-    };
-    CompareGains(tai_xu, "/scast shengtaiji\n" + std::string(ROTATION), tx::MacroOptions(false));
-
-    constexpr auto MO_WEN_ROTATION =
-        "/cast [tnobuff:shang] shang\n/cast [tnobuff:jue] jue\n/cast shuying\n"
-        "/cast gaoshan\n/cast [buff:qufeng=4] yu\n/cast bianzhi\n/cast biangong";
-    mw::Config mo_wen;
-    CompareGains(mo_wen, MO_WEN_ROTATION, mw::MacroOptions(false));
-    CompareGains(mo_wen, MO_WEN_ROTATION, mw::MacroOptions(false), { 475, 883, 883, 883, 883, 883, 883, 597 });
-    mo_wen.talents = mw::HAO_ZHONG | mw::FEI_FAN | mw::SHI_XIANG | mw::ZHENG_LV_HE_MING | mw::LIU_ZHAO_TALENT | mw::KE_MENG;
-    mo_wen.equipment    = mw::ENCHANT_SHOES | mw::ENCHANT_WRIST | mw::ENCHANT_BELT | mw::SET_ATTRIBUTE | mw::SET_SKILL |
-                          mw::WEAPON_CW | mw::WEAPON_WATER;
-    mo_wen.team_effects = mw::YOU_REN | mw::JING_MIAO;
-    mo_wen.recipes[0]   = mw::GONG_CRIT2 | mw::GONG_DAMAGE4 | mw::GONG_PREPARE1;
-    CompareGains(mo_wen, "/scast zhenglv1\n" + std::string(MO_WEN_ROTATION), mw::MacroOptions(false));
-    // The catalog keeps legacy Chinese names for the two target DOTs.
-    const auto OPTIONS = mw::MacroOptions(false);
-    CHECK(OPTIONS.resolve_buff(mw::Skills.entries[mw::SHANG].name) == mw::SHANG_DOT);
-    CHECK(OPTIONS.resolve_buff(mw::Skills.entries[mw::JUE].name) == mw::JUE_DOT);
+    for (auto code : {"tx", "mw"}) {
+        auto cfg = JX3DPS::engine::Scenario(code);
+        CompareGains(cfg, cfg.book->default_macro, CatalogMacroOptions(cfg.book->Catalog(), false));
+    }
 }
 
 int main()
 {
     StatisticsKeys();
-    MoWenGrouping();
     ExecutionAndCancellation();
     GameModules();
     std::cout << "attribute gain tests passed: module-specific simulation stages, statistics reduction, game-module "

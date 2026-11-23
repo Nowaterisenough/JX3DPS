@@ -641,7 +641,7 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
             box->setObjectName("equipment/" + code + "/" + desktop::Text(name));
             box->setChecked(std::ranges::find(book.default_equipment, name) != book.default_equipment.end());
             box->setProperty("defaultChecked", box->isChecked());
-            const auto slot = runtime::season50::EquipmentSlot(name);
+            const auto slot = runtime::season50::EquipmentSlot(book, name);
             if (!slot.empty()) {
                 box->setProperty("enchantSlot", desktop::Text(slot));
                 connect(box, &QCheckBox::toggled, this, [box, gear_form](bool on) {
@@ -832,7 +832,7 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
         talent_headers->setCurrentIndex(index);
         recipe_stack->setCurrentIndex(index);
         equipment_stack->setCurrentIndex(index);
-        permanent_stack->setCurrentIndex(desktop::School(spec).code == "tlgd"      ? 2
+        permanent_stack->setCurrentIndex(FoodFamily(spec) == "天罗诡道"      ? 2
                                          : desktop::Info(spec).damage == "Physics" ? 0
                                                                                    : 1);
         if (m_equipmentDialog->isVisible()) {
@@ -1146,14 +1146,7 @@ void SimulationOptions::ShowEquipment()
             { "name", desktop::Text(name) }
         });
     }
-    QFile f(":/desktop/talents50.json");
-    f.open(QIODevice::ReadOnly);
-    const auto groups =
-        QJsonDocument::fromJson(f.readAll())
-            .object()["profiles"]
-            .toObject()[desktop::Text(book.code)]
-            .toObject()["groups"]
-            .toArray();
+    const auto groups = desktop::TalentPanel::Profile(spec).value("groups").toArray();
     QJsonArray tiers;
     for (int i = 0; i < groups.size(); ++i) {
         QJsonArray entries;
@@ -1373,7 +1366,7 @@ runtime::season50::Config SimulationOptions::ConfigFromValues(
 {
     runtime::season50::Config cfg;
     cfg.book                = &desktop::School(spec);
-    cfg.precombat = runtime::season50::DefaultPrecombat(cfg.book->code);
+    cfg.precombat = cfg.book->precombat;
     const auto &book        = *cfg.book;
     const auto &v = values;
     std::map<std::string, std::string> selected;
@@ -1389,7 +1382,7 @@ runtime::season50::Config SimulationOptions::ConfigFromValues(
     cfg.player_life = v["playerLife"].toDouble(100.) / 100.;
     cfg.target = { v["targetLevel"].toInt(), v["shield"].toInt(), v["targetLife"].toDouble() / 100., v["distance"].toDouble(), pct("vulnerable") };
     cfg.target_events.assign(events.begin(), events.end());
-    if (book.code == "tx" || book.code == "zxg") {
+    if (book.initial_qidian_option) {
         cfg.initial_qidian = v["qidian"].toInt();
     }
     auto &a             = cfg.attributes;
@@ -1615,9 +1608,33 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
     // A pre-compression configuration has incompatible combat stats and option IDs.
     // Carry only portable run settings and dated target movements into a fresh 50-level profile.
     const int version = snapshot["version"].toInt();
+    const auto talentNames = [](const auto &names) {
+        QStringList out;
+        for (auto name : names) out.append(desktop::Text(name));
+        return out;
+    };
     if (version >= 5 && version <= 8 && snapshot["format"] == "jx3dps.desktop.config") {
         auto values = snapshot.value("values").toObject();
+        auto talents = snapshot.value("talents").toObject();
         bool migrated = false;
+        // Older workspaces have no entries at all for a school added after they were saved.
+        if (snapshot.value("talents").isObject()) {
+            for (int i = 0; i < m_specialization->count(); ++i) {
+                const auto code = m_specialization->itemData(i).toString();
+                if (talents.contains(code) || snapshot["specialization"] == code) continue;
+                const auto recipes = "recipe/" + code + "/", gear = "equipment/" + code + "/";
+                if (std::ranges::any_of(values.keys(), [&](const QString &key) {
+                    return key.startsWith(recipes) || key.startsWith(gear);
+                })) continue;
+                const auto &book = desktop::School(static_cast<desktop::Specialization>(i));
+                talents.insert(code, m_talentPanels[i]->DefaultSelection());
+                for (auto name : book.recipes)
+                    values.insert(recipes + desktop::Text(name), std::ranges::contains(book.default_recipes, name));
+                for (auto name : book.equipment)
+                    values.insert(gear + desktop::Text(name), std::ranges::contains(book.default_equipment, name));
+                migrated = true;
+            }
+        }
         if (!values.contains("playerLife")) {
             values.insert("playerLife", 100.);
             migrated = true;
@@ -1633,20 +1650,25 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
                 const auto prefix = "equipment/" + desktop::Text(book.code) + "/";
                 for (const auto &item : runtime::season50::InstanceEquipment) add_unselected(prefix + desktop::Text(item.name));
                 for (const auto &tier : runtime::season50::LegendaryWeapons) add_unselected(prefix + desktop::Text(tier.name));
+                for (auto recipe : book.saved.added_recipes_v8)
+                    add_unselected("recipe/" + desktop::Text(book.code) + "/" + desktop::Text(recipe));
             }
-            add_unselected("recipe/fsj/盾击·三段回怒");
             add_unselected("raidFull");
         }
-        for (auto [from, to] : { std::pair{"recipe/txj/返闭惊魂·调息减16帧", "recipe/txj/返闭惊魂·调息减3秒"},
-                                 {"recipe/txj/返闭惊魂·调息减32帧", "recipe/txj/返闭惊魂·调息减4秒"} }) {
-            if (!values.contains(from)) continue;
-            auto previous = values.take(from);
-            if (!values.contains(to)) values.insert(to, previous);
-            migrated = true;
+        for (const auto &book : runtime::season50::Books()) {
+            const auto prefix = "recipe/" + desktop::Text(book.code) + "/";
+            for (auto [oldName, newName] : book.recipe_aliases) {
+                const auto from = prefix + desktop::Text(oldName), to = prefix + desktop::Text(newName);
+                if (!values.contains(from)) continue;
+                auto previous = values.take(from);
+                if (!values.contains(to)) values.insert(to, previous);
+                migrated = true;
+            }
         }
         if (migrated) {
             auto next = snapshot;
             next["values"] = values;
+            if (snapshot.value("talents").isObject()) next["talents"] = talents;
             return NormalizeSnapshot(next);
         }
     }
@@ -1654,22 +1676,6 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
         auto upgraded = snapshot;
         auto values = snapshot["values"].toObject();
         auto selections = snapshot["talents"].toObject();
-        static const QMap<QString, QStringList> previousTalents{
-            { "lhj", { "梦悠", "清源", "驰行", "游仙", "风驰", "抟空", "天行", "击浪", "青冥" } },
-            { "tx", { "负阴" } },
-            { "mw", { "斩长鲸", "鹿鸣", "青崖间", "参连", "凌冬", "豪情", "师襄" } },
-            { "axzy", { "龙血", "战心", "镇远", "风虎" } },
-            { "baj", { "临江", "冥鼓", "碎影", "斩狂枭", "分疆", "见尘" } },
-            { "fysj", { "崇光斩恶", "日月同辉", "明焰续夜", "夷数神光" } },
-            { "gfj", { "流溯", "滔天", "裂海横天", "洄涛", "择行", "涣衍", "流岚", "潋风" } },
-            { "hjy", { "青歌", "雪弃", "丹鼎", "青冠", "墨海临源", "生风" } },
-            { "shxj", { "聚势摧霆", "贯侯", "桑柘", "于狩", "佩弦" } },
-            { "txj", { "鬼遁", "御前星", "世降", "焚如", "连极阵", "知微", "顺祝", "亘天" } },
-            { "tlgd", { "化血迷心", "千机之威", "神威穿彻", "天风汲雨", "凝气淬机", "擘两分星" } },
-            { "yly", { "钤束", "绞网", "寄意" } },
-            { "ztg", { "封府", "风萦", "涣风" } },
-            { "zxg", { "正气", "归元", "同尘" } }
-        };
         for (int i = 0; i < m_specialization->count(); ++i) {
             const auto spec = static_cast<desktop::Specialization>(i);
             const auto &book = desktop::School(spec);
@@ -1679,15 +1685,15 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
             if (!m_talentPanels[i]->ValidateSelection(prior, error)) continue;
             const auto current = m_talentPanels[i]->DefaultSelection();
             const auto priorNames = desktop::TalentPanel::Names(spec, prior);
-            const auto expected = previousTalents.value(code, desktop::TalentPanel::Names(spec, current));
+            const auto expected = book.saved.talents_v7.empty() ? desktop::TalentPanel::Names(spec, current) : talentNames(book.saved.talents_v7);
             const bool factoryTalents = std::ranges::is_permutation(priorNames, expected);
             const auto prefix = "recipe/" + code + "/";
             bool factoryRecipes = true;
             for (auto recipe : book.recipes) {
                 const auto key = prefix + desktop::Text(recipe);
                 if (!values.contains(key)) continue;
-                const bool added = code == "tx" || recipe == "两仪回豆" || recipe == "停云势·4%会心" || recipe == "饮羽簇·3%伤害";
-                const bool removed = recipe == "行云势·3%伤害" || recipe == "饮羽簇·4%会心";
+                const bool added = book.saved.all_recipes_added_v7 || std::ranges::contains(book.saved.added_recipes_v7, recipe);
+                const bool removed = std::ranges::contains(book.saved.removed_recipes_v7, recipe);
                 const bool previouslySelected = removed || (!added && std::ranges::contains(book.default_recipes, recipe));
                 if (!values[key].isBool() || values[key].toBool() != previouslySelected) factoryRecipes = false;
             }
@@ -1705,28 +1711,6 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
     }
     if (version == 6 && snapshot["format"] == "jx3dps.desktop.config" && snapshot["values"].isObject() && snapshot["talents"].isObject()) {
         // Upgrade factory loadouts; custom talent choices and explicitly selected recipes are preserved.
-        static const QMap<QString, QStringList> previousTalents{
-            {"tx", {"负阴"}},
-            {"mw", {"鹿鸣", "青崖间", "参连", "凌冬", "豪情", "师襄"}},
-            {"axzy", {"龙血", "战心"}},
-            {"baj", {"临江", "冥鼓"}},
-            {"bxj", {}},
-            {"dj", {"蛛魄", "残香"}},
-            {"fsj", {"阵云结晦", "惊涌", "嗜血"}},
-            {"fysj", {}},
-            {"gfj", {"流溯", "滔天", "裂海横天"}},
-            {"hjy", {"青歌", "雪弃", "丹鼎"}},
-            {"lhj", {"青冥"}},
-            {"shxj", {"聚势摧霆", "贯侯", "桑柘"}},
-            {"txj", {"连极阵", "知微", "顺祝", "亘天"}},
-            {"tlgd", {"化血迷心", "千机之威"}},
-            {"wf", {"相使"}},
-            {"xcj", {"雨龙"}},
-            {"yjj", {}},
-            {"yly", {"钤束"}},
-            {"ztg", {"封府"}},
-            {"zxg", {}}
-        };
         auto upgraded=snapshot;
         auto values=snapshot["values"].toObject(), selections=snapshot["talents"].toObject();
         for(int i=0;i<m_specialization->count();++i){
@@ -1737,7 +1721,7 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
             QString error;
             if(!m_talentPanels[i]->ValidateSelection(prior,error)) continue;
             const auto names=desktop::TalentPanel::Names(spec,prior);
-            const bool factory=std::ranges::is_permutation(names,previousTalents.value(code));
+            const bool factory=std::ranges::is_permutation(names,talentNames(book.saved.talents_v6));
             const auto prefix="recipe/"+code+"/";
             bool factoryRecipes=true;
             for(auto recipe:book.recipes){

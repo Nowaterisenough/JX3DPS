@@ -1,9 +1,0 @@
-/cast [nobuff:suixing] suixing
-/cast [nobuff:qisheng] shengtaiji
-/cast [tnobuff:tunriyue] tunriyue
-/cast [nobuff:ziqi&qidian<6] ziqi
-/cast [qidian>=8] wuwu
-/cast bahuang
-/cast sanhuan
-/cast sanchai
-/cast [qidian>=1] wuwu

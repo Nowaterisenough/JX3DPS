@@ -835,6 +835,25 @@ void CheckPresetMechanics()
 
 void CheckFenShanRage()
 {
+    // 盾飞开始时可以接预铺的月照，盾猛受飞盾限制，只有切姿态时才造成盾飞首击。
+    Fight throw_shield("fsj", "/cast 盾飞\n/cast 盾猛\n/cast 月照连营\n/cast 雁门迢递");
+    throw_shield.cfg.precombat = true;
+    throw_shield.prepare();
+    throw_shield.run(25);
+    CHECK((throw_shield.frames("月照连营") == std::vector<tick_t>{0}));
+    CHECK((throw_shield.frames("雁门迢递") == std::vector<tick_t>{24}));
+    CHECK((throw_shield.frames("盾飞") == std::vector<tick_t>{6, 22}));
+    CHECK(throw_shield.hits("盾猛").empty());
+    const auto &mutations = throw_shield.sim->Log().Mutations();
+    const auto first_stack = [&](std::string_view name) {
+        return std::ranges::find_if(mutations, [&](const auto &m) {
+            return m.kind == rt::MutationKind::BUFF && m.c > 0 && throw_shield.cfg.book->buffs[m.slot].name == name;
+        });
+    };
+    const auto weakness = first_stack("虚弱"), stance = first_stack("擎刀");
+    CHECK(weakness != mutations.end() && weakness->frame == 2 && weakness->target);
+    CHECK(stance != mutations.end() && stance->frame == 6 && !stance->target);
+
     Fight two("fsj", "/cast 盾飞\n/cast 绝刀");
     two.cfg.initial_qidian = 100;
     two.cfg.recipes        = { "绝刀·怒气消耗-15" };

@@ -276,7 +276,8 @@ Book 分山劲()
     b.post_damage("盾击·三", {b.selected("盾击·三段回怒", b.gain(0, 5))});
     b.cast("盾刀", 0, 16, 0, { .forbidden = b.buff("擎刀"), .chain_window = 48 }, { b.cycle("盾刀·一", 3), b.gain(0, 10) });
     b.cast("盾压", 192, 24, 0, { .forbidden = b.buff("擎刀") }, { b.hit("盾压", 1), b.gain(0, 20) });
-    b.cast("盾猛", 240, 24, 0, { .forbidden = b.buff("擎刀") }, { b.hit("盾猛", 1), b.gain(0, 15) });
+    b.state({ 8873, "飞盾", 8, 0, 1 }, false);
+    b.cast("盾猛", 240, 24, 0, { .forbidden = b.buff("擎刀"), .also_forbidden = b.buff("飞盾") }, { b.hit("盾猛", 1), b.gain(0, 15) });
     b.cast("偃守孤旌",
            640,
            0,
@@ -361,12 +362,18 @@ Book 分山劲()
     b.recipe("盾刀", "盾刀·三段回怒", {}, {});
     b.post_damage("盾刀·三", { b.selected("盾刀·三段回怒", b.gain(0, 5)) });
     b.damage(13463, "盾飞", { 4, 0, 64, 1024, 0, 0, true, { .pve = 154 }, {} });
+    // 盾飞走自己的调息组。出手后 8 帧禁止盾猛，月照等无姿态要求的招式仍可同帧施展。
+    // 两个计时分别在第 2 帧给目标挂虚弱、第 6 帧切擎刀并造成首击；后续盾飞伤害从首击起计时。
+    b.state({ 0, "盾飞·虚弱待生效", 2, 0, 1 }, false);
+    b.state({ 0, "盾飞·切擎刀", 6, 0, 1 }, false);
     b.cast("盾飞",
            288,
            16,
-           6,
+           0,
            { .forbidden = b.buff("擎刀"), .charges = 3, .gcd_group = 1, .fixed_cast_time = true },
-           { b.apply("擎刀"), b.apply("盾飞"), b.apply("虚弱"), b.hit("盾飞") });
+           { b.apply("飞盾"), b.apply("盾飞·虚弱待生效"), b.apply("盾飞·切擎刀") });
+    b.on_expiry("盾飞·虚弱待生效", { b.apply("虚弱") });
+    b.on_expiry("盾飞·切擎刀", { b.apply("擎刀"), b.apply("盾飞"), b.hit("盾飞") });
     b.pulse("盾飞", { b.when("流血", b.apply("虚弱"), true), b.hit("盾飞") });
     b.base_action("盾飞").pre_cast = { b.selected("锋鸣", b.apply("锋鸣")) };
     b.recipe("盾飞", "盾飞·4%伤害", { .damage = 41 }, { "盾飞" });

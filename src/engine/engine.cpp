@@ -261,12 +261,10 @@ public:
         };
     }
 };
-#ifdef __EMSCRIPTEN__
-// Emit the virtual entry points used through Session in the WASM archive.
+// Emit the virtual entry points called through Session in every engine build.
 template class Battle<rt::tai_xu::Config>;
 template class Battle<rt::mo_wen::Config>;
 template class Battle<rt::season50::Config>;
-#endif
 } // namespace
 
 struct jx3dps_engine

@@ -38,7 +38,7 @@ static Book axzy()
     b.state({ 0, "破风", 224, 0, 1 }, true);
     b.damage(0,
              "流血(DOT)",
-             { 1, 0, 962.680670613486, 0, 7, 32, true, { .pve = 451 }, { { b.buff("激雷"), 0, { .attack = 205, .critical = 3000, .overcome = 205 }, "" } } });
+             { 1, 0, 962, 0, 7, 32, true, { .pve = 451 }, { { b.buff("激雷"), 0, { .attack = 205, .critical = 3000, .overcome = 205 }, "" } } });
     b.damage(14887,
              "战八方·一",
              { 9, 1, 290, 1024, 0, 0, true, { .pve = 451 }, { { b.buff("激雷"), 0, { .attack = 205, .critical = 3000, .overcome = 205 }, "" } } });

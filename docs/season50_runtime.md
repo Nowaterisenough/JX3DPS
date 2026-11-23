@@ -33,6 +33,10 @@
 - DOT 保存施加时的伤害属性，独立记录剩余跳数、下一跳和到期帧。破防、目标防御和易伤在实际生效时读取。引爆、提前结算指定跳数与重新施加是三种不同操作。同帧最后一跳先于状态移除。
 - 伤害记录使用原项目的 `DamageIntent`，常规运行、分线程批跑、属性收益及调试都消费同一条时间线。50 级配置使用本赛季等级换算和内外功系数；各心法的独立规则位于 [schools](../src/class/season50/schools)。
 
+**技能攻击系数。** 20 个心法的技能本体、伤害子段、宠物和 DOT 共用第四版的攻击系数算法。当前技能表以整数保存每一档 `channel`。只有当季计算器的表达式可用时，先按该档完整表达式求值并截为整数；这些数值的来源仍是当季资料。改变系数的秘籍、套装、气劲或资源条件每次作用后写回整数。替换档位时取该档自己的系数，DOT 用挂上时的系数快照。[第四版原实现](https://github.com/Nowaterisenough/JX3DPS/blob/18691d95db1c4bafe86fc160b379ab4f433ea657/src/Damage/Damage.hpp#L29) · [共用公式](../src/core/runtime/attack_coefficient.hpp)
+
+第四版直伤入口的额外准备帧传 0，AP 倍率为 `max(channel, 16) / C / 16`。DOT 用基础跳数 `N` 和基础间隔 `I` 求 `T = max(16, floor(N × I / 12))`，每跳 AP 倍率为 `channel × T / N / C / 16 / 16`。两者都按第四版的顺序用双精度除法，乘面板攻击后截为整数，再与武伤、固定伤害相加。50 级 `C` 为外功 89.92、内功 97.04；120 级历史规则使用第四版原参数 10、12。装备等固定真实伤害走独立的等级减伤与易伤结算。[当季常数来源](https://github.com/jx3dps-online/jx3dps-online-public/blob/54d8ccdb7528ba2b305a31f77c5710152d37bd9b/src/数据/常量/index.ts#L18) · [50 级逐击入口](../src/class/season50/damage.hpp)
+
 ## 能按帧核对的机制
 
 | 心法 | 核对点 |

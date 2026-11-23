@@ -65,7 +65,7 @@ static Book dj()
              {
                  1,
                  0,
-                 573.07536,
+                 573,
                  0,
                  6,
                  32,
@@ -78,7 +78,7 @@ static Book dj()
              {
                  1,
                  0,
-                 1222.5839848992002,
+                 1222,
                  0,
                  9,
                  32,
@@ -145,7 +145,7 @@ static Book dj()
              {
                  20,
                  2,
-                 664.68402,
+                 664,
                  0,
                  0,
                  0,
@@ -158,7 +158,7 @@ static Book dj()
              {
                  105,
                  10,
-                 758.8452320064001,
+                 758,
                  0,
                  0,
                  0,
@@ -221,18 +221,18 @@ static Book dj()
     b.recipe("千丝", "千丝·3%伤害", { .damage = 31 }, { "千丝" });
     b.recipe("千丝", "千丝·4%伤害", { .damage = 41 }, { "千丝" });
     b.recipe("千丝", "千丝·5%伤害", { .damage = 51 }, { "千丝" });
-    b.recipe("百足", "百足·5%伤害", { .channel_multiplier = 1.05 }, { "百足", "百足(DOT)" });
+    b.recipe("百足", "百足·5%伤害", {}, { "百足", "百足(DOT)" }, 1.05);
     b.recipe("蛇影", "蛇影·2%会心", { .critical = 200 }, { "蛇影", "蛇影(DOT)" });
     b.recipe("蛇影", "蛇影·3%会心", { .critical = 300 }, { "蛇影", "蛇影(DOT)" });
     b.recipe("蛇影", "蛇影·4%会心", { .critical = 400 }, { "蛇影", "蛇影(DOT)" });
-    b.recipe("蛇影", "蛇影·4%伤害", { .channel_multiplier = 1.04 }, { "蛇影", "蛇影(DOT)" });
-    b.recipe("蛇影", "蛇影·5%伤害", { .channel_multiplier = 1.05 }, { "蛇影", "蛇影(DOT)" });
+    b.recipe("蛇影", "蛇影·4%伤害", {}, { "蛇影", "蛇影(DOT)" }, 1.04);
+    b.recipe("蛇影", "蛇影·5%伤害", {}, { "蛇影", "蛇影(DOT)" }, 1.05);
     b.recipe("蝎心", "蝎心·2%会心", { .critical = 200 }, { "蝎心" });
     b.recipe("蝎心", "蝎心·3%会心", { .critical = 300 }, { "蝎心" });
     b.recipe("蝎心", "蝎心·3%伤害", { .damage = 31 }, { "蝎心" });
     b.recipe("蝎心", "蝎心·4%伤害", { .damage = 41 }, { "蝎心" });
     b.passive("蝎心", "残香", { .damage = 205 });
-    b.set_bonus({ .channel_multiplier = 1.1 }, { "蛇影", "蛇影(DOT)" });
+    b.set_bonus({}, { "蛇影", "蛇影(DOT)" }, 1.1);
     b.set_bonus({ .damage = 204 }, { "蝎心" });
     b.state({ 0, "连缘起手毒数", 0, 0, 4 }, false);
     b.state({ 0, "连缘结束毒数", 0, 0, 4 }, false);
@@ -243,7 +243,7 @@ static Book dj()
     constexpr std::array<std::string_view, 5> ends{ "连缘蛊·额外·零", "连缘蛊·额外·一", "连缘蛊·额外·二", "连缘蛊·额外·三", "连缘蛊·额外·四" };
     constexpr std::array<int, 5> fixed{ 40, 66, 89, 111, 133 }, spread{ 4, 7, 9, 11, 14 }, cof{ 243, 487, 731, 975, 1219 };
     for (int i = 0; i < 5; ++i) {
-        b.damage(0, ends[i], { fixed[i], spread[i], double(cof[i]), 0, 0, 0, false, { .pve = 266 }, {} });
+        b.damage(0, ends[i], { fixed[i], spread[i], cof[i], 0, 0, 0, false, { .pve = 266 }, {} });
     }
     b.cast("连缘蛊", 432, 24, 0, { .choice = "连缘蛊", .pulses = 5, .spacing = 5, .distribute_pulses = true }, { b.hit("连缘蛊") });
     b.on_cast("连缘蛊", { b.remove("连缘起手毒数", 4) });
@@ -360,8 +360,8 @@ static Book dj()
         b.modifier(n, { b.buff("引魂"), 0, { .attack = 512 } });
         b.modifier(n, { b.buff("蛊虫狂暴"), 0, { .damage = 102 } });
     }
-    b.recipe("百足", "百足·10%伤害（一）", { .channel_multiplier = 1.10 }, { "百足", "百足(DOT)" });
-    b.recipe("百足", "百足·10%伤害（二）", { .channel_multiplier = 1.10 }, { "百足", "百足(DOT)" });
+    b.recipe("百足", "百足·10%伤害（一）", {}, { "百足", "百足(DOT)" }, 1.10);
+    b.recipe("百足", "百足·10%伤害（二）", {}, { "百足", "百足(DOT)" }, 1.10);
     b.recipe("百足", "百足·调息减1秒", {}, {});
     b.recipe("千丝", "千丝·调息减1秒", {}, {});
     b.recipe("蛇影", "蛇影·额外一跳", {}, {});

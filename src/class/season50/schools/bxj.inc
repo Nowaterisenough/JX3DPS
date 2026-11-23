@@ -37,7 +37,7 @@ static Book bxj()
              {
                  1,
                  0,
-                 137.18133000000003,
+                 137,
                  0,
                  6,
                  48,
@@ -120,8 +120,8 @@ static Book bxj()
     for (auto n : { "仙姿剑破", "仙姿玳弦", "仙姿剑影", "仙姿剑气" }) {
         b.state({ 0, n, 400, 0, 1 }, false);
     }
-    b.damage(6234, "玳弦急曲", { 50, 2, 174.5863875, 0, 0, 0, false, { .pve = 266 }, {} });
-    b.damage(6554, "玳弦急曲·一", { 11, 0, 77.4415333125, 0, 0, 0, false, { .pve = 266 }, {} });
+    b.damage(6234, "玳弦急曲", { 50, 2, 174, 0, 0, 0, false, { .pve = 266 }, {} });
+    b.damage(6554, "玳弦急曲·一", { 11, 0, 77, 0, 0, 0, false, { .pve = 266 }, {} });
     b.damage(40289, "破·霜降", { 50, 10, 25, 0, 0, 0, false, { .pve = 266 }, {} });
     b.damage(24999, "化冰", { 2, 1, 121, 0, 0, 0, false, { .pve = 266 }, {} });
     b.damage(30532, "钗燕", { 13, 1, 485, 0, 0, 0, false, { .pve = 266 }, {} });
@@ -313,11 +313,11 @@ static Book bxj()
     for (auto n : { "玳弦急曲", "玳弦急曲·一" }) {
         b.modifier(n, { b.buff("本次流玉"), 0, { .damage = 922 } });
         for (int i = 1; i <= 5; ++i) {
-            b.modifier(n, { b.buff("霜降剑舞"), i, { .channel_multiplier = 1. + .1 * i }, "霜降" });
+            b.modifier(n, { .aura = b.buff("霜降剑舞"), .stacks = i, .stats = {}, .choice = "霜降", .channel_scale = 1. + .1 * i });
         }
     }
     for (int i = 1; i <= 5; ++i) {
-        b.modifier("破·霜降", { b.buff("霜降剑舞"), i, { .channel_multiplier = 1. + i }, "霜降" });
+        b.modifier("破·霜降", { .aura = b.buff("霜降剑舞"), .stacks = i, .stats = {}, .choice = "霜降", .channel_scale = 1. + i });
     }
     b.set_bonus({ .damage = 102 }, { "玳弦急曲", "玳弦急曲·一" });
     b.recipe("剑气长江", "剑气长江·2%会心", { .critical = 200 }, { "剑气长江" });

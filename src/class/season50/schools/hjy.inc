@@ -31,13 +31,13 @@ static Book hjy()
     b.state({ 0, "钟林毓秀", 288, 48, 1 }, true, true, true);
     b.damage(0,
              "商阳指(DOT)",
-             { 50, 0, 740.2206088987261, 0, 6, 48, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
+             { 50, 0, 740, 0, 6, 48, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
     b.damage(0,
              "兰摧玉折(DOT)",
-             { 30, 0, 882.395546576514, 0, 6, 48, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
+             { 30, 0, 882, 0, 6, 48, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
     b.damage(0,
              "钟林毓秀(DOT)",
-             { 38, 0, 804.5876183681805, 0, 6, 48, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
+             { 38, 0, 804, 0, 6, 48, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
     b.damage(6693, "商阳指", { 2, 0, 294, 0, 0, 0, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
     b.damage(14941, "阳明指", { 180, 20, 509, 0, 0, 0, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
     b.damage(182, "玉石俱焚", { 8, 1, 73, 0, 0, 0, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, "" } } });
@@ -64,7 +64,7 @@ static Book hjy()
     b.recipe("阳明指", "阳明指·3%会心", { .critical = 300 }, { "阳明指" });
     b.recipe("阳明指", "阳明指·3%伤害", { .damage = 31 }, { "阳明指" });
     b.recipe("阳明指", "阳明指·4%伤害", { .damage = 41 }, { "阳明指" });
-    b.damage(6233, "快雪时晴", { 65, 10, 222.3203598, 0, 0, 0, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, {} } } });
+    b.damage(6233, "快雪时晴", { 65, 10, 222, 0, 0, 0, false, { .pve = 604 }, { { b.buff("青歌"), 0, { .attack = 154 }, {} } } });
     b.cast("快雪时晴", 0, 24, 0, { .pulses = 5, .spacing = 9, .start = { b.gain(0, 5) } }, { b.hit("快雪时晴") });
     b.passive("快雪时晴", "雪弃", { .critical = 2000, .power = 205 });
     b.passive("快雪时晴", "丹鼎", { .damage = 819, .pve = 614 });
@@ -75,7 +75,7 @@ static Book hjy()
               { .pulses = 7, .spacing = 6, .hasted_cd = true, .charges = 2, .start = { b.gain(0, 5) }, .channel_duration = 45 },
               { b.hit("快雪时晴") });
     b.set_bonus({ .damage = 102 }, { "快雪时晴" });
-    b.set_bonus({ .channel_multiplier = 1.15 }, { "钟林毓秀(DOT)" });
+    b.set_bonus({}, { "钟林毓秀(DOT)" }, 1.15);
     b.state({ 0, "临源进度", 0, 0, 4 }, false);
     b.state({ 0, "临源充能", 0, 0, 3 }, false);
     b.damage(37270,
@@ -83,7 +83,7 @@ static Book hjy()
              {
                  34,
                  5,
-                 2855.358,
+                 2855,
                  0,
                  0,
                  0,

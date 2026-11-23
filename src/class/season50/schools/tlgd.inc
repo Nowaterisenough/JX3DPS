@@ -126,7 +126,7 @@ static Book tlgd()
              {
                  2,
                  1,
-                 388.8495,
+                 388,
                  0,
                  0,
                  0,
@@ -140,7 +140,7 @@ static Book tlgd()
              {
                  18,
                  2,
-                 494.5644350567163,
+                 494,
                  1024,
                  0,
                  0,
@@ -186,7 +186,7 @@ static Book tlgd()
     b.state({ 0, "天绝布设", 24, 0, 1 }, true);
     b.state({ 0, "天绝地灭", 240, 48, 1 }, true);
     b.state({ 0, "汲雨", 400, 0, 4 }, false);
-    b.damage(36502, "天绝地灭", { 10, 5, 70.4, 0, 0, 0, false, { .pve = 20 }, {} });
+    b.damage(36502, "天绝地灭", { 10, 5, 70, 0, 0, 0, false, { .pve = 20 }, {} });
     b.damage(42484, "天风汲雨", { 1, 1, 184, 0, 0, 0, false, { .pve = 20 }, {} });
     b.cast("天绝地灭", 320, 24, 0, { .resource = 0, .cost = 40 }, { b.gain(0, -40), b.apply("天绝布设") });
     b.on_expiry("天绝布设", { b.apply("天绝地灭") });
@@ -231,12 +231,12 @@ static Book tlgd()
         b.modifier(n, { b.buff("专注"), 0, { .damage = 102 }, "凝气淬机" });
         b.resource_modifier(n, 0, 0, 79, { .damage = 205 }, "擘两分星");
     }
-    b.resource_modifier("天绝地灭", 0, 21, 100, { .channel_multiplier = 1.1 }, "擘两分星");
+    b.resource_modifier("天绝地灭", 0, 21, 100, {}, "擘两分星", 1.1);
     b.state({ 0, "机关注能", 0, 0, 100 }, false);
 
     b.pulse("心无旁骛", { b.gain(0, 10) });
     b.pulse("机关存在", { b.selected("横断天枢", b.at(0, 31, 100, b.apply("机关注能"))), b.selected("横断天枢", b.at(0, 31, 100, b.gain(0, -5))) });
-    b.damage(3313, "暗藏杀机", { 0, 5, 698.001447, 0, 0, 0, false, { .pve = 20 } });
+    b.damage(3313, "暗藏杀机", { 0, 5, 698, 0, 0, 0, false, { .pve = 20 } });
     b.cast("暗藏杀机", 128, 24, 0, { .charges = 3, .gcd_group = 2 }, { b.later("暗藏杀机", 24) });
     b.variant("暗藏杀机", "暗藏杀机·立即激活", 128, 0, { .charges = 3, .gcd_group = 2 }, { b.hit("暗藏杀机") });
     b.damage(3393, "天女散花", { 12, 1, 172, 0, 0, 0, false, { .pve = 20 } });
@@ -260,7 +260,7 @@ static Book tlgd()
     }
 
     b.on_hit("暗藏杀机", { b.selected("尽刑彻毒", { Op::CompressPeriodic, b.buff("化血"), 1, INVALID_SLOT, false, {}, b.buff("化血急毒") }) });
-    b.resource_modifier("暗藏杀机", 0, 21, 100, { .channel_multiplier = 1.1 }, "擘两分星");
+    b.resource_modifier("暗藏杀机", 0, 21, 100, {}, "擘两分星", 1.1);
     b.set_bonus({ .damage = 102 }, { "暗藏杀机" });
     b.on_hit("千秋万劫", { b.burst("化血"), b.burst("化血急毒") });
     b.on_hit("蚀肌弹", { b.when("鸩羽", b.reset("孔雀翎")) });

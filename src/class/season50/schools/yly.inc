@@ -204,8 +204,8 @@ static Book yly()
     b.rank_bases("生地狱", {{150,1}, {170,1}, {190,1}, {210,1}, {230,1}, {250,1}});
     b.state({ 0, "生地狱·操控", 15, 0, 1 }, false);
     b.state({ 0, "生地狱·连环慢", 15, 0, 1 }, false);
-    b.modifier("生地狱", { b.buff("生地狱·操控"), 0, { .channel_multiplier = 2.2 } });
-    b.modifier("生地狱", { b.buff("生地狱·连环慢"), 0, { .channel_multiplier = 1.25 } });
+    b.modifier("生地狱", { .aura = b.buff("生地狱·操控"), .stacks = 0, .stats = {}, .channel_scale = 2.2 });
+    b.modifier("生地狱", { .aura = b.buff("生地狱·连环慢"), .stacks = 0, .stats = {}, .channel_scale = 1.25 });
     b.modifier("生地狱", { b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 } });
     b.passive("生地狱", "寄意", { .critical = 1500, .power = 150 });
     for (int i = 1; i <= 5; ++i) b.modifier("生地狱", { b.buff("缠绞"), i, { .fragile = (256 * i + 2) / 5 } });
@@ -221,7 +221,7 @@ static Book yly()
     b.modifier("绊线", { b.buff("迭影"), 0, { .damage = 512 } });
     constexpr std::string_view skills[]{ "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆" };
     constexpr int channels[]{ 140, 210, 280, 420 };
-    for (int i = 0; i < 4; ++i) b.damage(i == 3 ? 42384 : 41471 + i, skills[i], { 15, 1, double(channels[i]), i == 3 ? 1024 : 0, 0, 0, false, { .pve = 553 } });
+    for (int i = 0; i < 4; ++i) b.damage(i == 3 ? 42384 : 41471 + i, skills[i], { 15, 1, channels[i], i == 3 ? 1024 : 0, 0, 0, false, { .pve = 553 } });
     b.state({ 0, "千里急次序", 0, 0, 4 }, false);
     b.state({ 0, "自动千里急", 1, 0, 1 }, false);
     b.state({0, "天羊盏", 80, 0, 1}, false);
@@ -240,8 +240,8 @@ static Book yly()
     }
     b.school_modifier({ INVALID_SLOT, 0, { .ignore = 614 }, "寡合" });
     b.school_modifier({ b.buff("虚影"), 0, { .damage = 307 }, "黄粱" });
-    b.recipe("千里急", "千里急·3%系数", { .channel_multiplier = 1.03 }, { "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "千里急(DOT)" });
-    b.recipe("千里急", "千里急·4%系数", { .channel_multiplier = 1.04 }, { "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "千里急(DOT)" });
+    b.recipe("千里急", "千里急·3%系数", {}, { "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "千里急(DOT)" }, 1.03);
+    b.recipe("千里急", "千里急·4%系数", {}, { "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "千里急(DOT)" }, 1.04);
     b.recipe("生地狱", "生地狱·3%伤害", { .damage = 31 }, { "生地狱" });
     b.recipe("生地狱", "生地狱·2%会心", { .critical = 200 }, { "生地狱" });
     b.recipe("生地狱", "生地狱·2%伤害", { .damage = 20 }, { "生地狱" });

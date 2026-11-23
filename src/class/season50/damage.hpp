@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 
+#include "src/core/runtime/attack_coefficient.hpp"
 #include "src/core/runtime/damage_log.hpp"
 
 #include "book.hpp"
@@ -29,14 +30,10 @@ inline value_t Damage(const Config &cfg, const DamageIntent &hit, const Stats &b
         const auto level_adjusted = hit.base * (100 - 5 * (t.level - Level)) / 100;
         return level_adjusted * (1024 + live.fragile) / 1024;
     }
-    const double divisor     = (skill.physical ? 89.92 : 97.04) * FRAMES_PER_SECOND;
-    const auto   raw_channel = skill.rank_channels.empty() ? skill.channel : skill.rank_channels.at(hit.level - 1);
-    const auto   channel     = static_cast<int>(raw_channel * buffs.channel_multiplier);
-    double       coefficient = channel / divisor;
-    if (skill.ticks > 0) {
-        const int duration_factor = std::max(FRAMES_PER_SECOND, skill.ticks * skill.interval / 12);
-        coefficient = std::max(channel, FRAMES_PER_SECOND) * duration_factor / (divisor * skill.ticks * FRAMES_PER_SECOND);
-    }
+    const double divisor = skill.physical ? 89.92 : 97.04;
+    const int channel = buffs.channel_override >= 0 ? buffs.channel_override : skill.Channel(hit.level);
+    const double coefficient = skill.ticks ? DotAttackCoefficient(channel, skill.ticks, skill.interval, divisor)
+                                          : DirectAttackCoefficient(channel, divisor);
     const auto panel_attack = (a.attack_base + buffs.attack_flat) * (1024 + buffs.attack) / 1024 + a.attack_by_class + buffs.class_attack_flat;
     const auto attack       = panel_attack * skill.inherited_attack_bp / 10000;
     value_t    raw          = hit.base + static_cast<value_t>(attack * coefficient) + a.weapon * skill.weapon / 1024;
@@ -70,7 +67,7 @@ inline void Add(Stats &to, const Stats &from)
     to.strain_rating      += from.strain_rating;
     to.shield_flat        += from.shield_flat;
     to.target_shield_percent += from.target_shield_percent;
-    to.channel_multiplier *= from.channel_multiplier;
+    if (from.channel_override >= 0) to.channel_override = from.channel_override;
     to.uncapped_power     += from.uncapped_power;
     to.final_damage       += from.final_damage;
     to.overcome_flat      += from.overcome_flat;

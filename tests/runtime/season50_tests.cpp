@@ -7,6 +7,10 @@
 #include <fstream>
 #include <sstream>
 
+#define JX3DPS LegacyReference
+#include "legacy_reference/Damage.hpp"
+#undef JX3DPS
+
 using namespace JX3DPS;
 namespace rt  = runtime;
 namespace s50 = runtime::season50;
@@ -556,6 +560,63 @@ void CheckPermanents()
     CHECK(rejected);
 }
 
+void CheckOldVersion4Coefficients()
+{
+    // Exercise every declared channel/rank against the unchanged historical implementation
+    // with its own season constants, including boundaries absent from the default rotations.
+    const auto compare = [](int channel, int ticks, int interval) {
+        CHECK(rt::DirectAttackCoefficient(channel, 10) == LegacyReference::PhysicsDamageCoefficient(channel, 0));
+        CHECK(rt::DirectAttackCoefficient(channel, 12) == LegacyReference::MagicDamageCoefficient(channel, 0));
+        if (ticks) {
+            CHECK(rt::DotAttackCoefficient(channel, ticks, interval, 10) == LegacyReference::PhysicsDotDamageCoefficient(channel, ticks, interval));
+            CHECK(rt::DotAttackCoefficient(channel, ticks, interval, 12) == LegacyReference::MagicDotDamageCoefficient(channel, ticks, interval));
+        }
+    };
+    for (int channel : {0, 1, 15, 16, 17, 263}) {
+        compare(channel, 3, 11);
+        compare(channel, 7, 39);
+    }
+    for (const auto &book : s50::Books()) {
+        for (const auto &hit : book.hits) {
+            compare(hit.channel, hit.ticks, hit.interval);
+            for (int rank : hit.rank_channels) compare(rank, hit.ticks, hit.interval);
+        }
+    }
+
+    Fight snake("dj", "/cast 蛇影");
+    snake.cfg.talents = {"蛇悉"};
+    snake.cfg.recipes = {"蛇影·5%伤害", "蛇影·4%伤害"};
+    snake.cfg.equipment = {std::string(s50::ClassSet)};
+    snake.prepare();
+    snake.run(90);
+    // The two books and the set modify the integer in registration order, even if selected in reverse.
+    for (auto [name, expected] : {std::pair{"蛇影", 796}, {"蛇影(DOT)", 686}}) {
+        const auto hits = snake.hits(name);
+        CHECK(!hits.empty());
+        for (const auto &hit : hits)
+            CHECK(snake.sim->GetRules().Versions()[hit.snapshot_version].channel_override == expected);
+    }
+
+    // The rank is captured at launch; both live channel bonuses are applied at impact.
+    Fight puppet("yly", "/cast 生地狱");
+    auto preset = *puppet.cfg.book;
+    for (std::string_view name : {"傀儡", "连环慢", "缠绞"}) {
+        const auto aura = std::ranges::find(preset.buffs, name, &rt::BuffDescriptor::name);
+        preset.initial_auras.push_back(static_cast<rt::Slot>(aura - preset.buffs.begin()));
+    }
+    puppet.cfg.book = &preset;
+    puppet.cfg.talents.clear();
+    puppet.prepare();
+    puppet.run(15);
+    const auto delayed = puppet.hits("生地狱");
+    CHECK(delayed.size() == 3);
+    for (const auto &hit : delayed) {
+        CHECK(hit.level == 2);
+        // Rank two: 227 -> 499 -> 623.
+        CHECK(puppet.sim->GetRules().Versions()[hit.snapshot_version].channel_override == 623);
+    }
+}
+
 // Reference site, 2026-11-20. One noncritical hit at midpoint base damage.
 void CheckOnlineHitValues()
 {
@@ -651,7 +712,7 @@ void CheckFenShanRage()
     // 100 -> 35 (-65), then 35 -> 0 (-35); only the first blow is full tier.
     const auto  hits     = two.hits("绝刀");
     const auto &versions = two.sim->GetRules().Versions();
-    CHECK(versions[hits[0].snapshot_version].channel_multiplier > versions[hits[1].snapshot_version].channel_multiplier);
+    CHECK(versions[hits[0].snapshot_version].channel_override > versions[hits[1].snapshot_version].channel_override);
     Fight opening("fsj", "/cast 月照连营\n/cast 阵云结晦\n/cast 雁门迢递");
     opening.cfg.precombat = true;
     opening.prepare();
@@ -1225,7 +1286,8 @@ void CheckPoisonAndIceWindows()
     for (size_t i = 0; i < ticks.size(); ++i) {
         const auto &v = ice.sim->GetRules().Versions()[ticks[i].snapshot_version];
         CHECK(v.damage == (i < 8 ? 922 : 0));
-        CHECK(v.channel_multiplier == (i < 8 ? 1.5 : 1.0));
+        const int base = ice.cfg.book->hits[ticks[i].skill].channel;
+        CHECK(v.channel_override == (i < 8 ? base * 3 / 2 : -1));
     }
     Fight clipped("bxj", "/scast 剑影留痕\n/scast 玳弦急曲\n/fcast 江海凝光");
     clipped.cfg.talents        = { "霜降", "新妆", "流玉" };
@@ -1583,6 +1645,7 @@ int main(int argc, char **argv)
     CheckPermanents();
     CheckRecipeScope();
     CheckOnlineHitValues();
+    CheckOldVersion4Coefficients();
     CheckPresetMechanics();
     CheckFenShanRage();
     CheckRotationTriggers();

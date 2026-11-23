@@ -32,7 +32,7 @@ static Book shxj()
     b.state({ 0, "饮羽簇追", 104, 0, 1 }, false, false, false);
     b.damage(35866,
              "劲风簇",
-             { 180, 15, 185, 1024, 0, 0, true, { .pve = 133 }, { { b.buff("橙武劲风"), 0, { .channel_multiplier = 1.3 }, "" } } });
+             { 180, 15, 185, 1024, 0, 0, true, { .pve = 133 }, { { .aura = b.buff("橙武劲风"), .stacks = 0, .stats = {}, .choice = "", .channel_scale = 1.3 } } });
     b.damage(39092, "饮羽簇", { 73, 1, 439, 2048, 0, 0, true, { .pve = 133 }, {} });
     b.secondary_damage(36580, "月弦激星", { 20, 2, 744, 0, 0, 0, true, { .pve = 133 }, {} });
     b.state({ 0, "金乌箭", 0, 0, 8 }, false);
@@ -68,7 +68,7 @@ static Book shxj()
     b.state({ 26856, "贯穿", 32, 8, 6 }, true, false, true);
     b.damage(36157, "标鹄", { 3, 2, 553, 0, 0, 0, true, { .pve = 133 }, {} });
     b.passive("标鹄", "贯侯", { .pve = 338 });
-    b.damage(0, "贯穿(DOT)", { 1, 0, 152.66772675, 0, 4, 8, true, { .pve = 133 }, {} });
+    b.damage(0, "贯穿(DOT)", { 1, 0, 152, 0, 4, 8, true, { .pve = 133 }, {} });
     b.dot("贯穿", "贯穿(DOT)");
     b.extra_tick("贯穿", "桑柘");
     b.damage(40347, "聚势摧霆", { 3, 1, 291, 0, 0, 0, true, { .pve = 2181 }, {} });
@@ -173,7 +173,7 @@ static Book shxj()
     constexpr int ids[]{36112, 36113, 36057, 36056, 36114, 36111};
     constexpr int channels[]{1130, 828, 376, 828, 225, 376};
     for (int i = 0; i < 6; ++i) {
-        b.secondary_damage(ids[i], attacks[i], {29, 2, double(channels[i]), 0, 0, 0, true, {.damage = 41, .pve = 133}});
+        b.secondary_damage(ids[i], attacks[i], {29, 2, channels[i], 0, 0, 0, true, {.damage = 41, .pve = 133}});
         b.modifier(attacks[i], { b.buff("领胡"), 0, { .damage = 307 } });
         b.modifier(attacks[i], { b.buff("连珠"), 0, { .attack = 154 } });
         b.passive(attacks[i], "卢令", { .ignore = 205, .strain_rating = 102 });

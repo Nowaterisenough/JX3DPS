@@ -139,7 +139,7 @@ static Book mw50()
              { { "商", "青莲剑·商", 42008, 568 }, { "角", "青莲剑·角", 42009, 580 }, { "羽", "青莲剑·羽", 42011, 208 }, { "宫", "青莲剑·宫", 42007, 688 } }
     })
     {
-        b.secondary_damage(sh.id, sh.name, { 10, 10, double(sh.channel), 0, 0, 0, false, passive, {} });
+        b.secondary_damage(sh.id, sh.name, { 10, 10, sh.channel, 0, 0, 0, false, passive, {} });
         b.on_hit(sh.note,
                  { b.when("青莲歌", b.hit(sh.name, sh.note == "羽" ? 3 : 1)), b.when("青莲歌", b.build_charge("青莲消耗", 5, "长鲸可用")), b.remove("青莲歌") });
     }
@@ -156,7 +156,7 @@ static Book mw50()
             : note == std::string_view("角") ? "青莲剑·角(DOT)"
                                              : "青莲剑·徵(DOT)";
         b.state({ id, aura, ticks * interval, interval, 1 }, true);
-        b.secondary_damage(id, aura, { ticks == 8 ? 0 : 10, ticks == 8 ? 0 : 10, double(channel), 0, ticks, interval, false, passive, {} });
+        b.secondary_damage(id, aura, { ticks == 8 ? 0 : 10, ticks == 8 ? 0 : 10, channel, 0, ticks, interval, false, passive, {} });
         b.dot(aura, aura);
         if (ticks == 8) {
             for (auto n : { "徵", "徵·凌冬" }) {

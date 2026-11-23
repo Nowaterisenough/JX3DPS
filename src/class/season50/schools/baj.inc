@@ -70,11 +70,11 @@ static Book baj()
              { 48, 1, 503, 1638, 0, 0, true, { .pve = 174 }, { { b.buff("临江"), 0, { .attack = 154, .pve = 809 }, "" } } });
     b.damage(20991,
              "破釜沉舟",
-             { 35, 2, 794.6461314000001, 2048, 0, 0, true, { .pve = 174 }, { { b.buff("临江"), 0, { .attack = 154, .pve = 809 }, "" } } });
+             { 35, 2, 794, 2048, 0, 0, true, { .pve = 174 }, { { b.buff("临江"), 0, { .attack = 154, .pve = 809 }, "" } } });
     b.damage(16610,
              "刀啸风吟",
-             { 25, 2, 886.3731676800003, 0, 0, 0, true, { .pve = 174 }, { { b.buff("临江"), 0, { .attack = 154 }, "" } } });
-    b.damage(16631, "雷走风切", { 17, 1, 125.44, 0, 0, 0, true, { .pve = 174 }, { { b.buff("临江"), 0, { .attack = 154 }, "" } } });
+             { 25, 2, 886, 0, 0, 0, true, { .pve = 174 }, { { b.buff("临江"), 0, { .attack = 154 }, "" } } });
+    b.damage(16631, "雷走风切", { 17, 1, 125, 0, 0, 0, true, { .pve = 174 }, { { b.buff("临江"), 0, { .attack = 154 }, "" } } });
     b.state({ 0, "体态回能", 0, 16, 1 }, false);
     b.initial("体态回能");
     b.pulse("体态回能", { b.when("秀明尘身", b.gain(0, 1), true), b.when("松烟竹雾", b.gain(1, 1), true), b.when("雪絮金屏", b.gain(2, 1), true) });
@@ -137,7 +137,7 @@ static Book baj()
     b.state({ 0, "冥鼓", 480, 0, 1 }, false);
     b.passive("破釜沉舟", "冥鼓", { .damage = 512 });
     b.phases("破釜沉舟", {}, { b.selected("冥鼓", b.apply("冥鼓")) });
-    b.secondary_damage(39106, "背水沉舟", {5, 1, 786.9312, 0, 0, 0, true, {.pve = 174}});
+    b.secondary_damage(39106, "背水沉舟", {5, 1, 786, 0, 0, 0, true, {.pve = 174}});
     b.secondary_damage(34119, "沉舟(DOT)", {25, 0, 269, 0, 6, 48, true, {.pve = 174}});
     b.secondary_damage(42677, "霜云", {10, 5, 896, 1024, 0, 0, true, {.pve = 174}});
     for (auto hit : { "破釜沉舟", "雷走风切", "刀啸风吟", "闹须弥(DOT)", "上将军印", "上将军印·连续1", "上将军印·连续2", "上将军印·连续3", "上将军印·连续4", "背水沉舟", "沉舟(DOT)", "霜云" })
@@ -232,7 +232,7 @@ static Book baj()
     b.recipe("擒龙六斩", "擒龙六斩·回狂意", {}, {});
     for (int i = 0; i < 12; ++i) {
         const auto hit = slash[i];
-        b.damage(16933 + i, hit, { i < 10 ? 8 : 9, 1, double(channel[i]), 1024, 0, 0, true, { .pve = 174 } });
+        b.damage(16933 + i, hit, { i < 10 ? 8 : 9, 1, channel[i], 1024, 0, 0, true, { .pve = 174 } });
         b.after_cast("擒龙六斩", { b.stacks("擒龙连段", i / 2 + 1, b.hit(hit)) });
         b.recipe("擒龙六斩", "擒龙六斩·5%伤害", { .damage = 51 }, { hit });
         b.recipe("擒龙六斩", "擒龙六斩·回气劲", { .damage = 31 }, { hit });

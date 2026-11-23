@@ -156,7 +156,7 @@ static Book zxg()
              "六合独尊",
              { 146,
                0,
-               506.785486,
+               506,
                0,
                0,
                0,
@@ -179,7 +179,7 @@ static Book zxg()
     };
     constexpr int bases[]{ 5, 1, 1, 2, 2, 3, 3, 4, 4, 5 }, channels[]{ 11, 22, 33, 44, 56, 67, 78, 89, 100, 112 };
     for (int i = 0; i < 10; ++i) {
-        b.damage(i < 5 ? 327 + i : 461 + i - 5, tiers[i], { bases[i], 0, double(channels[i]), 0, 0, 0, false, { .pve = 686 }, {} });
+        b.damage(i < 5 ? 327 + i : 461 + i - 5, tiers[i], { bases[i], 0, channels[i], 0, 0, 0, false, { .pve = 686 }, {} });
     }
     b.cast("破苍穹", 0, 24, 16, { .choice = "归元" }, { b.apply("破苍穹") });
     b.cast("五方行尽", 320, 24, 0, { .resource = 0, .cost = 1 }, { b.tier(tiers.front(), 0), b.gain(0, -10) });
@@ -206,7 +206,7 @@ static Book zxg()
     b.state({ 0, "飞剑", 424, 48, 1 }, false, false, true);
     constexpr std::string_view swords[]{ "飞剑·一", "飞剑·二", "飞剑·三", "飞剑·四", "飞剑·五" };
     for (int i = 0; i < 5; ++i) {
-        b.damage(18649 + i, swords[i], { 5, 0, 71.5, 0, 0, 0, false, { .pve = 686 } });
+        b.damage(18649 + i, swords[i], { 5, 0, 71, 0, 0, 0, false, { .pve = 686 } });
         b.passive(swords[i], "破势", { .pve = 1331 });
     }
     b.pulse("飞剑", { b.hit(swords[0]), b.later(swords[1], 3), b.later(swords[2], 8), b.later(swords[3], 12), b.later(swords[4], 16) });

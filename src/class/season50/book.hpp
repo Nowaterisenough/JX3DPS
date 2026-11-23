@@ -158,7 +158,7 @@ struct Stats
 {
     int    attack = 0, critical = 0, power = 0, damage = 0, pve = 0, ignore = 0, strain = 0, fragile = 0, overcome = 0;
     int    strain_rating = 0, shield_flat = 0;
-    double channel_multiplier              = 1.0;
+    int    channel_override                = -1; // Effective integer channel captured on application or impact.
     int    uncapped_power                  = 0;
     int    final_damage                    = 0;
     int    overcome_flat                   = 0;
@@ -177,12 +177,13 @@ struct Modifier
     std::string_view choice{};
     Slot             resource = INVALID_SLOT;
     int              low = 0, high = 0;
+    double           channel_scale = 1.;
 };
 
 struct Hit
 {
     int                   fixed = 0, spread = 0;
-    double                channel = 0;
+    int                   channel = 0;
     int                   weapon  = 0;
     int                   ticks = 0, interval = 0;
     bool                  physical = true;
@@ -194,6 +195,8 @@ struct Hit
     bool                  fixed_equipment_damage = false;
     bool                  triggers_equipment     = true;
     std::vector<std::pair<int, int>> rank_base_spread;
+
+    int Channel(int rank) const { return rank_channels.empty() ? channel : rank_channels.at(rank - 1); }
 };
 
 struct Aura

@@ -44,8 +44,8 @@ static Book txj()
     b.damage(33236, "列宿游", { 38, 26, 2400, 0, 0, 0, false, { .pve = 154 }, {} });
     b.damage(24558, "三星临", { 188, 5, 330, 0, 0, 0, false, { .pve = 154 }, {} });
     b.secondary_damage(37599, "三星临·神兵", { 2, 2, 50, 0, 0, 0, false, { .pve = 154 }, {} });
-    b.damage(24824, "天斗旋", { 242, 42, 942.3480000000003, 0, 0, 0, false, { .pve = 154 }, {} });
-    b.damage(24811, "兵主逆", { 219, 18, 388.08000000000004, 0, 0, 0, false, { .pve = 154 }, {} });
+    b.damage(24824, "天斗旋", { 242, 42, 942, 0, 0, 0, false, { .pve = 154 }, {} });
+    b.damage(24811, "兵主逆", { 219, 18, 388, 0, 0, 0, false, { .pve = 154 }, {} });
     b.dot("知微", "知微(DOT)");
     b.pulse("连极阵",
             { b.selected("连极阵", b.within(33, b.at(0, 5, 100, b.hit("纵横三才", 1)))),
@@ -155,8 +155,8 @@ static Book txj()
     b.state({28369, "镇星·斗", 480, 0, 1}, false);
     b.cast("镇星入舆", 400, 8, 0, { .required = b.buff("灯魂"), .choice = "镇星入舆", .lock = 8, .gcd_group = 4 },
            { b.apply("灯魂"), b.apply("连极阵"), b.apply("镇星·临"), b.apply("镇星·兵"), b.apply("镇星·斗") });
-    for (auto [name, seal, extra, channel] : { std::tuple{"三星临", "镇星·临", "三星临·镇星环", 330.0},
-            {"兵主逆", "镇星·兵", "兵主逆·镇星环", 388.08}, {"天斗旋", "镇星·斗", "天斗旋·镇星环", 942.348} }) {
+    for (auto [name, seal, extra, channel] : { std::tuple{"三星临", "镇星·临", "三星临·镇星环", 330},
+            {"兵主逆", "镇星·兵", "兵主逆·镇星环", 388}, {"天斗旋", "镇星·斗", "天斗旋·镇星环", 942} }) {
         const int fixed = name == std::string_view("三星临") ? 188 : name == std::string_view("兵主逆") ? 219 : 242;
         const int spread = name == std::string_view("三星临") ? 5 : name == std::string_view("兵主逆") ? 18 : 42;
         b.damage(0, extra, {fixed, spread, channel, 0, 0, 0, false, { .pve = 154, .final_damage = 512 } });
@@ -179,7 +179,7 @@ static Book txj()
     b.timing_recipe("起卦", "起卦·调息减32帧", "起水卦", -32, 0);
     b.timing_recipe("起卦", "起卦·调息减48帧", "起水卦", -48, 0);
     b.timing_recipe("天斗旋", "天斗旋·调息减16帧", "天斗旋", -16, 0);
-    b.damage(24870, "鬼星开穴", {26, 38, 742.5, 0, 0, 0, false, { .pve = 154 } });
+    b.damage(24870, "鬼星开穴", {26, 38, 742, 0, 0, 0, false, { .pve = 154 } });
     b.cast("鬼星开穴", 256, 24, 0, { .resource = 0, .cost = 50, .required = b.buff("灯魂") },
            { b.gain(0, -50), b.hit("鬼星开穴"), b.remove("灯魂"), b.remove("连极阵"), b.when("火离", b.apply("祝由·火离")) });
     b.cast("返闭惊魂", 608, 24, 0, { .gcd_group = 5 }, { b.apply("灯魂") });

@@ -120,7 +120,7 @@ class Rules
         return static_cast<unsigned>(versions_.size() - 1);
     }
 
-    unsigned Snapshot(const State &s, Slot effect)
+    unsigned Snapshot(const State &s, Slot effect, int rank = 1)
     {
         auto stats = data_->passive[effect];
         if (data_->config.raid_full) {
@@ -168,14 +168,15 @@ class Rules
         for (const auto &m : data_->modifiers[effect]) {
             if (m.resource != INVALID_SLOT) {
                 const int value = m.resource == 0 ? s.qidian : m.resource == 1 ? s.energy : s.rage;
-                if (value >= m.low && value <= m.high) {
-                    Add(stats, m.stats);
-                }
-                continue;
+                if (value < m.low || value > m.high) continue;
+            } else if (m.aura != INVALID_SLOT) {
+                const auto stacks = Stacks(s, m.aura);
+                if (!stacks || (m.stacks && stacks != m.stacks)) continue;
             }
-            const auto stacks = Stacks(s, m.aura);
-            if (stacks && (!m.stacks || stacks == m.stacks)) {
-                Add(stats, m.stats);
+            Add(stats, m.stats);
+            if (m.channel_scale != 1.) {
+                const int channel = stats.channel_override >= 0 ? stats.channel_override : book().hits[effect].Channel(rank);
+                stats.channel_override = static_cast<int>(channel * m.channel_scale);
             }
         }
         return Version(stats);
@@ -265,7 +266,7 @@ class Rules
         last_critical_     = static_cast<int>(roll % 10000) < chance;
         const auto [fixed, spread] = hit.rank_base_spread.empty() ? std::pair{hit.fixed, hit.spread} : hit.rank_base_spread.at(rank - 1);
         const auto base = fixed + (spread ? rng_.Next() % (spread + 1) : 0);
-        const auto live    = periodic ? Snapshot(e.GetState(), effect) : snapshot;
+        const auto live    = periodic ? Snapshot(e.GetState(), effect, rank) : snapshot;
         e.Log().Record(e.GetState().now,
                        effect,
                        0,
@@ -499,7 +500,7 @@ class Rules
                 {
                     const int rank = Stacks(s, static_cast<Slot>(n));
                     if (rank) {
-                        Strike(e, slot, Snapshot(s, slot), 1, rank);
+                        Strike(e, slot, Snapshot(s, slot, rank), 1, rank);
                     }
                     break;
                 }
@@ -527,7 +528,7 @@ class Rules
                 {
                     const auto &a    = *data_->actions[action];
                     const int   rank = completed_pulses_ + 1;
-                    Strike(e, slot, Snapshot(s, slot), 1, rank);
+                    Strike(e, slot, Snapshot(s, slot, rank), 1, rank);
                     break;
                 }
                 case Op::ProcHit:
@@ -659,7 +660,7 @@ class Rules
                     const int layers = Stacks(s, step.neutral_buff);
                     ChangeResource(e, 0, -ren);
                     ChangeResource(e, 1, -du);
-                    Strike(e, slot, Snapshot(s, slot), 1, ren + 1);
+                    Strike(e, slot, Snapshot(s, slot, ren + 1), 1, ren + 1);
                     if (layers) {
                         auto stats          = versions_[Snapshot(s, step.extra)];
                         stats.final_damage += (du * 4096 + 50) / 100;
@@ -840,7 +841,7 @@ class Rules
                 {
                     const auto left = std::max(0, s.self_buff_expires_at[step.extra] - s.now);
                     const int rank = std::clamp((left + 15) / 16, 1, static_cast<int>(book().hits[slot].rank_channels.size()));
-                    Strike(e, slot, Snapshot(s, slot), 1, rank);
+                    Strike(e, slot, Snapshot(s, slot, rank), 1, rank);
                     break;
                 }
                 case Op::RefundRemainingDuration:
@@ -912,7 +913,7 @@ class Rules
                     for (int arrow = 0; arrow < (charged ? 3 : 1); ++arrow) {
                         const bool loaded = Stacks(s, step.neutral_dot) > 0;
                         const auto effect = loaded ? step.extra : slot;
-                        Strike(e, effect, Snapshot(s, effect), 1, rank);
+                        Strike(e, effect, Snapshot(s, effect, rank), 1, rank);
                         if (loaded) SetAura(e, step.neutral_dot, -1);
                     }
                     break;
@@ -1306,7 +1307,7 @@ public:
                 while (!delayed_.empty() && delayed_.top().frame == s.now) {
                     const auto event = delayed_.top();
                     delayed_.pop();
-                    Strike(e, event.effect, Snapshot(s, event.effect), 1, event.rank);
+                    Strike(e, event.effect, Snapshot(s, event.effect, event.rank), 1, event.rank);
                 }
                 if (!delayed_.empty()) {
                     e.Timers().ArmAt(delayed_timer_, delayed_.top().frame);
@@ -1392,7 +1393,7 @@ public:
                     }
                 } else {
                     if (a.finisher != INVALID_SLOT && completed_pulses_ == channel_pulses_) {
-                        Strike(e, a.finisher, Snapshot(s, a.finisher), 1, channel_steps_ + 1);
+                        Strike(e, a.finisher, Snapshot(s, a.finisher, channel_steps_ + 1), 1, channel_steps_ + 1);
                     }
                     Apply(e, casting, data_->finishes[casting]);
                     if (finish_cd_) {

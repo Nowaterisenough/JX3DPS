@@ -5,6 +5,7 @@
 #include <memory>
 #include <utility>
 
+#include "src/core/runtime/attack_coefficient.hpp"
 #include "src/core/runtime/attribute_versions.hpp"
 #include "src/core/runtime/target_timeline.hpp"
 
@@ -278,8 +279,8 @@ inline value_t CalculateDamage(const Formula &f, const DamageInput &a, const Tar
     } else {
         const double coefficient =
             f.kind == FormulaKind::DOT
-                ? f.channel * std::max(16, f.dot_count * f.dot_interval / 12) * 1.0 / f.dot_count / 10 / 16 / 16
-                : std::max(f.channel, 16) * 1.0 / 10 / 16;
+                ? DotAttackCoefficient(f.channel, f.dot_count, f.dot_interval, 10)
+                : DirectAttackCoefficient(f.channel, 10);
         raw = f.fixed + static_cast<value_t>(a.attack * coefficient) + (a.weapon * f.weapon / 1024);
     }
     raw                   = raw * (1024 + a.damage_percent) / 1024;
@@ -364,9 +365,8 @@ struct Prepared
             chance_bonus[effect] = ExtraChance(effect) * 1.0 / 10000;
             coefficients[effect] =
                 formula.kind == FormulaKind::DOT
-                    ? formula.channel * std::max(16, formula.dot_count * formula.dot_interval / 12) * 1.0 /
-                          formula.dot_count / 10 / 16 / 16
-                    : std::max(formula.channel, 16) * 1.0 / 10 / 16;
+                    ? DotAttackCoefficient(formula.channel, formula.dot_count, formula.dot_interval, 10)
+                    : DirectAttackCoefficient(formula.channel, 10);
             if (formula.kind == FormulaKind::SURPLUS) {
                 surplus_damage[effect] =
                     static_cast<value_t>(a.surplus * (((formula.channel + static_cast<int>(formula.channel < 0)) / 1024) + 1024) /

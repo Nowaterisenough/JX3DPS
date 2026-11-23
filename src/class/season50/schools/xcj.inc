@@ -90,13 +90,13 @@ static Book xcj()
     b.recipe("龙跃于渊", "龙跃于渊·4%伤害", { .damage = 41 }, { "龙跃于渊·一", "龙跃于渊·三", "龙跃于渊·二" });
     b.recipe("龙跃于渊", "龙跃于渊·5%伤害", { .damage = 51 }, { "龙跃于渊·一", "龙跃于渊·三", "龙跃于渊·二" });
     b.extra_tick("灼烧", "雨龙", 6);
-    b.passive("灼烧(DOT)", "雨龙", { .channel_multiplier = 1.67 });
+    b.passive("灼烧(DOT)", "雨龙", {}, 1.67);
     const std::array<std::string_view, 6> palms{ "亢龙有悔·一", "亢龙有悔·二", "亢龙有悔·三",
                                                  "亢龙有悔·四", "亢龙有悔·五", "亢龙有悔·六" };
     for (int i = 0; i < 5; ++i) {
-        b.damage(6369 + i, palms[i], { 80, 10, 188.44937779245353, 0, 0, 0, true, {}, {} });
+        b.damage(6369 + i, palms[i], { 80, 10, 188, 0, 0, 0, true, {}, {} });
     }
-    b.damage(6374, palms[5], { 1, 1, 509.5593639936, 0, 0, 0, true, {}, {} });
+    b.damage(6374, palms[5], { 1, 1, 509, 0, 0, 0, true, {}, {} });
     b.state({6466, "青龙映夜", 96, 0, 1}, false);
     b.state({0, "神兵亢龙", 20, 0, 1}, false);
     b.cast("亢龙有悔",

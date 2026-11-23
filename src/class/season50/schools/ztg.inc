@@ -78,23 +78,21 @@ static Book ztg()
     b.recipe("破穴", "破穴·4%会心", { .critical = 400 }, { "破穴" });
     b.recipe("破穴", "破穴·4%伤害", { .damage = 41 }, { "破穴" });
     b.recipe("破穴", "破穴·5%伤害", { .damage = 51 }, { "破穴" });
-    Hit discharge{ 2, 0, 673.9808438385, 0, 0, 0, false, { .pve = 266 }, {} };
-    for (int spent = 0; spent <= 50; ++spent) {
-        discharge.rank_channels.push_back(static_cast<int>(discharge.channel * (1. + spent * .04)));
-    }
-    b.damage(38438, "引窍", std::move(discharge));
-    Hit rupture{ 2, 0, 46.552, 0, 0, 0, false, { .pve = 266 }, {} };
-    for (int stacks = 1; stacks <= 10; ++stacks) {
-        rupture.rank_channels.push_back(static_cast<int>(rupture.channel * stacks));
-    }
-    b.damage(38085, "绝脉", std::move(rupture));
+    // Each rank is a separate DamageParam. Quantize the season expression for that rank once.
+    b.damage(38438, "引窍", {2, 0, 673, 0, 0, 0, false, {.pve = 266}});
+    b.ranks("引窍", {673, 700, 727, 754, 781, 808, 835, 862, 889, 916, 943, 970, 997,
+                    1024, 1051, 1078, 1105, 1132, 1159, 1186, 1213, 1240, 1267, 1294, 1321, 1347,
+                    1374, 1401, 1428, 1455, 1482, 1509, 1536, 1563, 1590, 1617, 1644, 1671, 1698,
+                    1725, 1752, 1779, 1806, 1833, 1860, 1887, 1914, 1941, 1968, 1994, 2021});
+    b.damage(38085, "绝脉", {2, 0, 46, 0, 0, 0, false, {.pve = 266}});
+    b.ranks("绝脉", {46, 93, 139, 186, 232, 279, 325, 372, 418, 465});
     b.cast("引窍", 0, 24, 0, {}, { b.meridians("引窍", "绝脉", "绝脉") });
     b.set_bonus({ .damage = 102 }, { "引窍" });
     b.state({ 0, "风萦", 192, 0, 1 }, true);
     b.state({ 0, "骤风", 144, 12, 1 }, true);
     b.state({ 0, "涣风", 128, 0, 3 }, true);
     b.damage(37816, "劈风令", { 2, 0, 993, 0, 0, 0, false, { .pve = 266 }, {} });
-    b.damage(0, "骤风", { 2, 0, 247.779, 0, 0, 0, false, { .pve = 266 }, {} });
+    b.damage(0, "骤风", { 2, 0, 247, 0, 0, 0, false, { .pve = 266 }, {} });
     b.damage(38452, "风籁", { 7, 0, 315, 0, 0, 0, false, { .pve = 266 }, {} });
     b.damage(39340, "涣风", { 2, 0, 704, 0, 0, 0, false, { .pve = 266 }, {} });
     b.modifier("风籁", { b.buff("风萦"), 0, { .final_damage = 512 }, "风萦" });
@@ -125,7 +123,7 @@ static Book ztg()
     b.damage(38886, "风徊絮转·抟", { 5, 3, 3231, 0, 0, 0, false, { .pve = 266 } });
     b.damage(38447, "抟风令", { 2, 0, 480, 0, 0, 0, false, { .pve = 266 } });
     b.damage(38453, "抟风令·爆", { 122, 0, 1536, 0, 0, 0, false, { .pve = 266 } });
-    b.damage(0, "横驱风靡", { 0, 0, 421.2243, 0, 0, 0, false, { .pve = 266 } });
+    b.damage(0, "横驱风靡", { 0, 0, 421, 0, 0, 0, false, { .pve = 266 } });
     b.pulse("横驱风靡", { b.when("风场余跳", b.hit("横驱风靡")), b.remove("风场余跳") });
     b.on_hit("横驱风靡", { b.when("风萦", b.hit("风籁")) });
     b.cast("风徊絮转", 368, 8, 0, { .choice = "风徊絮转", .hasted_cd = true, .lock = 8, .gcd_group = 2 }, { b.apply("风徊絮转"), b.hit("风徊絮转") });

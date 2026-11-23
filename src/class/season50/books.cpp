@@ -222,9 +222,9 @@ public:
         for (auto &v : b_.variants) if (v.slot == slot) v.action.defer_swing = aura;
     }
 
-    void passive(std::string_view name, std::string_view talent, Stats stats)
+    void passive(std::string_view name, std::string_view talent, Stats stats, double channel_scale = 1.)
     {
-        b_.hits.at(skill(name)).modifiers.push_back({ INVALID_SLOT, 0, stats, talent });
+        b_.hits.at(skill(name)).modifiers.push_back({ .aura = INVALID_SLOT, .stacks = 0, .stats = stats, .choice = talent, .channel_scale = channel_scale });
     }
 
     void legendary_damage(std::initializer_list<std::string_view> hits)
@@ -244,9 +244,9 @@ public:
         for (auto &v : b_.variants) if (v.slot == slot) set(v.action);
     }
 
-    void resource_modifier(std::string_view name, Slot resource, int low, int high, Stats stats, std::string_view talent)
+    void resource_modifier(std::string_view name, Slot resource, int low, int high, Stats stats, std::string_view talent, double channel_scale = 1.)
     {
-        modifier(name, { INVALID_SLOT, 0, stats, talent, resource, low, high });
+        modifier(name, { INVALID_SLOT, 0, stats, talent, resource, low, high, channel_scale });
     }
 
     void modifier(std::string_view name, Modifier mod) { b_.hits.at(skill(name)).modifiers.push_back(mod); }
@@ -407,7 +407,7 @@ public:
 
     void recipe_group(std::string_view name, std::string_view group) { b_.recipe_groups.emplace_back(name, group); }
 
-    void recipe(std::string_view group, std::string_view name, Stats delta, std::initializer_list<std::string_view> hits)
+    void recipe(std::string_view group, std::string_view name, Stats delta, std::initializer_list<std::string_view> hits, double channel_scale = 1.)
     {
         if (std::ranges::find(b_.recipes, name) == b_.recipes.end()) {
             b_.recipes.push_back(name);
@@ -418,7 +418,7 @@ public:
             if (found == b_.skills.end()) {
                 throw std::logic_error("recipe references an unknown damage event");
             }
-            b_.hits.at(found - b_.skills.begin()).modifiers.push_back({ INVALID_SLOT, 0, delta, name });
+            b_.hits.at(found - b_.skills.begin()).modifiers.push_back({ .aura = INVALID_SLOT, .stacks = 0, .stats = delta, .choice = name, .channel_scale = channel_scale });
         }
     }
 
@@ -441,13 +441,13 @@ public:
 
     void alias(std::string_view name, std::string_view alias) { b_.skill_aliases.at(skill(name)) = alias; }
 
-    void set_bonus(Stats bonus, std::initializer_list<std::string_view> names)
+    void set_bonus(Stats bonus, std::initializer_list<std::string_view> names, double channel_scale = 1.)
     {
         if (std::ranges::find(b_.equipment, ClassSet) == b_.equipment.end()) {
             b_.equipment.push_back(ClassSet);
         }
         for (auto name : names) {
-            passive(name, ClassSet, bonus);
+            passive(name, ClassSet, bonus, channel_scale);
         }
     }
 
@@ -759,7 +759,7 @@ Preparation Prepare(const Config &input)
                  (b.code == "fsj" && b.buffs[m.aura].name == "虚弱" && m.stats.ignore == 51)))
                 continue; // The maintained raid debuff supersedes the player's copy.
             if (enabled(m.choice)) {
-                if (m.aura == INVALID_SLOT && m.resource == INVALID_SLOT) {
+                if (m.aura == INVALID_SLOT && m.resource == INVALID_SLOT && m.channel_scale == 1. && m.stats.channel_override < 0) {
                     Add(passive, m.stats);
                 } else {
                     mods.push_back(m);

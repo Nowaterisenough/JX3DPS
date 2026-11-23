@@ -110,7 +110,7 @@ static Book fsj()
              {
                  1,
                  0,
-                 122.24519999999998,
+                 122,
                  0,
                  13,
                  32,
@@ -155,7 +155,7 @@ static Book fsj()
              {
                  13,
                  1,
-                 269.23050000000006,
+                 269,
                  1024,
                  0,
                  0,
@@ -215,7 +215,7 @@ static Book fsj()
              {
                  105,
                  8,
-                 776.1985920000002,
+                 776,
                  1024,
                  0,
                  0,
@@ -277,12 +277,13 @@ static Book fsj()
     b.recipe("盾猛", "盾猛·3%伤害", { .damage = 31 }, { "盾猛" });
     b.recipe("盾猛", "盾猛·4%伤害", { .damage = 41 }, { "盾猛" });
     b.state({ 9052, "绝返", 0, 0, 4 }, false);
+    constexpr int finisher_channel = 668;
     b.damage(13075,
              "绝刀",
              {
                  18,
                  1,
-                 668.00214,
+                 finisher_channel,
                  1024,
                  0,
                  0,
@@ -291,7 +292,9 @@ static Book fsj()
                  {}
     });
     for (int tier = 1; tier <= 4; ++tier) {
-        b.modifier("绝刀", { b.buff("绝返"), tier, { .channel_multiplier = 1.0 + tier * 0.2 }, {} });
+        b.modifier("绝刀", { .aura = b.buff("绝返"), .stacks = tier, .stats = {}, .channel_scale = 1.0 + tier * 0.2 });
+        // 嗜血 replaces the per-stack coefficient bonus (30% instead of 20%).
+        b.modifier("绝刀", {b.buff("绝返"), tier, {.channel_override = static_cast<int>(finisher_channel * (1.0 + tier * 0.3))}, "嗜血"});
     }
     for (int tier = 1; tier <= 3; ++tier) {
         b.modifier("绝刀", { b.buff("孤旌"), tier, { .damage = (tier * 6144 + 50) / 100 }, {} });
@@ -347,18 +350,18 @@ static Book fsj()
     b.cast("月照连营", 0, 24, 0, { .required = b.buff("可释放月照连营") }, { b.remove("可释放月照连营"), b.hit("月照连营"), b.apply("可释放雁门迢递") });
     b.cast("雁门迢递", 0, 24, 0, { .required = b.buff("可释放雁门迢递") }, { b.remove("可释放雁门迢递"), b.hit("雁门迢递") });
     // The second rank and its NPC modifier persist through both follow-ups.
-    for (auto [name, multiplier] :
+    for (auto [name, channel] :
          {
-             std::pair{ "阵云结晦", 1493. / 853.  },
-             std::pair{ "月照连营", 1876. / 1074. },
-             std::pair{ "雁门迢递", 2266. / 1294. }
+             std::pair{ "阵云结晦", 1493 },
+             std::pair{ "月照连营", 1876 },
+             std::pair{ "雁门迢递", 2266 }
     })
     {
         b.modifier(name,
                    {
                        b.buff("朔荒·二段"),
                        0,
-                       { .pve = 1997, .channel_multiplier = multiplier },
+                       { .pve = 1997, .channel_override = channel },
                        "朔荒"
         });
         b.passive(name, "阵云结晦", { .ignore = 1024 });
@@ -382,9 +385,6 @@ static Book fsj()
     b.phases("盾猛", {}, { b.selected("残裂", b.gain(0, 20)), b.remove("斗塞", 6) });
     b.passive("绝刀", "嗜血", { .critical = 1500, .power = 205 });
     b.on_hit("绝刀", { b.selected("嗜血", b.apply("嗜血")) });
-    for (int i = 1; i <= 4; ++i) {
-        b.modifier("绝刀", { b.buff("绝返"), i, { .channel_multiplier = (1.0 + i * 0.3) / (1.0 + i * 0.2) }, "嗜血" });
-    }
     b.secondary_damage(34108, "裂伤(DOT)", {25, 0, 1045, 0, 6, 48, true, {.pve = 154}});
     for (auto hit : {"盾击·一", "盾击·二", "盾击·三", "盾击·神兵"}) {
         for (int stacks = 1; stacks <= 3; ++stacks)

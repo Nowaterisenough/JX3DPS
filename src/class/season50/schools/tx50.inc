@@ -25,7 +25,7 @@ static Book tx50()
         { b.buff("碎星辰"), 0, { .attack = 102, .critical = 500, .power = 100 }, "负阴" }
     };
     const auto direct = [&](int id, std::string_view name, int base, int spread, int channel, int weapon) {
-        b.damage(id, name, { base, spread, static_cast<double>(channel), weapon, 0, 0, true, npc, field });
+        b.damage(id, name, { base, spread, channel, weapon, 0, 0, true, npc, field });
     };
     direct(383, "无我无剑·一", 2, 0, 77, 2048);
     direct(386, "无我无剑·二", 4, 0, 154, 2048);

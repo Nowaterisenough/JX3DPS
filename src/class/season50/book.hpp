@@ -42,7 +42,15 @@ struct Config
     std::map<std::string, std::string> permanents;
     std::optional<int>                 base_major;
     bool                               precombat = false;
+    bool                               raid_full = false;
+    std::optional<int>                 gear_score;
     double                             player_life = 1.;
+
+    bool HasAdaptiveOvercome() const
+    {
+        return std::ranges::contains(equipment, std::string_view{"见天心"}) ||
+               std::ranges::contains(equipment, std::string_view{"无观冠·适应之力"});
+    }
 };
 
 enum class Op
@@ -157,6 +165,7 @@ struct Stats
     int    attack_flat                     = 0;
     int    class_attack_flat               = 0;
     int    strain_flat                     = 0;
+    int    target_shield_percent           = 0;
     bool   operator==(const Stats &) const = default;
 };
 
@@ -378,6 +387,10 @@ const Book           *Find(std::string_view code);
 
 struct Prepared
 {
+    enum class RaidFormation { Other, LingXue, PengLai, YiJin };
+    RaidFormation raid_formation = RaidFormation::Other;
+    Slot raid_pollen = INVALID_SLOT;
+    int raid_pollen_damage = 0, raid_hanxiao_stacks = 100;
     Config                             config;
     std::vector<const Action *>        actions;
     std::vector<SkillDescriptor>       skills;

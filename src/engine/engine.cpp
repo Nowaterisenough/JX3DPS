@@ -446,6 +446,7 @@ Json handle(jx3dps_engine &session, const Json &j)
             Json permanents = Json::object();
             for (const auto &item : rt::season50::PermanentOptions(book)) permanents[item.category].push_back(item.name);
             schools.push_back({
+                { "raidPermanents", rt::season50::FullRaidPermanents(book) },
                 { "code",      book.code            },
                 { "name",      book.name            },
                 { "ruleset",   "cangsheng-50"       },

@@ -1,6 +1,7 @@
 #include "src/class/season50/runtime_rules.hpp"
 
 #include "src/core/runtime/batch_statistics.hpp"
+#include "src/core/runtime/attribute_gains.hpp"
 #include "check.hpp"
 #include <iostream>
 #include <fstream>
@@ -291,6 +292,56 @@ void CheckInstanceEquipment()
     bool rejected = false;
     try { fight.prepare(); } catch (const std::invalid_argument &) { rejected = true; }
     CHECK(rejected);
+}
+
+void CheckAdaptiveEquipmentGains()
+{
+    Fight fight("tx", "/cast 三柴剑法");
+    fight.cfg.attributes.crit = 3100;
+    fight.cfg.attributes.overcome = 3000;
+    const rt::BatchOptions options{16, 42, 480, 2, 4096, 8192};
+    constexpr int index = static_cast<int>(rt::AttributeGainKind::OVERCOME);
+    for (const auto *item : {"见天心", "无观冠·适应之力"}) {
+        fight.cfg.equipment = {item};
+        rt::BatchControl control;
+        auto increments = rt::DefaultGainIncrements;
+        increments[index] = 208;
+        const auto gains = rt::RunAttributeGainsControlled(fight.macro.program, options, control, fight.cfg, rt::detail::TotalDamageReducer{}, increments);
+        const auto changed = rt::ApplyAttributeGain(fight.cfg, index, increments[index]);
+        const auto direct = rt::RunBatch(fight.macro.program, options, rt::LoadSpecialization(changed));
+        CHECK(gains.gains[index] && gains.gains[index]->checksum == direct.checksum);
+        CHECK(control.completed == options.iterations * rt::GainSimulationStages(fight.cfg));
+    }
+}
+
+void CheckFullRaid()
+{
+    Fight dot("hjy", "/cast [tnobuff:商阳指] 商阳指");
+    dot.cfg.raid_full = true;
+    dot.cfg.talents.clear();
+    dot.prepare();
+    dot.run(242);
+    const auto ticks = dot.hits("商阳指(DOT)");
+    CHECK(ticks.size() == 5);
+    const auto &versions = dot.sim->GetRules().Versions();
+    CHECK(versions[ticks.front().snapshot_version].strain_flat == 11400);
+    CHECK(ticks.front().snapshot_version == ticks.back().snapshot_version);
+    CHECK(versions[ticks.back().live_version].strain_flat == 7000);
+
+    Fight fight("tx", "/cast 三柴剑法");
+    fight.cfg.raid_full = true;
+    fight.cfg.gear_score = 17188;
+    fight.prepare();
+    fight.run(1600);
+    const auto procs = fight.hits("逐云寒蕊");
+    CHECK(procs.size() == 24);
+    for (std::size_t i = 0; i < procs.size(); ++i) {
+        CHECK(procs[i].frame / 800 == i / 12 && procs[i].frame % 800 < 480);
+        CHECK(procs[i].base == 1800 && procs[i].outcome == RollResult::HIT);
+        if (i) CHECK(procs[i].frame - procs[i - 1].frame >= 16);
+    }
+    fight.run(1600);
+    CHECK(fight.hits("逐云寒蕊") == procs);
 }
 
 void CheckRaidGear()
@@ -1524,6 +1575,8 @@ int main(int argc, char **argv)
     CheckRaidGear();
     CheckLegendaryWeapons();
     CheckInstanceEquipment();
+    CheckAdaptiveEquipmentGains();
+    CheckFullRaid();
     CheckSpeedDotAndTrialGear();
     CheckShieldBash();
     CheckGeneralSealAndDragonProcs();

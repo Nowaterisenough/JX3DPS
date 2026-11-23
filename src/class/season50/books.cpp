@@ -475,6 +475,7 @@ public:
         bracer.fixed = 46000;
         bracer.fixed_equipment_damage = true;
         secondary_damage(40789, "巽·晚山青", bracer);
+        secondary_damage(29541, "逐云寒蕊", {.fixed_equipment_damage = true});
         state({ 15455, "腰大附魔·1%", 128, 0, 1 }, false);
         state({ 15455, "腰大附魔·5%", 128, 0, 1 }, false);
         state({ 29268, "风·灭虚", 240, 0, 1 }, false);
@@ -565,7 +566,10 @@ Preparation Prepare(const Config &input)
             if (recipe == "返闭惊魂·调息减32帧") recipe = "返闭惊魂·调息减4秒";
         }
     }
-    ApplyPermanents(*config.book, config.attributes, config.base_major.value_or(config.book->default_major), config.permanents);
+    if (config.gear_score && (*config.gear_score < 0 || *config.gear_score > 1000000))
+        throw std::invalid_argument("invalid gear score");
+    if (config.raid_full) config.permanents.merge(FullRaidPermanents(*config.book));
+    ApplyPermanents(*config.book, config.attributes, config.base_major.value_or(config.book->default_major), config.permanents, config.raid_full);
     if (config.target.level < 50 || config.target.level > 54 || config.target.shield < 0 || config.target.shield > 100000 ||
         !std::isfinite(config.target.life) || config.target.life < 0.01 || config.target.life > 1 ||
         !std::isfinite(config.target.distance) || config.target.distance < 0 || config.target.distance > 1000)
@@ -653,6 +657,16 @@ Preparation Prepare(const Config &input)
     const auto aura = [&](std::string_view name) { return static_cast<Slot>(std::ranges::find(b.buffs, name, &BuffDescriptor::name) - b.buffs.begin()); };
     const auto hit_slot = [&](std::string_view name) { return static_cast<Slot>(std::ranges::find(b.skills, name, &SkillDescriptor::name) - b.skills.begin()); };
     if (enabled("晚山青")) p->bracer_hit = hit_slot("巽·晚山青");
+    if (config.raid_full) {
+        const auto &formation = config.permanents.at("阵法");
+        if (formation == "凌雪阵（常驻）") p->raid_formation = Prepared::RaidFormation::LingXue;
+        if (formation == "蓬莱阵" && b.code == "lhj") p->raid_formation = Prepared::RaidFormation::PengLai;
+        if (formation == "易筋阵（常驻）") p->raid_formation = Prepared::RaidFormation::YiJin;
+        const int default_score = b.code == "tx" ? 24440 : b.code == "fsj" ? 24030 : b.code == "fysj" ? 17785 : 17188;
+        p->raid_pollen = hit_slot("逐云寒蕊");
+        p->raid_pollen_damage = static_cast<int>(100 * std::max(18., config.gear_score.value_or(default_score) * .0020416667 - 22.9166667));
+        p->raid_hanxiao_stacks = b.code == "mw" ? 1 : 100;
+    }
     if (enabled("动寒星") || enabled("满庭月") || enabled("影凋零") || enabled("月照庭")) p->speed_dot = aura("速·震");
     if (enabled("无观鞋·会心")) p->shoe_crit = aura("无观鞋·会心");
     if (enabled("无观鞋·破防")) p->shoe_overcome = aura("无观鞋·破防");
@@ -740,6 +754,10 @@ Preparation Prepare(const Config &input)
                    .fragile  = config.target.vulnerable,
                    .overcome = a.overcome_percent });
         for (const auto &m : h.modifiers) {
+            if (config.raid_full && m.aura != INVALID_SLOT && m.resource == INVALID_SLOT &&
+                ((b.code == "axzy" && b.buffs[m.aura].name == "破风" && m.stats.shield_flat == -280) ||
+                 (b.code == "fsj" && b.buffs[m.aura].name == "虚弱" && m.stats.ignore == 51)))
+                continue; // The maintained raid debuff supersedes the player's copy.
             if (enabled(m.choice)) {
                 if (m.aura == INVALID_SLOT && m.resource == INVALID_SLOT) {
                     Add(passive, m.stats);

@@ -63,6 +63,8 @@ class Rules
     tick_t wrist_ready_ = 0, shoe_ready_ = 0, belt_ready_ = 0;
     tick_t bracer_ready_ = 0, adaptive_ready_ = 0, trinket_ready_ = 0;
     tick_t speed_dot_ready_ = 0, trial_shoe_ready_ = 0;
+    tick_t pollen_ready_ = 0;
+    int pollen_window_ = -1, pollen_hits_ = 0;
 
     const Book &book() const { return *data_->config.book; }
 
@@ -121,6 +123,32 @@ class Rules
     unsigned Snapshot(const State &s, Slot effect)
     {
         auto stats = data_->passive[effect];
+        if (data_->config.raid_full) {
+            const auto now = s.now;
+            // Windows are half-open and evaluated at the actual impact or application frame.
+            if (now % 1920 < 480) stats.strain_flat += 2600; // 仙王蛊鼎
+            if (now % 480 < 240) stats.strain_flat += 3 * data_->raid_hanxiao_stacks;
+            if (now % 2880 < 128) stats.strain_flat += 4100; // 圣浴明心
+            if (now < 960) stats.strain_flat += now < 480 ? 3400 : 1700;
+            if (now % 800 < 480) stats.strain_flat += 1000; // 飘黄
+            if (now % 1120 < 160) stats.power += 51; // 皎素
+            stats.fragile += 21; // 戒火
+            if (book().hits[effect].physical) {
+                stats.shield_flat -= 372; // 劲风
+                stats.target_shield_percent -= 51 + (now % 480 < 160 ? 102 : 0); // 虚弱、破甲
+            } else {
+                stats.target_shield_percent -= 154; // 立地成佛
+            }
+            switch (data_->raid_formation) {
+                case Prepared::RaidFormation::LingXue: if (now % 400 < 224) stats.attack += 102; break;
+                case Prepared::RaidFormation::PengLai: if (now % 160 < 64) stats.attack += 72; break;
+                case Prepared::RaidFormation::YiJin:
+                    // Model the published 97% uptime: rebuild one layer per GCD after a lapse every 100 s.
+                    stats.attack += 21 * std::min(5, 1 + (now % 1600) / 24);
+                    break;
+                default: break;
+            }
+        }
         if (data_->legendary_strain_per_stack) stats.strain_flat += data_->legendary_strain_per_stack * Stacks(s, book().legendary_strain);
         const auto active = [&](Slot aura) { return aura != INVALID_SLOT && Stacks(s, aura); };
         const int extra_crit = (active(data_->ring_crit) ? 313 : 0) + (active(data_->adaptive_crit) ? 595 : 0) +
@@ -154,10 +182,11 @@ class Rules
     }
 
     template <class E>
-    void EquipmentHit(E &e, Slot slot)
+    void EquipmentHit(E &e, Slot slot, int base_override = -1)
     {
         const auto version = Snapshot(e.GetState(), slot);
-        e.Log().Record(e.GetState().now, slot, 0, 1, 0, book().hits[slot].fixed, 0, RollResult::HIT, slot, 0, 1, version, version);
+        const auto base = base_override >= 0 ? base_override : book().hits[slot].fixed;
+        e.Log().Record(e.GetState().now, slot, 0, 1, 0, base, 0, RollResult::HIT, slot, 0, 1, version, version);
     }
 
     template <class E>
@@ -165,6 +194,17 @@ class Rules
     {
         const auto now = e.GetState().now;
         const auto &s = e.GetState();
+        if (data_->raid_pollen != INVALID_SLOT && now % 800 < 480 && now >= pollen_ready_) {
+            if (pollen_window_ != now / 800) {
+                pollen_window_ = now / 800;
+                pollen_hits_ = 0;
+            }
+            if (pollen_hits_ < 12) {
+                ++pollen_hits_;
+                pollen_ready_ = now + 16;
+                EquipmentHit(e, data_->raid_pollen, data_->raid_pollen_damage);
+            }
+        }
         if (data_->bracer_hit != INVALID_SLOT && now >= bracer_ready_ && s.life > .75) {
             bracer_ready_ = now + 160;
             EquipmentHit(e, data_->bracer_hit);
@@ -1042,6 +1082,8 @@ public:
         wrist_ready_ = shoe_ready_ = belt_ready_ = 0;
         bracer_ready_ = adaptive_ready_ = trinket_ready_ = 0;
         speed_dot_ready_ = trial_shoe_ready_ = 0;
+        pollen_window_ = -1;
+        pollen_ready_ = pollen_hits_ = 0;
         captured_                                = false;
         finish_cd_                               = 0;
         deferred_swing_due_ = -1;

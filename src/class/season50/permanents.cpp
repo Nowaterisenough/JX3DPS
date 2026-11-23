@@ -30,17 +30,48 @@ std::span<const PermanentOption> PermanentOptions(const Book &b)
     return catalog.find(PermanentFamily(b))->second;
 }
 
-int ApplyPermanents(const Book &b, Attributes &a, int base_major, const std::map<std::string, std::string> &selected)
+std::map<std::string, std::string> FullRaidPermanents(const Book &b)
+{
+    const auto info = Info(b.code);
+    const bool physical = info.damage == "Physics";
+    std::string formation = physical ? "凌雪阵（常驻）" : "天罗阵（常驻）";
+    if (b.code == "gfj") formation = "刀宗阵";
+    if (b.code == "lhj") formation = "蓬莱阵";
+    if (b.code == "mw") formation = "莫问阵（常驻）";
+    if (b.code == "txj" || b.code == "wf" || b.code == "ztg" || b.code == "yly") formation = "易筋阵（常驻）";
+    const bool penetration = b.code == "tx" || b.code == "fsj" || b.code == "baj" || b.code == "fysj" || b.code == "gfj" ||
+                             b.code == "txj" || b.code == "xcj" || b.code == "ztg";
+    const std::map<std::string_view, std::string> wines{{"力道", "汾酒"}, {"身法", "关外白酒"}, {"元气", "状元红"}, {"根骨", "高粱酒"}};
+    return {{"阵法", formation}, {"食品增强", "云州刀削面·精（攻击)"}, {"食品辅助", "云芝竹沥羹·精（主属）"},
+            {"药品增强", "中原破阵丹·精（攻击)"}, {"药品辅助", "五气归元丹·精（主属）"}, {"武器磨石", b.code == "ztg" ? "苍生·坠宵熔锭（攻击）" : "苍生·坠宵淬晶（攻击）"},
+            {"团队宴席", physical ? "华岳开锋宴" : "未央宫庭宴"}, {"家园菜品", b.code == "ztg" ? "创意料理（-气血+破防）" : "创意料理（-气血+攻击）"},
+            {"家园酒品", wines.at(info.major) + "·旬又三（" + std::string(info.major) + "）"},
+            {"家园香水", penetration ? "煦风·宁为秋霜（破防）" : "煦风·燕燕于飞（会心）"}};
+}
+
+int ApplyPermanents(const Book &b, Attributes &a, int base_major, const std::map<std::string, std::string> &selected, bool raid_full)
 {
     if (base_major < 0 || base_major > 1000000) {
         throw std::invalid_argument("invalid base major attribute");
     }
-    if (selected.empty()) {
+    if (selected.empty() && !raid_full) {
         return base_major;
     }
     const auto                    options = PermanentOptions(b);
     std::map<std::string, double> stats;
-    for (const auto &[category, name] : selected) {
+    auto choices = selected;
+    if (raid_full) {
+        choices.merge(FullRaidPermanents(b));
+        // 袖气 adds all four stats; each class and common conversion is applied once below.
+        for (auto stat : {"力道", "身法", "元气", "根骨"}) stats[stat] += 45;
+        stats["strain"] += 70 + 21 + 30 + 100 * (7 + 7 + 7 + 5 + 5);
+        if (Info(b.code).damage == "Physics" && b.code != "axzy") stats["attackBonus"] += 51;
+        const auto &formation = choices.at("阵法");
+        if (formation == "莫问阵（常驻）" || formation == "天罗阵（常驻）") stats["criticalChance"] += .05;
+        if (formation == "天罗阵（常驻）" && b.code == "tlgd") stats["strainBonus"] += 20;
+        if (formation == "刀宗阵" && b.code == "gfj") stats["criticalPower"] += 100;
+    }
+    for (const auto &[category, name] : choices) {
         const auto it = std::ranges::find_if(options, [&](const auto &item) {
             return item.category == category && item.name == name;
         });

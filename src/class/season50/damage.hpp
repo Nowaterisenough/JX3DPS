@@ -41,7 +41,8 @@ inline value_t Damage(const Config &cfg, const DamageIntent &hit, const Stats &b
     const auto attack       = panel_attack * skill.inherited_attack_bp / 10000;
     value_t    raw          = hit.base + static_cast<value_t>(attack * coefficient) + a.weapon * skill.weapon / 1024;
     raw                     = raw * (1024 + buffs.damage) / 1024 * hit.sub;
-    const auto base_shield  = std::max(0, t.shield + live.shield_flat);
+    const auto flat_shield = std::max(0, t.shield + live.shield_flat);
+    const auto base_shield = flat_shield * (1024 + live.target_shield_percent) / 1024;
     const auto shield       = base_shield - base_shield * std::clamp(live.ignore, 0, 1024) / 1024;
     const auto reduction    = static_cast<int>(shield * 1024. / (shield + 10.912 * RatingScale(t.level)));
     const int  overcome     = 1024 + Rating((a.overcome + live.overcome_flat) * (1024 + live.overcome) / 1024, 10.483);
@@ -68,6 +69,7 @@ inline void Add(Stats &to, const Stats &from)
     to.overcome           += from.overcome;
     to.strain_rating      += from.strain_rating;
     to.shield_flat        += from.shield_flat;
+    to.target_shield_percent += from.target_shield_percent;
     to.channel_multiplier *= from.channel_multiplier;
     to.uncapped_power     += from.uncapped_power;
     to.final_damage       += from.final_damage;

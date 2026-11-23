@@ -105,10 +105,12 @@ inline void to_json(nlohmann::json &j, const Config &c)
         { "recipes",       c.recipes       },
         { "equipment",     c.equipment     },
         { "precombat",     c.precombat     },
+        { "raid_full",     c.raid_full     },
         { "permanents",    c.permanents    },
         { "delay",         c.delay         }
     };
     if (c.base_major) j["base_major"] = *c.base_major;
+    if (c.gear_score) j["gear_score"] = *c.gear_score;
     if (c.initial_qidian) {
         j["initial_qidian"] = *c.initial_qidian;
     }
@@ -121,7 +123,7 @@ inline void from_json(const nlohmann::json &j, Config &c)
     }
     for (const auto &[key, unused] : j.items()) {
         if (key != "attributes" && key != "target" && key != "player_life" && key != "target_events" && key != "talents" && key != "recipes" &&
-            key != "equipment" && key != "delay" && key != "initial_qidian" && key != "permanents" && key != "base_major" && key != "precombat")
+            key != "equipment" && key != "delay" && key != "initial_qidian" && key != "permanents" && key != "base_major" && key != "precombat" && key != "raid_full" && key != "gear_score")
         {
             throw std::invalid_argument("unsupported level-50 config field: " + key);
         }
@@ -130,6 +132,12 @@ inline void from_json(const nlohmann::json &j, Config &c)
         j.at("delay").get_to(c.delay);
     }
     if (j.contains("precombat")) j.at("precombat").get_to(c.precombat);
+    if (j.contains("raid_full")) j.at("raid_full").get_to(c.raid_full);
+    if (j.contains("gear_score")) {
+        const auto &score = j.at("gear_score");
+        if (!score.is_number_integer() || score < 0 || score > 1000000) throw std::invalid_argument("invalid gear score");
+        c.gear_score = score.get<int>();
+    }
     if (j.contains("player_life")) j.at("player_life").get_to(c.player_life);
     if (j.contains("initial_qidian")) {
         c.initial_qidian = j.at("initial_qidian").get<int>();

@@ -51,5 +51,6 @@ struct PermanentOption
 
 std::span<const PermanentOption> PermanentOptions(const Book &book);
 std::string_view                 PermanentFamily(const Book &book);
-int ApplyPermanents(const Book &book, Attributes &attributes, int base_major, const std::map<std::string, std::string> &selected);
+std::map<std::string, std::string> FullRaidPermanents(const Book &book);
+int ApplyPermanents(const Book &book, Attributes &attributes, int base_major, const std::map<std::string, std::string> &selected, bool raid_full = false);
 } // namespace JX3DPS::runtime::season50

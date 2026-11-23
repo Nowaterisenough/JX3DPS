@@ -59,6 +59,7 @@
 using namespace JX3DPS;
 
 namespace {
+QString FoodFamily(desktop::Specialization spec);
 QJsonObject SchoolPanel(const runtime::season50::Book &book)
 {
     const auto &a = book.default_attributes;
@@ -362,6 +363,10 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     m_permanentsInPanel->setTabToolTip(0, PANEL_HINT);
     m_permanentsInPanel->setTabToolTip(1, PANEL_HINT);
     permanent_header->addWidget(m_permanentsInPanel);
+    auto *raid = new QCheckBox(QStringLiteral("开荒拉满"));
+    raid->setObjectName("raidFull");
+    raid->setToolTip(QStringLiteral("套用本心法的副本阵眼、小药和团队增益。手选同类项目可覆盖预设。"));
+    permanent_header->addWidget(raid);
     auto *settings_row = new QWidget(this);
     settings_row->setObjectName(QStringLiteral("simulationSettingsRow"));
     auto *settings_row_layout = new QHBoxLayout(settings_row);
@@ -965,9 +970,11 @@ void SimulationOptions::RefreshGameAttributes()
     const bool INCLUDED = m_permanentsInPanel->currentIndex() == 0;
     try {
         const auto READ_PANEL = [&](const QJsonObject &values) -> std::array<double, 10> {
-            const auto  cfg = ConfigFromValues(values, Specialization(), {});
-            const auto &a   = cfg.attributes;
-            return { values["importedMajor"].toDouble() + PermanentMajor(values, Specialization()),
+            auto cfg = ConfigFromValues(values, Specialization(), {});
+            auto &a = cfg.attributes;
+            const double major = cfg.raid_full ? runtime::season50::ApplyPermanents(*cfg.book, a, *cfg.base_major, cfg.permanents, true)
+                                               : values["importedMajor"].toDouble() + PermanentMajor(values, Specialization());
+            return { major,
                      double(a.attack_base * (1024 + a.attack_percent) / 1024 + a.attack_by_class),
                      100.,
                      std::min(100., 100 * a.crit / (9.609 * 990) + a.crit_basis_points / 100.),
@@ -980,8 +987,19 @@ void SimulationOptions::RefreshGameAttributes()
         };
         // Clear only permanent selections in a copy; both projections retain manual bonuses and integer rounding.
         auto base_values = VALUES;
+        base_values.insert("raidFull", false);
+        const auto defaults = runtime::season50::FullRaidPermanents(desktop::School(Specialization()));
         for (const auto *input : m_permanents) {
             base_values.insert(input->objectName(), 0);
+        }
+        for (auto *input : m_permanents) {
+            if (input->property("family").toString() != FoodFamily(Specialization())) continue;
+            const auto &name = defaults.at(input->objectName().section('/', -1).toStdString());
+            const auto label = VALUES["raidFull"].toBool() ? desktop::Text(name) : QStringLiteral("无");
+            if (input->itemText(0) != label) {
+                const QSignalBlocker blocker(input);
+                input->setItemText(0, label);
+            }
         }
         const auto BASE    = READ_PANEL(base_values);
         const auto current = INCLUDED ? READ_PANEL(VALUES) : BASE;
@@ -1393,7 +1411,13 @@ runtime::season50::Config SimulationOptions::ConfigFromValues(
     a.strain_percent     = pct("strainBonus");
     a.pve_percent        = pct("pveBonus");
     a.ignore_shield      = pct("ignoreShield");
-    runtime::season50::ApplyPermanents(book, a, v["importedMajor"].toInt(), selected);
+    cfg.raid_full = v["raidFull"].toBool();
+    if (cfg.raid_full) {
+        cfg.base_major = v["importedMajor"].toInt();
+        cfg.permanents = std::move(selected);
+    } else {
+        runtime::season50::ApplyPermanents(book, a, v["importedMajor"].toInt(), selected);
+    }
     for (const auto &name : desktop::TalentPanel::Names(spec, talents)) {
         cfg.talents.push_back(name.toStdString());
     }
@@ -1611,6 +1635,7 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
                 for (const auto &tier : runtime::season50::LegendaryWeapons) add_unselected(prefix + desktop::Text(tier.name));
             }
             add_unselected("recipe/fsj/盾击·三段回怒");
+            add_unselected("raidFull");
         }
         for (auto [from, to] : { std::pair{"recipe/txj/返闭惊魂·调息减16帧", "recipe/txj/返闭惊魂·调息减3秒"},
                                  {"recipe/txj/返闭惊魂·调息减32帧", "recipe/txj/返闭惊魂·调息减4秒"} }) {

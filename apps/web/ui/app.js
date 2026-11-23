@@ -5,6 +5,13 @@ const schools = new Map();
 const selections = new Map();
 const panels = new Map();
 const permanentDrafts = new Map();
+function showRaidDefaults() {
+    const preset = schools.get(school)?.raidPermanents ?? {};
+    for (const select of $("permanentChoices").querySelectorAll("select")) {
+        select.options[0].textContent = $("raidFull").checked ? preset[select.dataset.category] : "无";
+    }
+}
+$("raidFull").addEventListener("change", showRaidDefaults);
 function selectedPermanents() {
     return Object.fromEntries([...$("permanentChoices").querySelectorAll("select")]
         .filter(input => input.value).map(input => [input.dataset.category, input.value]));
@@ -93,6 +100,7 @@ function setSchool(next) {
         }
     }
 
+    showRaidDefaults();
     $("macro").value = drafts[school] ?? defaults?.[school] ?? "";
     syncEditor();
 }
@@ -111,7 +119,7 @@ function config() {
     if (BigInt($("seed").value) > 18446744073709551615n) throw new Error("随机种子超出 64 位范围");
     return {
         scenario: school,
-        ...(schools.has(school) ? {config: {permanents: selectedPermanents(), attributes: Object.fromEntries(panelInputs()
+        ...(schools.has(school) ? {config: {raid_full: $("raidFull").checked, permanents: selectedPermanents(), attributes: Object.fromEntries(panelInputs()
             .filter(input => input.value !== "").map(input => [input.dataset.stat, +input.value])),
             ...Object.fromEntries(["talents", "recipes", "equipment"].map(
             (group) => [group, [...$("schoolChoices").querySelectorAll("input:checked")].filter(

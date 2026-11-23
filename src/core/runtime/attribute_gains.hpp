@@ -75,6 +75,21 @@ template <class Config>
 inline constexpr auto RotationGainIndexes = GainIndexes<Config, true>();
 template <class Config>
 inline constexpr std::uint64_t AttributeGainSimulationStages = 1 + RotationGainIndexes<Config>.size();
+
+template <class Config>
+bool RerunsRotation(const Config &config, AttributeGainSpec gain)
+{
+    if constexpr (requires { config.HasAdaptiveOvercome(); }) {
+        if (gain.kind == AttributeGainKind::OVERCOME && config.HasAdaptiveOvercome()) return true;
+    }
+    return RerunsRotation<Config>(gain);
+}
+
+template <class Config>
+std::uint64_t GainSimulationStages(const Config &config)
+{
+    return 1 + std::ranges::count_if(AttributeGains, [&](auto gain) { return RerunsRotation(config, gain); });
+}
 inline constexpr int           AttributeGainIncrement        = 100;
 using AttributeGainIncrements                                = std::array<int, AttributeGains.size()>;
 inline constexpr AttributeGainIncrements DefaultGainIncrements{ 100, 100, 100, 100, 100, 100, 100, 100 };
@@ -129,7 +144,7 @@ public:
     {
         reducers_.reserve(indexes.size());
         for (const auto INDEX : indexes) {
-            if (INDEX < 0 || std::cmp_greater_equal(INDEX, AttributeGains.size()) || RerunsRotation<Config>(AttributeGains[INDEX]))
+            if (INDEX < 0 || std::cmp_greater_equal(INDEX, AttributeGains.size()) || RerunsRotation(config, AttributeGains[INDEX]))
             {
                 throw std::invalid_argument("rotation-sensitive attribute requires simulation");
             }
@@ -191,7 +206,11 @@ AttributeGainBatch RunAttributeGainsControlled(
     }
     control.completed.store(0, std::memory_order_relaxed);
     const auto                 RULES = LoadSpecialization(config);
-    DamageGainObserver<Config> observer(config, DamageOnlyGainIndexes<Config>, increments);
+    std::vector<int> replay_indexes, rerun_indexes;
+    for (int i = 0; i < static_cast<int>(AttributeGains.size()); ++i) {
+        (RerunsRotation(config, AttributeGains[i]) ? rerun_indexes : replay_indexes).push_back(i);
+    }
+    DamageGainObserver<Config> observer(config, replay_indexes, increments);
     const auto                 observed_count = observer.Count();
     auto                       combined =
         detail::RunBatchObservedImpl<Measure>(program, options, control, RULES, observed_count, 1, std::move(observer), std::move(reducer), profile);
@@ -199,10 +218,10 @@ AttributeGainBatch RunAttributeGainsControlled(
     if (result.primary.count != options.iterations) {
         return result;
     }
-    for (std::size_t i = 0; i < DamageOnlyGainIndexes<Config>.size(); ++i) {
-        result.gains[DamageOnlyGainIndexes<Config>[i]] = combined.second[i];
+    for (std::size_t i = 0; i < replay_indexes.size(); ++i) {
+        result.gains[replay_indexes[i]] = combined.second[i];
     }
-    for (const auto INDEX : RotationGainIndexes<Config>) {
+    for (const auto INDEX : rerun_indexes) {
         if (control.cancel_requested.load(std::memory_order_relaxed)) {
             break;
         }

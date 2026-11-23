@@ -125,7 +125,7 @@ std::uint64_t BatchWorker::Requested() const
         return m_options.iterations;
     }
     const auto STAGES =
-        std::visit([]<class Config>(const Config &) { return runtime::AttributeGainSimulationStages<Config>; }, m_config);
+        std::visit([](const auto &config) { return runtime::GainSimulationStages(config); }, m_config);
     return m_options.iterations * STAGES;
 }
 

@@ -112,7 +112,7 @@ class Rules
 
     unsigned Version(const Stats &stats)
     {
-        auto it = std::ranges::find(versions_, stats);
+        const auto it = std::ranges::find_if(versions_, [&](const Stats &cached) { return cached == stats; });
         if (it != versions_.end()) {
             return static_cast<unsigned>(it - versions_.begin());
         }

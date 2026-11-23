@@ -10,7 +10,8 @@ from measure import FIGHTS, REPEATS, SCENES, SECONDS, SEED
 BUILDS = {"windows-x86_64-gcc":"Windows GCC","windows-x86_64-msvc":"Windows MSVC",
           "windows-x86_64-clang":"Windows Clang","linux-x86_64-gcc":"Linux GCC",
           "macos-arm64-appleclang":"macOS AppleClang","web-wasm32-emscripten":"WebAssembly"}
-LABELS = ["Tai Xu / Default","Tai Xu / Team","Mo Wen / Default","Mo Wen / Equipment"]
+LABELS = {"tx": ("Tai Xu Jian Yi", "太虚剑意"), "mw": ("Mo Wen", "莫问"),
+          "gfj": ("Gu Feng Jue", "孤锋诀"), "yly": ("You Luo Yin", "幽罗引")}
 
 
 def render(reports, out, sha, repo, tag, preview=False):
@@ -36,18 +37,18 @@ def render(reports, out, sha, repo, tag, preview=False):
     fig,axes=plt.subplots(2,2,figsize=(12,7.8),layout="constrained")
     fig.suptitle("JX3DPS  |  "+("Local benchmark" if preview else "Release benchmark")+"\n100,000 fights   ·   300 s per fight   ·   1 worker   ·   median of 3 runs",fontsize=15)
     maximum=max(statistics.median(result["seconds"]) for r in reports for result in r["scenes"].values())
-    for ax,scene,title in zip(axes.flat,SCENES,LABELS):
+    for ax,scene in zip(axes.flat,SCENES,strict=True):
         times=[statistics.median(by_id[k]["scenes"][scene]["seconds"]) for k in ids]
         bars=ax.barh([BUILDS[k] for k in ids],times,color=["#cc7849" if k.startswith("web-") else "#27735a" for k in ids])
         ax.bar_label(bars,fmt="%.3f",padding=3,fontsize=9)
-        ax.set_xlim(0,maximum*1.22);ax.invert_yaxis();ax.set_title(title,loc="left");ax.set_xlabel("Wall time (s)")
+        ax.set_xlim(0,maximum*1.22);ax.invert_yaxis();ax.set_title(LABELS[scene][0],loc="left");ax.set_xlabel("Wall time (s)")
         ax.grid(axis="x",alpha=.18);ax.set_axisbelow(True);ax.spines[["top","right"]].set_visible(False)
     fig.savefig(out/"performance.png",dpi=150);plt.close(fig)
     (out/"performance.json").write_text(json.dumps([by_id[k] for k in ids],ensure_ascii=False,indent=2)+"\n",encoding="utf8")
     url=f"https://github.com/{repo}/releases/download/{quote(tag,safe='')}/"
     lines=["## 各构建版本性能对照","",f"![四种配置的批跑耗时]({url}performance.png)","",
            "每组 10 万场、每场 300 秒、单工作线程，预热 256 场后取三轮耗时中位数。WASM 使用真实 Chromium Worker。耗时包含批跑与结果汇总。不同平台使用各自的运行器，硬件差异也会影响结果。","",
-           "| 构建 | 编译器 / 浏览器 | 运行器及 CPU | 太虚默认 | 太虚团队 | 莫问默认 | 莫问多装备 |",
+           "| 构建 | 编译器 / 浏览器 | 运行器及 CPU | " + " | ".join(LABELS[s][1] for s in SCENES) + " |",
            "|---|---|---|---:|---:|---:|---:|"]
     for k in ids:
         r=by_id[k];compiler=r['compiler']+(f" / Chromium {r['browser']}" if r['browser'] else "")

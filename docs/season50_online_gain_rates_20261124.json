@@ -1,0 +1,8353 @@
+{
+ "published_ui_module": "https://dps.btcsg.top/static/js/8386.ee68fa2c.chunk.js",
+ "published_sha256": "f068c2955ae488b0f8d3270b524098cd239c3eef2adc4d379a51ddd99e281a84",
+ "input": "season50_online_attribute_gains_20261124.zip",
+ "input_sha256": "61b83409dac57919b300f91f56bb14aff387f2058a8657c4ed6fd121414ad7c0",
+ "sample_size": 2048,
+ "source_formula": "100*(DPS_variant/DPS_base-1)",
+ "results": {
+  "tx": {
+   "name": "太虚剑意",
+   "local_macro": {
+    "attack": 1.6515924227395642,
+    "crit": 1.5579643090015525,
+    "power": 1.4229253140230271,
+    "overcome": 1.4217201488279527,
+    "strain": 1.421341042294635,
+    "weapon": 0.5599476231162364,
+    "major": 1.3441984924072603,
+    "haste": 0.0,
+    "surplus": 0.0
+   }
+  },
+  "mw": {
+   "name": "莫问",
+   "local_macro": {
+    "attack": 1.8960117064048922,
+    "crit": 1.5661061588545788,
+    "power": 0.9152966299625027,
+    "overcome": 1.222617427756083,
+    "strain": 1.4581124491923076,
+    "weapon": 0.0,
+    "major": 1.7828319762898661,
+    "haste": 1.5739992138606804,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.9046942039691865,
+    "crit": 1.5811069201496684,
+    "power": 0.9100997583842925,
+    "overcome": 1.2383309170847083,
+    "strain": 1.459943581664558,
+    "weapon": 0.0,
+    "haste": 0.6784599565412076,
+    "major": 1.8097621744286512
+   },
+   "online": {
+    "attack": 1.8987692941215941,
+    "crit": 1.5697416993362592,
+    "power": 0.8950187323992307,
+    "overcome": 1.3030032319510523,
+    "strain": 1.4525268132208087,
+    "weapon": 0.0,
+    "haste": 0.24769353059410604,
+    "major": 1.7789143747161746
+   },
+   "local_baseline": 54389.004414665396,
+   "online_baseline": 55134.3913976826,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "根骨": {
+      "step": 10,
+      "online_dps": 47.91617929203494,
+      "online_display": 47.9,
+      "online_rate": 0.08685093301510859,
+      "local_dps": 47.358908877562776,
+      "local_rate": 0.08707441768283768,
+      "local_se_dps": 1.4177605355708116
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 50.33770305899088,
+      "online_display": 50.3,
+      "online_rate": 0.09124008927893748,
+      "local_dps": 51.23993967403824,
+      "local_rate": 0.0942101077699116,
+      "local_se_dps": 0.02959153351366862
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 38.227458956462215,
+      "online_display": 38.2,
+      "online_rate": 0.06928954950540908,
+      "local_dps": 44.60250194367657,
+      "local_rate": 0.08200646881421862,
+      "local_se_dps": 0.025915884765755154
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 34.33616917087056,
+      "online_display": 34.3,
+      "online_rate": 0.06223635466591619,
+      "local_dps": 42.09925708362128,
+      "local_rate": 0.07740398548694463,
+      "local_se_dps": 0.024696807934401564
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 41.66729014680459,
+      "online_display": 41.7,
+      "online_rate": 0.07552444871293768,
+      "local_dps": 39.88410468498042,
+      "local_rate": 0.07333119095341652,
+      "local_se_dps": 2.3884063144724057
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 23.651146130505367,
+      "online_display": 23.7,
+      "online_rate": 0.04286911307748031,
+      "local_dps": 24.378333045381247,
+      "local_rate": 0.04482217188518328,
+      "local_se_dps": 0.08647858031518951
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 453,
+      "online_display": 453,
+      "online_rate": 0.8216345630645336,
+      "local_dps": 449.88764649562313,
+      "local_rate": 0.8271665409898841,
+      "local_se_dps": 0.261813392915268
+     },
+     "根骨": {
+      "step": 90,
+      "online_dps": 433,
+      "online_display": 433,
+      "online_rate": 0.785359306417093,
+      "local_dps": 429.1827073974891,
+      "local_rate": 0.7890982966435118,
+      "local_se_dps": 3.7084139214124026
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 297,
+      "online_display": 297,
+      "online_rate": 0.5386875612144956,
+      "local_dps": 294.5211626785303,
+      "local_rate": 0.5415086483898129,
+      "local_se_dps": 0.17151881647499623
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 374,
+      "online_display": 374,
+      "online_rate": 0.6783472993071425,
+      "local_dps": 376.66478957901404,
+      "local_rate": 0.692538489411015,
+      "local_se_dps": 6.939284307966441
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 340,
+      "online_display": 340,
+      "online_rate": 0.6166793630064933,
+      "local_dps": 337.2810934260539,
+      "local_rate": 0.620127353048422,
+      "local_se_dps": 0.1945657184806374
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 218,
+      "online_display": 218,
+      "online_rate": 0.39540029745710453,
+      "local_dps": 219.04198521366044,
+      "local_rate": 0.40273211023255684,
+      "local_se_dps": 0.7780554252027716
+     }
+    }
+   }
+  },
+  "axzy": {
+   "name": "傲血战意",
+   "local_macro": {
+    "attack": 1.7536000441019588,
+    "crit": 1.4542093091820516,
+    "power": 1.8804994553566539,
+    "overcome": 1.413846563272503,
+    "strain": 1.6679729523415359,
+    "weapon": 0.9137910485161171,
+    "major": 1.4221099438294729,
+    "haste": 0.24333708031770293,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.7447004919230595,
+    "crit": 1.4775382321782722,
+    "power": 1.8438962032419184,
+    "overcome": 1.4276638550268772,
+    "strain": 1.6656949312148668,
+    "weapon": 0.9276056122757701,
+    "haste": 0.30114658693052837,
+    "major": 1.4332986252031705
+   },
+   "online": {
+    "attack": 1.7410380384273851,
+    "crit": 1.464939455675868,
+    "power": 1.8397518408954228,
+    "overcome": 1.389649109380673,
+    "strain": 1.6630795520935586,
+    "weapon": 0.969056463470912,
+    "haste": 0.3042290437022892,
+    "major": 1.3778764545534372
+   },
+   "local_baseline": 53149.06916968599,
+   "online_baseline": 54327.55772953721,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "力道": {
+      "step": 10,
+      "online_dps": 38.531933390244376,
+      "online_display": 38.5,
+      "online_rate": 0.07084251168541444,
+      "local_dps": 27.47024154589372,
+      "local_rate": 0.05168527309140835,
+      "local_se_dps": 0.01121074721617025
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 45.38491246874764,
+      "online_display": 45.4,
+      "online_rate": 0.0834419897736768,
+      "local_dps": 42.80200332125604,
+      "local_rate": 0.08053199047494987,
+      "local_se_dps": 0.01677224531524322
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 149.00291500405,
+      "online_display": 149,
+      "online_rate": 0.27394786138625893,
+      "local_dps": 139.91161382850242,
+      "local_rate": 0.26324377080210876,
+      "local_se_dps": 0.0374987116962021
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 42.61530944168044,
+      "online_display": 42.6,
+      "online_rate": 0.07834996304296923,
+      "local_dps": 47.84620923913044,
+      "local_rate": 0.09002266641091039,
+      "local_se_dps": 0.015592365099633628
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 37.83725383064302,
+      "online_display": 37.8,
+      "online_rate": 0.06956531533193125,
+      "local_dps": 49.16392964975845,
+      "local_rate": 0.09250195801697973,
+      "local_se_dps": 0.015754351944234888
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 38.323909591999836,
+      "online_display": 38.3,
+      "online_rate": 0.07046005155270503,
+      "local_dps": 36.28971014492754,
+      "local_rate": 0.06827910763416657,
+      "local_se_dps": 1.0505124791861227
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 47.90872390430741,
+      "online_display": 47.9,
+      "online_rate": 0.08808211876239483,
+      "local_dps": 48.70316878019324,
+      "local_rate": 0.09163503621239616,
+      "local_se_dps": 0.044130261881473086
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 405,
+      "online_display": 405,
+      "online_rate": 0.7454856701087856,
+      "local_dps": 403.6828049516908,
+      "local_rate": 0.7595293977075607,
+      "local_se_dps": 0.13246278394773137
+     },
+     "武伤": {
+      "step": 16,
+      "online_dps": 241,
+      "online_display": 241,
+      "online_rate": 0.44360999134868484,
+      "local_dps": 226.32735507246377,
+      "local_rate": 0.4258350308071838,
+      "local_se_dps": 0.05936020848094799
+     },
+     "力道": {
+      "step": 90,
+      "online_dps": 336,
+      "online_display": 336,
+      "online_rate": 0.6184770003865481,
+      "local_dps": 348.0645939009662,
+      "local_rate": 0.6548837060339107,
+      "local_se_dps": 0.11126019788743051
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 303,
+      "online_display": 303,
+      "online_rate": 0.5577337235628693,
+      "local_dps": 348.69682216183577,
+      "local_rate": 0.6560732438202659,
+      "local_se_dps": 0.10909516826273458
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 344,
+      "online_display": 344,
+      "online_rate": 0.6332026432528945,
+      "local_dps": 340.87556008454106,
+      "local_rate": 0.6413575353431821,
+      "local_se_dps": 3.3525725397718262
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 391,
+      "online_display": 391,
+      "online_rate": 0.7197157950926795,
+      "local_dps": 382.6940745772947,
+      "local_rate": 0.7200390910995813,
+      "local_se_dps": 0.11980506690038094
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 442,
+      "online_display": 442,
+      "online_rate": 0.8135917683656377,
+      "local_dps": 433.14577143719805,
+      "local_rate": 0.8149639837610672,
+      "local_se_dps": 0.3904550533728324
+     }
+    }
+   }
+  },
+  "baj": {
+   "name": "北傲诀",
+   "local_macro": {
+    "attack": 1.6638163050949413,
+    "crit": 1.5827368064678295,
+    "power": 1.187630520027653,
+    "overcome": 1.2268646819492384,
+    "strain": 1.383330019901295,
+    "weapon": 0.7854949344605863,
+    "major": 1.3174348444106108,
+    "haste": 0.0,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.6529920050159586,
+    "crit": 1.5662074014619527,
+    "power": 1.1871553177437286,
+    "overcome": 1.2231259061410327,
+    "strain": 1.3782597748103225,
+    "weapon": 0.8194063084614623,
+    "haste": 0.0,
+    "major": 1.3097180260787564
+   },
+   "online": {
+    "attack": 1.6493472058662095,
+    "crit": 1.5520256954400458,
+    "power": 1.186030868887392,
+    "overcome": 1.2171822964407237,
+    "strain": 1.3754385636864066,
+    "weapon": 0.8115390129588989,
+    "haste": 0.0,
+    "major": 1.3074732199078984
+   },
+   "local_baseline": 62944.53646808068,
+   "online_baseline": 62864.80255044201,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "力道": {
+      "step": 10,
+      "online_dps": 41.10929111083533,
+      "online_display": 41.1,
+      "online_rate": 0.06536159835283488,
+      "local_dps": 33.60054390205864,
+      "local_rate": 0.05338119205802326,
+      "local_se_dps": 0.013359987923509785
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 49.87328861808055,
+      "online_display": 49.9,
+      "online_rate": 0.07929589080972489,
+      "local_dps": 47.927495971095865,
+      "local_rate": 0.07614242420452172,
+      "local_se_dps": 0.01810104120553982
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 145.75998425615398,
+      "online_display": 145.8,
+      "online_rate": 0.23175066486016777,
+      "local_dps": 145.0331166172801,
+      "local_rate": 0.23041414673190375,
+      "local_se_dps": 0.05754919769298995
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 42.150399337719136,
+      "online_display": 42.2,
+      "online_rate": 0.0670169053632123,
+      "local_dps": 27.25587115304637,
+      "local_rate": 0.04330140895845327,
+      "local_se_dps": 0.011004736571839778
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 37.30645201183506,
+      "online_display": 37.3,
+      "online_rate": 0.05931528534006201,
+      "local_dps": 42.57383616656269,
+      "local_rate": 0.06763706360464182,
+      "local_se_dps": 0.01753343882375575
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 46.95748791007645,
+      "online_display": 47,
+      "online_rate": 0.07465992191793237,
+      "local_dps": 43.217232662715745,
+      "local_rate": 0.06865922777051714,
+      "local_se_dps": 1.3342325668394075
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 35.71890122468176,
+      "online_display": 35.7,
+      "online_rate": 0.05679116356343299,
+      "local_dps": 36.81450145560407,
+      "local_rate": 0.058487207184809105,
+      "local_se_dps": 0.057439601965559015
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 444,
+      "online_display": 444,
+      "online_rate": 0.7062865869177908,
+      "local_dps": 445.03193068985235,
+      "local_rate": 0.7070223337263419,
+      "local_se_dps": 0.1731095121590317
+     },
+     "武伤": {
+      "step": 16,
+      "online_dps": 234,
+      "online_display": 234,
+      "online_rate": 0.3722321201323492,
+      "local_dps": 234.8533072754211,
+      "local_rate": 0.37311150491117806,
+      "local_se_dps": 0.09294241749761434
+     },
+     "力道": {
+      "step": 90,
+      "online_dps": 334,
+      "online_display": 334,
+      "online_rate": 0.5313056757444642,
+      "local_dps": 333.11978354387605,
+      "local_rate": 0.5292274790406978,
+      "local_se_dps": 0.12987161380867565
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 294,
+      "online_display": 294,
+      "online_rate": 0.4676762534996182,
+      "local_dps": 295.27516278072363,
+      "local_rate": 0.46910372106792514,
+      "local_se_dps": 0.11394608808308503
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 422,
+      "online_display": 422,
+      "online_rate": 0.6712904046831255,
+      "local_dps": 420.50743072884177,
+      "local_rate": 0.6680602548278072,
+      "local_se_dps": 4.355611956714843
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 377,
+      "online_display": 377,
+      "online_rate": 0.5997073046576737,
+      "local_dps": 378.49521892545226,
+      "local_rate": 0.6013154439820017,
+      "local_se_dps": 0.14645659325600502
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 330,
+      "online_display": 330,
+      "online_rate": 0.5249427335199797,
+      "local_dps": 330.88728815762113,
+      "local_rate": 0.5256807130916197,
+      "local_se_dps": 0.5181093293651484
+     }
+    }
+   }
+  },
+  "bxj": {
+   "name": "冰心诀",
+   "local_macro": {
+    "attack": 2.2441729684014726,
+    "crit": 1.6031286684304031,
+    "power": 1.3490189321041777,
+    "overcome": 1.5790113162776724,
+    "strain": 1.8682922297851188,
+    "weapon": 0.0,
+    "major": 1.6324508603429353,
+    "haste": 0.20006578583735057,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 2.237579102606062,
+    "crit": 1.6002523428439042,
+    "power": 1.3591841151624429,
+    "overcome": 1.5740320163012518,
+    "strain": 1.8567241806496597,
+    "weapon": 0.0,
+    "haste": 2.089419618436529,
+    "major": 1.6333018589666108
+   },
+   "online": {
+    "attack": 2.243870425105376,
+    "crit": 1.603228139892903,
+    "power": 1.3735311051123957,
+    "overcome": 1.5886322522918657,
+    "strain": 1.8692289403591926,
+    "weapon": 0.0,
+    "haste": 1.988787130445334,
+    "major": 1.656998362523172
+   },
+   "local_baseline": 38783.425995809775,
+   "online_baseline": 38599.524967121644,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "根骨": {
+      "step": 10,
+      "online_dps": 30.41543266478402,
+      "online_display": 30.4,
+      "online_rate": 0.07864137610161685,
+      "local_dps": 32.02984274030695,
+      "local_rate": 0.08258641911564879,
+      "local_se_dps": 0.28443374670629906
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 40.83459445842891,
+      "online_display": 40.8,
+      "online_rate": 0.10558089822869567,
+      "local_dps": 57.70888025040388,
+      "local_rate": 0.14879778866528925,
+      "local_se_dps": 0.021064525065412697
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 34.972491092572454,
+      "online_display": 35,
+      "online_rate": 0.09042399151552445,
+      "local_dps": 36.23127650444265,
+      "local_rate": 0.09341948415892173,
+      "local_se_dps": 0.009037846652792307
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 29.64153765374067,
+      "online_display": 29.6,
+      "online_rate": 0.07664041266646274,
+      "local_dps": 38.404495658319874,
+      "local_rate": 0.09902295806066529,
+      "local_se_dps": 0.009872188711311783
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 29.81816695456655,
+      "online_display": 29.8,
+      "online_rate": 0.07709710093487906,
+      "local_dps": 28.804957277362682,
+      "local_rate": 0.07427130671868652,
+      "local_se_dps": 0.8591407751883086
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 25.388689331783098,
+      "online_display": 25.4,
+      "online_rate": 0.06564435523482105,
+      "local_dps": 25.772962628735865,
+      "local_rate": 0.0664535480478708,
+      "local_se_dps": 0.026305847751293934
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 387,
+      "online_display": 387,
+      "online_rate": 1.0026166480996916,
+      "local_dps": 384.5472867654483,
+      "local_rate": 0.9915247992969869,
+      "local_se_dps": 0.10117802524560966
+     },
+     "根骨": {
+      "step": 90,
+      "online_dps": 284,
+      "online_display": 284,
+      "online_rate": 0.7357703567449934,
+      "local_dps": 281.32333369093294,
+      "local_rate": 0.7253699910918844,
+      "local_se_dps": 1.2340163181722077
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 273,
+      "online_display": 273,
+      "online_rate": 0.7072722091245888,
+      "local_dps": 264.1210511535743,
+      "local_rate": 0.6810152645671642,
+      "local_se_dps": 0.0653354216685072
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 268,
+      "online_display": 268,
+      "online_rate": 0.6943185056607684,
+      "local_dps": 269.3899450348344,
+      "local_rate": 0.6946006911920048,
+      "local_se_dps": 2.054415140585322
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 313,
+      "online_display": 313,
+      "online_rate": 0.8109018368351512,
+      "local_dps": 313.21556157865507,
+      "local_rate": 0.8076015811818569,
+      "local_se_dps": 0.07694562238351081
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 227,
+      "online_display": 227,
+      "online_rate": 0.5880981372574419,
+      "local_dps": 224.46350117376818,
+      "local_rate": 0.5787614049311156,
+      "local_se_dps": 0.22659963044505882
+     }
+    }
+   }
+  },
+  "dj": {
+   "name": "毒经",
+   "local_macro": {
+    "attack": 1.9396361865811056,
+    "crit": 1.3530817604559306,
+    "power": 1.7482300855555393,
+    "overcome": 1.499109009992363,
+    "strain": 1.6069746098485296,
+    "weapon": 0.0,
+    "major": 1.2883499215635335,
+    "haste": 0.0,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.9451848319822547,
+    "crit": 1.3451925296430824,
+    "power": 1.7378618620350605,
+    "overcome": 1.4929044666347047,
+    "strain": 1.6048282530309605,
+    "weapon": 0.0,
+    "haste": 0.0,
+    "major": 1.2455531620222844
+   },
+   "online": {
+    "attack": 1.933109209973169,
+    "crit": 1.3452025935952678,
+    "power": 1.7388910006138383,
+    "overcome": 1.487679493344898,
+    "strain": 1.604076515920138,
+    "weapon": 0.0,
+    "haste": 0.0,
+    "major": 1.2420960642492584
+   },
+   "local_baseline": 63823.28817877971,
+   "online_baseline": 63720.5800037544,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "根骨": {
+      "step": 10,
+      "online_dps": 39.66267794365558,
+      "online_display": 39.7,
+      "online_rate": 0.0622040693206749,
+      "local_dps": 38.82469327684859,
+      "local_rate": 0.06083154657919556,
+      "local_se_dps": 0.46796905209776024
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 59.38596417578083,
+      "online_display": 59.4,
+      "online_rate": 0.09313664189576702,
+      "local_dps": 59.251891230193664,
+      "local_rate": 0.09283741549670584,
+      "local_se_dps": 0.018341593008994187
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 48.41500132953661,
+      "online_display": 48.4,
+      "online_rate": 0.07593057894732491,
+      "local_dps": 50.04431324273768,
+      "local_rate": 0.07841074108020757,
+      "local_se_dps": 0.01433769000402733
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 45.486056570174696,
+      "online_display": 45.5,
+      "online_rate": 0.07133703427778454,
+      "local_dps": 60.778084768375884,
+      "local_rate": 0.09522869551648029,
+      "local_se_dps": 0.01759097155176698
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 41.23862016367639,
+      "online_display": 41.2,
+      "online_rate": 0.0646756628736572,
+      "local_dps": 43.80430409606074,
+      "local_rate": 0.06863373126962302,
+      "local_se_dps": 1.0959742122004668
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 53.970476588918245,
+      "online_display": 54,
+      "online_rate": 0.08464338368115523,
+      "local_dps": 38.412587340448944,
+      "local_rate": 0.06018584820144155,
+      "local_se_dps": 0.03441596966399137
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 539,
+      "online_display": 539,
+      "online_rate": 0.8458882611424984,
+      "local_dps": 537.7442369058099,
+      "local_rate": 0.8425517585360038,
+      "local_se_dps": 0.15237969850951924
+     },
+     "根骨": {
+      "step": 90,
+      "online_dps": 348,
+      "online_display": 348,
+      "online_rate": 0.5461393596986818,
+      "local_dps": 355.9879648987676,
+      "local_rate": 0.5577712697935364,
+      "local_se_dps": 1.5659961650241931
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 443,
+      "online_display": 443,
+      "online_rate": 0.6952291274325173,
+      "local_dps": 450.86183875715227,
+      "local_rate": 0.7064221409185513,
+      "local_se_dps": 0.12821620483063922
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 371,
+      "online_display": 371,
+      "online_rate": 0.5822347771500314,
+      "local_dps": 372.58388465558977,
+      "local_rate": 0.5837741916585683,
+      "local_se_dps": 3.2071830432008066
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 434,
+      "online_display": 434,
+      "online_rate": 0.6811048336472065,
+      "local_dps": 434.57474829445425,
+      "local_rate": 0.6809031008824517,
+      "local_se_dps": 0.12401030278741529
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 481,
+      "online_display": 481,
+      "online_rate": 0.7548650345260515,
+      "local_dps": 481.9374742104974,
+      "local_rate": 0.7551122606853314,
+      "local_se_dps": 0.43794098575499146
+     }
+    }
+   }
+  },
+  "fsj": {
+   "name": "分山劲",
+   "local_macro": {
+    "attack": 1.9747120076375555,
+    "crit": 1.4365745171216837,
+    "power": 1.2456458196503213,
+    "overcome": 1.1897145092206352,
+    "strain": 1.437532333730873,
+    "weapon": 0.4788811756560039,
+    "major": 1.522270466293567,
+    "haste": 0.0,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.9720283209377056,
+    "crit": 1.4555118736401893,
+    "power": 1.2437065627204789,
+    "overcome": 1.1853082733751465,
+    "strain": 1.43254669467023,
+    "weapon": 0.43767734668661945,
+    "haste": 0.0,
+    "major": 1.5431640310747627
+   },
+   "online": {
+    "attack": 1.9660193722249029,
+    "crit": 1.434262076031525,
+    "power": 1.2468906016371746,
+    "overcome": 1.1884686169611383,
+    "strain": 1.4363251891861286,
+    "weapon": 0.5124559207424318,
+    "haste": 0.0,
+    "major": 1.5252712947886076
+   },
+   "local_baseline": 60167.15994360305,
+   "online_baseline": 66156.74701976562,
+   "paired_rank_tests": {
+    "crit-strain": [
+     13.817495962190215,
+     11.665973533340633
+    ]
+   },
+   "tabs": {
+    "single": {
+     "身法": {
+      "step": 10,
+      "online_dps": 49.63025698577985,
+      "online_display": 49.6,
+      "online_rate": 0.07494491997823334,
+      "local_dps": 50.2593663948316,
+      "local_rate": 0.08353288811029407,
+      "local_se_dps": 1.360211181252059
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 62.67908264482685,
+      "online_display": 62.7,
+      "online_rate": 0.09464949646485916,
+      "local_dps": 57.54409652351197,
+      "local_rate": 0.09564037354837793,
+      "local_se_dps": 0.044709245971175975
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 96.52978651109152,
+      "online_display": 96.5,
+      "online_rate": 0.14576626366578194,
+      "local_dps": 74.36592320218175,
+      "local_rate": 0.12359885903188339,
+      "local_se_dps": 0.03444489052520005
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 46.07054958817025,
+      "online_display": 46.1,
+      "online_rate": 0.06956952999916843,
+      "local_dps": 47.94302385617454,
+      "local_rate": 0.07968304287773155,
+      "local_se_dps": 0.03558306043179786
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 36.863457535611815,
+      "online_display": 36.9,
+      "online_rate": 0.055666221432603344,
+      "local_dps": 32.50923069794535,
+      "local_rate": 0.05403151940097801,
+      "local_se_dps": 0.026158505716181286
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 45.66782363249513,
+      "online_display": 45.7,
+      "online_rate": 0.06896138758052496,
+      "local_dps": 45.946972304596486,
+      "local_rate": 0.07636553287152711,
+      "local_se_dps": 2.512711584446772
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 40.220617629966,
+      "online_display": 40.2,
+      "online_rate": 0.060735751793842094,
+      "local_dps": 37.43301703823342,
+      "local_rate": 0.06221503071330075,
+      "local_se_dps": 0.11101735845973638
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 564,
+      "online_display": 564,
+      "online_rate": 0.852530382731725,
+      "local_dps": 514.9463715976487,
+      "local_rate": 0.85585952881992,
+      "local_se_dps": 0.38839565141157834
+     },
+     "武伤": {
+      "step": 16,
+      "online_dps": 155,
+      "online_display": 155,
+      "online_rate": 0.2342946973819457,
+      "local_dps": 119.93625059574242,
+      "local_rate": 0.19933839441343615,
+      "local_se_dps": 0.05621080969148959
+     },
+     "身法": {
+      "step": 90,
+      "online_dps": 451,
+      "online_display": 451,
+      "online_rate": 0.6817219904468227,
+      "local_dps": 409.4774908652828,
+      "local_rate": 0.6805664273485761,
+      "local_se_dps": 3.648049713161229
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 337,
+      "online_display": 337,
+      "online_rate": 0.5094020194691335,
+      "local_dps": 305.3090562778013,
+      "local_rate": 0.5074347144920568,
+      "local_se_dps": 0.22781030089252666
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 411,
+      "online_display": 411,
+      "online_rate": 0.6212588427353528,
+      "local_dps": 382.1586412439102,
+      "local_rate": 0.6351615093717602,
+      "local_se_dps": 7.480918338866683
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 423,
+      "online_display": 423,
+      "online_rate": 0.6393977870487938,
+      "local_dps": 382.9745386305867,
+      "local_rate": 0.6365175603926847,
+      "local_se_dps": 0.2843356285502799
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 358,
+      "online_display": 358,
+      "online_rate": 0.5411451720176552,
+      "local_dps": 324.2569950090023,
+      "local_rate": 0.5389268752471292,
+      "local_se_dps": 0.9614110189855043
+     }
+    }
+   }
+  },
+  "fysj": {
+   "name": "焚影圣诀",
+   "local_macro": {
+    "attack": 1.6052471673095865,
+    "crit": 1.195891268550578,
+    "power": 1.232638940773614,
+    "overcome": 1.320588590677826,
+    "strain": 1.3761289295570434,
+    "weapon": 0.23195056826229174,
+    "major": 1.4497147777965749,
+    "haste": 2.09837566211958,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.6095331766680303,
+    "crit": 1.1819612642159134,
+    "power": 1.2260306597230786,
+    "overcome": 1.3141693464561273,
+    "strain": 1.3771664176865848,
+    "weapon": 0.2136408702129847,
+    "haste": 5.352960919203077,
+    "major": 1.4491872718004881
+   },
+   "online": {
+    "attack": 1.6160386525851127,
+    "crit": 1.1819194618449773,
+    "power": 1.2454915306120755,
+    "overcome": 1.3120528622284389,
+    "strain": 1.3937800006772967,
+    "weapon": 0.36276728007338266,
+    "haste": 4.98909839071074,
+    "major": 1.4393134394927347
+   },
+   "local_baseline": 59446.289617243136,
+   "online_baseline": 60406.52553777234,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "元气": {
+      "step": 10,
+      "online_dps": 40.32758374635887,
+      "online_display": 40.3,
+      "online_rate": 0.06683568273688431,
+      "local_dps": 37.55858341810783,
+      "local_rate": 0.06318070254667921,
+      "local_se_dps": 0.41609887986682553
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 46.95608035157056,
+      "online_display": 47,
+      "online_rate": 0.07782121806959423,
+      "local_dps": 47.44433812309257,
+      "local_rate": 0.07981042791496738,
+      "local_se_dps": 0.01717447614425712
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 53.74336989956646,
+      "online_display": 53.7,
+      "online_rate": 0.08906992401057892,
+      "local_dps": 35.86964966937945,
+      "local_rate": 0.06033959377504195,
+      "local_se_dps": 0.0133752023867821
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 39.597823658477864,
+      "online_display": 39.6,
+      "online_rate": 0.06562623726119153,
+      "local_dps": 45.062223423194304,
+      "local_rate": 0.07580325654189095,
+      "local_se_dps": 0.015195897155810129
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 35.613936898240354,
+      "online_display": 35.6,
+      "online_rate": 0.05902366485711217,
+      "local_dps": 48.30500222533062,
+      "local_rate": 0.08125822912809541,
+      "local_se_dps": 0.01736781021029746
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 34.375779148620495,
+      "online_display": 34.4,
+      "online_rate": 0.05697164212616244,
+      "local_dps": 34.28614413784334,
+      "local_rate": 0.0576758353777865,
+      "local_se_dps": 1.1524999078277816
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 36.123259782114474,
+      "online_display": 36.1,
+      "online_rate": 0.05986777550086774,
+      "local_dps": 35.48440043234995,
+      "local_rate": 0.059691531062448774,
+      "local_se_dps": 0.059004872262811196
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 423,
+      "online_display": 423,
+      "online_rate": 0.7002615634208522,
+      "local_dps": 415.30451583163784,
+      "local_rate": 0.6986214253331189,
+      "local_se_dps": 0.14621798210801368
+     },
+     "元气": {
+      "step": 90,
+      "online_dps": 394,
+      "online_display": 394,
+      "online_rate": 0.6522530874416449,
+      "local_dps": 387.6028913402848,
+      "local_rate": 0.6520220081622315,
+      "local_se_dps": 1.2326625900682766
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 350,
+      "online_display": 350,
+      "online_rate": 0.5794126411283648,
+      "local_dps": 344.9246503051882,
+      "local_rate": 0.5802290648012766,
+      "local_se_dps": 0.11909587642226242
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 308,
+      "online_display": 308,
+      "online_rate": 0.509883124192961,
+      "local_dps": 301.87578522380466,
+      "local_rate": 0.5078126610886776,
+      "local_se_dps": 3.3095094240260483
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 363,
+      "online_display": 363,
+      "online_rate": 0.6009336820845611,
+      "local_dps": 354.57930283570704,
+      "local_rate": 0.596470032223604,
+      "local_se_dps": 0.12214953831508747
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 333,
+      "online_display": 333,
+      "online_rate": 0.5512697414164156,
+      "local_dps": 322.40904120040693,
+      "local_rate": 0.5423535148725046,
+      "local_se_dps": 0.5323009218398687
+     }
+    }
+   }
+  },
+  "gfj": {
+   "name": "孤锋诀",
+   "local_macro": {
+    "attack": 1.6036776287407268,
+    "crit": 1.3539189041668358,
+    "power": 1.6386488325768391,
+    "overcome": 1.578049900635468,
+    "strain": 1.549327658296304,
+    "weapon": 1.2990142407740601,
+    "major": 1.5287091267251325,
+    "haste": 0.17649974425008694,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.6007942616011885,
+    "crit": 1.3511515323744125,
+    "power": 1.7336268726001178,
+    "overcome": 1.5987108174454714,
+    "strain": 1.5490487434742708,
+    "weapon": 1.3011390957818265,
+    "haste": 0.6074690587221713,
+    "major": 1.5249681768184493
+   },
+   "online": {
+    "attack": 1.6030722417700733,
+    "crit": 1.3440707629327322,
+    "power": 1.742435206592667,
+    "overcome": 1.6041780041929974,
+    "strain": 1.5539243751029497,
+    "weapon": 1.3188214484551875,
+    "haste": 0.583814099459242,
+    "major": 1.6617604773627301
+   },
+   "local_baseline": 56035.826462014586,
+   "online_baseline": 56046.63123657711,
+   "paired_rank_tests": {
+    "attack-overcome": [
+     1.1674751515307171,
+     0.013731990371049685
+    ]
+   },
+   "tabs": {
+    "single": {
+     "力道": {
+      "step": 10,
+      "online_dps": 46.32312764306698,
+      "online_display": 46.3,
+      "online_rate": 0.0826040601790819,
+      "local_dps": 38.682840109410314,
+      "local_rate": 0.06903233618876405,
+      "local_se_dps": 0.2629247401672507
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 43.1302816880052,
+      "online_display": 43.1,
+      "online_rate": 0.07691053185243975,
+      "local_dps": 43.48949718769262,
+      "local_rate": 0.07761016466344646,
+      "local_se_dps": 0.010782093766865522
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 211.32092752181052,
+      "online_display": 211.3,
+      "online_rate": 0.37683048408592534,
+      "local_dps": 209.4145585062667,
+      "local_rate": 0.3737154811988435,
+      "local_se_dps": 0.04740743983643619
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 42.23614698860183,
+      "online_display": 42.2,
+      "online_rate": 0.07531609813702168,
+      "local_dps": 24.767722994144236,
+      "local_rate": 0.04419979958881077,
+      "local_se_dps": 0.0060462111848446996
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 44.63398663169937,
+      "online_display": 44.6,
+      "online_rate": 0.07959195989887018,
+      "local_dps": 52.500841123895626,
+      "local_rate": 0.09369156205715062,
+      "local_se_dps": 0.012537549215068524
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 36.263598814359284,
+      "online_display": 36.3,
+      "online_rate": 0.06466576527070374,
+      "local_dps": 38.11733517824122,
+      "local_rate": 0.06802315158870745,
+      "local_se_dps": 0.8697791200907435
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 46.80119417321839,
+      "online_display": 46.8,
+      "online_rate": 0.08345655521634526,
+      "local_dps": 48.36178761300596,
+      "local_rate": 0.08630512061027479,
+      "local_se_dps": 0.041997116494879395
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 388,
+      "online_display": 388,
+      "online_rate": 0.6922884773221997,
+      "local_dps": 385.76125886069445,
+      "local_rate": 0.6884189691075463,
+      "local_se_dps": 0.08988659482721187
+     },
+     "武伤": {
+      "step": 16,
+      "online_dps": 339,
+      "online_display": 339,
+      "online_rate": 0.6048602933304785,
+      "local_dps": 333.93491242038215,
+      "local_rate": 0.5959310917752754,
+      "local_se_dps": 0.07592628710587512
+     },
+     "力道": {
+      "step": 90,
+      "online_dps": 399,
+      "online_display": 399,
+      "online_rate": 0.7119152125040146,
+      "local_dps": 363.3180652224163,
+      "local_rate": 0.6483674608934363,
+      "local_se_dps": 0.996673204182782
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 376,
+      "online_display": 376,
+      "online_rate": 0.6708774934874924,
+      "local_dps": 378.36138631343744,
+      "local_rate": 0.6752133593852141,
+      "local_se_dps": 0.08840237205258215
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 326,
+      "online_display": 326,
+      "online_rate": 0.5816650608428791,
+      "local_dps": 325.1693307607356,
+      "local_rate": 0.5802882750041359,
+      "local_se_dps": 2.4366819953036276
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 363,
+      "online_display": 363,
+      "online_rate": 0.6476822609998929,
+      "local_dps": 362.1146930218821,
+      "local_rate": 0.6462199558479814,
+      "local_se_dps": 0.08474426242369519
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 433,
+      "online_display": 433,
+      "online_rate": 0.7725796667023517,
+      "local_dps": 430.2816031436203,
+      "local_rate": 0.7678687552423242,
+      "local_se_dps": 0.37674539540921587
+     }
+    }
+   }
+  },
+  "hjy": {
+   "name": "花间游",
+   "local_macro": {
+    "attack": 2.2349539337403788,
+    "crit": 1.5681726943078185,
+    "power": 0.9954754133144736,
+    "overcome": 1.665357390440436,
+    "strain": 1.956529935303803,
+    "weapon": 0.0,
+    "major": 1.77828300324398,
+    "haste": 0.2489293018580979,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 2.2474515021266797,
+    "crit": 1.5556940044344307,
+    "power": 1.0003234882722531,
+    "overcome": 1.6668216166267418,
+    "strain": 1.956880506586388,
+    "weapon": 0.0,
+    "haste": -0.02687516489421483,
+    "major": 1.7489217231299377
+   },
+   "online": {
+    "attack": 2.2437747513325923,
+    "crit": 1.5448920113862334,
+    "power": 1.0009673583492653,
+    "overcome": 1.6676270366430879,
+    "strain": 1.9577991530704681,
+    "weapon": 0.0,
+    "haste": -0.0004611069310029099,
+    "major": 1.7498409187973618
+   },
+   "local_baseline": 36766.80099173715,
+   "online_baseline": 36785.977841748885,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "元气": {
+      "step": 10,
+      "online_dps": 30.676164153985155,
+      "online_display": 30.7,
+      "online_rate": 0.08327113067608437,
+      "local_dps": 28.549798976608187,
+      "local_rate": 0.07765102811915665,
+      "local_se_dps": 0.01218160075343636
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 39.92432158002339,
+      "online_display": 39.9,
+      "online_rate": 0.10837545994199049,
+      "local_dps": 40.74083646616541,
+      "local_rate": 0.11080876053187594,
+      "local_se_dps": 0.01716020701363138
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 33.94485950820672,
+      "online_display": 33.9,
+      "online_rate": 0.0921440770006441,
+      "local_dps": 39.01843639045531,
+      "local_rate": 0.10612409929061868,
+      "local_se_dps": 0.015767933788450345
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 28.267421643024136,
+      "online_display": 28.3,
+      "online_rate": 0.07673254549351625,
+      "local_dps": 33.09973990967001,
+      "local_rate": 0.0900261622356232,
+      "local_se_dps": 0.014157768539499285
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 27.389524710641126,
+      "online_display": 27.4,
+      "online_rate": 0.07434947472203252,
+      "local_dps": 27.99211407424812,
+      "local_rate": 0.07613421162352138,
+      "local_se_dps": 1.4072364548463263
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 17.629675716634665,
+      "online_display": 17.6,
+      "online_rate": 0.047856147300807894,
+      "local_dps": 18.430103579260653,
+      "local_rate": 0.05012702514804748,
+      "local_se_dps": 0.053975025703062805
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 359,
+      "online_display": 359,
+      "online_rate": 0.9759412804132119,
+      "local_dps": 357.46658475616124,
+      "local_rate": 0.9722537047389493,
+      "local_se_dps": 0.1463217466361219
+     },
+     "元气": {
+      "step": 90,
+      "online_dps": 308,
+      "online_display": 308,
+      "online_rate": 0.8372978116079924,
+      "local_dps": 310.6088969167711,
+      "local_rate": 0.8448080565578068,
+      "local_se_dps": 0.12363727476044316
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 272,
+      "online_display": 272,
+      "online_rate": 0.7394318336278375,
+      "local_dps": 271.24811540570175,
+      "local_rate": 0.7377528316011533,
+      "local_se_dps": 0.10930547590631338
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 246,
+      "online_display": 246,
+      "online_rate": 0.6687508495310589,
+      "local_dps": 248.0407072368421,
+      "local_rate": 0.6746322784312563,
+      "local_se_dps": 3.8832390605543803
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 312,
+      "online_display": 312,
+      "online_rate": 0.8481718091613429,
+      "local_dps": 311.17784859283626,
+      "local_rate": 0.8463555169316181,
+      "local_se_dps": 0.12491425240029945
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 164,
+      "online_display": 164,
+      "online_rate": 0.4458338996873726,
+      "local_dps": 162.91894612834167,
+      "local_rate": 0.4431142817264834,
+      "local_se_dps": 0.4827657568530103
+     }
+    }
+   }
+  },
+  "lhj": {
+   "name": "凌海诀",
+   "local_macro": {
+    "attack": 1.8839340558493072,
+    "crit": 1.334075407703061,
+    "power": 1.6966757022923074,
+    "overcome": 1.4372507223143378,
+    "strain": 1.429511205771881,
+    "weapon": 0.31546516887829035,
+    "major": 1.3793465915217564,
+    "haste": 4.214183948489715,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.876560537626257,
+    "crit": 1.335658853353617,
+    "power": 1.6829467887998804,
+    "overcome": 1.4450681657243796,
+    "strain": 1.429488825975671,
+    "weapon": 0.3580388587019704,
+    "haste": 3.285829027818284,
+    "major": 1.39734870782313
+   },
+   "online": {
+    "attack": 1.878014772181872,
+    "crit": 1.3160803747379368,
+    "power": 1.674622906715036,
+    "overcome": 1.45960922679715,
+    "strain": 1.5799919385208483,
+    "weapon": 0.3659652257150558,
+    "haste": 3.292841882469784,
+    "major": 1.3947286720570171
+   },
+   "local_baseline": 50222.13492313508,
+   "online_baseline": 52340.761452263636,
+   "paired_rank_tests": {
+    "overcome-strain": [
+     7.824277028729838,
+     0.005273853061452857
+    ]
+   },
+   "tabs": {
+    "single": {
+     "身法": {
+      "step": 10,
+      "online_dps": 36.14693914646341,
+      "online_display": 36.1,
+      "online_rate": 0.06897169262403659,
+      "local_dps": 24.134170236895162,
+      "local_rate": 0.04805484727766448,
+      "local_se_dps": 0.4296565643821219
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 47.224577382963616,
+      "online_display": 47.2,
+      "online_rate": 0.09010884773286468,
+      "local_dps": 25.806256300403227,
+      "local_rate": 0.05138422797019616,
+      "local_se_dps": 0.009873843550122658
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 54.910754879543674,
+      "online_display": 54.9,
+      "online_rate": 0.1047747830586715,
+      "local_dps": 52.00921748991936,
+      "local_rate": 0.10355835642893199,
+      "local_se_dps": 0.021822996328443506
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 40.01737121471524,
+      "online_display": 40,
+      "online_rate": 0.07635683386246972,
+      "local_dps": 23.228255733366936,
+      "local_rate": 0.046251032077624245,
+      "local_se_dps": 0.005665710962689572
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 36.64749295232468,
+      "online_display": 36.6,
+      "online_rate": 0.06992679543647025,
+      "local_dps": 44.98498771421371,
+      "local_rate": 0.08957203389115811,
+      "local_se_dps": 0.011412132626684668
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 33.1721037332245,
+      "online_display": 33.2,
+      "online_rate": 0.063295432377003,
+      "local_dps": 31.433400012600806,
+      "local_rate": 0.06258873713893204,
+      "local_se_dps": 0.678986037431694
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 42.095941665211285,
+      "online_display": 42.1,
+      "online_rate": 0.08032293792533737,
+      "local_dps": 40.43279517389113,
+      "local_rate": 0.08050791794449494,
+      "local_se_dps": 0.034916437490998584
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 414,
+      "online_display": 414,
+      "online_rate": 0.7909820405043944,
+      "local_dps": 391.2346018145161,
+      "local_rate": 0.7790083046316135,
+      "local_se_dps": 0.08952157147102754
+     },
+     "武伤": {
+      "step": 16,
+      "online_dps": 89,
+      "online_display": 89,
+      "online_rate": 0.1700420328620558,
+      "local_dps": 82.17711063508065,
+      "local_rate": 0.16362727462871224,
+      "local_se_dps": 0.034121414720190445
+     },
+     "身法": {
+      "step": 90,
+      "online_dps": 328,
+      "online_display": 328,
+      "online_rate": 0.626671761559037,
+      "local_dps": 314.5728625882056,
+      "local_rate": 0.6263629833133517,
+      "local_se_dps": 1.221398594356821
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 330,
+      "online_display": 330,
+      "online_rate": 0.6304929308368361,
+      "local_dps": 310.12110635080643,
+      "local_rate": 0.6174988515033191,
+      "local_se_dps": 0.06802015943663609
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 298,
+      "online_display": 298,
+      "online_rate": 0.569354222392052,
+      "local_dps": 290.9673607610887,
+      "local_rate": 0.5793607962035343,
+      "local_se_dps": 2.0720340258827705
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 350,
+      "online_display": 350,
+      "online_rate": 0.6687046236148262,
+      "local_dps": 309.8675040952621,
+      "local_rate": 0.6169938903822269,
+      "local_se_dps": 0.06831513237496173
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 375,
+      "online_display": 375,
+      "online_rate": 0.7164692395873137,
+      "local_dps": 360.58788117439514,
+      "local_rate": 0.7179859671960869,
+      "local_se_dps": 0.30529809397314583
+     }
+    }
+   }
+  },
+  "shxj": {
+   "name": "山海心诀",
+   "local_macro": {
+    "attack": 1.8831665133930056,
+    "crit": 1.3468234854391858,
+    "power": 1.3982707472450524,
+    "overcome": 1.4758681774215527,
+    "strain": 1.5923751424960664,
+    "weapon": 0.6225414321445145,
+    "major": 1.5078425584828763,
+    "haste": 0.0,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.9059722788445295,
+    "crit": 1.3563312245439432,
+    "power": 1.4042023249482054,
+    "overcome": 1.47554212625945,
+    "strain": 1.5989336119038684,
+    "weapon": 0.6070642002192034,
+    "haste": 0.0,
+    "major": 1.5052835288323472
+   },
+   "online": {
+    "attack": 1.9150363950665064,
+    "crit": 1.3462564735920857,
+    "power": 1.4066424309148111,
+    "overcome": 1.4758730874520956,
+    "strain": 1.6015854913528689,
+    "weapon": 0.5961884758534038,
+    "haste": 0.0,
+    "major": 1.5247609159153648
+   },
+   "local_baseline": 53183.7249296114,
+   "online_baseline": 52309.30895020922,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "身法": {
+      "step": 10,
+      "online_dps": 39.08788120659301,
+      "online_display": 39.1,
+      "online_rate": 0.07458908693218365,
+      "local_dps": 35.809096299208605,
+      "local_rate": 0.06733092942738009,
+      "local_se_dps": 0.5796422899327706
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 47.45186806170386,
+      "online_display": 47.5,
+      "online_rate": 0.09054958730666486,
+      "local_dps": 63.95087224786932,
+      "local_rate": 0.12024519217581736,
+      "local_se_dps": 0.016353365313372805
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 89.13927013676584,
+      "online_display": 89.1,
+      "online_rate": 0.17009918583617584,
+      "local_dps": 92.61989841213475,
+      "local_rate": 0.17415083004192933,
+      "local_se_dps": 0.0347485062343722
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 39.48430929243477,
+      "online_display": 39.5,
+      "online_rate": 0.0753455671517414,
+      "local_dps": 50.09658773843344,
+      "local_rate": 0.09419533476591987,
+      "local_se_dps": 0.014016299799969245
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 36.20661180665775,
+      "online_display": 36.2,
+      "online_rate": 0.06909093131175155,
+      "local_dps": 36.14485307173295,
+      "local_rate": 0.06796224431359524,
+      "local_se_dps": 0.013351201559448786
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 33.93596369198349,
+      "online_display": 33.9,
+      "online_rate": 0.06475798809790269,
+      "local_dps": 36.39886078277191,
+      "local_rate": 0.0684398485268675,
+      "local_se_dps": 1.0045363882444642
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 35.30498233791877,
+      "online_display": 35.3,
+      "online_rate": 0.06737040523695764,
+      "local_dps": 36.212706726866884,
+      "local_rate": 0.06808982780877863,
+      "local_se_dps": 0.050876540550345246
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 437,
+      "online_display": 437,
+      "online_rate": 0.8354202909633142,
+      "local_dps": 436.07543311181007,
+      "local_rate": 0.8199415021963117,
+      "local_se_dps": 0.1211903669551801
+     },
+     "武伤": {
+      "step": 16,
+      "online_dps": 141,
+      "online_display": 141,
+      "online_rate": 0.2695520847272936,
+      "local_dps": 149.05549284699674,
+      "local_rate": 0.28026523723991037,
+      "local_se_dps": 0.05512139730107087
+     },
+     "身法": {
+      "step": 90,
+      "online_dps": 356,
+      "online_display": 356,
+      "online_rate": 0.6805712210135924,
+      "local_dps": 361.3697192699878,
+      "local_rate": 0.6794742559838751,
+      "local_se_dps": 1.5855979624329484
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 356,
+      "online_display": 356,
+      "online_rate": 0.6805712210135924,
+      "local_dps": 359.02498161018667,
+      "local_rate": 0.675065505632326,
+      "local_se_dps": 0.09819001840769608
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 305,
+      "online_display": 305,
+      "online_rate": 0.5830736584526564,
+      "local_dps": 316.5620006214489,
+      "local_rate": 0.5952234467225045,
+      "local_se_dps": 2.933051917852225
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 369,
+      "online_display": 369,
+      "online_rate": 0.7054235408820662,
+      "local_dps": 375.38871626420456,
+      "local_rate": 0.7058338180731626,
+      "local_se_dps": 0.10272105054113918
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 312,
+      "online_display": 312,
+      "online_rate": 0.5964556768433731,
+      "local_dps": 318.211842722707,
+      "local_rate": 0.5983256026986827,
+      "local_se_dps": 0.4386984567612023
+     }
+    }
+   }
+  },
+  "txj": {
+   "name": "太玄经",
+   "local_macro": {
+    "attack": 2.066013897874031,
+    "crit": 1.3809043811225434,
+    "power": 1.2857575687185996,
+    "overcome": 1.5372846138990937,
+    "strain": 1.6892979011189841,
+    "weapon": 0.0,
+    "major": 1.7451019935174144,
+    "haste": 2.0938195210690598,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 2.073554777361647,
+    "crit": 1.3932371592083972,
+    "power": 1.292233510211117,
+    "overcome": 1.5407106722689359,
+    "strain": 1.6943967160106412,
+    "weapon": 0.0,
+    "haste": 0.6772366628212295,
+    "major": 1.7474743440695282
+   },
+   "online": {
+    "attack": 2.0959350057435677,
+    "crit": 1.387782219969296,
+    "power": 1.304666360434679,
+    "overcome": 1.553448687861382,
+    "strain": 1.7031541121208205,
+    "weapon": 0.0,
+    "haste": 0.7034072599852567,
+    "major": 1.7489383669252598
+   },
+   "local_baseline": 41681.2986469408,
+   "online_baseline": 42891.126013106244,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "元气": {
+      "step": 10,
+      "online_dps": 36.642565196263604,
+      "online_display": 36.6,
+      "online_rate": 0.0853850736554745,
+      "local_dps": 33.88894100479467,
+      "local_rate": 0.08130490676849855,
+      "local_se_dps": 0.21381656690078044
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 43.133394891861826,
+      "online_display": 43.1,
+      "online_rate": 0.1005101056687984,
+      "local_dps": 43.048446620283514,
+      "local_rate": 0.1032800033053746,
+      "local_se_dps": 0.011444699902241423
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 35.413211890205275,
+      "online_display": 35.4,
+      "online_rate": 0.08252041551748215,
+      "local_dps": 38.83969473108193,
+      "local_rate": 0.0931825446708642,
+      "local_se_dps": 0.009206357232900482
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 32.44071533220995,
+      "online_display": 32.4,
+      "online_rate": 0.07559385794200554,
+      "local_dps": 37.798016664060874,
+      "local_rate": 0.09068339493024664,
+      "local_se_dps": 0.010208171533178278
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 28.63587991753593,
+      "online_display": 28.6,
+      "online_rate": 0.06672777145518867,
+      "local_dps": 28.525831574421513,
+      "local_rate": 0.06843796258856528,
+      "local_se_dps": 0.6694885099467136
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 27.237625870220654,
+      "online_display": 27.2,
+      "online_rate": 0.06346953819068855,
+      "local_dps": 26.94680268918074,
+      "local_rate": 0.06464962360561792,
+      "local_se_dps": 0.03272150549027241
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 388,
+      "online_display": 388,
+      "online_rate": 0.904618684572521,
+      "local_dps": 376.2883231055868,
+      "local_rate": 0.9027749502070865,
+      "local_se_dps": 0.08630339209112224
+     },
+     "元气": {
+      "step": 90,
+      "online_dps": 315,
+      "online_display": 315,
+      "online_rate": 0.7344198083514024,
+      "local_dps": 302.88475544611214,
+      "local_rate": 0.7266682307854205,
+      "local_se_dps": 0.7109611551825961
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 249,
+      "online_display": 249,
+      "online_rate": 0.5805413723158704,
+      "local_dps": 238.83629742547424,
+      "local_rate": 0.5730058927590628,
+      "local_se_dps": 0.055662174572210996
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 257,
+      "online_display": 257,
+      "online_rate": 0.599193303956541,
+      "local_dps": 251.82048513393786,
+      "local_rate": 0.6041570040006905,
+      "local_se_dps": 1.9507244049766692
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 325,
+      "online_display": 325,
+      "online_rate": 0.7577347229022405,
+      "local_dps": 314.1903842896602,
+      "local_rate": 0.7537922149475067,
+      "local_se_dps": 0.07215845316985449
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 242,
+      "online_display": 242,
+      "online_rate": 0.5642209321302838,
+      "local_dps": 233.41046324525746,
+      "local_rate": 0.5599884620254956,
+      "local_se_dps": 0.2837191106447199
+     }
+    }
+   }
+  },
+  "tlgd": {
+   "name": "天罗诡道",
+   "local_macro": {
+    "attack": 2.2604298565685683,
+    "crit": 1.4011196477305836,
+    "power": 1.5884773701897177,
+    "overcome": 1.7218563881262692,
+    "strain": 1.7840688791807662,
+    "weapon": 0.060519718769273256,
+    "major": 1.6984137259142391,
+    "haste": 3.635479377155286,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.8978844161762527,
+    "crit": 1.213376226710193,
+    "power": 1.250462354094622,
+    "overcome": 1.2796290012244118,
+    "strain": 1.3967265514595757,
+    "weapon": 0.2594349255727569,
+    "major": 1.5476784585315526
+   },
+   "online": {
+    "attack": 1.7422247945646403,
+    "crit": 1.076217408927056,
+    "power": 1.3619845510097064,
+    "overcome": 1.2212317372635564,
+    "strain": 1.3135178794515205,
+    "weapon": 0.26870076863956793,
+    "major": 1.669473086061919
+   },
+   "local_baseline": 9987.698016648066,
+   "online_baseline": 8827.85000607275,
+   "paired_rank_tests": {
+    "power-overcome": [
+     -2.913076636904762,
+     0.1677704319729918
+    ],
+    "power-strain": [
+     -14.608426339285714,
+     0.1638177928664252
+    ]
+   },
+   "tabs": {
+    "single": {
+     "元气": {
+      "step": 10,
+      "online_dps": 7.232691473678642,
+      "online_display": 7.2,
+      "online_rate": 0.0818266730450672,
+      "local_dps": 6.696916852678571,
+      "local_rate": 0.06705165536158349,
+      "local_se_dps": 0.0918292965812074
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 7.324746485988726,
+      "online_display": 7.3,
+      "online_rate": 0.08286813256561629,
+      "local_dps": 9.151232328869048,
+      "local_rate": 0.0916250402606812,
+      "local_se_dps": 0.00415879818746947
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 6.507754318350635,
+      "online_display": 6.5,
+      "online_rate": 0.0736251348205872,
+      "local_dps": 7.008238002232143,
+      "local_rate": 0.07016870144201809,
+      "local_se_dps": 0.00578920247688093
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 5.600987825959237,
+      "online_display": 5.6,
+      "online_rate": 0.06336647999324456,
+      "local_dps": 4.528676060267857,
+      "local_rate": 0.04534254092103306,
+      "local_se_dps": 0.002079039836325676
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 5.206603489827103,
+      "online_display": 5.2,
+      "online_rate": 0.058904633632975795,
+      "local_dps": 1.3116280691964286,
+      "local_rate": 0.013132436193106079,
+      "local_se_dps": 0.0017880890994639092
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 4.574628591417422,
+      "online_display": 4.6,
+      "online_rate": 0.05175481899301067,
+      "local_dps": 5.716580636160715,
+      "local_rate": 0.05723621826202585,
+      "local_se_dps": 0.2321048342950633
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 5.772158525209306,
+      "online_display": 5.8,
+      "online_rate": 0.06530301066006522,
+      "local_dps": 6.3426176525297615,
+      "local_rate": 0.06350429940870783,
+      "local_se_dps": 0.010823291698616011
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 66,
+      "online_display": 66,
+      "online_rate": 0.7477059023450776,
+      "local_dps": 81.80817754836309,
+      "local_rate": 0.819089417921933,
+      "local_se_dps": 0.029024362490267245
+     },
+     "元气": {
+      "step": 90,
+      "online_dps": 62,
+      "online_display": 62,
+      "online_rate": 0.7023903931120425,
+      "local_dps": 71.18240094866071,
+      "local_rate": 0.7127007727907854,
+      "local_se_dps": 0.34030431546272416
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 50,
+      "online_display": 50,
+      "online_rate": 0.5664438654129376,
+      "local_dps": 52.339618210565476,
+      "local_rate": 0.5240408562946417,
+      "local_se_dps": 0.018873812838754014
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 41,
+      "online_display": 41,
+      "online_rate": 0.46448396963860883,
+      "local_dps": 53.055578031994045,
+      "local_rate": 0.5312092730833269,
+      "local_se_dps": 0.6872417472055558
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 51,
+      "online_display": 51,
+      "online_rate": 0.5777727427211963,
+      "local_dps": 60.77080775669643,
+      "local_rate": 0.6084565998631534,
+      "local_se_dps": 0.021047249249832877
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 51,
+      "online_display": 51,
+      "online_rate": 0.5777727427211963,
+      "local_dps": 53.248907180059526,
+      "local_rate": 0.5331449458253663,
+      "local_se_dps": 0.090782116617933
+     }
+    }
+   }
+  },
+  "wf": {
+   "name": "无方",
+   "local_macro": {
+    "attack": 2.295019239190414,
+    "crit": 1.3960527031577796,
+    "power": 1.4609906555604817,
+    "overcome": 1.6632235372764397,
+    "strain": 1.440258263869607,
+    "weapon": 0.0,
+    "major": 1.7769074551738542,
+    "haste": 0.2911796802325173,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 2.299901354958729,
+    "crit": 1.391149656113088,
+    "power": 1.4618939147416314,
+    "overcome": 1.6626160905996064,
+    "strain": 1.4402857206544089,
+    "weapon": 0.0,
+    "haste": 0.22742283268875432,
+    "major": 1.7672088238039745
+   },
+   "online": {
+    "attack": 2.2917550964717397,
+    "crit": 1.3983433405136025,
+    "power": 1.457979930694157,
+    "overcome": 2.040330588286575,
+    "strain": 1.8196461342716677,
+    "weapon": 0.0,
+    "haste": 0.23836989300142944,
+    "major": 1.7761358764350383
+   },
+   "local_baseline": 38298.01176338822,
+   "online_baseline": 38261.44546984354,
+   "paired_rank_tests": {
+    "power-strain": [
+     8.275508713380429,
+     0.41055522976955744
+    ]
+   },
+   "tabs": {
+    "single": {
+     "根骨": {
+      "step": 10,
+      "online_dps": 33.73477727707359,
+      "online_display": 33.7,
+      "online_rate": 0.08802531902460924,
+      "local_dps": 39.33794216185331,
+      "local_rate": 0.10271536393296332,
+      "local_se_dps": 0.25397393288747605
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 42.45868182503909,
+      "online_display": 42.5,
+      "online_rate": 0.11078890434985726,
+      "local_dps": 41.30908639362144,
+      "local_rate": 0.10786222180105892,
+      "local_se_dps": 0.009474476931735505
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 33.363862439357035,
+      "online_display": 33.4,
+      "online_rate": 0.08705747813291466,
+      "local_dps": 36.97078874922086,
+      "local_rate": 0.09653448585694951,
+      "local_se_dps": 0.0072208357820296365
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 37.731568964409234,
+      "online_display": 37.7,
+      "online_rate": 0.09845428556151668,
+      "local_dps": 29.65322109391232,
+      "local_rate": 0.07742757320436132,
+      "local_se_dps": 0.007832302822225936
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 25.781046166681335,
+      "online_display": 25.8,
+      "online_rate": 0.0672713738398562,
+      "local_dps": 24.53663905048826,
+      "local_rate": 0.06406765761648382,
+      "local_se_dps": 0.4623871406856387
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 26.806125852141122,
+      "online_display": 26.8,
+      "online_rate": 0.0699461496534664,
+      "local_dps": 28.357685240494494,
+      "local_rate": 0.07404479745761532,
+      "local_se_dps": 0.02580921960647535
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 379,
+      "online_display": 379,
+      "online_rate": 0.9905648048927106,
+      "local_dps": 383.3668433799086,
+      "local_rate": 1.0010097802163092,
+      "local_se_dps": 0.07013643078255279
+     },
+     "根骨": {
+      "step": 90,
+      "online_dps": 316,
+      "online_display": 316,
+      "online_rate": 0.825906275319516,
+      "local_dps": 322.5288914788074,
+      "local_rate": 0.8421557063365247,
+      "local_se_dps": 0.7095265582525538
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 316,
+      "online_display": 316,
+      "online_rate": 0.825906275319516,
+      "local_dps": 285.86745695252444,
+      "local_rate": 0.7464289757877337,
+      "local_se_dps": 0.05211459542171623
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 231,
+      "online_display": 231,
+      "online_rate": 0.6037479417683803,
+      "local_dps": 229.67591678786619,
+      "local_rate": 0.599707155052445,
+      "local_se_dps": 1.3832416148938103
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 314,
+      "online_display": 314,
+      "online_rate": 0.8206790204124305,
+      "local_dps": 239.61779782619988,
+      "local_rate": 0.6256664165925906,
+      "local_se_dps": 0.043576183553609704
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 246,
+      "online_display": 246,
+      "online_rate": 0.6429523535715219,
+      "local_dps": 249.5463571966549,
+      "local_rate": 0.6515908939043513,
+      "local_se_dps": 0.22625041303988302
+     }
+    }
+   }
+  },
+  "xcj": {
+   "name": "笑尘诀",
+   "local_macro": {
+    "attack": 1.8645113029321208,
+    "crit": 1.4915626250422171,
+    "power": 1.7726449953873462,
+    "overcome": 1.2046571265579347,
+    "strain": 1.4262954261041998,
+    "weapon": 0.0,
+    "major": 1.5508113202828564,
+    "haste": 0.417377400322679,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.8766041684847685,
+    "crit": 1.5006383335494724,
+    "power": 1.7961373038795163,
+    "overcome": 1.216002503473768,
+    "strain": 1.4337541363823907,
+    "weapon": 0.0,
+    "haste": 0.0490841951849507,
+    "major": 1.5622701806703052
+   },
+   "online": {
+    "attack": 1.8886319407152812,
+    "crit": 1.4940949365772291,
+    "power": 1.8039212629802615,
+    "overcome": 1.3345258774903066,
+    "strain": 1.4388193103798435,
+    "weapon": 0.0,
+    "haste": 0.0,
+    "major": 1.6425584082804745
+   },
+   "local_baseline": 64509.175915325904,
+   "online_baseline": 63914.03077588824,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "力道": {
+      "step": 10,
+      "online_dps": 48.91988365374709,
+      "online_display": 48.9,
+      "online_rate": 0.07645233816683535,
+      "local_dps": 42.25582972359736,
+      "local_rate": 0.0655035956110522,
+      "local_se_dps": 0.01511870370413585
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 57.87940438687656,
+      "online_display": 57.9,
+      "online_rate": 0.0904543401697473,
+      "local_dps": 61.48993399339934,
+      "local_rate": 0.09531967060641172,
+      "local_se_dps": 0.020485863805192107
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 44.60255516010511,
+      "online_display": 44.6,
+      "online_rate": 0.0697051868385646,
+      "local_dps": 30.681845606435644,
+      "local_rate": 0.04756198660281807,
+      "local_se_dps": 0.011057437387919006
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 38.984199365870154,
+      "online_display": 39,
+      "online_rate": 0.06092478089641863,
+      "local_dps": 25.554674608085808,
+      "local_rate": 0.03961401497614636,
+      "local_se_dps": 0.012449271541603763
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 46.00107557499723,
+      "online_display": 46,
+      "online_rate": 0.07189080437701442,
+      "local_dps": 49.27644905115512,
+      "local_rate": 0.07638672848004584,
+      "local_se_dps": 1.3814683521021047
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 55.3054338907823,
+      "online_display": 55.3,
+      "online_rate": 0.08643172097891481,
+      "local_dps": 56.90667285478548,
+      "local_rate": 0.0882148501315233,
+      "local_se_dps": 0.04672597635731017
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 517,
+      "online_display": 517,
+      "online_rate": 0.8088994586475576,
+      "local_dps": 524.2185798267327,
+      "local_rate": 0.8126263781679938,
+      "local_se_dps": 0.17439260973257711
+     },
+     "武伤": {
+      "step": 16,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "力道": {
+      "step": 90,
+      "online_dps": 448,
+      "online_display": 448,
+      "online_rate": 0.7009418906655819,
+      "local_dps": 425.00662386551153,
+      "local_rate": 0.6588312714200084,
+      "local_se_dps": 0.14162288166801582
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 349,
+      "online_display": 349,
+      "online_rate": 0.5460462496479644,
+      "local_dps": 353.7327660891089,
+      "local_rate": 0.5483448843826729,
+      "local_se_dps": 0.11799247100491915
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 413,
+      "online_display": 413,
+      "online_rate": 0.6461808054573333,
+      "local_dps": 425.5072658828383,
+      "local_rate": 0.6596073501874443,
+      "local_se_dps": 4.067712551417324
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 398,
+      "online_display": 398,
+      "online_rate": 0.6227117689395125,
+      "local_dps": 400.6629383250825,
+      "local_rate": 0.6210944918146043,
+      "local_se_dps": 0.13392670572726068
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 492,
+      "online_display": 492,
+      "online_rate": 0.7697843977845229,
+      "local_dps": 493.7723468440594,
+      "local_rate": 0.7654296304950168,
+      "local_se_dps": 0.40578117090159993
+     }
+    }
+   }
+  },
+  "yjj": {
+   "name": "易筋经",
+   "local_macro": {
+    "attack": 1.885444507330246,
+    "crit": 1.5380425320101037,
+    "power": 1.4128877354914802,
+    "overcome": 1.636317603068218,
+    "strain": 1.7258072793916583,
+    "weapon": 0.04269476099681167,
+    "major": 1.534141689109816,
+    "haste": 0.09327004545074735,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.8805897899340176,
+    "crit": 1.5468666137571812,
+    "power": 1.4161608099401441,
+    "overcome": 1.6314218477990172,
+    "strain": 1.7209840948274417,
+    "weapon": 0.04309299706464526,
+    "haste": -0.019513730102633305,
+    "major": 1.525347395218956
+   },
+   "online": {
+    "attack": 1.910284392682782,
+    "crit": 1.5445462049464869,
+    "power": 1.4171021073308085,
+    "overcome": 1.6412667489580637,
+    "strain": 1.7322389971221852,
+    "weapon": 0.040784887253361816,
+    "haste": 0.10752968932343358,
+    "major": 1.5329886013171792
+   },
+   "local_baseline": 42975.15454725483,
+   "online_baseline": 49152.28868873158,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "元气": {
+      "step": 10,
+      "online_dps": 37.314805547146534,
+      "online_display": 37.3,
+      "online_rate": 0.07591424726701461,
+      "local_dps": 29.54604716393102,
+      "local_rate": 0.06875146226976946,
+      "local_se_dps": 0.42104453101887424
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 45.0561668350274,
+      "online_display": 45.1,
+      "online_rate": 0.09166348155550529,
+      "local_dps": 33.49105774724704,
+      "local_rate": 0.07793120955602563,
+      "local_se_dps": 0.039591459330103614
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 5.08319638780813,
+      "online_display": 5.1,
+      "online_rate": 0.010341391890768424,
+      "local_dps": 5.321393556513609,
+      "local_rate": 0.012382488469383595,
+      "local_se_dps": 0.003766887634813902
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 40.20391662939073,
+      "online_display": 40.2,
+      "online_rate": 0.08179193280934567,
+      "local_dps": 37.0448768309786,
+      "local_rate": 0.08620068321160919,
+      "local_se_dps": 0.03931166209878683
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 39.19465130721801,
+      "online_display": 39.2,
+      "online_rate": 0.07973865620500592,
+      "local_dps": 32.745493974651986,
+      "local_rate": 0.07619633790646532,
+      "local_se_dps": 0.034999125139933494
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 36.527540423769096,
+      "online_display": 36.5,
+      "online_rate": 0.07431261385731452,
+      "local_dps": 33.04025393465614,
+      "local_rate": 0.07688222249049874,
+      "local_se_dps": 0.9399921499666374
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 33.33862866803247,
+      "online_display": 33.3,
+      "online_rate": 0.06782500573533701,
+      "local_dps": 29.388037606482442,
+      "local_rate": 0.0683837857387291,
+      "local_se_dps": 0.05011638820897765
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 407,
+      "online_display": 407,
+      "online_rate": 0.8280436197916666,
+      "local_dps": 346.9781646062747,
+      "local_rate": 0.8073924765639707,
+      "local_se_dps": 0.3730720101424425
+     },
+     "元气": {
+      "step": 90,
+      "online_dps": 312,
+      "online_display": 312,
+      "online_rate": 0.634765625,
+      "local_dps": 269.2170910814461,
+      "local_rate": 0.6264482208793898,
+      "local_se_dps": 0.9277382110959095
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 325,
+      "online_display": 325,
+      "online_rate": 0.6612141927083334,
+      "local_dps": 281.27626999792227,
+      "local_rate": 0.6545090365844645,
+      "local_se_dps": 0.29565300294947333
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 328,
+      "online_display": 328,
+      "online_rate": 0.6673177083333334,
+      "local_dps": 286.2870643309786,
+      "local_rate": 0.6661687836775122,
+      "local_se_dps": 2.7762602733769572
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 362,
+      "online_display": 362,
+      "online_rate": 0.7364908854166666,
+      "local_dps": 315.15026685539164,
+      "local_rate": 0.7333313170726522,
+      "local_se_dps": 0.3321257598143171
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 308,
+      "online_display": 308,
+      "online_rate": 0.6266276041666666,
+      "local_dps": 269.12976736183253,
+      "local_rate": 0.6262450250548872,
+      "local_se_dps": 0.45522420993178386
+     }
+    }
+   }
+  },
+  "yly": {
+   "name": "幽罗引",
+   "local_macro": {
+    "attack": 1.88270063234691,
+    "crit": 1.509960324837866,
+    "power": 0.8881212479162495,
+    "overcome": 1.635504202152874,
+    "strain": 1.4280565776329652,
+    "weapon": 0.15872019669623103,
+    "major": 1.578891733641908,
+    "haste": -0.7778937186027932,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.886500638415385,
+    "crit": 1.5189453060522722,
+    "power": 0.920504931818241,
+    "overcome": 1.6369941528531906,
+    "strain": 1.432164722816249,
+    "weapon": 0.13842280650749705,
+    "haste": 0.562543072084404,
+    "major": 1.5913325760757737
+   },
+   "online": {
+    "attack": 1.8826786962184558,
+    "crit": 1.4727981234092926,
+    "power": 1.0053688005613322,
+    "overcome": 1.6343622504098405,
+    "strain": 1.4454841538788374,
+    "weapon": 0.1443851683642408,
+    "haste": 0.5535656138065747,
+    "major": 1.5561569600164193
+   },
+   "local_baseline": 54987.35833265868,
+   "online_baseline": 54410.17857203739,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "根骨": {
+      "step": 10,
+      "online_dps": 41.62739599079214,
+      "online_display": 41.6,
+      "online_rate": 0.07648303976779924,
+      "local_dps": 43.406508055375646,
+      "local_rate": 0.07893906776313563,
+      "local_se_dps": 0.780132171539711
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 49.36190897177585,
+      "online_display": 49.4,
+      "online_rate": 0.0906938509374431,
+      "local_dps": 49.930282039345855,
+      "local_rate": 0.09080320196013258,
+      "local_se_dps": 0.01848354098700877
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 22.685674370033666,
+      "online_display": 22.7,
+      "online_rate": 0.0416809481762064,
+      "local_dps": 22.13046470207254,
+      "local_rate": 0.04024645913736972,
+      "local_se_dps": 0.014503202064718822
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 37.211367397612776,
+      "online_display": 37.2,
+      "online_rate": 0.06836936168467857,
+      "local_dps": 40.76751740608808,
+      "local_rate": 0.07413979984173016,
+      "local_se_dps": 0.014004781803661165
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 42.287803489889484,
+      "online_display": 42.3,
+      "online_rate": 0.0776964227290488,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 38.579714958592376,
+      "online_display": 38.6,
+      "online_rate": 0.07088346035531662,
+      "local_dps": 39.09009927542098,
+      "local_rate": 0.07108924753019853,
+      "local_se_dps": 1.4748603957967155
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 26.211799444710778,
+      "online_display": 26.2,
+      "online_rate": 0.0481595846100688,
+      "local_dps": 24.77877823429404,
+      "local_rate": 0.045062681652006484,
+      "local_se_dps": 0.0655293568116461
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 441,
+      "online_display": 441,
+      "online_rate": 0.810512773387245,
+      "local_dps": 447.6233276999676,
+      "local_rate": 0.814047703459343,
+      "local_se_dps": 0.1553205663600302
+     },
+     "根骨": {
+      "step": 90,
+      "online_dps": 376,
+      "online_display": 376,
+      "online_rate": 0.6910494394412792,
+      "local_dps": 389.308323044851,
+      "local_rate": 0.7079960464542426,
+      "local_se_dps": 2.5061241436987234
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 361,
+      "online_display": 361,
+      "online_rate": 0.6634809777614409,
+      "local_dps": 369.6202158557319,
+      "local_rate": 0.6721912582518136,
+      "local_se_dps": 0.12741536597977313
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 346,
+      "online_display": 346,
+      "online_rate": 0.6359125160816026,
+      "local_dps": 361.34985984051167,
+      "local_rate": 0.6571507902860917,
+      "local_se_dps": 4.666840722263716
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 333,
+      "online_display": 333,
+      "online_rate": 0.6120198492924095,
+      "local_dps": 335.2370365123057,
+      "local_rate": 0.6096620144656015,
+      "local_se_dps": 0.11756648892825232
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 242,
+      "online_display": 242,
+      "online_rate": 0.44477118176805736,
+      "local_dps": 223.7910434545013,
+      "local_rate": 0.4069863514821459,
+      "local_se_dps": 0.5891964349279568
+     }
+    }
+   }
+  },
+  "ztg": {
+   "name": "周天功",
+   "local_macro": {
+    "attack": 1.9668655203081715,
+    "crit": 1.3998421626450204,
+    "power": 1.6064250382675822,
+    "overcome": 1.535732987126194,
+    "strain": 1.4659388597052145,
+    "weapon": 0.0,
+    "major": 1.6818827587048715,
+    "haste": -0.5034622503271741,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.967905002534728,
+    "crit": 1.4144880222368106,
+    "power": 1.6003918489373974,
+    "overcome": 1.5466989908408462,
+    "strain": 1.464912777721643,
+    "weapon": 0.0,
+    "haste": 0.0,
+    "major": 1.6849392604717508
+   },
+   "online": {
+    "attack": 1.9888257642045275,
+    "crit": 1.405447469501866,
+    "power": 1.6057857624768994,
+    "overcome": 1.6474385328449912,
+    "strain": 1.468667527706778,
+    "weapon": 0.0,
+    "haste": 0.03634832305130629,
+    "major": 1.791042853868878
+   },
+   "local_baseline": 61937.595329024676,
+   "online_baseline": 62042.71378283821,
+   "paired_rank_tests": {
+    "power-overcome": [
+     33.2560651684293,
+     0.8059143777763418
+    ]
+   },
+   "tabs": {
+    "single": {
+     "元气": {
+      "step": 10,
+      "online_dps": 51.19202811966534,
+      "online_display": 51.2,
+      "online_rate": 0.08236578458669183,
+      "local_dps": 42.22672009645515,
+      "local_rate": 0.0681762342760298,
+      "local_se_dps": 0.31647502039041486
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 58.986564327715314,
+      "online_display": 59,
+      "online_rate": 0.09490686009877512,
+      "local_dps": 56.68840579710145,
+      "local_rate": 0.09152503499039881,
+      "local_se_dps": 0.015986349810491147
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 43.6002118533288,
+      "online_display": 43.6,
+      "online_rate": 0.07015087679376132,
+      "local_dps": 51.73634725078339,
+      "local_rate": 0.08352979636350064,
+      "local_se_dps": 0.014438440038978251
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 46.73746188889345,
+      "online_display": 46.7,
+      "online_rate": 0.0751985779713719,
+      "local_dps": 56.54971173619271,
+      "local_rate": 0.09130110950512291,
+      "local_se_dps": 0.016958616956841158
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 42.03208927917876,
+      "online_display": 42,
+      "online_rate": 0.06762783461527895,
+      "local_dps": 40.474807518115945,
+      "local_rate": 0.06534772185311008,
+      "local_se_dps": 1.1062350110805224
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 47.74966470290383,
+      "online_display": 47.7,
+      "online_rate": 0.07682716902351651,
+      "local_dps": 48.55879724833529,
+      "local_rate": 0.07839955198515766,
+      "local_se_dps": 0.05241850818136568
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 535,
+      "online_display": 535,
+      "online_rate": 0.8623190741755585,
+      "local_dps": 525.7165252888758,
+      "local_rate": 0.8487842036749511,
+      "local_se_dps": 0.14484925774341123
+     },
+     "元气": {
+      "step": 90,
+      "online_dps": 499,
+      "online_display": 499,
+      "online_rate": 0.8042938654459882,
+      "local_dps": 432.24626817714454,
+      "local_rate": 0.6978738291032569,
+      "local_se_dps": 1.2795454799338808
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 421,
+      "online_display": 421,
+      "online_rate": 0.6785725798652525,
+      "local_dps": 418.4113757099491,
+      "local_rate": 0.6755370037975572,
+      "local_se_dps": 0.11464433810677949
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 378,
+      "online_display": 378,
+      "online_rate": 0.609264691660488,
+      "local_dps": 383.1636509131414,
+      "local_rate": 0.6186285548828636,
+      "local_se_dps": 3.356560669500902
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 392,
+      "online_display": 392,
+      "online_rate": 0.6318300506108765,
+      "local_dps": 389.2042801973169,
+      "local_rate": 0.6283813217639259,
+      "local_se_dps": 0.1064569001077065
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 441,
+      "online_display": 441,
+      "online_rate": 0.710808806937236,
+      "local_dps": 438.17061728848415,
+      "local_rate": 0.7074388583554717,
+      "local_se_dps": 0.47189806552698355
+     }
+    }
+   }
+  },
+  "zxg": {
+   "name": "紫霞功",
+   "local_macro": {
+    "attack": 1.7595848687661912,
+    "crit": 1.5866198659619208,
+    "power": 1.6008547854588313,
+    "overcome": 1.5532849741445323,
+    "strain": 1.4531121663692423,
+    "weapon": 0.0,
+    "major": 1.5503879548874686,
+    "haste": 0.027203142266590888,
+    "surplus": 0.0
+   },
+   "local": {
+    "attack": 1.7894460747747292,
+    "crit": 1.605720018602087,
+    "power": 1.6365351225710432,
+    "overcome": 1.5729879479775817,
+    "strain": 1.4855731510256287,
+    "weapon": 0.0,
+    "haste": -0.012453420827584074,
+    "major": 1.56475064073431
+   },
+   "online": {
+    "attack": 1.7944855424142274,
+    "crit": 1.6022820010882375,
+    "power": 1.6396291868448554,
+    "overcome": 1.5780206018743779,
+    "strain": 1.4897586108743017,
+    "weapon": 0.0,
+    "haste": 0.045504384695382656,
+    "major": 1.561933429600279
+   },
+   "local_baseline": 56801.603991179276,
+   "online_baseline": 57776.76616385926,
+   "paired_rank_tests": {},
+   "tabs": {
+    "single": {
+     "根骨": {
+      "step": 10,
+      "online_dps": 44.51944268029911,
+      "online_display": 44.5,
+      "online_rate": 0.07693859369021176,
+      "local_dps": 40.327361795401565,
+      "local_rate": 0.07099687149972737,
+      "local_se_dps": 0.9705804368384149
+     },
+     "攻击": {
+      "step": 10,
+      "online_dps": 50.22083581140032,
+      "online_display": 50.2,
+      "online_rate": 0.08679175319025367,
+      "local_dps": 41.92352391926256,
+      "local_rate": 0.07380693672976711,
+      "local_se_dps": 0.021558970416754974
+     },
+     "武伤": {
+      "step": 10,
+      "online_dps": 0,
+      "online_display": 0,
+      "online_rate": 0,
+      "local_dps": 0.0,
+      "local_rate": 0.0,
+      "local_se_dps": 0.0
+     },
+     "无双": {
+      "step": 10,
+      "online_dps": 41.64298479048739,
+      "online_display": 41.6,
+      "online_rate": 0.07196749316587472,
+      "local_dps": 33.69313711856326,
+      "local_rate": 0.05931722830185476,
+      "local_se_dps": 0.014803507827084922
+     },
+     "破防": {
+      "step": 10,
+      "online_dps": 41.60856878183404,
+      "online_display": 41.6,
+      "online_rate": 0.07190801534794168,
+      "local_dps": 55.973683513456244,
+      "local_rate": 0.09854243468573247,
+      "local_se_dps": 0.023780311586643885
+     },
+     "会心": {
+      "step": 10,
+      "online_dps": 44.57706215489452,
+      "online_display": 44.6,
+      "online_rate": 0.0770381717863792,
+      "local_dps": 45.614606510913326,
+      "local_rate": 0.08030513806968695,
+      "local_se_dps": 1.5675789941589078
+     },
+     "会效": {
+      "step": 10,
+      "online_dps": 45.39745988672075,
+      "online_display": 45.4,
+      "online_rate": 0.07845598485754962,
+      "local_dps": 44.957810182242,
+      "local_rate": 0.07914883915817501,
+      "local_se_dps": 0.04110867031601414
+     }
+    },
+    "enchant": {
+     "攻击": {
+      "step": 90,
+      "online_dps": 445,
+      "online_display": 445,
+      "online_rate": 0.7702160066463584,
+      "local_dps": 432.7656779773257,
+      "local_rate": 0.7618898896667247,
+      "local_se_dps": 0.19014626255596564
+     },
+     "根骨": {
+      "step": 90,
+      "online_dps": 411,
+      "online_display": 411,
+      "online_rate": 0.7113680420936028,
+      "local_dps": 403.0835965644204,
+      "local_rate": 0.7096341797443173,
+      "local_se_dps": 2.6171712416699067
+     },
+     "破防": {
+      "step": 90,
+      "online_dps": 422,
+      "online_display": 422,
+      "online_rate": 0.7304070894489061,
+      "local_dps": 410.39302884615387,
+      "local_rate": 0.7225025351570774,
+      "local_se_dps": 0.17365108376005897
+     },
+     "会心": {
+      "step": 90,
+      "online_dps": 401,
+      "online_display": 401,
+      "online_rate": 0.6940598172251454,
+      "local_dps": 391.45051090008474,
+      "local_rate": 0.6891539734703146,
+      "local_se_dps": 4.597659406471792
+     },
+     "无双": {
+      "step": 90,
+      "online_dps": 375,
+      "online_display": 375,
+      "online_rate": 0.6490584325671559,
+      "local_dps": 365.57289680016953,
+      "local_rate": 0.6435960802391062,
+      "local_se_dps": 0.16067257219419795
+     },
+     "会效": {
+      "step": 90,
+      "online_dps": 403,
+      "online_display": 403,
+      "online_rate": 0.6975214621988369,
+      "local_dps": 395.947724623861,
+      "local_rate": 0.6970713796838338,
+      "local_se_dps": 0.3553705749714892
+     }
+    }
+   }
+  }
+ },
+ "online_ui": {
+  "mw": {
+   "version": "当前版本: [苍生铸世] 3.0.3",
+   "single": {
+    "base": 55170.59820612341,
+    "total": 14968472.925798858,
+    "seconds": 271.3125,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 47.91617929203494,
+      "display": 47.9,
+      "rate": 0.08685093301510859
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 50.33770305899088,
+      "display": 50.3,
+      "rate": 0.09124008927893748
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 38.227458956462215,
+      "display": 38.2,
+      "rate": 0.06928954950540908
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 34.33616917087056,
+      "display": 34.3,
+      "rate": 0.06223635466591619
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 41.66729014680459,
+      "display": 41.7,
+      "rate": 0.07552444871293768
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 23.651146130505367,
+      "display": 23.7,
+      "rate": 0.04286911307748031
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 55170.59820612341,
+    "total": 14968472.925798858,
+    "seconds": 271.3125,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 1,
+      "gain": 4.790847289405065,
+      "display": 4.8,
+      "rate": 0.008683696470909982
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 5.033770305897633,
+      "display": 5,
+      "rate": 0.00912400892789111
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 3.8227458956462215,
+      "display": 3.8,
+      "rate": 0.006928954950540908
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.433616917085601,
+      "display": 3.4,
+      "rate": 0.006223635466588982
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 4.166729014679731,
+      "display": 4.2,
+      "rate": 0.007552444871292449
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 2.3651146130578127,
+      "display": 2.4,
+      "rate": 0.004286911307761219
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 55134,
+    "total": 14958649.566083761,
+    "seconds": 271.3125,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 48,
+      "display": 48,
+      "rate": 0.08706061595385788
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 53,
+      "display": 53,
+      "rate": 0.09612943011571806
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 45,
+      "display": 45,
+      "rate": 0.08161932745674176
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 43,
+      "display": 43,
+      "rate": 0.07799180179199768
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 42,
+      "display": 42,
+      "rate": 0.07617803895962563
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 24,
+      "display": 24,
+      "rate": 0.04353030797692894
+     }
+    ]
+   },
+   "enchant": {
+    "base": 55134,
+    "total": 14958649.566083761,
+    "seconds": 271.3125,
+    "list": [
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 453,
+      "display": 453,
+      "rate": 0.8216345630645336
+     },
+     {
+      "key": "根骨",
+      "step": 90,
+      "gain": 433,
+      "display": 433,
+      "rate": 0.785359306417093
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 297,
+      "display": 297,
+      "rate": 0.5386875612144956
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 374,
+      "display": 374,
+      "rate": 0.6783472993071425
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 340,
+      "display": 340,
+      "rate": 0.6166793630064933
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 218,
+      "display": 218,
+      "rate": 0.39540029745710453
+     }
+    ]
+   }
+  },
+  "axzy": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 54390.97580468424,
+    "total": 17592081.23682756,
+    "seconds": 323.4375,
+    "list": [
+     {
+      "key": "力道",
+      "step": 10,
+      "gain": 38.531933390244376,
+      "display": 38.5,
+      "rate": 0.07084251168541444
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 45.38491246874764,
+      "display": 45.4,
+      "rate": 0.0834419897736768
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 149.00291500405,
+      "display": 149,
+      "rate": 0.27394786138625893
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 42.61530944168044,
+      "display": 42.6,
+      "rate": 0.07834996304296923
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 37.83725383064302,
+      "display": 37.8,
+      "rate": 0.06956531533193125
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 38.323909591999836,
+      "display": 38.3,
+      "rate": 0.07046005155270503
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 47.90872390430741,
+      "display": 47.9,
+      "rate": 0.08808211876239483
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 54390.97580468424,
+    "total": 17592081.23682756,
+    "seconds": 323.4375,
+    "list": [
+     {
+      "key": "力道",
+      "step": 1,
+      "gain": 3.8527046702583903,
+      "display": 3.9,
+      "rate": 0.007083352731330459
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.538491246865306,
+      "display": 4.5,
+      "rate": 0.00834419897735029
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 14.90029150040209,
+      "display": 14.9,
+      "rate": 0.027394786138620543
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.261530944160768,
+      "display": 4.3,
+      "rate": 0.007834996304283547
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.7837253830439295,
+      "display": 3.8,
+      "rate": 0.006956531533155669
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 3.8323909591999836,
+      "display": 3.8,
+      "rate": 0.007046005155270503
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 4.790872390432924,
+      "display": 4.8,
+      "rate": 0.008808211876243496
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 54327,
+    "total": 17571569.45314719,
+    "seconds": 323.4375,
+    "list": [
+     {
+      "key": "力道",
+      "step": 10,
+      "gain": 26,
+      "display": 26,
+      "rate": 0.04785833931562575
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 43,
+      "display": 43,
+      "rate": 0.07915033040661182
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 149,
+      "display": 149,
+      "rate": 0.2742650983857014
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 50,
+      "display": 50,
+      "rate": 0.0920352679146649
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 32,
+      "display": 32,
+      "rate": 0.058902571465385536
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 38,
+      "display": 38,
+      "rate": 0.06994680361514533
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 49,
+      "display": 49,
+      "rate": 0.09019456255637161
+     }
+    ]
+   },
+   "enchant": {
+    "base": 54327,
+    "total": 17571569.45314719,
+    "seconds": 323.4375,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 405,
+      "display": 405,
+      "rate": 0.7454856701087856
+     },
+     {
+      "key": "武伤",
+      "step": 16,
+      "gain": 241,
+      "display": 241,
+      "rate": 0.44360999134868484
+     },
+     {
+      "key": "力道",
+      "step": 90,
+      "gain": 336,
+      "display": 336,
+      "rate": 0.6184770003865481
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 303,
+      "display": 303,
+      "rate": 0.5577337235628693
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 344,
+      "display": 344,
+      "rate": 0.6332026432528945
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 391,
+      "display": 391,
+      "rate": 0.7197157950926795
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 442,
+      "display": 442,
+      "rate": 0.8135917683656377
+     }
+    ]
+   }
+  },
+  "baj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 62895.17414938236,
+    "total": 18903930.780273736,
+    "seconds": 300.5625,
+    "list": [
+     {
+      "key": "力道",
+      "step": 10,
+      "gain": 41.10929111083533,
+      "display": 41.1,
+      "rate": 0.06536159835283488
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 49.87328861808055,
+      "display": 49.9,
+      "rate": 0.07929589080972489
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 145.75998425615398,
+      "display": 145.8,
+      "rate": 0.23175066486016777
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 42.150399337719136,
+      "display": 42.2,
+      "rate": 0.0670169053632123
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 37.30645201183506,
+      "display": 37.3,
+      "rate": 0.05931528534006201
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 46.95748791007645,
+      "display": 47,
+      "rate": 0.07465992191793237
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 35.71890122468176,
+      "display": 35.7,
+      "rate": 0.05679116356343299
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 62895.17414938236,
+    "total": 18903930.780273736,
+    "seconds": 300.5625,
+    "list": [
+     {
+      "key": "力道",
+      "step": 1,
+      "gain": 4.110417021489411,
+      "display": 4.1,
+      "rate": 0.00653534563991628
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.9873288618036895,
+      "display": 5,
+      "rate": 0.007929589080965548
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 14.575998425607395,
+      "display": 14.6,
+      "rate": 0.02317506648600405
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.215039933747903,
+      "display": 4.2,
+      "rate": 0.006701690536283053
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.7306452011689544,
+      "display": 3.7,
+      "rate": 0.005931528533983064
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 4.695748791004007,
+      "display": 4.7,
+      "rate": 0.0074659921917874525
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 3.5718901224609,
+      "display": 3.6,
+      "rate": 0.00567911635633173
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 62864,
+    "total": 18894802.216567226,
+    "seconds": 300.5625,
+    "list": [
+     {
+      "key": "力道",
+      "step": 10,
+      "gain": 33,
+      "display": 33,
+      "rate": 0.052494273351997967
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 48,
+      "display": 48,
+      "rate": 0.07635530669381523
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 146,
+      "display": 146,
+      "rate": 0.23224739119368795
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 28,
+      "display": 28,
+      "rate": 0.044540595571392214
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 42,
+      "display": 42,
+      "rate": 0.06681089335708831
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 47,
+      "display": 47,
+      "rate": 0.07476457113769407
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 37,
+      "display": 37,
+      "rate": 0.05885721557648257
+     }
+    ]
+   },
+   "enchant": {
+    "base": 62864,
+    "total": 18894802.216567226,
+    "seconds": 300.5625,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 444,
+      "display": 444,
+      "rate": 0.7062865869177908
+     },
+     {
+      "key": "武伤",
+      "step": 16,
+      "gain": 234,
+      "display": 234,
+      "rate": 0.3722321201323492
+     },
+     {
+      "key": "力道",
+      "step": 90,
+      "gain": 334,
+      "display": 334,
+      "rate": 0.5313056757444642
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 294,
+      "display": 294,
+      "rate": 0.4676762534996182
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 422,
+      "display": 422,
+      "rate": 0.6712904046831255
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 377,
+      "display": 377,
+      "rate": 0.5997073046576737
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 330,
+      "display": 330,
+      "rate": 0.5249427335199797
+     }
+    ]
+   }
+  },
+  "bxj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 38676.119585550696,
+    "total": 11970259.01172794,
+    "seconds": 309.5,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 30.41543266478402,
+      "display": 30.4,
+      "rate": 0.07864137610161685
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 40.83459445842891,
+      "display": 40.8,
+      "rate": 0.10558089822869567
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 34.972491092572454,
+      "display": 35,
+      "rate": 0.09042399151552445
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 29.64153765374067,
+      "display": 29.6,
+      "rate": 0.07664041266646274
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 29.81816695456655,
+      "display": 29.8,
+      "rate": 0.07709710093487906
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 25.388689331783098,
+      "display": 25.4,
+      "rate": 0.06564435523482105
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 38676.119585550696,
+    "total": 11970259.01172794,
+    "seconds": 309.5,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 1,
+      "gain": 3.041108680641628,
+      "display": 3,
+      "rate": 0.007863013955975507
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.083459445828339,
+      "display": 4.1,
+      "rate": 0.010558089822831941
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 3.4972491092485143,
+      "display": 3.5,
+      "rate": 0.009042399151529872
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 2.9641537653660635,
+      "display": 3,
+      "rate": 0.00766404126662558
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 2.9818166954428307,
+      "display": 3,
+      "rate": 0.0077097100934521625
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 2.5388689331666683,
+      "display": 2.5,
+      "rate": 0.006564435523452005
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 38599,
+    "total": 11946552.977324149,
+    "seconds": 309.5,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 33,
+      "display": 33,
+      "rate": 0.08549444286121402
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 61,
+      "display": 61,
+      "rate": 0.15803518225860774
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 38,
+      "display": 38,
+      "rate": 0.09844814632503433
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 41,
+      "display": 41,
+      "rate": 0.1062203684033265
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 30,
+      "display": 30,
+      "rate": 0.07772222078292183
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 28,
+      "display": 28,
+      "rate": 0.07254073939739371
+     }
+    ]
+   },
+   "enchant": {
+    "base": 38599,
+    "total": 11946552.977324149,
+    "seconds": 309.5,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 387,
+      "display": 387,
+      "rate": 1.0026166480996916
+     },
+     {
+      "key": "根骨",
+      "step": 90,
+      "gain": 284,
+      "display": 284,
+      "rate": 0.7357703567449934
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 273,
+      "display": 273,
+      "rate": 0.7072722091245888
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 268,
+      "display": 268,
+      "rate": 0.6943185056607684
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 313,
+      "display": 313,
+      "rate": 0.8109018368351512
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 227,
+      "display": 227,
+      "rate": 0.5880981372574419
+     }
+    ]
+   }
+  },
+  "dj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 63762.191729268125,
+    "total": 18108462.451112147,
+    "seconds": 284,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 39.66267794365558,
+      "display": 39.7,
+      "rate": 0.0622040693206749
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 59.38596417578083,
+      "display": 59.4,
+      "rate": 0.09313664189576702
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 48.41500132953661,
+      "display": 48.4,
+      "rate": 0.07593057894732491
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 45.486056570174696,
+      "display": 45.5,
+      "rate": 0.07133703427778454
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 41.23862016367639,
+      "display": 41.2,
+      "rate": 0.0646756628736572
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 53.970476588918245,
+      "display": 54,
+      "rate": 0.08464338368115523
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 63762.191729268125,
+    "total": 18108462.451112147,
+    "seconds": 284,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 1,
+      "gain": 3.9657681896569557,
+      "display": 4,
+      "rate": 0.00621962338825406
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 5.938596417574445,
+      "display": 5.9,
+      "rate": 0.009313664189570995
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.8415001329631195,
+      "display": 4.8,
+      "rate": 0.007593057894747325
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 4.548605657022563,
+      "display": 4.5,
+      "rate": 0.007133703427786441
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 4.123862016371277,
+      "display": 4.1,
+      "rate": 0.006467566287371425
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 5.397047658909287,
+      "display": 5.4,
+      "rate": 0.00846433836814291
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 63720,
+    "total": 18096644.72106625,
+    "seconds": 284,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 33,
+      "display": 33,
+      "rate": 0.051789077212806026
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 57,
+      "display": 57,
+      "rate": 0.08945386064030132
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 49,
+      "display": 49,
+      "rate": 0.07689893283113622
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 58,
+      "display": 58,
+      "rate": 0.09102322661644696
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 41,
+      "display": 41,
+      "rate": 0.06434400502197113
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 37,
+      "display": 37,
+      "rate": 0.05806654111738858
+     }
+    ]
+   },
+   "enchant": {
+    "base": 63720,
+    "total": 18096644.72106625,
+    "seconds": 284,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 539,
+      "display": 539,
+      "rate": 0.8458882611424984
+     },
+     {
+      "key": "根骨",
+      "step": 90,
+      "gain": 348,
+      "display": 348,
+      "rate": 0.5461393596986818
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 443,
+      "display": 443,
+      "rate": 0.6952291274325173
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 371,
+      "display": 371,
+      "rate": 0.5822347771500314
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 434,
+      "display": 434,
+      "rate": 0.6811048336472065
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 481,
+      "display": 481,
+      "rate": 0.7548650345260515
+     }
+    ]
+   }
+  },
+  "fsj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 66222.30966447658,
+    "total": 19539720.24537462,
+    "seconds": 295.0625,
+    "list": [
+     {
+      "key": "身法",
+      "step": 10,
+      "gain": 49.63025698577985,
+      "display": 49.6,
+      "rate": 0.07494491997823334
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 62.67908264482685,
+      "display": 62.7,
+      "rate": 0.09464949646485916
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 96.52978651109152,
+      "display": 96.5,
+      "rate": 0.14576626366578194
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 46.07054958817025,
+      "display": 46.1,
+      "rate": 0.06956952999916843
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 36.863457535611815,
+      "display": 36.9,
+      "rate": 0.055666221432603344
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 45.66782363249513,
+      "display": 45.7,
+      "rate": 0.06896138758052496
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 40.220617629966,
+      "display": 40.2,
+      "rate": 0.060735751793842094
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 66222.30966447658,
+    "total": 19539720.24537462,
+    "seconds": 295.0625,
+    "list": [
+     {
+      "key": "身法",
+      "step": 1,
+      "gain": 4.9623875247489195,
+      "display": 5,
+      "rate": 0.00749352831378347
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 6.267908264489961,
+      "display": 6.3,
+      "rate": 0.009464949646496905
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 9.652978651138255,
+      "display": 9.7,
+      "rate": 0.014576626366622141
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.607054958847584,
+      "display": 4.6,
+      "rate": 0.00695695299996299
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.686345753565547,
+      "display": 3.7,
+      "rate": 0.005566622143266926
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 4.56678236326843,
+      "display": 4.6,
+      "rate": 0.006896138758081063
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 4.0220617629966,
+      "display": 4,
+      "rate": 0.00607357517938421
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 66156,
+    "total": 19520375.16751959,
+    "seconds": 295.0625,
+    "list": [
+     {
+      "key": "身法",
+      "step": 10,
+      "gain": 54,
+      "display": 54,
+      "rate": 0.08162524941048431
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 64,
+      "display": 64,
+      "rate": 0.09674103633835178
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 95,
+      "display": 95,
+      "rate": 0.1435999758147409
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 53,
+      "display": 53,
+      "rate": 0.08011367071769757
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 39,
+      "display": 39,
+      "rate": 0.05895156901868311
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 46,
+      "display": 46,
+      "rate": 0.06953261986819034
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 42,
+      "display": 42,
+      "rate": 0.06348630509704335
+     }
+    ]
+   },
+   "enchant": {
+    "base": 66156,
+    "total": 19520375.16751959,
+    "seconds": 295.0625,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 564,
+      "display": 564,
+      "rate": 0.852530382731725
+     },
+     {
+      "key": "武伤",
+      "step": 16,
+      "gain": 155,
+      "display": 155,
+      "rate": 0.2342946973819457
+     },
+     {
+      "key": "身法",
+      "step": 90,
+      "gain": 451,
+      "display": 451,
+      "rate": 0.6817219904468227
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 337,
+      "display": 337,
+      "rate": 0.5094020194691335
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 411,
+      "display": 411,
+      "rate": 0.6212588427353528
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 423,
+      "display": 423,
+      "rate": 0.6393977870487938
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 358,
+      "display": 358,
+      "rate": 0.5411451720176552
+     }
+    ]
+   }
+  },
+  "fysj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 60338.40322259993,
+    "total": 18535203.239942417,
+    "seconds": 307.1875,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 40.32758374635887,
+      "display": 40.3,
+      "rate": 0.06683568273688431
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 46.95608035157056,
+      "display": 47,
+      "rate": 0.07782121806959423
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 53.74336989956646,
+      "display": 53.7,
+      "rate": 0.08906992401057892
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 39.597823658477864,
+      "display": 39.6,
+      "rate": 0.06562623726119153
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 35.613936898240354,
+      "display": 35.6,
+      "rate": 0.05902366485711217
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 34.375779148620495,
+      "display": 34.4,
+      "rate": 0.05697164212616244
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 36.123259782114474,
+      "display": 36.1,
+      "rate": 0.05986777550086774
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 60338.40322259993,
+    "total": 18535203.239942417,
+    "seconds": 307.1875,
+    "list": [
+     {
+      "key": "元气",
+      "step": 1,
+      "gain": 4.03233997047937,
+      "display": 4,
+      "rate": 0.006682874844405967
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.695608035159239,
+      "display": 4.7,
+      "rate": 0.00778212180696304
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 5.374336989945732,
+      "display": 5.4,
+      "rate": 0.008906992401039805
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 3.9597823658405105,
+      "display": 4,
+      "rate": 0.006562623726107094
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.5613936898153042,
+      "display": 3.6,
+      "rate": 0.005902366485696747
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 3.422193406848237,
+      "display": 3.4,
+      "rate": 0.005671667170612901
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 3.612325978203444,
+      "display": 3.6,
+      "rate": 0.00598677755007351
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 60406,
+    "total": 18556129.56363444,
+    "seconds": 307.1875,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 39,
+      "display": 39,
+      "rate": 0.06456312286858922
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 49,
+      "display": 49,
+      "rate": 0.08111776975797107
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 65,
+      "display": 65,
+      "rate": 0.10760520478098203
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 45,
+      "display": 45,
+      "rate": 0.07449591100221832
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 49,
+      "display": 49,
+      "rate": 0.08111776975797107
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 34,
+      "display": 34,
+      "rate": 0.05628579942389829
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 37,
+      "display": 37,
+      "rate": 0.06125219349071284
+     }
+    ]
+   },
+   "enchant": {
+    "base": 60406,
+    "total": 18556129.56363444,
+    "seconds": 307.1875,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 423,
+      "display": 423,
+      "rate": 0.7002615634208522
+     },
+     {
+      "key": "元气",
+      "step": 90,
+      "gain": 394,
+      "display": 394,
+      "rate": 0.6522530874416449
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 350,
+      "display": 350,
+      "rate": 0.5794126411283648
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 308,
+      "display": 308,
+      "rate": 0.509883124192961
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 363,
+      "display": 363,
+      "rate": 0.6009336820845611
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 333,
+      "display": 333,
+      "rate": 0.5512697414164156
+     }
+    ]
+   }
+  },
+  "gfj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 56078.51181000125,
+    "total": 17058382.311204754,
+    "seconds": 304.1875,
+    "list": [
+     {
+      "key": "力道",
+      "step": 10,
+      "gain": 46.32312764306698,
+      "display": 46.3,
+      "rate": 0.0826040601790819
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 43.1302816880052,
+      "display": 43.1,
+      "rate": 0.07691053185243975
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 211.32092752181052,
+      "display": 211.3,
+      "rate": 0.37683048408592534
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 42.23614698860183,
+      "display": 42.2,
+      "rate": 0.07531609813702168
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 44.63398663169937,
+      "display": 44.6,
+      "rate": 0.07959195989887018
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 36.263598814359284,
+      "display": 36.3,
+      "rate": 0.06466576527070374
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 46.80119417321839,
+      "display": 46.8,
+      "rate": 0.08345655521634526
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 56078.51181000125,
+    "total": 17058382.311204754,
+    "seconds": 304.1875,
+    "list": [
+     {
+      "key": "力道",
+      "step": 1,
+      "gain": 4.631705885010888,
+      "display": 4.6,
+      "rate": 0.008259323822114788
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.3130281688208925,
+      "display": 4.3,
+      "rate": 0.007691053185280304
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 21.132092752173776,
+      "display": 21.1,
+      "rate": 0.03768304840857956
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.223614698858,
+      "display": 4.2,
+      "rate": 0.007531609813698275
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 4.463398663174303,
+      "display": 4.5,
+      "rate": 0.007959195989894804
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 3.62635988144757,
+      "display": 3.6,
+      "rate": 0.006466576527091134
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 4.68011941734585,
+      "display": 4.7,
+      "rate": 0.008345655521677342
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 56046,
+    "total": 17048684.6392763,
+    "seconds": 304.1875,
+    "list": [
+     {
+      "key": "力道",
+      "step": 10,
+      "gain": 38,
+      "display": 38,
+      "rate": 0.06780144880990614
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 44,
+      "display": 44,
+      "rate": 0.07850694072725975
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 214,
+      "display": 214,
+      "rate": 0.3818292117189451
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 24,
+      "display": 24,
+      "rate": 0.04282196766941441
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 53,
+      "display": 53,
+      "rate": 0.09456517860329015
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 36,
+      "display": 36,
+      "rate": 0.06423295150412162
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 48,
+      "display": 48,
+      "rate": 0.08564393533882882
+     }
+    ]
+   },
+   "enchant": {
+    "base": 56046,
+    "total": 17048684.6392763,
+    "seconds": 304.1875,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 388,
+      "display": 388,
+      "rate": 0.6922884773221997
+     },
+     {
+      "key": "武伤",
+      "step": 16,
+      "gain": 339,
+      "display": 339,
+      "rate": 0.6048602933304785
+     },
+     {
+      "key": "力道",
+      "step": 90,
+      "gain": 399,
+      "display": 399,
+      "rate": 0.7119152125040146
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 376,
+      "display": 376,
+      "rate": 0.6708774934874924
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 326,
+      "display": 326,
+      "rate": 0.5816650608428791
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 363,
+      "display": 363,
+      "rate": 0.6476822609998929
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 433,
+      "display": 433,
+      "rate": 0.7725796667023517
+     }
+    ]
+   }
+  },
+  "hjy": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 36838.89471047546,
+    "total": 11024039.242109783,
+    "seconds": 299.25,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 30.676164153985155,
+      "display": 30.7,
+      "rate": 0.08327113067608437
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 39.92432158002339,
+      "display": 39.9,
+      "rate": 0.10837545994199049
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 33.94485950820672,
+      "display": 33.9,
+      "rate": 0.0921440770006441
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 28.267421643024136,
+      "display": 28.3,
+      "rate": 0.07673254549351625
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 27.389524710641126,
+      "display": 27.4,
+      "rate": 0.07434947472203252
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 17.629675716634665,
+      "display": 17.6,
+      "rate": 0.047856147300807894
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 36838.89471047546,
+    "total": 11024039.242109783,
+    "seconds": 299.25,
+    "list": [
+     {
+      "key": "元气",
+      "step": 1,
+      "gain": 3.0673579957147012,
+      "display": 3.1,
+      "rate": 0.008326411581622374
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 3.992432157989242,
+      "display": 4,
+      "rate": 0.010837545994163497
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 3.3944859508192167,
+      "display": 3.4,
+      "rate": 0.00921440770006046
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 2.826742164310417,
+      "display": 2.8,
+      "rate": 0.007673254549373351
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 2.738952471052471,
+      "display": 2.7,
+      "rate": 0.00743494747217165
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 1.7629675716598285,
+      "display": 1.8,
+      "rate": 0.004785614730070914
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 36785,
+    "total": 11008203.869143354,
+    "seconds": 299.25,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 26,
+      "display": 26,
+      "rate": 0.07068098409677857
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 41,
+      "display": 41,
+      "rate": 0.11145847492184315
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 40,
+      "display": 40,
+      "rate": 0.1087399755335055
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 32,
+      "display": 32,
+      "rate": 0.08699198042680441
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 28,
+      "display": 28,
+      "rate": 0.07611798287345385
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 20,
+      "display": 20,
+      "rate": 0.05436998776675275
+     }
+    ]
+   },
+   "enchant": {
+    "base": 36785,
+    "total": 11008203.869143354,
+    "seconds": 299.25,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 359,
+      "display": 359,
+      "rate": 0.9759412804132119
+     },
+     {
+      "key": "元气",
+      "step": 90,
+      "gain": 308,
+      "display": 308,
+      "rate": 0.8372978116079924
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 272,
+      "display": 272,
+      "rate": 0.7394318336278375
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 246,
+      "display": 246,
+      "rate": 0.6687508495310589
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 312,
+      "display": 312,
+      "rate": 0.8481718091613429
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 164,
+      "display": 164,
+      "rate": 0.4458338996873726
+     }
+    ]
+   }
+  },
+  "lhj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 52408.368957246996,
+    "total": 16246594.376746569,
+    "seconds": 310,
+    "list": [
+     {
+      "key": "身法",
+      "step": 10,
+      "gain": 36.14693914646341,
+      "display": 36.1,
+      "rate": 0.06897169262403659
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 47.224577382963616,
+      "display": 47.2,
+      "rate": 0.09010884773286468
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 54.910754879543674,
+      "display": 54.9,
+      "rate": 0.1047747830586715
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 40.01737121471524,
+      "display": 40,
+      "rate": 0.07635683386246972
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 36.64749295232468,
+      "display": 36.6,
+      "rate": 0.06992679543647025
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 33.1721037332245,
+      "display": 33.2,
+      "rate": 0.063295432377003
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 42.095941665211285,
+      "display": 42.1,
+      "rate": 0.08032293792533737
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 52408.368957246996,
+    "total": 16246594.376746569,
+    "seconds": 310,
+    "list": [
+     {
+      "key": "身法",
+      "step": 1,
+      "gain": 3.6142189101010445,
+      "display": 3.6,
+      "rate": 0.006896262909936014
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.722457738302182,
+      "display": 4.7,
+      "rate": 0.009010884773297574
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 5.491075487967464,
+      "display": 5.5,
+      "rate": 0.010477478305892138
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.001737121478072,
+      "display": 4,
+      "rate": 0.007635683386259466
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.6647492952324683,
+      "display": 3.7,
+      "rate": 0.006992679543647025
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 3.31721037333773,
+      "display": 3.3,
+      "rate": 0.006329543237729454
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 4.209594166532042,
+      "display": 4.2,
+      "rate": 0.008032293792554561
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 52340,
+    "total": 16225636.050201727,
+    "seconds": 310,
+    "list": [
+     {
+      "key": "身法",
+      "step": 10,
+      "gain": 26,
+      "display": 26,
+      "rate": 0.04967520061138708
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 25,
+      "display": 25,
+      "rate": 0.04776461597248758
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 55,
+      "display": 55,
+      "rate": 0.10508215513947268
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 27,
+      "display": 27,
+      "rate": 0.051585785250286585
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 56,
+      "display": 56,
+      "rate": 0.10699273977837218
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 33,
+      "display": 33,
+      "rate": 0.06304929308368361
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 45,
+      "display": 45,
+      "rate": 0.08597630875047764
+     }
+    ]
+   },
+   "enchant": {
+    "base": 52340,
+    "total": 16225636.050201727,
+    "seconds": 310,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 414,
+      "display": 414,
+      "rate": 0.7909820405043944
+     },
+     {
+      "key": "武伤",
+      "step": 16,
+      "gain": 89,
+      "display": 89,
+      "rate": 0.1700420328620558
+     },
+     {
+      "key": "身法",
+      "step": 90,
+      "gain": 328,
+      "display": 328,
+      "rate": 0.626671761559037
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 330,
+      "display": 330,
+      "rate": 0.6304929308368361
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 298,
+      "display": 298,
+      "rate": 0.569354222392052
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 350,
+      "display": 350,
+      "rate": 0.6687046236148262
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 375,
+      "display": 375,
+      "rate": 0.7164692395873137
+     }
+    ]
+   }
+  },
+  "shxj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 52404.28970813342,
+    "total": 16140521.230105095,
+    "seconds": 308,
+    "list": [
+     {
+      "key": "身法",
+      "step": 10,
+      "gain": 39.08788120659301,
+      "display": 39.1,
+      "rate": 0.07458908693218365
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 47.45186806170386,
+      "display": 47.5,
+      "rate": 0.09054958730666486
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 89.13927013676584,
+      "display": 89.1,
+      "rate": 0.17009918583617584
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 39.48430929243477,
+      "display": 39.5,
+      "rate": 0.0753455671517414
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 36.20661180665775,
+      "display": 36.2,
+      "rate": 0.06909093131175155
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 33.93596369198349,
+      "display": 33.9,
+      "rate": 0.06475798809790269
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 35.30498233791877,
+      "display": 35.3,
+      "rate": 0.06737040523695764
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 52404.28970813342,
+    "total": 16140521.230105095,
+    "seconds": 308,
+    "list": [
+     {
+      "key": "身法",
+      "step": 1,
+      "gain": 3.90826218300208,
+      "display": 3.9,
+      "rate": 0.007457905077559894
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.745186806154379,
+      "display": 4.7,
+      "rate": 0.00905495873063594
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 8.913927013680222,
+      "display": 8.9,
+      "rate": 0.017009918583624526
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 3.94843092924566,
+      "display": 3.9,
+      "rate": 0.007534556715178305
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.6206611806628644,
+      "display": 3.6,
+      "rate": 0.006909093131169601
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 3.393596369198349,
+      "display": 3.4,
+      "rate": 0.006475798809790269
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 3.5304982337911497,
+      "display": 3.5,
+      "rate": 0.006737040523694376
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 52309,
+    "total": 16111267.156664439,
+    "seconds": 308,
+    "list": [
+     {
+      "key": "身法",
+      "step": 10,
+      "gain": 36,
+      "display": 36,
+      "rate": 0.06882180886654304
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 64,
+      "display": 64,
+      "rate": 0.12234988242940985
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 89,
+      "display": 89,
+      "rate": 0.1701428052533981
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 48,
+      "display": 48,
+      "rate": 0.0917624118220574
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 44,
+      "display": 44,
+      "rate": 0.08411554417021927
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 34,
+      "display": 34,
+      "rate": 0.06499837504062399
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 35,
+      "display": 35,
+      "rate": 0.06691009195358351
+     }
+    ]
+   },
+   "enchant": {
+    "base": 52309,
+    "total": 16111267.156664439,
+    "seconds": 308,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 437,
+      "display": 437,
+      "rate": 0.8354202909633142
+     },
+     {
+      "key": "武伤",
+      "step": 16,
+      "gain": 141,
+      "display": 141,
+      "rate": 0.2695520847272936
+     },
+     {
+      "key": "身法",
+      "step": 90,
+      "gain": 356,
+      "display": 356,
+      "rate": 0.6805712210135924
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 356,
+      "display": 356,
+      "rate": 0.6805712210135924
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 305,
+      "display": 305,
+      "rate": 0.5830736584526564
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 369,
+      "display": 369,
+      "rate": 0.7054235408820662
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 312,
+      "display": 312,
+      "rate": 0.5964556768433731
+     }
+    ]
+   }
+  },
+  "txj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 42914.48566773503,
+    "total": 12866299.23425781,
+    "seconds": 299.8125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 36.642565196263604,
+      "display": 36.6,
+      "rate": 0.0853850736554745
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 43.133394891861826,
+      "display": 43.1,
+      "rate": 0.1005101056687984
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 35.413211890205275,
+      "display": 35.4,
+      "rate": 0.08252041551748215
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 32.44071533220995,
+      "display": 32.4,
+      "rate": 0.07559385794200554
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 28.63587991753593,
+      "display": 28.6,
+      "rate": 0.06672777145518867
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 27.237625870220654,
+      "display": 27.2,
+      "rate": 0.06346953819068855
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 42914.48566773503,
+    "total": 12866299.23425781,
+    "seconds": 299.8125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 1,
+      "gain": 3.6638771513971733,
+      "display": 3.7,
+      "rate": 0.00853762335581674
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.313339489192003,
+      "display": 4.3,
+      "rate": 0.010051010566893403
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 3.5413211890190723,
+      "display": 3.5,
+      "rate": 0.008252041551744825
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.2440715332268155,
+      "display": 3.2,
+      "rate": 0.007559385794214117
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 2.8635879917637794,
+      "display": 2.9,
+      "rate": 0.0066727771455426035
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 2.7237625870257034,
+      "display": 2.7,
+      "rate": 0.006346953819077333
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 42891,
+    "total": 12859295.717804415,
+    "seconds": 299.8125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 33,
+      "display": 33,
+      "rate": 0.07693921801776596
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 44,
+      "display": 44,
+      "rate": 0.10258562402368795
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 40,
+      "display": 40,
+      "rate": 0.09325965820335269
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 44,
+      "display": 44,
+      "rate": 0.10258562402368795
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 28,
+      "display": 28,
+      "rate": 0.06528176074234687
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 28,
+      "display": 28,
+      "rate": 0.06528176074234687
+     }
+    ]
+   },
+   "enchant": {
+    "base": 42891,
+    "total": 12859295.717804415,
+    "seconds": 299.8125,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 388,
+      "display": 388,
+      "rate": 0.904618684572521
+     },
+     {
+      "key": "元气",
+      "step": 90,
+      "gain": 315,
+      "display": 315,
+      "rate": 0.7344198083514024
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 249,
+      "display": 249,
+      "rate": 0.5805413723158704
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 257,
+      "display": 257,
+      "rate": 0.599193303956541
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 325,
+      "display": 325,
+      "rate": 0.7577347229022405
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 242,
+      "display": 242,
+      "rate": 0.5642209321302838
+     }
+    ]
+   }
+  },
+  "tlgd": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 8839.038915458697,
+    "total": 1856198.1722463265,
+    "seconds": 210,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 7.232691473678642,
+      "display": 7.2,
+      "rate": 0.0818266730450672
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 7.324746485988726,
+      "display": 7.3,
+      "rate": 0.08286813256561629
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 6.507754318350635,
+      "display": 6.5,
+      "rate": 0.0736251348205872
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 5.600987825959237,
+      "display": 5.6,
+      "rate": 0.06336647999324456
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 5.206603489827103,
+      "display": 5.2,
+      "rate": 0.058904633632975795
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 4.574628591417422,
+      "display": 4.6,
+      "rate": 0.05175481899301067
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 5.772158525209306,
+      "display": 5.8,
+      "rate": 0.06530301066006522
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 8839.038915458697,
+    "total": 1856198.1722463265,
+    "seconds": 210,
+    "list": [
+     {
+      "key": "元气",
+      "step": 1,
+      "gain": 0.723152314158142,
+      "display": 0.7,
+      "rate": 0.00818134551815823
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 0.7324746485992364,
+      "display": 0.7,
+      "rate": 0.008286813256565745
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0.6507754318354273,
+      "display": 0.7,
+      "rate": 0.007362513482062836
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 0.5600987825946504,
+      "display": 0.6,
+      "rate": 0.006336647999310051
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 0.5206603489805275,
+      "display": 0.5,
+      "rate": 0.005890463363272884
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 0.45746285914174223,
+      "display": 0.5,
+      "rate": 0.005175481899301067
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 0.5772158525214763,
+      "display": 0.6,
+      "rate": 0.006530301066012696
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 8827,
+    "total": 1853848.5012752775,
+    "seconds": 210,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 10,
+      "display": 10,
+      "rate": 0.11328877308258752
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 9,
+      "display": 9,
+      "rate": 0.10195989577432876
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 7,
+      "display": 7,
+      "rate": 0.07930214115781126
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 5,
+      "display": 5,
+      "rate": 0.05664438654129376
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 5,
+      "display": 5,
+      "rate": 0.05664438654129376
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 7,
+      "display": 7,
+      "rate": 0.07930214115781126
+     }
+    ]
+   },
+   "enchant": {
+    "base": 8827,
+    "total": 1853848.5012752775,
+    "seconds": 210,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 66,
+      "display": 66,
+      "rate": 0.7477059023450776
+     },
+     {
+      "key": "元气",
+      "step": 90,
+      "gain": 62,
+      "display": 62,
+      "rate": 0.7023903931120425
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 50,
+      "display": 50,
+      "rate": 0.5664438654129376
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 41,
+      "display": 41,
+      "rate": 0.46448396963860883
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 51,
+      "display": 51,
+      "rate": 0.5777727427211963
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 51,
+      "display": 51,
+      "rate": 0.5777727427211963
+     }
+    ]
+   }
+  },
+  "wf": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 38323.947758306174,
+    "total": 11528322.535045477,
+    "seconds": 300.8125,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 33.73477727707359,
+      "display": 33.7,
+      "rate": 0.08802531902460924
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 42.45868182503909,
+      "display": 42.5,
+      "rate": 0.11078890434985726
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 33.363862439357035,
+      "display": 33.4,
+      "rate": 0.08705747813291466
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 37.731568964409234,
+      "display": 37.7,
+      "rate": 0.09845428556151668
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 25.781046166681335,
+      "display": 25.8,
+      "rate": 0.0672713738398562
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 26.806125852141122,
+      "display": 26.8,
+      "rate": 0.0699461496534664
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 38323.947758306174,
+    "total": 11528322.535045477,
+    "seconds": 300.8125,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 1,
+      "gain": 3.3729570672803675,
+      "display": 3.4,
+      "rate": 0.008801173325233246
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.245868182508275,
+      "display": 4.2,
+      "rate": 0.011078890434997117
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 3.336386243943707,
+      "display": 3.3,
+      "rate": 0.00870574781331235
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.7731568964445614,
+      "display": 3.8,
+      "rate": 0.009845428556161162
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 2.5781046166594024,
+      "display": 2.6,
+      "rate": 0.0067271373839628374
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 2.680612585216295,
+      "display": 2.7,
+      "rate": 0.006994614965352337
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 38261,
+    "total": 11509521.06539731,
+    "seconds": 300.8125,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 34,
+      "display": 34,
+      "rate": 0.08886333342045424
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 35,
+      "display": 35,
+      "rate": 0.09147696087399702
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 37,
+      "display": 37,
+      "rate": 0.09670421578108257
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 34,
+      "display": 34,
+      "rate": 0.08886333342045424
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 26,
+      "display": 26,
+      "rate": 0.06795431379211207
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 27,
+      "display": 27,
+      "rate": 0.07056794124565484
+     }
+    ]
+   },
+   "enchant": {
+    "base": 38261,
+    "total": 11509521.06539731,
+    "seconds": 300.8125,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 379,
+      "display": 379,
+      "rate": 0.9905648048927106
+     },
+     {
+      "key": "根骨",
+      "step": 90,
+      "gain": 316,
+      "display": 316,
+      "rate": 0.825906275319516
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 316,
+      "display": 316,
+      "rate": 0.825906275319516
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 231,
+      "display": 231,
+      "rate": 0.6037479417683803
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 314,
+      "display": 314,
+      "rate": 0.8206790204124305
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 246,
+      "display": 246,
+      "rate": 0.6429523535715219
+     }
+    ]
+   }
+  },
+  "xcj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 63987.42644991897,
+    "total": 12117618.883953404,
+    "seconds": 189.375,
+    "list": [
+     {
+      "key": "力道",
+      "step": 10,
+      "gain": 48.91988365374709,
+      "display": 48.9,
+      "rate": 0.07645233816683535
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 57.87940438687656,
+      "display": 57.9,
+      "rate": 0.0904543401697473
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 44.60255516010511,
+      "display": 44.6,
+      "rate": 0.0697051868385646
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 38.984199365870154,
+      "display": 39,
+      "rate": 0.06092478089641863
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 46.00107557499723,
+      "display": 46,
+      "rate": 0.07189080437701442
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 55.3054338907823,
+      "display": 55.3,
+      "rate": 0.08643172097891481
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 63987.42644991897,
+    "total": 12117618.883953404,
+    "seconds": 189.375,
+    "list": [
+     {
+      "key": "力道",
+      "step": 1,
+      "gain": 4.89140951394802,
+      "display": 4.9,
+      "rate": 0.007644329183603561
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 5.787940438691294,
+      "display": 5.8,
+      "rate": 0.009045434016980415
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.460255516023608,
+      "display": 4.5,
+      "rate": 0.006970518683876927
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.898419936595019,
+      "display": 3.9,
+      "rate": 0.006092478089654371
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 4.600107557489537,
+      "display": 4.6,
+      "rate": 0.007189080437685523
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 5.530543389068043,
+      "display": 5.5,
+      "rate": 0.008643172097875561
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 63914,
+    "total": 12103719.578183835,
+    "seconds": 189.375,
+    "list": [
+     {
+      "key": "力道",
+      "step": 10,
+      "gain": 90,
+      "display": 90,
+      "rate": 0.14081421910692493
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 54,
+      "display": 54,
+      "rate": 0.08448853146415496
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 31,
+      "display": 31,
+      "rate": 0.04850267547016303
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 50,
+      "display": 50,
+      "rate": 0.07823012172606941
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 45,
+      "display": 45,
+      "rate": 0.07040710955346247
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 58,
+      "display": 58,
+      "rate": 0.09074694120224051
+     }
+    ]
+   },
+   "enchant": {
+    "base": 63914,
+    "total": 12103719.578183835,
+    "seconds": 189.375,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 517,
+      "display": 517,
+      "rate": 0.8088994586475576
+     },
+     {
+      "key": "武伤",
+      "step": 16,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "力道",
+      "step": 90,
+      "gain": 448,
+      "display": 448,
+      "rate": 0.7009418906655819
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 349,
+      "display": 349,
+      "rate": 0.5460462496479644
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 413,
+      "display": 413,
+      "rate": 0.6461808054573333
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 398,
+      "display": 398,
+      "rate": 0.6227117689395125
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 492,
+      "display": 492,
+      "rate": 0.7697843977845229
+     }
+    ]
+   }
+  },
+  "yjj": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 49153.88993570399,
+    "total": 14786104.516283957,
+    "seconds": 300.8125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 37.314805547146534,
+      "display": 37.3,
+      "rate": 0.07591424726701461
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 45.0561668350274,
+      "display": 45.1,
+      "rate": 0.09166348155550529
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 5.08319638780813,
+      "display": 5.1,
+      "rate": 0.010341391890768424
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 40.20391662939073,
+      "display": 40.2,
+      "rate": 0.08179193280934567
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 39.19465130721801,
+      "display": 39.2,
+      "rate": 0.07973865620500592
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 36.527540423769096,
+      "display": 36.5,
+      "rate": 0.07431261385731452
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 33.33862866803247,
+      "display": 33.3,
+      "rate": 0.06782500573533701
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 49153.88993570399,
+    "total": 14786104.516283957,
+    "seconds": 300.8125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 1,
+      "gain": 3.7311045925016515,
+      "display": 3.7,
+      "rate": 0.007590659859030776
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.505616683527478,
+      "display": 4.5,
+      "rate": 0.009166348155600856
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0.5083196387859061,
+      "display": 0.5,
+      "rate": 0.0010341391890872041
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.020391662939801,
+      "display": 4,
+      "rate": 0.008179193280936047
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 3.9194651307261665,
+      "display": 3.9,
+      "rate": 0.007973865620509474
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 3.652754042384913,
+      "display": 3.7,
+      "rate": 0.007431261385747736
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 3.3338628668134334,
+      "display": 3.3,
+      "rate": 0.006782500573554424
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 49152,
+    "total": 14785622.84117907,
+    "seconds": 300.8125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 36,
+      "display": 36,
+      "rate": 0.0732421875
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 45,
+      "display": 45,
+      "rate": 0.091552734375
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 6,
+      "display": 6,
+      "rate": 0.01220703125
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 42,
+      "display": 42,
+      "rate": 0.08544921875
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 42,
+      "display": 42,
+      "rate": 0.08544921875
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 36,
+      "display": 36,
+      "rate": 0.0732421875
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 34,
+      "display": 34,
+      "rate": 0.06917317708333333
+     }
+    ]
+   },
+   "enchant": {
+    "base": 49152,
+    "total": 14785622.84117907,
+    "seconds": 300.8125,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 407,
+      "display": 407,
+      "rate": 0.8280436197916666
+     },
+     {
+      "key": "元气",
+      "step": 90,
+      "gain": 312,
+      "display": 312,
+      "rate": 0.634765625
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 325,
+      "display": 325,
+      "rate": 0.6612141927083334
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 328,
+      "display": 328,
+      "rate": 0.6673177083333334
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 362,
+      "display": 362,
+      "rate": 0.7364908854166666
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 308,
+      "display": 308,
+      "rate": 0.6266276041666666
+     }
+    ]
+   }
+  },
+  "yly": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 54426.96330738417,
+    "total": 10504403.918325145,
+    "seconds": 193,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 41.62739599079214,
+      "display": 41.6,
+      "rate": 0.07648303976779924
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 49.36190897177585,
+      "display": 49.4,
+      "rate": 0.0906938509374431
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 22.685674370033666,
+      "display": 22.7,
+      "rate": 0.0416809481762064
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 37.211367397612776,
+      "display": 37.2,
+      "rate": 0.06836936168467857
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 42.287803489889484,
+      "display": 42.3,
+      "rate": 0.0776964227290488
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 38.579714958592376,
+      "display": 38.6,
+      "rate": 0.07088346035531662
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 26.211799444710778,
+      "display": 26.2,
+      "rate": 0.0481595846100688
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 54426.96330738417,
+    "total": 10504403.918325145,
+    "seconds": 193,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 1,
+      "gain": 4.1621426644560415,
+      "display": 4.2,
+      "rate": 0.007647207214096691
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 4.936190897176857,
+      "display": 4.9,
+      "rate": 0.009069385093742973
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 2.2685674370077322,
+      "display": 2.3,
+      "rate": 0.004168094817628661
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 3.7211367397612776,
+      "display": 3.7,
+      "rate": 0.006836936168467857
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 4.2287803489743965,
+      "display": 4.2,
+      "rate": 0.007769642272878143
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 3.8579714958614204,
+      "display": 3.9,
+      "rate": 0.007088346035535671
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 2.6211799444572534,
+      "display": 2.6,
+      "rate": 0.00481595846098148
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 54410,
+    "total": 10501164.464403216,
+    "seconds": 193,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 44,
+      "display": 44,
+      "rate": 0.08086748759419224
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 47,
+      "display": 47,
+      "rate": 0.0863811799301599
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 22,
+      "display": 22,
+      "rate": 0.04043374379709612
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 38,
+      "display": 38,
+      "rate": 0.06984010292225694
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 38,
+      "display": 38,
+      "rate": 0.06984010292225694
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 27,
+      "display": 27,
+      "rate": 0.04962323102370888
+     }
+    ]
+   },
+   "enchant": {
+    "base": 54410,
+    "total": 10501164.464403216,
+    "seconds": 193,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 441,
+      "display": 441,
+      "rate": 0.810512773387245
+     },
+     {
+      "key": "根骨",
+      "step": 90,
+      "gain": 376,
+      "display": 376,
+      "rate": 0.6910494394412792
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 361,
+      "display": 361,
+      "rate": 0.6634809777614409
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 346,
+      "display": 346,
+      "rate": 0.6359125160816026
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 333,
+      "display": 333,
+      "rate": 0.6120198492924095
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 242,
+      "display": 242,
+      "rate": 0.44477118176805736
+     }
+    ]
+   }
+  },
+  "ztg": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 62152.05546398284,
+    "total": 19834274.699943524,
+    "seconds": 319.125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 51.19202811966534,
+      "display": 51.2,
+      "rate": 0.08236578458669183
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 58.986564327715314,
+      "display": 59,
+      "rate": 0.09490686009877512
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 43.6002118533288,
+      "display": 43.6,
+      "rate": 0.07015087679376132
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 46.73746188889345,
+      "display": 46.7,
+      "rate": 0.0751985779713719
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 42.03208927917876,
+      "display": 42,
+      "rate": 0.06762783461527895
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 47.74966470290383,
+      "display": 47.7,
+      "rate": 0.07682716902351651
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 62152.05546398284,
+    "total": 19834274.699943524,
+    "seconds": 319.125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 1,
+      "gain": 5.118620531924535,
+      "display": 5.1,
+      "rate": 0.008235641594976337
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 5.8986564327497035,
+      "display": 5.9,
+      "rate": 0.009490686009842392
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.360021185333608,
+      "display": 4.4,
+      "rate": 0.007015087679377302
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 4.673746188898804,
+      "display": 4.7,
+      "rate": 0.00751985779715241
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 4.203208927923697,
+      "display": 4.2,
+      "rate": 0.006762783461537261
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 4.774966470271465,
+      "display": 4.8,
+      "rate": 0.007682716902321214
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 62042,
+    "total": 19799381.035948243,
+    "seconds": 319.125,
+    "list": [
+     {
+      "key": "元气",
+      "step": 10,
+      "gain": 110,
+      "display": 110,
+      "rate": 0.17729924889590923
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 64,
+      "display": 64,
+      "rate": 0.10315592663034719
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 53,
+      "display": 53,
+      "rate": 0.08542600174075626
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 61,
+      "display": 61,
+      "rate": 0.09832049256954967
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 42,
+      "display": 42,
+      "rate": 0.06769607685116534
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 49,
+      "display": 49,
+      "rate": 0.07897875632635956
+     }
+    ]
+   },
+   "enchant": {
+    "base": 62042,
+    "total": 19799381.035948243,
+    "seconds": 319.125,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 535,
+      "display": 535,
+      "rate": 0.8623190741755585
+     },
+     {
+      "key": "元气",
+      "step": 90,
+      "gain": 499,
+      "display": 499,
+      "rate": 0.8042938654459882
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 421,
+      "display": 421,
+      "rate": 0.6785725798652525
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 378,
+      "display": 378,
+      "rate": 0.609264691660488
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 392,
+      "display": 392,
+      "rate": 0.6318300506108765
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 441,
+      "display": 441,
+      "rate": 0.710808806937236
+     }
+    ]
+   }
+  },
+  "zxg": {
+   "version": "当前版本: [苍生铸世] 3.0.5",
+   "single": {
+    "base": 57863.60335562377,
+    "total": 17066146.514699284,
+    "seconds": 294.9375,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 44.51944268029911,
+      "display": 44.5,
+      "rate": 0.07693859369021176
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 50.22083581140032,
+      "display": 50.2,
+      "rate": 0.08679175319025367
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 41.64298479048739,
+      "display": 41.6,
+      "rate": 0.07196749316587472
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 41.60856878183404,
+      "display": 41.6,
+      "rate": 0.07190801534794168
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 44.57706215489452,
+      "display": 44.6,
+      "rate": 0.0770381717863792
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 45.39745988672075,
+      "display": 45.4,
+      "rate": 0.07845598485754962
+     }
+    ]
+   },
+   "exactOne": {
+    "base": 57863.60335562377,
+    "total": 17066146.514699284,
+    "seconds": 294.9375,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 1,
+      "gain": 4.451245243246376,
+      "display": 4.5,
+      "rate": 0.00769265131293238
+     },
+     {
+      "key": "攻击",
+      "step": 1,
+      "gain": 5.022083581134211,
+      "display": 5,
+      "rate": 0.008679175319015308
+     },
+     {
+      "key": "武伤",
+      "step": 1,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 1,
+      "gain": 4.164298479030549,
+      "display": 4.2,
+      "rate": 0.007196749316556036
+     },
+     {
+      "key": "破防",
+      "step": 1,
+      "gain": 4.160856878181221,
+      "display": 4.2,
+      "rate": 0.007190801534790396
+     },
+     {
+      "key": "会心",
+      "step": 1,
+      "gain": 4.457706215485814,
+      "display": 4.5,
+      "rate": 0.007703817178631634
+     },
+     {
+      "key": "会效",
+      "step": 1,
+      "gain": 4.539745988666255,
+      "display": 4.5,
+      "rate": 0.007845598485744901
+     }
+    ]
+   },
+   "singleGuo": {
+    "base": 57776,
+    "total": 17040534.97045324,
+    "seconds": 294.9375,
+    "list": [
+     {
+      "key": "根骨",
+      "step": 10,
+      "gain": 40,
+      "display": 40,
+      "rate": 0.06923289947382996
+     },
+     {
+      "key": "攻击",
+      "step": 10,
+      "gain": 47,
+      "display": 47,
+      "rate": 0.0813486568817502
+     },
+     {
+      "key": "武伤",
+      "step": 10,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "无双",
+      "step": 10,
+      "gain": 37,
+      "display": 37,
+      "rate": 0.06404043201329272
+     },
+     {
+      "key": "破防",
+      "step": 10,
+      "gain": 46,
+      "display": 46,
+      "rate": 0.07961783439490445
+     },
+     {
+      "key": "会心",
+      "step": 10,
+      "gain": 45,
+      "display": 45,
+      "rate": 0.0778870119080587
+     },
+     {
+      "key": "会效",
+      "step": 10,
+      "gain": 46,
+      "display": 46,
+      "rate": 0.07961783439490445
+     }
+    ]
+   },
+   "enchant": {
+    "base": 57776,
+    "total": 17040534.97045324,
+    "seconds": 294.9375,
+    "list": [
+     {
+      "key": "undefined",
+      "step": 0,
+      "gain": 0,
+      "display": 0,
+      "rate": 0
+     },
+     {
+      "key": "攻击",
+      "step": 90,
+      "gain": 445,
+      "display": 445,
+      "rate": 0.7702160066463584
+     },
+     {
+      "key": "根骨",
+      "step": 90,
+      "gain": 411,
+      "display": 411,
+      "rate": 0.7113680420936028
+     },
+     {
+      "key": "破防",
+      "step": 90,
+      "gain": 422,
+      "display": 422,
+      "rate": 0.7304070894489061
+     },
+     {
+      "key": "会心",
+      "step": 90,
+      "gain": 401,
+      "display": 401,
+      "rate": 0.6940598172251454
+     },
+     {
+      "key": "无双",
+      "step": 90,
+      "gain": 375,
+      "display": 375,
+      "rate": 0.6490584325671559
+     },
+     {
+      "key": "会效",
+      "step": 90,
+      "gain": 403,
+      "display": 403,
+      "rate": 0.6975214621988369
+     }
+    ]
+   }
+  }
+ },
+ "mechanism_sensitivity": {
+  "yly": {
+   "base": 50821,
+   "total": 9808611.44786464,
+   "seconds": 193,
+   "list": [
+    {
+     "key": "根骨",
+     "step": 203,
+     "gain": 789,
+     "display": 789,
+     "rate": 1.5525078215698236
+    },
+    {
+     "key": "攻击",
+     "step": 208,
+     "gain": 954,
+     "display": 954,
+     "rate": 1.8771767576395584
+    },
+    {
+     "key": "武伤",
+     "step": 35,
+     "gain": 79,
+     "display": 79,
+     "rate": 0.15544755120914583
+    },
+    {
+     "key": "无双",
+     "step": 208,
+     "gain": 734,
+     "display": 734,
+     "rate": 1.4442848428799118
+    },
+    {
+     "key": "破防",
+     "step": 208,
+     "gain": 828,
+     "display": 828,
+     "rate": 1.629247751913579
+    },
+    {
+     "key": "会心",
+     "step": 208,
+     "gain": 746,
+     "display": 746,
+     "rate": 1.4678971291395289
+    },
+    {
+     "key": "会效",
+     "step": 208,
+     "gain": 518,
+     "display": 518,
+     "rate": 1.0192636902068042
+    }
+   ]
+  },
+  "tlgd": {
+   "base": 10292,
+   "total": 2161377.0714803357,
+   "seconds": 210,
+   "list": [
+    {
+     "key": "元气",
+     "step": 203,
+     "gain": 167,
+     "display": 167,
+     "rate": 1.6226195102992615
+    },
+    {
+     "key": "攻击",
+     "step": 208,
+     "gain": 190,
+     "display": 190,
+     "rate": 1.8460940536338903
+    },
+    {
+     "key": "武伤",
+     "step": 35,
+     "gain": 23,
+     "display": 23,
+     "rate": 0.22347454333462885
+    },
+    {
+     "key": "无双",
+     "step": 208,
+     "gain": 140,
+     "display": 140,
+     "rate": 1.3602798289933928
+    },
+    {
+     "key": "破防",
+     "step": 208,
+     "gain": 127,
+     "display": 127,
+     "rate": 1.2339681305868635
+    },
+    {
+     "key": "会心",
+     "step": 208,
+     "gain": 113,
+     "display": 113,
+     "rate": 1.0979401476875243
+    },
+    {
+     "key": "会效",
+     "step": 208,
+     "gain": 126,
+     "display": 126,
+     "rate": 1.2242518460940537
+    }
+   ]
+  }
+ },
+ "ordering": {
+  "tx": {},
+  "mw": {
+   "local": {
+    "five": [
+     "attack",
+     "crit",
+     "strain",
+     "overcome",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "crit",
+     "strain",
+     "overcome",
+     "power",
+     "haste",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "crit",
+     "strain",
+     "overcome",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "crit",
+     "strain",
+     "overcome",
+     "power",
+     "haste",
+     "weapon"
+    ]
+   }
+  },
+  "axzy": {
+   "local": {
+    "five": [
+     "power",
+     "attack",
+     "strain",
+     "crit",
+     "overcome"
+    ],
+    "equal_budget": [
+     "power",
+     "attack",
+     "strain",
+     "crit",
+     "overcome",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "power",
+     "attack",
+     "strain",
+     "crit",
+     "overcome"
+    ],
+    "equal_budget": [
+     "power",
+     "attack",
+     "strain",
+     "crit",
+     "overcome",
+     "weapon",
+     "haste"
+    ]
+   }
+  },
+  "baj": {
+   "local": {
+    "five": [
+     "attack",
+     "crit",
+     "strain",
+     "overcome",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "crit",
+     "strain",
+     "overcome",
+     "power",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "crit",
+     "strain",
+     "overcome",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "crit",
+     "strain",
+     "overcome",
+     "power",
+     "weapon",
+     "haste"
+    ]
+   }
+  },
+  "bxj": {
+   "local": {
+    "five": [
+     "attack",
+     "strain",
+     "crit",
+     "overcome",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "haste",
+     "strain",
+     "crit",
+     "overcome",
+     "power",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "strain",
+     "crit",
+     "overcome",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "haste",
+     "strain",
+     "crit",
+     "overcome",
+     "power",
+     "weapon"
+    ]
+   }
+  },
+  "dj": {
+   "local": {
+    "five": [
+     "attack",
+     "power",
+     "strain",
+     "overcome",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "power",
+     "strain",
+     "overcome",
+     "crit",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "power",
+     "strain",
+     "overcome",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "power",
+     "strain",
+     "overcome",
+     "crit",
+     "weapon",
+     "haste"
+    ]
+   }
+  },
+  "fsj": {
+   "local": {
+    "five": [
+     "attack",
+     "crit",
+     "strain",
+     "power",
+     "overcome"
+    ],
+    "equal_budget": [
+     "attack",
+     "crit",
+     "strain",
+     "power",
+     "overcome",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "strain",
+     "crit",
+     "power",
+     "overcome"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "crit",
+     "power",
+     "overcome",
+     "weapon",
+     "haste"
+    ]
+   }
+  },
+  "fysj": {
+   "local": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit"
+    ],
+    "equal_budget": [
+     "haste",
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit"
+    ],
+    "equal_budget": [
+     "haste",
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit",
+     "weapon"
+    ]
+   }
+  },
+  "gfj": {
+   "local": {
+    "five": [
+     "power",
+     "attack",
+     "overcome",
+     "strain",
+     "crit"
+    ],
+    "equal_budget": [
+     "power",
+     "attack",
+     "overcome",
+     "strain",
+     "crit",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "power",
+     "overcome",
+     "attack",
+     "strain",
+     "crit"
+    ],
+    "equal_budget": [
+     "power",
+     "overcome",
+     "attack",
+     "strain",
+     "crit",
+     "weapon",
+     "haste"
+    ]
+   }
+  },
+  "hjy": {
+   "local": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power",
+     "weapon",
+     "haste"
+    ]
+   }
+  },
+  "lhj": {
+   "local": {
+    "five": [
+     "attack",
+     "power",
+     "overcome",
+     "strain",
+     "crit"
+    ],
+    "equal_budget": [
+     "haste",
+     "attack",
+     "power",
+     "overcome",
+     "strain",
+     "crit",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "power",
+     "strain",
+     "overcome",
+     "crit"
+    ],
+    "equal_budget": [
+     "haste",
+     "attack",
+     "power",
+     "strain",
+     "overcome",
+     "crit",
+     "weapon"
+    ]
+   }
+  },
+  "shxj": {
+   "local": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit",
+     "weapon",
+     "haste"
+    ]
+   }
+  },
+  "txj": {
+   "local": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power",
+     "haste",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power",
+     "haste",
+     "weapon"
+    ]
+   }
+  },
+  "tlgd": {
+   "local": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "power",
+     "crit",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "power",
+     "strain",
+     "overcome",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "power",
+     "strain",
+     "overcome",
+     "crit",
+     "weapon"
+    ]
+   }
+  },
+  "wf": {
+   "local": {
+    "five": [
+     "attack",
+     "overcome",
+     "power",
+     "strain",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "overcome",
+     "power",
+     "strain",
+     "crit",
+     "haste",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "overcome",
+     "strain",
+     "power",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "overcome",
+     "strain",
+     "power",
+     "crit",
+     "haste",
+     "weapon"
+    ]
+   }
+  },
+  "xcj": {
+   "local": {
+    "five": [
+     "attack",
+     "power",
+     "crit",
+     "strain",
+     "overcome"
+    ],
+    "equal_budget": [
+     "attack",
+     "power",
+     "crit",
+     "strain",
+     "overcome",
+     "haste",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "power",
+     "crit",
+     "strain",
+     "overcome"
+    ],
+    "equal_budget": [
+     "attack",
+     "power",
+     "crit",
+     "strain",
+     "overcome",
+     "weapon",
+     "haste"
+    ]
+   }
+  },
+  "yjj": {
+   "local": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "strain",
+     "overcome",
+     "crit",
+     "power",
+     "haste",
+     "weapon"
+    ]
+   }
+  },
+  "yly": {
+   "local": {
+    "five": [
+     "attack",
+     "overcome",
+     "crit",
+     "strain",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "overcome",
+     "crit",
+     "strain",
+     "power",
+     "haste",
+     "weapon"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "overcome",
+     "crit",
+     "strain",
+     "power"
+    ],
+    "equal_budget": [
+     "attack",
+     "overcome",
+     "crit",
+     "strain",
+     "power",
+     "haste",
+     "weapon"
+    ]
+   }
+  },
+  "ztg": {
+   "local": {
+    "five": [
+     "attack",
+     "power",
+     "overcome",
+     "strain",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "power",
+     "overcome",
+     "strain",
+     "crit",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "overcome",
+     "power",
+     "strain",
+     "crit"
+    ],
+    "equal_budget": [
+     "attack",
+     "overcome",
+     "power",
+     "strain",
+     "crit",
+     "haste",
+     "weapon"
+    ]
+   }
+  },
+  "zxg": {
+   "local": {
+    "five": [
+     "attack",
+     "power",
+     "crit",
+     "overcome",
+     "strain"
+    ],
+    "equal_budget": [
+     "attack",
+     "power",
+     "crit",
+     "overcome",
+     "strain",
+     "weapon",
+     "haste"
+    ]
+   },
+   "online": {
+    "five": [
+     "attack",
+     "power",
+     "crit",
+     "overcome",
+     "strain"
+    ],
+    "equal_budget": [
+     "attack",
+     "power",
+     "crit",
+     "overcome",
+     "strain",
+     "haste",
+     "weapon"
+    ]
+   }
+  }
+ }
+}

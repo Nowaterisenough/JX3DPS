@@ -10,6 +10,7 @@ class Workbench : public Frameless
 public:
     explicit Workbench(QWidget *parent = nullptr);
     ~Workbench() override;
+    void StartUpdateChecks();
 
 protected:
     void closeEvent(QCloseEvent *event) override;

@@ -19,6 +19,8 @@
 [issues-badge]: https://img.shields.io/badge/github-issues-red.svg?maxAge=60 "Issues"
 
 
+桌面工作台启动后会检查 GitHub 最新稳定版，也可在「关于 → 检查更新」手动查询。发现新版时，弹窗展示版本号和更新内容。选择「下载更新包」后，工作台会校验并解压匹配当前平台和编译器的压缩包。选择「替换并重启」后，工作台退出，更新程序覆盖原目录中的发行文件，并从原路径重启。更新需要程序目录可写。
+
 推送到 `master` 后，五种桌面构建及 WASM/Web 构建和性能校验全部通过时，GitHub Actions 会自动创建 Release，上传发行包并展示分类变更日志和性能图。推送 Git 标签也可以按该标签发布。需要构建旧版独立动态库时，请使用[合并前的主分支源码](https://github.com/Nowaterisenough/JX3DPS/tree/03d529ff4e7077f9b6fafce28d8fec8c7b643bd0)。
 
 ## 代码与入口

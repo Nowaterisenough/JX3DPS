@@ -2,10 +2,13 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QTranslator>
+#include <cstdio>
 
 #include "controls/theme/dark_style.h"
 
 #include "resources.h"
+#include "release_updater.h"
+#include "portable_update.h"
 #include "workbench.h"
 
 #ifdef JX3DPS_DESKTOP_WORKLOAD
@@ -23,6 +26,15 @@ int main(int argc, char *argv[])
     const QApplication APP(argc, argv);
     QCoreApplication::setOrganizationName(QStringLiteral("JX3DPS"));
     QCoreApplication::setApplicationName(QStringLiteral("MacroWorkbench"));
+    QCoreApplication::setApplicationVersion(desktop::ReleaseUpdater::Version());
+    if (QCoreApplication::arguments().value(1) == QStringLiteral("--update-identity")) {
+        const auto identity = (desktop::ReleaseUpdater::Version() + ' ' + desktop::ReleaseUpdater::BuildId()).toLatin1();
+        std::puts(identity.constData());
+        return 0;
+    }
+    if (QCoreApplication::arguments().value(1) == QStringLiteral("--replace-portable"))
+        return desktop::ReplacePortable(QCoreApplication::arguments());
+    desktop::FinishPortableUpdate(QCoreApplication::arguments());
     QLocale::setDefault(QLocale(QLocale::Chinese, QLocale::China));
     QTranslator qt_chinese;
     if (qt_chinese.load(QStringLiteral("qt_zh_CN"), QCoreApplication::applicationDirPath() + QStringLiteral("/translations")) ||
@@ -35,5 +47,6 @@ int main(int argc, char *argv[])
     QApplication::setStyle(new DarkStyle());
     Workbench window;
     window.show();
+    window.StartUpdateChecks();
     return QApplication::exec();
 }

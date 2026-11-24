@@ -9,7 +9,31 @@ permissions:
   contents: read
 
 jobs:
+  version:
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Determine desktop version
+        id: version
+        shell: cmake -P {0}
+        env:
+          TZ: Asia/Shanghai
+        run: |
+          execute_process(COMMAND git log -1 --format=%ct OUTPUT_VARIABLE epoch
+                          OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+          set(ENV{SOURCE_DATE_EPOCH} "${epoch}")
+          include(cmake/Version.cmake)
+          version()
+          # Keep the project's major.minor.date and use a run number stable across retries.
+          string(REGEX REPLACE "[.][0-9]+$" ".$ENV{GITHUB_RUN_NUMBER}" tag "${PROJECT_VERSION}")
+          if("$ENV{GITHUB_REF_TYPE}" STREQUAL "tag")
+            set(tag "$ENV{GITHUB_REF_NAME}")
+          endif()
+          file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${tag}\n")
   build:
+    needs: version
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -157,6 +181,9 @@ jobs:
           cache: true
 
       - name: Configure Release desktop
+        env:
+          JX3DPS_RELEASE_TAG: ${{ needs.version.outputs.tag }}
+          JX3DPS_BUILD_ID: ${{ matrix.id }}
         run: |
           cmake -E make_directory build/.cmake/api/v1/query
           cmake -E touch build/.cmake/api/v1/query/toolchains-v1
@@ -229,6 +256,7 @@ jobs:
           mkdir -p "$app/Contents/Resources/data" && cp -R data/jx3box "$app/Contents/Resources/data/"
           macdeployqt "$app" -dmg
           codesign --verify --deep --strict "$app"
+          ditto -c -k --sequesterRsrc --keepParent "$app" ${{ steps.package.outputs.name }}.zip
           mv build/bin/JX3DPSDesktop.dmg ${{ steps.package.outputs.name }}.dmg
       - uses: actions/upload-artifact@v6
         with:
@@ -277,7 +305,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    needs: [build, web]
+    needs: [version, build, web]
     if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-24.04
     permissions:
@@ -286,21 +314,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Generate release tag for master
-        if: github.ref == 'refs/heads/master'
-        id: version
-        shell: cmake -P {0}
-        env:
-          TZ: Asia/Shanghai
-        run: |
-          execute_process(COMMAND git log -1 --format=%ct OUTPUT_VARIABLE epoch
-                          OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
-          set(ENV{SOURCE_DATE_EPOCH} "${epoch}")
-          include(cmake/Version.cmake)
-          version()
-          # Keep the project's major.minor.date and use a run number stable across retries.
-          string(REGEX REPLACE "[.][0-9]+$" ".$ENV{GITHUB_RUN_NUMBER}" tag "${PROJECT_VERSION}")
-          file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${tag}\n")
       - uses: actions/download-artifact@v7
         with:
           path: packages
@@ -310,7 +323,7 @@ jobs:
           python-version: '3.12'
       - name: Validate results and render benchmark chart
         env:
-          TAG: ${{ steps.version.outputs.tag || github.ref_name }}
+          TAG: ${{ needs.version.outputs.tag }}
         run: |
           python -m pip install matplotlib
           python tools/release/test_changelog.py
@@ -318,12 +331,12 @@ jobs:
       - name: Summarize commits since the previous published release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.version.outputs.tag || github.ref_name }}
+          TAG: ${{ needs.version.outputs.tag }}
         run: |
           python tools/release/changelog.py --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA" --tag "$TAG" --performance packages/performance.md --output packages/release.md
       - uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ steps.version.outputs.tag || github.ref_name }}
+          tag_name: ${{ needs.version.outputs.tag }}
           target_commitish: ${{ github.sha }}
           body_path: packages/release.md
           files: |
@@ -332,6 +345,7 @@ jobs:
             packages/JX3DPS-windows-x86_64-clang-*.zip
             packages/JX3DPS-linux-x86_64-gcc-*.tar.gz
             packages/JX3DPS-macos-arm64-appleclang-*.dmg
+            packages/JX3DPS-macos-arm64-appleclang-*.zip
             packages/JX3DPS-web-wasm32-emscripten-*.zip
             packages/performance.png
             packages/performance.json

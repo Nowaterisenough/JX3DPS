@@ -14,6 +14,7 @@
 #include <QGroupBox>
 #include <QInputMethodEvent>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QJsonDocument>
 #include <QLabel>
 #include <QLineEdit>
@@ -59,6 +60,7 @@
 #include "apps/desktop/macro_search_bar.h"
 #include "apps/desktop/macro_trace_panel.h"
 #include "apps/desktop/results_panel.h"
+#include "apps/desktop/release_updater.h"
 #include "apps/desktop/simulation_options.h"
 #include "apps/desktop/talent_panel.h"
 #include "apps/desktop/traced_rules.h"
@@ -89,6 +91,29 @@ private slots:
     }
 
     void init() { QSettings().clear(); }
+
+    void releasesUseNumericTagsAndMatchTheDesktopPackage()
+    {
+        using Updater = desktop::ReleaseUpdater;
+        QVERIFY(Updater::NumericVersion("v5.42.261123.100") > Updater::NumericVersion("5.42.261123.99"));
+        QVERIFY(Updater::NumericVersion("5.42.261123.100-rc1").isNull());
+        const QString tag = "5.42.261123.100";
+        auto asset = [&](const QString &name) {
+            return QJsonObject{{"name", name}, {"digest", "sha256:" + QString(64, 'a')}, {"size", 100},
+                               {"browser_download_url", "https://github.com/Nowaterisenough/JX3DPS/releases/download/" + tag + '/' + name}};
+        };
+        auto gcc = asset("JX3DPS-windows-x86_64-gcc-16.3.0.zip");
+        auto msvc = asset("JX3DPS-windows-x86_64-msvc-19.5.zip");
+        QJsonObject release{{"tag_name", tag}, {"body", "修复木桩模拟"}, {"assets", QJsonArray{msvc, gcc}}};
+        auto selected = Updater::ReadRelease(release, "windows-x86_64-gcc");
+        QCOMPARE(selected.package.fileName(), gcc["name"].toString());
+        QCOMPARE(selected.notes, QStringLiteral("修复木桩模拟"));
+        gcc.remove("digest");
+        release["assets"] = QJsonArray{msvc, gcc};
+        QVERIFY(Updater::ReadRelease(release, "windows-x86_64-gcc").package.isEmpty());
+        release["prerelease"] = true;
+        QVERIFY(Updater::ReadRelease(release, "windows-x86_64-msvc").tag.isEmpty());
+    }
 
     void season50Fight()
     {

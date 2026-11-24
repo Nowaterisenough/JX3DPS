@@ -1,4 +1,5 @@
 #include "workbench.h"
+#include "release_updater.h"
 
 #include <string_view>
 
@@ -122,6 +123,7 @@ QString MacroHelp(desktop::Specialization specialization)
 struct Workbench::Impl
 {
     Workbench              *window;
+    desktop::ReleaseUpdater updater;
     desktop::MagpieShell   *shell;
     QWidget                *homePage;
     QWidget                *homeEditor;
@@ -193,7 +195,7 @@ struct Workbench::Impl
     bool                                cancelling = false;
     bool                                closing    = false;
 
-    explicit Impl(Workbench *host) : window(host)
+    explicit Impl(Workbench *host) : window(host), updater(host)
     {
         auto *central = window->ContentWidget();
         central->setObjectName(QStringLiteral("workbenchContent"));
@@ -1017,7 +1019,11 @@ struct Workbench::Impl
             return control;
         };
         if (about) {
-            ADD(QStringLiteral("版本"), QStringLiteral("JX3DPS · 剑网三战斗模拟器"), value(QStringLiteral("桌面工作台")));
+            auto *check = new QToolButton;
+            check->setObjectName(QStringLiteral("checkForUpdates"));
+            check->setText(QStringLiteral("检查更新"));
+            QObject::connect(check, &QToolButton::clicked, window, [this] { updater.Check(true); });
+            ADD(QStringLiteral("软件更新"), QStringLiteral("当前版本 %1").arg(updater.Version()), check);
             ADD(QStringLiteral("Qt 版本"), QStringLiteral("原生 Qt Widgets 界面，不嵌入网页"), value(QString::fromLatin1(qVersion())));
             ADD(QStringLiteral("支持心法"),
                 QStringLiteral("独立保存心法配置与循环宏草稿"),
@@ -1740,6 +1746,8 @@ Workbench::Workbench(QWidget *parent) : Frameless(parent)
 }
 
 Workbench::~Workbench() = default;
+
+void Workbench::StartUpdateChecks() { d->updater.StartAutomaticChecks(); }
 
 void Workbench::resizeEvent(QResizeEvent *event)
 {

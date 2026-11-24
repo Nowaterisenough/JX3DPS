@@ -100,6 +100,7 @@ enum class Op
     ApproachTarget,
     RefreshExisting,
     ShortenGcd,
+    ResetGcd,
     School,
 };
 
@@ -129,6 +130,7 @@ struct Step
     int              rank_offset = 0; // Added to the stack count at launch for a delayed hit.
     Slot             blocked_by = INVALID_SLOT;
     void (*effect)(EffectContext &, const Step &) = nullptr;
+    Slot range_origin = INVALID_SLOT; // Active placement from which to measure this step's range.
 };
 
 struct Resource
@@ -266,9 +268,10 @@ struct Action
     bool              stance_cooldown = false;
     bool              cast_while_channeling = false;
     bool              release_charged = false;
-    Slot              weapon_cd = INVALID_SLOT, weapon_free_cost = INVALID_SLOT;
+    Slot              bypass_cooldown_aura = INVALID_SLOT, weapon_free_cost = INVALID_SLOT;
     Slot              range_aura = INVALID_SLOT;
     int               aura_range = 0;
+    Slot              range_origin = INVALID_SLOT;
 };
 
 // School-specific compound effects issue the same logged actions as built-in steps.
@@ -285,6 +288,7 @@ public:
     virtual void SetAura(Slot, int delta, tick_t duration = 0) = 0;
     virtual void Hit(Slot, int rank = 1) = 0;
     virtual void HitWithBonus(Slot, int rank, int final_damage) = 0;
+    virtual bool TryStartGcd(Slot group, tick_t frames) = 0;
     virtual void StartCooldown(Slot) = 0;
     virtual uint64_t Roll() = 0;
     virtual void RecordDistinct(const Step &, int id) = 0;

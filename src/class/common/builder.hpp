@@ -240,7 +240,7 @@ public:
     {
         const auto slot = skill(name), aura = buff(window);
         const auto set = [&](Action &action) {
-            action.weapon_cd = aura;
+            action.bypass_cooldown_aura = aura;
             if (instant) action.alternate_instant = aura;
             if (capture) action.capture = aura;
         };

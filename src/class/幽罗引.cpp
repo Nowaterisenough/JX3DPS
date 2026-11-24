@@ -1,6 +1,14 @@
 #include "common/builder.hpp"
 
 namespace JX3DPS::runtime::season50 {
+namespace {
+constexpr Slot PuppetGcd = 3;
+void 记录傀儡公调(EffectContext &f, const Step &s)
+{
+    f.SetAura(s.slot, 1, f.state.gcd_ready_at[PuppetGcd] - f.state.now);
+}
+}
+
 Book 幽罗引()
 {
     Builder b("yly", "幽罗引", R"(# 魔盒宏适配 https://www.jx3box.com/macro/105686
@@ -33,127 +41,27 @@ Book 幽罗引()
     b.choices({ "钤束", "绞网", "寄意", "黄粱", "应天长", "鼓关", "寡合", "迭影", "谐调", "叠拍" }, {}, {});
     b.default_talents({ "叠拍", "钤束", "寄意", "黄粱", "应天长", "鼓关", "寡合", "迭影", "谐调" });
     b.resource({ .name = "心络", .initial = 100, .low = 0, .high = 100, .regen_interval = 16, .regen = 1, .first_regen = 8 });
+    b.state({ 0, "傀儡", 160, 0, 1 }, false);
+    const Slot puppet = b.buff("傀儡");
     b.state({ 0, "缠绞", 192, 0, 5 }, true, false, false);
     b.state({ 0, "钤束", 288, 0, 1 }, false, false, false);
     b.state({ 0, "千里急DOT", 80, 16, 1 }, true, true, true);
-    b.damage(0,
-             "千里急(DOT)",
-             {
-                 1,
-                 0,
-                 1200,
-                 0,
-                 5,
-                 32,
-                 false,
-                 { .pve = 553 },
-                 { { b.buff("缠绞"), 1, { .fragile = 51 }, "" },
-                   { b.buff("缠绞"), 2, { .fragile = 102 }, "" },
-                   { b.buff("缠绞"), 3, { .fragile = 154 }, "" },
-                   { b.buff("缠绞"), 4, { .fragile = 205 }, "" },
-                   { b.buff("缠绞"), 5, { .fragile = 256 }, "" },
-                   { b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 }, "" } }
-    });
-    b.damage(42417,
-             "应天长",
-             {
-                 15,
-                 1,
-                 1400,
-                 1024,
-                 0,
-                 0,
-                 false,
-                 { .pve = 553 },
-                 { { b.buff("缠绞"), 1, { .fragile = 51 }, "" },
-                   { b.buff("缠绞"), 2, { .fragile = 102 }, "" },
-                   { b.buff("缠绞"), 3, { .fragile = 154 }, "" },
-                   { b.buff("缠绞"), 4, { .fragile = 205 }, "" },
-                   { b.buff("缠绞"), 5, { .fragile = 256 }, "" },
-                   { b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 }, "" } }
-    });
-    b.damage(41465,
-             "挑丝",
-             {
-                 15,
-                 1,
-                 480,
-                 0,
-                 0,
-                 0,
-                 false,
-                 { .pve = 553 },
-                 { { b.buff("缠绞"), 1, { .fragile = 51 }, "" },
-                   { b.buff("缠绞"), 2, { .fragile = 102 }, "" },
-                   { b.buff("缠绞"), 3, { .fragile = 154 }, "" },
-                   { b.buff("缠绞"), 4, { .fragile = 205 }, "" },
-                   { b.buff("缠绞"), 5, { .fragile = 256 }, "" },
-                   { b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 }, "" } }
-    });
-    b.damage(42265,
-             "绊线",
-             {
-                 15,
-                 1,
-                 720,
-                 0,
-                 0,
-                 0,
-                 false,
-                 { .pve = 553 },
-                 { { b.buff("缠绞"), 1, { .fragile = 51 }, "" },
-                   { b.buff("缠绞"), 2, { .fragile = 102 }, "" },
-                   { b.buff("缠绞"), 3, { .fragile = 154 }, "" },
-                   { b.buff("缠绞"), 4, { .fragile = 205 }, "" },
-                   { b.buff("缠绞"), 5, { .fragile = 256 }, "" },
-                   { b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 }, "" } }
-    });
-    b.damage(41486,
-             "勾线",
-             {
-                 43,
-                 2,
-                 422,
-                 0,
-                 0,
-                 0,
-                 false,
-                 { .pve = 553 },
-                 { { b.buff("缠绞"), 1, { .fragile = 51 }, "" },
-                   { b.buff("缠绞"), 2, { .fragile = 102 }, "" },
-                   { b.buff("缠绞"), 3, { .fragile = 154 }, "" },
-                   { b.buff("缠绞"), 4, { .fragile = 205 }, "" },
-                   { b.buff("缠绞"), 5, { .fragile = 256 }, "" },
-                   { b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 }, "" } }
-    });
+    b.damage(42702, "千里急(DOT)", { 1, 0, 1200, 0, 5, 32, false, { .pve = 553 } });
+    b.damage(42417, "应天长", { 15, 1, 1400, 1024, 0, 0, false, { .pve = 553 } });
+    b.damage(41465, "挑丝", { 15, 1, 480, 0, 0, 0, false, { .pve = 553 } });
+    b.damage(42265, "绊线", { 15, 1, 720, 0, 0, 0, false, { .pve = 553 } });
+    b.damage(41486, "勾线", { 43, 2, 422, 0, 0, 0, false, { .pve = 553 } });
     b.ranks("勾线", { 422, 444, 466, 488, 510, 532, 554, 576, 598, 620 });
-    b.damage(42976,
-             "谐调",
-             {
-                 150,
-                 1,
-                 500,
-                 1024,
-                 0,
-                 0,
-                 false,
-                 { .pve = 553 },
-                 { { b.buff("缠绞"), 1, { .fragile = 51 }, "" },
-                   { b.buff("缠绞"), 2, { .fragile = 102 }, "" },
-                   { b.buff("缠绞"), 3, { .fragile = 154 }, "" },
-                   { b.buff("缠绞"), 4, { .fragile = 205 }, "" },
-                   { b.buff("缠绞"), 5, { .fragile = 256 }, "" },
-                   { b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 }, "" } }
-    });
+    b.damage(42976, "谐调", { 150, 1, 500, 1024, 0, 0, false, { .pve = 553 } });
     b.ranks("谐调", { 500, 1000, 2000 });
     b.dot("千里急DOT", "千里急(DOT)");
-    b.cast("应天长", 480, 24, 0, { .choice = "应天长", .charges = 3 }, { b.gain(0, 20), b.hit("应天长", 1), b.apply("千里急DOT", 1) });
-    b.cast("挑丝", 0, 24, 0, {}, { b.gain(0, 15), b.hit("挑丝", 1) });
+    b.cast("应天长", 480, 24, 0, { .forbidden = puppet, .choice = "应天长", .charges = 3 }, { b.gain(0, 20), b.hit("应天长", 1) });
+    b.cast("挑丝", 0, 24, 0, { .forbidden = puppet }, { b.gain(0, 15), b.hit("挑丝", 1) });
     b.cast("绊线",
            0,
            24,
            0,
-           { .resource = 0, .cost = 10 },
+           { .resource = 0, .cost = 10, .forbidden = puppet },
            { b.gain(0, -10), b.hit("绊线", 1), b.selected("钤束", b.apply("钤束", 1)), b.apply("缠绞", 1) });
     // 勾线按起手心络花 20／30／40 点，分别引导 4／7／10 段。
     // 每段先按段序打勾线，再叠缠绞；完整引导才打谐调。
@@ -163,6 +71,7 @@ Book 幽罗引()
            0,
            { .resource          = 0,
              .cost              = 20,
+             .forbidden         = puppet,
              .pulses            = 4,
              .spacing           = 8,
              .channel_cost_step = 10,
@@ -170,8 +79,6 @@ Book 幽罗引()
              .max_cost_steps    = 2,
              .charges           = 2, .distribute_pulses = true },
            { b.ranked_pulse("勾线"), b.apply("缠绞", 1) });
-    b.recipe("千里急", "千里急·2%会心", { .critical = 200 }, { "千里急(DOT)" });
-    b.recipe("千里急", "千里急·3%会心", { .critical = 300 }, { "千里急(DOT)" });
     b.recipe("挑丝", "挑丝·2%会心", { .critical = 200 }, { "挑丝" });
     b.recipe("挑丝", "挑丝·4%伤害", { .damage = 41 }, { "挑丝" });
     b.recipe("挑丝", "挑丝·5%伤害", { .damage = 51 }, { "挑丝" });
@@ -183,21 +90,16 @@ Book 幽罗引()
     b.recipe("绊线", "绊线·3%会心", { .critical = 300 }, { "绊线" });
     b.recipe("绊线", "绊线·4%伤害", { .damage = 41 }, { "绊线" });
     b.recipe("绊线", "绊线·5%伤害", { .damage = 51 }, { "绊线" });
-    b.set_bonus({ .damage = 102 }, { "绊线" });
     b.damage(42098, "寄线", { 15, 1, 170, 0, 0, 0, false, { .pve = 553 }, {} });
     b.passive("寄线", "绞网", { .fragile = 1024 });
-    b.passive("千里急(DOT)", "寄意", { .critical = 1500, .power = 157 });
 
     b.adjust([](Prepared &p) {
         const auto &book = *p.config.book;
         if (!std::ranges::contains(p.config.talents, "鼓关")) {
             const auto order = std::ranges::find(book.buffs, "千里急次序", &BuffDescriptor::name) - book.buffs.begin();
-            for (auto &steps : p.pre_cast) for (auto &step : steps)
-                if (step.op == Op::Remove && step.slot == order && step.min_stacks == 4) step.min_stacks = 3;
+            const auto third = std::ranges::find(book.skills, "千里急·叁", &SkillDescriptor::name) - book.skills.begin();
+            p.post_damage[third].push_back({ Op::Remove, static_cast<Slot>(order), 3 });
         }
-        const auto group = std::ranges::find(book.buffs, "傀儡公调", &BuffDescriptor::name) - book.buffs.begin();
-        for (auto &steps : p.pre_cast) for (auto &step : steps)
-            if (step.op == Op::Add && step.slot == group) step.duration = static_cast<int>(24 / p.haste);
         // 绞网让心络每次支出时按每 10 点触发一次寄线，所以勾线的耗费档位也决定寄线次数。
         if (std::ranges::contains(p.config.talents, std::string_view{ "绞网" })) {
             p.resources[0].spent_per_point = 10;
@@ -207,14 +109,19 @@ Book 幽罗引()
         }
     });
     b.state({ 0, "虚影", 160, 16, 1 }, true);
-    b.state({ 0, "傀儡", 0, 0, 1 }, false);
     b.state({ 0, "傀儡公调", 24, 0, 1 }, false);
     b.state({ 0, "连环慢", 128, 0, 1 }, false);
-    b.cast("落笼簿", 0, 16, 0, { .gcd_group = 2 }, { { Op::ToggleAura, b.buff("傀儡") } });
-    b.variant("落笼簿", "叠拍", 160, 0, { .gcd_group = 2 },
-              { b.apply_for("傀儡", 64), { Op::ShortenGcd, 3, 24 }, b.remove("傀儡公调") });
-    // 连环慢可在引导中施放并保留当前引导；随后施放生地狱时会消耗它，强化本次生地狱。
-    b.cast("连环慢", 128, 4, 0, { .charges = 2, .gcd_group = 4, .cast_while_channeling = true }, { b.apply("连环慢") });
+    b.state({ 0, "伶影驻场", 0, 0, 1 }, false);
+    const Slot puppet_position = b.buff("伶影驻场");
+    b.cast("落笼簿", 0, 16, 0, { .gcd_group = 2, .cast_while_channeling = true }, { { Op::ToggleAura, b.buff("傀儡") } });
+    // 控制中再按落笼簿实际施展「合」。仅进入时开启叠拍调息、重置傀儡公调。
+    const auto reset_puppet_gcd = b.when("傀儡", { Op::ResetGcd, PuppetGcd }, true);
+    b.variant("落笼簿", "叠拍", 160, 0, { .gcd_group = 2, .cast_while_channeling = true, .bypass_cooldown_aura = b.buff("傀儡") },
+              { reset_puppet_gcd, b.when("傀儡", b.remove("傀儡公调"), true), { .op = Op::ToggleAura, .slot = b.buff("傀儡"), .duration = 64 } });
+    b.cast("落笼簿·合", 0, 16, 0, { .required = puppet, .gcd_group = 2, .cast_while_channeling = true }, { b.remove("傀儡") });
+    // 连环慢强化下一式傀儡调。生地狱锁定三段，千里急在联动及应天长的 DOT 快照后消耗。
+    b.cast("连环慢", 128, 4, 0, { .charges = 2, .gcd_group = 4, .cast_while_channeling = true },
+           { b.apply("伶影驻场"), b.apply("连环慢") });
     b.state({ 0, "迭影", 80, 0, 1 }, false);
     b.damage(42576, "障幕虚影", { 15, 1, 280, 1024, 0, 0, false, { .pve = 553 } });
     b.cast("障幕虚影", 1440, 24, 0, { .gcd_group = 1 }, { b.apply("虚影"), b.hit("寄线", 5) });
@@ -227,12 +134,12 @@ Book 幽罗引()
     b.state({ 0, "生地狱·连环慢", 15, 0, 1 }, false);
     b.pre_damage("生地狱", { .aura = b.buff("生地狱·操控"), .stacks = 0, .stats = {}, .channel_scale = 2.2 });
     b.pre_damage("生地狱", { .aura = b.buff("生地狱·连环慢"), .stacks = 0, .stats = {}, .channel_scale = 1.25 });
-    b.pre_damage("生地狱", { b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 } });
     b.passive("生地狱", "寄意", { .critical = 1500, .power = 150 });
-    for (int i = 1; i <= 5; ++i) b.pre_damage("生地狱", { b.buff("缠绞"), i, { .fragile = (256 * i + 2) / 5 } });
-    b.cast("生地狱", 480, 24, 0, { .required = b.buff("傀儡"), .gcd_group = 3 }, {});
-    b.variant("生地狱", "迭影", 480, 0, { .gcd_group = 3 }, { b.apply("迭影") });
-    b.pre_cast("生地狱", { b.when("傀儡", b.apply("生地狱·操控")), b.when("连环慢", b.apply("生地狱·连环慢")), b.remove("连环慢") });
+    b.cast("生地狱", 480, 24, 0, { .required = b.buff("傀儡"), .gcd_group = PuppetGcd, .cast_while_channeling = true }, {});
+    b.variant("生地狱", "迭影", 480, 0, { .gcd_group = PuppetGcd, .cast_while_channeling = true }, { b.apply("迭影") });
+    const Step record_gcd{ .op = Op::School, .slot = b.buff("傀儡公调"), .effect = 记录傀儡公调 };
+    b.pre_cast("生地狱", { record_gcd, b.when("傀儡", b.apply("生地狱·操控")),
+                         b.when("连环慢", b.apply("生地狱·连环慢")), b.remove("连环慢") });
     // 生地狱出手时按缠绞层数加一锁定三段档位，
     // 分别延迟 4、9、14 帧。收招清缠绞后，已经排定的档位仍有效。
     for (int delay : {4, 9, 14}) {
@@ -255,24 +162,55 @@ Book 幽罗引()
     b.cast("使用橙武", 960, 0, 0, {.choice = Legendary}, {b.apply("天羊盏")});
     // 天羊盏期间夹线需要 20 心络，先扣 20 再回 10，
     // 随后命中并挂刻木；选绞网时，这笔支出触发两次寄线。
-    b.cast("夹线", 0, 24, 0, {.resource = 0, .cost = 20, .required = b.buff("天羊盏"), .choice = Legendary},
-           {b.gain(0, -20), b.gain(0, 10), b.hit("夹线"), b.apply("刻木")});
-    for (auto cast : { "挑丝", "绊线", "勾线", "应天长", "夹线" }) {
-        b.pre_cast(cast, { b.when("傀儡公调", b.apply("自动千里急"), true), b.when("自动千里急", b.apply("千里急次序")),
-                          b.when("自动千里急", { .op = Op::School, .slot = b.effect("千里急·壹"), .extra = b.buff("千里急次序"),
-                              .effect = [](EffectContext &f, const Step &s) {
-                                  const int stage = f.Stacks(s.extra);
-                                  // 鼓关第四段射程 20 尺，检查本次伶影出手时的目标距离。
-                                  if (stage > 0 && (stage != 4 || f.state.target_distance <= 20)) f.Hit(s.slot + stage - 1);
-                              } }),
-                          b.when("自动千里急", b.apply("傀儡公调")), b.selected("寄意", b.when("自动千里急", b.shorten("勾线", 16))),
-                          b.at_least("千里急次序", 4, b.remove("千里急次序", 4)), b.remove("自动千里急") });
+    b.cast("夹线", 0, 24, 0, {.resource = 0, .cost = 20, .required = b.buff("天羊盏"), .forbidden = puppet, .choice = Legendary},
+           {b.gain(0, -20), b.gain(0, 10), b.hit("夹线"), b.apply("缠绞"), b.apply("刻木")});
+    // 四式共用段序。鼓关在叁式后开放第四式手动射程，未选鼓关时在 prepare 中令叁式直接回到壹式。
+    b.state({ 0, "鼓关待发", 0, 0, 1 }, false);
+    b.post_damage("千里急·叁", { b.selected("鼓关", b.apply("鼓关待发")) });
+    b.post_damage("千里急·肆", { b.remove("千里急次序", 4), b.remove("鼓关待发"), b.apply("伶影驻场") });
+    for (auto name : skills) b.post_damage(name, { b.remove("连环慢"), b.selected("寄意", b.shorten("勾线", 16)) });
+    const Step stage_hit{ .op = Op::StackStageHit, .slot = b.effect("千里急·壹"), .extra = b.buff("千里急次序") };
+    b.cast("千里急", 0, 24, 0, { .required = puppet, .gcd_group = PuppetGcd, .range = 6, .cast_while_channeling = true,
+                                 .range_aura = b.buff("鼓关待发"), .aura_range = 30, .range_origin = puppet_position },
+           { record_gcd, b.apply("千里急次序"), stage_hit });
+
+    // 联动与手动千里急、生地狱争用同一公调。勾线起手联动，其余本体招式先命中、上缠绞或钤束。
+    const Step attempt{ .op = Op::School, .slot = b.buff("自动千里急"), .range = 6,
+        .effect = [](EffectContext &f, const Step &s) {
+            if (f.TryStartGcd(PuppetGcd, 24)) f.SetAura(s.slot, 1);
+        }, .range_origin = puppet_position };
+    const auto linked = [&](Step step) { return b.when("自动千里急", step); };
+    const auto begin_link = { attempt, linked(record_gcd), linked(b.apply("千里急次序")) };
+    const auto finish_link = { linked(stage_hit), b.remove("自动千里急") };
+    b.pre_cast("勾线", begin_link);
+    b.pre_cast("勾线", finish_link);
+    for (std::string_view cast : { "挑丝", "绊线", "应天长", "夹线" }) {
+        b.post_cast(cast, begin_link);
+        // 先快照 DOT，再由千里急直伤消耗连环慢。联动未就绪时保留旧 DOT 和段序。
+        if (cast == "应天长") b.post_cast(cast, { linked(b.apply("千里急DOT")) });
+        b.post_cast(cast, finish_link);
     }
+    // 钤束为角色面板增益，连寄线、虚影和 DOT 快照也读取。寡合只在未操控时提供无视防御。
+    b.school_modifier({ b.buff("钤束"), 0, { .attack = 154, .strain_rating = 307 } });
     b.school_modifier({ INVALID_SLOT, 0, { .ignore = 614 }, "寡合" });
-    b.school_modifier({ b.buff("虚影"), 0, { .damage = 307 }, "黄粱" });
-    // 两本系数秘籍作用于千里急的四个直伤段和持续伤害，每个条目分别修正自己的攻击系数。
-    b.recipe("千里急", "千里急·3%系数", {}, { "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "千里急(DOT)" }, 1.03);
-    b.recipe("千里急", "千里急·4%系数", {}, { "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "千里急(DOT)" }, 1.04);
+    b.school_modifier({ b.buff("傀儡"), 0, { .ignore = -614 }, "寡合" });
+    // 缠绞只强化伶影的招式直伤。绊线、勾线负责叠层，谐调是独立附伤。
+    for (auto name : { "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "生地狱" })
+        for (int i = 1; i <= 5; ++i) b.pre_damage(name, { b.buff("缠绞"), i, { .fragile = (256 * i + 2) / 5 } });
+    // 虚影是目标易伤，与迭影的招式增伤分开。黄粱将 205/1024 提升到 307/1024。
+    for (auto name : { "挑丝", "绊线", "勾线", "夹线", "寄线", "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "生地狱" }) {
+        b.pre_damage(name, { b.buff("虚影"), 0, { .fragile = 205 } });
+        b.pre_damage(name, { b.buff("虚影"), 0, { .fragile = 102 }, "黄粱" });
+    }
+    const std::initializer_list<std::string_view> thousand = { "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆", "千里急(DOT)" };
+    for (auto name : thousand) b.passive(name, "寄意", { .critical = 1500, .power = 157 });
+    b.recipe("千里急", "千里急·2%会心", { .critical = 200 }, thousand);
+    b.recipe("千里急", "千里急·3%会心", { .critical = 300 }, thousand);
+    b.recipe("千里急", "千里急·3%系数", {}, thousand, 1.03);
+    b.recipe("千里急", "千里急·4%系数", {}, thousand, 1.04);
+    for (auto name : thousand) b.pre_damage(name, { .aura = b.buff("连环慢"), .channel_scale = 1.25 });
+    for (auto name : skills) b.pre_damage(name, { .aura = b.buff("傀儡"), .channel_scale = 2.2 });
+    b.set_bonus({ .damage = 102 }, { "绊线", "千里急·壹", "千里急·贰", "千里急·叁", "千里急·肆" });
     b.recipe("生地狱", "生地狱·3%伤害", { .damage = 31 }, { "生地狱" });
     b.recipe("生地狱", "生地狱·2%会心", { .critical = 200 }, { "生地狱" });
     b.recipe("生地狱", "生地狱·2%伤害", { .damage = 20 }, { "生地狱" });

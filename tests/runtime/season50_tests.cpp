@@ -1051,6 +1051,72 @@ std::shared_ptr<s50::Prepared> PreparePublishedReplay(const s50::Config &cfg)
     return data;
 }
 
+void CheckYouLuoPuppet()
+{
+    auto run = [](s50::Config cfg, std::span<const Button> buttons, tick_t end, int blocked, auto check) {
+        std::string macro;
+        for (const auto &button : buttons) macro += "/scast " + std::string(button.name) + "\n";
+        auto [compiled, errors] = rt::MacroCompiler::Compile(macro, rt::CatalogMacroOptions(cfg.book->Catalog()));
+        CHECK(errors.empty());
+        rt::Simulation<InputReplay> sim(compiled.program, InputReplay(PreparePublishedReplay(cfg), buttons, true));
+        sim.Start(end, 42);
+        sim.Run();
+        CHECK(sim.GetRules().consumed() == buttons.size());
+        CHECK(sim.GetRules().rejected() == blocked);
+        check(sim);
+    };
+    Fight f("yly");
+    auto &cfg = f.cfg;
+    cfg.recipes = {"千里急·2%会心", "千里急·3%会心"};
+    cfg.equipment = {std::string(s50::ClassSet)};
+    cfg.target_events = {{.frame = 72, .distance_hundredths = 1200}};
+    // Both directions of the shared GCD, a blocked DOT refresh and a puppet left behind by a moving target.
+    constexpr Button chain[]{{0,"绊线"}, {0,"生地狱"}, {0,"连环慢"}, {24,"应天长"}, {48,"生地狱"},
+                             {48,"应天长"}, {72,"挑丝"}, {96,"连环慢"}, {96,"挑丝"}};
+    run(cfg, chain, 106, 1, [&](const auto &sim) {
+        std::vector<tick_t> stages, dots;
+        const auto &versions = sim.GetRules().Versions();
+        for (const auto &hit : sim.Log().Intents()) {
+            const auto name = cfg.book->skills[hit.skill].name;
+            const auto &stats = versions[hit.snapshot_version];
+            if (name.starts_with("千里急·")) {
+                stages.push_back(hit.frame);
+                CHECK(stats.attack == 154 && stats.critical == 2000 && stats.damage == 102);
+                if (hit.frame == 0) CHECK(stats.fragile == 51);
+            } else if (name == "千里急(DOT)") {
+                dots.push_back(hit.frame);
+                CHECK(stats.channel_override == 1500 && stats.fragile == 0 && stats.damage == 0);
+                CHECK(versions[hit.live_version].channel_override == -1);
+            } else if (name == "绊线") {
+                CHECK(stats.fragile == 0 && stats.attack == 0);
+            }
+        }
+        CHECK((stages == std::vector<tick_t>{0, 24, 96}));
+        CHECK((dots == std::vector<tick_t>{40, 56, 72, 88, 104}));
+    });
+
+    cfg.target_events.clear();
+    // Returning to the player is possible during the entry cooldown and preserves its deadline.
+    constexpr Button control[]{{0,"落笼簿"}, {0,"千里急"}, {16,"落笼簿"}, {24,"挑丝"}, {48,"落笼簿"},
+                               {160,"落笼簿"}, {160,"千里急"}, {176,"落笼簿·合"}};
+    run(cfg, control, 177, 1, [&](const auto &sim) {
+        std::vector<tick_t> stages;
+        for (const auto &hit : sim.Log().Intents()) {
+            if (!cfg.book->skills[hit.skill].name.starts_with("千里急·")) continue;
+            stages.push_back(hit.frame);
+            CHECK(sim.GetRules().Versions()[hit.snapshot_version].ignore == (hit.frame == 24 ? 614 : 0));
+        }
+        CHECK((stages == std::vector<tick_t>{0, 24, 160}));
+    });
+
+    constexpr Button weave[]{{0,"勾线"}, {16,"落笼簿"}, {16,"千里急"}, {32,"落笼簿"}, {176,"落笼簿"}};
+    run(cfg, weave, 177, 0, [&](const auto &sim) {
+        int pulses = 0;
+        for (const auto &hit : sim.Log().Intents()) if (cfg.book->skills[hit.skill].name == "勾线") ++pulses;
+        CHECK(pulses == 10);
+    });
+}
+
 // Diagnostic replays consume every supplied button once. Missing actions and blocked inputs
 // are reported separately, without moving them to another frame or inventing damage.
 void InspectInputs(const char *code, int haste, int last, const char *filename)
@@ -1784,6 +1850,7 @@ int main(int argc, char **argv)
     CheckBurnAndKarma();
     CheckWindAndMedicineTriggers();
     CheckPublishedInputs();
+    CheckYouLuoPuppet();
     CheckAllBooks();
     CheckDotAndCastOrder();
     CheckDamageHooksAndDotSnapshot();

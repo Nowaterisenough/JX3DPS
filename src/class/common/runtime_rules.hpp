@@ -20,6 +20,7 @@ class Rules
         int      remaining  = 0;
         int      newest     = -1;
         tick_t   last_pulse = 0;
+        double   placed_at = 0.; // Target position along the encounter's distance axis at application.
         std::vector<tick_t> pending_pulses;
     };
 
@@ -70,6 +71,12 @@ class Rules
     const Book &book() const { return *data_->config.book; }
 
     tick_t Hasted(tick_t frames) const { return frames ? std::max(1, static_cast<int>(frames / data_->haste)) : 0; }
+
+    double TargetDistance(const State &s, Slot origin) const
+    {
+        if (origin == INVALID_SLOT || !Stacks(s, origin)) return s.target_distance;
+        return std::abs(s.target_distance - timers_[origin].placed_at);
+    }
 
     tick_t ChannelOffset(const Action &a, int count) const
     {
@@ -402,6 +409,7 @@ class Rules
             e.Timers().Cancel(timer.expiry);
             e.Timers().Cancel(timer.tick);
         } else if (refresh) {
+            timer.placed_at = s.target_distance;
             const int interval = PulseInterval(s, slot);
             tick_t    duration = duration_override ? duration_override : def.duration;
             if (data_->dot_effects[slot] != INVALID_SLOT) {
@@ -478,6 +486,14 @@ class Rules
         {
             rules.Strike(engine, slot, rank, {}, 1, bonus);
         }
+        bool TryStartGcd(Slot group, tick_t frames) override
+        {
+            if (state.gcd_ready_at[group] > state.now) return false;
+            const auto ready = state.now + rules.Hasted(frames);
+            SetGcd(engine.MutableState(), engine.Log(), group, ready);
+            engine.Timers().ArmAt(rules.gcd_[group], ready);
+            return true;
+        }
         void StartCooldown(Slot slot) override { rules.StartCooldown(engine, slot, rules.data_->skills[slot].cooldown); }
         uint64_t Roll() override { return rules.rng_.Next(); }
         void RecordDistinct(const Step &step, int id) override { rules.RecordDistinct(engine, step, id); }
@@ -488,8 +504,9 @@ class Rules
     {
         auto &s = e.MutableState();
         for (const auto &step : steps) {
-            if ((step.range > 0 && s.target_distance > step.range) || (step.range < 0 && s.target_distance <= -step.range)) {
-                continue;
+            if (step.range) {
+                const double distance = TargetDistance(s, step.range_origin);
+                if ((step.range > 0 && distance > step.range) || (step.range < 0 && distance <= -step.range)) continue;
             }
             if ((step.captured && !captured_) || (step.empowered_channel && !empowered_channel_)) {
                 continue;
@@ -767,7 +784,7 @@ class Rules
                     }
                     break;
                 }
-                case Op::ToggleAura: SetAura(e, slot, Stacks(s, slot) ? -1 : 1); break;
+                case Op::ToggleAura: SetAura(e, slot, Stacks(s, slot) ? -1 : 1, step.duration); break;
                 case Op::BuildCharge:
                 {
                     if (Stacks(s, step.extra) < book().buffs[step.extra].max_stacks) {
@@ -804,11 +821,12 @@ class Rules
                     else SetAura(e, slot, 1, n > 1 ? std::min(duration, n) : duration);
                     break;
                 }
+                case Op::ResetGcd:
                 case Op::ShortenGcd:
                     if (s.gcd_ready_at[slot] > s.now) {
-                        s.gcd_ready_at[slot] = std::max(s.now, s.gcd_ready_at[slot] - n);
-                        e.Timers().ArmAt(gcd_[slot], s.gcd_ready_at[slot]);
-                        e.Log().RecordGcd(s.now, slot, s.gcd_ready_at[slot]);
+                        const auto ready = step.op == Op::ResetGcd ? s.now : std::max(s.now, s.gcd_ready_at[slot] - n);
+                        SetGcd(s, e.Log(), slot, ready);
+                        e.Timers().ArmAt(gcd_[slot], ready);
                     }
                     break;
                 case Op::ApproachTarget:
@@ -1039,12 +1057,13 @@ public:
             return reject(ActionBlockReason::MISSING_TALENT);
         }
         const int range = a.range_aura != INVALID_SLOT && Stacks(s, a.range_aura) ? a.aura_range : data_->ranges[slot];
-        if (range && s.target_distance > range) {
-            return reject(ActionBlockReason::DISTANCE, s.target_distance, range);
+        if (range) {
+            const double distance = TargetDistance(s, a.range_origin);
+            if (distance > range) return reject(ActionBlockReason::DISTANCE, distance, range);
         }
-        const bool weapon_cd = a.weapon_cd != INVALID_SLOT && Stacks(s, a.weapon_cd);
+        const bool bypass_cooldown_aura = a.bypass_cooldown_aura != INVALID_SLOT && Stacks(s, a.bypass_cooldown_aura);
         const bool weapon_free_cost = a.weapon_free_cost != INVALID_SLOT && Stacks(s, a.weapon_free_cost);
-        if (s.skill_ready_at[slot] > s.now && !weapon_cd) {
+        if (s.skill_ready_at[slot] > s.now && !bypass_cooldown_aura) {
             return reject(ActionBlockReason::SKILL_COOLDOWN, s.skill_ready_at[slot] - s.now);
         }
         const int mana_cost = data_->mana_cost_quarters[slot];
@@ -1073,7 +1092,7 @@ public:
         }
         if (pending_ != INVALID_SLOT && a.cast_while_channeling) {
             // These instant, independent buttons keep the current channel clock and captured state.
-            StartCooldown(e, slot, d.cooldown);
+            if (!bypass_cooldown_aura) StartCooldown(e, slot, d.cooldown);
             if (d.gcd) {
                 const auto lock = std::max(a.lock, StanceTime(s, d.gcd)) + data_->config.delay;
                 s.gcd_ready_at[group] = s.now + lock;
@@ -1119,7 +1138,7 @@ public:
         if (a.cooldown_aura != INVALID_SLOT && Stacks(s, a.cooldown_aura)) {
             cd = a.aura_cooldown;
         }
-        if (weapon_cd || (a.free_cd != INVALID_SLOT && Stacks(s, a.free_cd))) {
+        if (bypass_cooldown_aura || (a.free_cd != INVALID_SLOT && Stacks(s, a.free_cd))) {
             cd = 0;
         }
         captured_ = a.capture != INVALID_SLOT && Stacks(s, a.capture) > 0;

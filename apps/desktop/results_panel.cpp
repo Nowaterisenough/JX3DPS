@@ -465,8 +465,9 @@ void ResultsPanel::ShowDetails()
     const auto &r = entry->result;
     gain_note->setText(QStringLiteral("%1：实际增加点数见表格，显示平均秒伤变化。会心、加速重新模拟循环；"
                                       "基础攻击、会效、破防、无双、破招、武器伤害使用基准战斗统计重算。"
-                                      "重跑使用相同宏与种子，差值可能含模拟波动。取消时保留完整计算的项目。")
-                           .arg(desktop::GainComparisonName(r.gainMode)));
+                                      "重跑使用相同宏与%2，差值可能含模拟波动。取消时保留完整计算的项目。")
+                           .arg(desktop::GainComparisonName(r.gainMode),
+                                r.options.random_seed ? QStringLiteral("随机种子配置") : QStringLiteral("种子")));
     m_chart->SetSelectedRun(entry->id);
     ShowResultSkills(r);
     const auto schoolId = entry->configuration.value("specialization");
@@ -481,7 +482,7 @@ void ResultsPanel::ShowDetails()
             .arg(entry->id)
             .arg(entry->time.toLocalTime().toString(Qt::ISODate))
             .arg(r.FightSeconds())
-            .arg(r.options.seed)
+            .arg(r.options.random_seed ? QStringLiteral("随机") : QString::number(r.options.seed))
             .arg(r.options.workers);
     if (r.stats.count != 0u) {
         text += QStringLiteral("平均秒伤 %1 | 最低 %2 | 最高 %3 | 总体标准差 %4\n校验值 %5 | 每秒 %6 次\n")
@@ -571,6 +572,7 @@ bool ResultsPanel::ExportSelected(const QString &path, QString &error) const
         { "gainBudgetModel",    "cangsheng50_sixth_grade_stone"                                                           },
         { "durationFrames",     r.options.duration                                                                },
         { "seed",               QString::number(r.options.seed)                                                   },
+        { "randomSeed",         r.options.random_seed                                                             },
         { "workers",            static_cast<int>(r.options.workers)                                               }
     };
     if (r.stats.count != 0u) {

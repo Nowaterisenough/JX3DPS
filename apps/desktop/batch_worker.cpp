@@ -179,7 +179,7 @@ void BatchWorker::run()
             runtime::WorkerMeasurement<Measure> measurement(profile, 0, "单次记录");
             runtime::Simulation<desktop::TracedRules<Rules>, false, Measure>
                 simulation(m_program, desktop::TracedRules(RULES), m_options.damage_capacity, m_options.mutation_capacity);
-            simulation.Start(m_options.duration, runtime::IterationSeed(m_options.seed, 0));
+            simulation.Start(m_options.duration, runtime::FightSeed(m_options, 0));
             desktop::HistoryChunk history;
             history.specialization = SPECIALIZATION;
             history.initial        = simulation.GetState();

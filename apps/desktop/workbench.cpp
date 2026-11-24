@@ -1538,7 +1538,9 @@ struct Workbench::Impl
             activeOptions = options->Batch();
             debugSession->Stop();
             ClearEvents();
-            debugSession->SetSimulationOptions(options->ActiveConfig(), activeOptions.duration, activeOptions.seed);
+            debugSession->SetSimulationOptions(options->ActiveConfig(),
+                                                activeOptions.duration,
+                                                activeOptions.random_seed ? rt::RandomSeed() : activeOptions.seed);
             progress->setValue(0);
             progress->setFormat(QStringLiteral("调试 %p%"));
             macroSteps->Reset(editor->toPlainText());

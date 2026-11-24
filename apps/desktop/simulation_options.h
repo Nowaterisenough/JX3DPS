@@ -120,6 +120,7 @@ private:
     QSpinBox                                                                                *m_workers;
     QDoubleSpinBox                                                                          *m_seconds;
     QLineEdit                                                                               *m_seed;
+    QComboBox                                                                               *m_seedMode;
 };
 
 #endif

@@ -20,7 +20,13 @@ struct BatchOptions
     unsigned      workers           = 1;
     std::size_t   damage_capacity   = 4096;
     std::size_t   mutation_capacity = 8192;
+    bool          random_seed       = false; // Draw an independent seed for every fight.
 };
+
+inline std::uint64_t FightSeed(const BatchOptions &options, std::uint64_t iteration)
+{
+    return options.random_seed ? RandomSeed() : IterationSeed(options.seed, iteration);
+}
 
 // Owned by the caller for the duration of a controlled batch. Progress counts
 // only completed fights; cancellation takes effect at the next fight boundary.
@@ -105,7 +111,7 @@ BatchStats RunBatchImpl(const MacroProgram &program,
                             break;
                         }
                     }
-                    simulation.Start(options.duration, IterationSeed(options.seed, i));
+                    simulation.Start(options.duration, FightSeed(options, i));
                     simulation.Run();
                     stats.Add(LOCAL_REDUCER(simulation, index), i);
                     if constexpr (Measure) {
@@ -205,7 +211,7 @@ std::pair<BatchStats, std::vector<BatchStats>> RunBatchObservedImpl(
                 if (control.cancel_requested.load(std::memory_order_relaxed)) {
                     break;
                 }
-                simulation.Start(options.duration, IterationSeed(options.seed, i));
+                simulation.Start(options.duration, FightSeed(options, i));
                 simulation.Run();
                 results[index].primary.Add(LOCAL_REDUCER(simulation, index), i);
                 if (observed_count) {

@@ -1,9 +1,13 @@
 #pragma once
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <functional>
 #include <limits>
+#include <random>
+#include <thread>
 
 #include "src/global/types.h"
 
@@ -15,6 +19,22 @@ inline std::uint64_t IterationSeed(std::uint64_t base, std::uint64_t iteration)
     value      = (value ^ (value >> 30)) * 0xbf58476d1ce4e5b9ULL;
     value      = (value ^ (value >> 27)) * 0x94d049bb133111ebULL;
     return value ^ (value >> 31);
+}
+
+inline std::uint64_t RandomSeed()
+{
+    thread_local std::mt19937_64 generator([] {
+        const auto now    = static_cast<std::uint64_t>(std::chrono::steady_clock::now().time_since_epoch().count());
+        const auto thread = static_cast<std::uint64_t>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+        auto       entropy = now ^ thread;
+        try {
+            std::random_device device;
+            entropy ^= (static_cast<std::uint64_t>(device()) << 32) ^ device();
+        } catch (...) {
+        }
+        return IterationSeed(entropy, thread);
+    }());
+    return generator();
 }
 
 struct BatchStats

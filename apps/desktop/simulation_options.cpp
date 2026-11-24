@@ -669,8 +669,8 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
             });
         }
     }
-    m_iterations       = Integer(run, "iterations", QStringLiteral("模拟次数"), 1000, 1, 1000000000);
-    m_workers = Integer(run, "workers", QStringLiteral("工作线程"), std::max(1, QThread::idealThreadCount() / 2), 1, 256);
+    m_iterations = Integer(run, "iterations", QStringLiteral("模拟次数"), 100000, 1, 1000000000);
+    m_workers = Integer(run, "workers", QStringLiteral("工作线程"), std::max(1, QThread::idealThreadCount()), 1, 4096);
     auto *seconds = Decimal<desktop::FixedUnitDoubleSpinBox>(run, "seconds", QStringLiteral("战斗时长"), 300, 0.0625, 86400, 4);
     seconds->SetUnit(QStringLiteral("秒"));
     seconds->setAccessibleDescription(QStringLiteral("单位：秒"));
@@ -679,16 +679,38 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
     connect(m_seconds, &QDoubleSpinBox::editingFinished, this, [this] {
         m_seconds->setValue(std::llround(m_seconds->value() * 16.0) / 16.0);
     });
+    auto *seed_controls = new QWidget;
+    seed_controls->setObjectName(QStringLiteral("seedSettings"));
+    auto *seed_layout = new QHBoxLayout(seed_controls);
+    seed_layout->setContentsMargins(0, 0, 0, 0);
+    seed_layout->setSpacing(4);
+    m_seedMode = new QComboBox;
+    m_seedMode->setObjectName(QStringLiteral("seedMode"));
+    m_seedMode->addItem(QStringLiteral("固定"), QStringLiteral("fixed"));
+    m_seedMode->addItem(QStringLiteral("随机"), QStringLiteral("random"));
+    m_seedMode->setCurrentIndex(0);
+    m_seedMode->setFixedWidth(54);
     m_seed = new QLineEdit(QStringLiteral("0"));
     m_seed->setObjectName(QStringLiteral("seed"));
     m_seed->setValidator(new QRegularExpressionValidator(QRegularExpression(QStringLiteral("[0-9]{1,20}")), m_seed));
+    m_seed->setMinimumWidth(0);
+    m_seed->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    seed_layout->addWidget(m_seedMode);
+    seed_layout->addWidget(m_seed, 1);
     const auto seed_hint = [this] {
-        m_seed->setToolTip(
-            QStringLiteral("当前种子：%1\n相同种子可复现相同战斗；调试和单次记录复现其中第一场。").arg(m_seed->text()));
+        if (m_seedMode->currentData().toString() == QStringLiteral("random")) {
+            m_seed->setToolTip(QStringLiteral("每场模拟使用独立随机种子；固定种子输入仅用于切回固定模式。"));
+            m_seedMode->setToolTip(QStringLiteral("每场模拟使用独立随机种子。"));
+        } else {
+            m_seed->setToolTip(
+                QStringLiteral("当前种子：%1\n相同种子可复现相同战斗；调试和单次记录复现其中第一场。").arg(m_seed->text()));
+            m_seedMode->setToolTip(QStringLiteral("固定种子可复现相同战斗。"));
+        }
     };
     connect(m_seed, &QLineEdit::textChanged, this, seed_hint);
+    connect(m_seedMode, &QComboBox::currentIndexChanged, this, seed_hint);
     seed_hint();
-    run->addRow(QStringLiteral("随机种子"), m_seed);
+    run->addRow(QStringLiteral("随机种子"), seed_controls);
     Integer(run, "delay", QStringLiteral("输入延迟"), 0, 0, 160)->setSuffix(QStringLiteral(" 帧"));
     // Native range-based size hints must not widen this small, non-scrolling form.
     for (int row = 0; row < run->rowCount(); ++row) {
@@ -909,6 +931,7 @@ SimulationOptions::SimulationOptions(QWidget *parent) : QWidget(parent)
             cb->setCurrentIndex(0);
         }
         m_flowEditor->setPlainText(desktop::FlowMacroFromValues(desktop::FlowDefaults()));
+        m_seedMode->setCurrentIndex(0);
         m_seed->setText("0");
     });
     layout->setColumnStretch(0, 1);
@@ -1430,12 +1453,13 @@ runtime::season50::Config SimulationOptions::ConfigFromValues(
 runtime::BatchOptions SimulationOptions::Batch() const
 {
     runtime::BatchOptions batch;
-    batch.iterations = m_iterations->value();
-    batch.workers    = m_workers->value();
-    batch.duration   = static_cast<tick_t>(std::llround(m_seconds->value() * 16.0));
-    bool valid       = false;
-    batch.seed       = m_seed->text().toULongLong(&valid);
-    if (!valid) {
+    batch.iterations  = m_iterations->value();
+    batch.workers     = m_workers->value();
+    batch.duration    = static_cast<tick_t>(std::llround(m_seconds->value() * 16.0));
+    batch.random_seed = m_seedMode->currentData().toString() == QStringLiteral("random");
+    bool valid        = false;
+    batch.seed        = m_seed->text().toULongLong(&valid);
+    if (!batch.random_seed && !valid) {
         throw std::invalid_argument("随机种子须为 0 至 18446744073709551615 之间的整数。");
     }
     batch.damage_capacity   = (static_cast<std::size_t>(batch.duration) * 16) + 64;
@@ -1477,6 +1501,7 @@ QJsonObject SimulationOptions::Values() const
     }
     // JSON numbers cannot portably preserve all uint64 seeds.
     values.insert(QStringLiteral("seed"), m_seed->text());
+    values.insert(QStringLiteral("seedMode"), m_seedMode->currentData().toString());
     for (const auto *input : m_permanents) {
         values.insert(input->objectName(), input->currentIndex());
     }
@@ -1491,7 +1516,7 @@ QJsonObject SimulationOptions::Snapshot() const
     }
     return {
         { "format",         "jx3dps.desktop.config"                    },
-        { "version",        8                                          },
+        { "version",        9                                          },
         { "specialization", m_specialization->currentData().toString() },
         { "values",         Values()                                   },
         { "flowMacro",      m_flowEditor->toPlainText()                },
@@ -1503,7 +1528,7 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
 {
     error.clear();
     const int index = m_specialization->findData(snapshot.value("specialization").toString());
-    if (snapshot["version"] != 8 || snapshot["format"] != "jx3dps.desktop.config" || index < 0 || !snapshot["values"].isObject())
+    if (snapshot["version"] != 9 || snapshot["format"] != "jx3dps.desktop.config" || index < 0 || !snapshot["values"].isObject())
     {
         error = QStringLiteral("配置版本或心法无效");
         return false;
@@ -1582,12 +1607,22 @@ bool SimulationOptions::ValidateSnapshot(const QJsonObject &snapshot, QString &e
             return INVALID(input->objectName());
         }
     }
+    const auto SEED_MODE = VALUES.value("seedMode");
+    if (!SEED_MODE.isString() || (SEED_MODE.toString() != QStringLiteral("fixed") && SEED_MODE.toString() != QStringLiteral("random"))) {
+        return INVALID(QStringLiteral("seedMode"));
+    }
     const auto SEED  = VALUES.value("seed");
-    bool       valid = false;
-    SEED.toString().toULongLong(&valid);
-    if (!SEED.isString() || !valid || !QRegularExpression(QStringLiteral("^[0-9]{1,20}$")).match(SEED.toString()).hasMatch())
-    {
+    const bool RANDOM_SEED = SEED_MODE.toString() == QStringLiteral("random");
+    if (!SEED.isString()) {
         return INVALID(QStringLiteral("seed"));
+    }
+    const auto SEED_TEXT = SEED.toString();
+    if (!RANDOM_SEED || !SEED_TEXT.isEmpty()) {
+        bool valid = false;
+        SEED_TEXT.toULongLong(&valid);
+        if (!valid || !QRegularExpression(QStringLiteral("^[0-9]{1,20}$")).match(SEED_TEXT).hasMatch()) {
+            return INVALID(QStringLiteral("seed"));
+        }
     }
     try {
         // Validate coupled rules (recipes, haste, etc.) before changing any control.
@@ -1613,7 +1648,7 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
         for (auto name : names) out.append(desktop::Text(name));
         return out;
     };
-    if (version >= 5 && version <= 8 && snapshot["format"] == "jx3dps.desktop.config") {
+    if (version >= 5 && version <= 9 && snapshot["format"] == "jx3dps.desktop.config") {
         auto values = snapshot.value("values").toObject();
         auto talents = snapshot.value("talents").toObject();
         bool migrated = false;
@@ -1637,6 +1672,14 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
         }
         if (!values.contains("playerLife")) {
             values.insert("playerLife", 100.);
+            migrated = true;
+        }
+        if (!values.contains("seedMode")) {
+            values.insert("seedMode", QStringLiteral("fixed"));
+            migrated = true;
+        }
+        if (version < 9 && values.contains("seed") && !values.value("seed").isString()) {
+            values["seed"] = QString::number(values.value("seed").toVariant().toULongLong());
             migrated = true;
         }
         if (version == 8) {
@@ -1665,10 +1708,11 @@ QJsonObject SimulationOptions::NormalizeSnapshot(const QJsonObject &snapshot) co
                 migrated = true;
             }
         }
-        if (migrated) {
+        if (migrated || version == 8) {
             auto next = snapshot;
             next["values"] = values;
             if (snapshot.value("talents").isObject()) next["talents"] = talents;
+            if (version == 8) next["version"] = 9;
             return NormalizeSnapshot(next);
         }
     }
@@ -1852,6 +1896,7 @@ bool SimulationOptions::RestoreSnapshot(const QJsonObject &original, QString &er
         const QSignalBlocker blocker(input->property("defaultChecked").isValid() ? input : nullptr);
         input->setChecked(VALUES.value(input->objectName()).toBool());
     }
+    m_seedMode->setCurrentIndex(m_seedMode->findData(VALUES.value("seedMode").toString()));
     m_seed->setText(VALUES.value("seed").toString());
     m_flowEditor->setPlainText(snapshot.value("flowMacro").toString());
     for (auto *input : m_permanents) {

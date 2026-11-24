@@ -39,13 +39,25 @@ int bounded(const Json &j, const char *name, int lo, int hi)
 
 uint64_t seedOf(const Json &j)
 {
+    if (!j.contains("seed") && j.value("randomSeed", false)) {
+        return 0;
+    }
     const auto &s = j.at("seed").get_ref<const std::string &>();
+    if (s == "random") {
+        return 0;
+    }
     uint64_t    value{};
     auto [end, err] = std::from_chars(s.data(), s.data() + s.size(), value);
     if (s.empty() || err != std::errc{} || end != s.data() + s.size()) {
         throw std::invalid_argument("种子必须是 64 位无符号整数");
     }
     return value;
+}
+
+bool randomSeedOf(const Json &j)
+{
+    return j.value("randomSeed", false) ||
+           (j.contains("seed") && j.at("seed").is_string() && j.at("seed") == "random");
 }
 
 struct Session
@@ -70,6 +82,7 @@ class Battle final : public Session
     Rules                                        rules;
     int                                          seconds, fights;
     uint64_t                                     seed;
+    bool                                         random_seed;
     rt::SkillCatalog                             catalog;
     rt::BatchStats                               stats;
     std::vector<rt::SkillTotals>                 skills;
@@ -80,7 +93,7 @@ class Battle final : public Session
 public:
     Battle(const Json &j, const rt::season50::Config &cfg, rt::SkillCatalog cat, bool debug) :
         rules(rt::LoadSpecialization(cfg)), seconds(bounded(j, "seconds", 1, MaxSeconds)),
-        fights(bounded(j, "iterations", 1, MaxFights)), seed(seedOf(j)), catalog(cat), skills(cat.skills.size())
+        fights(bounded(j, "iterations", 1, MaxFights)), seed(seedOf(j)), random_seed(randomSeedOf(j)), catalog(cat), skills(cat.skills.size())
     {
         const auto            source          = MacroSource(j, cfg);
         constexpr std::size_t MAX_MACRO_BYTES = std::size_t{ 64 } * 1024;
@@ -107,7 +120,7 @@ public:
                     }
                 }
             }
-            debugger->Start(FRAMES, rt::IterationSeed(seed, 0));
+            debugger->Start(FRAMES, rt::IterationSeed(random_seed ? rt::RandomSeed() : seed, 0));
         } else {
             batch = std::make_unique<rt::Simulation<Rules>>(macro.program, rules, HIT_CAPACITY, MUTATION_CAPACITY);
             damage.reserve(fights);
@@ -122,7 +135,8 @@ public:
         const auto END = std::min<uint64_t>(stats.count + 128, fights);
         while (stats.count < END) {
             const auto I = stats.count;
-            batch->Start(seconds * JX3DPS::FRAMES_PER_SECOND, rt::IterationSeed(seed, I));
+            batch->Start(seconds * JX3DPS::FRAMES_PER_SECOND,
+                         rt::IterationSeed(random_seed ? rt::RandomSeed() : seed, I));
             batch->Run();
             const auto D = batch->TotalDamage([&](const rt::DamageIntent &hit, value_t amount) {
                 skills.at(hit.skill).Add(amount, hit.outcome);
@@ -287,6 +301,7 @@ Json nativeBatch(jx3dps_engine &engine, const Json &j, const C &cfg, rt::SkillCa
 {
     rt::BatchOptions opts;
     opts.seed     = seedOf(j);
+    opts.random_seed = randomSeedOf(j);
     opts.duration = bounded(j, "frames", 1, std::numeric_limits<tick_t>::max());
     opts.workers  = bounded(j, "workers", 1, 4096);
     if (!j.at("iterations").is_number_unsigned()) {

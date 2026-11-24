@@ -32,6 +32,13 @@ int RunDesktopWorkload(int argc, char *argv[])
 try {
     QCoreApplication app(argc, argv);
     const auto       ARGS = QCoreApplication::arguments();
+    if (ARGS.size() == 3 && ARGS[2] == "--list-schools") {
+        QJsonObject schools;
+        for (const auto &book : desktop::rt::season50::Books())
+            schools.insert(QString::fromUtf8(book.code), QString::fromUtf8(book.name));
+        std::puts(QJsonDocument(schools).toJson(QJsonDocument::Compact).constData());
+        return 0;
+    }
     if (ARGS.size() != 8 && ARGS.size() != 9) {
         throw std::invalid_argument(
             "expected scene, batch|gains, iterations, workers, seed, result file and optional macro file");

@@ -5,13 +5,14 @@ import math
 import statistics
 from pathlib import Path
 from urllib.parse import quote
-from measure import FIGHTS, REPEATS, SCENES, SECONDS, SEED
+from measure import FIGHTS, REPEATS, SECONDS, SEED
 
 BUILDS = {"windows-x86_64-gcc":"Windows GCC","windows-x86_64-msvc":"Windows MSVC",
           "windows-x86_64-clang":"Windows Clang","linux-x86_64-gcc":"Linux GCC",
           "macos-arm64-appleclang":"macOS AppleClang","web-wasm32-emscripten":"WebAssembly"}
-LABELS = {"tx": ("Tai Xu Jian Yi", "太虚剑意"), "mw": ("Mo Wen", "莫问"),
-          "gfj": ("Gu Feng Jue", "孤锋诀"), "yly": ("You Luo Yin", "幽罗引")}
+def validate_samples(values):
+    if len(values) != REPEATS or not all(math.isfinite(t) and t > 0 for t in values):
+        raise ValueError("invalid timing")
 
 
 def render(reports, out, sha, repo, tag, preview=False):
@@ -19,41 +20,73 @@ def render(reports, out, sha, repo, tag, preview=False):
     by_id = {r["build"]:r for r in reports}
     if len(by_id)!=len(reports) or (not preview and set(by_id)!=expected) or not by_id or set(by_id)-expected:
         raise ValueError("missing, duplicate or unexpected release build")
-    signatures={}
+    names = {p.stem for p in (Path(__file__).resolve().parents[2] / "src/class").glob("*.cpp")}
+    catalog = {code: row["name"] for code, row in reports[0]["scenes"].items()}
+    if set(catalog.values()) != names or len(catalog) != len(names):
+        raise ValueError("benchmark catalog differs from the shipped schools")
+    iterations = reports[0]["iterations"] if preview else FIGHTS
+    signatures = {}
     for r in reports:
-        if (r["sha"],r["workers"],r["iterations"],r["duration"],r["seed"],r["warmup"],r["repeats"]) != (sha,1,FIGHTS,SECONDS,SEED,256,REPEATS):
+        if (r["sha"],r["workers"],r["iterations"],r["duration"],r["seed"],r["warmup"],r["repeats"]) != (sha,1,iterations,SECONDS,SEED,256,REPEATS):
             raise ValueError(f"workload mismatch: {r['build']}")
-        if set(r["scenes"])!=set(SCENES):raise ValueError("incomplete scenario set")
+        if {k: v["name"] for k, v in r["scenes"].items()} != catalog:
+            raise ValueError(f"incomplete school set: {r['build']}")
         for scene, row in r["scenes"].items():
-            if len(row["seconds"])!=REPEATS or not all(math.isfinite(t) and t>0 for t in row["seconds"]):
-                raise ValueError("invalid timing")
+            validate_samples(row["seconds"])
+            if r["build"].endswith("-gcc"):
+                if r.get("optimization") != "GCC PGO":
+                    raise ValueError(f"expected trained GCC build: {r['build']}")
+                validate_samples(row["baseline_seconds"])
             sig=(int(row["checksum"]),int(row["damage"]))
             if signatures.setdefault(scene,sig)!=sig:raise ValueError(f"damage mismatch: {r['build']} / {scene}")
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib import font_manager
+    from matplotlib.colors import LinearSegmentedColormap
     out.mkdir(parents=True,exist_ok=True)
     ids=[k for k in BUILDS if k in by_id]
-    fig,axes=plt.subplots(2,2,figsize=(12,7.8),layout="constrained")
-    fig.suptitle("JX3DPS  |  "+("Local benchmark" if preview else "Release benchmark")+"\n100,000 fights   ·   300 s per fight   ·   1 worker   ·   median of 3 runs",fontsize=15)
-    maximum=max(statistics.median(result["seconds"]) for r in reports for result in r["scenes"].values())
-    for ax,scene in zip(axes.flat,SCENES,strict=True):
-        times=[statistics.median(by_id[k]["scenes"][scene]["seconds"]) for k in ids]
-        bars=ax.barh([BUILDS[k] for k in ids],times,color=["#cc7849" if k.startswith("web-") else "#27735a" for k in ids])
-        ax.bar_label(bars,fmt="%.3f",padding=3,fontsize=9)
-        ax.set_xlim(0,maximum*1.22);ax.invert_yaxis();ax.set_title(LABELS[scene][0],loc="left");ax.set_xlabel("Wall time (s)")
-        ax.grid(axis="x",alpha=.18);ax.set_axisbelow(True);ax.spines[["top","right"]].set_visible(False)
-    fig.savefig(out/"performance.png",dpi=150);plt.close(fig)
+    schools = sorted(catalog)
+    times = [[statistics.median(by_id[k]["scenes"][s]["seconds"]) for k in ids] for s in schools]
+    ratios = [[t/min(row) for t in row] for row in times]
+    fig, ax = plt.subplots(figsize=(max(7, len(ids)*1.65), 2+len(schools)*.41), layout="constrained")
+    cmap = LinearSegmentedColormap.from_list("time", ["#e2f3ec", "#fff7e7", "#e7ad82"])
+    ax.imshow(ratios, cmap=cmap, vmin=1, vmax=max(1.01,max(map(max,ratios))), aspect="auto")
+    for i, row in enumerate(times):
+        for j, t in enumerate(row):
+            ax.text(j, i, f"{t:.3f}", ha="center", va="center", fontsize=9, weight="bold" if t==min(row) else "normal")
+    fonts = {f.name for f in font_manager.fontManager.ttflist}
+    cjk = next((f for f in ("Noto Sans CJK JP", "Noto Sans CJK SC", "Microsoft YaHei", "SimHei") if f in fonts), None)
+    ax.set_yticks(range(len(schools)), [catalog[s] if cjk else s.upper() for s in schools], fontfamily=cjk or "sans-serif")
+    ax.set_xticks(range(len(ids)), [BUILDS[k].replace(" ", "\n") for k in ids]); ax.xaxis.tick_top()
+    ax.tick_params(length=0, pad=7)
+    ax.set_title(f"JX3DPS · wall time in seconds\n{iterations:,} fights × 300 s · 1 worker · median of 3 runs", pad=15)
+    ax.set_xlabel("Bold = fastest in row. Color = time relative to the fastest build for that school.", labelpad=10)
+    fig.savefig(out/"performance.png", dpi=150); plt.close(fig)
     (out/"performance.json").write_text(json.dumps([by_id[k] for k in ids],ensure_ascii=False,indent=2)+"\n",encoding="utf8")
     url=f"https://github.com/{repo}/releases/download/{quote(tag,safe='')}/"
-    lines=["## 各构建版本性能对照","",f"![四种配置的批跑耗时]({url}performance.png)","",
-           "每组 10 万场、每场 300 秒、单工作线程，预热 256 场后取三轮耗时中位数。WASM 使用真实 Chromium Worker。耗时包含批跑与结果汇总。不同平台使用各自的运行器，硬件差异也会影响结果。","",
-           "| 构建 | 编译器 / 浏览器 | 运行器及 CPU | " + " | ".join(LABELS[s][1] for s in SCENES) + " |",
-           "|---|---|---|---:|---:|---:|---:|"]
+    lines = ["## 各构建版本性能对照", "", f"![全部心法的模拟耗时]({url}performance.png)", "",
+             f"各心法使用自己的默认宏和配置，每组 {iterations:,} 场、每场 300 秒、单工作线程，种子 42，取三轮耗时中位数（秒）。每个构建先预热 256 场。桌面计时含批跑和统计汇总，Web 使用真实 Chromium Worker。", "",
+             "| 心法 | " + " | ".join(BUILDS[k] for k in ids) + " |", "|---|" + "---:|"*len(ids)]
+    for s, row in zip(schools, times, strict=True):
+        lines.append("| " + catalog[s] + " | " + " | ".join(f"{t:.3f}" for t in row) + " |")
+    gcc = [k for k in ids if k.endswith("-gcc")]
+    if gcc:
+        lines += ["", "### GCC 优化前后", "", "同一台 runner 交替测试普通 Release 和 PGO 发行程序。降幅按 `1 − PGO 耗时 / 普通耗时` 计算。", "",
+                  "| 心法 | " + " | ".join(BUILDS[k] + "（普通 → PGO，耗时降幅）" for k in gcc) + " |", "|---|" + "---:|"*len(gcc)]
+        for s in schools:
+            cells = []
+            for k in gcc:
+                row = by_id[k]["scenes"][s]
+                before, after = statistics.median(row["baseline_seconds"]), statistics.median(row["seconds"])
+                cells.append(f"{before:.3f} → {after:.3f}，{1-after/before:.1%}")
+            lines.append(f"| {catalog[s]} | " + " | ".join(cells) + " |")
+    lines += ["", "| 构建 | 编译器 / 浏览器 | 运行器及 CPU |", "|---|---|---|"]
     for k in ids:
-        r=by_id[k];compiler=r['compiler']+(f" / Chromium {r['browser']}" if r['browser'] else "")
-        lines.append(f"| {BUILDS[k]} | {compiler} | {r['runner']} · {r['cpu']} | "+" | ".join(f"{statistics.median(r['scenes'][s]['seconds']):.3f} s" for s in SCENES)+" |")
-    lines+=["",f"四组总伤害与校验值在所有参测构建间一致。[逐轮耗时与校验值]({url}performance.json)"]
+        r = by_id[k]
+        compiler = r['compiler'] + (f" / Chromium {r['browser']}" if r['browser'] else "")
+        lines.append(f"| {BUILDS[k]} | {compiler} | {r['runner']} · {r['cpu']} |")
+    lines += ["", f"{len(schools)} 个心法已分别校验总伤害与批次校验值。跨 runner 的绝对耗时同时受 CPU、系统与工具链影响。[逐轮耗时与校验值]({url}performance.json)"]
     (out/"performance.md").write_text("\n".join(lines)+"\n",encoding="utf8")
 
 

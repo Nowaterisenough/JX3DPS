@@ -217,6 +217,8 @@ jobs:
         shell: python {0}
         env:
           BUILD_ID: ${{ matrix.id }}
+          JX3DPS_RELEASE_TAG: ${{ needs.version.outputs.tag }}
+          JX3DPS_BUILD_ID: ${{ matrix.id }}
           COMPILER: ${{ steps.package.outputs.compiler }}
           RUNNER_LABEL: ${{ matrix.runner }}
         run: |
@@ -226,7 +228,8 @@ jobs:
           subprocess.run([sys.executable, 'tools/release/measure.py', '--desktop', exe,
                           '--build', os.environ['BUILD_ID'], '--compiler', os.environ['COMPILER'],
                           '--runner', os.environ['RUNNER_LABEL'], '--sha', os.environ['GITHUB_SHA'],
-                          '--output', 'benchmarks/bench-' + os.environ['BUILD_ID'] + '.json'], check=True)
+                          '--output', 'benchmarks/bench-' + os.environ['BUILD_ID'] + '.json',
+                          *(['--train-gcc-build', 'build'] if os.environ['BUILD_ID'].endswith('-gcc') else [])], check=True)
       - uses: actions/upload-artifact@v6
         with:
           name: bench-${{ matrix.id }}
@@ -325,6 +328,7 @@ jobs:
         env:
           TAG: ${{ needs.version.outputs.tag }}
         run: |
+          sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
           python -m pip install matplotlib
           python tools/release/test_changelog.py
           python tools/release/chart.py --input packages --output packages --sha "$GITHUB_SHA" --repo "$GITHUB_REPOSITORY" --tag "$TAG"

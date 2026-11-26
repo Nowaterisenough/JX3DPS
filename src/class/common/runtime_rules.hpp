@@ -49,6 +49,7 @@ class Rules
     std::vector<unsigned>                                                        combo_;
     std::vector<tick_t>                                                          combo_until_;
     std::vector<Stats>                                                           versions_;
+    std::vector<unsigned>                                                        last_snapshot_;
     Slot                                                                         pending_       = INVALID_SLOT;
     tick_t                                                                       pulse_spacing_ = 0;
     std::array<tick_t, 9>                                                        distinct_until_{};
@@ -188,7 +189,10 @@ class Rules
                 stats.channel_override = static_cast<int>(channel * m.channel_scale);
             }
         }
-        return Version(stats);
+        auto &last = last_snapshot_[effect];
+        if (last < versions_.size() && versions_[last] == stats) return last;
+        last = Version(stats);
+        return last;
     }
 
     template <class E>
@@ -958,6 +962,7 @@ public:
         }
         cast_          = e.Timers().Create({ TimerKind::SKILL_CASTING }, 15);
         delayed_timer_ = e.Timers().Create({ TimerKind::FIELD }, 12);
+        last_snapshot_.resize(b.skills.size());
         combo_.resize(b.skills.size());
         combo_until_.resize(b.skills.size());
         recharge_at_.resize(b.skills.size());
@@ -998,6 +1003,7 @@ public:
         pulses_left_   = 0;
         last_critical_ = false;
         versions_.clear();
+        std::ranges::fill(last_snapshot_, std::numeric_limits<unsigned>::max());
         wrist_ready_ = shoe_ready_ = belt_ready_ = 0;
         bracer_ready_ = adaptive_ready_ = trinket_ready_ = 0;
         speed_dot_ready_ = trial_shoe_ready_ = 0;
@@ -1038,6 +1044,19 @@ public:
         }
         timeline_.Reset(e, data_->config.target_events);
         if (data_->distant_target_aura != INVALID_SLOT && s.target_distance > data_->distant_threshold) SetAura(e, data_->distant_target_aura, 1);
+    }
+
+    bool CanAttempt(const State &s, const MacroLine &line) const
+    {
+        const auto slot = line.action_slot;
+        const auto &a = *data_->actions[slot];
+        if (pending_ != INVALID_SLOT && !a.cast_while_channeling && !IsForceCast(line.command)) {
+            return false;
+        }
+        if (s.skill_ready_at[slot] > s.now && a.bypass_cooldown_aura == INVALID_SLOT) {
+            return false;
+        }
+        return !data_->skills[slot].gcd || a.alternate_gcd_aura != INVALID_SLOT || s.gcd_ready_at[a.gcd_group] <= s.now;
     }
 
     template <class E>

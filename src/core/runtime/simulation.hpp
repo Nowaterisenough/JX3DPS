@@ -5,52 +5,68 @@
 
 namespace JX3DPS::runtime {
 
-// Compute the first integer frame at which a time comparison can change.
-// This is necessary even when there is no expiry/tick event at that frame.
-inline std::optional<tick_t> NextMacroBoundary(const MacroProgram &program, const State &state)
+// A time comparison can flip between timer events. Store the distance from its
+// deadline to each transition, so a wake only needs the current absolute deadline.
+class MacroTimeBoundaries
 {
-    std::optional<tick_t> result;
-    const auto            CONSIDER = [&](std::int64_t frame) {
-        if (frame > state.now && frame <= std::numeric_limits<tick_t>::max() && (!result || frame < *result)) {
-            result = static_cast<tick_t>(frame);
-        }
+    struct Boundary
+    {
+        tick_t offset;
+        Slot slot;
+        ValueKind kind;
+        bool target;
     };
-    for (const auto &c : program.conditions) {
-        tick_t deadline = 0;
-        if (c.kind == ValueKind::SKILL_COOLDOWN) {
-            deadline = state.SkillReadyAt(c.slot);
-        } else if (c.kind == ValueKind::BUFF_DURATION) {
-            const auto &expiry = c.target ? state.target_buff_expires_at : state.self_buff_expires_at;
-            deadline           = expiry[c.slot];
-        } else {
-            continue;
-        }
-        if (deadline <= state.now) {
-            continue;
-        }
-        const auto FLOOR = static_cast<std::int64_t>(std::floor(c.value));
-        const auto CEIL  = static_cast<std::int64_t>(std::ceil(c.value));
-        switch (c.comparator) {
-            case Comparator::GREATER:
-            case Comparator::LESS_EQUAL: CONSIDER(deadline - FLOOR); break;
-            case Comparator::GREATER_EQUAL:
-            case Comparator::LESS:
-                if (c.value > 0) {
-                    CONSIDER(deadline - CEIL + 1);
-                }
-                break;
-            case Comparator::EQUAL:
-            case Comparator::NOT_EQUAL:
-                if (FLOOR == CEIL) {
-                    CONSIDER(deadline - FLOOR);
-                    if (c.value > 0) {
-                        CONSIDER(deadline - FLOOR + 1);
+    std::vector<Boundary> entries_;
+
+public:
+    explicit MacroTimeBoundaries(const MacroProgram &program)
+    {
+        for (const auto &c : program.conditions) {
+            if (c.kind != ValueKind::SKILL_COOLDOWN && c.kind != ValueKind::BUFF_DURATION) {
+                continue;
+            }
+            const auto add = [&](tick_t offset) { entries_.push_back({ offset, c.slot, c.kind, c.target }); };
+            const auto floor = static_cast<tick_t>(std::floor(c.value));
+            switch (c.comparator) {
+                case Comparator::GREATER:
+                case Comparator::LESS_EQUAL: add(floor); break;
+                case Comparator::GREATER_EQUAL:
+                case Comparator::LESS:
+                    if (c.value > 0) add(static_cast<tick_t>(std::ceil(c.value)) - 1);
+                    break;
+                case Comparator::EQUAL:
+                case Comparator::NOT_EQUAL:
+                    if (c.value == floor) {
+                        add(floor);
+                        if (floor > 0) add(floor - 1);
                     }
-                }
-                break;
+                    break;
+            }
         }
     }
-    return result;
+
+    bool Empty() const { return entries_.empty(); }
+
+    std::optional<tick_t> Next(const State &state) const
+    {
+        std::optional<tick_t> next;
+        for (const auto &entry : entries_) {
+            const auto deadline = entry.kind == ValueKind::SKILL_COOLDOWN ? state.SkillReadyAt(entry.slot)
+                                : (entry.target ? state.target_buff_expires_at : state.self_buff_expires_at)[entry.slot];
+            if (deadline > state.now) {
+                const auto frame = static_cast<std::int64_t>(deadline) - entry.offset;
+                if (frame > state.now && frame <= std::numeric_limits<tick_t>::max() && (!next || frame < *next)) {
+                    next = static_cast<tick_t>(frame);
+                }
+            }
+        }
+        return next;
+    }
+};
+
+inline std::optional<tick_t> NextMacroBoundary(const MacroProgram &program, const State &state)
+{
+    return MacroTimeBoundaries(program).Next(state);
 }
 
 struct SimulationDebugControl
@@ -95,13 +111,10 @@ class Simulation
 
 public:
     Simulation(const MacroProgram &program, Rules rules = Rules{}, std::size_t damage_capacity = 4096, std::size_t mutation_capacity = 8192) :
-        program_(program), rules_(std::move(rules)), macro_(program), log_(damage_capacity, mutation_capacity)
+        program_(program), time_boundaries_(program), rules_(std::move(rules)), macro_(program), log_(damage_capacity, mutation_capacity)
     {
         state_.Resize(program.skill_count, program.buff_count);
         initial_ = scratch_ = state_;
-        has_time_conditions_ = std::any_of(program.conditions.begin(), program.conditions.end(), [](const Condition &c) {
-            return c.kind == ValueKind::SKILL_COOLDOWN || c.kind == ValueKind::BUFF_DURATION;
-        });
         if constexpr (!Debug && requires(const MacroLine &line) { Rules::MayActWhileBusy(line); }) {
             scan_while_busy_ = std::any_of(program.lines.begin(), program.lines.end(), Rules::MayActWhileBusy);
         }
@@ -395,9 +408,8 @@ private:
         }
         const PhaseScope<Measure> ADVANCE(FightPhase::ADVANCE);
         auto                      next = queue_.NextDelta();
-        if (has_time_conditions_) {
-            if (auto boundary = NextMacroBoundary(program_, state_); boundary && (!next || *boundary - state_.now < *next))
-            {
+        if (has_time_boundaries_) {
+            if (auto boundary = time_boundaries_.Next(state_); boundary && (!next || *boundary - state_.now < *next)) {
                 next = *boundary - state_.now;
             }
         }
@@ -413,6 +425,7 @@ private:
     }
 
     const MacroProgram   &program_;
+    MacroTimeBoundaries   time_boundaries_;
     Rules                 rules_;
     static constexpr bool TrackLastSkill = [] {
         if constexpr (requires { Rules::owns_last_skill; }) {
@@ -428,7 +441,8 @@ private:
     tick_t                                        end_              = 0;
     std::size_t                                   actions_at_frame_ = 0;
     bool                                          dispatch_ = true, finished_ = true;
-    bool                                          has_time_conditions_ = false, scan_while_busy_ = true;
+    const bool                                    has_time_boundaries_ = !time_boundaries_.Empty();
+    bool                                          scan_while_busy_ = true;
     [[no_unique_address]] std::conditional_t<FilterPrimaryGcd, PrimaryGcdScan, NoGcdScan> gcd_scan_;
     [[no_unique_address]] std::conditional_t<Debug, SimulationDebugControl, NoDebugState> debug_;
 };

@@ -945,6 +945,9 @@ public:
     {
     }
 
+    // Cast schedules and consumes recorded inputs, including buttons pressed during a cooldown.
+    static bool CanAttempt(const rt::State &, const rt::MacroLine &) { return true; }
+
     template <class E>
     void Setup(E &e)
     {

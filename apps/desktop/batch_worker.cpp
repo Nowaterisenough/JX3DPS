@@ -187,15 +187,16 @@ void BatchWorker::run()
             simulation.Run();
             runtime::BatchStats                   stats;
             std::vector<std::vector<SkillTotals>> skill_totals(1, std::vector<SkillTotals>(SKILL_COUNT));
+            QVector<QString> skillNames;
+            skillNames.reserve(SKILL_COUNT);
+            for (std::size_t slot = 0; slot < SKILL_COUNT; ++slot) {
+                skillNames.push_back(desktop::SkillName(SPECIALIZATION, static_cast<runtime::Slot>(slot)));
+            }
+            CombatEvents events;
             stats.Add(simulation.TotalDamage([&](const runtime::DamageIntent &hit, JX3DPS::value_t damage) {
                 skill_totals[0].at(hit.skill).Add(damage, hit.outcome);
-            }),
-                      0);
-            CombatEvents events;
-            for (const auto &hit : simulation.Log().Intents()) {
-                const auto NAME = desktop::SkillName(SPECIALIZATION, hit.skill);
-                events.push_back({ hit.frame, hit.skill, NAME, simulation.GetRules().Reduce(hit), static_cast<int>(hit.outcome), hit.sequence });
-            }
+                events.push_back({ hit.frame, hit.skill, skillNames.at(hit.skill), damage, static_cast<int>(hit.outcome), hit.sequence });
+            }), 0);
             std::size_t mutation_cursor = 0;
             buffs += ReadBuffEvents(simulation.Log().Mutations(), mutation_cursor, SPECIALIZATION);
             m_control.completed.store(1, std::memory_order_relaxed);

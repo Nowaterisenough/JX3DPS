@@ -602,7 +602,7 @@ struct FlowTimelineEditor::Impl
         }
         int later   = 0;
         int outside = 0;
-        for (const auto &node : model.nodes) {
+        for (const auto &node : std::as_const(model.nodes)) {
             later   += static_cast<int>(node.frame > 0);
             outside += static_cast<int>(node.frame > 0 && node.frame >= duration);
         }
@@ -1107,7 +1107,7 @@ void FlowTimelineEditor::AddNode(int frame, int field)
     const auto KEY    = QString::fromLatin1(FlowFields[field].key);
     auto       value  = d->model.values.value(KEY).toDouble(FlowFields[field].initial);
     int        latest = 0;
-    for (const auto &existing : d->model.nodes) {
+    for (const auto &existing : std::as_const(d->model.nodes)) {
         if (existing.frame > 0 && existing.frame <= node.frame && existing.frame >= latest && existing.values.contains(KEY))
         {
             value  = existing.values.value(KEY).toDouble();

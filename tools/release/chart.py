@@ -10,12 +10,100 @@ from measure import FIGHTS, REPEATS, SECONDS, SEED
 BUILDS = {"windows-x86_64-gcc":"Windows GCC","windows-x86_64-msvc":"Windows MSVC",
           "windows-x86_64-clang":"Windows Clang","linux-x86_64-gcc":"Linux GCC",
           "macos-arm64-appleclang":"macOS AppleClang","web-wasm32-emscripten":"WebAssembly"}
+WORKLOAD_FIELDS = ("workers", "iterations", "duration", "seed", "warmup", "repeats")
+
+
 def validate_samples(values):
     if len(values) != REPEATS or not all(math.isfinite(t) and t > 0 for t in values):
         raise ValueError("invalid timing")
 
 
-def render(reports, out, sha, repo, tag, preview=False):
+def release_bars(current, previous, tag, previous_tag, path, cjk):
+    import matplotlib.pyplot as plt
+
+    current_scenes = current["scenes"]
+    previous_scenes = previous["scenes"] if previous else {}
+    schools = sorted(current_scenes.keys() | previous_scenes.keys())
+    with plt.rc_context({"font.family": cjk or "sans-serif"}):
+        fig, ax = plt.subplots(figsize=(9, 1.8 + len(schools) * .48), layout="constrained")
+        positions = {school: i for i, school in enumerate(schools)}
+        old_label = f"上版 {previous_tag}" if cjk else f"Previous {previous_tag}"
+        new_label = f"本版 {tag}" if cjk else f"Current {tag}"
+        series = [(previous_scenes, old_label, -.18, "#96aabd"), (current_scenes, new_label, .18, "#18746a")]
+        medians = []
+        for scenes, version, offset, color in series:
+            times = {}
+            for code, row in scenes.items():
+                validate_samples(row["seconds"])
+                times[code] = statistics.median(row["seconds"])
+            medians.append(times)
+            if times:
+                bars = ax.barh([positions[s] + offset for s in times], list(times.values()),
+                               height=.32, color=color, label=version)
+                ax.bar_label(bars, fmt="%.2f", padding=3, fontsize=8)
+
+        before, after = medians
+        labels = []
+        for code, y in positions.items():
+            row = current_scenes.get(code) or previous_scenes[code]
+            labels.append(row.get("name", code.upper()) if cjk else code.upper())
+            delta, color = "—", "#67737a"
+            if code in before and code in after:
+                change = after[code] / before[code] - 1
+                delta = f"{change:+.1%}"
+                if change:
+                    color = "#166958" if change < 0 else "#98451e"
+            ax.text(.99, y, delta, transform=ax.get_yaxis_transform(), ha="right", va="center", color=color, fontsize=10)
+
+        ax.set_yticks(range(len(schools)), labels)
+        ax.set_ylim(len(schools) - .5, -.5)
+        ax.set_xlim(0, max(max(after.values()), max(before.values(), default=0)) * 1.28)
+        title = "各心法批跑耗时" if cjk else "Batch time by school"
+        ax.set_title(f"{BUILDS[current['build']]} · {title}", loc="left", fontsize=16, pad=34)
+        stats = f"{current['iterations']:,} 场 · {current['repeats']} 轮中位数（秒）" if cjk else f"{current['iterations']:,} fights · median of {current['repeats']} runs (s)"
+        ax.set_xlabel(stats)
+        ax.text(.99, 1.01, "耗时变化" if cjk else "Change", transform=ax.transAxes, ha="right")
+        ax.legend(loc="lower left", bbox_to_anchor=(0, 1), frameon=False, ncols=2, borderaxespad=0)
+        ax.grid(axis="x", alpha=.15)
+        ax.set_axisbelow(True)
+        ax.spines[["top", "right", "left"]].set_visible(False)
+        ax.tick_params(axis="y", length=0)
+        fig.savefig(path, dpi=150)
+        plt.close(fig)
+
+
+def comparison_section(by_id, previous_reports, out, download_url, tag, previous_tag, cjk):
+    history = {r["build"]: r for r in previous_reports or []}
+    if previous_reports is not None and (not history or len(history) != len(previous_reports)):
+        raise ValueError("empty or duplicate builds in previous performance.json")
+    url = f"{download_url}/{quote(tag, safe='')}/"
+    lines = ["## 各心法跨版本耗时", ""]
+    if previous_reports is not None:
+        previous_url = f"{download_url}/{quote(previous_tag, safe='')}/performance.json"
+        lines += [f"上版 `{previous_tag}` 与本版 `{tag}` 按相同构建和测试参数对照。变化为 `（本版耗时 ÷ 上版耗时 − 1）× 100%`，负值表示用时缩短。两次发布的运行器硬件和工具链可能不同。[上版逐轮数据]({previous_url}) · [本版逐轮数据]({url}performance.json)"]
+    elif previous_tag:
+        lines += [f"上版 `{previous_tag}` 没有发布耗时数据，图中列出本版 `{tag}` 的实测耗时。"]
+    else:
+        lines += [f"本次报告以 `{tag}` 的实测耗时作为下次发布的对照基准。"]
+    lines += ["", "每组柱子对应一个心法，柱尾为秒数。仅一版有可比数据时只绘制该版，变化栏显示「—」。"]
+    for build in BUILDS:
+        if build not in by_id:
+            continue
+        current, previous = by_id[build], history.get(build)
+        filename = f"performance-comparison-{build}.png"
+        if previous and any(previous.get(k) != current[k] for k in WORKLOAD_FIELDS):
+            lines += ["", f"{BUILDS[build]} 的两版测试参数不同，图中仅列本版。"]
+            previous = None
+        if previous:
+            for key, label in (("cpu", "CPU"), ("compiler", "编译器"), ("browser", "浏览器"), ("runner", "运行器")):
+                if previous.get(key) != current.get(key):
+                    lines += ["", f"{BUILDS[build]} 的{label}发生变化：`{previous.get(key)}` → `{current.get(key)}`。"]
+        release_bars(current, previous, tag, previous_tag, out / filename, cjk)
+        lines += ["", f"![{BUILDS[build]} 各心法耗时对比]({url}{filename})"]
+    return lines
+
+
+def render(reports, out, sha, repo, tag, preview=False, *, previous_tag=None, previous_reports=None):
     expected = set(BUILDS)
     by_id = {r["build"]:r for r in reports}
     if len(by_id)!=len(reports) or (not preview and set(by_id)!=expected) or not by_id or set(by_id)-expected:
@@ -64,8 +152,10 @@ def render(reports, out, sha, repo, tag, preview=False):
     ax.set_xlabel("Bold = fastest in row. Color = time relative to the fastest build for that school.", labelpad=10)
     fig.savefig(out/"performance.png", dpi=150); plt.close(fig)
     (out/"performance.json").write_text(json.dumps([by_id[k] for k in ids],ensure_ascii=False,indent=2)+"\n",encoding="utf8")
-    url=f"https://github.com/{repo}/releases/download/{quote(tag,safe='')}/"
-    lines = ["## 各构建版本性能对照", "", f"![全部心法的模拟耗时]({url}performance.png)", "",
+    download_url = f"https://github.com/{repo}/releases/download"
+    url = f"{download_url}/{quote(tag, safe='')}/"
+    lines = comparison_section(by_id, previous_reports, out, download_url, tag, previous_tag, cjk)
+    lines += ["", "## 各构建版本性能对照", "", f"![全部心法的模拟耗时]({url}performance.png)", "",
              f"各心法使用自己的默认宏和配置，每组 {iterations:,} 场、每场 300 秒、单工作线程，种子 42，取三轮耗时中位数（秒）。每个构建先预热 256 场。桌面计时含批跑和统计汇总，Web 使用真实 Chromium Worker。", "",
              "| 心法 | " + " | ".join(BUILDS[k] for k in ids) + " |", "|---|" + "---:|"*len(ids)]
     for s, row in zip(schools, times, strict=True):

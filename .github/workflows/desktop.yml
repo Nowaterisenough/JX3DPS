@@ -324,20 +324,17 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: Validate results and render benchmark chart
-        env:
-          TAG: ${{ needs.version.outputs.tag }}
+      - name: Install release chart dependencies
         run: |
           sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
           python -m pip install matplotlib
           python tools/release/test_changelog.py
-          python tools/release/chart.py --input packages --output packages --sha "$GITHUB_SHA" --repo "$GITHUB_REPOSITORY" --tag "$TAG"
-      - name: Summarize commits since the previous published release
+      - name: Compare school timings and summarize changes since the previous release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.version.outputs.tag }}
         run: |
-          python tools/release/changelog.py --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA" --tag "$TAG" --performance packages/performance.md --output packages/release.md
+          python tools/release/changelog.py --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA" --tag "$TAG" --benchmarks packages --output packages/release.md
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.version.outputs.tag }}
@@ -352,5 +349,6 @@ jobs:
             packages/JX3DPS-macos-arm64-appleclang-*.zip
             packages/JX3DPS-web-wasm32-emscripten-*.zip
             packages/performance.png
+            packages/performance-comparison-*.png
             packages/performance.json
           fail_on_unmatched_files: true

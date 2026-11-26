@@ -46,10 +46,15 @@ def published_releases(repo):
 
 
 def previous_release(head, tag, releases):
+    releases = list(releases)
+    published_at = next((r.get("published_at") for r in releases if r["tag_name"] == tag), None)
     candidates = {}
     for r in releases:  # GitHub lists the newest releases first.
         name = r["tag_name"]
         if name == tag or r["draft"] or r["prerelease"]:
+            continue
+        # A rerun of an existing release must not pick a subsequently published tag on the same commit.
+        if published_at and r["published_at"] > published_at:
             continue
         rev = subprocess.run(["git", "rev-parse", "--verify", "--quiet",
                               f"refs/tags/{name}^{{commit}}"], capture_output=True, text=True)
@@ -61,6 +66,21 @@ def previous_release(head, tag, releases):
             if sha in candidates:
                 return candidates[sha]
     return None
+
+
+def published_benchmarks(repo, release):
+    if release is None:
+        return None
+    asset = next((a for a in release["assets"] if a["name"] == "performance.json"), None)
+    if asset is None:
+        return None
+    data = subprocess.check_output(["gh", "api", "-H", "Accept: application/octet-stream",
+                                    f"repos/{repo}/releases/assets/{asset['id']}"])
+    reports = json.loads(data)
+    sha = git("rev-parse", f"refs/tags/{release['tag_name']}^{{commit}}").strip()
+    if not reports or any(r["sha"] != sha for r in reports):
+        raise ValueError(f"performance.json does not match release {release['tag_name']}")
+    return reports
 
 
 def changes(head, base):
@@ -118,11 +138,24 @@ def render(repo, tag, base, commits, logins):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    for arg in ("repo", "sha", "tag", "performance", "output"):
+    for arg in ("repo", "sha", "tag", "output"):
         parser.add_argument("--"+arg, required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--performance", type=Path, help="Append an existing performance report")
+    source.add_argument("--benchmarks", type=Path, help="Build the performance report from bench-*.json in this directory")
     args = parser.parse_args()
     head = git("rev-parse", "--verify", args.sha+"^{commit}").strip()
-    base = previous_release(head, args.tag, published_releases(args.repo))
+    releases = list(published_releases(args.repo))
+    base = previous_release(head, args.tag, releases)
+    performance = args.performance
+    if args.benchmarks:
+        import chart
+
+        previous = next((r for r in releases if r["tag_name"] == base), None)
+        reports = [json.loads(f.read_bytes()) for f in args.benchmarks.glob("bench-*.json")]
+        chart.render(reports, args.benchmarks, args.sha, args.repo, args.tag,
+                     previous_tag=base, previous_reports=published_benchmarks(args.repo, previous))
+        performance = args.benchmarks / "performance.md"
     commits = changes(head, base)
     notes = render(args.repo, args.tag, base, commits, author_logins(args.repo, commits))
-    Path(args.output).write_text(notes+"\n"+Path(args.performance).read_text(encoding="utf-8"), encoding="utf-8")
+    Path(args.output).write_text(notes+"\n"+performance.read_text(encoding="utf-8"), encoding="utf-8")

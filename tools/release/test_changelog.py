@@ -41,6 +41,11 @@ class ReleaseNotesTest(unittest.TestCase):
                             for n in ("v2", "draft", "v2-rc", "v1")]
                 base = previous_release(head, "v2", releases)
                 self.assertEqual(base, "v1")
+                git("tag", "v3")  # A second publication of the same commit.
+                published = [dict(tag_name=name, published_at=date, draft=False, prerelease=False)
+                             for name, date in (("v3", "2026-11-03"), ("v2", "2026-11-02"), ("v1", "2026-11-01"))]
+                self.assertEqual(previous_release(head, "v2", published), "v1")
+                self.assertEqual(previous_release(head, "v3", published), "v2")
                 commits = changes(head, base)
                 self.assertEqual(len(commits), 4)
                 body = render("owner/repo", "v2", base, commits, {first: "one", second: "two"})

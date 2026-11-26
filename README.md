@@ -34,7 +34,7 @@
 | `tests/engine/`、`tests/runtime/`、`tests/desktop/` | C 客户端、战斗内核和桌面集成回归 |
 | `tools/release/` | 发布包基准、跨端校验与性能图生成 |
 
-Web 版在浏览器 Worker 内执行相同的 C++ 引擎。用 Emscripten 构建后可直接部署静态文件。每次发布附带五种桌面构建与 WASM/Web 的批跑耗时图、原始数据和伤害校验值。[Web 构建与使用](apps/web/README.md) · [引擎接口](docs/engine_api.md)
+Web 版在浏览器 Worker 内执行相同的 C++ 引擎。用 Emscripten 构建后可直接部署静态文件。每次发布为五种桌面构建和 WASM/Web 各附一张柱状图，逐心法对比上一个正式版与本版的批跑耗时，并标出变化百分比。Release 正文可查看两版的逐轮数据和伤害校验值。[Web 构建与使用](apps/web/README.md) · [发布基准说明](docs/engine_api.md#release-性能图)
 
 ## For Developer
 1. git代码仓
